@@ -1,10 +1,8 @@
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
-import com.google.protobuf.gradle.*
 
 buildscript {
     dependencies {
         classpath("com.amazonaws:aws-java-sdk-core:1.11.766")
-        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.12")
     }
 }
 
@@ -12,7 +10,6 @@ plugins {
     `java-library`
     `maven-publish`
     idea
-    id("com.google.protobuf") version ("0.8.12")
 }
 
 group = "com.whylabs"
@@ -25,8 +22,8 @@ spotless {
 }
 
 dependencies {
+    api(project(":proto"))
     api("org.slf4j:slf4j-api:1.7.27")
-    api("com.google.protobuf:protobuf-java:3.11.4")
     api("org.apache.datasketches:datasketches-java:1.3.0-incubating")
     api("com.google.guava:guava:29.0-jre")
 
@@ -45,9 +42,6 @@ dependencies {
 sourceSets {
 
     main {
-        proto {
-            srcDir("src/main/proto")
-        }
         java {
             srcDir("src/main/java")
             srcDir("src/main/resources")
@@ -66,21 +60,6 @@ tasks.test {
         testLogging.showStandardStreams = true
         failFast = true
         events("passed", "skipped", "failed")
-    }
-}
-
-protobuf {
-    protoc {
-        // The artifact spec for the Protobuf Compiler
-        artifact = "com.google.protobuf:protoc:3.6.1"
-    }
-    plugins {
-        // Optional: an artifact spec for a protoc plugin, with "grpc" as
-        // the identifier, which can be referred to in the "plugins"
-        // container of the "generateProtoTasks" closure.
-        id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.15.1"
-        }
     }
 }
 
