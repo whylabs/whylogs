@@ -1,2 +1,2 @@
-from . columnprofile import ColumnProfile
-from . datasetprofile import DatasetProfile
+from .columnprofile import ColumnProfile
+from .datasetprofile import DatasetProfile

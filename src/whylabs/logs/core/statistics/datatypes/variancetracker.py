@@ -1,5 +1,5 @@
 import math
-from whylabs.logs.core.data import VarianceMessage
+from whylabs.logs.proto import VarianceMessage
 
 
 class VarianceTracker:

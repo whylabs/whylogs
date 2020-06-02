@@ -1,14 +1,15 @@
 import math
-from whylabs.logs.core.data import UniqueCountSummary, \
-    FrequentStringsSummary, HistogramSummary
+
 from datasketches import update_theta_sketch, frequent_strings_sketch, \
     frequent_items_error_type, kll_floats_sketch
+
+from whylabs.logs.proto import UniqueCountSummary, FrequentStringsSummary, HistogramSummary
 
 MAX_HIST_BUCKETS = 100
 HIST_AVG_NUMBER_PER_BUCKET = 4.0
 
 
-def from_sketch(sketch: update_theta_sketch, num_std_devs: float=1):
+def from_sketch(sketch: update_theta_sketch, num_std_devs: float = 1):
     """
     Generate a protobuf summary message from a datasketches theta sketch
 
@@ -75,13 +76,13 @@ def from_kll_floats_sketch(sketch: kll_floats_sketch):
         # Include the max value in the right-most bin
         end += abs(end) * (1e-7)
         # Include the right edge in the bin edges
-        n_buckets = min(math.ceil(n/HIST_AVG_NUMBER_PER_BUCKET),
+        n_buckets = min(math.ceil(n / HIST_AVG_NUMBER_PER_BUCKET),
                         MAX_HIST_BUCKETS)
-        width = (end - start)/n_buckets
+        width = (end - start) / n_buckets
         # Calculate histograms from the Probability Mass Function
-        bins = [start + i*width for i in range(n_buckets + 1)]
+        bins = [start + i * width for i in range(n_buckets + 1)]
         pmf = sketch.get_pmf(bins)
-        counts = [round(p*n) for p in pmf]
+        counts = [round(p * n) for p in pmf]
         counts = counts[1:-1]
     return HistogramSummary(
         start=start,

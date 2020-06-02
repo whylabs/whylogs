@@ -5,7 +5,7 @@ created 5/7/20 by ibackus
 TODO: implement this using something other than yaml
 """
 import yaml
-from whylabs.logs.core.data import InferredType
+from whylabs.logs.proto import InferredType
 TYPES = InferredType.Type
 # Dictionary mapping from type Number to type name
 TYPENUM_TO_NAME = {k: v for v, k in InferredType.Type.items()}

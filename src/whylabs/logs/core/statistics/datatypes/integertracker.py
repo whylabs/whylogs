@@ -1,5 +1,5 @@
 import math
-from whylabs.logs.core.data import LongsMessage
+from whylabs.logs.proto import LongsMessage
 
 
 class IntTracker:

@@ -10,7 +10,7 @@ Currently, `python 3.7` is recommended.
    - For a dev installation with development requirements, it's recommended to create a fresh conda environment or virtualenv
      ```
      # Development installation
-     pip install -v -e .[dev]
+     pip install -v -e ".[dev]"
      ```
    - Standard installation:
      ```

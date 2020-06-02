@@ -1,6 +1,6 @@
 """
 """
-from whylabs.logs.core.data import InferredType, SchemaMessage, SchemaSummary
+from whylabs.logs.proto import InferredType, SchemaMessage, SchemaSummary
 Type = InferredType.Type
 import copy
 
@@ -23,7 +23,7 @@ class SchemaTracker:
             type_counts = {}
         self.type_counts = type_counts
 
-    def track(self, item_type):
+    def track(self, item_type) -> None:
         """
         Track an item type
         """

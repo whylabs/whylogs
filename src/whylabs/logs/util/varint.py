@@ -13,6 +13,7 @@ MIT License
 try:
     from io import BytesIO
 except ImportError:
+    # noinspection PyUnresolvedReferences
     from StringIO import StringIO as BytesIO
 
 import sys

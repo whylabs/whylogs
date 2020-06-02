@@ -1,19 +1,17 @@
-from logging import getLogger
-
-from whylabs.logs.util.data import getter, remap, get_valid_filename
-from whylabs.logs.core.data import ColumnsChunkSegment
-from whylabs.logs.core import ColumnProfile
-from whylabs.logs.core.data import DatasetSummary, DatasetMetadataSegment, \
-    MessageSegment, DatasetProfileMessage
-from whylabs.logs.core.types.typeddataconverter import TYPES
-from uuid import uuid4
 import datetime
+from logging import getLogger
+from uuid import uuid4
 
+from whylabs.logs.core import ColumnProfile
+from whylabs.logs.core.types.typeddataconverter import TYPES
+from whylabs.logs.proto import ColumnsChunkSegment, DatasetProperties
+from whylabs.logs.proto import DatasetSummary, DatasetMetadataSegment, MessageSegment, DatasetProfileMessage
+
+from ..util.data import getter, remap, get_valid_filename
 
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
 TYPENUM_COLUMN_NAMES = {k: 'type_' + k.lower() + '_count' for k in
                         TYPES.keys()}
-
 
 SCALAR_NAME_MAPPING = {
     'counters': {
@@ -67,8 +65,12 @@ class DatasetProfile:
     tags : list-like
         A list (or tuple, or iterable) of dataset tags
     """
-    def __init__(self, name: str, timestamp: datetime.datetime,
-                 columns: dict=None, tags=None):
+
+    def __init__(self,
+                 name: str,
+                 timestamp: datetime.datetime,
+                 columns: dict = None,
+                 tags=None):
         # Default values
         if columns is None:
             columns = {}
@@ -130,7 +132,7 @@ class DatasetProfile:
                             for name, colprof in self.columns.items()}
         return DatasetSummary(
             name=self.name,
-            timestamp=self.timestamp_ms,
+            sessionTimestamp=self.timestamp_ms,
             columns=column_summaries,
             tags=self.tags,
         )
@@ -166,12 +168,19 @@ class DatasetProfile:
         marker = self.name + str(uuid4())
 
         # Generate metadata
+        properties = DatasetProperties(
+            schema_major_version=1,
+            schema_minor_version=0,
+            session_id=self.name,
+            session_timestamp=self.timestamp_ms,
+            data_timestamp=0,  # TODO: support data timestamp
+            tags=self.tags,
+        )
+
         yield MessageSegment(
+            marker=marker,
             metadata=DatasetMetadataSegment(
-                name=self.name,
-                timestamp=self.timestamp_ms,
-                marker=self.marker,
-                tags=self.tags,
+                properties=properties,
             )
         )
 
@@ -185,7 +194,7 @@ class DatasetProfile:
             assert getattr(self, attr) is not None
         tags = self.tags
         assert all(isinstance(tag, str) for tag in self.tags)
-        if not all(tags[i] <= tags[i+1] for i in range(len(tags) - 1)):
+        if not all(tags[i] <= tags[i + 1] for i in range(len(tags) - 1)):
             raise ValueError("Tags must be sorted")
 
     def merge(self, other):
@@ -230,11 +239,18 @@ class DatasetProfile:
         -------
         message : DatasetProfileMessage
         """
-        return DatasetProfileMessage(
-            name=self.name,
-            timestamp=self.timestamp_ms,
-            columns={k: v.to_protobuf() for k, v in self.columns.items()},
+        properties = DatasetProperties(
+            schema_major_version=1,
+            schema_minor_version=0,
+            session_id=self.name,
+            session_timestamp=self.timestamp_ms,
+            data_timestamp=0,  # TODO: support data timestamp
             tags=self.tags,
+        )
+
+        return DatasetProfileMessage(
+            properties=properties,
+            columns={k: v.to_protobuf() for k, v in self.columns.items()},
         )
 
     @staticmethod
@@ -247,13 +263,13 @@ class DatasetProfile:
         dataset_profile : DatasetProfile
         """
         # TODO: convert message timestamp from ms to datetime object
-        dt = message.timestamp
+        dt = message.properties.session_timestamp
         return DatasetProfile(
-            message.name,
-            dt,
+            name=message.properties.session_id,
+            timestamp=dt,
             columns={k: ColumnProfile.from_protobuf(v)
                      for k, v in message.columns.items()},
-            tags=message.tags,
+            tags=message.properties.tags,
         )
 
 
@@ -351,7 +367,7 @@ def flatten_dataset_frequent_strings(dataset_summary):
 
     for col_name, col in dataset_summary.columns.items():
         try:
-            item_summary = getter(getter(col, 'string_summary'), 'frequent')\
+            item_summary = getter(getter(col, 'string_summary'), 'frequent') \
                 .items
             items = {}
             for item in item_summary:
@@ -364,7 +380,7 @@ def flatten_dataset_frequent_strings(dataset_summary):
     return frequent_strings
 
 
-def get_dataset_frame(dataset_summary, mapping: dict=None):
+def get_dataset_frame(dataset_summary, mapping: dict = None):
     """
     Get a dataframe from scalar values flattened from a dataset summary
 
@@ -384,7 +400,7 @@ def get_dataset_frame(dataset_summary, mapping: dict=None):
     return scalar_summary.reset_index()
 
 
-def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str='csv'):
+def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str = 'csv'):
     """
     Utility to write a flattened dataset summary to disk.
 
@@ -441,7 +457,7 @@ def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str='csv'):
 
 
 def write_flat_summaries(summaries, prefix: str,
-                         dataframe_fmt: str='csv'):
+                         dataframe_fmt: str = 'csv'):
     """
     Utility to write flattened `DatasetSummaries` to disk.
 

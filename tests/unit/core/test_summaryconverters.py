@@ -1,9 +1,9 @@
 """
 """
 import datasketches
+
 from whylabs.logs.core import summaryconverters
-from whylabs.logs.core.data import HistogramSummary
-import numpy as np
+from whylabs.logs.proto import HistogramSummary
 
 
 def _hist_summary_check(summary, vals: list):
@@ -18,7 +18,7 @@ def _hist_summary_check(summary, vals: list):
 
 def test_histogram_summary():
     hist = datasketches.kll_floats_sketch(256)
-    vals = [1,2,3,4,5,6,7,8,9]
+    vals = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     vals = [float(v) for v in vals]
     for val in vals:
         hist.update(val)
@@ -38,4 +38,3 @@ def test_single_value_histogram_summary():
     summary = summaryconverters.from_kll_floats_sketch(hist)
     _hist_summary_check(summary, vals)
     assert len(summary.counts) == 1
-

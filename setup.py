@@ -1,6 +1,5 @@
 """
 """
-import subprocess
 
 import setuptools
 
@@ -8,7 +7,6 @@ VERSION = "0.1.0"
 DATASKETCHES_COMMIT = '68520d4987a5d95c6f3d453647c046efa7c4c5c0'
 REQUIREMENTS = [
     'protobuf',
-    '2to3',
     'pyyaml',
     'datasketches @ git+https://github.com/apache/incubator-datasketches-cpp.git@' + DATASKETCHES_COMMIT,  ## noqa
 ]
@@ -17,18 +15,17 @@ DEV_EXTRA_REQUIREMENTS = [
     'ipython',
     'pandas',
     'argh',
-    'pytest',
+    'pytest-runner',
 ]
 
-
-def build_protobuf():
-    output = subprocess.check_output(['./build_proto.sh'])
-    print('BUILDING PROTOBUF')
-    print(output.decode('utf-8'))
-
-
-# Build the local protobuf files
-build_protobuf()
+# def build_protobuf():
+#     output = subprocess.check_output(['./build_proto.sh'])
+#     print('BUILDING PROTOBUF')
+#     print(output.decode('utf-8'))
+#
+#
+# # Build the local protobuf files
+# build_protobuf()
 
 # Pip setup
 with open('README.md', 'rt') as f:
@@ -48,4 +45,5 @@ setuptools.setup(
     python_requires='>=3.5',  # TODO: Figure out python version compatibility,
     install_requires=REQUIREMENTS,
     extras_require={'dev': DEV_EXTRA_REQUIREMENTS},
+    tests_require=['pytest'],
 )

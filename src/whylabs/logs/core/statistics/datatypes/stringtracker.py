@@ -1,8 +1,9 @@
 # import datasketches
 from datasketches import frequent_strings_sketch
+
 from whylabs.logs.core.statistics.thetasketch import ThetaSketch
-from whylabs.logs.core.data import StringsMessage, StringsSummary
 from whylabs.logs.core.summaryconverters import from_string_sketch
+from whylabs.logs.proto import StringsMessage, StringsSummary
 from whylabs.logs.util import dsketch
 
 MAX_ITEMS_SIZE = 32
@@ -22,10 +23,11 @@ class StringTracker:
     theta_sketch
         Sketch for approximate cardinality tracking
     """
+
     def __init__(self,
-                 count: int=None,
-                 items: frequent_strings_sketch=None,
-                 theta_sketch: ThetaSketch=None):
+                 count: int = None,
+                 items: frequent_strings_sketch = None,
+                 theta_sketch: ThetaSketch = None):
         if count is None:
             count = 0
         if items is None:

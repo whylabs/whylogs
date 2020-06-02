@@ -3,7 +3,7 @@
 import datasketches
 
 
-def deserialize_kll_floats_sketch(x: bytes, kind: str='float'):
+def deserialize_kll_floats_sketch(x: bytes, kind: str = 'float'):
     """
     Deserialize a KLL floats sketch.  Compatible with WhyLogs-Java
 

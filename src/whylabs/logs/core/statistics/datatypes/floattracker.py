@@ -1,5 +1,6 @@
 import math
-from whylabs.logs.core.data import DoublesMessage
+
+from whylabs.logs.proto import DoublesMessage
 
 
 class FloatTracker:

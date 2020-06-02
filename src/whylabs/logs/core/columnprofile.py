@@ -2,15 +2,15 @@
 """
 created 5/7/20 by ibackus
 """
-from whylabs.logs.core.types import TypedDataConverter
-from whylabs.logs.core.statistics import NumberTracker
-from whylabs.logs.core.summaryconverters import from_string_sketch
-from whylabs.logs.core.statistics import from_number_tracker
-from whylabs.logs.core.data import ColumnSummary, ColumnMessage, InferredType
 from whylabs.logs.core.statistics import CountersTracker, SchemaTracker
+from whylabs.logs.core.statistics import NumberTracker
+from whylabs.logs.core.statistics import from_number_tracker
 from whylabs.logs.core.statistics.datatypes import StringTracker
+from whylabs.logs.core.types import TypedDataConverter
+from whylabs.logs.proto import ColumnSummary, ColumnMessage, InferredType
+
 _TYPES = InferredType.Type
-_NUMERIC_TYPES = set([_TYPES.FRACTIONAL, _TYPES.INTEGRAL])
+_NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}
 
 
 class ColumnProfile:
