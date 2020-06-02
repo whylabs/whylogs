@@ -9,7 +9,6 @@ buildscript {
 plugins {
     `java-library`
     `maven-publish`
-    idea
 }
 
 group = "com.whylabs"

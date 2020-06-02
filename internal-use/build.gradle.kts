@@ -10,7 +10,7 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-group = "com.whylabs.internal"
+group = "com.whylabs"
 version = rootProject.version
 
 spotless {

@@ -5,7 +5,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version ("5.2.0")
 }
 
-group = "com.whylabs.logging.firehose"
+group = "com.whylabs"
 version = rootProject.version
 
 spotless {

@@ -8,7 +8,7 @@ repositories {
     jcenter()
 }
 
-group = "com.whylabs.logging.spark"
+group = "com.whylabs"
 version = rootProject.version
 
 spotless {

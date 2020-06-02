@@ -13,7 +13,6 @@ buildscript {
 plugins {
     `java-library`
     `maven-publish`
-    idea
     id("com.github.johnrengelman.shadow") version ("5.2.0")
 }
 
