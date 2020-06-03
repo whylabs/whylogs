@@ -1,0 +1,25 @@
+appnope==0.1.0
+argh==0.26.2
+backcall==0.1.0
+datasketches @ git+https://github.com/apache/incubator-datasketches-cpp.git@68520d4987a5d95c6f3d453647c046efa7c4c5c0
+decorator==4.4.2
+ipython==7.15.0
+ipython-genutils==0.2.0
+jedi==0.17.0
+numpy==1.18.4
+pandas==1.0.4
+parso==0.7.0
+pexpect==4.8.0
+pickleshare==0.7.5
+prompt-toolkit==3.0.5
+protobuf==3.12.2
+ptyprocess==0.6.0
+Pygments==2.6.1
+pytest-runner==5.2
+python-dateutil==2.8.1
+pytz==2020.1
+PyYAML==5.3.1
+six==1.15.0
+traitlets==4.3.3
+wcwidth==0.2.3
+
