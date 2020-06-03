@@ -8,10 +8,9 @@ buildscript {
 
 plugins {
     `java-library`
-    `maven-publish`
 }
 
-group = "com.whylabs"
+group = rootProject.group
 version = rootProject.version
 
 spotless {
@@ -59,67 +58,6 @@ tasks.test {
         testLogging.showStandardStreams = true
         failFast = true
         events("passed", "skipped", "failed")
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "com.whylabs"
-            artifactId = "whylogs-java"
-            version = version
-            from(components["java"])
-            pom {
-                name.set("WhyLogs")
-                description.set("A lightweight data profiling library")
-                url.set("http://www.whylogs.ai")
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("WhyLabs")
-                        name.set("WhyLabs, Inc")
-                        email.set("info@whylabs.ai")
-                    }
-                }
-                scm {
-                    url.set("http://whylabs.ai/")
-                }
-            }
-        }
-
-        repositories {
-            val isSnapShot = version.toString().endsWith("SNAPSHOT")
-            maven {
-                // change URLs to point to your repos, e.g. http://my.org/repo
-                val releasesRepoUrl = uri("$buildDir/repos/releases")
-                val snapshotsRepoUrl = uri("$buildDir/repos/snapshots")
-                url = if (isSnapShot) snapshotsRepoUrl else releasesRepoUrl
-
-            }
-            maven {
-                // TODO: change this URL base on the stage of publishing?
-                val s3Base = "s3://whylabs-andy-maven-us-west-2/repos"
-                val releasesRepoUrl = uri("$s3Base/releases")
-                val snapshotsRepoUrl = uri("$s3Base/snapshots")
-                url = if (isSnapShot) snapshotsRepoUrl else releasesRepoUrl
-
-                // set up AWS authentication
-                val credentials = DefaultAWSCredentialsProviderChain.getInstance().credentials
-                credentials(AwsCredentials::class) {
-                    accessKey = credentials.awsAccessKeyId
-                    secretKey = credentials.awsSecretKey
-                    // optional
-                    if (credentials is com.amazonaws.auth.AWSSessionCredentials) {
-                        sessionToken = credentials.sessionToken
-                    }
-                }
-            }
-        }
     }
 }
 
