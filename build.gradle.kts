@@ -2,15 +2,10 @@ buildscript {
     repositories {
         jcenter()
     }
-    dependencies {
-        classpath("com.linkedin.pygradle:pygradle-plugin:0.12.10")
-    }
 }
 
 plugins {
     java
-//    idea
-    id("com.linkedin.python") version "0.9.11"
 }
 
 idea {
