@@ -57,6 +57,10 @@ tasks.register<Exec>("build-python") {
     commandLine = "python setup.py build --verbose".split(" ")
 }
 
+tasks.build {
+    dependsOn("build-python")
+}
+
 tasks.compileJava {
     enabled = false
 }
