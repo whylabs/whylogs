@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-created 5/7/20 by ibackus
 TODO:
     * Date parsing compatible with EasyDateTimeParser (Java)
 
@@ -127,7 +126,7 @@ def run(input_path, datetime: str=None, delivery_stream=None, fmt=None,
     """
     datetime_col = datetime  # don't shadow the standard module name
     from whylabs.logs.core import DatasetProfile
-    from whylabs.logs.core.data import DatasetSummaries
+    from whylabs.logs.proto import DatasetSummaries
     from google.protobuf.json_format import MessageToJson
     from datetime import datetime
     import os
