@@ -1,0 +1,7 @@
+.eggs
+.idea
+.pytest_cache
+build
+dist
+tests
+venv
