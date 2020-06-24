@@ -1,15 +1,14 @@
 import math
-
+from whylabs.logs.proto import UniqueCountSummary, \
+    FrequentStringsSummary, HistogramSummary
 from datasketches import update_theta_sketch, frequent_strings_sketch, \
     frequent_items_error_type, kll_floats_sketch
-
-from whylabs.logs.proto import UniqueCountSummary, FrequentStringsSummary, HistogramSummary
 
 MAX_HIST_BUCKETS = 100
 HIST_AVG_NUMBER_PER_BUCKET = 4.0
 
 
-def from_sketch(sketch: update_theta_sketch, num_std_devs: float = 1):
+def from_sketch(sketch: update_theta_sketch, num_std_devs: float=1):
     """
     Generate a protobuf summary message from a datasketches theta sketch
 

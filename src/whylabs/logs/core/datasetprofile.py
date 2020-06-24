@@ -1,13 +1,17 @@
-import datetime
 from logging import getLogger
-from uuid import uuid4
 
-from whylabs.logs.core import ColumnProfile
-from whylabs.logs.core.types.typeddataconverter import TYPES
+from whylabs.logs.util.data import getter, remap, get_valid_filename
 from whylabs.logs.proto import ColumnsChunkSegment, DatasetProperties
-from whylabs.logs.proto import DatasetSummary, DatasetMetadataSegment, MessageSegment, DatasetProfileMessage
-
-from ..util.data import getter, remap, get_valid_filename
+from whylabs.logs.core import ColumnProfile
+from whylabs.logs.proto import DatasetSummary, DatasetMetadataSegment, \
+    MessageSegment, DatasetProfileMessage
+from whylabs.logs.core.types.typeddataconverter import TYPES
+from uuid import uuid4
+import datetime
+import pandas as pd
+import numpy as np
+import time
+from google.protobuf.json_format import MessageToJson
 
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
 TYPENUM_COLUMN_NAMES = {k: 'type_' + k.lower() + '_count' for k in
@@ -65,12 +69,8 @@ class DatasetProfile:
     tags : list-like
         A list (or tuple, or iterable) of dataset tags
     """
-
-    def __init__(self,
-                 name: str,
-                 timestamp: datetime.datetime,
-                 columns: dict = None,
-                 tags=None):
+    def __init__(self, name: str, timestamp: datetime.datetime,
+                 columns: dict=None, tags=None):
         # Default values
         if columns is None:
             columns = {}
@@ -118,6 +118,40 @@ class DatasetProfile:
             self.columns[column_name] = prof
         prof.track(data)
 
+    def track_array(self, x: np.ndarray, columns=None):
+        """
+        Track statistics for a numpy array
+
+        Parameters
+        ----------
+        x : np.ndarray
+            2D array to track.
+        columns : list
+            Optional column labels
+        """
+        x = np.asanyarray(x)
+        if np.ndim(x) != 2:
+            raise ValueError("Expected 2 dimensional array")
+        if columns is None:
+            columns = np.arange(x.shape[1])
+        columns = [str(c) for c in columns]
+        return self.track_dataframe(pd.DataFrame(x, columns=columns))
+
+    def track_dataframe(self, df: pd.DataFrame):
+        """
+        Track statistics for a dataframe
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            DataFrame to track
+        """
+        for col in df.columns:
+            col_str = str(col)
+            x = df[col].values
+            for xi in x:
+                self.track(col_str, xi)
+
     def to_summary(self):
         """
         Generate a summary of the statistics
@@ -130,11 +164,14 @@ class DatasetProfile:
         self.validate()
         column_summaries = {name: colprof.to_summary()
                             for name, colprof in self.columns.items()}
+        tags = self.tags
+        if len(tags) < 1:
+            tags = None
         return DatasetSummary(
             name=self.name,
             sessionTimestamp=self.timestamp_ms,
             columns=column_summaries,
-            tags=self.tags,
+            tags=tags,
         )
 
     def flat_summary(self):
@@ -239,19 +276,65 @@ class DatasetProfile:
         -------
         message : DatasetProfileMessage
         """
+        tags = self.tags
+        if len(tags) < 1:
+            tags = None
         properties = DatasetProperties(
             schema_major_version=1,
             schema_minor_version=0,
             session_id=self.name,
             session_timestamp=self.timestamp_ms,
             data_timestamp=0,  # TODO: support data timestamp
-            tags=self.tags,
+            tags=tags,
         )
 
         return DatasetProfileMessage(
             properties=properties,
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
         )
+
+    def write(self, file_prefix=None, profile=True, flat_summary=True,
+              json_summary=False, dataframe_fmt='csv'):
+        """
+        Utility function to simplify writing of this dataset profile.
+
+        Parameters
+        ----------
+        file_prefix
+        profile
+        flat_summary
+        json_summary
+        dataframe_fmt
+
+        Returns
+        -------
+
+        """
+        logger = getLogger(__name__)
+        output_files = {}
+        if file_prefix is None:
+            file_prefix = f'{self.name}_{int(time.time())}'
+        if flat_summary or json_summary:
+            summary = self.to_summary()
+        if flat_summary:
+            x = flatten_summary(summary)
+            fnames = write_flat_dataset_summary(
+                x, file_prefix, dataframe_fmt=dataframe_fmt)
+            output_files['flat_summary'] = fnames
+        if json_summary:
+            fname = file_prefix + '.json'
+            with open(fname, 'wt') as fp:
+                logger.debug(f"Writing JSON summaries to: {fname}")
+                fp.write(MessageToJson(summary))
+            output_files['json'] = json_summary
+
+        if profile:
+            fname = file_prefix + '.bin'
+            msg = self.to_protobuf()
+            with open(fname, 'wb') as fp:
+                logger.debug(f'Writing protobuf profile to: {fname}')
+                fp.write(msg.SerializeToString())
+            output_files['protobuf'] = fname
 
     @staticmethod
     def from_protobuf(message):
@@ -380,7 +463,7 @@ def flatten_dataset_frequent_strings(dataset_summary):
     return frequent_strings
 
 
-def get_dataset_frame(dataset_summary, mapping: dict = None):
+def get_dataset_frame(dataset_summary, mapping: dict=None):
     """
     Get a dataframe from scalar values flattened from a dataset summary
 
@@ -394,13 +477,13 @@ def get_dataset_frame(dataset_summary, mapping: dict = None):
         mapping = SCALAR_NAME_MAPPING
     col_out = {}
     for k, col in dataset_summary.columns.items():
-        col_out[k] = remap(col, SCALAR_NAME_MAPPING)
+        col_out[k] = remap(col, mapping)
     scalar_summary = pd.DataFrame(col_out).T
     scalar_summary.index.name = 'column'
     return scalar_summary.reset_index()
 
 
-def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str = 'csv'):
+def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str='csv'):
     """
     Utility to write a flattened dataset summary to disk.
 
@@ -457,7 +540,7 @@ def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str = 'csv')
 
 
 def write_flat_summaries(summaries, prefix: str,
-                         dataframe_fmt: str = 'csv'):
+                         dataframe_fmt: str='csv'):
     """
     Utility to write flattened `DatasetSummaries` to disk.
 
@@ -484,3 +567,55 @@ def write_flat_summaries(summaries, prefix: str,
         for k, v in x.items():
             fnames[k].append(v)
     return dict(fnames)
+
+
+def dataframe_profile(df: pd.DataFrame, name: str=None,
+                      timestamp: datetime.datetime=None):
+    """
+    Generate a dataset profile for a dataframe
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Dataframe to track, treated as a complete dataset.
+    name : str
+        Name of the dataset (e.g. timestamp string)
+    timestamp : datetime.datetime, float
+        Timestamp of the dataset.  Defaults to current UTC time.  Can be a
+        datetime or UTC epoch seconds.
+    """
+    if name is None:
+        name = 'dataset'
+    if timestamp is None:
+        timestamp = datetime.datetime.utcnow()
+    elif not isinstance(timestamp, datetime.datetime):
+        # Assume UTC epoch seconds
+        timestamp = datetime.datetime.utcfromtimestamp(float(timestamp))
+    prof = DatasetProfile(name, timestamp)
+    prof.track_dataframe(df)
+    return prof
+
+
+def array_profile(x: np.ndarray, name: str=None,
+                  timestamp: datetime.datetime=None, columns: list=None):
+    """
+    Generate a dataset profile for an array
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Array-like object to track.  Will be treated as an full dataset
+    name : str
+        Name of the dataset (e.g. timestamp string)
+    timestamp : datetime.datetime
+        Timestamp of the dataset.  Defaults to current UTC time
+    columns : list
+        Optional column labels
+    """
+    if name is None:
+        name = 'dataset'
+    if timestamp is None:
+        timestamp = datetime.datetime.utcnow()
+    prof = DatasetProfile(name, timestamp)
+    prof.track_array(x, columns)
+    return prof

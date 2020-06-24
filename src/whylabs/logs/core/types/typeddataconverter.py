@@ -4,6 +4,7 @@ created 5/7/20 by ibackus
 
 TODO: implement this using something other than yaml
 """
+import pandas as pd
 import yaml
 from whylabs.logs.proto import InferredType
 TYPES = InferredType.Type
@@ -24,7 +25,10 @@ class TypedDataConverter:
         unchanged
         """
         if isinstance(data, str):
-            data = yaml.safe_load(data)
+            try:
+                data = yaml.safe_load(data)
+            except yaml.scanner.ScannerError:
+                pass
         return data
 
     @staticmethod
@@ -34,7 +38,7 @@ class TypedDataConverter:
         available types.
         """
         dtype = TYPES.UNKNOWN
-        if typed_data is None:
+        if pd.isnull(typed_data):
             dtype = TYPES.NULL
         elif isinstance(typed_data, bool):
             dtype = TYPES.BOOLEAN

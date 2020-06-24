@@ -23,7 +23,7 @@ class SchemaTracker:
             type_counts = {}
         self.type_counts = type_counts
 
-    def track(self, item_type) -> None:
+    def track(self, item_type):
         """
         Track an item type
         """

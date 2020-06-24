@@ -1,9 +1,8 @@
 """
 """
+from whylabs.logs.util import varint
 import google.protobuf.message
 from google.protobuf.pyext._message import MessageMapContainer
-
-from . import varint
 
 
 def _varint_delim_reader(fp):

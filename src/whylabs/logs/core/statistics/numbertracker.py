@@ -5,9 +5,10 @@ TODO:
 import datasketches
 
 from whylabs.logs.proto import NumbersMessage
-from whylabs.logs.core.statistics.datatypes import VarianceTracker, IntTracker, FloatTracker
-from whylabs.logs.core.statistics.thetasketch import ThetaSketch
 from whylabs.logs.core.summaryconverters import from_kll_floats_sketch
+from whylabs.logs.core.statistics.thetasketch import ThetaSketch
+from whylabs.logs.core.statistics.datatypes import VarianceTracker, \
+    IntTracker, FloatTracker
 from whylabs.logs.proto import NumberSummary
 from whylabs.logs.util import dsketch
 
@@ -39,13 +40,12 @@ class NumberTracker:
     theta_sketch : `whylabs.logs.core.statistics.thetasketch.ThetaSketch`
         Sketch which tracks approximate cardinality
     """
-
     def __init__(self,
-                 variance: VarianceTracker = None,
-                 floats: FloatTracker = None,
-                 ints: IntTracker = None,
-                 theta_sketch: ThetaSketch = None,
-                 histogram: datasketches.kll_floats_sketch = None,
+                 variance: VarianceTracker=None,
+                 floats: FloatTracker=None,
+                 ints: IntTracker=None,
+                 theta_sketch: ThetaSketch=None,
+                 histogram: datasketches.kll_floats_sketch=None,
                  ):
         # Our own trackers
         if variance is None:
