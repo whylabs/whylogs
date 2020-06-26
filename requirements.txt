@@ -1,7 +1,7 @@
 appnope==0.1.0
 argh==0.26.2
 backcall==0.1.0
-datasketches @ git+https://github.com/apache/incubator-datasketches-cpp.git@68520d4987a5d95c6f3d453647c046efa7c4c5c0
+datasketches==2.0.0+1.g29a1d69
 decorator==4.4.2
 ipython==7.15.0
 ipython-genutils==0.2.0

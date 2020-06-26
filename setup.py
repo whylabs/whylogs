@@ -5,26 +5,13 @@ import os
 
 VERSION = "0.1.0"
 
-git_ssh_cfg = os.environ.get('PIP_GIT_SSH', 'false').lower()
-if git_ssh_cfg in ('false', '0', 'f'):
-    git_ssh = False
-    print('Accessing github via https')
-elif git_ssh_cfg in ('true', '1', 't'):
-    print('Accessing github via ssh')
-    git_ssh = True
-
-if git_ssh:
-    datasketches_url = 'ssh://git@github.com/apache/incubator-datasketches-cpp.git'
-else:
-    datasketches_url = 'https://github.com/apache/incubator-datasketches-cpp.git'
-
 DATASKETCHES_COMMIT = '68520d4987a5d95c6f3d453647c046efa7c4c5c0'
 REQUIREMENTS = [
     'protobuf>=3.12.2',
     'pyyaml>=5.3.1',
     'pandas>1.0',
     'numpy>=1.18',
-    f'datasketches @ git+{datasketches_url}@' + DATASKETCHES_COMMIT,  ## noqa
+    'datasketches>=2.0.0+1.g29a1d69'
 ]
 DEV_EXTRA_REQUIREMENTS = [
     'ipython',
