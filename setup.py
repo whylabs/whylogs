@@ -5,7 +5,6 @@ import os
 
 VERSION = "0.1.0"
 
-DATASKETCHES_COMMIT = '68520d4987a5d95c6f3d453647c046efa7c4c5c0'
 REQUIREMENTS = [
     'protobuf>=3.12.2',
     'pyyaml>=5.3.1',
