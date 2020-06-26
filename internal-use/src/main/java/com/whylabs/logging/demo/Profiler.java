@@ -226,8 +226,6 @@ public class Profiler implements Runnable {
 
         profiles.values().forEach(publisher::putProfile);
       }
-      LOG.info("Finished writing to file. Enter anything to exit");
-      SCANNER.nextLine();
       LOG.info("Output path: {}", output.getAbsolutePath());
       LOG.info("SUCCESS");
     } catch (Exception e) {
