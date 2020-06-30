@@ -4,9 +4,9 @@ import static com.whylabs.logging.core.SummaryConverters.fromSchemaTracker;
 import static java.util.stream.Collectors.toSet;
 
 import com.google.common.base.Preconditions;
-import com.whylabs.logging.core.data.ColumnSummary;
-import com.whylabs.logging.core.data.InferredType.Type;
-import com.whylabs.logging.core.format.ColumnMessage;
+import com.whylabs.logging.core.message.ColumnMessage;
+import com.whylabs.logging.core.message.ColumnSummary;
+import com.whylabs.logging.core.message.InferredType.Type;
 import com.whylabs.logging.core.statistics.CountersTracker;
 import com.whylabs.logging.core.statistics.NumberTracker;
 import com.whylabs.logging.core.statistics.SchemaTracker;

@@ -2,8 +2,8 @@ package com.whylabs.logging.demo;
 
 import com.google.protobuf.util.JsonFormat;
 import com.whylabs.logging.core.DatasetProfile;
-import com.whylabs.logging.core.data.DatasetSummaries;
 import com.whylabs.logging.core.datetime.EasyDateTimeParser;
+import com.whylabs.logging.core.message.DatasetSummaries;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;

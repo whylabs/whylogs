@@ -1,7 +1,7 @@
 package com.whylabs.logging.core.statistics;
 
 import com.google.protobuf.Int64Value;
-import com.whylabs.logging.core.data.Counters;
+import com.whylabs.logging.core.message.Counters;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;

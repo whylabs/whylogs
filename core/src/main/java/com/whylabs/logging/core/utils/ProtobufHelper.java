@@ -1,7 +1,7 @@
 package com.whylabs.logging.core.utils;
 
 import com.google.protobuf.ByteString;
-import com.whylabs.logging.core.data.DatasetSummary;
+import com.whylabs.logging.core.message.DatasetSummary;
 import java.time.Instant;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
@@ -11,12 +11,12 @@ import lombok.val;
 @UtilityClass
 public class ProtobufHelper {
   public String summaryToString(DatasetSummary summary) {
-    val name = summary.getName();
+    val name = summary.getProperties().getSessionId();
     val tags =
-        summary.getTagsList().asByteStringList().stream()
+        summary.getProperties().getTagsList().asByteStringList().stream()
             .map(ByteString::toStringUtf8)
             .collect(Collectors.joining(","));
-    val timestamp = Instant.ofEpochMilli(summary.getSessionTimestamp()).toString();
+    val timestamp = Instant.ofEpochMilli(summary.getProperties().getSessionTimestamp()).toString();
     val columns = summary.getColumnsMap().keySet();
 
     return String.format(

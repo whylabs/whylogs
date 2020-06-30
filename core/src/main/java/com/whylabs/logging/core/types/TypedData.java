@@ -1,7 +1,7 @@
 package com.whylabs.logging.core.types;
 
-import com.whylabs.logging.core.data.InferredType;
-import com.whylabs.logging.core.data.InferredType.Type;
+import com.whylabs.logging.core.message.InferredType;
+import com.whylabs.logging.core.message.InferredType.Type;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NonNull;

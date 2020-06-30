@@ -1,12 +1,12 @@
 package com.whylabs.logging.core;
 
-import com.whylabs.logging.core.data.FrequentStringsSummary;
-import com.whylabs.logging.core.data.FrequentStringsSummary.FrequentItem;
-import com.whylabs.logging.core.data.HistogramSummary;
-import com.whylabs.logging.core.data.NumberSummary;
-import com.whylabs.logging.core.data.SchemaSummary;
-import com.whylabs.logging.core.data.StringsSummary;
-import com.whylabs.logging.core.data.UniqueCountSummary;
+import com.whylabs.logging.core.message.FrequentStringsSummary;
+import com.whylabs.logging.core.message.FrequentStringsSummary.FrequentItem;
+import com.whylabs.logging.core.message.HistogramSummary;
+import com.whylabs.logging.core.message.NumberSummary;
+import com.whylabs.logging.core.message.SchemaSummary;
+import com.whylabs.logging.core.message.StringsSummary;
+import com.whylabs.logging.core.message.UniqueCountSummary;
 import com.whylabs.logging.core.statistics.NumberTracker;
 import com.whylabs.logging.core.statistics.SchemaTracker;
 import com.whylabs.logging.core.statistics.datatypes.StringTracker;

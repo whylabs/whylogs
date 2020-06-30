@@ -1,7 +1,7 @@
 package com.whylabs.logging.firehose.iterator;
 
 import com.amazonaws.services.kinesisfirehose.model.Record;
-import com.whylabs.logging.core.format.MessageSegment;
+import com.whylabs.logging.core.message.MessageSegment;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;

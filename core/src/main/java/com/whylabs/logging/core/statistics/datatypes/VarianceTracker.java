@@ -1,6 +1,6 @@
 package com.whylabs.logging.core.statistics.datatypes;
 
-import com.whylabs.logging.core.format.VarianceMessage;
+import com.whylabs.logging.core.message.VarianceMessage;
 import lombok.Getter;
 import lombok.val;
 

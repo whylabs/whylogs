@@ -2,7 +2,7 @@ package com.whylabs.logging.core.types;
 
 import static java.util.stream.Collectors.toSet;
 
-import com.whylabs.logging.core.data.InferredType.Type;
+import com.whylabs.logging.core.message.InferredType.Type;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

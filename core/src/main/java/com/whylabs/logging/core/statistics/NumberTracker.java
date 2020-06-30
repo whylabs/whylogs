@@ -1,7 +1,7 @@
 package com.whylabs.logging.core.statistics;
 
 import com.google.protobuf.ByteString;
-import com.whylabs.logging.core.format.NumbersMessage;
+import com.whylabs.logging.core.message.NumbersMessage;
 import com.whylabs.logging.core.statistics.datatypes.DoubleTracker;
 import com.whylabs.logging.core.statistics.datatypes.LongTracker;
 import com.whylabs.logging.core.statistics.datatypes.VarianceTracker;

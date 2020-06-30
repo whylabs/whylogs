@@ -1,7 +1,7 @@
 package com.whylabs.logging.core.iterator;
 
-import com.whylabs.logging.core.format.ColumnMessage;
-import com.whylabs.logging.core.format.ColumnsChunkSegment;
+import com.whylabs.logging.core.message.ColumnMessage;
+import com.whylabs.logging.core.message.ColumnsChunkSegment;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import lombok.val;

@@ -1,6 +1,6 @@
 package com.whylabs.logging.core.statistics.datatypes;
 
-import com.whylabs.logging.core.format.DoublesMessage;
+import com.whylabs.logging.core.message.DoublesMessage;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

@@ -4,7 +4,7 @@ import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-import com.whylabs.logging.core.data.InferredType
+import com.whylabs.logging.core.message.InferredType
 import org.scalatest.funsuite.AnyFunSuite
 
 case class ExamplePoint(x: Int, y: Double, z: String, ts: Timestamp = new Timestamp(Instant.now().toEpochMilli))

@@ -1,7 +1,7 @@
 package com.whylabs.logging.core.statistics.datatypes;
 
 import com.google.protobuf.ByteString;
-import com.whylabs.logging.core.format.StringsMessage;
+import com.whylabs.logging.core.message.StringsMessage;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

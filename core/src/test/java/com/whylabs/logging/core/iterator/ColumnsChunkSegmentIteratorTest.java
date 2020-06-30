@@ -8,8 +8,8 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.whylabs.logging.core.format.ColumnMessage;
-import com.whylabs.logging.core.format.ColumnsChunkSegment;
+import com.whylabs.logging.core.message.ColumnMessage;
+import com.whylabs.logging.core.message.ColumnsChunkSegment;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

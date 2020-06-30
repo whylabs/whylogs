@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
-import com.whylabs.logging.core.data.InferredType.Type;
+import com.whylabs.logging.core.message.InferredType.Type;
 import lombok.val;
 import org.testng.annotations.Test;
 

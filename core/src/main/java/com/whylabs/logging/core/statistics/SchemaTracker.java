@@ -1,9 +1,9 @@
 package com.whylabs.logging.core.statistics;
 
 import com.google.common.collect.Maps;
-import com.whylabs.logging.core.data.InferredType;
-import com.whylabs.logging.core.data.InferredType.Type;
-import com.whylabs.logging.core.format.SchemaMessage;
+import com.whylabs.logging.core.message.InferredType;
+import com.whylabs.logging.core.message.InferredType.Type;
+import com.whylabs.logging.core.message.SchemaMessage;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
