@@ -10,7 +10,7 @@ REQUIREMENTS = [
     'pyyaml>=5.3.1',
     'pandas>1.0',
     'numpy>=1.18',
-    'datasketches>=2.0.0+1.g29a1d69'
+    'datasketches==0+untagged.739.g975812b'
 ]
 DEV_EXTRA_REQUIREMENTS = [
     'ipython',
@@ -18,16 +18,6 @@ DEV_EXTRA_REQUIREMENTS = [
     'pytest-runner>=5.2',
     'pytest',
 ]
-
-# def build_protobuf():
-#     target = os.path.join(_MYDIR, 'build_proto.sh')
-#     output = subprocess.check_output([target])
-#     print('BUILDING PROTOBUF')
-#     print(output.decode('utf-8'))
-#
-#
-# # Build the local protobuf files
-# build_protobuf()
 
 # Pip setup
 with open('README.md', 'rt') as f:
