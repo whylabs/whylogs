@@ -9,6 +9,8 @@ import json
 import datetime
 import numpy as np
 
+from whylabs.logs.util.time import to_utc_ms
+
 
 def test_all_zeros_returns_summary_with_stats():
     stats = ('min', 'max', 'stddev', 'mean')
@@ -97,6 +99,7 @@ def test_protobuf_round_trip():
     assert roundtrip.to_protobuf() == msg
     assert roundtrip.name == 'test'
     assert roundtrip.session_id == original.session_id
+    assert to_utc_ms(roundtrip.session_timestamp) == to_utc_ms(original.session_timestamp)
     assert set(list(roundtrip.columns.keys())) == {'col1', 'col2'}
     assert roundtrip.columns['col1'].counters.count == 1
     assert roundtrip.columns['col2'].counters.count == 1

@@ -321,9 +321,6 @@ class DatasetProfile:
         -------
         message : DatasetProfileMessage
         """
-        tags = self.tags
-        if len(tags) < 1:
-            tags = None
         properties = self.to_properties()
 
         return DatasetProfileMessage(
