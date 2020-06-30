@@ -11,7 +11,7 @@ import datetime
 import pandas as pd
 import numpy as np
 import time
-from google.protobuf.json_format import MessageToJson
+from whylabs.logs.util.protobuf import message_to_json
 
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
 TYPENUM_COLUMN_NAMES = {k: 'type_' + k.lower() + '_count' for k in
@@ -325,7 +325,7 @@ class DatasetProfile:
             fname = file_prefix + '.json'
             with open(fname, 'wt') as fp:
                 logger.debug(f"Writing JSON summaries to: {fname}")
-                fp.write(MessageToJson(summary))
+                fp.write(message_to_json(summary))
             output_files['json'] = json_summary
 
         if profile:

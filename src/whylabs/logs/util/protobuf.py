@@ -1,8 +1,27 @@
 """
 """
+from google.protobuf.json_format import MessageToDict, MessageToJson
 from whylabs.logs.util import varint
 import google.protobuf.message
 from google.protobuf.pyext._message import MessageMapContainer
+
+
+def message_to_dict(x: google.protobuf.message):
+    """
+    Convert a protobuf message to a dictionary
+
+    A thin wrapper around the google built-in function.
+    """
+    return MessageToDict(x, including_default_value_fields=True)
+
+
+def message_to_json(x: google.protobuf.message):
+    """
+    Serialize a protobuf message as JSON
+
+    A thin wrapper around the google built-in function.
+    """
+    return MessageToJson(x, including_default_value_fields=True)
 
 
 def _varint_delim_reader(fp):

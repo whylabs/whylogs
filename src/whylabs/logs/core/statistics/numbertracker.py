@@ -3,6 +3,7 @@ TODO:
     * Implement histograms
 """
 import datasketches
+import pandas as pd
 
 from whylabs.logs.proto import NumbersMessage
 from whylabs.logs.core.summaryconverters import from_kll_floats_sketch
@@ -76,6 +77,8 @@ class NumberTracker:
         number : int, float
             A numeric value
         """
+        if pd.isnull(number):
+            return
         self.variance.update(number)
         self.theta_sketch.update(number)
         # TODO: histogram update

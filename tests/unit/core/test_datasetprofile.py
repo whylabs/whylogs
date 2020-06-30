@@ -1,7 +1,28 @@
 """
 """
 from whylabs.logs.core import DatasetProfile
+from whylabs.logs.core.datasetprofile import array_profile
+from whylabs.logs.util.protobuf import message_to_dict, message_to_json
+import json
 import datetime
+import numpy as np
+
+
+def test_all_zeros_returns_summary_with_stats():
+    stats = ('min', 'max', 'stddev', 'mean')
+    array = np.zeros([100, 1])
+
+    prof = array_profile(array)
+    msg = prof.to_summary()
+    d = message_to_dict(msg)
+    d1 = json.loads(message_to_json(msg))
+    number_summary = d['columns']['0']['numberSummary']
+    missing_stats = [k for k in stats if k not in number_summary]
+    if len(missing_stats) > 0:
+        raise RuntimeError(
+            f"Stats missing from number summary: {missing_stats}")
+
+    assert d == d1
 
 
 def test_empty_valid_datasetprofiles_empty():

@@ -1,5 +1,5 @@
 from whylabs.logs.core.statistics.datatypes import StringTracker
-from google.protobuf.json_format import MessageToDict
+from whylabs.logs.util.protobuf import message_to_dict
 import datasketches
 
 
@@ -73,4 +73,4 @@ def test_summary():
             ]
         }
     }
-    assert MessageToDict(x.to_summary()) == expected
+    assert message_to_dict(x.to_summary()) == expected

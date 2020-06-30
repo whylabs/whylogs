@@ -29,12 +29,12 @@ def test_protobuf():
 
 
 def test_summary():
-    from google.protobuf.json_format import MessageToDict
+    from whylabs.logs.util.protobuf import message_to_dict
     c = ColumnProfile('col')
     for n in [1, 2, 3]:
         c.track(n)
     summary = c.to_summary()
-    summary_dict = MessageToDict(summary)
+    summary_dict = message_to_dict(summary)
     true_val = {
         "counters": {
             "count": "3",
@@ -66,7 +66,8 @@ def test_summary():
                     1.0,
                     3.0000003
                 ],
-                "n": "3"
+                "n": "3",
+                "width": 0.0
             },
             "uniqueCount": {
                 "estimate": 3.0,

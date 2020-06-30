@@ -127,7 +127,7 @@ def run(input_path, datetime: str=None, delivery_stream=None, fmt=None,
     datetime_col = datetime  # don't shadow the standard module name
     from whylabs.logs.core import DatasetProfile
     from whylabs.logs.proto import DatasetSummaries
-    from google.protobuf.json_format import MessageToJson
+    from whylabs.logs.util.protobuf import message_to_json
     from datetime import datetime
     import os
     logger = getLogger(LOGGER)
@@ -181,7 +181,7 @@ def run(input_path, datetime: str=None, delivery_stream=None, fmt=None,
     )
     with open(json_output_path, 'wt') as fp:
         logger.info("Writing JSON summaries to: {}".format(json_output_path))
-        fp.write(MessageToJson(summaries))
+        fp.write(message_to_json(summaries))
 
     # Generate flat summary outputs
     fnames = write_flat_summaries(summaries, output_base, dataframe_fmt='csv')
