@@ -1,17 +1,20 @@
-from logging import getLogger
-
-from whylabs.logs.util.data import getter, remap, get_valid_filename
-from whylabs.logs.proto import ColumnsChunkSegment, DatasetProperties
-from whylabs.logs.core import ColumnProfile
-from whylabs.logs.proto import DatasetSummary, DatasetMetadataSegment, \
-    MessageSegment, DatasetProfileMessage
-from whylabs.logs.core.types.typeddataconverter import TYPES
-from uuid import uuid4
 import datetime
-import pandas as pd
+import time
+from logging import getLogger
+from uuid import uuid4
+
 import numpy as np
+import pandas as pd
 import time
 from whylabs.logs.util.protobuf import message_to_json
+
+from whylabs.logs.core import ColumnProfile
+from whylabs.logs.core.types.typeddataconverter import TYPES
+from whylabs.logs.proto import ColumnsChunkSegment, DatasetProperties
+from whylabs.logs.proto import DatasetSummary, DatasetMetadataSegment, \
+    MessageSegment, DatasetProfileMessage
+from whylabs.logs.util.data import getter, remap, get_valid_filename
+from whylabs.logs.util.time import to_utc_ms, from_utc_ms
 
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
 TYPENUM_COLUMN_NAMES = {k: 'type_' + k.lower() + '_count' for k in
@@ -60,27 +63,52 @@ class DatasetProfile:
 
     Parameters
     ----------
-    name : str
-        Name of the dataset (e.g. timestamp string)
-    timestamp : datetime.datetime
+    name: str
+        A human readable name for the dataset profile. Could be model name
+    data_timestamp: datetime.datetime
+        The timestamp associated with the data (i.e. batch run). Optional.
+    session_timestamp : datetime.datetime
         Timestamp of the dataset
     columns : dict
         Dictionary lookup of `ColumnProfile`s
     tags : list-like
-        A list (or tuple, or iterable) of dataset tags
+        A list (or tuple, or iterable) of dataset tags.
+    metadata: dict
+        Metadata. Could be arbitratry strings.
+    session_id : str
+        The unique session ID run. Should be a UUID.
     """
-    def __init__(self, name: str, timestamp: datetime.datetime,
-                 columns: dict=None, tags=None):
+
+    def __init__(self,
+                 name: str,
+                 data_timestamp: datetime.datetime = None,
+                 session_timestamp: datetime.datetime = None,
+                 columns: dict = None,
+                 tags=None,
+                 metadata=None,
+                 session_id: str = None):
         # Default values
         if columns is None:
             columns = {}
         if tags is None:
             tags = []
+        if metadata is None:
+            metadata = dict()
+        if session_id is None:
+            session_id = uuid4().hex
+        if session_timestamp is None:
+            session_timestamp = datetime.datetime.now(datetime.timezone.utc)
+        if name is not None:
+            metadata['Name'] = name
+
         # Store attributes
         self.name = name
-        self.timestamp = timestamp
-        self.columns = columns
+        self.session_id = session_id
+        self.session_timestamp = session_timestamp
+        self.data_timestamp = data_timestamp
         self.tags = tuple(sorted([tag for tag in tags]))
+        self.metadata = metadata
+        self.columns = columns
 
     @property
     def timestamp_ms(self):
@@ -152,6 +180,27 @@ class DatasetProfile:
             for xi in x:
                 self.track(col_str, xi)
 
+    def to_properties(self):
+        tags = self.tags
+        if len(tags) < 1:
+            tags = None
+        metadata = self.metadata
+        if len(metadata) < 1:
+            metadata = None
+
+        session_timestamp = to_utc_ms(self.session_timestamp)
+        data_timestamp = to_utc_ms(self.data_timestamp)
+
+        return DatasetProperties(
+            schema_major_version=1,
+            schema_minor_version=0,
+            session_id=self.session_id,
+            session_timestamp=session_timestamp,
+            data_timestamp=data_timestamp,
+            tags=tags,
+            metadata=metadata,
+        )
+
     def to_summary(self):
         """
         Generate a summary of the statistics
@@ -164,14 +213,10 @@ class DatasetProfile:
         self.validate()
         column_summaries = {name: colprof.to_summary()
                             for name, colprof in self.columns.items()}
-        tags = self.tags
-        if len(tags) < 1:
-            tags = None
+
         return DatasetSummary(
-            name=self.name,
-            sessionTimestamp=self.timestamp_ms,
+            properties=self.to_properties(),
             columns=column_summaries,
-            tags=tags,
         )
 
     def flat_summary(self):
@@ -202,17 +247,10 @@ class DatasetProfile:
         Generate an iterator to iterate over chunks of data
         """
         # Generate unique identifier
-        marker = self.name + str(uuid4())
+        marker = self.session_id + str(uuid4())
 
         # Generate metadata
-        properties = DatasetProperties(
-            schema_major_version=1,
-            schema_minor_version=0,
-            session_id=self.name,
-            session_timestamp=self.timestamp_ms,
-            data_timestamp=0,  # TODO: support data timestamp
-            tags=self.tags,
-        )
+        properties = self.to_properties()
 
         yield MessageSegment(
             marker=marker,
@@ -227,7 +265,7 @@ class DatasetProfile:
 
     def validate(self):
         """Sanity check for this object.  Raises an Exception if invalid"""
-        for attr in ('name', 'timestamp', 'columns', 'tags'):
+        for attr in ('name', 'session_id', 'session_timestamp', 'columns', 'tags', 'metadata'):
             assert getattr(self, attr) is not None
         tags = self.tags
         assert all(isinstance(tag, str) for tag in self.tags)
@@ -251,7 +289,10 @@ class DatasetProfile:
         other.validate()
 
         assert self.name == other.name
-        assert self.timestamp == other.timestamp
+        assert self.session_id == other.session_id
+        assert self.session_timestamp == other.session_timestamp
+        assert self.data_timestamp == other.data_timestamp
+        assert self.metadata == other.metadata
         assert self.tags == other.tags
 
         columns_set = set(list(self.columns.keys()) + list(other.columns.keys()))
@@ -261,11 +302,15 @@ class DatasetProfile:
             this_column = self.columns.get(col_name, empty_column)
             other_column = other.columns.get(col_name, empty_column)
             columns[col_name] = this_column.merge(other_column)
+
         return DatasetProfile(
-            self.name,
-            self.timestamp,
-            columns,
-            tags=self.tags
+            name=self.name,
+            session_id=self.session_id,
+            session_timestamp=self.session_timestamp,
+            data_timestamp=self.data_timestamp,
+            columns=columns,
+            tags=self.tags,
+            metadata=self.metadata
         )
 
     def to_protobuf(self):
@@ -279,14 +324,7 @@ class DatasetProfile:
         tags = self.tags
         if len(tags) < 1:
             tags = None
-        properties = DatasetProperties(
-            schema_major_version=1,
-            schema_minor_version=0,
-            session_id=self.name,
-            session_timestamp=self.timestamp_ms,
-            data_timestamp=0,  # TODO: support data timestamp
-            tags=tags,
-        )
+        properties = self.to_properties()
 
         return DatasetProfileMessage(
             properties=properties,
@@ -345,14 +383,15 @@ class DatasetProfile:
         -------
         dataset_profile : DatasetProfile
         """
-        # TODO: convert message timestamp from ms to datetime object
-        dt = message.properties.session_timestamp
         return DatasetProfile(
-            name=message.properties.session_id,
-            timestamp=dt,
+            name=message.properties.metadata['Name'],
+            session_id=message.properties.session_id,
+            session_timestamp=from_utc_ms(message.properties.session_timestamp),
+            data_timestamp=from_utc_ms(message.properties.data_timestamp),
             columns={k: ColumnProfile.from_protobuf(v)
                      for k, v in message.columns.items()},
             tags=message.properties.tags,
+            metadata=message.properties.metadata
         )
 
 
@@ -463,7 +502,7 @@ def flatten_dataset_frequent_strings(dataset_summary):
     return frequent_strings
 
 
-def get_dataset_frame(dataset_summary, mapping: dict=None):
+def get_dataset_frame(dataset_summary, mapping: dict = None):
     """
     Get a dataframe from scalar values flattened from a dataset summary
 
@@ -479,11 +518,11 @@ def get_dataset_frame(dataset_summary, mapping: dict=None):
     for k, col in dataset_summary.columns.items():
         col_out[k] = remap(col, mapping)
     scalar_summary = pd.DataFrame(col_out).T
-    scalar_summary.index.name = 'column'
+    scalar_summary.index.session_id = 'column'
     return scalar_summary.reset_index()
 
 
-def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str='csv'):
+def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str = 'csv'):
     """
     Utility to write a flattened dataset summary to disk.
 
@@ -540,7 +579,7 @@ def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str='csv'):
 
 
 def write_flat_summaries(summaries, prefix: str,
-                         dataframe_fmt: str='csv'):
+                         dataframe_fmt: str = 'csv'):
     """
     Utility to write flattened `DatasetSummaries` to disk.
 
@@ -569,8 +608,8 @@ def write_flat_summaries(summaries, prefix: str,
     return dict(fnames)
 
 
-def dataframe_profile(df: pd.DataFrame, name: str=None,
-                      timestamp: datetime.datetime=None):
+def dataframe_profile(df: pd.DataFrame, name: str = None,
+                      timestamp: datetime.datetime = None):
     """
     Generate a dataset profile for a dataframe
 
@@ -596,8 +635,8 @@ def dataframe_profile(df: pd.DataFrame, name: str=None,
     return prof
 
 
-def array_profile(x: np.ndarray, name: str=None,
-                  timestamp: datetime.datetime=None, columns: list=None):
+def array_profile(x: np.ndarray, name: str = None,
+                  timestamp: datetime.datetime = None, columns: list = None):
     """
     Generate a dataset profile for an array
 

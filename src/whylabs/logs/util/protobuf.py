@@ -144,6 +144,7 @@ def _repr_message(x, level=0, msg='', display=True, indent=2):
     from uuid import uuid4
 
     if hasattr(x, 'DESCRIPTOR'):
+        # FIXME: this since the metadata is nested now
         field_names = sorted([f.name for f in x.DESCRIPTOR.fields])
         for f in field_names:
             msg = msg + ' ' * level + str(f) + '\n'
