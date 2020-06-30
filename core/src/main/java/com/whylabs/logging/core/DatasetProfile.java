@@ -56,8 +56,8 @@ public class DatasetProfile implements Serializable {
     this.dataTimestamp = dataTimestamp;
     this.columns = new ConcurrentHashMap<>();
     this.tags = ImmutableList.sortedCopyOf(Sets.newHashSet(tags));
-    this.columns = new ConcurrentHashMap<>(columns);
     this.metadata = new ConcurrentHashMap<>();
+    this.columns = new ConcurrentHashMap<>(columns);
   }
 
   /**
