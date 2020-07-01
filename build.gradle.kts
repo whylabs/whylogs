@@ -42,7 +42,7 @@ tasks.register<Copy>("copy-proto") {
 }
 
 tasks.register<Exec>("pip-install") {
-    commandLine = "pip install -v -e .[dev]".split(" ")
+    commandLine = "pip install -e .[dev]".split(" ")
 }
 
 tasks.register<Exec>("test-python") {
@@ -70,6 +70,7 @@ tasks.register<Exec>("sdist") {
 }
 
 tasks.register<Exec>("publish-python") {
+    dependsOn("pip-install")
     dependsOn("sdist")
     commandLine = "twine upload --repository codeartifact dist/*".split(" ")
 

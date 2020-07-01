@@ -53,6 +53,7 @@ DEV_EXTRA_REQUIREMENTS = [
     'pytest',
     'bump2version',
     'twine',
+    'wheel',
 ]
 
 # Pip setup
