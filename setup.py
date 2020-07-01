@@ -28,7 +28,7 @@ version = get_version("src/whylabs/logs/_version.py")
 def validate_version(v):
     branch = os.environ.get("CI_COMMIT_BRANCH")
     if branch == 'master':
-        if '.b' not in v:
+        if 'b' not in v:
             raise RuntimeError(f'Invalid version string: {v} for master branch')
     elif branch == 'release':
         if not re.fullmatch(r'\d+\.\d+\.\d+', v):
