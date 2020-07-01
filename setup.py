@@ -1,9 +1,43 @@
-"""
-"""
-import setuptools
-import os
+import re
 
-VERSION = "0.1.0"
+import setuptools
+import codecs
+import os.path
+
+
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+        return fp.read()
+
+
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith('__version__'):
+            delimiter = '"' if '"' in line else "'"
+            v = line.split(delimiter)[1]
+            print(f'WhyLogs version: {v}')
+            return v
+    else:
+        raise RuntimeError("Unable to find version string.")
+
+
+version = get_version("src/whylabs/logs/_version.py")
+
+
+def validate_version(v):
+    branch = os.environ.get("CI_COMMIT_BRANCH")
+    if branch == 'master':
+        if '.b' not in v:
+            raise RuntimeError(f'Invalid version string: {v} for master branch')
+    elif branch == 'release':
+        if not re.fullmatch(r'\d+\.\d+\.\d+', v):
+            raise RuntimeError(f'Invalid version string: {v} for release branch')
+    else:
+        print(f'Not on master or release branch: {branch}')
+
+
+validate_version(version)
 
 REQUIREMENTS = [
     'protobuf>=3.12.2',
@@ -17,14 +51,17 @@ DEV_EXTRA_REQUIREMENTS = [
     'argh>=0.26',
     'pytest-runner>=5.2',
     'pytest',
+    'bump2version',
+    'twine',
 ]
 
 # Pip setup
 with open('README.md', 'rt') as f:
     long_description = f.read()
+
 setuptools.setup(
     name='whylogs-python',
-    version=VERSION,
+    version=version,
     author='WhyLabs, Inc',
     author_email='info@whylabs.ai',
     description='WhyLogs data monitoring library',

@@ -29,6 +29,49 @@ Standard installation:
  pip install .
  ```
  
+ ## Release process
+ * If you are doing development locally, use the following command to create a local dev version. 
+ 
+ Some basic guideline for choosing whether it's `patch|minor|major`:
+ * Patch is for small bug fixes
+ * Minor is for new features
+ * Major is for breaking changes / API
+ 
+The flow looks like this:
+```
+ check out master -> create branch -> make changes -> bump dev -> publish dev
+ -> bump beta -> create merge request ->  merge in to master 
+ -> check out master -> bump release -> merge request to release -> merge into release
+```
+
+### Local development
+Start with a `dev` version locally (and you can publish them as well if needed):
+```
+bump2version dev --verbose --dry-run [--allow-dirty]
+bump2version dev --verbose
+gw publish-python
+```
+
+You can keep bumping the local version if you need to (you can't republish a version twice so this is needed).
+
+### Pushing to master branch
+
+* If you are planning to push to `master` branch, please first create a dev version (see the above guide). 
+**You'll have to bump it to a `beta` version or the build will fail**. You'll need to do this before creating the merge request:
+```
+bump2version beta --verbose --dry-run
+bump2version beta --verbose
+```
+
+
+### Full release
+
+For full release, you'll have to bump it to a release version and push to `release` branch. This branch
+will contain only 'nice-looking' version string (i.e. `1.0.1`). Doing otherwise will fail the build when merging into `release` branch.
+```
+bump2version release --verbose --dry-run
+bump2version release --verbose
+```
 
 ## Tests
 Testing is handled with the `pytest` framework.

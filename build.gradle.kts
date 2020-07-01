@@ -61,6 +61,20 @@ tasks.build {
     dependsOn("build-python")
 }
 
+tasks.register<Exec>("sdist") {
+    doFirst {
+        println("Delete dist folder")
+        delete("dist")
+    }
+    commandLine = "python setup.py sdist bdist_wheel".split(" ")
+}
+
+tasks.register<Exec>("publish-python") {
+    dependsOn("sdist")
+    commandLine = "twine upload --repository codeartifact dist/*".split(" ")
+
+}
+
 tasks.compileJava {
     enabled = false
 }

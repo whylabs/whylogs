@@ -1,4 +1,4 @@
-__version__ = '0.0.0'
+from ._version import __version__
 
 
 def display_logging(level='DEBUG', root_logger=False):
