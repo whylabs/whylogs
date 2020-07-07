@@ -39,18 +39,30 @@ def validate_version(v):
 
 validate_version(version)
 
+# Currently, all requirements will be made mandatory, but long term we could
+# remove these optional requirements.  Such packages are only needed for
+# certain modules, but aren't required for core WhyLogs functionality
+OPTIONAL_REQS = [
+    'boto3',
+    's3fs',
+]
+
 REQUIREMENTS = [
     'protobuf>=3.12.2',
     'pyyaml>=5.3.1',
     'pandas>1.0',
     'numpy>=1.18',
     'datasketches==0+untagged.739.g975812b'
-]
+] + OPTIONAL_REQS
 DEV_EXTRA_REQUIREMENTS = [
     'ipython',
     'argh>=0.26',
     'pytest-runner>=5.2',
     'pytest',
+    'ipykernel',
+    'pyarrow',
+    'vmprof',
+    'matplotlib',
     'bump2version',
     'twine',
     'wheel',

@@ -4,6 +4,17 @@ from google.protobuf.json_format import MessageToDict, MessageToJson
 from whylabs.logs.util import varint
 import google.protobuf.message
 from google.protobuf.pyext._message import MessageMapContainer
+from google.protobuf.json_format import MessageToJson
+
+
+def message_to_json(x, **kwargs):
+    """
+    A wrapper for `google.protobuf.json_format.MessageToJson`
+
+    Currently a very thin wrapper...x and kwargs are just passed to
+    `MessageToJson`
+    """
+    return MessageToJson(x, **kwargs)
 
 
 def message_to_dict(x: google.protobuf.message):

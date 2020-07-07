@@ -27,7 +27,10 @@ class TypedDataConverter:
         if isinstance(data, str):
             try:
                 data = yaml.safe_load(data)
-            except yaml.scanner.ScannerError:
+            except Exception:
+                # Obviously this is very bad coding practice to catch all
+                # exceptions, but if we can't parse data with yaml, then it's
+                # not yaml data, therefore I'll call it a string!
                 pass
         return data
 

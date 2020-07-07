@@ -391,6 +391,14 @@ class DatasetProfile:
             metadata=message.properties.metadata
         )
 
+    @staticmethod
+    def from_protobuf_string(x: bytes):
+        """
+        Deserialize a serialized protobuf message
+        """
+        msg = DatasetProfileMessage.FromString(x)
+        return DatasetProfile.from_protobuf(msg)
+
 
 def columns_chunk_iterator(iterator, marker: str):
     """

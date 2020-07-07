@@ -5,8 +5,28 @@ Python port of the [WhyLogs Java library](https://gitlab.com/whylabs/whylogs-jav
 ## Installation
 Currently, `python 3.7` is recommended.
 
+### 1. Login to private pypi
+
+#### 1a. Install aws cli
+```pip install --upgrade awscli```
+
+#### 1b. Login to private PYPI
+You'll need access to the private PYPI repo.
+Scripts for logging into the private pypi are available at the [why-shell repo](https://gitlab.com/whylabs/why-shell)
+
+
+### 2. Install whylogs
+
+#### From private PYPI
+```pip install whylogs-python```
+
+#### OR install from the whylogs repo (required for dev)
+This installation also requires access to the private PYPI
+
 1. Clone the repo and cd into the directory
-2. Install with pip.
+2. Build the protobuf files
+```./gradlew build-python```
+3. cd into `whylogs-python` and install with pip.
 
 For a dev installation with development requirements, it's recommended create a fresh conda environment or virtualenv
 
@@ -63,6 +83,10 @@ bump2version beta --verbose --dry-run
 bump2version beta --verbose
 ```
 
+### Updating notebooks
+Before committing any changes to the example notebooks, you should clear all cell outputs.
+We don't want to version control the notebook cell outputs.
+
 
 ### Full release
 
@@ -77,8 +101,10 @@ bump2version release --verbose
 Testing is handled with the `pytest` framework.
 You can run all the tests by running `pytest -vvs tests/` from the parent directory.
 
-## Scripts
+## Examples
 See the `scripts/` directory for some example scripts for interacting with `whylogs-python`
+
+See the `notebooks/` directory for some example notebooks.
 
 
 # Development/contribution
