@@ -52,7 +52,7 @@ REQUIREMENTS = [
     'pyyaml>=5.3.1',
     'pandas>1.0',
     'numpy>=1.18',
-    'datasketches==0+untagged.739.g975812b'
+    'datasketches==2.0.0b1'
 ] + OPTIONAL_REQS
 DEV_EXTRA_REQUIREMENTS = [
     'ipython',
@@ -61,7 +61,7 @@ DEV_EXTRA_REQUIREMENTS = [
     'pytest',
     'ipykernel',
     'pyarrow',
-    'vmprof',
+    # 'vmprof',
     'matplotlib',
     'bump2version',
     'twine',

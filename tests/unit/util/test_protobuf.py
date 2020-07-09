@@ -4,7 +4,6 @@ from whylabs.logs.util import protobuf
 from whylabs.logs.proto import DoublesMessage
 import json
 
-
 def test_message_to_dict_returns_default_values():
     msg1 = DoublesMessage(
         min=0,

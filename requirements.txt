@@ -1,7 +1,7 @@
 appnope==0.1.0
 argh==0.26.2
 backcall==0.1.0
-datasketches==0+untagged.739.g975812b
+datasketches==2.0.0b1
 decorator==4.4.2
 ipython==7.15.0
 ipython-genutils==0.2.0
