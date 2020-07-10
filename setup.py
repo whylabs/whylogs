@@ -48,6 +48,7 @@ OPTIONAL_REQS = [
 ]
 
 REQUIREMENTS = [
+    "python-dateutil>=2.8.1",
     'protobuf>=3.12.2',
     'pyyaml>=5.3.1',
     'pandas>1.0',

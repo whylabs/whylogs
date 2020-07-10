@@ -1,3 +1,4 @@
+click
 appnope==0.1.0
 argh==0.26.2
 backcall==0.1.0
