@@ -65,11 +65,16 @@ The flow looks like this:
 ```
 
 ### Local development
-Start with a `dev` version locally (and you can publish them as well if needed):
+Start with a `dev` version locally (and you can publish them as well if needed).
+
 ```
+cd whylogs-python/
 bump2version dev --verbose --dry-run [--allow-dirty]
 bump2version dev --verbose
-gw publish-python
+```
+Then from the root of the repo
+```
+./gradlew publish-python
 ```
 
 You can keep bumping the local version if you need to (you can't republish a version twice so this is needed).

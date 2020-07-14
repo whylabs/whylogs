@@ -35,7 +35,6 @@ class Session:
                     "Cannot parse session kwargs with activate=False")
 
     def reset(self):
-        print('RESETTING')
         self._active = False
         self.config = None
         if hasattr(self, 'logger'):
@@ -352,6 +351,18 @@ class S3Handler:
         self._logger.debug('Writing dataset frequent strings to %s', uri)
         json.dump(freq_strings, self._s3filesystem.open(uri, 'wt'))
         destinations[fmt] = uri
+
+        # Write frequent numbers
+        # TODO: use self.handle_json
+        freq_numbers = x['frequent_numbers']
+        fmt = 'freq_numbers'
+        path = self._init_output(fmt, '.json', logger_name,
+                                 otype, timestamp_ms, dest_kw)
+        uri = path.uri
+        self._logger.debug('Writing dataset frequent strings to %s', uri)
+        json.dump(freq_numbers, self._s3filesystem.open(uri, 'wt'))
+        destinations[fmt] = uri
+
         return HandlerResponse(dest=destinations)
 
 
@@ -487,6 +498,17 @@ class DiskHandler:
         self._logger.debug('Writing dataset frequent strings to %s', fname)
         json.dump(freq_strings, open(fname, 'wt'))
         destinations[fmt] = fname
+
+        # Write frequent numbers
+        # TODO: use self.handle_json
+        x_out = x['frequent_numbers']
+        fmt = 'freq_numbers'
+        fname = self._init_output(fmt, '.json', logger_name,
+                                  otype, timestamp_ms, dest_kw)
+        self._logger.debug('Writing dataset frequent strings to %s', fname)
+        json.dump(x_out, open(fname, 'wt'))
+        destinations[fmt] = fname
+
         return HandlerResponse(dest=destinations)
 
 

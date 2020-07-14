@@ -1,5 +1,6 @@
 """
 """
+from collections import OrderedDict
 
 
 def getter(x, k, *args):
@@ -57,11 +58,11 @@ def remap(x, mapping: dict):
 
     Returns
     -------
-    flat : dict
-        A flattened dictionary of values
+    flat : OrderedDict
+        A flattened ordered dictionary of values
 
     """
-    out = {}
+    out = OrderedDict()
     _remap(x, mapping, out)
     return out
 

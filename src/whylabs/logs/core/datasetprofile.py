@@ -15,44 +15,53 @@ from whylabs.logs.proto import DatasetSummary, DatasetMetadataSegment, \
     MessageSegment, DatasetProfileMessage
 from whylabs.logs.util.data import getter, remap, get_valid_filename
 from whylabs.logs.util.time import to_utc_ms, from_utc_ms
+from whylabs.logs.util.dsketch import FrequentNumbersSketch
+
+from collections import OrderedDict
 
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
-TYPENUM_COLUMN_NAMES = {k: 'type_' + k.lower() + '_count' for k in
-                        TYPES.keys()}
+TYPENUM_COLUMN_NAMES = OrderedDict()
+for k in TYPES.keys():
+    TYPENUM_COLUMN_NAMES[k] = 'type_' + k.lower() + '_count'
 
-SCALAR_NAME_MAPPING = {
-    'counters': {
-        'count': 'count',
-        'null_count': {'value': 'null_count'},
-        'true_count': {'value': 'bool_count'},
-    },
-    'number_summary': {
-        'count': 'numeric_count',
-        'max': 'max',
-        'mean': 'mean',
-        'min': 'min',
-        'stddev': 'stddev',
-        'unique_count': {
-            'estimate': 'nunique_numbers',
-            'lower': 'nunique_numbers_lower',
-            'upper': 'nunique_numbers_upper'
-        }
-    },
-    'schema': {
-        'inferred_type': {
-            'type': 'inferred_dtype',
-            'ratio': 'dtype_fraction',
-        },
-        'type_counts': TYPENUM_COLUMN_NAMES,
-    },
-    'string_summary': {
-        'unique_count': {
-            'estimate': 'nunique_str',
-            'lower': 'nunique_str_lower',
-            'upper': 'ununique_str_upper'
-        }
-    }
-}
+# NOTE: I use ordered dicts here to control the ordering of generated columns
+# dictionaries are also valid
+SCALAR_NAME_MAPPING = OrderedDict(
+    counters=OrderedDict(
+        count='count',
+        null_count=OrderedDict(value='null_count'),
+        true_count=OrderedDict(value='bool_count'),
+    ),
+
+    number_summary=OrderedDict(
+        count='numeric_count',
+        max='max',
+        mean='mean',
+        min='min',
+        stddev='stddev',
+        unique_count=OrderedDict(
+            estimate='nunique_numbers',
+            lower='nunique_numbers_lower',
+            upper='nunique_numbers_upper'
+        )
+    ),
+
+    schema=OrderedDict(
+        inferred_type=OrderedDict(
+            type='inferred_dtype',
+            ratio='dtype_fraction'
+    ),
+        type_counts=TYPENUM_COLUMN_NAMES,
+    ),
+
+    string_summary=OrderedDict(
+        unique_count=OrderedDict(
+            estimate='nunique_str',
+            lower='nunique_str_lower',
+            upper='ununique_str_upper',
+        )
+    )
+)
 
 
 class DatasetProfile:
@@ -333,6 +342,9 @@ class DatasetProfile:
         """
         Utility function to simplify writing of this dataset profile.
 
+        <DEPRECATED>
+        This function is deprecated
+
         Parameters
         ----------
         file_prefix
@@ -345,6 +357,10 @@ class DatasetProfile:
         -------
 
         """
+        import warnings
+        warnings.warn(DeprecationWarning(
+            'This function is deprecated and will be remoed soon'
+        ))
         logger = getLogger(__name__)
         output_files = {}
         if file_prefix is None:
@@ -459,15 +475,39 @@ def flatten_summary(dataset_summary: DatasetSummary):
     """
     hist = flatten_dataset_histograms(dataset_summary)
     frequent_strings = flatten_dataset_frequent_strings(dataset_summary)
+    frequent_numbers = flatten_dataset_frequent_numbers(dataset_summary)
     summary = get_dataset_frame(dataset_summary)
     return {
         'summary': summary,
         'hist': hist,
-        'frequent_strings': frequent_strings
+        'frequent_strings': frequent_strings,
+        'frequent_numbers': frequent_numbers,
     }
 
 
-def flatten_dataset_histograms(dataset_summary):
+def _quantile_strings(quantiles: list):
+    return ['quantile_{:.4f}'.format(q) for q in quantiles]
+
+
+def flatten_dataset_quantiles(dataset_summary: DatasetSummary):
+    """
+    Flatten quantiles from a dataset summary
+    """
+    quants = {}
+    for col_name, col in dataset_summary.columns.items():
+        try:
+            quant = getter(getter(col, 'number_summary'), 'quantiles')
+            x = OrderedDict()
+            for q, qval in zip(_quantile_strings(quant.quantiles),
+                               quant.quantile_values):
+                x[q] = qval
+            quants[col_name] = x
+        except KeyError:
+            pass
+    return quants
+
+
+def flatten_dataset_histograms(dataset_summary: DatasetSummary):
     """
     Flatten histograms from a dataset summary
     """
@@ -486,7 +526,24 @@ def flatten_dataset_histograms(dataset_summary):
     return histograms
 
 
-def flatten_dataset_frequent_strings(dataset_summary):
+def flatten_dataset_frequent_numbers(dataset_summary: DatasetSummary):
+    """
+    Flatten frequent number counts from a dataset summary
+    """
+    frequent_numbers = {}
+
+    for col_name, col in dataset_summary.columns.items():
+        try:
+            summary = getter(getter(col, 'number_summary'), 'frequent_numbers')
+            flat_dict = FrequentNumbersSketch.flatten_summary(summary)
+            if len(flat_dict) > 0:
+                frequent_numbers[col_name] = flat_dict
+        except KeyError:
+            continue
+    return frequent_numbers
+
+
+def flatten_dataset_frequent_strings(dataset_summary: DatasetSummary):
     """
     Flatten frequent strings summaries from a dataset summary
     """
@@ -507,7 +564,7 @@ def flatten_dataset_frequent_strings(dataset_summary):
     return frequent_strings
 
 
-def get_dataset_frame(dataset_summary, mapping: dict = None):
+def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
     """
     Get a dataframe from scalar values flattened from a dataset summary
 
@@ -519,17 +576,22 @@ def get_dataset_frame(dataset_summary, mapping: dict = None):
     import pandas as pd
     if mapping is None:
         mapping = SCALAR_NAME_MAPPING
+    quantile = flatten_dataset_quantiles(dataset_summary)
     col_out = {}
     for k, col in dataset_summary.columns.items():
         col_out[k] = remap(col, mapping)
+        col_out[k].update(quantile.get(k, {}))
     scalar_summary = pd.DataFrame(col_out).T
-    scalar_summary.index.session_id = 'column'
+    scalar_summary.index.name = 'column'
     return scalar_summary.reset_index()
 
 
 def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str = 'csv'):
     """
     Utility to write a flattened dataset summary to disk.
+
+    <DEPRECATED>
+    This function will no longer be maintained and will be removed soon.
 
     Parameters
     ----------
@@ -547,6 +609,9 @@ def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str = 'csv')
     filenames : dict
         Dictionary containing output paths
     """
+    import warnings
+    warnings.warn(DeprecationWarning(
+        'This function will no longer be maintained and will be removed soon'))
     import json
     if not isinstance(summary, dict):
         summary = flatten_summary(summary)
@@ -588,6 +653,8 @@ def write_flat_summaries(summaries, prefix: str,
     """
     Utility to write flattened `DatasetSummaries` to disk.
 
+    <DEPRECATED>
+
     Parameters
     ----------
     summaries : DatasetSummaries
@@ -603,6 +670,10 @@ def write_flat_summaries(summaries, prefix: str,
     filenames : dict
         Dictionary containing output filenames
     """
+    import warnings
+    warnings.warn(DeprecationWarning(
+        'This function is deprecated and will be remoed soon'
+    ))
     from collections import defaultdict
     fnames = defaultdict(list)
     for name, summary in summaries.profiles.items():

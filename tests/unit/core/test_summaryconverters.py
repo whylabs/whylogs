@@ -23,7 +23,7 @@ def test_histogram_summary():
     for val in vals:
         hist.update(val)
 
-    summary = summaryconverters.from_kll_floats_sketch(hist)
+    summary = summaryconverters.histogram_from_sketch(hist)
     _hist_summary_check(summary, vals)
     assert len(summary.counts) > 1
 
@@ -35,6 +35,6 @@ def test_single_value_histogram_summary():
     for val in vals:
         hist.update(val)
 
-    summary = summaryconverters.from_kll_floats_sketch(hist)
+    summary = summaryconverters.histogram_from_sketch(hist)
     _hist_summary_check(summary, vals)
     assert len(summary.counts) == 1

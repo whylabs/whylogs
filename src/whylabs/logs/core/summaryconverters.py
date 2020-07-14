@@ -1,11 +1,12 @@
 import math
 from whylabs.logs.proto import UniqueCountSummary, \
-    FrequentStringsSummary, HistogramSummary
+    FrequentStringsSummary, HistogramSummary, QuantileSummary
 from datasketches import update_theta_sketch, frequent_strings_sketch, \
     frequent_items_error_type, kll_floats_sketch
 
 MAX_HIST_BUCKETS = 100
 HIST_AVG_NUMBER_PER_BUCKET = 4.0
+QUANTILES = [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]
 
 
 def from_sketch(sketch: update_theta_sketch, num_std_devs: float=1):
@@ -55,11 +56,40 @@ def from_string_sketch(sketch: frequent_strings_sketch):
     return FrequentStringsSummary(items=items)
 
 
-def from_kll_floats_sketch(sketch: kll_floats_sketch):
+def quantiles_from_sketch(sketch: kll_floats_sketch, quantiles=None):
+    """
+    Calculate quantiles from a data sketch
+
+    Parameters
+    ----------
+    sketch : kll_floats_sketch
+        Data sketch
+    quantiles : list-like
+        Override the default quantiles.  Should be a list of values from
+        0 to 1 inclusive.
+    """
+    if quantiles is None:
+        quantiles = QUANTILES
+    qvals = sketch.get_quantiles(quantiles)
+    return QuantileSummary(
+        quantiles=quantiles,
+        quantile_values=qvals,
+    )
+
+
+def histogram_from_sketch(sketch: kll_floats_sketch):
     """
     Generate a summary of a kll_floats_sketch, including a histogram
 
+    Parameters
+    ----------
+    sketch : kll_floats_sketch
+        Data sketch
 
+    Returns
+    -------
+    histogram : HistogramSummary
+        Protobuf histogram message
     """
     n = sketch.get_n()
     start = sketch.get_min_value()
@@ -83,6 +113,7 @@ def from_kll_floats_sketch(sketch: kll_floats_sketch):
         pmf = sketch.get_pmf(bins)
         counts = [round(p * n) for p in pmf]
         counts = counts[1:-1]
+
     return HistogramSummary(
         start=start,
         end=end,

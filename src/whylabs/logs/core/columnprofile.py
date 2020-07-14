@@ -4,7 +4,6 @@ created 5/7/20 by ibackus
 """
 from whylabs.logs.core.types import TypedDataConverter
 from whylabs.logs.core.statistics import NumberTracker
-from whylabs.logs.core.statistics import from_number_tracker
 from whylabs.logs.proto import ColumnSummary, ColumnMessage, InferredType
 from whylabs.logs.core.statistics import CountersTracker, SchemaTracker
 from whylabs.logs.core.statistics.datatypes import StringTracker
@@ -102,7 +101,8 @@ class ColumnProfile:
                     opts['string_summary'] = string_summary
 
             elif dtype in _NUMERIC_TYPES:
-                numbers_summary = from_number_tracker(self.number_tracker)
+                if self.number_tracker is not None:
+                    numbers_summary = self.number_tracker.to_summary()
                 if numbers_summary is not None:
                     opts['number_summary'] = numbers_summary
         return ColumnSummary(**opts)

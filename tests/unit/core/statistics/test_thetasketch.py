@@ -81,7 +81,7 @@ def test_serialize_roundtrip():
 
 def test_summary():
     theta = thetasketch.ThetaSketch()
-    vals = [1, 2, 3, 1, 2, 3]
+    vals = 3 * [1, 2, 3] + [4.0, 6.0, 9.0, 9.0]
     for v in vals:
         theta.update(v)
 

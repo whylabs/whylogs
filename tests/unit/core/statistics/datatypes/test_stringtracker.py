@@ -36,7 +36,7 @@ def test_protobuf():
 
 
 def test_summary():
-    # This is probably too fragile of a test
+    import pandas as pd
     x = StringTracker()
     data = ['one', 'two', 'three', 'one', 'one', 'One', 'six', None, None]
     for record in data:
@@ -74,5 +74,17 @@ def test_summary():
             ]
         }
     }
-    assert datetime.date.today() < datetime.date(2020, 7, 31)
-    # assert message_to_dict(x.to_summary()) == expected
+    expected_items = pd.DataFrame(expected['frequent']['items'])\
+        .sort_values(['value', 'estimate'])
+    expected['frequent'].pop('items')
+
+    actual = message_to_dict(x.to_summary())
+    actual_items = pd.DataFrame(actual['frequent']['items'])\
+        .sort_values(['value', 'estimate'])
+    actual['frequent'].pop('items')
+
+    assert expected == actual
+    pd.testing.assert_frame_equal(
+        actual_items.reset_index(drop=True).sort_index(axis=1),
+        expected_items.reset_index(drop=True).sort_index(axis=1),
+    )

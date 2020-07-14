@@ -6,12 +6,13 @@ import datasketches
 import pandas as pd
 
 from whylabs.logs.proto import NumbersMessage
-from whylabs.logs.core.summaryconverters import from_kll_floats_sketch
+from whylabs.logs.core.summaryconverters import histogram_from_sketch, \
+    quantiles_from_sketch
 from whylabs.logs.core.statistics.thetasketch import ThetaSketch
 from whylabs.logs.core.statistics.datatypes import VarianceTracker, \
     IntTracker, FloatTracker
 from whylabs.logs.proto import NumberSummary
-from whylabs.logs.util import dsketch
+from whylabs.logs.util import dsketch, stats
 
 # Parameter controlling histogram accuracy.  Larger = more accurate
 DEFAULT_HIST_K = 256
@@ -47,6 +48,7 @@ class NumberTracker:
                  ints: IntTracker=None,
                  theta_sketch: ThetaSketch=None,
                  histogram: datasketches.kll_floats_sketch=None,
+                 frequent_numbers: dsketch.FrequentNumbersSketch=None,
                  ):
         # Our own trackers
         if variance is None:
@@ -59,14 +61,14 @@ class NumberTracker:
             theta_sketch = ThetaSketch()
         if histogram is None:
             histogram = datasketches.kll_floats_sketch(DEFAULT_HIST_K)
+        if frequent_numbers is None:
+            frequent_numbers = dsketch.FrequentNumbersSketch()
         self.variance = variance
         self.floats = floats
         self.ints = ints
         self.theta_sketch = theta_sketch
         self.histogram = histogram
-        # TEST DEBUG
-        assert isinstance(self.theta_sketch, ThetaSketch)
-        # END DEBUG
+        self.frequent_numbers = frequent_numbers
 
     def track(self, number):
         """
@@ -81,6 +83,7 @@ class NumberTracker:
             return
         self.variance.update(number)
         self.theta_sketch.update(number)
+        self.frequent_numbers.update(number)
         # TODO: histogram update
         # Update floats/ints counting
         f_value = float(number)
@@ -103,12 +106,14 @@ class NumberTracker:
         hist_copy.merge(other.histogram)
 
         theta_sketch = self.theta_sketch.merge(other.theta_sketch)
+        frequent_numbers = self.frequent_numbers.merge(other.frequent_numbers)
         return NumberTracker(
             variance=self.variance.merge(other.variance),
             floats=self.floats.merge(other.floats),
             ints=self.ints.merge(other.ints),
             theta_sketch=theta_sketch,
-            histogram=hist_copy
+            histogram=hist_copy,
+            frequent_numbers=frequent_numbers,
         )
 
     def to_protobuf(self):
@@ -119,6 +124,7 @@ class NumberTracker:
             variance=self.variance.to_protobuf(),
             compact_theta=self.theta_sketch.serialize(),
             histogram=self.histogram.serialize(),
+            frequent_numbers=self.frequent_numbers.to_protobuf(),
         )
         if self.floats.count > 0:
             opts['doubles'] = self.floats.to_protobuf()
@@ -147,6 +153,8 @@ class NumberTracker:
             theta_sketch=theta,
             variance=VarianceTracker.from_protobuf(message.variance),
             histogram=dsketch.deserialize_kll_floats_sketch(message.histogram),
+            frequent_numbers=dsketch.FrequentNumbersSketch.from_protobuf(
+                message.frequent_numbers),
         )
         if message.HasField('doubles'):
             opts['floats'] = FloatTracker.from_protobuf(message.doubles)
@@ -154,47 +162,46 @@ class NumberTracker:
             opts['ints'] = IntTracker.from_protobuf(message.longs)
         return NumberTracker(**opts)
 
+    def to_summary(self):
+        """
+        Construct a `NumberSummary` message
 
-def from_number_tracker(number_tracker: NumberTracker):
-    """
-    Construct a `NumberSummary` message from a `NumberTracker`
+        Returns
+        -------
+        summary : NumberSummary
+            Summary of the tracker statistics
+        """
+        if self.variance.count == 0:
+            return
 
-    Parameters
-    ----------
-    number_tracker
-        Number tracker to serialize
+        stddev = self.variance.stddev()
+        doubles = self.floats.to_protobuf()
+        if doubles.count > 0:
+            mean = self.floats.mean()
+            min = doubles.min
+            max = doubles.max
+        else:
+            mean = self.ints.mean()
+            min = float(self.ints.min)
+            max = float(self.ints.max)
 
-    Returns
-    -------
-    summary : NumberSummary
-        Summary of the tracker statistics
-    """
-    if number_tracker is None:
-        return
+        unique_count = self.theta_sketch.to_summary()
+        histogram = histogram_from_sketch(self.histogram)
+        quant = quantiles_from_sketch(self.histogram)
+        frequent_numbers = self.frequent_numbers.to_summary()
+        num_records = self.variance.count
+        cardinality = unique_count.estimate
+        discrete = stats.is_discrete(num_records, cardinality)
 
-    if number_tracker.variance.count == 0:
-        return
-
-    stddev = number_tracker.variance.stddev()
-    doubles = number_tracker.floats.to_protobuf()
-    if doubles.count > 0:
-        mean = number_tracker.floats.mean()
-        min = doubles.min
-        max = doubles.max
-    else:
-        mean = number_tracker.ints.mean()
-        min = float(number_tracker.ints.min)
-        max = float(number_tracker.ints.max)
-
-    unique_count = number_tracker.theta_sketch.to_summary()
-    histogram = from_kll_floats_sketch(number_tracker.histogram)
-
-    return NumberSummary(
-        count=number_tracker.variance.count,
-        stddev=stddev,
-        min=min,
-        max=max,
-        mean=mean,
-        histogram=histogram,
-        unique_count=unique_count,
-    )
+        return NumberSummary(
+            count=self.variance.count,
+            stddev=stddev,
+            min=min,
+            max=max,
+            mean=mean,
+            histogram=histogram,
+            quantiles=quant,
+            unique_count=unique_count,
+            frequent_numbers=frequent_numbers,
+            is_discrete=discrete,
+        )

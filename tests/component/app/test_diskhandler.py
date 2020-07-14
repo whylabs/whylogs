@@ -84,9 +84,11 @@ def test_handle_flat(dataset_profile_data):
     flat_table = pd.read_csv(flat_response.dest['flat_table'])
     hist = json.load(open(flat_response.dest['histogram'], 'rt'))
     strings = json.load(open(flat_response.dest['freq_strings'], 'rt'))
+    numbers = json.load(open(flat_response.dest['freq_numbers'], 'rt'))
 
     # Validate output
     assert hist == dataset_profile_data['flat_summary']['hist']
+    assert numbers == dataset_profile_data['flat_summary']['frequent_numbers']
     assert strings == dataset_profile_data['flat_summary']['frequent_strings']
     assert_frame_equal(
         flat_table, dataset_profile_data['flat_summary']['summary'],

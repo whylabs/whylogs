@@ -67,6 +67,7 @@ DEV_EXTRA_REQUIREMENTS = [
     'bump2version',
     'twine',
     'wheel',
+    'awscli >= 1.18.93'
 ]
 
 # Pip setup
