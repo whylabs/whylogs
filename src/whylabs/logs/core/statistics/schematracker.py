@@ -21,6 +21,9 @@ class SchemaTracker:
     def __init__(self, type_counts: dict=None):
         if type_counts is None:
             type_counts = {}
+        if not isinstance(type_counts, dict):
+            # Assume we have a protobuf object
+            type_counts = {k: v for k, v in type_counts.items()}
         self.type_counts = type_counts
 
     def track(self, item_type):

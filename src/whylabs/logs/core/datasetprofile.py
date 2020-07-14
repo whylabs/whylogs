@@ -105,8 +105,6 @@ class DatasetProfile:
             metadata = dict()
         if session_id is None:
             session_id = uuid4().hex
-        if session_timestamp is None:
-            session_timestamp = datetime.datetime.now(datetime.timezone.utc)
         if name is not None:
             metadata['Name'] = name
 
@@ -118,6 +116,17 @@ class DatasetProfile:
         self.tags = tuple(sorted([tag for tag in tags]))
         self.metadata = metadata
         self.columns = columns
+
+    @property
+    def session_timestamp(self):
+        return self._session_timestamp
+
+    @session_timestamp.setter
+    def session_timestamp(self, x):
+        if x is None:
+            x = datetime.datetime.now(datetime.timezone.utc)
+        assert isinstance(x, datetime.datetime)
+        self._session_timestamp = x
 
     @property
     def timestamp_ms(self):
