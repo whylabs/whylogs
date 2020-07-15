@@ -1,6 +1,6 @@
 import yaml
 
-from .config import WhyLogsConfig
+from .config import WhyLogsConfig, ConfigDateTime
 
 
 def parse(stream) -> WhyLogsConfig:
@@ -8,5 +8,5 @@ def parse(stream) -> WhyLogsConfig:
     return yaml.parse(stream)
 
 
-def to_yaml(config: WhyLogsConfig, stream=None):
-    return yaml.dump(config, stream)
+def to_yaml(cfg: WhyLogsConfig, stream=None):
+    return yaml.dump(cfg, stream)

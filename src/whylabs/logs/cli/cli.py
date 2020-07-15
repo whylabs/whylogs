@@ -43,8 +43,6 @@ Supported basic commands:
 """
     logger = _set_up_logger()
     if verbose:
-        # Note we are explicitly not using a logger in all CLI output to have
-        # more control over console UI.
         logger.setLevel(logging.DEBUG)
 
 
