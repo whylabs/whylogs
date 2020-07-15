@@ -20,9 +20,11 @@ class WhyLogsConfig(yaml.YAMLObject):
     def __init__(self,
                  dataset_name: str,
                  datetime_column: Optional[str],
+                 datetime_format: Optional[str] = None,
                  version: str = version_str):
         self.dataset_name = dataset_name
         self.datetime_column = datetime_column
+        self.datetime_format = datetime_format
         self.version = version
 
     def __repr__(self):
