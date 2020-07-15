@@ -4,16 +4,18 @@ import re
 import sys
 
 import click
-from click import secho as echo
+import typing
 
-INTRO_MESSAGE = """
- __     __     __  __     __  __        __         ______     ______     ______    
-/\ \  _ \ \   /\ \_\ \   /\ \_\ \      /\ \       /\  __ \   /\  ___\   /\  ___\   
-\ \ \/ ".\ \  \ \  __ \  \ \____ \     \ \ \____  \ \ \/\ \  \ \ \__ \  \ \___  \  
- \ \__/".~\_\  \ \_\ \_\  \/\_____\     \ \_____\  \ \_____\  \ \_____\  \/\_____\ 
-  \/_/   \/_/   \/_/\/_/   \/_____/      \/_____/   \/_____/   \/_____/   \/_____/ 
-                                                                                   
-"""
+from whylabs.logs.cli.cli_text import *
+
+
+def echo(message: typing.Union[str, list], **styles):
+    if isinstance(message, list):
+        for msg in message:
+            click.secho(msg, **styles)
+    else:
+        click.secho(message, **styles)
+
 
 DATASET_NAME_FOMRAT = re.compile(r'^\w+$')
 
@@ -48,20 +50,28 @@ def init(project_dir):
 
     is_project_dir_empty = len(os.listdir(path=project_dir)) == 0
     if not is_project_dir_empty:
-        echo('WARNING: we will override the content in the non-empty path', fg='yellow')
+        echo(EMPTY_PATH_WARNING, fg='yellow')
 
-    if not click.confirm("Would you like to proceed with the above path?", default=False, show_default=True):
-        echo("Doing nothing. Aborting")
+    if not click.confirm(OVERRIDE_CONFIRM, default=False, show_default=True):
+        echo(DOING_NOTHING_ABORTING)
         sys.exit(0)
 
-    echo('Great. We will now generate the default configuration for WhyLogs')
-    echo("We'll need a few details from you before we can proceed")
-    dataset_name = click.prompt('Dataset name (alphanumeric, dash, and underscore characters only)',
-                                type=DatasetParamType())
-
+    echo(BEGIN_WORKFLOW)
+    dataset_name = click.prompt(DATASET_NAME_PROMPT, type=DatasetParamType())
     echo(f'Using dataset name: {dataset_name}', fg='green')
-    if click.confirm('Would you like to run an initial profiling job?', default=True):
-        echo("Select data source:")
+
+    echo(DATETIME_EXPLANATION)
+    datetime_column = click.prompt(DATETIME_COLUMN_PROMPT, type=click.STRING, default='')
+    datetime_format = ''
+    if not datetime_column:
+        echo(SKIP_DATETIME)
+    else:
+        datetime_format = click.prompt(DATETIME_FORMAT_PROMPT, default='')
+    if datetime_format:
+        echo(f'Date time format used: {datetime_format}')
+
+    if click.confirm(INITIAL_PROFILING_CONFIRM, default=True):
+        echo(DATA_SOURCE_MESSAGE)
         choices = [
             'single CSV on the file system',
             # 'single CSV on S3',
@@ -78,23 +88,11 @@ def init(project_dir):
         echo(f'Input file: {full_path}')
         output_path = os.path.join(project_dir, 'profile')
         if os.path.exists(output_path):
-            if not click.confirm('Profile path already exists. This will override existing data', default=True):
+            if not click.confirm(PROFILE_OVERRIDE_CONFIRM, default=True):
                 echo('Abort profiling')
                 sys.exit(0)
             else:
-                echo('Previous profile data will be overridden', fg='yellow')
-        echo('WhyLogs can break down the data by time for you')
-        echo('This will enable users to run time-based analysis')
-        datetime_column = click.prompt('What is your datetime column?',
-                                       type=click.STRING,
-                                       default='')
-        datetime_format = ''
-        if not datetime_column:
-            echo('Skip date time handling')
-        else:
-            datetime_format = click.prompt('What is the format of the column? Leave blank to use datetimeutil to parse',
-                                           default='')
-        if datetime_format:
-            echo(f'Date time format used: {datetime_format}')
-        echo('Run profiling')
-        echo('Successful. You can find the result under "profile" path')
+                echo(DATA_WILL_BE_OVERRIDDEN, fg='yellow')
+
+        echo(RUN_PROFILING)
+        echo(DONE)
