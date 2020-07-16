@@ -7,6 +7,7 @@ import click
 import typing
 
 from whylabs.logs.cli.cli_text import *
+from whylabs.logs.config import WhyLogsConfig, ConfigDateTime
 
 
 def echo(message: typing.Union[str, list], **styles):
@@ -63,6 +64,7 @@ def init(project_dir):
     echo(DATETIME_EXPLANATION)
     datetime_column = click.prompt(DATETIME_COLUMN_PROMPT, type=click.STRING, default='')
     datetime_format = ''
+
     if not datetime_column:
         echo(SKIP_DATETIME)
     else:
@@ -70,11 +72,21 @@ def init(project_dir):
     if datetime_format:
         echo(f'Date time format used: {datetime_format}')
 
+    if datetime_column:
+        config = WhyLogsConfig(dataset_name, ConfigDateTime(datetime_column, datetime_format))
+    else:
+        config = WhyLogsConfig(dataset_name)
+
+    config_yml = os.path.join(project_dir, 'config.yml')
+    with open(file=config_yml, mode='w') as f:
+        config.to_yml(f)
+    echo(f'Config YAML file is written to: {config_yml}\n')
+
     if click.confirm(INITIAL_PROFILING_CONFIRM, default=True):
         echo(DATA_SOURCE_MESSAGE)
         choices = [
-            'single CSV on the file system',
-            # 'single CSV on S3',
+            'CSV on the file system',
+            # 'CSV on S3',
             # 'multiple CSVs on the file system',
             # 'multiple CSVs on S3',
         ]

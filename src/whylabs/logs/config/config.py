@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 from whylabs.logs import __version__ as version_str
 
@@ -48,3 +50,21 @@ class WhyLogsConfig(yaml.YAMLObject):
 
     def __repr__(self):
         return f'{self.__dict__}'
+
+    def to_yml(self, stream=None) -> Optional[str]:
+        """
+        Converts the current config to Yaml
+
+        Parameters
+        ----------
+        stream
+
+        Returns
+        -------
+
+        """
+        return yaml.dump(self, stream)
+
+    @staticmethod
+    def parse(stream) -> WhyLogsConfig:
+        return yaml.parse(stream)
