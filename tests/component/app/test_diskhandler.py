@@ -8,6 +8,7 @@ import json
 import shutil
 import functools
 
+import whylabs.logs.app.handlers
 from whylabs.logs.app import config, session
 from whylabs.logs.core.datasetprofile import dataframe_profile
 from whylabs.logs.core import datasetprofile
@@ -48,8 +49,8 @@ def dataset_profile_data(df_lending_club):
     json_summary = message_to_json(summary)
 
     output_dir = os.path.join(TEST_OUTPUT_DIR, 'whylogs')
-    handler = session.DiskHandler(folder=output_dir, team='team',
-                                  pipeline='datapipe', user='user')
+    handler = whylabs.logs.app.handlers.DiskHandler(folder=output_dir, team='team',
+                                                    pipeline='datapipe', user='user')
 
     yield {
         'protobuf': protobuf,

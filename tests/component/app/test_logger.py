@@ -52,7 +52,6 @@ def test_log_dataframe(df_lending_club):
             # Verify we can load the JSON summary
             json.load(open(handler_response.dest, 'rt'))
 
-
     assert outputs == expected_outputs
 
     shutil.rmtree(TEST_OUTPUT_DIR)
