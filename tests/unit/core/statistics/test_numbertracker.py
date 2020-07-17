@@ -5,6 +5,19 @@ from whylabs.logs.core.statistics import NumberTracker
 from testutil import compare_frequent_items
 
 
+def test_count_is_correct():
+    x = NumberTracker()
+    assert x.count == 0
+    x.track(None)
+    assert x.count == 0
+    for val in [1, 2, 3]:
+        x.track(val)
+    assert x.count == 3
+    for val in [1.0, 2.0]:
+        x.track(val)
+    assert x.count == 5
+
+
 def test_int_value_should_not_increase_float_count():
     x = NumberTracker()
     for v in [10, 11, 12]:

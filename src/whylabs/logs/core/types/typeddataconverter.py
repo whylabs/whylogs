@@ -5,11 +5,14 @@ created 5/7/20 by ibackus
 TODO: implement this using something other than yaml
 """
 import pandas as pd
+import numpy as np
 import yaml
 from whylabs.logs.proto import InferredType
 TYPES = InferredType.Type
 # Dictionary mapping from type Number to type name
 TYPENUM_TO_NAME = {k: v for v, k in InferredType.Type.items()}
+INTEGRAL_TYPES = (int, np.integer)
+FLOAT_TYPES = (float, np.float)
 
 
 class TypedDataConverter:
@@ -45,9 +48,9 @@ class TypedDataConverter:
             dtype = TYPES.NULL
         elif isinstance(typed_data, bool):
             dtype = TYPES.BOOLEAN
-        elif isinstance(typed_data, float):
+        elif isinstance(typed_data, FLOAT_TYPES):
             dtype = TYPES.FRACTIONAL
-        elif isinstance(typed_data, int):
+        elif isinstance(typed_data, INTEGRAL_TYPES):
             dtype = TYPES.INTEGRAL
         elif isinstance(typed_data, str):
             dtype = TYPES.STRING

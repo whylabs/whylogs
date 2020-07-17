@@ -4,7 +4,9 @@ import datasketches
 import json
 
 from whylabs.logs.proto import FrequentNumbersSummary, FrequentNumbersSketchMessage
+from whylabs.logs.proto import FrequentItemsSketchMessage, FrequentItemsSummary
 from collections import defaultdict
+import pandas as pd
 
 
 def deserialize_kll_floats_sketch(x: bytes, kind: str='float'):
@@ -60,7 +62,7 @@ def deserialize_frequent_strings_sketch(x: bytes):
         return datasketches.frequent_strings_sketch.deserialize(x)
 
 
-class FrequentNumbersSketch:
+class FrequentItemsSketch:
     """
     A class to implement frequent number counting.
 
@@ -90,26 +92,31 @@ class FrequentNumbersSketch:
         return self.sketch.get_epsilon_for_lg_size(lg_max_map_size)
 
     def get_estimate(self, item):
-        return self.sketch.get_estimate(self._encode_number(item))
+        return self.sketch.get_estimate(self._encode_item(item))
 
     def get_lower_bound(self, item):
-        return self.sketch.get_lower_bound(self._encode_number(item))
+        return self.sketch.get_lower_bound(self._encode_item(item))
 
     def get_upper_bound(self, item):
-        return self.sketch.get_upper_bound(self._encode_number(item))
+        return self.sketch.get_upper_bound(self._encode_item(item))
 
     def get_frequent_items(
             self,
             err_type: datasketches.frequent_items_error_type=None,
-            threshold: int=0):
+            threshold: int=0,
+            decode: bool=True,
+    ):
         if err_type is None:
             err_type = self.DEFAULT_ERROR_TYPE
         items = self.sketch.get_frequent_items(err_type, threshold)
-        numeric_items = []
-        for item in items:
-            x = self._decode_number(item[0])
-            numeric_items.append((x, ) + item[1:])
-        return numeric_items
+        if decode:
+            decoded_items = []
+            for item in items:
+                x = self._decode_item(item[0])
+                decoded_items.append((x,) + item[1:])
+            return decoded_items
+        else:
+            return items
 
     def get_num_active_items(self):
         return self.sketch.get_num_active_items()
@@ -137,10 +144,10 @@ class FrequentNumbersSketch:
         return self_copy
 
     def copy(self):
-        self_copy = FrequentNumbersSketch.deserialize(self.serialize())
+        self_copy = FrequentItemsSketch.deserialize(self.serialize())
         if self_copy is None:
             # Self must be empty
-            self_copy = FrequentNumbersSketch(self.lg_max_k)
+            self_copy = FrequentItemsSketch(self.lg_max_k)
         return self_copy
 
     def serialize(self):
@@ -149,8 +156,73 @@ class FrequentNumbersSketch:
     def to_string(self, print_items=False):
         return self.sketch.to_string(print_items)
 
-    def update(self, x):
-        self.sketch.update(self._encode_number(x))
+    def update(self, x, weight=1):
+        self.sketch.update(self._encode_item(x), weight)
+
+    def to_summary(self, max_items=30, min_count=1):
+        """
+        Generate a protobuf summary.  Returns None if there are no frequent
+        items.
+        """
+        items = self.get_frequent_items(threshold=min_count-1, decode=False)
+        if len(items) < 1:
+            return
+
+        values = []
+        for x in items[0:max_items]:
+            values.append({'estimate': x[1], 'json_value': x[0]})
+        return FrequentItemsSummary(items=values)
+
+    def to_protobuf(self):
+        """
+        Generate a protobuf representation of this object
+        """
+        lg_max_k = self.lg_max_k
+        if lg_max_k is None:
+            lg_max_k = -1
+        return FrequentItemsSketchMessage(
+            sketch=self.sketch.serialize(),
+            lg_max_k=lg_max_k,
+        )
+
+    @staticmethod
+    def from_protobuf(message: FrequentItemsSketchMessage):
+        lg_max_k = message.lg_max_k
+        if lg_max_k < 0:
+            lg_max_k = None
+        sketch = FrequentItemsSketch.deserialize(message.sketch)
+        sketch.lg_max_k = lg_max_k
+        return sketch
+
+    @staticmethod
+    def _encode_item(x):
+        return pd.io.json.dumps(x)
+
+    @staticmethod
+    def _decode_item(x):
+        return pd.io.json.loads(x)
+
+    @staticmethod
+    def deserialize(x: bytes):
+        """
+        Deserialize a frequent numbers sketch.
+
+        If x is an empty sketch, None is returned
+        """
+        if len(x) <= 8:
+            FrequentItemsSketch()
+        sketch = datasketches.frequent_strings_sketch.deserialize(x)
+        return FrequentItemsSketch(sketch=sketch)
+
+
+class FrequentNumbersSketch(FrequentItemsSketch):
+
+    def copy(self):
+        self_copy = FrequentNumbersSketch.deserialize(self.serialize())
+        if self_copy is None:
+            # Self must be empty
+            self_copy = FrequentNumbersSketch(self.lg_max_k)
+        return self_copy
 
     def to_summary(self, max_items=30, min_count=1):
         """
@@ -193,14 +265,6 @@ class FrequentNumbersSketch:
         return sketch
 
     @staticmethod
-    def _encode_number(x):
-        return json.dumps(x)
-
-    @staticmethod
-    def _decode_number(x):
-        return json.loads(x)
-
-    @staticmethod
     def deserialize(x: bytes):
         """
         Deserialize a frequent numbers sketch.
@@ -213,7 +277,7 @@ class FrequentNumbersSketch:
         return FrequentNumbersSketch(sketch=sketch)
 
     @staticmethod
-    def flatten_summary(summary: FrequentNumbersSummary):
+    def flatten_summary(summary: FrequentItemsSummary):
         """
         Flatten a FrequentNumbersSummary
         """
@@ -223,3 +287,11 @@ class FrequentNumbersSketch:
                 counts['value'].append(msg.value)
                 counts['count'].append(msg.estimate)
         return counts
+
+    @staticmethod
+    def _encode_number(x):
+        return json.dumps(x)
+
+    @staticmethod
+    def _decode_number(x):
+        return json.loads(x)

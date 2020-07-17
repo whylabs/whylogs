@@ -4,11 +4,16 @@ created 5/7/20 by ibackus
 """
 from whylabs.logs.core.types import TypedDataConverter
 from whylabs.logs.core.statistics import NumberTracker
+from whylabs.logs.util.dsketch import FrequentItemsSketch
 from whylabs.logs.proto import ColumnSummary, ColumnMessage, InferredType
 from whylabs.logs.core.statistics import CountersTracker, SchemaTracker
 from whylabs.logs.core.statistics.datatypes import StringTracker
+from whylabs.logs.core.statistics.hllsketch import HllSketch, HllSketchMessage,\
+    UniqueCountSummary
+
 _TYPES = InferredType.Type
 _NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}
+_UNIQUE_COUNT_BOUNDS_STD = 1
 
 
 class ColumnProfile:
@@ -34,7 +39,8 @@ class ColumnProfile:
     """
 
     def __init__(self, name, number_tracker=None, string_tracker=None,
-                 schema_tracker=None, counters=None):
+                 schema_tracker=None, counters=None, frequent_items=None,
+                 cardinality_tracker=None):
         # Handle default values
         if counters is None:
             counters = CountersTracker()
@@ -44,12 +50,18 @@ class ColumnProfile:
             string_tracker = StringTracker()
         if schema_tracker is None:
             schema_tracker = SchemaTracker()
+        if frequent_items is None:
+            frequent_items = FrequentItemsSketch()
+        if cardinality_tracker is None:
+            cardinality_tracker = HllSketch()
         # Assign values
         self.column_name = name
         self.number_tracker = number_tracker
         self.string_tracker = string_tracker
         self.schema_tracker = schema_tracker
         self.counters = counters
+        self.frequent_items = frequent_items
+        self.cardinality_tracker = cardinality_tracker
 
     def track(self, value):
         """
@@ -66,6 +78,8 @@ class ColumnProfile:
 
         # TODO: Implement real typed data conversion
         typed_data = TypedDataConverter.convert(value)
+        self.cardinality_tracker.update(typed_data)
+        self.frequent_items.update(typed_data)
         dtype = TypedDataConverter.get_type(typed_data)
         self.schema_tracker.track(dtype)
 
@@ -90,21 +104,19 @@ class ColumnProfile:
             schema = self.schema_tracker.to_summary()
         # TODO: implement the real schema/type checking
         opts = dict(
-            counters=self.counters.to_protobuf()
+            counters=self.counters.to_protobuf(),
+            frequent_items=self.frequent_items.to_summary(),
+            unique_count=self.cardinality_tracker.to_summary(
+                _UNIQUE_COUNT_BOUNDS_STD)
         )
+        if self.string_tracker is not None and self.string_tracker.count > 0:
+            opts['string_summary'] = self.string_tracker.to_summary()
+        if self.number_tracker is not None and self.number_tracker.count > 0:
+            opts['number_summary'] = self.number_tracker.to_summary()
+
         if schema is not None:
             opts['schema'] = schema
-            dtype = schema.inferred_type.type
-            if dtype == _TYPES.STRING:
-                if self.string_tracker is not None:
-                    string_summary = self.string_tracker.to_summary()
-                    opts['string_summary'] = string_summary
 
-            elif dtype in _NUMERIC_TYPES:
-                if self.number_tracker is not None:
-                    numbers_summary = self.number_tracker.to_summary()
-                if numbers_summary is not None:
-                    opts['number_summary'] = numbers_summary
         return ColumnSummary(**opts)
 
     def merge(self, other):
@@ -127,6 +139,9 @@ class ColumnProfile:
             string_tracker=self.string_tracker.merge(other.string_tracker),
             schema_tracker=self.schema_tracker.merge(other.schema_tracker),
             counters=self.counters.merge(other.counters),
+            frequent_items=self.frequent_items.merge(other.frequent_items),
+            cardinality_tracker=self.cardinality_tracker.merge(
+                other.cardinality_tracker),
         )
 
     def to_protobuf(self):
@@ -143,6 +158,8 @@ class ColumnProfile:
             schema=self.schema_tracker.to_protobuf(),
             numbers=self.number_tracker.to_protobuf(),
             strings=self.string_tracker.to_protobuf(),
+            frequent_items=self.frequent_items.to_protobuf(),
+            cardinality_tracker=self.cardinality_tracker.to_protobuf(),
         )
 
     @staticmethod
@@ -160,4 +177,7 @@ class ColumnProfile:
             schema_tracker=SchemaTracker.from_protobuf(message.schema),
             number_tracker=NumberTracker.from_protobuf(message.numbers),
             string_tracker=StringTracker.from_protobuf(message.strings),
+            frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),
+            cardinality_tracker=HllSketch.from_protobuf(
+                message.cardinality_tracker),
         )

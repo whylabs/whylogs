@@ -4,7 +4,7 @@ from whylabs.logs.proto import UniqueCountSummary, \
 from datasketches import update_theta_sketch, frequent_strings_sketch, \
     frequent_items_error_type, kll_floats_sketch
 
-MAX_HIST_BUCKETS = 100
+MAX_HIST_BUCKETS = 30
 HIST_AVG_NUMBER_PER_BUCKET = 4.0
 QUANTILES = [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]
 
@@ -77,7 +77,8 @@ def quantiles_from_sketch(sketch: kll_floats_sketch, quantiles=None):
     )
 
 
-def histogram_from_sketch(sketch: kll_floats_sketch):
+def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int=None,
+                          avg_per_bucket: int=None):
     """
     Generate a summary of a kll_floats_sketch, including a histogram
 
@@ -85,6 +86,10 @@ def histogram_from_sketch(sketch: kll_floats_sketch):
     ----------
     sketch : kll_floats_sketch
         Data sketch
+    max_buckets : int
+        Override the default maximum number of buckets
+    avg_per_bucket : int
+        Override the default target number of items per bucket.
 
     Returns
     -------
@@ -95,6 +100,10 @@ def histogram_from_sketch(sketch: kll_floats_sketch):
     start = sketch.get_min_value()
     max_val = sketch.get_max_value()
     end = max_val
+    if max_buckets is None:
+        max_buckets = MAX_HIST_BUCKETS
+    if avg_per_bucket is None:
+        avg_per_bucket = HIST_AVG_NUMBER_PER_BUCKET
 
     if (n < 2) or (start == end):
         dx = abs(start) * 1e-7

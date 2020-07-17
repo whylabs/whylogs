@@ -70,6 +70,10 @@ class NumberTracker:
         self.histogram = histogram
         self.frequent_numbers = frequent_numbers
 
+    @property
+    def count(self):
+        return self.variance.count
+
     def track(self, number):
         """
         Add a number to statistics tracking

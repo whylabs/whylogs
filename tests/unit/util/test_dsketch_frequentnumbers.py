@@ -45,7 +45,7 @@ def test_summary_returns_correct_estimates(number_sketch):
     assert len(estimates) == len(expected)
 
 
-def test_number_and_string_apriror_error_equal(string_sketch, number_sketch):
+def test_number_and_string_apriori_error_equal(string_sketch, number_sketch):
     # Try it out for a few combos of map sizes
     map_sizes = [1, 2, 32, 120]
     weights = [0, 10, 50, 100]
@@ -69,7 +69,7 @@ def test_number_and_string_estimates_equal(string_sketch, number_sketch):
         assert string_sketch.get_upper_bound(s) == number_sketch.get_upper_bound(n)
 
 
-def test_frequent_items_corret(number_sketch):
+def test_frequent_items_correct(number_sketch):
     items = number_sketch.get_frequent_items()
     true = [
         (1, 3, 3, 3),

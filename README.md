@@ -118,60 +118,15 @@ We use the [numpydocs docstring standard](https://numpydoc.readthedocs.io/en/lat
 
 # Data
 
-## Dataset summaries
-Notes on the dataset summary fields.  All fields are nullable and may or may not be present.
-```
-columns # map, (string, map)
-    counters  # present if any data has been encountered for this column
-      count: 0 # total number of records
-      null_count  # Number of nulls encountered
-        value: 0
-      true_count  # Number of true booleans encountered
-        value: 0
-    number_summary  # present if any numeric data present in this column
-      count: 0 # Number of numeric-like records.
-      histogram  # Present if enough numeric data was processed
-        bins: [] # Location of the bin edges 
-        counts: [] # Number of records per bin
-        end: 0.0 # End of the bins
-        max: 0.0 # max encountered value
-        min: 0.0 # min encountered value
-        n: 0 # Total number of numeric values
-        start: 0.0 # first bin
-        width: 0.0 # bin width
-      max: 0.0 # maximum number
-      mean: 0.0 # mean of numbers
-      min: 0.0 # min value
-      stddev: 0.0 # approximate standard deviation of all numbers
-      unique_count 
-        estimate: 0.0  # Approximate number of unique values
-        lower: 0.0 # (soft) lower bound on the unique count estimate
-        upper: 0.0 # (soft) upper bound on unique count estimate
-    schema  # present if any data has been encountered for this column
-      inferred_type # Info about what type this column is inferred to be
-        ratio: 0.0  # Fraction of records of this type
-        type: 0  # The inferred type
-      type_counts: # Map containing counts of all encountered data types
-    string_summary # Present if any strings were encountered in the data
-      frequent # Includes informatino about the most frequent strings
-        items: []  # List of pairs (string, count)
-      unique_count # Estimates on cardinality of strings
-        estimate: 0.0  # estimate of the number of unique strings
-        lower: 0.0 # (soft) lower bound on estimate
-        upper: 0.0 # (soft) upper bound on estimate
-name: # Dataset name
-tags: [] # used for tagging (i.e. group by)
-timestamp: 0  # Dataset timestamp in epoch milliseconds
-```
+## Example column and daset summaries
+Check the `example-data/` folder for some example summary files.
 
 ### Flat dataset summary mapping
 The following dictionary details the mapping from the nested `DatasetSummary` attributes to the flat table names:
 ```python
-In [1]: from whylabs.logs.core.datasetprofile import SCALAR_NAME_MAPPING
-
-In [2]: import json
-
-In [3]: print(json.dumps(SCALAR_NAME_MAPPING, indent=2))
+from whylabs.logs.core.datasetprofile import SCALAR_NAME_MAPPING
+import json
+print(json.dumps(SCALAR_NAME_MAPPING, indent=2))
 
 
 {

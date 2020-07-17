@@ -1,6 +1,7 @@
 from whylabs.logs.core import ColumnProfile
 from testutil import compare_frequent_items
 import json
+import pytest
 
 
 def test_track():
@@ -91,6 +92,14 @@ def test_summary():
             }
         }
     }
+    # Top-level unique count needs to be approximately equal
+    expected_unique = {
+        'estimate': 3.000000014901161,
+        'lower': 3.0,
+        'upper': 3.0001498026537594
+    }
+    actual_unique = actual_val.pop('uniqueCount')
+    assert actual_unique == pytest.approx(expected_unique, 0.0001)
 
     # Cannot do a straightforward comparison of frequent number counts, since
     # their orders can vary
@@ -115,6 +124,20 @@ def test_summary():
     }
     assert len(counts) == len(expected_counts)
     assert set(counts) == expected_counts
+
+    # Cannot do a straightforward frequentItems count since order is ambiguous
+    actual_freq = actual_val.pop('frequentItems')
+    assert set(actual_freq.keys()) == {'items'}
+    expected = [
+        ('1', '1'),
+        ('2', '1'),
+        ('3', '1')
+    ]
+    assert len(actual_freq['items']) == len(expected)
+    counts = []
+    for v in actual_freq['items']:
+        counts.append((v['jsonValue'], v['estimate']))
+    assert set(counts) == set(expected)
 
     # Compare the messages, excluding the frequent numbers counters
     assert actual_val == expected_val
