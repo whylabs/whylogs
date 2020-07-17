@@ -67,7 +67,8 @@ DEV_EXTRA_REQUIREMENTS = [
     'bump2version',
     'twine',
     'wheel',
-    'awscli >= 1.18.93'
+    'awscli >= 1.18.93',
+    'coverage<5',  # Required for pycharm to run tests with coverage
 ]
 
 # Pip setup
