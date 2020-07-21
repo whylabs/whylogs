@@ -24,7 +24,7 @@ Great. We will now generate the default configuration for WhyLogs'
 We'll need a few details from you before we can proceed
 """
 
-DATASET_NAME_PROMPT = 'Dataset name (alphanumeric, dash, and underscore characters only)'
+PROJECT_NAME_PROMPT = 'Project name (alphanumeric, dash, and underscore characters only)'
 
 DATETIME_EXPLANATION = """
 WhyLogs can break down the data by time for you

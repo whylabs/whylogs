@@ -1,0 +1,8 @@
+project: projecttest
+verbose: false
+writers:
+- output:
+  - protobuf
+  - flat
+  path: abc/xyz
+  type: s3

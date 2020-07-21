@@ -6,8 +6,10 @@ import sys
 import click
 import typing
 
+from whylabs.logs.app.config import SessionConfig, WriterConfig
+from whylabs.logs.app.session import session_from_config
 from whylabs.logs.cli.cli_text import *
-from whylabs.logs.config import WhyLogsConfig, ConfigDateTime
+import pandas as pd
 
 
 def echo(message: typing.Union[str, list], **styles):
@@ -18,12 +20,12 @@ def echo(message: typing.Union[str, list], **styles):
         click.secho(message, **styles)
 
 
-DATASET_NAME_FOMRAT = re.compile(r'^\w+$')
+NAME_FORMAT = re.compile(r'^(\w|-|_)+$')
 
 
-class DatasetParamType(click.ParamType):
+class NameParamType(click.ParamType):
     def convert(self, value, param, ctx):
-        if DATASET_NAME_FOMRAT.fullmatch(value) is None:
+        if NAME_FORMAT.fullmatch(value) is None:
             raise click.BadParameter('must contain only alphanumeric, underscore and dash characters')
         return value
 
@@ -56,55 +58,52 @@ def init(project_dir):
     if not click.confirm(OVERRIDE_CONFIRM, default=False, show_default=True):
         echo(DOING_NOTHING_ABORTING)
         sys.exit(0)
+    os.chdir(project_dir)
 
     echo(BEGIN_WORKFLOW)
-    dataset_name = click.prompt(DATASET_NAME_PROMPT, type=DatasetParamType())
-    echo(f'Using dataset name: {dataset_name}', fg='green')
-
-    echo(DATETIME_EXPLANATION)
-    datetime_column = click.prompt(DATETIME_COLUMN_PROMPT, type=click.STRING, default='')
-    datetime_format = ''
-
-    if not datetime_column:
-        echo(SKIP_DATETIME)
-    else:
-        datetime_format = click.prompt(DATETIME_FORMAT_PROMPT, default='')
-    if datetime_format:
-        echo(f'Date time format used: {datetime_format}')
-
-    if datetime_column:
-        config = WhyLogsConfig(dataset_name, ConfigDateTime(datetime_column, datetime_format))
-    else:
-        config = WhyLogsConfig(dataset_name)
-
-    config_yml = os.path.join(project_dir, 'config.yml')
+    project_name = click.prompt(PROJECT_NAME_PROMPT, type=NameParamType())
+    echo(f'Using project name : {project_name}', fg='green')
+    pipeline_name = click.prompt('Pipeline name (leave blank for default pipeline name)', type=NameParamType(),
+                                 default='default-pipeline')
+    echo(f'Using pipeline name: {project_name}', fg='green')
+    output_path = click.prompt('Specify the output path', default='output')
+    echo(f'Using output path: {output_path}')
+    writer = WriterConfig('local', ['all'], output_path)
+    session_config = SessionConfig(project_name, pipeline_name, verbose=False, writers=[writer])
+    config_yml = os.path.join(project_dir, 'whylogs.yml')
     with open(file=config_yml, mode='w') as f:
-        config.to_yml(f)
-    echo(f'Config YAML file is written to: {config_yml}\n')
+        session_config.to_yaml(f)
+    echo(f'Config YAML file was written to: {config_yml}\n')
 
     if click.confirm(INITIAL_PROFILING_CONFIRM, default=True):
         echo(DATA_SOURCE_MESSAGE)
         choices = [
             'CSV on the file system',
-            # 'CSV on S3',
-            # 'multiple CSVs on the file system',
-            # 'multiple CSVs on S3',
         ]
         for i in range(len(choices)):
             echo(f'\t{i + 1}. {choices[i]}')
         choice = click.prompt('', type=click.IntRange(min=1, max=len(choices)))
         assert choice == 1
-        file: io.TextIOWrapper = click.prompt('CSV input path', type=click.File())
-        file.close()
-        full_path = os.path.realpath(file.name)
-        echo(f'Input file: {full_path}')
-        output_path = os.path.join(project_dir, 'profile')
-        if os.path.exists(output_path):
-            if not click.confirm(PROFILE_OVERRIDE_CONFIRM, default=True):
-                echo('Abort profiling')
-                sys.exit(0)
-            else:
-                echo(DATA_WILL_BE_OVERRIDDEN, fg='yellow')
-
-        echo(RUN_PROFILING)
+        profile_csv(project_dir, session_config)
         echo(DONE)
+    else:
+        echo(DONE)
+
+
+def profile_csv(project_dir, session_config):
+    file: io.TextIOWrapper = click.prompt('CSV input path', type=click.File())
+    file.close()
+    full_input = os.path.realpath(file.name)
+    echo(f'Input file: {full_input}')
+    output_path = os.path.join(project_dir, 'whylogs')
+    if os.path.exists(output_path):
+        if not click.confirm(PROFILE_OVERRIDE_CONFIRM, default=True):
+            echo('Abort profiling')
+            sys.exit(0)
+        else:
+            echo(DATA_WILL_BE_OVERRIDDEN, fg='yellow')
+    echo(RUN_PROFILING)
+    session = session_from_config(session_config)
+    df = pd.read_csv(full_input)
+    session.log_dataframe(df)
+    session.close()

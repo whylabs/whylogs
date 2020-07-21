@@ -68,10 +68,10 @@ class DiskHandlerConfig(BaseHandlerConfig):
 
 
 class WriterConfig:
-    def __init__(self, type: str, output: List[str], path: str):
+    def __init__(self, type: str, formats: List[str], output_path: str):
         self.type = type
-        self.output = output
-        self.path = path
+        self.formats = formats
+        self.output_path = output_path
 
     def to_yaml(self, stream=None):
         dump = WriterConfigSchema().dump(self)
@@ -84,8 +84,9 @@ class WriterConfig:
 
 
 class SessionConfig:
-    def __init__(self, project: str, verbose: bool, writers: List[WriterConfig]):
+    def __init__(self, project: str, pipeline: str, verbose: bool, writers: List[WriterConfig]):
         self.project = project
+        self.pipeline = pipeline
         self.verbose = verbose
         self.writers = writers
 
@@ -99,8 +100,9 @@ class SessionConfig:
 
 class WriterConfigSchema(Schema):
     type = fields.Str(validate=validate.OneOf(['local', 's3']), required=True)
-    output = fields.List(fields.Str(validate=validate.OneOf(['protobuf', 'json', 'flat'])), required=True,
-                         validate=validate.Length(min=1))
+    formats = fields.List(fields.Str(validate=validate.OneOf(['all', 'protobuf', 'json', 'flat'])),
+                          required=True,
+                          validate=validate.Length(min=1))
     path = fields.Str(required=True)
 
     @post_load

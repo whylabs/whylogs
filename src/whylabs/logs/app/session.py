@@ -1,17 +1,20 @@
 """
 """
 from logging import getLogger as _getLogger
-from typing import Optional
+from typing import Optional, List
 
 import pandas as pd
 
+from whylabs.logs.app.config import SessionConfig
 from whylabs.logs.app.logger import Logger
+from whylabs.logs.app.writers import Writer, writer_from_config
 
 
 class Session:
     def __init__(self,
-                 project: Optional[str] = None,
-                 writers: list = None,
+                 project: str,
+                 pipeline: str,
+                 writers: List[Writer],
                  verbose: bool = False,
                  ):
         """
@@ -23,7 +26,10 @@ class Session:
         writers : configuration for the output writers. This is where the log data will go
         verbose : enable verbose logging for not. Default is False
         """
+        if writers is None:
+            writers = []
         self.project = project
+        self.pipeline = pipeline
         self.writers = writers
         self.verbose = verbose
         self._active = True
@@ -73,7 +79,8 @@ class Session:
 
         return logger
 
-    def log_dataframe(self, df: pd.DataFrame,
+    def log_dataframe(self,
+                      df: pd.DataFrame,
                       dataset_name: Optional[str] = None,
                       datetime_column: Optional[str] = None,
                       datetime_format: Optional[str] = None):
@@ -95,6 +102,11 @@ class Session:
 
     def is_active(self):
         return self._active
+
+
+def session_from_config(config: SessionConfig) -> Session:
+    writers = map(lambda x: writer_from_config(x), config.writers)
+    return Session(config.project, writers, config.verbose)
 
 
 # Create a global session

@@ -3,7 +3,7 @@
 from whylabs.logs import get_logger, get_or_create_session
 from whylabs.logs.app.config import WriterConfig, WriterConfigSchema, SessionConfig, load_config
 from whylabs.logs.app.session import reset_default, Session
-from whylabs.logs.app.writer import Writer
+from whylabs.logs.app.writers import Writer
 from whylabs.logs.core import DatasetProfile
 
 import shutil

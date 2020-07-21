@@ -2,7 +2,7 @@ from typing import Optional, List
 
 import pandas as pd
 
-from whylabs.logs.app.writer import Writer
+from whylabs.logs.app.writers import Writer
 from whylabs.logs.core import datasetprofile
 
 
@@ -56,8 +56,6 @@ class Logger:
         ----------
         df : pd.DataFrame
             Dataframe to log
-        name : str
-            Name of the dataset, e.g. 'training.data'
         """
         if not self.is_active():
             return
