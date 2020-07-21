@@ -4,7 +4,8 @@ import re
 import sys
 
 import click
-import typing
+from click import secho as echo
+from whylabs.logs.cli.generate_notebooks import generate_notebooks
 
 from whylabs.logs.app.config import SessionConfig, WriterConfig
 from whylabs.logs.app.session import session_from_config
@@ -107,10 +108,17 @@ def profile_csv(project_dir: str, session_config: SessionConfig) -> str:
             echo('Abort profiling')
             sys.exit(0)
         else:
-            echo(DATA_WILL_BE_OVERRIDDEN, fg='yellow')
-    echo(RUN_PROFILING)
-    session = session_from_config(session_config)
-    df = pd.read_csv(full_input)
-    session.log_dataframe(df)
-    session.close()
-    return full_input
+            datetime_format = click.prompt('What is the format of the column? Leave blank to use datetimeutil to parse',
+                                           default='')
+        if datetime_format:
+            echo(f'Date time format used: {datetime_format}')
+        echo('Run profiling')
+        echo('Successful. You can find the result under "profile" path')
+        echo('Generate notebooks')
+        generate_notebooks(project_dir,
+                           {"INPUT_PATH": full_path,
+                            "DATASET_NAME": dataset_name,
+                            "PROFILE_PATH": output_path,
+                            "DATETIME_COLUMN": datetime_column,
+                            "DATETIME_FORMAT": datetime_format})
+        echo('Successful. You can find the notebooks under "notebooks" path')
