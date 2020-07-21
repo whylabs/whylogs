@@ -118,7 +118,7 @@ def profile_csv(project_dir: str, session_config: SessionConfig) -> str:
         generate_notebooks(project_dir,
                            {"INPUT_PATH": full_path,
                             "DATASET_NAME": dataset_name,
-                            "PROFILE_PATH": output_path,
+                            "PROFILE_DIR": output_path,
                             "DATETIME_COLUMN": datetime_column,
                             "DATETIME_FORMAT": datetime_format})
         echo('Successful. You can find the notebooks under "notebooks" path')

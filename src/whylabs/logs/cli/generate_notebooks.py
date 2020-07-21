@@ -44,6 +44,8 @@ cl
     # copy over static Logging.ipynb to project nb dir
     shutil.copyfile(os.path.join(package_nb_path, "Logging.ipynb"),
                     os.path.join(project_nb_path, "Logging.ipynb"))
+    shutil.copyfile(os.path.join(package_nb_path, "lending_club_1000.csv"),
+                    os.path.join(project_nb_path, "lending_club_1000.csv"))
 
     # replace log analysis notebook
     project_analysis_nb_path = os.path.join(project_nb_path, "Analysis.ipynb")
