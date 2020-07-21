@@ -86,6 +86,9 @@ setuptools.setup(
     url='https://gitlab.com/whylabs/whylogs-python',
     package_dir={'': 'src'},
     packages=setuptools.find_packages('src'),
+    entry_points={
+        'console_scripts': ['whylogs=whylabs.logs.cli:main']
+    },
     # classifiers=['TBD'],
     python_requires='>=3.5',  # TODO: Figure out python version compatibility,
     install_requires=REQUIREMENTS,
