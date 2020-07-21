@@ -106,7 +106,7 @@ class Session:
 
 def session_from_config(config: SessionConfig) -> Session:
     writers = map(lambda x: writer_from_config(x), config.writers)
-    return Session(config.project, writers, config.verbose)
+    return Session(config.project, config.pipeline, writers, config.verbose)
 
 
 # Create a global session
