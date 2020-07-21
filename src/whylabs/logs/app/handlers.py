@@ -14,8 +14,8 @@ class S3Handler:
     """
     Handle output to S3
     """
-    def __init__(self, bucket=None, prefix=None, team=None, project=None,
-                 pipeline=None, user=None, **kwargs):
+
+    def __init__(self, bucket=None, prefix=None, team=None, project=None, user=None, **kwargs):
         if bucket is None:
             raise ValueError("bucket not sets")
         self.bucket = bucket
@@ -23,7 +23,6 @@ class S3Handler:
             prefix=prefix,
             team=team,
             project=project,
-            pipeline=pipeline,
             user=user,
         )
         self._logger = _getLogger(__name__)
@@ -85,7 +84,7 @@ class S3Handler:
         Log a protobuf message
         """
         path = self._init_output('protobuf', '.bin', logger_name, object_type,
-                                  timestamp_ms, dest_kw)
+                                 timestamp_ms, dest_kw)
         uri = path.uri
         msg = x.SerializeToString()
         with self._s3filesystem.open(uri, 'wb') as fp:
@@ -96,7 +95,7 @@ class S3Handler:
     def handle_json(self, x: str, logger_name, object_type, timestamp_ms,
                     dest_kw={}):
         path = self._init_output('json', '.json', logger_name, object_type,
-                                  timestamp_ms, dest_kw)
+                                 timestamp_ms, dest_kw)
         uri = path.uri
         with self._s3filesystem.open(uri, 'wt') as fp:
             self._logger.debug('Writing JSON file %s', uri)
@@ -123,8 +122,8 @@ class S3Handler:
         # Write flat table
         df = x['summary']
         fmt = 'flat_table'
-        path = self._init_output(fmt, '.csv', logger_name,  otype,
-                                  timestamp_ms, dest_kw)
+        path = self._init_output(fmt, '.csv', logger_name, otype,
+                                 timestamp_ms, dest_kw)
         uri = path.uri
         self._logger.debug('Writing dataset summary table to %s', uri)
         df.to_csv(uri, index=False)
@@ -135,7 +134,7 @@ class S3Handler:
         hist = x['hist']
         fmt = 'histogram'
         path = self._init_output(fmt, '.json', logger_name, otype,
-                                  timestamp_ms, dest_kw)
+                                 timestamp_ms, dest_kw)
         uri = path.uri
         self._logger.debug('Writing dataset histograms to %s', uri)
         json.dump(hist, self._s3filesystem.open(uri, 'wt'))
@@ -146,7 +145,7 @@ class S3Handler:
         freq_strings = x['frequent_strings']
         fmt = 'freq_strings'
         path = self._init_output(fmt, '.json', logger_name,
-                                  otype, timestamp_ms, dest_kw)
+                                 otype, timestamp_ms, dest_kw)
         uri = path.uri
         self._logger.debug('Writing dataset frequent strings to %s', uri)
         json.dump(freq_strings, self._s3filesystem.open(uri, 'wt'))
@@ -158,8 +157,8 @@ class DiskHandler:
     """
     Handle output to disk
     """
-    def __init__(self, folder=None, team=None, project=None, pipeline=None,
-                 user=None, **kwargs):
+
+    def __init__(self, folder=None, team=None, project=None, user=None, **kwargs):
         if folder is None:
             folder = '.'
         folder = os.path.realpath(folder)
@@ -167,7 +166,6 @@ class DiskHandler:
             folder=folder,
             team=team,
             project=project,
-            pipeline=pipeline,
             user=user,
         )
         self._logger = _getLogger(__name__)
@@ -261,7 +259,7 @@ class DiskHandler:
         # Write flat table
         df = x['summary']
         fmt = 'flat_table'
-        fname = self._init_output(fmt, '.csv', logger_name,  otype,
+        fname = self._init_output(fmt, '.csv', logger_name, otype,
                                   timestamp_ms, dest_kw)
         self._logger.debug('Writing dataset summary table to %s', fname)
         df.to_csv(fname, index=False)

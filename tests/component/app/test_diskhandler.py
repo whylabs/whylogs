@@ -50,7 +50,7 @@ def dataset_profile_data(df_lending_club):
 
     output_dir = os.path.join(TEST_OUTPUT_DIR, 'whylogs')
     handler = whylabs.logs.app.handlers.DiskHandler(folder=output_dir, team='team',
-                                                    pipeline='datapipe', user='user')
+                                                    user='user')
 
     yield {
         'protobuf': protobuf,

@@ -1,7 +1,9 @@
 """
 """
 from whylabs.logs import get_logger, get_or_create_session
-from whylabs.logs.app.session import reset_session
+from whylabs.logs.app.config import WriterConfig, WriterConfigSchema, SessionConfig, load_config
+from whylabs.logs.app.session import reset_default, Session
+from whylabs.logs.app.writer import Writer
 from whylabs.logs.core import DatasetProfile
 
 import shutil
@@ -15,8 +17,26 @@ TIMESTAMP_MS = 1593710000000
 num_failed = 0
 
 
+def test_load_config():
+    writer_config = WriterConfig('s3', ['protobuf', 'flat'], 's3://bucket/key')
+    print('foo')
+    yaml_data = writer_config.to_yaml()
+    print(yaml_data)
+    WriterConfig.from_yaml(yaml_data)
+
+    session_config = SessionConfig('project', False, writers=[writer_config])
+    print(session_config.to_yaml())
+    print(load_config().to_yaml())
+
+    session = Session(session_config.project, writers=[Writer('s3', 's3:/abc/xyz', 's3:/acx', list('csv'))],
+                      verbose=False)
+    with session.logger('test_name') as logger:
+        logger.log_dataframe(pd.DataFrame())
+    session.close()
+
+
 def test_log_dataframe(df_lending_club):
-    reset_session()
+    reset_default()
     get_or_create_session(
         output_to_stdout=False,
         output_to_cloud=False,
