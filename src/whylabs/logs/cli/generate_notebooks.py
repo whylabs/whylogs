@@ -8,7 +8,7 @@ CONFIG = {}
 def substitute(matchobj):
     """Returns string to replace for given match object (re package)."""
     if matchobj.group(1) in CONFIG.keys():
-        return CONFIG[matchobj.group(1)]
+        return f'\\\"{CONFIG[matchobj.group(1)]}\\\"'
     else:
         return "None"
 
@@ -59,8 +59,3 @@ cl
     with open(project_analysis_nb_path, 'w') as out_nb:
         for line in orig_analysis_lines:
             out_nb.write(re.sub("###(.*)###", substitute, line))
-
-
-if __name__ == "__main__":
-    generate_notebooks("/Users/bernease/testproj",
-                       {"INPUT_FILE": "/tmp/test/input/file"})

@@ -87,22 +87,32 @@ def init(project_dir):
             echo(f'\t{i + 1}. {choices[i]}')
         choice = click.prompt('', type=click.IntRange(min=1, max=len(choices)))
         assert choice == 1
-        profile_csv(project_dir, session_config)
-        echo(f'You should find the output under: {os.path.join(project_dir, "output")}')
-        echo('Generate notebooks')
-        echo('Successful. You can find the notebooks under "notebooks" path')
-
+        full_input, output_path = profile_csv(project_dir,
+                                              project_name,
+                                              session_config)
+        echo(f'You should find the output under: {os.path.join(project_dir, project_name)}')
+        echo(GENERATE_NOTEBOOKS)
+        # Hack: Takes first all numeric directory as generated datetime for now
+        generated_datetime = list(filter(lambda x: re.match("[0-9]*", x),
+                                         os.listdir(output_path)))[0]
+        full_output_path = os.path.join(output_path, generated_datetime)
+        generate_notebooks(project_dir,
+                           {"INPUT_PATH": full_input,
+                            "PROFILE_DIR": full_output_path,
+                            "GENERATED_DATETIME": generated_datetime
+                            })
+        echo(f'You should find the output under: {os.path.join(project_dir, "notebooks")}')
         echo(DONE)
     else:
         echo(DONE)
 
 
-def profile_csv(project_dir: str, session_config: SessionConfig) -> str:
+def profile_csv(project_dir, project_name, session_config):
     file: io.TextIOWrapper = click.prompt('CSV input path', type=click.File())
     file.close()
     full_input = os.path.realpath(file.name)
     echo(f'Input file: {full_input}')
-    output_path = os.path.join(project_dir, 'whylogs')
+    output_path = os.path.join(project_dir, project_name)
     if os.path.exists(output_path):
         if not click.confirm(PROFILE_OVERRIDE_CONFIRM, default=True):
             echo('Abort profiling')
