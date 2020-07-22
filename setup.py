@@ -48,10 +48,12 @@ OPTIONAL_REQS = [
 ]
 
 REQUIREMENTS = [
+    'click>=click==7.1.2',
     "python-dateutil>=2.8.1",
     'protobuf>=3.12.2',
     'pyyaml>=5.3.1',
     'pandas>1.0',
+    'marshmallow>=3.7.1',
     'numpy>=1.18',
     'datasketches==2.0.0b1'
 ] + OPTIONAL_REQS
