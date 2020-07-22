@@ -88,10 +88,21 @@ def init(project_dir):
             echo(f'\t{i + 1}. {choices[i]}')
         choice = click.prompt('', type=click.IntRange(min=1, max=len(choices)))
         assert choice == 1
-        profile_csv(project_dir, session_config)
-        echo(f'You should find the output under: {os.path.join(project_dir, "output")}')
-        echo('Generate notebooks')
-        echo('Successful. You can find the notebooks under "notebooks" path')
+        full_input = profile_csv(project_dir, session_config)
+        echo(f'You should find the output under: {os.path.join(project_dir, project_name)}')
+
+        echo(GENERATE_NOTEBOOKS)
+        # Hack: Takes first all numeric directory as generated datetime for now
+        output_full_path = os.path.join(project_dir, output_path)
+        generated_datetime = list(filter(lambda x: re.match("[0-9]*", x),
+                                         os.listdir(output_full_path)))[0]
+        full_output_path = os.path.join(output_path, generated_datetime)
+        generate_notebooks(project_dir,
+                           {"INPUT_PATH": full_input,
+                            "PROFILE_DIR": full_output_path,
+                            "GENERATED_DATETIME": generated_datetime
+                            })
+        echo(f'You should find the output under: {os.path.join(project_dir, "notebooks")}')
 
         echo('WhyLabs Observatory can visualize your data if you choose to upload it to our service')
         should_upload = click.confirm('Would you like to proceed?', default=False, show_default=True)
@@ -112,13 +123,6 @@ def profile_csv(project_dir: str, session_config: SessionConfig) -> str:
     file.close()
     full_input = os.path.realpath(file.name)
     echo(f'Input file: {full_input}')
-    output_path = os.path.join(project_dir, 'whylogs')
-    if os.path.exists(output_path):
-        if not click.confirm(PROFILE_OVERRIDE_CONFIRM, default=True):
-            echo('Abort profiling')
-            sys.exit(0)
-        else:
-            echo(DATA_WILL_BE_OVERRIDDEN, fg='yellow')
     echo(RUN_PROFILING)
     session = session_from_config(session_config)
     df = pd.read_csv(full_input)

@@ -47,4 +47,6 @@ DATA_WILL_BE_OVERRIDDEN = 'Previous profile data will be overridden'
 
 RUN_PROFILING = 'Run profiling'
 
+GENERATE_NOTEBOOKS = 'Generate Jupyter notebooks'
+
 DONE = 'Done'
