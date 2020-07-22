@@ -460,7 +460,7 @@ def columns_chunk_iterator(iterator, marker: str):
         yield message
 
 
-def flatten_summary(dataset_summary: DatasetSummary):
+def flatten_summary(dataset_summary: DatasetSummary) -> dict:
     """
     Flatten a DatasetSummary
 

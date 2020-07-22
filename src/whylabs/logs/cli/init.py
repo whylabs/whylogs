@@ -65,7 +65,7 @@ def init(project_dir):
     echo(f'Using project name : {project_name}', fg='green')
     pipeline_name = click.prompt('Pipeline name (leave blank for default pipeline name)', type=NameParamType(),
                                  default='default-pipeline')
-    echo(f'Using pipeline name: {project_name}', fg='green')
+    echo(f'Using pipeline name: {pipeline_name}', fg='green')
     output_path = click.prompt('Specify the output path', default='output')
     echo(f'Using output path: {output_path}')
     writer = WriterConfig('local', ['all'], output_path)
@@ -85,6 +85,7 @@ def init(project_dir):
         choice = click.prompt('', type=click.IntRange(min=1, max=len(choices)))
         assert choice == 1
         profile_csv(project_dir, session_config)
+        echo(f'You should find the output under: {os.path.join(project_dir, "output")}')
         echo(DONE)
     else:
         echo(DONE)

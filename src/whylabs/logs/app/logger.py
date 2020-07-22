@@ -38,6 +38,10 @@ class Logger:
         self.close()
 
     def flush(self):
+        if not self._active:
+            print('WARNING: attempting to flush a closed logger')
+            return
+
         for writer in self.writers:
             writer.write(self._profile)
 
@@ -45,6 +49,8 @@ class Logger:
         if not self._active:
             print('WARNING: attempting to close a closed logger')
             return
+
+        self.flush()
 
         self._active = False
 
