@@ -1,70 +1,10 @@
 """
 """
-import abc
-from abc import abstractmethod
 from logging import getLogger
-from typing import Optional, List
+from typing import List
 
 import yaml as yaml
 from marshmallow import Schema, fields, post_load, validate
-
-from whylabs.logs.app.handlers import DiskHandler
-
-
-class HandlerConfig:
-    """
-    Simple config class
-    """
-    OBJECT_TYPES = ('dataset_summary', 'dataset_profile',)
-    FORMATS = ('json', 'flat', 'protobuf')
-    DESTINATIONS = ('s3', 'disk', 'stdout')
-
-    def __init__(self, object_type, fmt, dest):
-        assert object_type in self.OBJECT_TYPES
-        assert fmt in self.FORMATS
-        assert dest in self.DESTINATIONS
-        self.object_type = object_type
-        self.fmt = fmt
-        self.dest = dest
-
-    def __repr__(self):
-        import json
-        d = self.to_dict()
-        try:
-            msg = json.dumps(d, indent=2, sort_keys=True)
-        except TypeError:
-            msg = str(d)
-        msg = '<HandlerConfig>\n' + msg
-        return msg
-
-    def to_dict(self):
-        return {
-            'object_type': self.object_type,
-            'fmt': self.fmt,
-            'dest': self.dest,
-        }
-
-
-class BaseHandlerConfig(yaml.YAMLObject):
-    __metaclass__ = abc.ABCMeta
-
-    @abstractmethod
-    def get_handler(self):
-        pass
-
-
-class DiskHandlerConfig(BaseHandlerConfig):
-    yaml_tag = '!tag:LocalDiskHandlerConfig'
-
-    def __init__(self, fmt: str, path: str, project: str, user: str, team: Optional[str] = None):
-        self.fmt = fmt
-        self.folder = path
-        self.project = project
-        self.user = user
-        self.team = team
-
-    def get_handler(self):
-        return DiskHandler(folder=self.path, team=self.team, project=self.project, user=self.user)
 
 
 class WriterConfig:
