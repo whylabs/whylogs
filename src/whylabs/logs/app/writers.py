@@ -33,7 +33,7 @@ def _write_flat(path: str, profile: DatasetProfile):
     flat_summary: dict = datasetprofile.flatten_summary(summary)
     # TODO: use absolute path when writing out data
     os.chdir(path)
-    datasetprofile.write_flat_dataset_summary(flat_summary, 'summmary')
+    datasetprofile.write_flat_dataset_summary(flat_summary, 'summary')
 
 
 def _write_protobuf(path: str, profile: DatasetProfile):
