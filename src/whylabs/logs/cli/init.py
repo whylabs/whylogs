@@ -89,7 +89,7 @@ def init(project_dir):
         choice = click.prompt('', type=click.IntRange(min=1, max=len(choices)))
         assert choice == 1
         full_input = profile_csv(project_dir, session_config)
-        echo(f'You should find the output under: {os.path.join(project_dir, project_name)}')
+        echo(f'You should find the output under: {os.path.join(project_dir, output_path, project_name)}')
 
         echo(GENERATE_NOTEBOOKS)
         # Hack: Takes first all numeric directory as generated datetime for now
