@@ -5,9 +5,9 @@ from typing import Optional, List
 
 import pandas as pd
 
-from whylabs.logs.app.config import SessionConfig, load_config
+from whylabs.logs.app.config import SessionConfig, load_config, WriterConfig
 from whylabs.logs.app.logger import Logger
-from whylabs.logs.app.writers import Writer, writer_from_config
+from whylabs.logs.app.writers import Writer, writer_from_config, LocalWriter
 
 
 class Session:
@@ -137,7 +137,11 @@ def get_or_create_session():
         _getLogger(__name__).debug(
             'Active session found, ignoring session kwargs')
     else:
-        _session = session_from_config(load_config())
+        config = load_config()
+        if config is not None:
+            writer = WriterConfig(type='local', output_path='output', formats=['all'])
+            config = SessionConfig('default-project', 'default-pipeline', False, [writer])
+        _session = session_from_config(config)
     return _session
 
 
