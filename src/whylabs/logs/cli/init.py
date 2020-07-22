@@ -2,6 +2,8 @@ import io
 import os
 import re
 import sys
+import webbrowser
+from time import sleep
 
 import click
 import typing
@@ -91,6 +93,15 @@ def init(project_dir):
         echo('Generate notebooks')
         echo('Successful. You can find the notebooks under "notebooks" path')
 
+        echo('WhyLabs Observatory can visualize your data if you choose to upload it to our service')
+        should_upload = click.confirm('Would you like to proceed?', default=False, show_default=True)
+        if should_upload:
+            echo('Uploading data to WhyLabs Observatory...')
+            sleep(5)
+            webbrowser.open('https://www.figma.com/proto/QBTk0N6Ad0D9hRijjhBaE0/Usability-Study-Navigation?node-id=1'
+                            '%3A90&viewport=185%2C235%2C0.25&scaling=min-zoom')
+        else:
+            echo('Skip uploading')
         echo(DONE)
     else:
         echo(DONE)
