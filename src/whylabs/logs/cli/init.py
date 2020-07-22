@@ -11,6 +11,8 @@ from whylabs.logs.app.session import session_from_config
 from whylabs.logs.cli.cli_text import *
 import pandas as pd
 
+from whylabs.logs.cli.generate_notebooks import generate_notebooks
+
 
 def echo(message: typing.Union[str, list], **styles):
     if isinstance(message, list):
@@ -86,12 +88,15 @@ def init(project_dir):
         assert choice == 1
         profile_csv(project_dir, session_config)
         echo(f'You should find the output under: {os.path.join(project_dir, "output")}')
+        echo('Generate notebooks')
+        echo('Successful. You can find the notebooks under "notebooks" path')
+
         echo(DONE)
     else:
         echo(DONE)
 
 
-def profile_csv(project_dir, session_config):
+def profile_csv(project_dir: str, session_config: SessionConfig) -> str:
     file: io.TextIOWrapper = click.prompt('CSV input path', type=click.File())
     file.close()
     full_input = os.path.realpath(file.name)
@@ -108,3 +113,4 @@ def profile_csv(project_dir, session_config):
     df = pd.read_csv(full_input)
     session.log_dataframe(df)
     session.close()
+    return full_input

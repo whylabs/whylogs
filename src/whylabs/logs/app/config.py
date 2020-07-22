@@ -103,7 +103,7 @@ class WriterConfigSchema(Schema):
     formats = fields.List(fields.Str(validate=validate.OneOf(['all', 'protobuf', 'json', 'flat'])),
                           required=True,
                           validate=validate.Length(min=1))
-    path = fields.Str(required=True)
+    output_path = fields.Str(required=True)
 
     @post_load
     def make_writer(self, data, **kwargs):
@@ -112,6 +112,7 @@ class WriterConfigSchema(Schema):
 
 class SessionConfigSchema(Schema):
     project = fields.Str(required=True)
+    pipeline = fields.Str(required=True)
     verbose = fields.Bool(missing=False)
     writers = fields.List(fields.Nested(WriterConfigSchema), validate=validate.Length(min=1), required=True)
 
@@ -132,8 +133,8 @@ def load_config():
     """
     import os
     logger = getLogger(__name__)
-    user_file = os.path.join(os.path.expanduser('~'), '.whylogs.yaml')
-    files = [user_file, 'whylogs.yaml', ]
+    user_file = os.path.join(os.path.expanduser('~'), '.whylogs.yml')
+    files = [user_file, 'whylogs.yml', ]
     for fname in files:
         logger.debug(f'Attempting to load config file: {fname}')
         try:

@@ -5,7 +5,7 @@ from typing import Optional, List
 
 import pandas as pd
 
-from whylabs.logs.app.config import SessionConfig
+from whylabs.logs.app.config import SessionConfig, load_config
 from whylabs.logs.app.logger import Logger
 from whylabs.logs.app.writers import Writer, writer_from_config
 
@@ -41,6 +41,9 @@ class Session:
 
     def __exit__(self, tpe, value, traceback):
         self.close()
+
+    def is_active(self):
+        return self._active
 
     def logger(self,
                dataset_name: Optional[str] = None,
@@ -105,7 +108,7 @@ class Session:
 
 
 def session_from_config(config: SessionConfig) -> Session:
-    writers = map(lambda x: writer_from_config(x), config.writers)
+    writers = list(map(lambda x: writer_from_config(x), config.writers))
     return Session(config.project, config.pipeline, writers, config.verbose)
 
 
@@ -118,32 +121,23 @@ def reset_default():
     Reset and inactivate the logging session.
     """
     global _session
-    _session.close()
-    _session = Session()
+    if _session is not None:
+        _session.close()
+    config: SessionConfig = load_config()
+    _session = session_from_config(config)
 
 
-def get_or_create_session(**kwargs):
+def get_or_create_session():
     """
     Retrieve the current active session.  If no active session is found,
     create the session.
-
-    Parameters
-    ----------
-    kwargs:
-        Session configuration, passed to the session.  These are ignored
-        if an active session is already found.
-
-    Returns
-    -------
-    session : Session
-        The active session
     """
     global _session
-    if _session.is_active():
+    if _session is not None and _session.is_active():
         _getLogger(__name__).debug(
             'Active session found, ignoring session kwargs')
     else:
-        _session = Session(**kwargs)
+        _session = session_from_config(load_config())
     return _session
 
 
