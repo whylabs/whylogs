@@ -13,6 +13,7 @@ from whylabs.logs.app.session import session_from_config
 from whylabs.logs.cli.cli_text import *
 import pandas as pd
 
+from whylabs.logs.cli.cli_text import PIPELINE_DESCRIPTION, PROJECT_DESCRIPTION, OBSERVATORY_EXPLANATION
 from whylabs.logs.cli.generate_notebooks import generate_notebooks
 
 
@@ -65,12 +66,14 @@ def init(project_dir):
     os.chdir(project_dir)
 
     echo(BEGIN_WORKFLOW)
+    echo(PROJECT_DESCRIPTION)
     project_name = click.prompt(PROJECT_NAME_PROMPT, type=NameParamType())
-    echo(f'Using project name : {project_name}', fg='green')
+    echo(f'Using project name: {project_name}', fg='green')
+    echo(PIPELINE_DESCRIPTION)
     pipeline_name = click.prompt('Pipeline name (leave blank for default pipeline name)', type=NameParamType(),
                                  default='default-pipeline')
     echo(f'Using pipeline name: {pipeline_name}', fg='green')
-    output_path = click.prompt('Specify the output path', default='output')
+    output_path = click.prompt('Specify the WhyLogs output path', default='output', show_default=True)
     echo(f'Using output path: {output_path}')
     writer = WriterConfig('local', ['all'], output_path)
     session_config = SessionConfig(project_name, pipeline_name, verbose=False, writers=[writer])
@@ -88,7 +91,7 @@ def init(project_dir):
             echo(f'\t{i + 1}. {choices[i]}')
         choice = click.prompt('', type=click.IntRange(min=1, max=len(choices)))
         assert choice == 1
-        full_input = profile_csv(project_dir, session_config)
+        full_input = profile_csv(session_config)
         echo(f'You should find the output under: {os.path.join(project_dir, output_path, project_name)}')
 
         echo(GENERATE_NOTEBOOKS)
@@ -104,8 +107,10 @@ def init(project_dir):
                             })
         echo(f'You should find the output under: {os.path.join(project_dir, "notebooks")}')
 
-        echo('WhyLabs Observatory can visualize your data if you choose to upload it to our service')
-        should_upload = click.confirm('Would you like to proceed?', default=False, show_default=True)
+        echo(OBSERVATORY_EXPLANATION)
+        echo('Your original data (CSV file) will remain locally.')
+        should_upload = click.confirm('Would you like to proceed with sending us your statistic data?', default=False,
+                                      show_default=True)
         if should_upload:
             echo('Uploading data to WhyLabs Observatory...')
             sleep(5)
@@ -115,10 +120,11 @@ def init(project_dir):
             echo('Skip uploading')
         echo(DONE)
     else:
+        echo('Skip initial profiling and notebook generation')
         echo(DONE)
 
 
-def profile_csv(project_dir: str, session_config: SessionConfig) -> str:
+def profile_csv(session_config: SessionConfig) -> str:
     file: io.TextIOWrapper = click.prompt('CSV input path', type=click.File())
     file.close()
     full_input = os.path.realpath(file.name)

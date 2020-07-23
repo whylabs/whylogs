@@ -12,6 +12,24 @@ INTRO_MESSAGE = """
                     /_____/   U
 
 Welcome to WhyLogs!
+
+This CLI will guide you through initializing a basic WhyLogs project.
+
+The generated project will have this structure:
+    .
+    ├── output
+    │   └── test-project
+    │       └── 1595376294660
+    │           ├── protobuf.bin
+    │           ├── summmary_histogram.json
+    │           ├── summmary_strings.json
+    │           ├── summmary_summary.csv
+    │           └── whylogs.json
+    ├── notebooks
+    │   ├── Analysis.ipynb
+    │   └── Logging.ipynb
+    └── whylogs.yml
+
 """
 
 DOING_NOTHING_ABORTING = 'Doing nothing. Aborting'
@@ -24,7 +42,12 @@ Great. We will now generate the default configuration for WhyLogs'
 We'll need a few details from you before we can proceed
 """
 
+PIPELINE_DESCRIPTION = '"Pipeline" is a series of one or multiple datasets to build a single model or application. A ' \
+                       'project might contain multiple pipelines '
+
 PROJECT_NAME_PROMPT = 'Project name (alphanumeric, dash, and underscore characters only)'
+
+PROJECT_DESCRIPTION = '"Project" is a collection of related datasets that are used for multiple models or applications.'
 
 DATETIME_EXPLANATION = """
 WhyLogs can break down the data by time for you
@@ -45,7 +68,10 @@ PROFILE_OVERRIDE_CONFIRM = 'Profile path already exists. This will override exis
 
 DATA_WILL_BE_OVERRIDDEN = 'Previous profile data will be overridden'
 
-RUN_PROFILING = 'Run profiling'
+OBSERVATORY_EXPLANATION = ('WhyLabs Observatory can visualize your statistics. This will require the CLI to upload \n'
+                           'your statistics to WhyLabs endpoint. Your original data (CSV file) will remain locally.')
+
+RUN_PROFILING = 'Run WhyLogs profiling...'
 
 GENERATE_NOTEBOOKS = 'Generate Jupyter notebooks'
 
