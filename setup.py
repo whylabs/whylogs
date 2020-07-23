@@ -55,7 +55,7 @@ REQUIREMENTS = [
                    'pandas>1.0',
                    'marshmallow>=3.7.1',
                    'numpy>=1.18',
-                   'datasketches==2.0.0b1'
+                   'datasketches>=2.0.0b3'
                ] + OPTIONAL_REQS
 DEV_EXTRA_REQUIREMENTS = [
     'ipython',
