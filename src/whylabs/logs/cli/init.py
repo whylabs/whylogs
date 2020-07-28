@@ -1,6 +1,7 @@
 import io
 import os
 import re
+import shutil
 import sys
 import webbrowser
 from time import sleep
@@ -15,6 +16,8 @@ import pandas as pd
 
 from whylabs.logs.cli.cli_text import PIPELINE_DESCRIPTION, PROJECT_DESCRIPTION, OBSERVATORY_EXPLANATION
 from whylabs.logs.cli.generate_notebooks import generate_notebooks
+
+LENDING_CLUB_CSV = 'lending_club_1000.csv'
 
 
 def echo(message: typing.Union[str, list], **styles):
@@ -74,7 +77,7 @@ def init(project_dir):
                                  default='default-pipeline')
     echo(f'Using pipeline name: {pipeline_name}', fg='green')
     output_path = click.prompt('Specify the WhyLogs output path', default='output', show_default=True)
-    echo(f'Using output path: {output_path}')
+    echo(f'Using output path: {output_path}', fg='green')
     writer = WriterConfig('local', ['all'], output_path)
     session_config = SessionConfig(project_name, pipeline_name, verbose=False, writers=[writer])
     config_yml = os.path.join(project_dir, 'whylogs.yml')
@@ -91,8 +94,8 @@ def init(project_dir):
             echo(f'\t{i + 1}. {choices[i]}')
         choice = click.prompt('', type=click.IntRange(min=1, max=len(choices)))
         assert choice == 1
-        full_input = profile_csv(session_config)
-        echo(f'You should find the output under: {os.path.join(project_dir, output_path, project_name)}')
+        full_input = profile_csv(session_config, project_dir)
+        echo(f'You should find the WhyLogs output under: {os.path.join(project_dir, output_path, project_name)}', fg='green')
 
         echo(GENERATE_NOTEBOOKS)
         # Hack: Takes first all numeric directory as generated datetime for now
@@ -124,10 +127,20 @@ def init(project_dir):
         echo(DONE)
 
 
-def profile_csv(session_config: SessionConfig) -> str:
-    file: io.TextIOWrapper = click.prompt('CSV input path', type=click.File())
-    file.close()
-    full_input = os.path.realpath(file.name)
+def profile_csv(session_config: SessionConfig, project_dir: str) -> str:
+    package_nb_path = os.path.join(os.path.dirname(__file__), "notebooks")
+    demo_csv = os.path.join(package_nb_path, LENDING_CLUB_CSV)
+    file: io.TextIOWrapper = click.prompt('CSV input path (leave blank to use our demo dataset)', type=click.File(mode='rt'),
+                                          default=io.StringIO(), show_default=False)
+    if type(file) is io.StringIO:
+        echo('Using the demo Lending Club Data (1K randomized samples)')
+        destination_csv = os.path.join(project_dir, LENDING_CLUB_CSV)
+        echo('Copying the demo file to: %s' % destination_csv)
+        shutil.copy(demo_csv, destination_csv)
+        full_input = os.path.realpath(destination_csv)
+    else:
+        file.close()
+        full_input = os.path.realpath(file.name)
     echo(f'Input file: {full_input}')
     echo(RUN_PROFILING)
     session = session_from_config(session_config)
