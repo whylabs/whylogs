@@ -38,7 +38,7 @@ For a dev installation with development requirements, it's recommended create a 
  Dev install with local package
  ```
  # Development installation
- pip install -v -e .[dev]
+ pip install -v -e ".[dev]"
  pip install -v -e /path/to/whylogs-python/
  ```
 
