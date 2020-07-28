@@ -95,7 +95,8 @@ def init(project_dir):
         choice = click.prompt('', type=click.IntRange(min=1, max=len(choices)))
         assert choice == 1
         full_input = profile_csv(session_config, project_dir)
-        echo(f'You should find the WhyLogs output under: {os.path.join(project_dir, output_path, project_name)}', fg='green')
+        echo(f'You should find the WhyLogs output under: {os.path.join(project_dir, output_path, project_name)}',
+             fg='green')
 
         echo(GENERATE_NOTEBOOKS)
         # Hack: Takes first all numeric directory as generated datetime for now
@@ -117,8 +118,8 @@ def init(project_dir):
         if should_upload:
             echo('Uploading data to WhyLabs Observatory...')
             sleep(5)
-            webbrowser.open('https://www.figma.com/proto/QBTk0N6Ad0D9hRijjhBaE0/Usability-Study-Navigation?node-id=1'
-                            '%3A90&viewport=185%2C235%2C0.25&scaling=min-zoom')
+            webbrowser.open(
+                'https://www.figma.com/proto/QBTk0N6Ad0D9hRijjhBaE0/Usability-Study-Navigation?node-id=1%3A90&viewport=185%2C235%2C0.25&scaling=min-zoom')
         else:
             echo('Skip uploading')
         echo(DONE)
@@ -130,10 +131,11 @@ def init(project_dir):
 def profile_csv(session_config: SessionConfig, project_dir: str) -> str:
     package_nb_path = os.path.join(os.path.dirname(__file__), "notebooks")
     demo_csv = os.path.join(package_nb_path, LENDING_CLUB_CSV)
-    file: io.TextIOWrapper = click.prompt('CSV input path (leave blank to use our demo dataset)', type=click.File(mode='rt'),
+    file: io.TextIOWrapper = click.prompt('CSV input path (leave blank to use our demo dataset)',
+                                          type=click.File(mode='rt'),
                                           default=io.StringIO(), show_default=False)
     if type(file) is io.StringIO:
-        echo('Using the demo Lending Club Data (1K randomized samples)')
+        echo('Using the demo Lending Club Data (1K randomized samples)', fg='green')
         destination_csv = os.path.join(project_dir, LENDING_CLUB_CSV)
         echo('Copying the demo file to: %s' % destination_csv)
         shutil.copy(demo_csv, destination_csv)
