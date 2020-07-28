@@ -138,7 +138,7 @@ def get_or_create_session():
             'Active session found, ignoring session kwargs')
     else:
         config = load_config()
-        if config is not None:
+        if config is None:
             writer = WriterConfig(type='local', output_path='output', formats=['all'])
             config = SessionConfig('default-project', 'default-pipeline', False, [writer])
         _session = session_from_config(config)
