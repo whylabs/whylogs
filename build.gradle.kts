@@ -46,13 +46,12 @@ tasks.register<Exec>("pip-install") {
 }
 
 tasks.register<Exec>("test-python") {
-    commandLine = "python setup.py test".split(" ")
+    commandLine = listOf("pytest")
 }
 
 tasks.register<Exec>("build-python") {
     dependsOn("copy-proto")
     dependsOn("pip-install")
-    dependsOn("test-python")
 
     commandLine = "python setup.py build --verbose".split(" ")
 }
