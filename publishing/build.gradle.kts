@@ -114,24 +114,24 @@ publishing {
                 url = if (isSnapShot) snapshotsRepoUrl else releasesRepoUrl
 
             }
-            maven {
-                // TODO: change this URL base on the stage of publishing?
-                val s3Base = "s3://whylabs-andy-maven-us-west-2/repos"
-                val releasesRepoUrl = uri("$s3Base/releases")
-                val snapshotsRepoUrl = uri("$s3Base/snapshots")
-                url = if (isSnapShot) snapshotsRepoUrl else releasesRepoUrl
-
-                // set up AWS authentication
-                val credentials = DefaultAWSCredentialsProviderChain.getInstance().credentials
-                credentials(AwsCredentials::class) {
-                    accessKey = credentials.awsAccessKeyId
-                    secretKey = credentials.awsSecretKey
-                    // optional
-                    if (credentials is com.amazonaws.auth.AWSSessionCredentials) {
-                        sessionToken = credentials.sessionToken
-                    }
-                }
-            }
+//            maven {
+//                // TODO: change this URL base on the stage of publishing?
+//                val s3Base = "s3://whylabs-andy-maven-us-west-2/repos"
+//                val releasesRepoUrl = uri("$s3Base/releases")
+//                val snapshotsRepoUrl = uri("$s3Base/snapshots")
+//                url = if (isSnapShot) snapshotsRepoUrl else releasesRepoUrl
+//
+//                // set up AWS authentication
+//                val credentials = DefaultAWSCredentialsProviderChain.getInstance().credentials
+//                credentials(AwsCredentials::class) {
+//                    accessKey = credentials.awsAccessKeyId
+//                    secretKey = credentials.awsSecretKey
+//                    // optional
+//                    if (credentials is com.amazonaws.auth.AWSSessionCredentials) {
+//                        sessionToken = credentials.sessionToken
+//                    }
+//                }
+//            }
         }
     }
 }
