@@ -31,8 +31,8 @@ This installation also requires access to the private PYPI
 For a dev installation with development requirements, it's recommended create a fresh conda environment or virtualenv
 
  ```
- # Development installation
- pip install -v -e .[dev]
+# Development installation
+pip install -v -e ".[dev]"
  ```
 
  Dev install with local package
