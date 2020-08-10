@@ -1,20 +1,36 @@
-.. WhyLogs documentation master file, created by
-   sphinx-quickstart on Wed Jul 29 17:54:10 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. WhyLogs documentation master file
 
-Welcome to WhyLogs's documentation!
-===================================
+WhyLogs
+==================
+
+*Profile and monitor your ML data pipeline end-to-end*
+
+WhyLogs is a library for building insights to your data and minimizes data monitoring issues. To learn more
+generating :ref:`validating <expectations>`,
+:ref:`documenting <data_docs>`, and :ref:`profiling <profiling>` your data to maintain quality and improve
+communication between teams. Head over to the :ref:`intro` to learn more, or jump straight to our
+:ref:`getting_started` guide.
+
+
+.. attention::
+
+   This site is a work in progress. Feel free to join our Slack channel if you have questions `Slack channel <https://whylogs.slack.com>`__!
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 1
 
+    overview
+    getting_started
+    concepts
 
-
-Indices and tables
+Index
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
+
+
+.. toctree::
+    :maxdepth: 2
+
+    autoapi/index
