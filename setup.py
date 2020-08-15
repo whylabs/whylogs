@@ -1,14 +1,81 @@
 import re
+import subprocess
+import sys
 
 import setuptools
 import codecs
 import os.path
+from distutils.spawn import find_executable
+from distutils.command.build_py import build_py_2to3 as _build_py
+from distutils.command.clean import clean as _clean
+from distutils.util import run_2to3
+from glob import glob
 
 
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
     with codecs.open(os.path.join(here, rel_path), 'r') as fp:
         return fp.read()
+
+
+# Find the Protocol Compiler.
+if 'PROTOC' in os.environ and os.path.exists(os.environ['PROTOC']):
+    protoc = os.environ['PROTOC']
+elif os.path.exists("../src/protoc"):
+    protoc = "../src/protoc"
+elif os.path.exists("../src/protoc.exe"):
+    protoc = "../src/protoc.exe"
+elif os.path.exists("../vsprojects/Debug/protoc.exe"):
+    protoc = "../vsprojects/Debug/protoc.exe"
+elif os.path.exists("../vsprojects/Release/protoc.exe"):
+    protoc = "../vsprojects/Release/protoc.exe"
+else:
+    protoc = find_executable("protoc")
+
+
+def generate_proto(sr_path, dst_path):
+    """Invokes the Protocol Compiler to generate a _pb2.py from the given
+    .proto file.
+    Also, run 2to3 conversion to make the package compatible with Python 3 code."""
+    proto_files = glob("{0}/*.proto".format(sr_path))
+    if len(proto_files) == 0:
+        sys.stderr.write('Unable to locate proto source files')
+        sys.exit(-1)
+
+    protoc_command = [protoc, "-I", sr_path, "--python_out={}".format(dst_path)] + proto_files
+    if protoc is None:
+        sys.stderr.write(
+            "protoc is not installed nor found in ../src.  Please compile it "
+            "or install the binary package.\n")
+        sys.exit(-1)
+
+    print(' '.join(protoc_command))
+    if subprocess.call(protoc_command) != 0:
+        sys.exit(-1)
+
+    run_2to3(glob("{0}/*_pb2.py".format(dst_path)))
+
+
+class BuildClean(_clean):
+    def run(self):
+        # Delete generated files in the code tree.
+        for (dirpath, dirnames, filenames) in os.walk("."):
+            for filename in filenames:
+                filepath = os.path.join(dirpath, filename)
+                if filepath.endswith("_pb2.py") or filepath.endswith(".pyc") or \
+                        filepath.endswith(".so") or filepath.endswith(".o"):
+                    os.remove(filepath)
+        # _clean is an old-style class, so super() doesn't work.
+        _clean.run(self)
+
+
+class BuildPy(_build_py):
+    def run(self):
+        validate_version(version)
+
+        generate_proto('./whylogs-proto/src', './src/whylabs/logs/proto')
+        # _build_py is an old-style class, so super() doesn't work.
+        _build_py.run(self)
 
 
 def get_version(rel_path):
@@ -27,7 +94,7 @@ version = get_version("src/whylabs/logs/_version.py")
 
 def validate_version(v):
     branch = os.environ.get("CI_COMMIT_BRANCH")
-    if branch == 'master':
+    if branch == 'mainline':
         if 'b' not in v:
             raise RuntimeError(f'Invalid version string: {v} for master branch')
     elif branch == 'release':
@@ -36,8 +103,6 @@ def validate_version(v):
     else:
         print(f'Not on master or release branch: {branch}')
 
-
-validate_version(version)
 
 # Currently, all requirements will be made mandatory, but long term we could
 # remove these optional requirements.  Such packages are only needed for
@@ -87,6 +152,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/whylabs/whylogs',
+    cmdclass={'clean': BuildClean, 'build_py': BuildPy},
     package_dir={'': 'src'},
     include_package_data=True,
     packages=setuptools.find_packages('src'),
