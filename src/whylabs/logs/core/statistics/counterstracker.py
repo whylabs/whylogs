@@ -15,6 +15,7 @@ class CountersTracker:
     null_count : int, optional
         Number of nulls encountered
     """
+
     def __init__(self, count=0, true_count=0, null_count=0):
         self.count = count
         self.true_count = true_count
@@ -59,9 +60,9 @@ class CountersTracker:
         """
         opts = dict(count=self.count)
         if self.true_count > 0:
-            opts['true_count'] = Int64Value(value=self.true_count)
+            opts["true_count"] = Int64Value(value=self.true_count)
         if self.null_count > 0:
-            opts['null_count'] = Int64Value(value=self.null_count)
+            opts["null_count"] = Int64Value(value=self.null_count)
         return Counters(**opts)
 
     @staticmethod

@@ -2,18 +2,19 @@
 """
 from whylabs.logs.core.statistics import thetasketch
 import os
+
 MYDIR = os.path.realpath(os.path.dirname(__file__))
-DATA_DIR = os.path.join(MYDIR, 'data')
+DATA_DIR = os.path.join(MYDIR, "data")
 
 
 def test_deserialize_returns_theta_sketch():
-    with open(os.path.join(DATA_DIR, 'numeric_theta_sketch.bin'), 'rb') as fp:
+    with open(os.path.join(DATA_DIR, "numeric_theta_sketch.bin"), "rb") as fp:
         theta_bytes = fp.read()
 
     theta = thetasketch.ThetaSketch.deserialize(theta_bytes)
     assert isinstance(theta, thetasketch.ThetaSketch)
 
-    with open(os.path.join(DATA_DIR, 'string_theta_sketch.bin'), 'rb') as fp:
+    with open(os.path.join(DATA_DIR, "string_theta_sketch.bin"), "rb") as fp:
         theta_bytes = fp.read()
 
     theta = thetasketch.ThetaSketch.deserialize(theta_bytes)

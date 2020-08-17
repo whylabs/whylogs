@@ -1,5 +1,6 @@
 from whylabs.logs.proto import InferredType
 from whylabs.logs.core.statistics import SchemaTracker
+
 Type = InferredType.Type
 
 
@@ -22,7 +23,7 @@ def test_track_datatype_counts():
         Type.STRING: 2,
         Type.FRACTIONAL: 2,
         Type.BOOLEAN: 2,
-        Type.UNKNOWN: 2
+        Type.UNKNOWN: 2,
     }
     tracker = SchemaTracker()
     multiple_track(tracker, type_counts)
@@ -36,10 +37,7 @@ def test_track_datatype_counts():
 
 def test_70percent_string():
     tracker = SchemaTracker()
-    type_counts = {
-        Type.INTEGRAL: 29,
-        Type.STRING: 71
-    }
+    type_counts = {Type.INTEGRAL: 29, Type.STRING: 71}
     multiple_track(tracker, type_counts)
     assert tracker.infer_type().type == Type.STRING
 
@@ -68,21 +66,17 @@ def test_majority_int():
 
 def test_float_and_int():
     tracker = SchemaTracker()
-    multiple_track(tracker, counts={
-        Type.INTEGRAL: 50,
-        Type.FRACTIONAL: 50,
-        Type.STRING: 10,
-    })
+    multiple_track(
+        tracker, counts={Type.INTEGRAL: 50, Type.FRACTIONAL: 50, Type.STRING: 10,}
+    )
     assert tracker.infer_type().type == Type.FRACTIONAL
 
 
 def test_all_types_equal_coerced_to_string():
     tracker = SchemaTracker()
-    multiple_track(tracker, counts={
-        Type.INTEGRAL: 20,
-        Type.FRACTIONAL: 29,
-        Type.STRING: 50,
-    })
+    multiple_track(
+        tracker, counts={Type.INTEGRAL: 20, Type.FRACTIONAL: 29, Type.STRING: 50,}
+    )
     assert tracker.infer_type().type == Type.STRING
 
 
@@ -115,31 +109,25 @@ def test_summary():
 
     summary = tracker.to_summary()
     c = summary.type_counts
-    assert c['INTEGRAL'] == type_counts[Type.INTEGRAL]
-    assert c['STRING'] == type_counts[Type.STRING]
-    assert c['FRACTIONAL'] == type_counts[Type.FRACTIONAL]
-    assert c['BOOLEAN'] == type_counts[Type.BOOLEAN]
-    assert c['UNKNOWN'] == type_counts[Type.UNKNOWN]
+    assert c["INTEGRAL"] == type_counts[Type.INTEGRAL]
+    assert c["STRING"] == type_counts[Type.STRING]
+    assert c["FRACTIONAL"] == type_counts[Type.FRACTIONAL]
+    assert c["BOOLEAN"] == type_counts[Type.BOOLEAN]
+    assert c["UNKNOWN"] == type_counts[Type.UNKNOWN]
 
     assert summary.inferred_type.type == tracker.infer_type().type
 
 
 def test_merge_total_counts_match():
     x1 = SchemaTracker()
-    multiple_track(x1, {
-        Type.INTEGRAL: 10,
-        Type.FRACTIONAL: 10,
-        Type.BOOLEAN: 10,
-        Type.UNKNOWN: 10
-    })
+    multiple_track(
+        x1, {Type.INTEGRAL: 10, Type.FRACTIONAL: 10, Type.BOOLEAN: 10, Type.UNKNOWN: 10}
+    )
 
     x2 = SchemaTracker()
-    multiple_track(x2, {
-        Type.INTEGRAL: 20,
-        Type.FRACTIONAL: 20,
-        Type.BOOLEAN: 20,
-        Type.UNKNOWN: 20
-    })
+    multiple_track(
+        x2, {Type.INTEGRAL: 20, Type.FRACTIONAL: 20, Type.BOOLEAN: 20, Type.UNKNOWN: 20}
+    )
 
     merged = x1.merge(x2)
     assert merged.get_count(Type.INTEGRAL) == 30

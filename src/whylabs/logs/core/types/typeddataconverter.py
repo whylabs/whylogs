@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import yaml
 from whylabs.logs.proto import InferredType
+
 TYPES = InferredType.Type
 # Dictionary mapping from type Number to type name
 TYPENUM_TO_NAME = {k: v for v, k in InferredType.Type.items()}
@@ -19,6 +20,7 @@ class TypedDataConverter:
     """
     A class to coerce types on data
     """
+
     @staticmethod
     def convert(data):
         """

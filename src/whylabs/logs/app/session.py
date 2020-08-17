@@ -11,12 +11,9 @@ from whylabs.logs.app.writers import Writer, writer_from_config, LocalWriter
 
 
 class Session:
-    def __init__(self,
-                 project: str,
-                 pipeline: str,
-                 writers: List[Writer],
-                 verbose: bool = False,
-                 ):
+    def __init__(
+        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False,
+    ):
         """
 
         Parameters
@@ -45,10 +42,12 @@ class Session:
     def is_active(self):
         return self._active
 
-    def logger(self,
-               dataset_name: Optional[str] = None,
-               datetime_column: Optional[str] = None,
-               datetime_format: Optional[str] = None) -> Logger:
+    def logger(
+        self,
+        dataset_name: Optional[str] = None,
+        datetime_column: Optional[str] = None,
+        datetime_format: Optional[str] = None,
+    ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
         If no dataset_name is specified, we default to project name
@@ -69,24 +68,27 @@ class Session:
             dataset_name = self.project
 
         if not self._active:
-            raise RuntimeError('Session is already closed. Cannot create more loggers')
+            raise RuntimeError("Session is already closed. Cannot create more loggers")
         logger = self._loggers.get(dataset_name)
         if logger is None:
-            logger = Logger(dataset_name=dataset_name,
-                            datetime_column=datetime_column,
-                            datetime_format=datetime_format,
-                            writers=self.writers,
-                            verbose=self.verbose,
-                            )
+            logger = Logger(
+                dataset_name=dataset_name,
+                datetime_column=datetime_column,
+                datetime_format=datetime_format,
+                writers=self.writers,
+                verbose=self.verbose,
+            )
             self._loggers[dataset_name] = logger
 
         return logger
 
-    def log_dataframe(self,
-                      df: pd.DataFrame,
-                      dataset_name: Optional[str] = None,
-                      datetime_column: Optional[str] = None,
-                      datetime_format: Optional[str] = None):
+    def log_dataframe(
+        self,
+        df: pd.DataFrame,
+        dataset_name: Optional[str] = None,
+        datetime_column: Optional[str] = None,
+        datetime_format: Optional[str] = None,
+    ):
         if not self.is_active():
             return
 
@@ -95,7 +97,7 @@ class Session:
 
     def close(self):
         if not self._active:
-            print('WARNING: attempting to close an inactive session')
+            print("WARNING: attempting to close an inactive session")
             return
 
         self._active = False
@@ -134,13 +136,14 @@ def get_or_create_session():
     """
     global _session
     if _session is not None and _session.is_active():
-        _getLogger(__name__).debug(
-            'Active session found, ignoring session kwargs')
+        _getLogger(__name__).debug("Active session found, ignoring session kwargs")
     else:
         config = load_config()
         if config is None:
-            writer = WriterConfig(type='local', output_path='output', formats=['all'])
-            config = SessionConfig('default-project', 'default-pipeline', False, [writer])
+            writer = WriterConfig(type="local", output_path="output", formats=["all"])
+            config = SessionConfig(
+                "default-project", "default-pipeline", False, [writer]
+            )
         _session = session_from_config(config)
     return _session
 

@@ -3,9 +3,9 @@ from whylabs.logs.core.statistics import CountersTracker
 
 def test_init():
     c = CountersTracker()
-    assert c.__dict__ == {'count': 0, 'true_count': 0, 'null_count': 0}
+    assert c.__dict__ == {"count": 0, "true_count": 0, "null_count": 0}
 
-    opts = {'count': 1, 'true_count': 3, 'null_count': 4}
+    opts = {"count": 1, "true_count": 3, "null_count": 4}
     c = CountersTracker(**opts)
     assert c.__dict__ == opts
 

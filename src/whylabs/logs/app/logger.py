@@ -17,12 +17,14 @@ class Logger:
 
     """
 
-    def __init__(self,
-                 dataset_name: str,
-                 datetime_column: Optional[str] = None,
-                 datetime_format: Optional[str] = None,
-                 writers=List[Writer],
-                 verbose: bool = False):
+    def __init__(
+        self,
+        dataset_name: str,
+        datetime_column: Optional[str] = None,
+        datetime_format: Optional[str] = None,
+        writers=List[Writer],
+        verbose: bool = False,
+    ):
         self.dataset_name = dataset_name
         self.datetime_column = datetime_column
         self.datetime_format = datetime_format
@@ -39,7 +41,7 @@ class Logger:
 
     def flush(self):
         if not self._active:
-            print('WARNING: attempting to flush a closed logger')
+            print("WARNING: attempting to flush a closed logger")
             return
 
         for writer in self.writers:
@@ -47,7 +49,7 @@ class Logger:
 
     def close(self):
         if not self._active:
-            print('WARNING: attempting to close a closed logger')
+            print("WARNING: attempting to close a closed logger")
             return
 
         self.flush()

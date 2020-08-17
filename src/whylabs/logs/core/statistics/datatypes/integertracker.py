@@ -17,17 +17,19 @@ class IntTracker:
     count
         Total count of numbers
     """
+
     DEFAULTS = {
-        'min': math.inf,
-        'max': -math.inf,
-        'sum': 0,
-        'count': 0,
+        "min": math.inf,
+        "max": -math.inf,
+        "sum": 0,
+        "count": 0,
     }
 
-    def __init__(self, min: int=None, max: int=None, sum: int=None,
-                 count: int=None):
+    def __init__(
+        self, min: int = None, max: int = None, sum: int = None, count: int = None
+    ):
         kwargs = locals()
-        kwargs.pop('self')
+        kwargs.pop("self")
         opts = {}
         opts.update(self.DEFAULTS)
         for k, v in kwargs.items():
@@ -48,7 +50,7 @@ class IntTracker:
         Calculate the current mean.  Returns `None` if `self.count = 0`
         """
         try:
-            return self.sum/float(self.count)
+            return self.sum / float(self.count)
         except ZeroDivisionError:
             return None
 
@@ -84,7 +86,6 @@ class IntTracker:
         x.count += other.count
         return x
 
-
     def to_protobuf(self):
         """
         Return the object serialized as a protobuf message
@@ -93,12 +94,7 @@ class IntTracker:
         -------
         message : LongsMessage
         """
-        return LongsMessage(
-            count=self.count,
-            max=self.max,
-            min=self.min,
-            sum=self.sum,
-        )
+        return LongsMessage(count=self.count, max=self.max, min=self.min, sum=self.sum,)
 
     @staticmethod
     def from_protobuf(message):
@@ -110,8 +106,5 @@ class IntTracker:
         number_tracker : IntTracker
         """
         return IntTracker(
-            min=message.min,
-            max=message.max,
-            sum=message.sum,
-            count=message.count
+            min=message.min, max=message.max, sum=message.sum, count=message.count
         )

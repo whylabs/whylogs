@@ -1,1 +1,1 @@
-from . typeddataconverter import TypedDataConverter
+from .typeddataconverter import TypedDataConverter

@@ -6,11 +6,16 @@ import datasketches
 import pandas as pd
 
 from whylabs.logs.proto import NumbersMessage
-from whylabs.logs.core.summaryconverters import histogram_from_sketch, \
-    quantiles_from_sketch
+from whylabs.logs.core.summaryconverters import (
+    histogram_from_sketch,
+    quantiles_from_sketch,
+)
 from whylabs.logs.core.statistics.thetasketch import ThetaSketch
-from whylabs.logs.core.statistics.datatypes import VarianceTracker, \
-    IntTracker, FloatTracker
+from whylabs.logs.core.statistics.datatypes import (
+    VarianceTracker,
+    IntTracker,
+    FloatTracker,
+)
 from whylabs.logs.proto import NumberSummary
 from whylabs.logs.util import dsketch, stats
 
@@ -42,14 +47,16 @@ class NumberTracker:
     theta_sketch : `whylabs.logs.core.statistics.thetasketch.ThetaSketch`
         Sketch which tracks approximate cardinality
     """
-    def __init__(self,
-                 variance: VarianceTracker=None,
-                 floats: FloatTracker=None,
-                 ints: IntTracker=None,
-                 theta_sketch: ThetaSketch=None,
-                 histogram: datasketches.kll_floats_sketch=None,
-                 frequent_numbers: dsketch.FrequentNumbersSketch=None,
-                 ):
+
+    def __init__(
+        self,
+        variance: VarianceTracker = None,
+        floats: FloatTracker = None,
+        ints: IntTracker = None,
+        theta_sketch: ThetaSketch = None,
+        histogram: datasketches.kll_floats_sketch = None,
+        frequent_numbers: dsketch.FrequentNumbersSketch = None,
+    ):
         # Our own trackers
         if variance is None:
             variance = VarianceTracker()
@@ -106,7 +113,8 @@ class NumberTracker:
     def merge(self, other):
         # Make a copy of the histogram
         hist_copy = datasketches.kll_floats_sketch.deserialize(
-            self.histogram.serialize())
+            self.histogram.serialize()
+        )
         hist_copy.merge(other.histogram)
 
         theta_sketch = self.theta_sketch.merge(other.theta_sketch)
@@ -131,9 +139,9 @@ class NumberTracker:
             frequent_numbers=self.frequent_numbers.to_protobuf(),
         )
         if self.floats.count > 0:
-            opts['doubles'] = self.floats.to_protobuf()
+            opts["doubles"] = self.floats.to_protobuf()
         elif self.ints.count > 0:
-            opts['longs'] = self.ints.to_protobuf()
+            opts["longs"] = self.ints.to_protobuf()
         msg = NumbersMessage(**opts)
         return msg
 
@@ -149,8 +157,7 @@ class NumberTracker:
         theta = None
         if message.theta is not None and len(message.theta) > 0:
             theta = ThetaSketch.deserialize(message.theta)
-        elif message.compact_theta is not None \
-                and len(message.compact_theta) > 0:
+        elif message.compact_theta is not None and len(message.compact_theta) > 0:
             theta = ThetaSketch.deserialize(message.compact_theta)
 
         opts = dict(
@@ -158,12 +165,13 @@ class NumberTracker:
             variance=VarianceTracker.from_protobuf(message.variance),
             histogram=dsketch.deserialize_kll_floats_sketch(message.histogram),
             frequent_numbers=dsketch.FrequentNumbersSketch.from_protobuf(
-                message.frequent_numbers),
+                message.frequent_numbers
+            ),
         )
-        if message.HasField('doubles'):
-            opts['floats'] = FloatTracker.from_protobuf(message.doubles)
-        if message.HasField('longs'):
-            opts['ints'] = IntTracker.from_protobuf(message.longs)
+        if message.HasField("doubles"):
+            opts["floats"] = FloatTracker.from_protobuf(message.doubles)
+        if message.HasField("longs"):
+            opts["ints"] = IntTracker.from_protobuf(message.longs)
         return NumberTracker(**opts)
 
     def to_summary(self):

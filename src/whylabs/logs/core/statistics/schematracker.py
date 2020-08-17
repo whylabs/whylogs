@@ -1,6 +1,7 @@
 """
 """
 from whylabs.logs.proto import InferredType, SchemaMessage, SchemaSummary
+
 Type = InferredType.Type
 import copy
 
@@ -15,10 +16,11 @@ class SchemaTracker:
         If specified, a dictionary containing information about the counts of
         all data types.
     """
+
     UNKNOWN_TYPE = InferredType(type=Type.UNKNOWN)
     CANDIDATE_MIN_FRAC = 0.7
 
-    def __init__(self, type_counts: dict=None):
+    def __init__(self, type_counts: dict = None):
         if type_counts is None:
             type_counts = {}
         if not isinstance(type_counts, dict):
@@ -59,16 +61,22 @@ class SchemaTracker:
             return candidate
 
         # Integral is considered a subset of fractional here
-        fractional_count = sum([self.type_counts.get(k, 0) for k in
-                                (Type.INTEGRAL, Type.FRACTIONAL)])
+        fractional_count = sum(
+            [self.type_counts.get(k, 0) for k in (Type.INTEGRAL, Type.FRACTIONAL)]
+        )
 
-        if candidate.type == Type.STRING \
-                and self.type_counts.get(Type.STRING, 0) > fractional_count:
+        if (
+            candidate.type == Type.STRING
+            and self.type_counts.get(Type.STRING, 0) > fractional_count
+        ):
             # treat everything else as "String" except UNKNOWN
             coerced_count = sum(
-                [self.type_counts.get(k, 0) for k in
-                 (Type.INTEGRAL, Type.FRACTIONAL, Type.STRING, Type.BOOLEAN)])
-            actual_ratio = float(coerced_count)/total_count
+                [
+                    self.type_counts.get(k, 0)
+                    for k in (Type.INTEGRAL, Type.FRACTIONAL, Type.STRING, Type.BOOLEAN)
+                ]
+            )
+            actual_ratio = float(coerced_count) / total_count
             return InferredType(type=Type.STRING, ratio=actual_ratio)
 
         if candidate.ratio >= 0.5:
@@ -76,10 +84,11 @@ class SchemaTracker:
             actual_count = self.type_counts[candidate.type]
             if candidate.type == Type.FRACTIONAL:
                 actual_count = fractional_count
-            return InferredType(type=candidate.type,
-                                ratio=float(actual_count)/total_count)
+            return InferredType(
+                type=candidate.type, ratio=float(actual_count) / total_count
+            )
 
-        fractional_ratio = float(fractional_count)/total_count
+        fractional_ratio = float(fractional_count) / total_count
         if fractional_ratio >= 0.5:
             return InferredType(type=Type.FRACTIONAL, ratio=fractional_ratio)
 
@@ -94,7 +103,7 @@ class SchemaTracker:
                 item_type = candidate_type
                 count = candidate_count
 
-        ratio = float(count)/total_count
+        ratio = float(count) / total_count
         return InferredType(type=item_type, ratio=ratio)
 
     def merge(self, other):
@@ -115,8 +124,9 @@ class SchemaTracker:
         all_types = Type.values()
         for t in all_types:
             if (t in self.type_counts) or (t in other.type_counts):
-                this_copy.type_counts[t] = this_copy.type_counts.get(t, 0) \
-                        + other.type_counts.get(t, 0)
+                this_copy.type_counts[t] = this_copy.type_counts.get(
+                    t, 0
+                ) + other.type_counts.get(t, 0)
         return this_copy
 
     def copy(self):
@@ -158,9 +168,7 @@ class SchemaTracker:
         """
         type_counts = self.type_counts
         # Convert the integer keys to their corresponding string names
-        type_counts_with_names = {Type.Name(k): v
-                                  for k, v in type_counts.items()}
+        type_counts_with_names = {Type.Name(k): v for k, v in type_counts.items()}
         return SchemaSummary(
-            inferred_type=self.infer_type(),
-            type_counts=type_counts_with_names,
+            inferred_type=self.infer_type(), type_counts=type_counts_with_names,
         )

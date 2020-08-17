@@ -2,7 +2,7 @@
 """
 from whylabs.logs.core.statistics import hllsketch
 import pytest
-from  datetime import datetime
+from datetime import datetime
 import pytz
 from enum import Enum
 
@@ -23,8 +23,32 @@ def test_serialize_then_merge_does_not_fail():
     than with python floats.
     """
     import numpy as np
-    vals = np.array([21., 15., 14., 23., 24.,  2., 26., 31., 26., 30., 17.,
-                     36., 18., 28., 58., 32., 10., 19., 15.,  8., 31.])
+
+    vals = np.array(
+        [
+            21.0,
+            15.0,
+            14.0,
+            23.0,
+            24.0,
+            2.0,
+            26.0,
+            31.0,
+            26.0,
+            30.0,
+            17.0,
+            36.0,
+            18.0,
+            28.0,
+            58.0,
+            32.0,
+            10.0,
+            19.0,
+            15.0,
+            8.0,
+            31.0,
+        ]
+    )
 
     for attempt in range(50):
         # A larger lg_k seems to increase the odds of failure
@@ -75,7 +99,6 @@ def test_enum_tracking():
     assert hll.get_estimate() == pytest.approx(4, 1e-5)
 
 
-
 def test_floats_ints_different():
     int_vals = [1, 2, 3] * 2
     float_vals = [1.0, 2.0, 3.0] * 2
@@ -88,7 +111,7 @@ def test_floats_ints_different():
 
 def test_update():
     hll = hllsketch.HllSketch()
-    vals = [1, 2, 3]*2
+    vals = [1, 2, 3] * 2
     for v in vals:
         hll.update(v)
 
@@ -129,7 +152,7 @@ def test_merge_equivalent_to_single_run():
 
 def test_protobuf_roundtrip():
     hll1 = hllsketch.HllSketch()
-    vals = [1, 2, 3, 1, 2, 3, 'a', 'a', 'b', 2.0, 8.0, 9.0]
+    vals = [1, 2, 3, 1, 2, 3, "a", "a", "b", 2.0, 8.0, 9.0]
     for v in vals:
         hll1.update(v)
 
@@ -137,15 +160,13 @@ def test_protobuf_roundtrip():
     hll2 = hllsketch.HllSketch.from_protobuf(msg)
 
     assert hll1.get_estimate() == hll2.get_estimate()
-    assert hll1.get_upper_bound() ==  hll2.get_upper_bound()
+    assert hll1.get_upper_bound() == hll2.get_upper_bound()
     assert hll1.get_lower_bound() == hll2.get_lower_bound()
 
 
 def test_summary():
     hll = hllsketch.HllSketch()
-    vals = 3 * [1, 2, 3] \
-        + [4.0, 6.0, 9.0, 9.0] \
-        + ['a', 'a', 'dkfjadlf', 'c']
+    vals = 3 * [1, 2, 3] + [4.0, 6.0, 9.0, 9.0] + ["a", "a", "dkfjadlf", "c"]
     for v in vals:
         hll.update(v)
 
@@ -159,4 +180,3 @@ def test_summary():
 def test_empty_sketch_summary_returns_none():
     sketch = hllsketch.HllSketch()
     assert sketch.to_summary() is None
-

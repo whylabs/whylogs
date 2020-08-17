@@ -8,8 +8,11 @@ from whylabs.logs.util.dsketch import FrequentItemsSketch
 from whylabs.logs.proto import ColumnSummary, ColumnMessage, InferredType
 from whylabs.logs.core.statistics import CountersTracker, SchemaTracker
 from whylabs.logs.core.statistics.datatypes import StringTracker
-from whylabs.logs.core.statistics.hllsketch import HllSketch, HllSketchMessage,\
-    UniqueCountSummary
+from whylabs.logs.core.statistics.hllsketch import (
+    HllSketch,
+    HllSketchMessage,
+    UniqueCountSummary,
+)
 
 _TYPES = InferredType.Type
 _NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}
@@ -38,9 +41,16 @@ class ColumnProfile:
         * Multi-threading/parallelism
     """
 
-    def __init__(self, name, number_tracker=None, string_tracker=None,
-                 schema_tracker=None, counters=None, frequent_items=None,
-                 cardinality_tracker=None):
+    def __init__(
+        self,
+        name,
+        number_tracker=None,
+        string_tracker=None,
+        schema_tracker=None,
+        counters=None,
+        frequent_items=None,
+        cardinality_tracker=None,
+    ):
         # Handle default values
         if counters is None:
             counters = CountersTracker()
@@ -106,16 +116,15 @@ class ColumnProfile:
         opts = dict(
             counters=self.counters.to_protobuf(),
             frequent_items=self.frequent_items.to_summary(),
-            unique_count=self.cardinality_tracker.to_summary(
-                _UNIQUE_COUNT_BOUNDS_STD)
+            unique_count=self.cardinality_tracker.to_summary(_UNIQUE_COUNT_BOUNDS_STD),
         )
         if self.string_tracker is not None and self.string_tracker.count > 0:
-            opts['string_summary'] = self.string_tracker.to_summary()
+            opts["string_summary"] = self.string_tracker.to_summary()
         if self.number_tracker is not None and self.number_tracker.count > 0:
-            opts['number_summary'] = self.number_tracker.to_summary()
+            opts["number_summary"] = self.number_tracker.to_summary()
 
         if schema is not None:
-            opts['schema'] = schema
+            opts["schema"] = schema
 
         return ColumnSummary(**opts)
 
@@ -141,7 +150,8 @@ class ColumnProfile:
             counters=self.counters.merge(other.counters),
             frequent_items=self.frequent_items.merge(other.frequent_items),
             cardinality_tracker=self.cardinality_tracker.merge(
-                other.cardinality_tracker),
+                other.cardinality_tracker
+            ),
         )
 
     def to_protobuf(self):
@@ -178,6 +188,5 @@ class ColumnProfile:
             number_tracker=NumberTracker.from_protobuf(message.numbers),
             string_tracker=StringTracker.from_protobuf(message.strings),
             frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),
-            cardinality_tracker=HllSketch.from_protobuf(
-                message.cardinality_tracker),
+            cardinality_tracker=HllSketch.from_protobuf(message.cardinality_tracker),
         )

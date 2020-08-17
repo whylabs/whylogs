@@ -92,6 +92,7 @@ def get_valid_filename(s):
     'johns_portrpyait_in_2004.jpg'
     """
     import re
-    s = str(s).strip().replace(' ', '_')
-    s = s.replace('/', '-')
-    return re.sub(r'(?u)[^-\w.]', '', s)
+
+    s = str(s).strip().replace(" ", "_")
+    s = s.replace("/", "-")
+    return re.sub(r"(?u)[^-\w.]", "", s)

@@ -18,6 +18,7 @@ class ThetaSketch:
     Currently, datasketches only implements merging for compact (read-only)
     theta sketches.
     """
+
     def __init__(self, theta_sketch=None, union=None, compact_theta=None):
         if theta_sketch is None:
             theta_sketch = datasketches.update_theta_sketch()
@@ -134,7 +135,7 @@ class ThetaSketch:
         return UniqueCountSummary(
             estimate=compact_theta.get_estimate(),
             upper=compact_theta.get_upper_bound(num_std_devs),
-            lower=compact_theta.get_lower_bound(num_std_devs)
+            lower=compact_theta.get_lower_bound(num_std_devs),
         )
 
 
@@ -159,5 +160,5 @@ def numbers_summary(sketch: ThetaSketch, num_std_devs=1):
     return UniqueCountSummary(
         estimate=compact_theta.get_estimate(),
         upper=compact_theta.get_upper_bound(num_std_devs),
-        lower=compact_theta.get_lower_bound(num_std_devs)
+        lower=compact_theta.get_lower_bound(num_std_devs),
     )

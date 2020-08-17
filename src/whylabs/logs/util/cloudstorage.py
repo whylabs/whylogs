@@ -19,12 +19,12 @@ def check_bucket(bucket_name,):
     success : bool
         Whether the bucket can be accessed
     """
-    s3 = boto3.resource('s3')
+    s3 = boto3.resource("s3")
     try:
         s3.meta.client.head_bucket(Bucket=bucket_name)
         success = True
     except Exception as e:
-        getLogger(__name__).info(f'Could not access bucket: {e}')
+        getLogger(__name__).info(f"Could not access bucket: {e}")
         success = False
     return success
 
@@ -46,11 +46,11 @@ def s3client(**kwargs):
         The boto3 S3 client
     """
     with _s3client_rlock:
-        client = boto3.client('s3', **kwargs)
+        client = boto3.client("s3", **kwargs)
     return client
 
 
-def list_keys(bucket, prefix='', suffix='', client=None):
+def list_keys(bucket, prefix="", suffix="", client=None):
     """
     Generator to list keys in an S3 bucket.
 
@@ -66,11 +66,16 @@ def list_keys(bucket, prefix='', suffix='', client=None):
         If specified, the boto3 s3 client
     """
     for obj in list_objects(bucket, prefix, suffix, client=client):
-        yield obj['Key']
+        yield obj["Key"]
 
 
-def list_objects(bucket: str, prefix: str=None, suffix: str=None,
-                 start_after: str=None, client=None):
+def list_objects(
+    bucket: str,
+    prefix: str = None,
+    suffix: str = None,
+    start_after: str = None,
+    client=None,
+):
     """
     Generator to list objects in an S3 bucket.
 
@@ -90,19 +95,19 @@ def list_objects(bucket: str, prefix: str=None, suffix: str=None,
         If specified, the boto3 s3 client
     """
     if prefix is None:
-        prefix = ''
+        prefix = ""
     if suffix is None:
-        suffix = ''
+        suffix = ""
     if client is None:
         client = s3client()
-    kwargs = {'Bucket': bucket}
+    kwargs = {"Bucket": bucket}
 
     # If the prefix is a single string (not a tuple of strings), we can
     # do the filtering directly in the S3 API.
     if isinstance(prefix, str):
-        kwargs['Prefix'] = prefix
+        kwargs["Prefix"] = prefix
     if start_after:
-        kwargs['StartAfter'] = start_after
+        kwargs["StartAfter"] = start_after
 
     while True:
 
@@ -111,12 +116,12 @@ def list_objects(bucket: str, prefix: str=None, suffix: str=None,
         resp = client.list_objects_v2(**kwargs)
 
         try:
-            contents = resp['Contents']
+            contents = resp["Contents"]
         except KeyError:
             return
 
         for obj in contents:
-            key = obj['Key']
+            key = obj["Key"]
             if key.startswith(prefix) and key.endswith(suffix):
                 yield obj
 
@@ -124,6 +129,6 @@ def list_objects(bucket: str, prefix: str=None, suffix: str=None,
         # Pass the continuation token into the next response, until we
         # reach the final page (when this field is missing).
         try:
-            kwargs['ContinuationToken'] = resp['NextContinuationToken']
+            kwargs["ContinuationToken"] = resp["NextContinuationToken"]
         except KeyError:
             break

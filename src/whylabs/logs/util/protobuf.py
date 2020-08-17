@@ -51,7 +51,7 @@ def _varint_delim_iterator(f):
     return protobuf messages one by one as raw `bytes` objects.
     """
     if isinstance(f, str):
-        with open(f, 'rb') as fp:
+        with open(f, "rb") as fp:
             for msg in _varint_delim_reader(fp):
                 yield msg
     else:
@@ -121,7 +121,7 @@ def write_multi_msg(msgs: list, f):
         Filename or open binary file object to write to
     """
     if isinstance(f, str):
-        with open(f, 'wb') as fp:
+        with open(f, "wb") as fp:
             _write_multi_msg(msgs, fp)
     else:
         # Assume we have an already open file
@@ -151,21 +151,21 @@ def repr_message(x: google.protobuf.message.Message, indent=2, display=True):
     return _repr_message(x, indent=indent, display=display)
 
 
-def _repr_message(x, level=0, msg='', display=True, indent=2):
+def _repr_message(x, level=0, msg="", display=True, indent=2):
     from uuid import uuid4
 
-    if hasattr(x, 'DESCRIPTOR'):
+    if hasattr(x, "DESCRIPTOR"):
         # FIXME: this since the metadata is nested now
         field_names = sorted([f.name for f in x.DESCRIPTOR.fields])
         for f in field_names:
-            msg = msg + ' ' * level + str(f) + '\n'
+            msg = msg + " " * level + str(f) + "\n"
             v = getattr(x, f, None)
             msg = _repr_message(v, level + indent, msg)
     elif isinstance(x, (MessageMapContainer,)):
         test_val = x.get_or_create(str(uuid4()))
         msg = _repr_message(test_val, level + indent, msg)
     else:
-        msg = msg[0:-1] + ': ' + str(x)[0:100] + '\n'
+        msg = msg[0:-1] + ": " + str(x)[0:100] + "\n"
     if display and level == 0:
         print(msg)
     else:

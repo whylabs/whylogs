@@ -5,10 +5,11 @@ import datasketches
 from testutil import compare_frequent_items
 import json
 import numpy as np
+
 decode_item = dsketch.FrequentItemsSketch._decode_item
 
 NUMBERS = [1, 1, 1, 2, 3, 4, 4, 5.0, 5.0, 4.0, 1e90]
-STRINGS = ['a', 'b', 'hello world', 'hello World', 'a', 'a', 'b']
+STRINGS = ["a", "b", "hello world", "hello World", "a", "a", "b"]
 BOOLS = [True, False, True]
 
 ALL_VALS = NUMBERS + STRINGS + BOOLS
@@ -33,8 +34,7 @@ def track_and_validate_summary_estimates(vals: list, expected: set):
     assert isinstance(expected, set)
     sketch = make_sketch_and_track(vals)
     summary = sketch.to_summary()
-    estimates = [(decode_item(xi.json_value), xi.estimate)
-                 for xi in summary.items]
+    estimates = [(decode_item(xi.json_value), xi.estimate) for xi in summary.items]
     assert expected == set(estimates)
     assert len(estimates) == len(expected)
 
@@ -62,10 +62,10 @@ def test_bool_summary_returns_correct_estimates():
 
 def test_string_summary_returns_correct_estimates():
     expected = {
-        ('a', 3),
-        ('b', 2),
-        ('hello world', 1),
-        ('hello World', 1),
+        ("a", 3),
+        ("b", 2),
+        ("hello world", 1),
+        ("hello World", 1),
     }
     track_and_validate_summary_estimates(STRINGS, expected)
 
@@ -81,10 +81,10 @@ def test_mixed_summary_returns_correct_estimates():
         (1.0e90, 1),
         (True, 2),
         (False, 1),
-        ('a', 3),
-        ('b', 2),
-        ('hello world', 1),
-        ('hello World', 1),
+        ("a", 3),
+        ("b", 2),
+        ("hello world", 1),
+        ("hello World", 1),
     }
     track_and_validate_summary_estimates(ALL_VALS, expected)
 
@@ -92,8 +92,7 @@ def test_mixed_summary_returns_correct_estimates():
 def test_bool_summary_returns_correct_estimates():
     sketch = make_sketch_and_track(BOOLS)
     summary = sketch.to_summary()
-    estimates = [(json.loads(xi.json_value), xi.estimate)
-                 for xi in summary.items]
+    estimates = [(json.loads(xi.json_value), xi.estimate) for xi in summary.items]
     expected = {
         (True, 2),
         (False, 1),
@@ -109,16 +108,18 @@ def test_apriori_error_equal_datasketches_error():
     sketch = dsketch.FrequentItemsSketch(LG_K)
     strings_sketch = datasketches.frequent_strings_sketch(LG_K)
     for map_size, w in zip(map_sizes, weights):
-        assert sketch.get_apriori_error(map_size, w) \
-            == strings_sketch.get_apriori_error(map_size, w)
+        assert sketch.get_apriori_error(
+            map_size, w
+        ) == strings_sketch.get_apriori_error(map_size, w)
 
 
 def test_string_epsilon_equals_datasketches():
     sketch = dsketch.FrequentItemsSketch(LG_K)
     strings_sketch = datasketches.frequent_strings_sketch(LG_K)
     for lg in [1, 3, 32, 120]:
-        assert sketch.get_epsilon_for_lg_size(lg) \
-            == strings_sketch.get_epsilon_for_lg_size(lg)
+        assert sketch.get_epsilon_for_lg_size(
+            lg
+        ) == strings_sketch.get_epsilon_for_lg_size(lg)
 
 
 def test_estimates_equal_datasketches():
@@ -143,10 +144,10 @@ def test_frequent_items_correct():
         (1.0e90, 1, 1, 1),
         (True, 2, 2, 2),
         (False, 1, 1, 1),
-        ('a', 3, 3, 3),
-        ('b', 2, 2, 2),
-        ('hello world', 1, 1, 1),
-        ('hello World', 1, 1, 1),
+        ("a", 3, 3, 3),
+        ("b", 2, 2, 2),
+        ("hello world", 1, 1, 1),
+        ("hello World", 1, 1, 1),
     ]
     compare_frequent_items(true_items, items)
 
@@ -164,6 +165,7 @@ def test_sketch_epsilon_equals_datasketches():
     sketch = make_sketch_and_track(STRINGS)
     strings_sketch = make_datasketch_and_track(STRINGS)
     assert sketch.get_sketch_epsilon() == strings_sketch.get_sketch_epsilon()
+
 
 def test_sketch_epsilon_correct():
     sketch = make_sketch_and_track(STRINGS)
@@ -197,8 +199,7 @@ def test_sketch_roundtrip_serialize():
     msg = sketch.serialize()
     assert len(msg) == sketch.get_serialized_size_bytes()
     round_trip = dsketch.FrequentItemsSketch.deserialize(msg)
-    compare_frequent_items(round_trip.get_frequent_items(),
-                           sketch.get_frequent_items())
+    compare_frequent_items(round_trip.get_frequent_items(), sketch.get_frequent_items())
 
 
 def test_to_string_returns_string():
@@ -210,8 +211,7 @@ def test_protobuf_roundtrip():
     sketch = make_sketch_and_track(ALL_VALS)
     msg = sketch.to_protobuf()
     sketch2 = dsketch.FrequentItemsSketch.from_protobuf(msg)
-    compare_frequent_items(sketch.get_frequent_items(),
-                           sketch2.get_frequent_items())
+    compare_frequent_items(sketch.get_frequent_items(), sketch2.get_frequent_items())
 
 
 def test_copy_empty_returns_empty():
@@ -234,8 +234,7 @@ def test_copy_returns_correct_type():
 def test_copy_gives_same_results():
     sketch = make_sketch_and_track(ALL_VALS)
     copy = sketch.copy()
-    compare_frequent_items(sketch.get_frequent_items(),
-                           copy.get_frequent_items())
+    compare_frequent_items(sketch.get_frequent_items(), copy.get_frequent_items())
 
 
 def test_merge_is_not_in_place():
@@ -268,7 +267,7 @@ def test_merge_gives_correct_values():
     # All counts should just be doubled!
     expected = []
     for item in items:
-        new_item = (item[0], 2*item[1], 2*item[2], 2*item[3])
+        new_item = (item[0], 2 * item[1], 2 * item[2], 2 * item[3])
         expected.append(new_item)
     compare_frequent_items(expected, merged_items)
 

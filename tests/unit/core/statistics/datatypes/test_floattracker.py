@@ -5,7 +5,7 @@ from whylabs.logs.core.statistics.datatypes.floattracker import FloatTracker
 
 def test_values_are_min_max():
     first = FloatTracker()
-    vals1 = [1., 2., 3.]
+    vals1 = [1.0, 2.0, 3.0]
     for val in vals1:
         first.update(val)
 
@@ -17,7 +17,7 @@ def test_values_are_min_max():
 
 def test_merge_floattrackers_should_addup():
     first = FloatTracker()
-    vals1 = [1., 2., 3.]
+    vals1 = [1.0, 2.0, 3.0]
     for val in vals1:
         first.update(val)
 
@@ -27,7 +27,7 @@ def test_merge_floattrackers_should_addup():
     assert first.sum == sum(vals1)
 
     second = FloatTracker()
-    vals2 = [4., 5., 6.]
+    vals2 = [4.0, 5.0, 6.0]
     for val in vals2:
         second.update(val)
 

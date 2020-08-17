@@ -24,7 +24,9 @@ class WriterConfig:
 
 
 class SessionConfig:
-    def __init__(self, project: str, pipeline: str, verbose: bool, writers: List[WriterConfig]):
+    def __init__(
+        self, project: str, pipeline: str, verbose: bool, writers: List[WriterConfig]
+    ):
         self.project = project
         self.pipeline = pipeline
         self.verbose = verbose
@@ -39,10 +41,12 @@ class SessionConfig:
 
 
 class WriterConfigSchema(Schema):
-    type = fields.Str(validate=validate.OneOf(['local', 's3']), required=True)
-    formats = fields.List(fields.Str(validate=validate.OneOf(['all', 'protobuf', 'json', 'flat'])),
-                          required=True,
-                          validate=validate.Length(min=1))
+    type = fields.Str(validate=validate.OneOf(["local", "s3"]), required=True)
+    formats = fields.List(
+        fields.Str(validate=validate.OneOf(["all", "protobuf", "json", "flat"])),
+        required=True,
+        validate=validate.Length(min=1),
+    )
     output_path = fields.Str(required=True)
 
     @post_load
@@ -54,7 +58,11 @@ class SessionConfigSchema(Schema):
     project = fields.Str(required=True)
     pipeline = fields.Str(required=True)
     verbose = fields.Bool(missing=False)
-    writers = fields.List(fields.Nested(WriterConfigSchema), validate=validate.Length(min=1), required=True)
+    writers = fields.List(
+        fields.Nested(WriterConfigSchema),
+        validate=validate.Length(min=1),
+        required=True,
+    )
 
     @post_load
     def make_session(self, data, **kwargs):
@@ -72,13 +80,17 @@ def load_config():
     3. Environment
     """
     import os
+
     logger = getLogger(__name__)
-    user_file = os.path.join(os.path.expanduser('~'), '.whylogs.yml')
-    files = [user_file, 'whylogs.yml', ]
+    user_file = os.path.join(os.path.expanduser("~"), ".whylogs.yml")
+    files = [
+        user_file,
+        "whylogs.yml",
+    ]
     for fname in files:
-        logger.debug(f'Attempting to load config file: {fname}')
+        logger.debug(f"Attempting to load config file: {fname}")
         try:
-            with open(fname, 'rt') as f:
+            with open(fname, "rt") as f:
                 return SessionConfig.from_yaml(f)
         except FileNotFoundError:
             pass

@@ -11,8 +11,12 @@ from whylabs.logs.util.protobuf import message_to_json
 from whylabs.logs.core import ColumnProfile
 from whylabs.logs.core.types.typeddataconverter import TYPES
 from whylabs.logs.proto import ColumnsChunkSegment, DatasetProperties
-from whylabs.logs.proto import DatasetSummary, DatasetMetadataSegment, \
-    MessageSegment, DatasetProfileMessage
+from whylabs.logs.proto import (
+    DatasetSummary,
+    DatasetMetadataSegment,
+    MessageSegment,
+    DatasetProfileMessage,
+)
 from whylabs.logs.util.data import getter, remap, get_valid_filename
 from whylabs.logs.util.time import to_utc_ms, from_utc_ms
 from whylabs.logs.util.dsketch import FrequentNumbersSketch
@@ -22,45 +26,39 @@ from collections import OrderedDict
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
 TYPENUM_COLUMN_NAMES = OrderedDict()
 for k in TYPES.keys():
-    TYPENUM_COLUMN_NAMES[k] = 'type_' + k.lower() + '_count'
+    TYPENUM_COLUMN_NAMES[k] = "type_" + k.lower() + "_count"
 
 # NOTE: I use ordered dicts here to control the ordering of generated columns
 # dictionaries are also valid
 SCALAR_NAME_MAPPING = OrderedDict(
     counters=OrderedDict(
-        count='count',
-        null_count=OrderedDict(value='null_count'),
-        true_count=OrderedDict(value='bool_count'),
+        count="count",
+        null_count=OrderedDict(value="null_count"),
+        true_count=OrderedDict(value="bool_count"),
     ),
-
     number_summary=OrderedDict(
-        count='numeric_count',
-        max='max',
-        mean='mean',
-        min='min',
-        stddev='stddev',
+        count="numeric_count",
+        max="max",
+        mean="mean",
+        min="min",
+        stddev="stddev",
         unique_count=OrderedDict(
-            estimate='nunique_numbers',
-            lower='nunique_numbers_lower',
-            upper='nunique_numbers_upper'
-        )
+            estimate="nunique_numbers",
+            lower="nunique_numbers_lower",
+            upper="nunique_numbers_upper",
+        ),
     ),
-
     schema=OrderedDict(
-        inferred_type=OrderedDict(
-            type='inferred_dtype',
-            ratio='dtype_fraction'
-    ),
+        inferred_type=OrderedDict(type="inferred_dtype", ratio="dtype_fraction"),
         type_counts=TYPENUM_COLUMN_NAMES,
     ),
-
     string_summary=OrderedDict(
         unique_count=OrderedDict(
-            estimate='nunique_str',
-            lower='nunique_str_lower',
-            upper='ununique_str_upper',
+            estimate="nunique_str",
+            lower="nunique_str_lower",
+            upper="ununique_str_upper",
         )
-    )
+    ),
 )
 
 
@@ -88,14 +86,16 @@ class DatasetProfile:
         The unique session ID run. Should be a UUID.
     """
 
-    def __init__(self,
-                 name: str,
-                 data_timestamp: datetime.datetime = None,
-                 session_timestamp: datetime.datetime = None,
-                 columns: dict = None,
-                 tags=None,
-                 metadata=None,
-                 session_id: str = None):
+    def __init__(
+        self,
+        name: str,
+        data_timestamp: datetime.datetime = None,
+        session_timestamp: datetime.datetime = None,
+        columns: dict = None,
+        tags=None,
+        metadata=None,
+        session_id: str = None,
+    ):
         # Default values
         if columns is None:
             columns = {}
@@ -106,7 +106,7 @@ class DatasetProfile:
         if session_id is None:
             session_id = uuid4().hex
         if name is not None:
-            metadata['Name'] = name
+            metadata["Name"] = name
 
         # Store attributes
         self.name = name
@@ -229,12 +229,12 @@ class DatasetProfile:
             Protobuf summary message.
         """
         self.validate()
-        column_summaries = {name: colprof.to_summary()
-                            for name, colprof in self.columns.items()}
+        column_summaries = {
+            name: colprof.to_summary() for name, colprof in self.columns.items()
+        }
 
         return DatasetSummary(
-            properties=self.to_properties(),
-            columns=column_summaries,
+            properties=self.to_properties(), columns=column_summaries,
         )
 
     def flat_summary(self):
@@ -271,10 +271,7 @@ class DatasetProfile:
         properties = self.to_properties()
 
         yield MessageSegment(
-            marker=marker,
-            metadata=DatasetMetadataSegment(
-                properties=properties,
-            )
+            marker=marker, metadata=DatasetMetadataSegment(properties=properties,)
         )
 
         chunked_columns = self._column_message_iterator()
@@ -283,7 +280,14 @@ class DatasetProfile:
 
     def validate(self):
         """Sanity check for this object.  Raises an Exception if invalid"""
-        for attr in ('name', 'session_id', 'session_timestamp', 'columns', 'tags', 'metadata'):
+        for attr in (
+            "name",
+            "session_id",
+            "session_timestamp",
+            "columns",
+            "tags",
+            "metadata",
+        ):
             assert getattr(self, attr) is not None
         tags = self.tags
         assert all(isinstance(tag, str) for tag in self.tags)
@@ -328,7 +332,7 @@ class DatasetProfile:
             data_timestamp=self.data_timestamp,
             columns=columns,
             tags=self.tags,
-            metadata=self.metadata
+            metadata=self.metadata,
         )
 
     def to_protobuf(self):
@@ -346,8 +350,14 @@ class DatasetProfile:
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
         )
 
-    def write(self, file_prefix=None, profile=True, flat_summary=True,
-              json_summary=False, dataframe_fmt='csv'):
+    def write(
+        self,
+        file_prefix=None,
+        profile=True,
+        flat_summary=True,
+        json_summary=False,
+        dataframe_fmt="csv",
+    ):
         """
         Utility function to simplify writing of this dataset profile.
 
@@ -367,34 +377,36 @@ class DatasetProfile:
 
         """
         import warnings
-        warnings.warn(DeprecationWarning(
-            'This function is deprecated and will be remoed soon'
-        ))
+
+        warnings.warn(
+            DeprecationWarning("This function is deprecated and will be remoed soon")
+        )
         logger = getLogger(__name__)
         output_files = {}
         if file_prefix is None:
-            file_prefix = f'{self.name}_{int(time.time())}'
+            file_prefix = f"{self.name}_{int(time.time())}"
         if flat_summary or json_summary:
             summary = self.to_summary()
         if flat_summary:
             x = flatten_summary(summary)
             fnames = write_flat_dataset_summary(
-                x, file_prefix, dataframe_fmt=dataframe_fmt)
-            output_files['flat_summary'] = fnames
+                x, file_prefix, dataframe_fmt=dataframe_fmt
+            )
+            output_files["flat_summary"] = fnames
         if json_summary:
-            fname = file_prefix + '.json'
-            with open(fname, 'wt') as fp:
+            fname = file_prefix + ".json"
+            with open(fname, "wt") as fp:
                 logger.debug(f"Writing JSON summaries to: {fname}")
                 fp.write(message_to_json(summary))
-            output_files['json'] = json_summary
+            output_files["json"] = json_summary
 
         if profile:
-            fname = file_prefix + '.bin'
+            fname = file_prefix + ".bin"
             msg = self.to_protobuf()
-            with open(fname, 'wb') as fp:
-                logger.debug(f'Writing protobuf profile to: {fname}')
+            with open(fname, "wb") as fp:
+                logger.debug(f"Writing protobuf profile to: {fname}")
                 fp.write(msg.SerializeToString())
-            output_files['protobuf'] = fname
+            output_files["protobuf"] = fname
 
     @staticmethod
     def from_protobuf(message):
@@ -406,14 +418,15 @@ class DatasetProfile:
         dataset_profile : DatasetProfile
         """
         return DatasetProfile(
-            name=message.properties.metadata['Name'],
+            name=message.properties.metadata["Name"],
             session_id=message.properties.session_id,
             session_timestamp=from_utc_ms(message.properties.session_timestamp),
             data_timestamp=from_utc_ms(message.properties.data_timestamp),
-            columns={k: ColumnProfile.from_protobuf(v)
-                     for k, v in message.columns.items()},
+            columns={
+                k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
+            },
             tags=message.properties.tags,
-            metadata=message.properties.metadata
+            metadata=message.properties.metadata,
         )
 
     @staticmethod
@@ -487,15 +500,15 @@ def flatten_summary(dataset_summary: DatasetSummary) -> dict:
     frequent_numbers = flatten_dataset_frequent_numbers(dataset_summary)
     summary = get_dataset_frame(dataset_summary)
     return {
-        'summary': summary,
-        'hist': hist,
-        'frequent_strings': frequent_strings,
-        'frequent_numbers': frequent_numbers,
+        "summary": summary,
+        "hist": hist,
+        "frequent_strings": frequent_strings,
+        "frequent_numbers": frequent_numbers,
     }
 
 
 def _quantile_strings(quantiles: list):
-    return ['quantile_{:.4f}'.format(q) for q in quantiles]
+    return ["quantile_{:.4f}".format(q) for q in quantiles]
 
 
 def flatten_dataset_quantiles(dataset_summary: DatasetSummary):
@@ -505,10 +518,11 @@ def flatten_dataset_quantiles(dataset_summary: DatasetSummary):
     quants = {}
     for col_name, col in dataset_summary.columns.items():
         try:
-            quant = getter(getter(col, 'number_summary'), 'quantiles')
+            quant = getter(getter(col, "number_summary"), "quantiles")
             x = OrderedDict()
-            for q, qval in zip(_quantile_strings(quant.quantiles),
-                               quant.quantile_values):
+            for q, qval in zip(
+                _quantile_strings(quant.quantiles), quant.quantile_values
+            ):
                 x[q] = qval
             quants[col_name] = x
         except KeyError:
@@ -524,11 +538,11 @@ def flatten_dataset_histograms(dataset_summary: DatasetSummary):
 
     for col_name, col in dataset_summary.columns.items():
         try:
-            hist = getter(getter(col, 'number_summary'), 'histogram')
+            hist = getter(getter(col, "number_summary"), "histogram")
             if len(hist.bins) > 1:
                 histograms[col_name] = {
-                    'bin_edges': list(hist.bins),
-                    'counts': list(hist.counts),
+                    "bin_edges": list(hist.bins),
+                    "counts": list(hist.counts),
                 }
         except KeyError:
             continue
@@ -543,7 +557,7 @@ def flatten_dataset_frequent_numbers(dataset_summary: DatasetSummary):
 
     for col_name, col in dataset_summary.columns.items():
         try:
-            summary = getter(getter(col, 'number_summary'), 'frequent_numbers')
+            summary = getter(getter(col, "number_summary"), "frequent_numbers")
             flat_dict = FrequentNumbersSketch.flatten_summary(summary)
             if len(flat_dict) > 0:
                 frequent_numbers[col_name] = flat_dict
@@ -560,8 +574,7 @@ def flatten_dataset_frequent_strings(dataset_summary: DatasetSummary):
 
     for col_name, col in dataset_summary.columns.items():
         try:
-            item_summary = getter(getter(col, 'string_summary'), 'frequent') \
-                .items
+            item_summary = getter(getter(col, "string_summary"), "frequent").items
             items = {}
             for item in item_summary:
                 items[item.value] = int(item.estimate)
@@ -583,6 +596,7 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
         Scalar values, flattened and re-named according to `mapping`
     """
     import pandas as pd
+
     if mapping is None:
         mapping = SCALAR_NAME_MAPPING
     quantile = flatten_dataset_quantiles(dataset_summary)
@@ -591,11 +605,11 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
         col_out[k] = remap(col, mapping)
         col_out[k].update(quantile.get(k, {}))
     scalar_summary = pd.DataFrame(col_out).T
-    scalar_summary.index.name = 'column'
+    scalar_summary.index.name = "column"
     return scalar_summary.reset_index()
 
 
-def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str = 'csv'):
+def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str = "csv"):
     """
     Utility to write a flattened dataset summary to disk.
 
@@ -619,46 +633,46 @@ def write_flat_dataset_summary(summary, prefix: str, dataframe_fmt: str = 'csv')
         Dictionary containing output paths
     """
     import warnings
-    warnings.warn(DeprecationWarning(
-        'This function will no longer be maintained and will be removed soon'))
+
+    warnings.warn(
+        DeprecationWarning(
+            "This function will no longer be maintained and will be removed soon"
+        )
+    )
     import json
+
     if not isinstance(summary, dict):
         summary = flatten_summary(summary)
     logger = getLogger(__name__)
 
     # Extract the already flattened summary data
-    df = summary['summary']
-    hist = summary['hist']
-    strings = summary['frequent_strings']
+    df = summary["summary"]
+    hist = summary["hist"]
+    strings = summary["frequent_strings"]
 
     # Save summary table
-    df_name = f'{prefix}_summary.{dataframe_fmt}'
-    if dataframe_fmt == 'csv':
+    df_name = f"{prefix}_summary.{dataframe_fmt}"
+    if dataframe_fmt == "csv":
         df.to_csv(df_name, index=False)
-    elif dataframe_fmt == 'parquet':
-        df.to_parquet(df_name, engine='pyarrow', compression='snappy')
+    elif dataframe_fmt == "parquet":
+        df.to_parquet(df_name, engine="pyarrow", compression="snappy")
     else:
         raise ValueError(f"Unrecognized format: {dataframe_fmt}")
 
     # Save per-column histograms
-    hist_name = f'{prefix}_histogram.json'
-    json.dump(hist, open(hist_name, 'wt'), indent=4)
-    logger.debug(f'Saved histograms to: {hist_name}')
+    hist_name = f"{prefix}_histogram.json"
+    json.dump(hist, open(hist_name, "wt"), indent=4)
+    logger.debug(f"Saved histograms to: {hist_name}")
 
     # Save per-column string counts
-    strings_name = f'{prefix}_strings.json'
-    json.dump(strings, open(strings_name, 'wt'), indent=4)
-    logger.debug(f'Saved frequent string counts to: {strings_name}')
+    strings_name = f"{prefix}_strings.json"
+    json.dump(strings, open(strings_name, "wt"), indent=4)
+    logger.debug(f"Saved frequent string counts to: {strings_name}")
 
-    return {
-        'dataframe': df_name,
-        'histogram': hist_name,
-        'strings': strings_name
-    }
+    return {"dataframe": df_name, "histogram": hist_name, "strings": strings_name}
 
 
-def write_flat_summaries(summaries, prefix: str,
-                         dataframe_fmt: str = 'csv'):
+def write_flat_summaries(summaries, prefix: str, dataframe_fmt: str = "csv"):
     """
     Utility to write flattened `DatasetSummaries` to disk.
 
@@ -680,21 +694,24 @@ def write_flat_summaries(summaries, prefix: str,
         Dictionary containing output filenames
     """
     import warnings
-    warnings.warn(DeprecationWarning(
-        'This function is deprecated and will be remoed soon'
-    ))
+
+    warnings.warn(
+        DeprecationWarning("This function is deprecated and will be remoed soon")
+    )
     from collections import defaultdict
+
     fnames = defaultdict(list)
     for name, summary in summaries.profiles.items():
-        fullprefix = prefix + '_' + get_valid_filename(name)
+        fullprefix = prefix + "_" + get_valid_filename(name)
         x = write_flat_dataset_summary(summary, fullprefix, dataframe_fmt)
         for k, v in x.items():
             fnames[k].append(v)
     return dict(fnames)
 
 
-def dataframe_profile(df: pd.DataFrame, name: str = None,
-                      timestamp: datetime.datetime = None):
+def dataframe_profile(
+    df: pd.DataFrame, name: str = None, timestamp: datetime.datetime = None
+):
     """
     Generate a dataset profile for a dataframe
 
@@ -709,7 +726,7 @@ def dataframe_profile(df: pd.DataFrame, name: str = None,
         datetime or UTC epoch seconds.
     """
     if name is None:
-        name = 'dataset'
+        name = "dataset"
     if timestamp is None:
         timestamp = datetime.datetime.utcnow()
     elif not isinstance(timestamp, datetime.datetime):
@@ -720,8 +737,12 @@ def dataframe_profile(df: pd.DataFrame, name: str = None,
     return prof
 
 
-def array_profile(x: np.ndarray, name: str = None,
-                  timestamp: datetime.datetime = None, columns: list = None):
+def array_profile(
+    x: np.ndarray,
+    name: str = None,
+    timestamp: datetime.datetime = None,
+    columns: list = None,
+):
     """
     Generate a dataset profile for an array
 
@@ -737,7 +758,7 @@ def array_profile(x: np.ndarray, name: str = None,
         Optional column labels
     """
     if name is None:
-        name = 'dataset'
+        name = "dataset"
     if timestamp is None:
         timestamp = datetime.datetime.utcnow()
     prof = DatasetProfile(name, timestamp)

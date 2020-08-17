@@ -1,15 +1,23 @@
 import math
-from whylabs.logs.proto import UniqueCountSummary, \
-    FrequentStringsSummary, HistogramSummary, QuantileSummary
-from datasketches import update_theta_sketch, frequent_strings_sketch, \
-    frequent_items_error_type, kll_floats_sketch
+from whylabs.logs.proto import (
+    UniqueCountSummary,
+    FrequentStringsSummary,
+    HistogramSummary,
+    QuantileSummary,
+)
+from datasketches import (
+    update_theta_sketch,
+    frequent_strings_sketch,
+    frequent_items_error_type,
+    kll_floats_sketch,
+)
 
 MAX_HIST_BUCKETS = 30
 HIST_AVG_NUMBER_PER_BUCKET = 4.0
 QUANTILES = [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]
 
 
-def from_sketch(sketch: update_theta_sketch, num_std_devs: float=1):
+def from_sketch(sketch: update_theta_sketch, num_std_devs: float = 1):
     """
     Generate a protobuf summary message from a datasketches theta sketch
 
@@ -27,7 +35,7 @@ def from_sketch(sketch: update_theta_sketch, num_std_devs: float=1):
     return UniqueCountSummary(
         estimate=sketch.get_estimate(),
         upper=sketch.get_upper_bound(num_std_devs),
-        lower=sketch.get_lower_bound(num_std_devs)
+        lower=sketch.get_lower_bound(num_std_devs),
     )
 
 
@@ -45,14 +53,15 @@ def from_string_sketch(sketch: frequent_strings_sketch):
     summary : FrequentStringsSummary
     """
     frequent_items = sketch.get_frequent_items(
-        frequent_items_error_type.NO_FALSE_NEGATIVES)
+        frequent_items_error_type.NO_FALSE_NEGATIVES
+    )
     # Note: frequent items is a list of tuples containing info about the
     # most frequent strings and their count:
     # [(string, est_count, lower bound, upper bound)]
     if len(frequent_items) == 0:
         return
 
-    items = [{'value': x[0], 'estimate': x[1]} for x in frequent_items]
+    items = [{"value": x[0], "estimate": x[1]} for x in frequent_items]
     return FrequentStringsSummary(items=items)
 
 
@@ -71,14 +80,12 @@ def quantiles_from_sketch(sketch: kll_floats_sketch, quantiles=None):
     if quantiles is None:
         quantiles = QUANTILES
     qvals = sketch.get_quantiles(quantiles)
-    return QuantileSummary(
-        quantiles=quantiles,
-        quantile_values=qvals,
-    )
+    return QuantileSummary(quantiles=quantiles, quantile_values=qvals,)
 
 
-def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int=None,
-                          avg_per_bucket: int=None):
+def histogram_from_sketch(
+    sketch: kll_floats_sketch, max_buckets: int = None, avg_per_bucket: int = None
+):
     """
     Generate a summary of a kll_floats_sketch, including a histogram
 
@@ -114,8 +121,7 @@ def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int=None,
         # Include the max value in the right-most bin
         end += abs(end) * (1e-7)
         # Include the right edge in the bin edges
-        n_buckets = min(math.ceil(n / HIST_AVG_NUMBER_PER_BUCKET),
-                        MAX_HIST_BUCKETS)
+        n_buckets = min(math.ceil(n / HIST_AVG_NUMBER_PER_BUCKET), MAX_HIST_BUCKETS)
         width = (end - start) / n_buckets
         # Calculate histograms from the Probability Mass Function
         bins = [start + i * width for i in range(n_buckets + 1)]
@@ -131,5 +137,5 @@ def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int=None,
         max=max_val,
         min=start,
         bins=bins,
-        n=n
+        n=n,
     )

@@ -9,7 +9,7 @@ from collections import defaultdict
 import pandas as pd
 
 
-def deserialize_kll_floats_sketch(x: bytes, kind: str='float'):
+def deserialize_kll_floats_sketch(x: bytes, kind: str = "float"):
     """
     Deserialize a KLL floats sketch.  Compatible with WhyLogs-Java
 
@@ -30,9 +30,9 @@ def deserialize_kll_floats_sketch(x: bytes, kind: str='float'):
     """
     if len(x) < 1:
         return
-    if kind == 'float':
+    if kind == "float":
         h = datasketches.kll_floats_sketch.deserialize(x)
-    elif kind == 'int':
+    elif kind == "int":
         h = datasketches.kll_ints_sketch(x)
     if h.get_n() < 1:
         return
@@ -68,11 +68,13 @@ class FrequentItemsSketch:
 
     Wraps datasketches.frequent_strings_sketch by encoding numbers as strings.
     """
+
     DEFAULT_MAX_ITEMS_SIZE = 32
     DEFAULT_ERROR_TYPE = datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES
 
-    def __init__(self, lg_max_k: int=None,
-                 sketch: datasketches.frequent_strings_sketch=None):
+    def __init__(
+        self, lg_max_k: int = None, sketch: datasketches.frequent_strings_sketch = None
+    ):
         self.lg_max_k = lg_max_k
         if sketch is None:
             if lg_max_k is None:
@@ -82,11 +84,8 @@ class FrequentItemsSketch:
             assert isinstance(sketch, datasketches.frequent_strings_sketch)
         self.sketch = sketch
 
-
-    def get_apriori_error(self, lg_max_map_size: int,
-                          estimated_total_weight: int):
-        return self.sketch.get_apriori_error(
-            lg_max_map_size, estimated_total_weight)
+    def get_apriori_error(self, lg_max_map_size: int, estimated_total_weight: int):
+        return self.sketch.get_apriori_error(lg_max_map_size, estimated_total_weight)
 
     def get_epsilon_for_lg_size(self, lg_max_map_size: int):
         return self.sketch.get_epsilon_for_lg_size(lg_max_map_size)
@@ -101,10 +100,10 @@ class FrequentItemsSketch:
         return self.sketch.get_upper_bound(self._encode_item(item))
 
     def get_frequent_items(
-            self,
-            err_type: datasketches.frequent_items_error_type=None,
-            threshold: int=0,
-            decode: bool=True,
+        self,
+        err_type: datasketches.frequent_items_error_type = None,
+        threshold: int = 0,
+        decode: bool = True,
     ):
         if err_type is None:
             err_type = self.DEFAULT_ERROR_TYPE
@@ -164,13 +163,13 @@ class FrequentItemsSketch:
         Generate a protobuf summary.  Returns None if there are no frequent
         items.
         """
-        items = self.get_frequent_items(threshold=min_count-1, decode=False)
+        items = self.get_frequent_items(threshold=min_count - 1, decode=False)
         if len(items) < 1:
             return
 
         values = []
         for x in items[0:max_items]:
-            values.append({'estimate': x[1], 'json_value': x[0]})
+            values.append({"estimate": x[1], "json_value": x[0]})
         return FrequentItemsSummary(items=values)
 
     def to_protobuf(self):
@@ -181,8 +180,7 @@ class FrequentItemsSketch:
         if lg_max_k is None:
             lg_max_k = -1
         return FrequentItemsSketchMessage(
-            sketch=self.sketch.serialize(),
-            lg_max_k=lg_max_k,
+            sketch=self.sketch.serialize(), lg_max_k=lg_max_k,
         )
 
     @staticmethod
@@ -216,7 +214,6 @@ class FrequentItemsSketch:
 
 
 class FrequentNumbersSketch(FrequentItemsSketch):
-
     def copy(self):
         self_copy = FrequentNumbersSketch.deserialize(self.serialize())
         if self_copy is None:
@@ -229,17 +226,17 @@ class FrequentNumbersSketch(FrequentItemsSketch):
         Generate a protobuf summary.  Returns None if there are no frequent
         items.
         """
-        items = self.get_frequent_items(threshold=min_count-1)
+        items = self.get_frequent_items(threshold=min_count - 1)
         if len(items) < 1:
             return
 
         items_dict = defaultdict(list)
         for rank, x in enumerate(items[0:max_items]):
-            d = {'value': x[0], 'estimate': x[1], 'rank': rank}
-            if isinstance(d['value'], float):
-                items_dict['doubles'].append(d)
+            d = {"value": x[0], "estimate": x[1], "rank": rank}
+            if isinstance(d["value"], float):
+                items_dict["doubles"].append(d)
             else:
-                items_dict['longs'].append(d)
+                items_dict["longs"].append(d)
 
         return FrequentNumbersSummary(**items_dict)
 
@@ -251,8 +248,7 @@ class FrequentNumbersSketch(FrequentItemsSketch):
         if lg_max_k is None:
             lg_max_k = -1
         return FrequentNumbersSketchMessage(
-            sketch=self.sketch.serialize(),
-            lg_max_k=lg_max_k,
+            sketch=self.sketch.serialize(), lg_max_k=lg_max_k,
         )
 
     @staticmethod
@@ -281,11 +277,11 @@ class FrequentNumbersSketch(FrequentItemsSketch):
         """
         Flatten a FrequentNumbersSummary
         """
-        counts = {'value': [], 'count': []}
+        counts = {"value": [], "count": []}
         for num_list in (summary.doubles, summary.longs):
             for msg in num_list:
-                counts['value'].append(msg.value)
-                counts['count'].append(msg.estimate)
+                counts["value"].append(msg.value)
+                counts["count"].append(msg.estimate)
         return counts
 
     @staticmethod

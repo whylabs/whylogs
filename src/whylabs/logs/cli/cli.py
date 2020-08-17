@@ -4,8 +4,10 @@ import click
 
 from whylabs.logs import __version__ as whylogs_version
 from whylabs.logs.cli.init import init
+
 try:
     import colorama
+
     colorama.init()
 except ImportError:
     pass

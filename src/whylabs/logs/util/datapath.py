@@ -6,12 +6,12 @@ import os
 import re
 from copy import deepcopy
 
-DEFAULT_CLOUD_PROVIDER = 's3'
-CLOUD_PROVIDERS = ('s3', )
+DEFAULT_CLOUD_PROVIDER = "s3"
+CLOUD_PROVIDERS = ("s3",)
 
 
 def parse_uri(x: str):
-    parts = x.split('://')
+    parts = x.split("://")
     key = None
     bucket = None
     cloud_provider = None
@@ -21,9 +21,8 @@ def parse_uri(x: str):
     elif len(parts) == 2:
         cloud_provider = parts[0]
         if cloud_provider not in CLOUD_PROVIDERS:
-            raise ValueError(
-                f"Unrecognized cloud provider: {cloud_provider}")
-        bucket, key = parts[1].split('/', maxsplit=1)
+            raise ValueError(f"Unrecognized cloud provider: {cloud_provider}")
+        bucket, key = parts[1].split("/", maxsplit=1)
     else:
         raise ValueError("Cannot parse key")
     return cloud_provider, bucket, key
@@ -34,6 +33,7 @@ class CloudPath:
     A path interface which tracks the key, bucket, and cloud provider (e.g.
     S3) for a cloud data path
     """
+
     def __init__(self, key, bucket=None, cloud_provider=None):
         self.bucket = bucket
         self.key = key
@@ -54,20 +54,19 @@ class CloudPath:
         if self.bucket is None:
             return self.key
         else:
-            return f'{self.cloud_provider}://{self.bucket}/{self.key}'
+            return f"{self.cloud_provider}://{self.bucket}/{self.key}"
 
     @staticmethod
     def from_uri(x: str):
-        parts = x.split('://')
+        parts = x.split("://")
         if len(parts) == 1:
             # No cloud provider, assume there's no bucket
             return CloudPath(x)
         elif len(parts) == 2:
             cloud_provider = parts[0]
             if cloud_provider not in CLOUD_PROVIDERS:
-                raise ValueError(
-                    f"Unrecognized cloud provider: {cloud_provider}")
-            bucket, key = parts[1].split('/', maxsplit=1)
+                raise ValueError(f"Unrecognized cloud provider: {cloud_provider}")
+            bucket, key = parts[1].split("/", maxsplit=1)
             return CloudPath(key, bucket, cloud_provider)
         else:
             raise ValueError("Cannot parse key")
@@ -81,11 +80,24 @@ class DataPath:
 
 
     """
-    def __init__(self, cloud_provider=None, bucket=None, customer=None,
-                 pipeline=None, dataset=None, format=None, t_ns=None, t=None,
-                 name='', prefix=None, ext=''):
+
+    def __init__(
+        self,
+        cloud_provider=None,
+        bucket=None,
+        customer=None,
+        pipeline=None,
+        dataset=None,
+        format=None,
+        t_ns=None,
+        t=None,
+        name="",
+        prefix=None,
+        ext="",
+    ):
         self._timestamp_path_info = dict(
-            t_ns=t_ns, t=t, name=name, prefix=prefix, ext=ext)
+            t_ns=t_ns, t=t, name=name, prefix=prefix, ext=ext
+        )
         self.cloud_provider = cloud_provider
         self.bucket = bucket
         self.customer = customer
@@ -95,12 +107,11 @@ class DataPath:
 
     @property
     def timestamped_data_path(self):
-        return  ...
+        return ...
 
     @property
     def prefix(self):
         raise NotImplementedError
-
 
 
 class TimestampedDataPath:
@@ -166,8 +177,17 @@ class TimestampedDataPath:
         path = TimestampedDataPath(t=time.time(), name='filename',
                 prefix='cloud/path/prefix', ext='.json')
     """
-    def __init__(self, t_ns=None, t=None, bucket=None, cloud_provider=None,
-                 name='', prefix='', ext=''):
+
+    def __init__(
+        self,
+        t_ns=None,
+        t=None,
+        bucket=None,
+        cloud_provider=None,
+        name="",
+        prefix="",
+        ext="",
+    ):
         if t_ns is None:
             if t is None:
                 raise ValueError("Must supply t or t_ns")
@@ -199,12 +219,12 @@ class TimestampedDataPath:
         if self.bucket is None:
             return self.key
         else:
-            return f'{self.cloud_provider}://{self.bucket}/{self.key}'
+            return f"{self.cloud_provider}://{self.bucket}/{self.key}"
 
     @property
     def key(self):
         t_ns = self.t_ns
-        fname = self.name + '-' + str(t_ns) + self.ext
+        fname = self.name + "-" + str(t_ns) + self.ext
         return os.path.join(self.prefix, self.time_folder, fname)
 
     @property
@@ -221,7 +241,7 @@ class TimestampedDataPath:
 
     @property
     def filename(self):
-        return self.name + '-' + str(self.t_ns) + self.ext
+        return self.name + "-" + str(self.t_ns) + self.ext
 
     @staticmethod
     def from_uri(x: str):
@@ -246,22 +266,28 @@ class TimestampedDataPath:
                 raise ValueError("No timestamp found")
 
         t_ind = basename.rfind(t_str)
-        ext = basename[t_ind + len(t_str):]
-        name = basename[0:t_ind-1]
+        ext = basename[t_ind + len(t_str) :]
+        name = basename[0 : t_ind - 1]
         # Get the dataset prefix.  The last 3 folder levels are the file path
-        folders = folder.split('/')
-        prefix = '/'.join(folders[0:-3])
+        folders = folder.split("/")
+        prefix = "/".join(folders[0:-3])
 
-        return TimestampedDataPath(t_ns=t_ns, t=t, name=name, prefix=prefix,
-                                   ext=ext, bucket=bucket,
-                                   cloud_provider=cloud_provider)
+        return TimestampedDataPath(
+            t_ns=t_ns,
+            t=t,
+            name=name,
+            prefix=prefix,
+            ext=ext,
+            bucket=bucket,
+            cloud_provider=cloud_provider,
+        )
 
 
 def utc_folder(x):
     """
     Convert a UTC timestamp to a folder string
     """
-    return datetime.utcfromtimestamp(x).strftime('%Y/%j/%H')
+    return datetime.utcfromtimestamp(x).strftime("%Y/%j/%H")
 
 
 def utc_timestamp(year=2019, month=None, day=1, hour=0, minute=0, second=0):
@@ -302,11 +328,11 @@ def utc_timestamp(year=2019, month=None, day=1, hour=0, minute=0, second=0):
     import pytz
 
     if month is None:
-        dt = datetime(year, 1, 1, hour, minute, second, microsecond,
-                      tzinfo=pytz.utc)
+        dt = datetime(year, 1, 1, hour, minute, second, microsecond, tzinfo=pytz.utc)
         dt = dt + timedelta(day - 1)
     else:
-        dt = datetime(year, month, day, hour, minute, second, microsecond,
-                      tzinfo=pytz.utc)
+        dt = datetime(
+            year, month, day, hour, minute, second, microsecond, tzinfo=pytz.utc
+        )
 
     return dt.timestamp()

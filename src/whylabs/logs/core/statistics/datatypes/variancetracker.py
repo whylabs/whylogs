@@ -16,6 +16,7 @@ class VarianceTracker:
     mean
         Current estimate of the mean
     """
+
     def __init__(self, count=0, sum=0.0, mean=0.0):
         self.count = count
         self.sum = sum
@@ -35,7 +36,7 @@ class VarianceTracker:
         self.count += 1
 
         delta = new_value - self.mean
-        self.mean += delta/self.count
+        self.mean += delta / self.count
         delta2 = new_value - self.mean
         self.sum += delta * delta2
         return
@@ -51,11 +52,11 @@ class VarianceTracker:
         Return an estimate of the sample variance
         """
         try:
-            return self.sum/(self.count - 1)
+            return self.sum / (self.count - 1)
         except ZeroDivisionError:
             return math.nan
 
-    def merge(self, other: 'VarianceTracker'):
+    def merge(self, other: "VarianceTracker"):
         """
         Merge statistics from another VarianceTracker into this one
 
@@ -84,8 +85,9 @@ class VarianceTracker:
         other_ratio = 1.0 - this_ratio
         # Create new tracker
         this_copy = self.copy()
-        this_copy.sum += other.sum + \
-                    (delta**2) * this_copy.count * other.count/total_count
+        this_copy.sum += (
+            other.sum + (delta ** 2) * this_copy.count * other.count / total_count
+        )
         this_copy.mean = this_copy.mean * this_ratio + other.mean * other_ratio
         this_copy.count += other.count
         return this_copy
@@ -94,11 +96,7 @@ class VarianceTracker:
         """
         Return a copy of this tracker
         """
-        return VarianceTracker(
-            count=self.count,
-            sum=self.sum,
-            mean=self.mean
-        )
+        return VarianceTracker(count=self.count, sum=self.sum, mean=self.mean)
 
     def to_protobuf(self):
         """

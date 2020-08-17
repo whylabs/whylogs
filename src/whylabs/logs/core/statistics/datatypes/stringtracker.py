@@ -22,10 +22,13 @@ class StringTracker:
     theta_sketch
         Sketch for approximate cardinality tracking
     """
-    def __init__(self,
-                 count: int=None,
-                 items: frequent_strings_sketch=None,
-                 theta_sketch: ThetaSketch=None):
+
+    def __init__(
+        self,
+        count: int = None,
+        items: frequent_strings_sketch = None,
+        theta_sketch: ThetaSketch = None,
+    ):
         if count is None:
             count = 0
         if items is None:
@@ -63,8 +66,7 @@ class StringTracker:
         new : StringTracker
             Merged values
         """
-        items_copy = frequent_strings_sketch.deserialize(
-            self.items.serialize())
+        items_copy = frequent_strings_sketch.deserialize(self.items.serialize())
         items_copy.merge(other.items)
 
         new_theta = self.theta_sketch.merge(other.theta_sketch)
@@ -103,7 +105,7 @@ class StringTracker:
         return StringTracker(
             count=message.count,
             items=dsketch.deserialize_frequent_strings_sketch(message.items),
-            theta_sketch=theta
+            theta_sketch=theta,
         )
 
     def to_summary(self):
@@ -118,12 +120,10 @@ class StringTracker:
         if self.count == 0:
             return None
         unique_count = self.theta_sketch.to_summary()
-        opts = dict(
-            unique_count=unique_count,
-        )
+        opts = dict(unique_count=unique_count,)
         if unique_count.estimate < MAX_SUMMARY_ITEMS:
             frequent_strings = from_string_sketch(self.items)
             if frequent_strings is not None:
-                opts['frequent'] = frequent_strings
+                opts["frequent"] = frequent_strings
 
         return StringsSummary(**opts)

@@ -5,11 +5,12 @@ from testutil import compare_frequent_items
 
 import datasketches
 import pytest
+
 NUMBER_SKETCH_VALS = [1, 1, 1, 2, 3, 4, 4, 5.0]
-STRING_SKETCH_VALS = ['1', '1', '1', '2', '3', '4', '4', '5.0']
+STRING_SKETCH_VALS = ["1", "1", "1", "2", "3", "4", "4", "5.0"]
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def string_sketch():
     items = datasketches.frequent_strings_sketch(32)
     for val in STRING_SKETCH_VALS:
@@ -18,7 +19,7 @@ def string_sketch():
     return items
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def number_sketch():
     items = dsketch.FrequentNumbersSketch(32)
     for val in NUMBER_SKETCH_VALS:
@@ -30,7 +31,7 @@ def number_sketch():
 def test_summary_returns_correct_estimates(number_sketch):
     summary = number_sketch.to_summary()
     estimates = []
-    for record_list in ((summary.longs, summary.doubles)):
+    for record_list in (summary.longs, summary.doubles):
         for xi in record_list:
             estimates.append((xi.value, xi.estimate))
     estimates_set = set(estimates)
@@ -50,21 +51,23 @@ def test_number_and_string_apriori_error_equal(string_sketch, number_sketch):
     map_sizes = [1, 2, 32, 120]
     weights = [0, 10, 50, 100]
     for map_size, w in zip(map_sizes, weights):
-        assert string_sketch.get_apriori_error(map_size, w) \
-            == number_sketch.get_apriori_error(map_size, w)
+        assert string_sketch.get_apriori_error(
+            map_size, w
+        ) == number_sketch.get_apriori_error(map_size, w)
 
 
 def test_number_and_string_epsilon_equal(string_sketch, number_sketch):
     for lg in [1, 3, 32, 120]:
-        assert string_sketch.get_epsilon_for_lg_size(lg) \
-            == number_sketch.get_epsilon_for_lg_size(lg)
+        assert string_sketch.get_epsilon_for_lg_size(
+            lg
+        ) == number_sketch.get_epsilon_for_lg_size(lg)
 
 
 def test_number_and_string_estimates_equal(string_sketch, number_sketch):
-    str_vals = STRING_SKETCH_VALS + ['0']
+    str_vals = STRING_SKETCH_VALS + ["0"]
     num_vals = NUMBER_SKETCH_VALS + [0]
     for s, n in zip(str_vals, num_vals):
-        assert string_sketch.get_estimate(s)  == number_sketch.get_estimate(n)
+        assert string_sketch.get_estimate(s) == number_sketch.get_estimate(n)
         assert string_sketch.get_lower_bound(s) == number_sketch.get_lower_bound(n)
         assert string_sketch.get_upper_bound(s) == number_sketch.get_upper_bound(n)
 
@@ -116,4 +119,3 @@ def test_protobuf_roundtrip(number_sketch):
     msg = number_sketch.to_protobuf()
     sketch2 = dsketch.FrequentNumbersSketch.from_protobuf(msg)
     assert number_sketch.get_frequent_items() == sketch2.get_frequent_items()
-

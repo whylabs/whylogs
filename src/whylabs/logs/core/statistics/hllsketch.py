@@ -36,17 +36,14 @@ class HllSketch:
     def get_estimate(self):
         return self.sketch.get_estimate()
 
-    def get_lower_bound(self, num_std_devs: int=1):
+    def get_lower_bound(self, num_std_devs: int = 1):
         return self.sketch.get_lower_bound(num_std_devs)
 
-    def get_upper_bound(self, num_std_devs: int=1):
+    def get_upper_bound(self, num_std_devs: int = 1):
         return self.sketch.get_upper_bound(num_std_devs)
 
     def to_protobuf(self):
-        return HllSketchMessage(
-            sketch=self.sketch.serialize_compact(),
-            lg_k=self.lg_k
-        )
+        return HllSketchMessage(sketch=self.sketch.serialize_compact(), lg_k=self.lg_k)
 
     def _serialize_item(self, x):
         if isinstance(x, datetime.datetime):
@@ -70,5 +67,5 @@ class HllSketch:
         return UniqueCountSummary(
             estimate=self.get_estimate(),
             upper=self.get_upper_bound(),
-            lower=self.get_lower_bound()
+            lower=self.get_lower_bound(),
         )

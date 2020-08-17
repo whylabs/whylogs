@@ -18,8 +18,10 @@ class FloatTracker:
     count
         Total count of numbers
     """
-    def __init__(self, min: float=None, max: float=None,
-                 sum: float=None, count: int=None):
+
+    def __init__(
+        self, min: float = None, max: float = None, sum: float = None, count: int = None
+    ):
         if min is None:
             min = math.inf
         if max is None:
@@ -54,7 +56,7 @@ class FloatTracker:
         Calculate the current mean
         """
         try:
-            return self.sum/self.count
+            return self.sum / self.count
         except ZeroDivisionError:
             return math.nan
 
@@ -90,10 +92,7 @@ class FloatTracker:
         message : DoublesMessage
         """
         return DoublesMessage(
-            count=self.count,
-            max=self.max,
-            min=self.min,
-            sum=self.sum
+            count=self.count, max=self.max, min=self.min, sum=self.sum
         )
 
     @staticmethod
@@ -106,8 +105,5 @@ class FloatTracker:
         number_tracker : FloatTracker
         """
         return FloatTracker(
-            min=message.min,
-            max=message.max,
-            sum=message.sum,
-            count=message.count
+            min=message.min, max=message.max, sum=message.sum, count=message.count
         )

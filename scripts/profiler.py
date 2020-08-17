@@ -7,9 +7,10 @@ TODO:
 from whylabs.logs.core.datasetprofile import write_flat_summaries
 from whylabs.logs.util import protobuf
 from logging import getLogger
+
 CSV_READER_BATCH_SIZE = int(1e4)
 OUTPUT_DATE_FORMAT = "%Y/%m/%d"
-LOGGER = 'whylabs.logs.profiler'
+LOGGER = "whylabs.logs.profiler"
 
 
 def write_protobuf(vals: list, fname):
@@ -29,15 +30,14 @@ def df_to_records(df, dropna=True):
     values
     """
     import pandas as pd
-    records = df.to_dict(orient='records')
+
+    records = df.to_dict(orient="records")
     if dropna:
-        records = [{k: v for k, v in m.items() if pd.notnull(v)}
-                for m in records]
+        records = [{k: v for k, v in m.items() if pd.notnull(v)} for m in records]
     return records
 
 
-def csv_reader(f, date_format: str=None, dropna=False, infer_dtypes=False,
-               **kwargs):
+def csv_reader(f, date_format: str = None, dropna=False, infer_dtypes=False, **kwargs):
     """
     Wrapper for `pandas.read_csv` to return an iterator to return dict
     records for a CSV file
@@ -58,16 +58,17 @@ def csv_reader(f, date_format: str=None, dropna=False, infer_dtypes=False,
     **kwargs : passed to `pandas.read_csv`
     """
     import pandas as pd
+
     date_parser = None
     if date_format is not None:
         date_parser = lambda x: pd.datetime.strptime(x, date_format)
     opts = {
-        'chunksize': CSV_READER_BATCH_SIZE,
-        'date_parser': date_parser,
+        "chunksize": CSV_READER_BATCH_SIZE,
+        "date_parser": date_parser,
     }
     if not infer_dtypes:
         # HACKY way not parse any entries and return strings
-        opts['converters'] = {i: str for i in range(10000)}
+        opts["converters"] = {i: str for i in range(10000)}
     opts.update(kwargs)
 
     for batch in pd.read_csv(f, **opts):
@@ -76,9 +77,18 @@ def csv_reader(f, date_format: str=None, dropna=False, infer_dtypes=False,
             yield record
 
 
-def run(input_path, datetime: str=None, delivery_stream=None, fmt=None,
-        limit=-1, output_prefix=None, region=None, separator=None,
-        dropna=False, infer_dtypes=False):
+def run(
+    input_path,
+    datetime: str = None,
+    delivery_stream=None,
+    fmt=None,
+    limit=-1,
+    output_prefix=None,
+    region=None,
+    separator=None,
+    dropna=False,
+    infer_dtypes=False,
+):
     """
     Run the profiler on CSV data
 
@@ -130,11 +140,12 @@ def run(input_path, datetime: str=None, delivery_stream=None, fmt=None,
     from whylabs.logs.util.protobuf import message_to_json
     from datetime import datetime
     import os
+
     logger = getLogger(LOGGER)
 
     # Parse arguments
     if separator is None:
-        separator = ','
+        separator = ","
     name = os.path.basename(input_path)
     parse_dates = False
     if datetime_col is not None:
@@ -145,22 +156,32 @@ def run(input_path, datetime: str=None, delivery_stream=None, fmt=None,
     if output_prefix is None:
         import random
         import time
+
         parent_folder = os.path.dirname(os.path.realpath(input_path))
         basename = os.path.splitext(os.path.basename(input_path))[0]
-        epoch_minutes = int(time.time()/60)
+        epoch_minutes = int(time.time() / 60)
         output_base = "{}.{}-{}-{}".format(
-            basename, epoch_minutes, random.randint(100000, 999999),
-            random.randint(100000, 999999))
+            basename,
+            epoch_minutes,
+            random.randint(100000, 999999),
+            random.randint(100000, 999999),
+        )
         output_prefix = os.path.join(parent_folder, output_base)
 
     output_base = output_prefix
-    binary_output_path = output_base + '.bin'
-    json_output_path = output_base + '.json'
+    binary_output_path = output_base + ".bin"
+    json_output_path = output_base + ".json"
 
     # Process records
-    reader = csv_reader(input_path, fmt, parse_dates=parse_dates,
-                        nrows=nrows, sep=separator, dropna=dropna,
-                        infer_dtypes=infer_dtypes)
+    reader = csv_reader(
+        input_path,
+        fmt,
+        parse_dates=parse_dates,
+        nrows=nrows,
+        sep=separator,
+        dropna=dropna,
+        infer_dtypes=infer_dtypes,
+    )
     profiles = {}
     for record in reader:
         dt = record.get(datetime_col, datetime.utcnow())
@@ -179,20 +200,21 @@ def run(input_path, datetime: str=None, delivery_stream=None, fmt=None,
     summaries = DatasetSummaries(
         profiles={k: v.to_summary() for k, v in profiles.items()}
     )
-    with open(json_output_path, 'wt') as fp:
+    with open(json_output_path, "wt") as fp:
         logger.info("Writing JSON summaries to: {}".format(json_output_path))
         fp.write(message_to_json(summaries))
 
     # Generate flat summary outputs
-    fnames = write_flat_summaries(summaries, output_base, dataframe_fmt='csv')
+    fnames = write_flat_summaries(summaries, output_base, dataframe_fmt="csv")
 
     # Write the protobuf binary file
     write_protobuf(profiles.values(), binary_output_path)
     return profiles
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argh
     from whylabs.logs import display_logging
-    display_logging('DEBUG')
+
+    display_logging("DEBUG")
     argh.dispatch_command(run)
