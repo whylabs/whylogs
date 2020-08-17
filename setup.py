@@ -141,6 +141,7 @@ DEV_EXTRA_REQUIREMENTS = [
     "pyarrow",
     # 'vmprof',
     "matplotlib",
+    "pre-commit",
     "bump2version",
     "twine",
     "wheel",
