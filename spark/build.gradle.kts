@@ -34,7 +34,7 @@ dependencies {
     implementation(scalaPackage("org.apache.spark", "spark-sql", sparkVersion))
 
     // project dependencies
-    implementation(project(":whylogs-java:core"))
+    implementation(project(":core"))
 
     // lombok support
     compileOnly("org.projectlombok:lombok:1.18.12")
