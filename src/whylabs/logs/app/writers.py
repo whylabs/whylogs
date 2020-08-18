@@ -38,7 +38,7 @@ def _write_flat(path: str, profile: DatasetProfile):
 
 def _write_protobuf(path: str, profile: DatasetProfile):
     protobuf: Message = profile.to_protobuf()
-    with open(os.path.join("protobuf.bin"), "wb") as f:
+    with open(os.path.join(path, "protobuf.bin"), "wb") as f:
         f.write(protobuf.SerializeToString())
 
 
