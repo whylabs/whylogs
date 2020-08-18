@@ -10,6 +10,7 @@ from distutils.command.build_py import build_py_2to3 as _build_py
 from distutils.command.clean import clean as _clean
 from distutils.util import run_2to3
 from glob import glob
+import setuptools_black
 
 
 def read(rel_path):
@@ -146,6 +147,7 @@ DEV_EXTRA_REQUIREMENTS = [
     "twine",
     "wheel",
     "awscli >= 1.18.93",
+    "setuptools_black",
     "coverage<5",  # Required for pycharm to run tests with coverage
 ]
 
@@ -163,7 +165,11 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/whylabs/whylogs",
-    cmdclass={"clean": BuildClean, "build_py": BuildPy},
+    cmdclass={
+        "clean": BuildClean,
+        "build_py": BuildPy,
+        "build": setuptools_black.BuildCommand,
+    },
     package_dir={"": "src"},
     include_package_data=True,
     packages=setuptools.find_packages("src"),
