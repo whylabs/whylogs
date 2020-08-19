@@ -1,7 +1,9 @@
+import datetime
+
+import datasketches
+
 from whylabs.logs.core.statistics.datatypes import StringTracker
 from whylabs.logs.util.protobuf import message_to_dict
-import datasketches
-import datetime
 
 
 def test_tracking():

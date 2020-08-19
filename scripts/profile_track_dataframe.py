@@ -1,9 +1,10 @@
 """
 """
-from whylabs.logs.core.datasetprofile import dataframe_profile
-import pandas as pd
 import os
 
+import pandas as pd
+
+from whylabs.logs.core.datasetprofile import dataframe_profile
 
 NUM_RECORDS_AVAILABLE = [
     10,

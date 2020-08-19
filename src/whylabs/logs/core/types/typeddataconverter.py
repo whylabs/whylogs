@@ -4,9 +4,10 @@ created 5/7/20 by ibackus
 
 TODO: implement this using something other than yaml
 """
-import pandas as pd
 import numpy as np
+import pandas as pd
 import yaml
+
 from whylabs.logs.proto import InferredType
 
 TYPES = InferredType.Type

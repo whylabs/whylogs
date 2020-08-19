@@ -1,13 +1,13 @@
 """
 """
 from logging import getLogger as _getLogger
-from typing import Optional, List
+from typing import List, Optional
 
 import pandas as pd
 
-from whylabs.logs.app.config import SessionConfig, load_config, WriterConfig
+from whylabs.logs.app.config import SessionConfig, WriterConfig, load_config
 from whylabs.logs.app.logger import Logger
-from whylabs.logs.app.writers import Writer, writer_from_config, LocalWriter
+from whylabs.logs.app.writers import LocalWriter, Writer, writer_from_config
 
 
 class Session:

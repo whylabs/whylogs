@@ -1,14 +1,14 @@
 """
 """
+import datetime
+import json
 from uuid import uuid4
+
+import numpy as np
 
 from whylabs.logs.core import DatasetProfile
 from whylabs.logs.core.datasetprofile import array_profile
 from whylabs.logs.util.protobuf import message_to_dict, message_to_json
-import json
-import datetime
-import numpy as np
-
 from whylabs.logs.util.time import to_utc_ms
 
 

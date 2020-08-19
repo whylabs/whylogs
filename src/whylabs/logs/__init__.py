@@ -1,6 +1,5 @@
 from ._version import __version__
-
-from .app.session import get_session, get_logger, get_or_create_session
+from .app.session import get_logger, get_or_create_session, get_session
 
 
 def display_logging(level="DEBUG", root_logger=False):

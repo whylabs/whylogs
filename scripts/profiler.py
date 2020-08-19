@@ -4,9 +4,10 @@ TODO:
     * Date parsing compatible with EasyDateTimeParser (Java)
 
 """
+from logging import getLogger
+
 from whylabs.logs.core.datasetprofile import write_flat_summaries
 from whylabs.logs.util import protobuf
-from logging import getLogger
 
 CSV_READER_BATCH_SIZE = int(1e4)
 OUTPUT_DATE_FORMAT = "%Y/%m/%d"
@@ -135,11 +136,12 @@ def run(
         un-converted strings.
     """
     datetime_col = datetime  # don't shadow the standard module name
+    import os
+    from datetime import datetime
+
     from whylabs.logs.core import DatasetProfile
     from whylabs.logs.proto import DatasetSummaries
     from whylabs.logs.util.protobuf import message_to_json
-    from datetime import datetime
-    import os
 
     logger = getLogger(LOGGER)
 
@@ -214,6 +216,7 @@ def run(
 
 if __name__ == "__main__":
     import argh
+
     from whylabs.logs import display_logging
 
     display_logging("DEBUG")

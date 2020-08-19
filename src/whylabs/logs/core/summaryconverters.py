@@ -1,15 +1,17 @@
 import math
+
+from datasketches import (
+    frequent_items_error_type,
+    frequent_strings_sketch,
+    kll_floats_sketch,
+    update_theta_sketch,
+)
+
 from whylabs.logs.proto import (
-    UniqueCountSummary,
     FrequentStringsSummary,
     HistogramSummary,
     QuantileSummary,
-)
-from datasketches import (
-    update_theta_sketch,
-    frequent_strings_sketch,
-    frequent_items_error_type,
-    kll_floats_sketch,
+    UniqueCountSummary,
 )
 
 MAX_HIST_BUCKETS = 30

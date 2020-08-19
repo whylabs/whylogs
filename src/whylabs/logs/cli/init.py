@@ -3,21 +3,20 @@ import os
 import re
 import shutil
 import sys
+import typing
 import webbrowser
 from time import sleep
 
 import click
-import typing
+import pandas as pd
 
 from whylabs.logs.app.config import SessionConfig, WriterConfig
 from whylabs.logs.app.session import session_from_config
 from whylabs.logs.cli.cli_text import *
-import pandas as pd
-
 from whylabs.logs.cli.cli_text import (
+    OBSERVATORY_EXPLANATION,
     PIPELINE_DESCRIPTION,
     PROJECT_DESCRIPTION,
-    OBSERVATORY_EXPLANATION,
 )
 from whylabs.logs.cli.generate_notebooks import generate_notebooks
 

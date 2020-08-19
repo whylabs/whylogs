@@ -1,12 +1,17 @@
 """
 """
-import datasketches
 import json
-
-from whylabs.logs.proto import FrequentNumbersSummary, FrequentNumbersSketchMessage
-from whylabs.logs.proto import FrequentItemsSketchMessage, FrequentItemsSummary
 from collections import defaultdict
+
+import datasketches
 import pandas as pd
+
+from whylabs.logs.proto import (
+    FrequentItemsSketchMessage,
+    FrequentItemsSummary,
+    FrequentNumbersSketchMessage,
+    FrequentNumbersSummary,
+)
 
 
 def deserialize_kll_floats_sketch(x: bytes, kind: str = "float"):

@@ -4,8 +4,9 @@ A script to generate some example data
 """
 if __name__ == "__main__":
     import os
-    from whylabs.logs.util.protobuf import message_to_json
+
     from whylabs.logs.core import DatasetProfile
+    from whylabs.logs.util.protobuf import message_to_json
 
     MYDIR = os.path.realpath(os.path.dirname(__file__))
     d = os.getcwd()

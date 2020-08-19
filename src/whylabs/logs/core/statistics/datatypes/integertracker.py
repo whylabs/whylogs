@@ -1,4 +1,5 @@
 import math
+
 from whylabs.logs.proto import LongsMessage
 
 

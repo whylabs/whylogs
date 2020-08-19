@@ -2,9 +2,10 @@
 """
 """
 """
-import boto3
-from logging import getLogger
 import threading
+from logging import getLogger
+
+import boto3
 
 # XXX : not sure if we should use RLock or Lock here
 _s3client_rlock = threading.RLock()

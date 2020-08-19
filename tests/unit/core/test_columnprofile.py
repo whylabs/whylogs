@@ -1,7 +1,9 @@
-from whylabs.logs.core import ColumnProfile
-from testutil import compare_frequent_items
 import json
+
 import pytest
+from testutil import compare_frequent_items
+
+from whylabs.logs.core import ColumnProfile
 
 
 def test_track():

@@ -1,8 +1,9 @@
 """
 """
-from whylabs.logs.util import protobuf
-from whylabs.logs.proto import DoublesMessage
 import json
+
+from whylabs.logs.proto import DoublesMessage
+from whylabs.logs.util import protobuf
 
 
 def test_message_to_dict_returns_default_values():

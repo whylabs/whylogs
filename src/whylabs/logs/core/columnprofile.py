@@ -2,17 +2,16 @@
 """
 created 5/7/20 by ibackus
 """
-from whylabs.logs.core.types import TypedDataConverter
-from whylabs.logs.core.statistics import NumberTracker
-from whylabs.logs.util.dsketch import FrequentItemsSketch
-from whylabs.logs.proto import ColumnSummary, ColumnMessage, InferredType
-from whylabs.logs.core.statistics import CountersTracker, SchemaTracker
+from whylabs.logs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
 from whylabs.logs.core.statistics.datatypes import StringTracker
 from whylabs.logs.core.statistics.hllsketch import (
     HllSketch,
     HllSketchMessage,
     UniqueCountSummary,
 )
+from whylabs.logs.core.types import TypedDataConverter
+from whylabs.logs.proto import ColumnMessage, ColumnSummary, InferredType
+from whylabs.logs.util.dsketch import FrequentItemsSketch
 
 _TYPES = InferredType.Type
 _NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}

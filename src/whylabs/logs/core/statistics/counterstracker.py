@@ -1,5 +1,6 @@
-from whylabs.logs.proto import Counters
 from google.protobuf.wrappers_pb2 import Int64Value
+
+from whylabs.logs.proto import Counters
 
 
 class CountersTracker:
