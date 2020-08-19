@@ -1,12 +1,11 @@
 import datetime
 import time
+from collections import OrderedDict
 from logging import getLogger
 from uuid import uuid4
 
 import numpy as np
 import pandas as pd
-import time
-from whylabs.logs.util.protobuf import message_to_json
 
 from whylabs.logs.core import ColumnProfile
 from whylabs.logs.core.types.typeddataconverter import TYPES
@@ -18,10 +17,9 @@ from whylabs.logs.proto import (
     DatasetProfileMessage,
 )
 from whylabs.logs.util.data import getter, remap, get_valid_filename
-from whylabs.logs.util.time import to_utc_ms, from_utc_ms
 from whylabs.logs.util.dsketch import FrequentNumbersSketch
-
-from collections import OrderedDict
+from whylabs.logs.util.protobuf import message_to_json
+from whylabs.logs.util.time import to_utc_ms, from_utc_ms
 
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
 TYPENUM_COLUMN_NAMES = OrderedDict()

@@ -91,7 +91,7 @@ def init(project_dir):
     echo(f"Using output path: {output_path}", fg="green")
     writer = WriterConfig("local", ["all"], output_path)
     session_config = SessionConfig(
-        project_name, pipeline_name, verbose=False, writers=[writer]
+        project_name, pipeline_name, writers=[writer], verbose=False
     )
     config_yml = os.path.join(project_dir, "whylogs.yml")
     with open(file=config_yml, mode="w") as f:

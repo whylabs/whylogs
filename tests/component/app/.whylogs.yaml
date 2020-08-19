@@ -5,4 +5,4 @@ writers:
   - protobuf
   - flat
   path: abc/xyz
-  type: s3
+  type: local

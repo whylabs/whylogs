@@ -126,6 +126,8 @@ def reset_default():
     if _session is not None:
         _session.close()
     config: SessionConfig = load_config()
+    if config is None:
+        raise EnvironmentError("Unable to load WhyLogs config")
     _session = session_from_config(config)
 
 
@@ -142,7 +144,7 @@ def get_or_create_session():
         if config is None:
             writer = WriterConfig(type="local", output_path="output", formats=["all"])
             config = SessionConfig(
-                "default-project", "default-pipeline", False, [writer]
+                "default-project", "default-pipeline", [writer], False
             )
         _session = session_from_config(config)
     return _session

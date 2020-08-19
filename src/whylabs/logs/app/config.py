@@ -1,10 +1,17 @@
 """
 """
+import sys
 from logging import getLogger
 from typing import List
 
 import yaml as yaml
 from marshmallow import Schema, fields, post_load, validate
+
+from whylabs.logs.app.output_formats import SUPPORTED_OUTPUT_FORMATS
+
+WHYLOGS_YML = ".whylogs.yml"
+
+ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
 
 
 class WriterConfig:
@@ -24,8 +31,16 @@ class WriterConfig:
 
 
 class SessionConfig:
+    """
+    Configuration for a WhyLogs session. The 
+    """
+
     def __init__(
-        self, project: str, pipeline: str, verbose: bool, writers: List[WriterConfig]
+        self,
+        project: str,
+        pipeline: str,
+        writers: List[WriterConfig],
+        verbose: bool = False,
     ):
         self.project = project
         self.pipeline = pipeline
@@ -43,7 +58,7 @@ class SessionConfig:
 class WriterConfigSchema(Schema):
     type = fields.Str(validate=validate.OneOf(["local", "s3"]), required=True)
     formats = fields.List(
-        fields.Str(validate=validate.OneOf(["all", "protobuf", "json", "flat"])),
+        fields.Str(validate=validate.OneOf(ALL_SUPPORTED_FORMATS)),
         required=True,
         validate=validate.Length(min=1),
     )
@@ -73,25 +88,32 @@ def load_config():
     """
     Load logging configuration, from disk and from the environment.
 
-    Config is loaded in steps as follows, with later steps taking precedence:
+    Config is loaded by attempting to load files basd on:
 
-    1. ~/.whylogs.yaml
-    2. ./whylogs.yaml   (within current directory)
-    3. Environment
+    1. Path set in WHYLOGS_CONFIG environment variable
+    2. Current directory's .whylogs.yaml file
+    3. ~/.whylogs.yaml (home directory)
+    4. /opt/whylogs/.whylogs.yaml path
     """
     import os
 
     logger = getLogger(__name__)
-    user_file = os.path.join(os.path.expanduser("~"), ".whylogs.yml")
-    files = [
-        user_file,
-        "whylogs.yml",
+    cfg_candidates = [
+        os.environ.get("WHYLOGS_CONFIG"),
+        WHYLOGS_YML,
+        os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
+        os.path.join("/opt/whylogs/", WHYLOGS_YML),
     ]
-    for fname in files:
-        logger.debug(f"Attempting to load config file: {fname}")
+
+    for fpath in cfg_candidates:
+        logger.debug(f"Attempting to load config file: {fpath}")
+        if fpath is None or not os.path.isfile(fpath):
+            continue
+
         try:
-            with open(fname, "rt") as f:
+            with open(fpath, "rt") as f:
                 return SessionConfig.from_yaml(f)
-        except FileNotFoundError:
+        except IOError as e:
+            logger.warning("Failed to load YAML config", e)
             pass
     return None

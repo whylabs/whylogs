@@ -1,20 +1,29 @@
 import os
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List
 
 from google.protobuf.message import Message
 
 from whylabs.logs.app.config import WriterConfig
+from whylabs.logs.app.output_formats import OutputFormat
 from whylabs.logs.core import DatasetProfile, datasetprofile
 from whylabs.logs.util.protobuf import message_to_json
 
 
 class Writer(ABC):
     def __init__(self, output_path: str, formats: List[str]):
+        self.formats = []
         if "all" in formats:
-            formats = ["json", "flat", "protobuf"]
+            for fmt in OutputFormat.__members__.values():
+                self.formats.append(fmt)
+        else:
+            for fmt in formats:
+                fmt_ = OutputFormat[fmt]
+                if fmt_ is None:
+                    raise ValueError("Unsupported format: {0}".format(fmt))
+                else:
+                    self.formats.append(fmt_)
 
-        self.formats = formats
         self.output_path = output_path
 
     @abstractmethod
@@ -38,6 +47,8 @@ def _write_flat(path: str, profile: DatasetProfile):
 
 def _write_protobuf(path: str, profile: DatasetProfile):
     protobuf: Message = profile.to_protobuf()
+    if not os.path.exists(path):
+        os.makedirs(path, exist_ok=True)
     with open(os.path.join(path, "protobuf.bin"), "wb") as f:
         f.write(protobuf.SerializeToString())
 
@@ -55,11 +66,11 @@ class LocalWriter(Writer):
         )
         os.makedirs(profile_session_path, exist_ok=True)
         for fmt in self.formats:
-            if fmt == "json":
+            if fmt == OutputFormat.json:
                 _write_json(profile_session_path, profile)
-            elif fmt == "flat":
+            elif fmt == OutputFormat.flat:
                 _write_flat(profile_session_path, profile)
-            elif fmt == "protobuf":
+            elif fmt == OutputFormat.protobuf:
                 _write_protobuf(profile_session_path, profile)
             else:
                 raise ValueError(f"Unsupported format: {fmt}")
