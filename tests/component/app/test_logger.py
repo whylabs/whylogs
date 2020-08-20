@@ -11,7 +11,7 @@ from whylabs.logs.app.session import get_or_create_session, session_from_config
 def test_config_api(tmpdir):
     p = tmpdir.mkdir("whylogs")
 
-    writer_config = WriterConfig("local", ["protobuf", "csv"], p.realpath())
+    writer_config = WriterConfig("local", ["protobuf", "flat"], p.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
 
@@ -43,7 +43,7 @@ def test_load_config(tmpdir):
 def test_log_dataframe(tmpdir, df_lending_club):
     p = tmpdir.mkdir("whylogs")
 
-    writer_config = WriterConfig("local", ["protobuf", "csv"], p.realpath())
+    writer_config = WriterConfig("local", ["protobuf", "flat"], p.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
 
@@ -56,4 +56,4 @@ def test_log_dataframe(tmpdir, df_lending_club):
     output_files = []
     for root, subdirs, files in os.walk(p):
         output_files += files
-    assert len(output_files) == 3
+    assert len(output_files) == 4

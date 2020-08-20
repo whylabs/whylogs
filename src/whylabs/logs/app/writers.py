@@ -1,3 +1,4 @@
+import json
 import os
 from abc import ABC, abstractmethod
 from typing import List
@@ -7,6 +8,12 @@ from google.protobuf.message import Message
 from whylabs.logs.app.config import WriterConfig
 from whylabs.logs.app.output_formats import OutputFormat
 from whylabs.logs.core import DatasetProfile, datasetprofile
+from whylabs.logs.core.datasetprofile import (
+    flatten_dataset_frequent_numbers,
+    flatten_dataset_frequent_strings,
+    flatten_dataset_histograms,
+    get_dataset_frame,
+)
 from whylabs.logs.util.protobuf import message_to_json
 
 
@@ -37,12 +44,36 @@ def _write_json(path: str, profile: DatasetProfile):
         f.write(message_to_json(summary))
 
 
-def _write_flat(path: str, profile: DatasetProfile):
+def _write_flat(path: str, profile: DatasetProfile, indent: int = 4):
+    """
+    Write output data for flat format
+
+    Parameters
+    ----------
+    path  the base path for WhyLogs output
+    profile the dataset profile to output
+    indent the JSON indentation. Default is 4
+    -------
+
+    """
     summary = profile.to_summary()
-    flat_summary: dict = datasetprofile.flatten_summary(summary)
-    # TODO: use absolute path when writing out data
-    os.chdir(path)
-    datasetprofile.write_flat_dataset_summary(flat_summary, "summary")
+
+    flat_output_dir = os.path.join(path, "flat")
+    os.makedirs(flat_output_dir, exist_ok=True)
+
+    # write output data
+    summary_df = get_dataset_frame(summary)
+    summary_df.to_csv(os.path.join(flat_output_dir, "summary.csv"), index=False)
+
+    with open(os.path.join(flat_output_dir, "historgram.json"), "wt") as f:
+        hist = flatten_dataset_histograms(summary)
+        json.dump(hist, f, indent=indent)
+    with open(os.path.join(flat_output_dir, "frequent_strings.json"), "wt") as f:
+        frequent_strings = flatten_dataset_frequent_strings(summary)
+        json.dump(frequent_strings, f, indent=indent)
+    with open(os.path.join(flat_output_dir, "frequent_strings.json"), "wt") as f:
+        frequent_numbers = flatten_dataset_frequent_numbers(summary)
+        json.dump(frequent_numbers, f, indent=indent)
 
 
 def _write_protobuf(path: str, profile: DatasetProfile):
