@@ -1,5 +1,3 @@
-"""
-"""
 import pytest
 from helpers.testutil import compare_frequent_items
 

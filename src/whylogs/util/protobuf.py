@@ -1,5 +1,3 @@
-"""
-"""
 import google.protobuf.message
 from google.protobuf.json_format import MessageToDict, MessageToJson
 from google.protobuf.pyext._message import MessageMapContainer

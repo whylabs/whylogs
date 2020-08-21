@@ -1,5 +1,3 @@
-"""
-"""
 from whylogs.core.types import TypedDataConverter
 
 

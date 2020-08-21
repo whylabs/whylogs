@@ -1,5 +1,3 @@
-"""
-"""
 import json
 
 from whylogs.proto import DoublesMessage

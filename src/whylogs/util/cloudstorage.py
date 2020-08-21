@@ -1,7 +1,3 @@
-"""
-"""
-"""
-"""
 import threading
 from logging import getLogger
 

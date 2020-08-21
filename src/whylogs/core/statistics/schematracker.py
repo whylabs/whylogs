@@ -1,5 +1,3 @@
-"""
-"""
 from whylogs.proto import InferredType, SchemaMessage, SchemaSummary
 
 Type = InferredType.Type
