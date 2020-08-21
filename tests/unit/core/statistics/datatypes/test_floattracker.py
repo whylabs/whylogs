@@ -1,6 +1,4 @@
-"""
-"""
-from whylabs.logs.core.statistics.datatypes.floattracker import FloatTracker
+from whylogs.core.statistics.datatypes import FloatTracker
 
 
 def test_values_are_min_max():

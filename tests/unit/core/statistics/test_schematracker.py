@@ -1,5 +1,5 @@
-from whylabs.logs.core.statistics import SchemaTracker
-from whylabs.logs.proto import InferredType
+from whylogs.core.statistics import SchemaTracker
+from whylogs.proto import InferredType
 
 Type = InferredType.Type
 

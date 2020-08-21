@@ -1,6 +1,6 @@
 """
 """
-from whylabs.logs.proto import InferredType, SchemaMessage, SchemaSummary
+from whylogs.proto import InferredType, SchemaMessage, SchemaSummary
 
 Type = InferredType.Type
 import copy

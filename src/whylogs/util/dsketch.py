@@ -6,7 +6,7 @@ from collections import defaultdict
 import datasketches
 import pandas as pd
 
-from whylabs.logs.proto import (
+from whylogs.proto import (
     FrequentItemsSketchMessage,
     FrequentItemsSummary,
     FrequentNumbersSketchMessage,

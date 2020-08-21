@@ -6,12 +6,12 @@ TODO:
 """
 from logging import getLogger
 
-from whylabs.logs.core.datasetprofile import write_flat_summaries
-from whylabs.logs.util import protobuf
+from whylogs.logs import write_flat_summaries
+from whylogs.util import protobuf
 
 CSV_READER_BATCH_SIZE = int(1e4)
 OUTPUT_DATE_FORMAT = "%Y/%m/%d"
-LOGGER = "whylabs.logs.profiler"
+LOGGER = "whylogs.logs.profiler"
 
 
 def write_protobuf(vals: list, fname):
@@ -139,9 +139,8 @@ def run(
     import os
     from datetime import datetime
 
-    from whylabs.logs.core import DatasetProfile
-    from whylabs.logs.proto import DatasetSummaries
-    from whylabs.logs.util.protobuf import message_to_json
+    from whylogs.logs import DatasetProfile, DatasetSummaries
+    from whylogs.util import message_to_json
 
     logger = getLogger(LOGGER)
 
@@ -217,7 +216,7 @@ def run(
 if __name__ == "__main__":
     import argh
 
-    from whylabs.logs import display_logging
+    from whylogs.logs import display_logging
 
     display_logging("DEBUG")
     argh.dispatch_command(run)

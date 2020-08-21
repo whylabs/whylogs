@@ -10,15 +10,14 @@ from time import sleep
 import click
 import pandas as pd
 
-from whylabs.logs.app.config import SessionConfig, WriterConfig
-from whylabs.logs.app.session import session_from_config
-from whylabs.logs.cli.cli_text import *
-from whylabs.logs.cli.cli_text import (
+from whylogs.app import SessionConfig, WriterConfig
+from whylogs.app.session import session_from_config
+from whylogs.cli import (
     OBSERVATORY_EXPLANATION,
     PIPELINE_DESCRIPTION,
     PROJECT_DESCRIPTION,
+    generate_notebooks,
 )
-from whylabs.logs.cli.generate_notebooks import generate_notebooks
 
 LENDING_CLUB_CSV = "lending_club_1000.csv"
 

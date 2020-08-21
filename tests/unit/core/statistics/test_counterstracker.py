@@ -1,4 +1,4 @@
-from whylabs.logs.core.statistics import CountersTracker
+from whylogs.core.statistics import CountersTracker
 
 
 def test_init():

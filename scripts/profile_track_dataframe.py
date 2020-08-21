@@ -4,7 +4,7 @@ import os
 
 import pandas as pd
 
-from whylabs.logs.core.datasetprofile import dataframe_profile
+from whylogs.logs import dataframe_profile
 
 NUM_RECORDS_AVAILABLE = [
     10,

@@ -6,7 +6,7 @@ import datasketches
 import numpy as np
 from testutil import compare_frequent_items
 
-from whylabs.logs.util import dsketch
+from whylogs.util import dsketch
 
 decode_item = dsketch.FrequentItemsSketch._decode_item
 

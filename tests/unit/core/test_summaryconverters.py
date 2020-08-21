@@ -2,8 +2,8 @@
 """
 import datasketches
 
-from whylabs.logs.core import summaryconverters
-from whylabs.logs.proto import HistogramSummary
+from whylogs.core import summaryconverters
+from whylogs.proto import HistogramSummary
 
 
 def _hist_summary_check(summary, vals: list):

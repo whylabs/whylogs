@@ -1,9 +1,9 @@
 """
 """
 import pytest
-from testutil import compare_frequent_items
+from helpers.testutil import compare_frequent_items
 
-from whylabs.logs.core.statistics import NumberTracker
+from whylogs.core.statistics import NumberTracker
 
 
 def test_count_is_correct():

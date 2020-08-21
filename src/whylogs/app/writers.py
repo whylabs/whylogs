@@ -5,16 +5,17 @@ from typing import List
 
 from google.protobuf.message import Message
 
-from whylabs.logs.app.config import WriterConfig
-from whylabs.logs.app.output_formats import OutputFormat
-from whylabs.logs.core import DatasetProfile, datasetprofile
-from whylabs.logs.core.datasetprofile import (
+from whylogs.app.output_formats import OutputFormat
+from whylogs.core import DatasetProfile
+
+from ..core.datasetprofile import (
     flatten_dataset_frequent_numbers,
     flatten_dataset_frequent_strings,
     flatten_dataset_histograms,
     get_dataset_frame,
 )
-from whylabs.logs.util.protobuf import message_to_json
+from ..util.protobuf import message_to_json
+from .config import WriterConfig
 
 
 class Writer(ABC):

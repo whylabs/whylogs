@@ -2,9 +2,9 @@
 """
 import datasketches
 import pytest
-from testutil import compare_frequent_items
+from helpers.testutil import compare_frequent_items
 
-from whylabs.logs.util import dsketch
+from whylogs.util import dsketch
 
 NUMBER_SKETCH_VALS = [1, 1, 1, 2, 3, 4, 4, 5.0]
 STRING_SKETCH_VALS = ["1", "1", "1", "2", "3", "4", "4", "5.0"]

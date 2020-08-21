@@ -2,7 +2,7 @@
 """
 import os
 
-from whylabs.logs.core.statistics import thetasketch
+from whylogs.core.statistics import thetasketch
 
 MYDIR = os.path.realpath(os.path.dirname(__file__))
 DATA_DIR = os.path.join(MYDIR, "data")

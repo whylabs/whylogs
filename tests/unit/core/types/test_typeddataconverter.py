@@ -1,6 +1,6 @@
 """
 """
-from whylabs.logs.core.types import TypedDataConverter
+from whylogs.core.types import TypedDataConverter
 
 
 def test_invalid_yaml_returns_string():

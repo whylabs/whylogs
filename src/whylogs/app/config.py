@@ -1,13 +1,12 @@
 """
 """
-import sys
 from logging import getLogger
 from typing import List
 
 import yaml as yaml
 from marshmallow import Schema, fields, post_load, validate
 
-from whylabs.logs.app.output_formats import SUPPORTED_OUTPUT_FORMATS
+from whylogs.app.output_formats import SUPPORTED_OUTPUT_FORMATS
 
 WHYLOGS_YML = ".whylogs.yml"
 

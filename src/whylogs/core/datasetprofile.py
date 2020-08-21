@@ -1,15 +1,13 @@
 import datetime
-import time
 from collections import OrderedDict
-from logging import getLogger
 from uuid import uuid4
 
 import numpy as np
 import pandas as pd
 
-from whylabs.logs.core import ColumnProfile
-from whylabs.logs.core.types.typeddataconverter import TYPES
-from whylabs.logs.proto import (
+from whylogs.core import ColumnProfile
+from whylogs.core.types.typeddataconverter import TYPES
+from whylogs.proto import (
     ColumnsChunkSegment,
     DatasetMetadataSegment,
     DatasetProfileMessage,
@@ -17,10 +15,9 @@ from whylabs.logs.proto import (
     DatasetSummary,
     MessageSegment,
 )
-from whylabs.logs.util.data import get_valid_filename, getter, remap
-from whylabs.logs.util.dsketch import FrequentNumbersSketch
-from whylabs.logs.util.protobuf import message_to_json
-from whylabs.logs.util.time import from_utc_ms, to_utc_ms
+from whylogs.util.data import getter, remap
+from whylogs.util.dsketch import FrequentNumbersSketch
+from whylogs.util.time import from_utc_ms, to_utc_ms
 
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
 TYPENUM_COLUMN_NAMES = OrderedDict()
@@ -349,64 +346,6 @@ class DatasetProfile:
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
         )
 
-    def write(
-        self,
-        file_prefix=None,
-        profile=True,
-        flat_summary=True,
-        json_summary=False,
-        dataframe_fmt="csv",
-    ):
-        """
-        Utility function to simplify writing of this dataset profile.
-
-        <DEPRECATED>
-        This function is deprecated
-
-        Parameters
-        ----------
-        file_prefix
-        profile
-        flat_summary
-        json_summary
-        dataframe_fmt
-
-        Returns
-        -------
-
-        """
-        import warnings
-
-        warnings.warn(
-            DeprecationWarning("This function is deprecated and will be remoed soon")
-        )
-        logger = getLogger(__name__)
-        output_files = {}
-        if file_prefix is None:
-            file_prefix = f"{self.name}_{int(time.time())}"
-        if flat_summary or json_summary:
-            summary = self.to_summary()
-        if flat_summary:
-            x = flatten_summary(summary)
-            fnames = write_flat_dataset_summary(
-                x, file_prefix, dataframe_fmt=dataframe_fmt
-            )
-            output_files["flat_summary"] = fnames
-        if json_summary:
-            fname = file_prefix + ".json"
-            with open(fname, "wt") as fp:
-                logger.debug(f"Writing JSON summaries to: {fname}")
-                fp.write(message_to_json(summary))
-            output_files["json"] = json_summary
-
-        if profile:
-            fname = file_prefix + ".bin"
-            msg = self.to_protobuf()
-            with open(fname, "wb") as fp:
-                logger.debug(f"Writing protobuf profile to: {fname}")
-                fp.write(msg.SerializeToString())
-            output_files["protobuf"] = fname
-
     @staticmethod
     def from_protobuf(message):
         """
@@ -594,15 +533,13 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
     summary : pd.DataFrame
         Scalar values, flattened and re-named according to `mapping`
     """
-    import pandas as pd
-
     if mapping is None:
         mapping = SCALAR_NAME_MAPPING
     quantile = flatten_dataset_quantiles(dataset_summary)
     col_out = {}
-    for k, col in dataset_summary.columns.items():
-        col_out[k] = remap(col, mapping)
-        col_out[k].update(quantile.get(k, {}))
+    for _k, col in dataset_summary.columns.items():
+        col_out[_k] = remap(col, mapping)
+        col_out[_k].update(quantile.get(_k, {}))
     scalar_summary = pd.DataFrame(col_out).T
     scalar_summary.index.name = "column"
     return scalar_summary.reset_index()

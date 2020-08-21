@@ -6,10 +6,9 @@ from uuid import uuid4
 
 import numpy as np
 
-from whylabs.logs.core import DatasetProfile
-from whylabs.logs.core.datasetprofile import array_profile
-from whylabs.logs.util.protobuf import message_to_dict, message_to_json
-from whylabs.logs.util.time import to_utc_ms
+from whylogs.core.datasetprofile import DatasetProfile, array_profile
+from whylogs.util.protobuf import message_to_dict, message_to_json
+from whylogs.util.time import to_utc_ms
 
 
 def test_all_zeros_returns_summary_with_stats():

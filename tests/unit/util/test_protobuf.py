@@ -2,8 +2,8 @@
 """
 import json
 
-from whylabs.logs.proto import DoublesMessage
-from whylabs.logs.util import protobuf
+from whylogs.proto import DoublesMessage
+from whylogs.util import protobuf
 
 
 def test_message_to_dict_returns_default_values():

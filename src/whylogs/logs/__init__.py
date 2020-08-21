@@ -1,7 +1,3 @@
-from ._version import __version__
-from .app.session import get_logger, get_or_create_session, get_session
-
-
 def display_logging(level="DEBUG", root_logger=False):
     """
     Convenience utility for setting whylogs to print logs to stdout.
@@ -21,7 +17,7 @@ def display_logging(level="DEBUG", root_logger=False):
     if isinstance(level, str):
         level = level.upper()
 
-    logger = logging.getLogger("whylabs.logs")
+    logger = logging.getLogger("whylogs.logs")
     logger.propagate = root_logger
     logger.setLevel(level)
     handlers = getattr(logger, "handlers", [])
@@ -41,6 +37,6 @@ def display_logging(level="DEBUG", root_logger=False):
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     # Verify
-    logging.getLogger("whylabs.logs").debug(
-        f"whylabs.logs logging -> stdout at level {level}"
+    logging.getLogger("whylogs.logs").debug(
+        f"whylogs.logs logging -> stdout at level {level}"
     )

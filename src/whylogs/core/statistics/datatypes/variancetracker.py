@@ -1,6 +1,6 @@
 import math
 
-from whylabs.logs.proto import VarianceMessage
+from whylogs.proto import VarianceMessage
 
 
 class VarianceTracker:

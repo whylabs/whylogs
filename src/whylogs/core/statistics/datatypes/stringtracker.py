@@ -1,10 +1,10 @@
 # import datasketches
 from datasketches import frequent_strings_sketch
 
-from whylabs.logs.core.statistics.thetasketch import ThetaSketch
-from whylabs.logs.core.summaryconverters import from_string_sketch
-from whylabs.logs.proto import StringsMessage, StringsSummary
-from whylabs.logs.util import dsketch
+from whylogs.core.statistics.thetasketch import ThetaSketch
+from whylogs.core.summaryconverters import from_string_sketch
+from whylogs.proto import StringsMessage, StringsSummary
+from whylogs.util import dsketch
 
 MAX_ITEMS_SIZE = 32
 MAX_SUMMARY_ITEMS = 100

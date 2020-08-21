@@ -5,18 +5,11 @@ TODO:
 import datasketches
 import pandas as pd
 
-from whylabs.logs.core.statistics.datatypes import (
-    FloatTracker,
-    IntTracker,
-    VarianceTracker,
-)
-from whylabs.logs.core.statistics.thetasketch import ThetaSketch
-from whylabs.logs.core.summaryconverters import (
-    histogram_from_sketch,
-    quantiles_from_sketch,
-)
-from whylabs.logs.proto import NumbersMessage, NumberSummary
-from whylabs.logs.util import dsketch, stats
+from whylogs.core.statistics.datatypes import FloatTracker, IntTracker, VarianceTracker
+from whylogs.core.statistics.thetasketch import ThetaSketch
+from whylogs.core.summaryconverters import histogram_from_sketch, quantiles_from_sketch
+from whylogs.proto import NumbersMessage, NumberSummary
+from whylogs.util import dsketch, stats
 
 # Parameter controlling histogram accuracy.  Larger = more accurate
 DEFAULT_HIST_K = 256

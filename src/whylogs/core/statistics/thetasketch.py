@@ -2,7 +2,7 @@
 """
 import datasketches
 
-from whylabs.logs.proto import UniqueCountSummary
+from whylogs.proto import UniqueCountSummary
 
 
 def _copy_union(union):

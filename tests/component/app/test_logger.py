@@ -4,8 +4,8 @@ import os
 
 import pandas as pd
 
-from whylabs.logs.app.config import SessionConfig, WriterConfig
-from whylabs.logs.app.session import get_or_create_session, session_from_config
+from whylogs.app.config import SessionConfig, WriterConfig
+from whylogs.app.session import get_or_create_session, session_from_config
 
 
 def test_config_api(tmpdir):

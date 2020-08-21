@@ -2,8 +2,8 @@ import logging
 
 import click
 
-from whylabs.logs import __version__ as whylogs_version
-from whylabs.logs.cli.init import init
+from whylogs.cli import init
+from whylogs.logs import __version__ as whylogs_version
 
 try:
     import colorama

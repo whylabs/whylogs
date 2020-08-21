@@ -7,7 +7,7 @@ from datasketches import (
     update_theta_sketch,
 )
 
-from whylabs.logs.proto import (
+from whylogs.proto import (
     FrequentStringsSummary,
     HistogramSummary,
     QuantileSummary,

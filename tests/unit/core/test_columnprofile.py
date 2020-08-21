@@ -1,9 +1,10 @@
 import json
 
 import pytest
-from testutil import compare_frequent_items
+from helpers.testutil import compare_frequent_items
 
-from whylabs.logs.core import ColumnProfile
+from whylogs.core import ColumnProfile
+from whylogs.util.protobuf import message_to_dict
 
 
 def test_track():
@@ -42,8 +43,6 @@ def test_protobuf():
 
 
 def test_summary():
-    from whylabs.logs.util.protobuf import message_to_dict
-
     c = ColumnProfile("col")
     for n in [1, 2, 3]:
         c.track(n)

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from whylabs.logs.proto import InferredType
+from whylogs.proto import InferredType
 
 TYPES = InferredType.Type
 # Dictionary mapping from type Number to type name

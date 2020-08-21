@@ -2,8 +2,8 @@ from typing import List, Optional
 
 import pandas as pd
 
-from whylabs.logs.app.writers import Writer
-from whylabs.logs.core import datasetprofile
+from whylogs.app.writers import Writer
+from whylogs.core import datasetprofile
 
 
 class Logger:

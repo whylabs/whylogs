@@ -124,7 +124,7 @@ Check the `example-data/` folder for some example summary files.
 ### Flat dataset summary mapping
 The following dictionary details the mapping from the nested `DatasetSummary` attributes to the flat table names:
 ```python
-from whylabs.logs.core.datasetprofile import SCALAR_NAME_MAPPING
+from whylogs.core.datasetprofile import SCALAR_NAME_MAPPING
 import json
 print(json.dumps(SCALAR_NAME_MAPPING, indent=2))
 

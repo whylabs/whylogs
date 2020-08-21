@@ -1,6 +1,6 @@
 """
 """
-from whylabs.logs.util import stats
+from whylogs.util import stats
 
 
 def test_is_discrete():

@@ -5,9 +5,9 @@ from typing import List, Optional
 
 import pandas as pd
 
-from whylabs.logs.app.config import SessionConfig, WriterConfig, load_config
-from whylabs.logs.app.logger import Logger
-from whylabs.logs.app.writers import LocalWriter, Writer, writer_from_config
+from whylogs.app.config import SessionConfig, WriterConfig, load_config
+from whylogs.app.logger import Logger
+from whylogs.app.writers import Writer, writer_from_config
 
 
 class Session:

@@ -2,7 +2,7 @@
 """
 import pytest
 
-from whylabs.logs.core.statistics.datatypes import VarianceTracker
+from whylogs.core.statistics.datatypes import VarianceTracker
 
 
 def test_update():

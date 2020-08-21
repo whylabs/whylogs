@@ -1,17 +1,9 @@
-#!/usr/bin/env python3
-"""
-created 5/7/20 by ibackus
-"""
-from whylabs.logs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
-from whylabs.logs.core.statistics.datatypes import StringTracker
-from whylabs.logs.core.statistics.hllsketch import (
-    HllSketch,
-    HllSketchMessage,
-    UniqueCountSummary,
-)
-from whylabs.logs.core.types import TypedDataConverter
-from whylabs.logs.proto import ColumnMessage, ColumnSummary, InferredType
-from whylabs.logs.util.dsketch import FrequentItemsSketch
+from whylogs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
+from whylogs.core.statistics.datatypes import StringTracker
+from whylogs.core.statistics.hllsketch import HllSketch
+from whylogs.core.types import TypedDataConverter
+from whylogs.proto import ColumnMessage, ColumnSummary, InferredType
+from whylogs.util.dsketch import FrequentItemsSketch
 
 _TYPES = InferredType.Type
 _NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}
@@ -129,7 +121,7 @@ class ColumnProfile:
 
     def merge(self, other):
         """
-        Merge this columnprofile with another.
+        Merge this columprofile with another.
 
         Parameters
         ----------

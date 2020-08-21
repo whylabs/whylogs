@@ -6,7 +6,7 @@ from enum import Enum
 import pytest
 import pytz
 
-from whylabs.logs.core.statistics import hllsketch
+from whylogs.core.statistics import hllsketch
 
 
 def test_serialize_then_merge_does_not_fail():

@@ -1,6 +1,4 @@
-"""
-"""
-from whylabs.logs.core.statistics.datatypes.integertracker import IntTracker
+from whylogs.core.statistics.datatypes import IntTracker
 
 
 def test_values_are_min_max():

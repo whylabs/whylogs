@@ -84,7 +84,7 @@ class BuildPy(_build_py):
     def run(self):
         validate_version(version)
 
-        generate_proto("./whylogs-proto/src", "./src/whylabs/logs/proto")
+        generate_proto("./whylogs-proto/src", "src/whylogs/proto")
         # _build_py is an old-style class, so super() doesn't work.
         _build_py.run(self)
 
@@ -100,7 +100,7 @@ def get_version(rel_path):
         raise RuntimeError("Unable to find version string.")
 
 
-version = get_version("src/whylabs/logs/_version.py")
+version = get_version("src/whylogs/_version.py")
 
 
 def validate_version(v):
@@ -159,7 +159,7 @@ setuptools.setup(
     name="whylogs",
     version=version,
     author="WhyLabs, Inc",
-    author_email="development@whylabs.ai",
+    author_email="development@whylogs.ai",
     description="Creating lightweight summarization for your big datasets",
     license="Apache-2.0",
     long_description=long_description,
@@ -173,7 +173,7 @@ setuptools.setup(
     package_dir={"": "src"},
     include_package_data=True,
     packages=setuptools.find_packages("src"),
-    entry_points={"console_scripts": ["whylogs=whylabs.logs.cli:main"]},
+    entry_points={"console_scripts": ["whylogs=whylogs.logs.cli:main"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Environment :: Console",
