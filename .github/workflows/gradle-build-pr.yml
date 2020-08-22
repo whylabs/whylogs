@@ -1,4 +1,4 @@
-name: Run Gradle on PRs
+name: R un Gradle on PRs
 on: pull_request
 jobs:
   gradle:
