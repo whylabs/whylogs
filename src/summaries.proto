@@ -4,10 +4,9 @@ import "google/protobuf/wrappers.proto";
 
 import "messages.proto";
 
-option java_package = "com.whylabs.logging.core.message";
+option java_package = "com.whylogs.core.message";
 option java_outer_classname = "Summaries";
 option java_multiple_files = true;
-
 
 message UniqueCountSummary {
   double estimate = 1;
