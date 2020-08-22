@@ -1,4 +1,4 @@
-package org.apache.spark.whylabs.logs
+package org.apache.spark.whylogs
 
 import java.sql.Timestamp
 import java.time.Instant

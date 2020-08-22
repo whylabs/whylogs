@@ -1,10 +1,10 @@
-package org.apache.spark.whylabs.logs
+package org.apache.spark.whylogs
 
 import java.time.LocalDateTime
 import java.util.concurrent.locks.ReentrantLock
 
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.whylabs.logs.SharedSparkContext.{_spark, activeTestSuitesCount, lock}
+import SharedSparkContext.{_spark, activeTestSuitesCount, lock}
 import org.scalatest.{BeforeAndAfterAll, Suite}
 
 object SharedSparkContext {

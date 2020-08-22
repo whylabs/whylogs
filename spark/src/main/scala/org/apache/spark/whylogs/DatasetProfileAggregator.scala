@@ -1,4 +1,4 @@
-package org.apache.spark.whylabs.logs
+package org.apache.spark.whylogs
 
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}

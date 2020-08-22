@@ -1,10 +1,10 @@
-package com.whylabs.logs.spark
+package com.whylogs.spark
 
 import java.time.Instant
 
 import org.apache.spark.sql.types.DataTypes
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
-import org.apache.spark.whylabs.logs.DatasetProfileAggregator
+import org.apache.spark.whylogs.DatasetProfileAggregator
 import org.slf4j.LoggerFactory
 
 import scala.language.implicitConversions

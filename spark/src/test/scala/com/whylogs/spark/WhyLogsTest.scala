@@ -1,4 +1,4 @@
-package com.whylabs.logs.spark
+package com.whylogs.spark
 
 import java.sql.Timestamp
 import java.time.Instant
@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit
 
 import org.apache.commons.lang3.RandomUtils
 import org.apache.spark.sql.SaveMode
-import org.apache.spark.whylabs.logs.SharedSparkContext
+import org.apache.spark.whylogs.SharedSparkContext
 import org.scalatest.funsuite.AnyFunSuite
 
 import scala.reflect.io.Directory
@@ -15,7 +15,6 @@ case class TestDataPoint(x: String, i: Int, d: Double, ts: Timestamp) extends Se
 
 class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
   test("test WhyLogsSession") {
-    import com.whylabs.logs.spark.WhyLogs._
     val _spark = spark
     import _spark.sqlContext.implicits._
     val today = Instant.now().truncatedTo(ChronoUnit.DAYS)

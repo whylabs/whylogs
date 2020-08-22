@@ -1,5 +1,4 @@
-package org.apache.spark.whylabs.logs
-
+package org.apache.spark.whylogs
 
 import java.io.ByteArrayOutputStream
 
@@ -34,7 +33,8 @@ class ScalaDatasetProfileUDT extends UserDefinedType[ScalaDatasetProfile] {
 
   override def sqlType: DataType = BinaryType
 
-  override def pyUDT: String = "org.apache.spark.whylabs.logs.DatasetProfileDataType"
+  // TODO: support PySpark
+  override def pyUDT: String = "org.apache.spark.whylogs.DatasetProfileDataType"
 
   override def serialize(obj: ScalaDatasetProfile): Array[Byte] = {
     val msg = obj.value.toProtobuf.build()
