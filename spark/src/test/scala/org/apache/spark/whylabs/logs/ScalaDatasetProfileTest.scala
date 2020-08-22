@@ -2,7 +2,7 @@ package org.apache.spark.whylabs.logs
 
 import java.time.Instant
 
-import com.whylabs.logging.core.{DatasetProfile}
+import com.whylogs.core.DatasetProfile
 import org.scalatest.funsuite.AnyFunSuite
 
 

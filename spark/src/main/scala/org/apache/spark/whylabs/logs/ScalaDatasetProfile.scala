@@ -3,9 +3,9 @@ package org.apache.spark.whylabs.logs
 
 import java.io.ByteArrayOutputStream
 
-import com.whylabs.logging.core.DatasetProfile
-import com.whylabs.logging.core.message.DatasetProfileMessage
-import com.whylabs.logging.core.utils.ProtobufHelper
+import com.whylogs.core.DatasetProfile
+import com.whylogs.core.message.DatasetProfileMessage
+import com.whylogs.core.utils.ProtobufHelper
 import org.apache.spark.sql.types.{BinaryType, DataType, SQLUserDefinedType, UserDefinedType}
 
 /**

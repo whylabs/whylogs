@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}
 import java.util.Collections
 
-import com.whylabs.logging.core.DatasetProfile
+import com.whylogs.core.DatasetProfile
 import org.apache.spark.sql.catalyst.ScalaReflection
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.catalyst.expressions.BoundReference
