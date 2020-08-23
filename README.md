@@ -1,9 +1,123 @@
 ## WhyLogs Java
 
-Besides the Java SDK (OpenJDK, preferrably), you'll need to install a couple of things:
+[![license](https://img.shields.io/github/license/whylabs/whylogs-java)](https://github.com/whylabs/whylogs-java/blob/mainline/LICENSE)
+[![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-core)
 
-* Install Google Java Format plugin for IntelliJ (https://github.com/google/google-java-format)
-* Make sure you enable Gradle build
+WhyLogs helps data science and ML teams to enable logging & monitoring in AI/ML applications. 
+Whether you are running an experimentation or production pipeline, understanding the properties
+ of data that flows through the application is critical for the success of the ML project.
+
+WhyLogs is an open source package that calculates approximate statistics for datasets of any size 
+(from small to TB-size) in order to identify changes in data quality for model inputs and outputs. 
+The technique in WhyLogs is called [Sketching](http://dimacs.rutgers.edu/~graham/pubs/papers/cm-latin.pdf).
+
+See [whylogs-python package](https://github.com/whylabs/whylogs-python) for more information.
+
+This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets.
+
+## Usage
+
+For full Java API signature, please refer to the [Java Documentation](https://www.javadoc.io/doc/ai.whylabs/whylogs-core/latest/index.html).
+
+To get started, add WhyLogs to your Maven POM:
+```xml
+<dependency>
+  <groupId>ai.whylabs</groupId>
+  <artifactId>whylogs-core</artifactId>
+  <version>0.0.2b1</version>
+</dependency>
+```
+
+
+### Simple tracking
+A simple tracking example without outputing data to disk:
+
+```java
+import com.whylogs.core.DatasetProfile;
+import java.time.Instant;
+import java.util.HashMap;
+
+public class Demo {
+    public void demo() {
+        final List<String> tags = ImmutableList.of("modelX", "experimentA", "pipelineY");
+        final DatasetProfile profile = new DatasetProfile("test-session", Instant.now(), tags);
+        profile.track("my_feature", 1);
+        profile.track("my_feature", "stringValue");
+        profile.track("my_feature", 1.0);
+
+        final HashMap<String, Object> dataMap = new HashMap<>();
+        dataMap.put("feature_1", 1);
+        dataMap.put("feature_2", "text");
+        dataMap.put("double_type_feature", 3.0);
+        profile.track(dataMap);
+    }
+}
+```
+
+### Serialization and deserialization
+WhyLogs uses Protobuf as the backing storage format. To write the data to disk, you can use standard Protobuf
+serialization API:
+
+```java
+import com.whylogs.core.DatasetProfile;
+import java.io.InputStream;import java.nio.file.Files;
+import java.io.OutputStream;
+import java.nio.file.Paths;
+import com.whylogs.core.message.DatasetProfileMessage;
+
+class SerializationDemo {
+    public void demo(DatasetProfile profile) {
+        try (final OutputStream fos = Files.newOutputStream(Paths.get("profile.bin"))) {
+            profile.toProtobuf().build().writeDelimitedTo(fos);
+        }
+        try (final InputStream is = new FileInputStream("profile.bin")) {
+            final DatasetProfileMessage msg = DatasetProfileMessage.parseDelimitedFrom(is);
+            final DatasetProfile profile = DatasetProfile.fromProtobuf(msg);
+            
+            // continue tracking
+            profile.track("feature_1", 1);
+        }
+
+    }
+}
+```
+### Merging multiple dataset profiles
+A common pattern in enterprise system is to partition your data across different machine for distributed processing. For
+online system, data can also be processed independently on multiple machines, and in order to build complex metrics such
+as counting unique visitors for a website, engineers have to flow data into an ETL-based system to run ad hoc analysis.
+
+WhyLogs addresses this use cases by allowing users to merge your sketches across different machines. To merge two WhyLogs
+`DatasetProfile` files, they must:
+* Have the same name
+* Have the same session IDs
+* Have the same data timestamp
+* Have the same tags
+
+In that case, the merging code looks like this:
+
+```java
+import com.whylogs.core.DatasetProfile;
+import java.io.InputStream;import java.nio.file.Files;
+import java.io.OutputStream;
+import java.nio.file.Paths;
+import com.whylogs.core.message.DatasetProfileMessage;
+
+class SerializationDemo {
+    public void demo(DatasetProfile profile) {
+        try (final InputStream is1 = new FileInputStream("profile1.bin");
+                final InputStream is2 = new FileInputStream("profile2.bin")) {
+            final DatasetProfileMessage msg = DatasetProfileMessage.parseDelimitedFrom(is);
+            final DatasetProfile profile1 = DatasetProfile.fromProtobuf(DatasetProfileMessage.parseDelimitedFrom(is1));
+            final DatasetProfile profile2 = DatasetProfile.fromProtobuf(DatasetProfileMessage.parseDelimitedFrom(is2));
+
+            // merge
+            profile1.merge(profile2);
+        }
+
+    }
+}
+```
+
 
 ## Building and Testing
 * To build, run `./gradlew build`
