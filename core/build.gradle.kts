@@ -12,6 +12,7 @@ buildscript {
 
 plugins {
     `java-library`
+    `java`
 }
 
 apply(plugin = "com.google.protobuf")
@@ -78,3 +79,7 @@ tasks.test {
     }
 }
 
+
+tasks.javadoc {
+    source = sourceSets.main.get().allJava
+}
