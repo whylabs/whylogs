@@ -12,13 +12,22 @@ buildscript {
 
 plugins {
     `java-library`
-    `java`
+    java
+    signing
+    `maven-publish`
 }
 
 apply(plugin = "com.google.protobuf")
 
 group = rootProject.group
 version = rootProject.version
+val artifactBaseName = "${rootProject.name}-core"
+
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
 
 spotless {
     java {
@@ -79,7 +88,61 @@ tasks.test {
     }
 }
 
+publishing {
+    val ossrhUsername: String? by project
+    val ossrhPassword: String? by project
 
-tasks.javadoc {
-    source = sourceSets.main.get().allJava
+    publications {
+        repositories {
+            maven {
+                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+                credentials {
+                    username = ossrhUsername
+                    password = ossrhPassword
+                }
+            }
+        }
+
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            artifactId = artifactBaseName
+            groupId = project.group as String
+            version = project.version as String
+            description = "WhyLogs - a powerful data profiling library for your ML pipelines"
+
+            pom {
+                name.set("WhyLogs-Spark-Bundle")
+                description.set("A single jar to easily deploy WhyLogs to Spark")
+                url.set("https://github.com/whylabs/whylogs-java")
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("WhyLabs")
+                        name.set("WhyLabs, Inc")
+                        email.set("info@whylabs.ai")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/whylabs/whylogs-java.git")
+                    developerConnection.set("scm:git:ssh://github.com/whylabs/whylogs-java.git")
+                    url.set("https://github.com/whylabs/whylogs-java")
+                }
+
+            }
+        }
+    }
+}
+
+
+signing {
+    setRequired({
+        (rootProject.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("uploadArchives")
+    })
+    sign(publishing.publications["mavenJava"])
 }

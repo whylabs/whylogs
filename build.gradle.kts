@@ -4,8 +4,11 @@ plugins {
     id("com.diffplug.gradle.spotless") version ("3.28.1") apply false
 }
 
-group = "com.whylogs"
-version = "0.2.0-alpha-${project.properties.getOrDefault("versionType", "SNAPSHOT")}"
+group = "ai.whylabs"
+//version = "0.0.2b1-${project.properties.getOrDefault("versionType", "SNAPSHOT")}"
+version = "0.0.2b1"
+extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
+
 allprojects {
     version = version
     group = group
