@@ -15,6 +15,8 @@ case class TestDataPoint(x: String, i: Int, d: Double, ts: Timestamp) extends Se
 
 class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
   test("test WhyLogsSession") {
+    import com.whylogs.spark.WhyLogs._
+
     val _spark = spark
     import _spark.sqlContext.implicits._
     val today = Instant.now().truncatedTo(ChronoUnit.DAYS)
