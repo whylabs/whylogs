@@ -1,15 +1,7 @@
 # WhyLogs Library
-WhyLogs helps data science and ML teams to enable logging & monitoring in AI/ML applications. 
-Whether you are running an experimentation or production pipeline, understanding the properties
- of data that flows through the application is critical for the success of the ML project.
+WhyLogs is the first of its kind statistical logging library. Whether you are running an experimentation or production ML/AI pipeline, understanding the properties of data that flows through an application is critical for stable model behavior and great customer experience. With WhyLogs, data science and ML teams can effortlessly instrument ML/AI pipelines and applications. Resulting log files are used for monitoring, alerting, analytics and error analysis. 
 
-WhyLogs is an open source package that calculates approximate statistics for datasets of any size 
-(from small to TB-size) in order to identify changes in data quality for model inputs and outputs.
-
-Approximate statistics allows the package to be deployed with minimal infrastructure requirements, and 
-to work with an entire dataset as opposed to calculating actual statistics on a small sample of data which
- may miss outliers and other anomalies. These qualities make WhyLogs an excellent solution for logging the data 
- properties of production pipelines that operate even on GB-scale data and with enterprise SLAs.  
+WhyLogs is an open source package that calculates approximate statistics for datasets of any size (from small to TB-size) in order to identify changes in the statistical properties of model's inputs or outputs. Approximate statistics allows the package to be deployed with minimal infrastructure requirements, and to work with an entire dataset as opposed to calculating actual statistics on a small sample of data which may miss outliers and other anomalies. These qualities make WhyLogs an excellent solution for instrumenting production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.  
 
 
 [![Python Version](https://img.shields.io/pypi/pyversions/whylogs)](https://pypi.org/project/whylogs/)
@@ -17,23 +9,18 @@ to work with an entire dataset as opposed to calculating actual statistics on a 
 
 # Key Features
 
-* **Data Insight** provides complex statistics across different stages of your pipelines.
+* **Data Insight** provides complex statistics across different stages of your ML/AI pipelines and applications.
 
-* **Scalability** scales with your system, from local development mode to live production system in multi-node clusters.
+* **Scalability** scales with your system, from local development mode to live production system in multi-node clusters. Suitable for batch and streaming architectures. 
 
 * **Lightweight** using sketching algorithms and summarization statistics, WhyLogs produces small mergeable lightweight
-  outputs that can be used for local analysis.
+  outputs in a variety of formats.
 
-* **Advanced monitoring** on top of supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused
-  data quality and monitoring checks such as drift detection, data type distribution, histogram shifts.
+* **Unified data instrumentation** enable both data engineering pipelines and ML pipelines to share a common framework for tracking data quality and drifts. WhyLogs library supports multiple languages and many integrations. 
+  
+* **Observability** on top of supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused data quality and data drift detection, analytics and error analysis. 
 
-* **Unified data monitoring** enable both data engineering pipelines and ML pipelines to share a common framework
-  for monitoring data quality and drifts.
-
-
-# Announcements
-
-# Example
+# Examples
 
 # Installation
 
@@ -83,14 +70,7 @@ configuration for your project. You can run the following command in the root of
 **Statistical Profile:** A collection of statistical properties of a given feature. Properties can be different for discrete and continuous features. 
 
 
-### Advanced Usage
-
-
-
-
-### Integration
-
-
+### Integrations
 
 ### Dependencies
  
