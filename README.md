@@ -1,4 +1,4 @@
-## Development Environment
+## WhyLogs Java
 
 Besides the Java SDK (OpenJDK, preferrably), you'll need to install a couple of things:
 

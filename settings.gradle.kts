@@ -11,5 +11,6 @@ rootProject.name = "whylogs"
 
 include(
         ":core",
-        ":spark"
+        ":spark",
+        ":cli"
         )
