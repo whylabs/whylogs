@@ -1,9 +1,7 @@
 package com.whylogs.cli;
 
 import com.google.common.collect.Iterators;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.protobuf.util.JsonFormat;
-import com.whylogs.cli.utils.BoundedExecutor;
 import com.whylogs.cli.utils.RandomWordGenerator;
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.datetime.EasyDateTimeParser;
@@ -22,8 +20,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -128,11 +124,6 @@ public class Profiler implements Runnable {
     }
 
     final int parallelism = Math.max(1, this.parallelism);
-    val executorService =
-        Executors.newFixedThreadPool(
-            parallelism, new ThreadFactoryBuilder().setNameFormat("Profiler-Pool-%d").build());
-
-    val boundedExecutor = new BoundedExecutor(executorService, parallelism * 2);
 
     LOG.info("Using parallelism of: {} threads", parallelism);
 
@@ -160,15 +151,12 @@ public class Profiler implements Runnable {
       while (records.hasNext()) {
         val record = records.next();
         if (datetime != null) {
-          this.parseToDateTime(boundedExecutor, headers, record);
+          this.parseToDateTime(headers, record);
         } else {
-          this.parseBatch(now, boundedExecutor, headers, record);
+          this.parseBatch(now, headers, record);
         }
       }
 
-      LOG.info("Submitted all the data. Wait for the threads to complete");
-      executorService.shutdown();
-      executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
       LOG.info(
           "Finished collecting statistics. Writing to output file: {}", output.getAbsolutePath());
 
@@ -244,30 +232,24 @@ public class Profiler implements Runnable {
   }
 
   /** Switch to #stressTest if we want to battle test the memory usage further */
-  private void parseToDateTime(
-      final BoundedExecutor boundedExecutor,
-      final Map<String, Integer> headers,
-      final CSVRecord record) {
+  private void parseToDateTime(final Map<String, Integer> headers, final CSVRecord record) {
     String issueDate = record.get(this.datetime.column);
     val time = this.dateTimeParser.parse(issueDate);
     val ds = profiles.computeIfAbsent(time, t -> new DatasetProfile(input.getName(), t));
     for (String header : headers.keySet()) {
       val idx = headers.get(header);
       val value = record.get(idx);
-      boundedExecutor.submitTask(() -> ds.track(header, value));
+      ds.track(header, value);
     }
   }
 
   private void parseBatch(
-      final Instant time,
-      final BoundedExecutor boundedExecutor,
-      final Map<String, Integer> headers,
-      final CSVRecord record) {
+      final Instant time, final Map<String, Integer> headers, final CSVRecord record) {
     val ds = profiles.getOrDefault(time, new DatasetProfile(input.getName(), time));
     for (String header : headers.keySet()) {
       val idx = headers.get(header);
       val value = record.get(idx);
-      boundedExecutor.submitTask(() -> ds.track(header, value));
+      ds.track(header, value);
     }
   }
 
