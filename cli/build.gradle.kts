@@ -21,7 +21,7 @@ spotless {
 
 application {
     applicationName = "profiler"
-    mainClassName = "com.whylabs.logging.demo.Profiler"
+    mainClassName = "com.whylogs.cli.Profiler"
 }
 
 
