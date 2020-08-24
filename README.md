@@ -135,7 +135,7 @@ class SerializationDemo {
 ```scala
 import org.apache.spark.sql.functions._
 // implicit import for WhyLogs to enable
-import com.whylabs.logs.spark.WhyLogs._
+import com.whylogs.spark.WhyLogs._
 
 val raw_df = spark.read.option("header", "true").csv("/databricks-datasets/timeseries/Fires/Fire_Department_Calls_for_Service.csv")
 val df = raw_df.withColumn("call_date", to_timestamp(col("Call Date"), "MM/dd/YYYY"))
