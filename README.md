@@ -8,12 +8,16 @@ Whether you are running an experimentation or production pipeline, understanding
  of data that flows through the application is critical for the success of the ML project.
 
 WhyLogs is an open source package that calculates approximate statistics for datasets of any size 
-(from small to TB-size) in order to identify changes in data quality for model inputs and outputs. 
-The technique in WhyLogs is called [Sketching](http://dimacs.rutgers.edu/~graham/pubs/papers/cm-latin.pdf).
+(from small to TB-size) in order to identify changes in data quality for model inputs and outputs.
 
-See [whylogs-python package](https://github.com/whylabs/whylogs-python) for more information.
+Approximate statistics allows the package to be deployed with minimal infrastructure requirements, and 
+to work with an entire dataset as opposed to calculating actual statistics on a small sample of data which
+ may miss outliers and other anomalies. These qualities make WhyLogs an excellent solution for logging the data 
+ properties of production pipelines that operate even on GB-scale data and with enterprise SLAs.  
 
 This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets.
+
+Python version: [whylogs-python](https://github.com/whylabs/whylogs-python).
 
 ## Usage
 
@@ -24,6 +28,15 @@ To get started, add WhyLogs to your Maven POM:
 <dependency>
   <groupId>ai.whylabs</groupId>
   <artifactId>whylogs-core</artifactId>
+  <version>0.0.2b1</version>
+</dependency>
+```
+
+Spark package (Scala 2.11 or 2.12 only):
+```xml
+<dependency>
+  <groupId>ai.whylabs</groupId>
+  <artifactId>whylogs-spark_2.11</artifactId>
   <version>0.0.2b1</version>
 </dependency>
 ```
