@@ -1,6 +1,8 @@
 plugins {
     scala
     `java-library`
+    signing
+    `maven-publish`
     id("com.github.maiflai.scalatest") version "0.26"
 }
 
@@ -8,7 +10,7 @@ repositories {
     jcenter()
 }
 
-group = "com.whylabs"
+group = rootProject.group
 version = rootProject.version
 
 spotless {
@@ -19,7 +21,7 @@ spotless {
 
 val scalaVersion = project.properties.getOrDefault("scalaVersion", "2.11")
 val sparkVersion = "2.4.5"
-val artifactBaseName = "whylogs-spark_$scalaVersion"
+val artifactBaseName = "${rootProject.name}-spark_$scalaVersion"
 
 tasks.jar {
     archiveBaseName.set(artifactBaseName)
@@ -27,6 +29,42 @@ tasks.jar {
 
 fun scalaPackage(groupId: String, name: String, version: String) =
     "$groupId:${name}_$scalaVersion:$version"
+
+sourceSets {
+    main {
+        withConvention(ScalaSourceSet::class) {
+            scala {
+                srcDirs(
+                    listOf(
+                        "${project.projectDir}/src/main/scala"
+                    )
+                )
+            }
+        }
+    }
+}
+
+val scaladoc: ScalaDoc by tasks
+
+val javadocJar by tasks.creating(Jar::class) {
+    archiveBaseName.set("${rootProject.name}-spark")
+    archiveClassifier.set("javadoc")
+    dependsOn(scaladoc)
+    from(scaladoc.destinationDir)
+}
+
+val sourcesJar by tasks.creating(Jar::class) {
+    archiveBaseName.set("${rootProject.name}-spark")
+    archiveClassifier.set("sources")
+    from(sourceSets["main"].allSource)
+}
+
+
+artifacts {
+    add("archives", sourcesJar)
+    add("archives", javadocJar)
+}
+
 
 dependencies {
     api("org.slf4j:slf4j-api:1.7.27")
@@ -64,4 +102,65 @@ configurations.create("jar")
 
 artifacts {
     add("jar", tasks.jar)
+}
+
+
+publishing {
+    val ossrhUsername: String? by project
+    val ossrhPassword: String? by project
+
+    publications {
+        repositories {
+            maven {
+                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+                credentials {
+                    username = ossrhUsername
+                    password = ossrhPassword
+                }
+            }
+        }
+
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            artifact(sourcesJar)
+            artifact(javadocJar)
+
+            artifactId = artifactBaseName
+            groupId = project.group as String
+            version = project.version as String
+            description = "WhyLogs - a powerful data profiling library for your ML pipelines"
+
+            pom {
+                name.set("WhyLogs-Spark-Bundle")
+                description.set("A single jar to easily deploy WhyLogs to Spark")
+                url.set("https://github.com/whylabs/whylogs-java")
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("WhyLabs")
+                        name.set("WhyLabs, Inc")
+                        email.set("info@whylabs.ai")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/whylabs/whylogs-java.git")
+                    developerConnection.set("scm:git:ssh://github.com/whylabs/whylogs-java.git")
+                    url.set("https://github.com/whylabs/whylogs-java")
+                }
+
+            }
+        }
+    }
+}
+
+signing {
+    setRequired({
+        (rootProject.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("uploadArchives")
+    })
+    sign(publishing.publications["mavenJava"])
 }

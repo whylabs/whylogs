@@ -93,9 +93,15 @@ publishing {
     val ossrhPassword: String? by project
 
     publications {
+        val isSnapShot = version.toString().endsWith("SNAPSHOT")
+
+
         repositories {
             maven {
-                url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+                val stagingRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+                val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+
+                url = if (isSnapShot) snapshotsRepoUrl else stagingRepoUrl
                 credentials {
                     username = ossrhUsername
                     password = ossrhPassword
@@ -138,7 +144,6 @@ publishing {
         }
     }
 }
-
 
 signing {
     setRequired({
