@@ -83,4 +83,3 @@ virtualenv==20.0.31
 wcwidth==0.2.5
 webencodings==0.5.1
 whylabs-datasketches==2.0.0b6
--e git+git@github.com:whylabs/whylogs-python.git@3cde774701547f7c4526e1880e4d007cf198a6e6#egg=whylogs
