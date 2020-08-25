@@ -75,3 +75,5 @@ configuration for your project. You can run the following command in the root of
 
 ### Dependencies
  
+See [requirements.txt](https://github.com/whylabs/whylogs-python/blob/mainline/requirements.txt) for the core requirements.
+For development environment, see [requirements-dev.txt](https://github.com/whylabs/whylogs-python/blob/mainline/requirements-dev.txt) for the development enviornment.
