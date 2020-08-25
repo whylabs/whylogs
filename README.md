@@ -1,23 +1,32 @@
-## WhyLogs Java
+## WhyLogs Java Library
+
+WhyLogs helps data science and ML teams to enable logging & monitoring in AI/ML applications. Whether you are running an experimentation or production pipeline, understanding the properties of data that flows through the application is critical for the success of the ML project.
+
+WhyLogs is an open source package that calculates approximate statistics for datasets of any size (from small to TB-size) in order to identify changes in data quality for model inputs and outputs.
+
+Approximate statistics allows the package to be deployed with minimal infrastructure requirements, and to work with an entire dataset as opposed to calculating actual statistics on a small sample of data which miss outliers and other anomalies. These qualities make WhyLogs an excellent solution for logging the data properties of production pipelines that operate even on GB-scale data and with enterprise SLAs.  
+ 
+This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets.
+
+Python version: [whylogs-python](https://github.com/whylabs/whylogs-python).
 
 [![license](https://img.shields.io/github/license/whylabs/whylogs-java)](https://github.com/whylabs/whylogs-java/blob/mainline/LICENSE)
 [![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-core)
 
-WhyLogs helps data science and ML teams to enable logging & monitoring in AI/ML applications. 
-Whether you are running an experimentation or production pipeline, understanding the properties
- of data that flows through the application is critical for the success of the ML project.
+## Key Features
 
-WhyLogs is an open source package that calculates approximate statistics for datasets of any size 
-(from small to TB-size) in order to identify changes in data quality for model inputs and outputs.
+* **Data Insight** provides complex statistics across different stages of your pipelines.
 
-Approximate statistics allows the package to be deployed with minimal infrastructure requirements, and 
-to work with an entire dataset as opposed to calculating actual statistics on a small sample of data which
- may miss outliers and other anomalies. These qualities make WhyLogs an excellent solution for logging the data 
- properties of production pipelines that operate even on GB-scale data and with enterprise SLAs.  
+* **Scalability** scales with your system, from local development mode to live production system in multi-node clusters.
 
-This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets.
+* **Lightweight** using sketching algorithms and summarization statistics, WhyLogs produces small mergeable lightweight
+  outputs that can be used for local analysis.
 
-Python version: [whylogs-python](https://github.com/whylabs/whylogs-python).
+* **Advanced monitoring** on top of supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused
+  data quality and monitoring checks such as drift detection, data type distribution, histogram shifts.
+
+* **Unified data monitoring** enable both data engineering pipelines and ML pipelines to share a common framework
+  for monitoring data quality and drifts.
 
 ## Usage
 
