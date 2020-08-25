@@ -1,0 +1,34 @@
+name: WhyLogs CI
+
+on:
+  push:
+    branches: [ mainline ]
+  pull_request:
+    branches: [ mainline ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install Protoc
+      uses: arduino/setup-protoc@master
+    - name: Cache Python dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install
+      run: pip install -r requirements-dev.txt
+    - name: Build
+      run: python setup.py build
+    - name: Test
+      run: python setup.py test
