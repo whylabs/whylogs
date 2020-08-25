@@ -104,7 +104,7 @@ message DatasetProperties {
   string session_id = 3;
   int64 session_timestamp = 4;
   int64 data_timestamp = 5;
-  repeated string tags = 6;
+  map<string, string> tags = 6;
   map<string, string> metadata = 7;
   // TODO: store other configuration here
 }
