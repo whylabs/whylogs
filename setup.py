@@ -84,7 +84,7 @@ class BuildPy(_build_py):
     def run(self):
         validate_version(version)
 
-        generate_proto("./whylogs-proto/src", "src/whylogs/proto")
+        generate_proto("./proto/src", "src/whylogs/proto")
         # _build_py is an old-style class, so super() doesn't work.
         _build_py.run(self)
 
