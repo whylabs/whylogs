@@ -5,6 +5,7 @@ from uuid import uuid4
 import numpy as np
 
 from whylogs.core.datasetprofile import DatasetProfile, array_profile
+from whylogs.util import time
 from whylogs.util.protobuf import message_to_dict, message_to_json
 from whylogs.util.time import to_utc_ms
 
@@ -177,3 +178,72 @@ def test_mismatched_tags_raises_assertion_error():
 def test_name_always_appear_in_metadata():
     x1 = DatasetProfile(name="test")
     assert x1.metadata["Name"] == "test"
+
+
+def test_parse_delimited_from_java_single():
+    with open("output_from_java_08242020.bin", "rb") as f:
+        data = f.read()
+        assert DatasetProfile.parse_delimited_single(data) is not None
+
+
+def test_parse_delimited_from_java_multiple():
+    with open("output_from_java_08242020.bin", "rb") as f:
+        data = f.read()
+        multiple = data + data
+        result = DatasetProfile.parse_delimited(multiple)
+        assert len(result) == 2
+
+
+def test_write_delimited_single():
+    now = datetime.datetime.utcnow()
+
+    original = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=now,
+        tags=["tag"],
+        metadata={"key": "value"},
+    )
+    original.track("col1", "value")
+
+    output_bytes = original.serialize_delimited()
+    pos, roundtrip = DatasetProfile.parse_delimited_single(output_bytes)
+
+    assert roundtrip.session_id == original.session_id
+    # Python time precision includes nanoseconds
+    assert time.to_utc_ms(roundtrip.session_timestamp) == time.to_utc_ms(
+        original.session_timestamp
+    )
+    assert roundtrip.tags == original.tags
+    assert roundtrip.metadata == original.metadata
+
+
+def test_write_delimited_multiple():
+    now = datetime.datetime.utcnow()
+
+    original = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=now,
+        tags=["tag"],
+        metadata={"key": "value"},
+    )
+    original.track("col1", "value")
+
+    output_bytes = original.serialize_delimited()
+
+    multiple_entries = output_bytes
+    for i in range(1, 5):
+        multiple_entries += output_bytes
+
+    entries = DatasetProfile.parse_delimited(multiple_entries)
+    assert len(entries) == 5
+
+    for entry in entries:
+        assert entry.session_id == original.session_id
+        # Python time precisions are different
+        assert time.to_utc_ms(entry.session_timestamp) == time.to_utc_ms(
+            original.session_timestamp
+        )
+        assert entry.tags == original.tags
+        assert entry.metadata == original.metadata

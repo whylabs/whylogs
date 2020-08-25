@@ -1,4 +1,5 @@
 import datetime
+import io
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -18,6 +19,8 @@ from whylogs.proto import (
 from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch
 from whylogs.util.time import from_utc_ms, to_utc_ms
+from google.protobuf.internal.decoder import _DecodeVarint32
+from google.protobuf.internal.encoder import _VarintBytes
 
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
 TYPENUM_COLUMN_NAMES = OrderedDict()
@@ -331,7 +334,7 @@ class DatasetProfile:
             metadata=self.metadata,
         )
 
-    def to_protobuf(self):
+    def to_protobuf(self) -> DatasetProfileMessage:
         """
         Return the object serialized as a protobuf message
 
@@ -345,6 +348,26 @@ class DatasetProfile:
             properties=properties,
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
         )
+
+    def serialize_delimited(self) -> bytes:
+        """
+        Write out in delimited format (data is prefixed with the length of the datastream).
+
+        This is useful when you are streaming multiple dataset profile objects
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        a sequence of bytes
+        """
+        with io.BytesIO() as f:
+            protobuf: DatasetProfileMessage = self.to_protobuf()
+            size = protobuf.ByteSize()
+            f.write(_VarintBytes(size))
+            f.write(protobuf.SerializeToString(deterministic=True))
+            return f.getvalue()
 
     @staticmethod
     def from_protobuf(message):
@@ -368,12 +391,58 @@ class DatasetProfile:
         )
 
     @staticmethod
-    def from_protobuf_string(x: bytes):
+    def from_protobuf_string(data: bytes):
         """
         Deserialize a serialized protobuf message
         """
-        msg = DatasetProfileMessage.FromString(x)
+        msg = DatasetProfileMessage.FromString(data)
         return DatasetProfile.from_protobuf(msg)
+
+    @staticmethod
+    def _parse_delimited_generator(data: bytes):
+        pos = 0
+        data_len = len(data)
+        while pos < data_len:
+            pos, profile = DatasetProfile.parse_delimited_single(data, pos)
+            yield profile
+
+    @staticmethod
+    def parse_delimited_single(data: bytes, pos=0):
+        """
+        Parse a single delimited entry from a byte stream
+        Parameters
+        ----------
+        data the bytestream
+        pos the starting position. Default is zero
+
+        Returns a DatasetProfile object if successful.
+        -------
+
+        """
+        msg_len, new_pos = _DecodeVarint32(data, pos)
+        pos = new_pos
+        msg_buf = data[pos : pos + msg_len]
+        pos += msg_len
+        profile = DatasetProfile.from_protobuf_string(msg_buf)
+        return pos, profile
+
+    @staticmethod
+    def parse_delimited(data: bytes):
+        """
+        Parse delimited data (i.e. data prefixed with the message length).
+
+        Java protobuf writes delimited messages, which is convenient for storing multiple dataset profiles. This means
+        that the main data is prefixed with the length of the message.
+
+        Parameters
+        ----------
+        data the input byte stream
+
+        Returns list of Dataset profile objects
+        -------
+
+        """
+        return list(DatasetProfile._parse_delimited_generator(data))
 
 
 def columns_chunk_iterator(iterator, marker: str):

@@ -211,7 +211,7 @@ class FrequentItemsSketch:
         If x is an empty sketch, None is returned
         """
         if len(x) <= 8:
-            FrequentItemsSketch()
+            return FrequentItemsSketch()
         sketch = datasketches.frequent_strings_sketch.deserialize(x)
         return FrequentItemsSketch(sketch=sketch)
 
@@ -271,7 +271,7 @@ class FrequentNumbersSketch(FrequentItemsSketch):
         If x is an empty sketch, None is returned
         """
         if len(x) <= 8:
-            FrequentNumbersSketch()
+            return FrequentNumbersSketch()
         sketch = datasketches.frequent_strings_sketch.deserialize(x)
         return FrequentNumbersSketch(sketch=sketch)
 

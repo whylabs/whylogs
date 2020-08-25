@@ -58,6 +58,8 @@ class HllSketch:
 
     @staticmethod
     def from_protobuf(message: HllSketchMessage):
+        if len(message.sketch) == 0:
+            return HllSketch()
         sketch = datasketches.hll_sketch.deserialize(message.sketch)
         return HllSketch(message.lg_k, sketch)
 
