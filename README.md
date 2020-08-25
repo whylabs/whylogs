@@ -1,12 +1,12 @@
 # WhyLogs Library
-WhyLogs is the first of its kind statistical logging library. Whether you are running an experimentation or production ML/AI pipeline, understanding the properties of data that flows through an application is critical for stable model behavior and great customer experience. With WhyLogs, data science and ML teams can effortlessly instrument ML/AI pipelines and applications. Resulting log files are used for monitoring, alerting, analytics and error analysis. 
-
-WhyLogs is an open source package that calculates approximate statistics for datasets of any size (from small to TB-size) in order to identify changes in the statistical properties of model's inputs or outputs. Approximate statistics allows the package to be deployed with minimal infrastructure requirements, and to work with an entire dataset as opposed to calculating actual statistics on a small sample of data which may miss outliers and other anomalies. These qualities make WhyLogs an excellent solution for instrumenting production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.  
-
 [![PyPI version](https://badge.fury.io/py/whylogs.svg)](https://badge.fury.io/py/whylogs)
 [![Python Version](https://img.shields.io/pypi/pyversions/whylogs)](https://pypi.org/project/whylogs/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE)
+
+WhyLogs is the first of its kind statistical logging library. Whether you are running an experimentation or production ML/AI pipeline, understanding the properties of data that flows through an application is critical for stable model behavior and great customer experience. With WhyLogs, data science and ML teams can effortlessly instrument ML/AI pipelines and applications. Resulting log files are used for monitoring, alerting, analytics and error analysis. 
+
+WhyLogs is an open source package that calculates approximate statistics for datasets of any size (from small to TB-size) in order to identify changes in the statistical properties of model's inputs or outputs. Approximate statistics allows the package to be deployed with minimal infrastructure requirements, and to work with an entire dataset as opposed to calculating actual statistics on a small sample of data which may miss outliers and other anomalies. These qualities make WhyLogs an excellent solution for instrumenting production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.  
 
 # Key Features
 
@@ -76,4 +76,5 @@ configuration for your project. You can run the following command in the root of
 ### Dependencies
  
 See [requirements.txt](https://github.com/whylabs/whylogs-python/blob/mainline/requirements.txt) for the core requirements.
+
 For development environment, see [requirements-dev.txt](https://github.com/whylabs/whylogs-python/blob/mainline/requirements-dev.txt) for the development enviornment.
