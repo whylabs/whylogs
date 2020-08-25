@@ -1,6 +1,5 @@
 package com.whylogs.core.utils;
 
-import com.google.protobuf.ByteString;
 import com.whylogs.core.message.DatasetSummary;
 import java.time.Instant;
 import java.util.stream.Collectors;
@@ -13,8 +12,8 @@ public class ProtobufHelper {
   public String summaryToString(DatasetSummary summary) {
     val name = summary.getProperties().getSessionId();
     val tags =
-        summary.getProperties().getTagsList().asByteStringList().stream()
-            .map(ByteString::toStringUtf8)
+        summary.getProperties().getTagsMap().entrySet().stream()
+            .map(entry -> String.format("%s:%s", entry.getKey(), entry.getValue()))
             .collect(Collectors.joining(","));
     val timestamp = Instant.ofEpochMilli(summary.getProperties().getSessionTimestamp()).toString();
     val columns = summary.getColumnsMap().keySet();

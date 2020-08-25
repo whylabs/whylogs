@@ -4,12 +4,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -33,9 +33,9 @@ public class DatasetProfileTest {
   @Test
   public void merge_DifferentColumns_ColumnsAreMerged() {
     final Instant now = Instant.now();
-    val first = new DatasetProfile("test", now, ImmutableList.of("tag"));
+    val first = new DatasetProfile("test", now, ImmutableMap.of("key", "value"));
     first.track("col1", "value");
-    val second = new DatasetProfile("test", now, ImmutableList.of("tag"));
+    val second = new DatasetProfile("test", now, ImmutableMap.of("key", "value"));
     second.track("col2", "value");
 
     final val result = first.merge(second);
@@ -44,8 +44,8 @@ public class DatasetProfileTest {
     assertThat(result.columns, aMapWithSize(2));
     assertThat(result.columns, hasKey("col1"));
     assertThat(result.columns, hasKey("col2"));
-    assertThat(result.tags, hasSize(1));
-    assertThat(result.tags, contains("tag"));
+    assertThat(result.tags, aMapWithSize(1));
+    assertThat(result.tags.values(), contains("value"));
 
     // verify counters
     assertThat(result.columns.get("col1").getCounters().getCount(), is(1L));
@@ -79,11 +79,11 @@ public class DatasetProfileTest {
     val dataTimestamp = now.truncatedTo(ChronoUnit.DAYS);
     val first =
         new DatasetProfile(
-            "test", now, dataTimestamp, ImmutableList.of("tag"), Collections.emptyMap());
+            "test", now, dataTimestamp, ImmutableMap.of("key", "value"), Collections.emptyMap());
     first.track("col1", "value");
     val second =
         new DatasetProfile(
-            "test", now, dataTimestamp, ImmutableList.of("tag"), Collections.emptyMap());
+            "test", now, dataTimestamp, ImmutableMap.of("key", "value"), Collections.emptyMap());
     second.track("col2", "value");
 
     final val result = first.merge(second);
@@ -92,8 +92,8 @@ public class DatasetProfileTest {
     assertThat(result.columns, aMapWithSize(2));
     assertThat(result.columns, hasKey("col1"));
     assertThat(result.columns, hasKey("col2"));
-    assertThat(result.tags, hasSize(1));
-    assertThat(result.tags, contains("tag"));
+    assertThat(result.tags, aMapWithSize(1));
+    assertThat(result.tags.values(), contains("value"));
     assertThat(result.getDataTimestamp(), is(dataTimestamp));
     assertThat(result.getSessionTimestamp(), is(now));
 
@@ -105,8 +105,8 @@ public class DatasetProfileTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void merge_MismatchedTags_ThrowsIllegalArgumentException() {
     val now = Instant.now();
-    val first = new DatasetProfile("test", now, ImmutableList.of("foo"));
-    val second = new DatasetProfile("test", now, ImmutableList.of("bar"));
+    val first = new DatasetProfile("test", now, ImmutableMap.of("key", "foo"));
+    val second = new DatasetProfile("test", now, ImmutableMap.of("key", "bar"));
 
     first.merge(second);
   }
@@ -125,10 +125,10 @@ public class DatasetProfileTest {
     val now = Instant.now();
     val first =
         new DatasetProfile(
-            "test", now, now.minusMillis(1), Collections.emptyList(), Collections.emptyMap());
+            "test", now, now.minusMillis(1), Collections.emptyMap(), Collections.emptyMap());
     val second =
         new DatasetProfile(
-            "test", now, now.plusMillis(1), Collections.emptyList(), Collections.emptyMap());
+            "test", now, now.plusMillis(1), Collections.emptyMap(), Collections.emptyMap());
 
     first.merge(second);
   }
@@ -137,7 +137,7 @@ public class DatasetProfileTest {
   public void protobuf_RoundTripSerialization_Success() {
     val sessionTime = Instant.now();
     val dataTime = Instant.now().truncatedTo(ChronoUnit.DAYS);
-    val tags = ImmutableList.of("rock", "scissors", "paper");
+    val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
 
     val original = new DatasetProfile("test", sessionTime, dataTime, tags, Collections.emptyMap());
     original.track("col1", "value");
@@ -151,8 +151,8 @@ public class DatasetProfileTest {
     assertThat(roundTrip.getDataTimestamp(), is(dataTime));
     assertThat(roundTrip.getSessionTimestamp(), is(sessionTime));
     assertThat(roundTrip.columns, aMapWithSize(2));
-    assertThat(roundTrip.tags, hasSize(3));
-    assertThat(roundTrip.tags, contains("paper", "rock", "scissors"));
+    assertThat(roundTrip.tags, aMapWithSize(3));
+    assertThat(roundTrip.tags.values(), containsInAnyOrder("paper", "rock", "scissors"));
     assertThat(roundTrip.columns.get("col1").getCounters().getCount(), is(1L));
     assertThat(roundTrip.columns.get("col2").getCounters().getCount(), is(1L));
   }
@@ -161,7 +161,7 @@ public class DatasetProfileTest {
   public void javaSerialization_RoundTripWithDataTime_Success() {
     val sessionTime = Instant.now();
     val dataTime = Instant.now().truncatedTo(ChronoUnit.DAYS);
-    val tags = ImmutableList.of("rock", "scissors", "paper");
+    val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
     val original = new DatasetProfile("test", sessionTime, dataTime, tags, Collections.emptyMap());
     original.withMetadata("mKey", "mData");
 
@@ -174,15 +174,15 @@ public class DatasetProfileTest {
     assertThat(roundTrip.getSessionTimestamp(), is(sessionTime));
     assertThat(roundTrip.getDataTimestamp(), is(dataTime));
     assertThat(roundTrip.columns, aMapWithSize(2));
-    assertThat(roundTrip.tags, hasSize(3));
-    assertThat(roundTrip.tags, contains("paper", "rock", "scissors"));
+    assertThat(roundTrip.tags, aMapWithSize(3));
+    assertThat(roundTrip.tags.values(), containsInAnyOrder("paper", "rock", "scissors"));
     assertThat(roundTrip.metadata.get("mKey"), is("mData"));
   }
 
   @Test
   public void javaSerialization_RoundTripWithMissingDataTime_Success() {
     val sessionTime = Instant.now();
-    val tags = ImmutableList.of("rock", "scissors", "paper");
+    val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
     val original = new DatasetProfile("test", sessionTime, null, tags, Collections.emptyMap());
     original.withMetadata("mKey", "mData");
 
@@ -195,8 +195,8 @@ public class DatasetProfileTest {
     assertThat(roundTrip.getSessionTimestamp(), is(sessionTime));
     assertThat(roundTrip.getDataTimestamp(), nullValue());
     assertThat(roundTrip.columns, aMapWithSize(2));
-    assertThat(roundTrip.tags, hasSize(3));
-    assertThat(roundTrip.tags, contains("paper", "rock", "scissors"));
+    assertThat(roundTrip.tags, aMapWithSize(3));
+    assertThat(roundTrip.tags.values(), containsInAnyOrder("paper", "rock", "scissors"));
     assertThat(roundTrip.metadata.get("mKey"), is("mData"));
   }
 }

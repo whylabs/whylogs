@@ -39,7 +39,7 @@ dependencies {
     api("org.slf4j:slf4j-api:1.7.27")
     api("org.apache.datasketches:datasketches-java:1.3.0-incubating")
     api("com.google.guava:guava:29.0-jre")
-    api("com.google.protobuf:protobuf-java:3.11.4")
+    api("com.google.protobuf:protobuf-java:3.13.0")
 
     // lombok support
     compileOnly("org.projectlombok:lombok:1.18.12")

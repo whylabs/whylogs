@@ -1,12 +1,8 @@
 package com.whylogs.core;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.google.protobuf.ByteString;
 import com.whylogs.core.iterator.ColumnsChunkSegmentIterator;
 import com.whylogs.core.message.ColumnMessage;
 import com.whylogs.core.message.ColumnSummary;
@@ -23,7 +19,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -44,7 +39,7 @@ public class DatasetProfile implements Serializable {
   @Getter Instant sessionTimestamp;
   @Getter Instant dataTimestamp;
   // always sorted
-  @Getter List<String> tags;
+  @Getter Map<String, String> tags;
   Map<String, ColumnProfile> columns;
   Map<String, String> metadata;
 
@@ -62,13 +57,13 @@ public class DatasetProfile implements Serializable {
       @NonNull String sessionId,
       @NonNull Instant sessionTimestamp,
       @Nullable Instant dataTimestamp,
-      @NonNull List<String> tags,
+      @NonNull Map<String, String> tags,
       @NonNull Map<String, ColumnProfile> columns) {
     this.sessionId = sessionId;
     this.sessionTimestamp = sessionTimestamp;
     this.dataTimestamp = dataTimestamp;
     this.columns = new ConcurrentHashMap<>();
-    this.tags = ImmutableList.sortedCopyOf(Sets.newHashSet(tags));
+    this.tags = new ConcurrentHashMap<>(tags);
     this.metadata = new ConcurrentHashMap<>();
     this.columns = new ConcurrentHashMap<>(columns);
   }
@@ -81,12 +76,14 @@ public class DatasetProfile implements Serializable {
    * @param tags the tags to track the dataset with
    */
   public DatasetProfile(
-      @NonNull String sessionId, @NonNull Instant sessionTimestamp, @NonNull List<String> tags) {
+      @NonNull String sessionId,
+      @NonNull Instant sessionTimestamp,
+      @NonNull Map<String, String> tags) {
     this(sessionId, sessionTimestamp, null, tags, Collections.emptyMap());
   }
 
   public DatasetProfile(String sessionId, Instant sessionTimestamp) {
-    this(sessionId, sessionTimestamp, Collections.emptyList());
+    this(sessionId, sessionTimestamp, Collections.emptyMap());
   }
 
   public Map<String, ColumnProfile> getColumns() {
@@ -109,8 +106,6 @@ public class DatasetProfile implements Serializable {
     Preconditions.checkNotNull(columns);
     Preconditions.checkNotNull(metadata);
     Preconditions.checkNotNull(tags);
-    Preconditions.checkState(
-        Ordering.natural().isOrdered(this.tags), "Tags should be sorted %s", this.tags);
   }
 
   public void track(String columnName, Object data) {
@@ -231,7 +226,7 @@ public class DatasetProfile implements Serializable {
         .setSessionId(sessionId)
         .setSessionTimestamp(sessionTimestamp.toEpochMilli())
         .setDataTimestamp(dataTimeInMillis)
-        .addAllTags(tags)
+        .putAllTags(tags)
         .putAllMetadata(metadata)
         .setSchemaMajorVersion(SchemaInformation.SCHEMA_MAJOR_VERSION)
         .setSchemaMinorVersion(SchemaInformation.SCHEMA_MAJOR_VERSION);
@@ -239,7 +234,9 @@ public class DatasetProfile implements Serializable {
 
   public static DatasetProfile fromProtobuf(DatasetProfileMessage message) {
     val props = message.getProperties();
-    val tags = Lists.transform(props.getTagsList().asByteStringList(), ByteString::toStringUtf8);
+    SchemaInformation.validateSchema(props.getSchemaMajorVersion(), props.getSchemaMinorVersion());
+
+    val tags = props.getTagsMap();
     val sessionTimestamp = Instant.ofEpochMilli(props.getSessionTimestamp());
     val dataTimestamp =
         (props.getDataTimestamp() < 0L) ? null : Instant.ofEpochMilli(props.getDataTimestamp());
