@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/wrappers.proto";
-
 import "messages.proto";
 
 option java_package = "com.whylogs.core.message";
