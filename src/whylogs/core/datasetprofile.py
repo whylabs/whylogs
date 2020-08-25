@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import numpy as np
 import pandas as pd
+import typing
 
 from whylogs.core import ColumnProfile
 from whylogs.core.types.typeddataconverter import TYPES
@@ -16,6 +17,7 @@ from whylogs.proto import (
     DatasetSummary,
     MessageSegment,
 )
+from whylogs.util import time
 from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch
 from whylogs.util.time import from_utc_ms, to_utc_ms
@@ -70,17 +72,20 @@ class DatasetProfile:
     Parameters
     ----------
     name: str
-        A human readable name for the dataset profile. Could be model name
+        A human readable name for the dataset profile. Could be model name.
+        This is stored under "name" tag
     data_timestamp: datetime.datetime
         The timestamp associated with the data (i.e. batch run). Optional.
     session_timestamp : datetime.datetime
         Timestamp of the dataset
     columns : dict
         Dictionary lookup of `ColumnProfile`s
-    tags : list-like
-        A list (or tuple, or iterable) of dataset tags.
+    tags : dict
+        A dictionary of key->value. Can be used upstream for aggregating data. Tags must match when merging
+        with another dataset profile object.
     metadata: dict
-        Metadata. Could be arbitratry strings.
+        Metadata that can store abirtrary string mapping. Metadata is not used when aggregating data
+        and can be dropped when merging with another dataset profile object.
     session_id : str
         The unique session ID run. Should be a UUID.
     """
@@ -91,30 +96,41 @@ class DatasetProfile:
         data_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
         columns: dict = None,
-        tags=None,
-        metadata=None,
+        tags: typing.Dict[str, str] = None,
+        metadata: typing.Dict[str, str] = None,
         session_id: str = None,
     ):
         # Default values
         if columns is None:
             columns = {}
         if tags is None:
-            tags = []
+            tags = dict()
         if metadata is None:
             metadata = dict()
         if session_id is None:
             session_id = uuid4().hex
-        if name is not None:
-            metadata["Name"] = name
 
-        # Store attributes
-        self.name = name
         self.session_id = session_id
         self.session_timestamp = session_timestamp
         self.data_timestamp = data_timestamp
-        self.tags = tuple(sorted([tag for tag in tags]))
-        self.metadata = metadata
+        self._tags = dict(tags)
+        self._metadata = metadata.copy()
         self.columns = columns
+
+        # Store Name attribute
+        self._tags["Name"] = name
+
+    @property
+    def name(self):
+        return self._tags["Name"]
+
+    @property
+    def tags(self):
+        return self._tags.copy()
+
+    @property
+    def metadata(self):
+        return self._metadata.copy()
 
     @property
     def session_timestamp(self):
@@ -128,12 +144,11 @@ class DatasetProfile:
         self._session_timestamp = x
 
     @property
-    def timestamp_ms(self):
+    def session_timestamp_ms(self):
         """
-        Return the timestamp value in epoch milliseconds
+        Return the session timestamp value in epoch milliseconds
         """
-        # TODO: Implement proper timestamp conversion
-        return 1588978362910  # Some made up timestamp in milliseconds
+        return time.to_utc_ms(self.session_timestamp)
 
     def track(self, columns, data=None):
         """
@@ -199,8 +214,6 @@ class DatasetProfile:
 
     def to_properties(self):
         tags = self.tags
-        if len(tags) < 1:
-            tags = None
         metadata = self.metadata
         if len(metadata) < 1:
             metadata = None
@@ -210,7 +223,7 @@ class DatasetProfile:
 
         return DatasetProperties(
             schema_major_version=1,
-            schema_minor_version=0,
+            schema_minor_version=1,
             session_id=self.session_id,
             session_timestamp=session_timestamp,
             data_timestamp=data_timestamp,
@@ -288,14 +301,13 @@ class DatasetProfile:
             "metadata",
         ):
             assert getattr(self, attr) is not None
-        tags = self.tags
-        assert all(isinstance(tag, str) for tag in self.tags)
-        if not all(tags[i] <= tags[i + 1] for i in range(len(tags) - 1)):
-            raise ValueError("Tags must be sorted")
+        assert all(isinstance(tag, str) for tag in self.tags.values())
 
     def merge(self, other):
         """
-        Merge this profile with another.
+        Merge this profile with another dataset profile object.
+
+        This operation will drop the metadata from the 'other' profile object.
 
         Parameters
         ----------
@@ -309,11 +321,9 @@ class DatasetProfile:
         self.validate()
         other.validate()
 
-        assert self.name == other.name
         assert self.session_id == other.session_id
         assert self.session_timestamp == other.session_timestamp
         assert self.data_timestamp == other.data_timestamp
-        assert self.metadata == other.metadata
         assert self.tags == other.tags
 
         columns_set = set(list(self.columns.keys()) + list(other.columns.keys()))
@@ -379,15 +389,15 @@ class DatasetProfile:
         dataset_profile : DatasetProfile
         """
         return DatasetProfile(
-            name=message.properties.metadata["Name"],
+            name=message.properties.tags["Name"],
             session_id=message.properties.session_id,
             session_timestamp=from_utc_ms(message.properties.session_timestamp),
             data_timestamp=from_utc_ms(message.properties.data_timestamp),
             columns={
                 k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
             },
-            tags=message.properties.tags,
-            metadata=message.properties.metadata,
+            tags=dict(message.properties.tags),
+            metadata=dict(message.properties.metadata),
         )
 
     @staticmethod
