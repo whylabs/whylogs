@@ -55,10 +55,11 @@ A simple tracking example without outputing data to disk:
 import com.whylogs.core.DatasetProfile;
 import java.time.Instant;
 import java.util.HashMap;
+import com.google.common.collect.ImmutableMap;
 
 public class Demo {
     public void demo() {
-        final List<String> tags = ImmutableList.of("modelX", "experimentA", "pipelineY");
+        final List<String> tags = ImmutableMap.of("tag", "tagValue");
         final DatasetProfile profile = new DatasetProfile("test-session", Instant.now(), tags);
         profile.track("my_feature", 1);
         profile.track("my_feature", "stringValue");
