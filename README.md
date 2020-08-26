@@ -1,4 +1,7 @@
 ## WhyLogs Java Library
+[![license](https://img.shields.io/github/license/whylabs/whylogs-java)](https://github.com/whylabs/whylogs-java/blob/mainline/LICENSE)
+[![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-core)
+[![openjdk](https://img.shields.io/badge/opendjk-%3E=1.8-green)](https://openjdk.java.net)
 
 WhyLogs is the first of its kind statistical logging library. Whether you are running an experimentation or production ML/AI pipeline, understanding the properties of data that flows through an application is critical for stable model behavior and great customer experience. With WhyLogs, data science and ML teams can effortlessly instrument ML/AI pipelines and applications. Resulting log files are used for monitoring, alerting, analytics and error analysis.
 
@@ -7,9 +10,6 @@ WhyLogs is an open source package that calculates approximate statistics for dat
 This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets.
 
 Python version: [whylogs-python](https://github.com/whylabs/whylogs-python).
-
-[![license](https://img.shields.io/github/license/whylabs/whylogs-java)](https://github.com/whylabs/whylogs-java/blob/mainline/LICENSE)
-[![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-core)
 
 ## Key Features
 
