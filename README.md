@@ -32,7 +32,7 @@ To get started, add WhyLogs to your Maven POM:
 <dependency>
   <groupId>ai.whylabs</groupId>
   <artifactId>whylogs-core</artifactId>
-  <version>0.0.2b1</version>
+  <version>0.0.2b2</version>
 </dependency>
 ```
 For full Java API signature, please refer to the [Java Documentation](https://www.javadoc.io/doc/ai.whylabs/whylogs-core/latest/index.html).
@@ -42,7 +42,7 @@ Spark package (Scala 2.11 or 2.12 only):
 <dependency>
   <groupId>ai.whylabs</groupId>
   <artifactId>whylogs-spark_2.11</artifactId>
-  <version>0.0.2b1</version>
+  <version>0.0.2b2</version>
 </dependency>
 ```
 For full Scala API signature, please refer to the [Scala API Documentation](https://javadoc.io/doc/ai.whylabs/whylogs-spark_2.11/latest/index.html).
