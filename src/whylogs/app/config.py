@@ -3,6 +3,7 @@
 from logging import getLogger
 from typing import List
 
+import typing
 import yaml as yaml
 from marshmallow import Schema, fields, post_load, validate
 
@@ -14,10 +15,19 @@ ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
 
 
 class WriterConfig:
-    def __init__(self, type: str, formats: List[str], output_path: str):
+    def __init__(
+        self,
+        type: str,
+        formats: List[str],
+        output_path: str,
+        path_template: typing.Optional[str] = None,
+        filename_template: typing.Optional[str] = None,
+    ):
         self.type = type
         self.formats = formats
         self.output_path = output_path
+        self.path_template = path_template
+        self.filename_template = filename_template
 
     def to_yaml(self, stream=None):
         dump = WriterConfigSchema().dump(self)
@@ -62,6 +72,8 @@ class WriterConfigSchema(Schema):
         validate=validate.Length(min=1),
     )
     output_path = fields.Str(required=True)
+    path_template = fields.Str(required=False, allow_none=True)
+    filename_template = fields.Str(required=False, allow_none=True)
 
     @post_load
     def make_writer(self, data, **kwargs):
