@@ -9,7 +9,7 @@ from marshmallow import Schema, fields, post_load, validate
 
 from whylogs.app.output_formats import SUPPORTED_OUTPUT_FORMATS
 
-WHYLOGS_YML = ".whylogs.yml"
+WHYLOGS_YML = ".whylogs.yaml"
 
 ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
 

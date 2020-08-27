@@ -1,6 +1,5 @@
 """
 """
-import datetime
 import os
 
 import pandas as pd
@@ -15,7 +14,7 @@ from whylogs.util import time
 def test_write_template_path():
     data_time = time.from_utc_ms(9999)
     session_time = time.from_utc_ms(88888)
-    path_template = "$name-$session_timestamp-$data_timestamp-$session_id"
+    path_template = "$name-$session_timestamp-$dataset_timestamp-$session_id"
     writer_config = WriterConfig(
         "local", ["protobuf", "flat"], "output", path_template, "dataset-profile-$name"
     )
@@ -49,6 +48,7 @@ def test_load_config(tmpdir):
     try:
         session = get_or_create_session()
         os.chdir(p)
+        assert session.project == "test-project-yaml"
 
         with session.logger("test_name") as logger:
             logger.log_dataframe(pd.DataFrame())

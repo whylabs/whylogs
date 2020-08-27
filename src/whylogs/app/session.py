@@ -1,5 +1,6 @@
 """
 """
+import datetime
 from logging import getLogger as _getLogger
 from typing import List, Optional
 
@@ -31,6 +32,7 @@ class Session:
         self.verbose = verbose
         self._active = True
         self._loggers = {}
+        self._session_time = datetime.datetime.now()
 
     def __enter__(self):
         # TODO: configure other aspects
@@ -45,8 +47,8 @@ class Session:
     def logger(
         self,
         dataset_name: Optional[str] = None,
-        datetime_column: Optional[str] = None,
-        datetime_format: Optional[str] = None,
+        dataset_timestamp: Optional[datetime.datetime] = None,
+        session_timestamp: Optional[datetime.datetime] = None,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -56,9 +58,11 @@ class Session:
         ----------
         dataset_name :
             Name of the dataset. Default is the project name
-        datetime_column
-        datetime_format :
-            Optional.
+        dataset_timestamp:
+            The timestamp associated with the dataset. Could be the timestamp for the batch, or the timestamp
+            for the window that you are tracking
+        session_timestamp
+            Override the timestamp associated with the session. Normally you shouldn't need to override this value
         Returns
         -------
 
@@ -66,6 +70,8 @@ class Session:
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
+        if session_timestamp is None:
+            session_timestamp = self._session_time
 
         if not self._active:
             raise RuntimeError("Session is already closed. Cannot create more loggers")
@@ -73,8 +79,8 @@ class Session:
         if logger is None:
             logger = Logger(
                 dataset_name=dataset_name,
-                datetime_column=datetime_column,
-                datetime_format=datetime_format,
+                dataset_timestamp=dataset_timestamp,
+                session_timestamp=session_timestamp,
                 writers=self.writers,
                 verbose=self.verbose,
             )
@@ -142,6 +148,7 @@ def get_or_create_session():
     else:
         config = load_config()
         if config is None:
+            print("WARN: Missing config")
             writer = WriterConfig(type="local", output_path="output", formats=["all"])
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False
