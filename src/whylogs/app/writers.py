@@ -1,17 +1,16 @@
 import json
 import os
-from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import List
-
 import typing
+from abc import ABC, abstractmethod
+from string import Template
+from typing import List
 
 import s3fs
 from google.protobuf.message import Message
 
 from whylogs.app.output_formats import OutputFormat
 from whylogs.core import DatasetProfile
-
+from .config import WriterConfig
 from ..core.datasetprofile import (
     flatten_dataset_frequent_numbers,
     flatten_dataset_frequent_strings,
@@ -20,8 +19,6 @@ from ..core.datasetprofile import (
 )
 from ..util import time
 from ..util.protobuf import message_to_json
-from .config import WriterConfig
-from string import Template
 
 DEFAULT_PATH_TEMPLATE = "$name/$session_id"
 DEFAULT_FILENAME_TEMPLATE = "dataset_profile"
@@ -109,7 +106,7 @@ class LocalWriter(Writer):
     def _write_json(self, profile: DatasetProfile):
         path = self.ensure_path(os.path.join(self.path_suffix(profile), "json"))
 
-        output_file = os.path.join(path, self.file_name(profile, "json"))
+        output_file = os.path.join(path, self.file_name(profile, ".json"))
 
         path = os.path.join(self.output_path, self.path_suffix(profile))
         os.makedirs(path, exist_ok=True)
@@ -144,7 +141,7 @@ class LocalWriter(Writer):
         )
         json_flat_file = self.file_name(profile, ".json")
         with open(os.path.join(frequent_numbers_path, json_flat_file), "wt") as f:
-            hist = flatten_dataset_histograms(summary)
+            hist = flatten_dataset_frequent_numbers(summary)
             json.dump(hist, f, indent=indent)
 
         frequent_strings_path = self.ensure_path(
@@ -207,11 +204,11 @@ class S3Writer(Writer):
             self.output_path,
             self.path_suffix(profile),
             "json",
-            self.file_name(profile, "json"),
+            self.file_name(profile, ".json"),
         )
 
         summary = profile.to_summary()
-        with self.fs.open(output_file, "wb") as f:
+        with self.fs.open(output_file, "wt") as f:
             f.write(message_to_json(summary))
 
     def _write_flat(self, profile: DatasetProfile, indent: int = 4):
