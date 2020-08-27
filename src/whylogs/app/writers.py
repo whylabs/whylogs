@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import List
 
 import typing
+
+import s3fs
 from google.protobuf.message import Message
 
 from whylogs.app.output_formats import OutputFormat
@@ -72,13 +74,13 @@ class Writer(ABC):
     def get_kwargs(
         profile: DatasetProfile, file_extension: typing.Optional[str] = None
     ) -> dict:
-        data_timestamp_str = "0"
+        dataset_timestamp = "batch"
         if profile.data_timestamp is not None:
-            data_timestamp_str = time.to_utc_ms(profile.data_timestamp).__str__()
+            dataset_timestamp = time.to_utc_ms(profile.data_timestamp).__str__()
         return {
             "name": profile.name,
             "session_timestamp": str(time.to_utc_ms(profile.session_timestamp)),
-            "data_timestamp": data_timestamp_str,
+            "dataset_timestamp": dataset_timestamp,
             "session_id": profile.session_id or "missing-session-id",
         }
 
@@ -124,7 +126,6 @@ class LocalWriter(Writer):
 
         Parameters
         ----------
-        path  the base path for WhyLogs output
         profile the dataset profile to output
         indent the JSON indentation. Default is 4
         -------
@@ -190,14 +191,79 @@ class S3Writer(Writer):
         filename_template: str = None,
     ):
         super().__init__(output_path, formats, path_template, filename_template)
-        self.path_template = path_template
+        self.fs = s3fs.S3FileSystem(anon=False)
 
     def write(self, profile: DatasetProfile):
-        session_timestamp = round(profile.session_timestamp.timestamp() * 1000)
-        profile_session_path = os.path.join(
-            self.output_path, profile.name, f"{session_timestamp}"
+        for fmt in self.formats:
+            if fmt == OutputFormat.json:
+                self._write_json(profile)
+            elif fmt == OutputFormat.flat:
+                self._write_flat(profile)
+            elif fmt == OutputFormat.protobuf:
+                self._write_protobuf(profile)
+            else:
+                raise ValueError(f"Unsupported format: {fmt}")
+
+    def _write_json(self, profile: DatasetProfile):
+        path = os.path.join(self.path_suffix(profile), "json")
+        output_file = os.path.join(path, self.file_name(profile, "json"))
+
+        summary = profile.to_summary()
+        with self.fs.open(output_file, "wt") as f:
+            f.write(message_to_json(summary))
+
+    def _write_flat(self, profile: DatasetProfile, indent: int = 4):
+        """
+        Write output data for flat format
+
+        Parameters
+        ----------
+        profile the dataset profile to output
+        indent the JSON indentation. Default is 4
+        -------
+
+        """
+        summary = profile.to_summary()
+
+        flat_table_path = os.path.join(self.path_suffix(profile), "flat_table")
+        summary_df = get_dataset_frame(summary)
+        with self.fs.open(
+            os.path.join(flat_table_path, self.file_name(profile, ".csv"))
+        ) as f:
+            summary_df.to_csv(f, index=False)
+
+        json_flat_file = self.file_name(profile, ".json")
+
+        frequent_numbers_path = os.path.join(self.path_suffix(profile), "freq_numbers")
+        with self.fs.open(
+            os.path.join(frequent_numbers_path, json_flat_file), "wb"
+        ) as f:
+            hist = flatten_dataset_histograms(summary)
+            json.dump(hist, f, indent=indent)
+
+        frequent_strings_path = os.path.join(
+            self.path_suffix(profile), "frequent_strings"
         )
-        pass
+        with self.fs.open(
+            os.path.join(frequent_strings_path, json_flat_file), "wb"
+        ) as f:
+            frequent_strings = flatten_dataset_frequent_strings(summary)
+            json.dump(frequent_strings, f, indent=indent)
+
+        histogram_path = os.path.join(self.path_suffix(profile), "histogram")
+        with self.fs.open(os.path.join(histogram_path, json_flat_file), "wb") as f:
+            histogram = flatten_dataset_histograms(summary)
+            json.dump(histogram, f, indent=indent)
+
+    def _write_protobuf(self, profile: DatasetProfile):
+        path = os.path.join(self.path_suffix(profile), "protobuf")
+
+        protobuf: Message = profile.to_protobuf()
+
+        with self.fs.open(
+            os.path.join(path, self.file_name(profile, ".bin")), "wb"
+        ) as f:
+            f.write(protobuf.SerializeToString())
 
 
 def writer_from_config(config: WriterConfig):

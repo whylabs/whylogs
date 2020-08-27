@@ -1,8 +1,16 @@
-project: projecttest
+project: test-project-yaml
+pipeline: test-pipeline
 verbose: false
 writers:
-- output:
+- formats:
   - protobuf
+  output_path: bucket/whylogs/
+  path_template: $name/dataset_profile
+  filename_template: datase_profile-$dataset_timestamp
+  type: local
+- formats:
   - flat
-  path: abc/xyz
+  output_path: bucket/whylogs/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary-$dataset_timestamp
   type: local

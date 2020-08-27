@@ -1,9 +1,10 @@
+import datetime
 from typing import List, Optional
 
 import pandas as pd
 
 from whylogs.app.writers import Writer
-from whylogs.core import datasetprofile
+from whylogs.core import DatasetProfile
 
 
 class Logger:
@@ -20,17 +21,21 @@ class Logger:
     def __init__(
         self,
         dataset_name: str,
-        datetime_column: Optional[str] = None,
-        datetime_format: Optional[str] = None,
+        dataset_timestamp: Optional[datetime.datetime] = None,
+        session_timestamp: Optional[datetime.datetime] = None,
         writers=List[Writer],
         verbose: bool = False,
     ):
+        if session_timestamp is None:
+            session_timestamp = datetime.datetime.now(datetime.timezone.utc)
         self.dataset_name = dataset_name
-        self.datetime_column = datetime_column
-        self.datetime_format = datetime_format
         self.writers = writers
         self.verbose = verbose
-        self._profile = datasetprofile.DatasetProfile(dataset_name)
+        self._profile = DatasetProfile(
+            dataset_name,
+            data_timestamp=dataset_timestamp,
+            session_timestamp=session_timestamp,
+        )
         self._active = True
 
     def __enter__(self):
