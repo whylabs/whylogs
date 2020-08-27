@@ -1,8 +1,10 @@
 import json
 import os
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import List
 
+import typing
 from google.protobuf.message import Message
 
 from whylogs.app.output_formats import OutputFormat
@@ -14,12 +16,30 @@ from ..core.datasetprofile import (
     flatten_dataset_histograms,
     get_dataset_frame,
 )
+from ..util import time
 from ..util.protobuf import message_to_json
 from .config import WriterConfig
+from string import Template
+
+DEFAULT_PATH_TEMPLATE = "$name/$session_id"
+DEFAULT_FILENAME_TEMPLATE = "dataset_profile"
 
 
 class Writer(ABC):
-    def __init__(self, output_path: str, formats: List[str]):
+    def __init__(
+        self,
+        output_path: str,
+        formats: List[str],
+        path_template: typing.Optional[str] = None,
+        filename_template: typing.Optional[str] = None,
+    ):
+        if path_template is None:
+            path_template = DEFAULT_PATH_TEMPLATE
+        if filename_template is None:
+            filename_template = DEFAULT_FILENAME_TEMPLATE
+        self.path_template = Template(path_template)
+        self.filename_template = Template(filename_template)
+
         self.formats = []
         if "all" in formats:
             for fmt in OutputFormat.__members__.values():
@@ -38,83 +58,145 @@ class Writer(ABC):
     def write(self, profile: DatasetProfile):
         pass
 
+    def path_suffix(self, profile: DatasetProfile):
+        kwargs = self.get_kwargs(profile)
+        path = self.path_template.substitute(**kwargs)
+        return path
 
-def _write_json(path: str, profile: DatasetProfile):
-    summary = profile.to_summary()
-    with open(os.path.join(path, "whylogs.json"), "wt") as f:
-        f.write(message_to_json(summary))
+    def file_name(self, profile: DatasetProfile, file_extension: str):
+        kwargs = self.get_kwargs(profile, file_extension)
+        file_name = self.filename_template.substitute(**kwargs)
+        return file_name + file_extension
 
-
-def _write_flat(path: str, profile: DatasetProfile, indent: int = 4):
-    """
-    Write output data for flat format
-
-    Parameters
-    ----------
-    path  the base path for WhyLogs output
-    profile the dataset profile to output
-    indent the JSON indentation. Default is 4
-    -------
-
-    """
-    summary = profile.to_summary()
-
-    flat_output_dir = os.path.join(path, "flat")
-    os.makedirs(flat_output_dir, exist_ok=True)
-
-    # write output data
-    summary_df = get_dataset_frame(summary)
-    summary_df.to_csv(os.path.join(flat_output_dir, "summary.csv"), index=False)
-
-    with open(os.path.join(flat_output_dir, "historgram.json"), "wt") as f:
-        hist = flatten_dataset_histograms(summary)
-        json.dump(hist, f, indent=indent)
-    with open(os.path.join(flat_output_dir, "frequent_strings.json"), "wt") as f:
-        frequent_strings = flatten_dataset_frequent_strings(summary)
-        json.dump(frequent_strings, f, indent=indent)
-    with open(os.path.join(flat_output_dir, "frequent_strings.json"), "wt") as f:
-        frequent_numbers = flatten_dataset_frequent_numbers(summary)
-        json.dump(frequent_numbers, f, indent=indent)
-
-
-def _write_protobuf(path: str, profile: DatasetProfile):
-    protobuf: Message = profile.to_protobuf()
-    if not os.path.exists(path):
-        os.makedirs(path, exist_ok=True)
-    with open(os.path.join(path, "protobuf.bin"), "wb") as f:
-        f.write(protobuf.SerializeToString())
+    @staticmethod
+    def get_kwargs(
+        profile: DatasetProfile, file_extension: typing.Optional[str] = None
+    ) -> dict:
+        data_timestamp_str = "0"
+        if profile.data_timestamp is not None:
+            data_timestamp_str = time.to_utc_ms(profile.data_timestamp).__str__()
+        return {
+            "name": profile.name,
+            "session_timestamp": str(time.to_utc_ms(profile.session_timestamp)),
+            "data_timestamp": data_timestamp_str,
+            "session_id": profile.session_id or "missing-session-id",
+        }
 
 
 class LocalWriter(Writer):
-    def __init__(self, output_path: str, formats: List[str]):
+    def __init__(
+        self,
+        output_path: str,
+        formats: List[str],
+        path_template: str,
+        filename_template: str,
+    ):
         if not os.path.exists(output_path):
             raise FileNotFoundError(f"Path does not exist: {output_path}")
-        super().__init__(output_path, formats)
+        super().__init__(output_path, formats, path_template, filename_template)
+
+    def write(self, profile: DatasetProfile):
+        for fmt in self.formats:
+            if fmt == OutputFormat.json:
+                self._write_json(profile)
+            elif fmt == OutputFormat.flat:
+                self._write_flat(profile)
+            elif fmt == OutputFormat.protobuf:
+                self._write_protobuf(profile)
+            else:
+                raise ValueError(f"Unsupported format: {fmt}")
+
+    def _write_json(self, profile: DatasetProfile):
+        path = self.ensure_path(os.path.join(self.path_suffix(profile), "json"))
+
+        output_file = os.path.join(path, self.file_name(profile, "json"))
+
+        path = os.path.join(self.output_path, self.path_suffix(profile))
+        os.makedirs(path, exist_ok=True)
+
+        summary = profile.to_summary()
+        with open(output_file, "wt") as f:
+            f.write(message_to_json(summary))
+
+    def _write_flat(self, profile: DatasetProfile, indent: int = 4):
+        """
+        Write output data for flat format
+
+        Parameters
+        ----------
+        path  the base path for WhyLogs output
+        profile the dataset profile to output
+        indent the JSON indentation. Default is 4
+        -------
+
+        """
+        summary = profile.to_summary()
+
+        flat_table_path = self.ensure_path(
+            os.path.join(self.path_suffix(profile), "flat_table")
+        )
+        summary_df = get_dataset_frame(summary)
+        summary_df.to_csv(
+            os.path.join(flat_table_path, self.file_name(profile, ".csv")), index=False
+        )
+
+        frequent_numbers_path = self.ensure_path(
+            os.path.join(self.path_suffix(profile), "freq_numbers")
+        )
+        json_flat_file = self.file_name(profile, ".json")
+        with open(os.path.join(frequent_numbers_path, json_flat_file), "wt") as f:
+            hist = flatten_dataset_histograms(summary)
+            json.dump(hist, f, indent=indent)
+
+        frequent_strings_path = self.ensure_path(
+            os.path.join(self.path_suffix(profile), "frequent_strings")
+        )
+        with open(os.path.join(frequent_strings_path, json_flat_file), "wt") as f:
+            frequent_strings = flatten_dataset_frequent_strings(summary)
+            json.dump(frequent_strings, f, indent=indent)
+
+        histogram_path = self.ensure_path(
+            os.path.join(self.path_suffix(profile), "histogram")
+        )
+        with open(os.path.join(histogram_path, json_flat_file), "wt") as f:
+            histogram = flatten_dataset_histograms(summary)
+            json.dump(histogram, f, indent=indent)
+
+    def _write_protobuf(self, profile: DatasetProfile):
+        path = self.ensure_path(os.path.join(self.path_suffix(profile), "protobuf"))
+
+        protobuf: Message = profile.to_protobuf()
+
+        with open(os.path.join(path, self.file_name(profile, ".bin")), "wb") as f:
+            f.write(protobuf.SerializeToString())
+
+    def ensure_path(
+        self, suffix: str, addition_part: typing.Optional[str] = None
+    ) -> str:
+        path = os.path.join(self.output_path, suffix)
+        if addition_part is not None:
+            path = os.path.join(path, addition_part)
+        if not os.path.exists(path):
+            os.makedirs(path, exist_ok=True)
+        return path
+
+
+class S3Writer(Writer):
+    def __init__(
+        self,
+        output_path: str,
+        formats: List[str],
+        path_template: str = None,
+        filename_template: str = None,
+    ):
+        super().__init__(output_path, formats, path_template, filename_template)
+        self.path_template = path_template
 
     def write(self, profile: DatasetProfile):
         session_timestamp = round(profile.session_timestamp.timestamp() * 1000)
         profile_session_path = os.path.join(
             self.output_path, profile.name, f"{session_timestamp}"
         )
-        os.makedirs(profile_session_path, exist_ok=True)
-        for fmt in self.formats:
-            if fmt == OutputFormat.json:
-                _write_json(profile_session_path, profile)
-            elif fmt == OutputFormat.flat:
-                _write_flat(profile_session_path, profile)
-            elif fmt == OutputFormat.protobuf:
-                _write_protobuf(profile_session_path, profile)
-            else:
-                raise ValueError(f"Unsupported format: {fmt}")
-
-
-class S3Writer(Writer):
-    def __init__(self, output_path: str, formats: List[str]):
-        if not os.path.exists(output_path):
-            raise FileNotFoundError("")
-        super().__init__(output_path, formats)
-
-    def write(self, profile: DatasetProfile):
         pass
 
 
@@ -124,8 +206,18 @@ def writer_from_config(config: WriterConfig):
         os.makedirs(abs_path, exist_ok=True)
 
     if config.type == "local":
-        return LocalWriter(config.output_path, config.formats)
+        return LocalWriter(
+            config.output_path,
+            config.formats,
+            config.path_template,
+            config.filename_template,
+        )
     elif config.type == "s3":
-        return S3Writer(config.output_path, config.formats)
+        return S3Writer(
+            config.output_path,
+            config.formats,
+            config.path_template,
+            config.filename_template,
+        )
     else:
         raise ValueError(f"Unknown writer type: {config.type}")

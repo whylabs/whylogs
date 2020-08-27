@@ -1,11 +1,28 @@
 """
 """
+import datetime
 import os
 
 import pandas as pd
 
+from whylogs import DatasetProfile
 from whylogs.app.config import SessionConfig, WriterConfig
 from whylogs.app.session import get_or_create_session, session_from_config
+from whylogs.app.writers import writer_from_config
+from whylogs.util import time
+
+
+def test_write_template_path():
+    data_time = time.from_utc_ms(9999)
+    session_time = time.from_utc_ms(88888)
+    path_template = "$name-$session_timestamp-$data_timestamp-$session_id"
+    writer_config = WriterConfig(
+        "local", ["protobuf", "flat"], "output", path_template, "dataset-profile-$name"
+    )
+    writer = writer_from_config(writer_config)
+    dp = DatasetProfile("name", data_time, session_time, session_id="session")
+    assert writer.path_suffix(dp) == "name-88888-9999-session"
+    assert writer.file_name(dp, ".txt") == "dataset-profile-name.txt"
 
 
 def test_config_api(tmpdir):
@@ -56,4 +73,4 @@ def test_log_dataframe(tmpdir, df_lending_club):
     output_files = []
     for root, subdirs, files in os.walk(p):
         output_files += files
-    assert len(output_files) == 4
+    assert len(output_files) == 5
