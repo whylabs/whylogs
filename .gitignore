@@ -139,3 +139,7 @@ cython_debug/
 
 # IntelliJ
 .idea
+
+
+#MacOS
+.DS_Store
