@@ -66,14 +66,12 @@ class Writer(ABC):
         return path
 
     def file_name(self, profile: DatasetProfile, file_extension: str):
-        kwargs = self.get_kwargs(profile, file_extension)
+        kwargs = self.get_kwargs(profile)
         file_name = self.filename_template.substitute(**kwargs)
         return file_name + file_extension
 
     @staticmethod
-    def get_kwargs(
-        profile: DatasetProfile, file_extension: typing.Optional[str] = None
-    ) -> dict:
+    def get_kwargs(profile: DatasetProfile) -> dict:
         dataset_timestamp = "batch"
         if profile.data_timestamp is not None:
             dataset_timestamp = time.to_utc_ms(profile.data_timestamp).__str__()
@@ -205,11 +203,15 @@ class S3Writer(Writer):
                 raise ValueError(f"Unsupported format: {fmt}")
 
     def _write_json(self, profile: DatasetProfile):
-        path = os.path.join(self.path_suffix(profile), "json")
-        output_file = os.path.join(path, self.file_name(profile, "json"))
+        output_file = os.path.join(
+            self.output_path,
+            self.path_suffix(profile),
+            "json",
+            self.file_name(profile, "json"),
+        )
 
         summary = profile.to_summary()
-        with self.fs.open(output_file, "wt") as f:
+        with self.fs.open(output_file, "wb") as f:
             f.write(message_to_json(summary))
 
     def _write_flat(self, profile: DatasetProfile, indent: int = 4):
@@ -225,38 +227,45 @@ class S3Writer(Writer):
         """
         summary = profile.to_summary()
 
-        flat_table_path = os.path.join(self.path_suffix(profile), "flat_table")
+        flat_table_path = os.path.join(
+            self.output_path, self.path_suffix(profile), "flat_table"
+        )
         summary_df = get_dataset_frame(summary)
         with self.fs.open(
-            os.path.join(flat_table_path, self.file_name(profile, ".csv"))
+            os.path.join(flat_table_path, self.file_name(profile, ".csv")), "wt"
         ) as f:
             summary_df.to_csv(f, index=False)
 
         json_flat_file = self.file_name(profile, ".json")
 
-        frequent_numbers_path = os.path.join(self.path_suffix(profile), "freq_numbers")
+        frequent_numbers_path = os.path.join(
+            self.output_path, self.path_suffix(profile), "freq_numbers"
+        )
         with self.fs.open(
-            os.path.join(frequent_numbers_path, json_flat_file), "wb"
+            os.path.join(frequent_numbers_path, json_flat_file), "wt"
         ) as f:
             hist = flatten_dataset_histograms(summary)
             json.dump(hist, f, indent=indent)
 
         frequent_strings_path = os.path.join(
-            self.path_suffix(profile), "frequent_strings"
+            self.output_path, self.path_suffix(profile), "frequent_strings"
         )
         with self.fs.open(
-            os.path.join(frequent_strings_path, json_flat_file), "wb"
+            os.path.join(frequent_strings_path, json_flat_file), "wt"
         ) as f:
             frequent_strings = flatten_dataset_frequent_strings(summary)
             json.dump(frequent_strings, f, indent=indent)
 
-        histogram_path = os.path.join(self.path_suffix(profile), "histogram")
-        with self.fs.open(os.path.join(histogram_path, json_flat_file), "wb") as f:
+        histogram_path = os.path.join(
+            self.output_path, self.path_suffix(profile), "histogram"
+        )
+
+        with self.fs.open(os.path.join(histogram_path, json_flat_file), "wt") as f:
             histogram = flatten_dataset_histograms(summary)
             json.dump(histogram, f, indent=indent)
 
     def _write_protobuf(self, profile: DatasetProfile):
-        path = os.path.join(self.path_suffix(profile), "protobuf")
+        path = os.path.join(self.output_path, self.path_suffix(profile), "protobuf")
 
         protobuf: Message = profile.to_protobuf()
 
