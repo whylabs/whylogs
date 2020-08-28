@@ -2,9 +2,10 @@
 """
 import datetime
 from logging import getLogger as _getLogger
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 import pandas as pd
+import typing
 
 from whylogs.app.config import SessionConfig, WriterConfig, load_config
 from whylogs.app.logger import Logger
@@ -12,6 +13,8 @@ from whylogs.app.writers import Writer, writer_from_config
 
 
 class Session:
+    _loggers: Dict[str, Logger]
+
     def __init__(
         self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False,
     ):
@@ -31,7 +34,7 @@ class Session:
         self.writers = writers
         self.verbose = verbose
         self._active = True
-        self._loggers = {}
+        self._loggers = dict()
         self._session_time = datetime.datetime.now()
 
     def __enter__(self):
@@ -41,7 +44,8 @@ class Session:
     def __exit__(self, tpe, value, traceback):
         self.close()
 
-    def is_active(self):
+    @property
+    def active(self):
         return self._active
 
     def logger(
@@ -49,6 +53,8 @@ class Session:
         dataset_name: Optional[str] = None,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
+        tags: Optional[typing.Dict[str, str]] = None,
+        metadata: Optional[typing.Dict[str, str]] = None,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -56,6 +62,11 @@ class Session:
 
         Parameters
         ----------
+        tags:
+            Map of key=value strings that can be used to group/aggregate metrics
+        metadata:
+            Useful for auditing the source of the data (i.e. the host that generated the data, or the user
+            that ran it).
         dataset_name :
             Name of the dataset. Default is the project name
         dataset_timestamp:
@@ -76,12 +87,22 @@ class Session:
         if not self._active:
             raise RuntimeError("Session is already closed. Cannot create more loggers")
         logger = self._loggers.get(dataset_name)
+
         if logger is None:
+            if tags is None:
+                tags = dict()
+            if self.project is not None:
+                tags["Project"] = self.project
+            if self.pipeline is not None:
+                tags["Pipeline"] = self.pipeline
+
             logger = Logger(
                 dataset_name=dataset_name,
+                writers=self.writers,
                 dataset_timestamp=dataset_timestamp,
                 session_timestamp=session_timestamp,
-                writers=self.writers,
+                tags=tags,
+                metadata=metadata,
                 verbose=self.verbose,
             )
             self._loggers[dataset_name] = logger
@@ -94,11 +115,19 @@ class Session:
         dataset_name: Optional[str] = None,
         datetime_column: Optional[str] = None,
         datetime_format: Optional[str] = None,
+        tags: Optional[typing.Dict[str, str]] = None,
+        metadata: Optional[typing.Dict[str, str]] = None,
     ):
-        if not self.is_active():
+        if not self.active:
             return
 
-        with self.logger(dataset_name, datetime_column, datetime_format) as logger:
+        logger = self._loggers.get(dataset_name)
+        if logger is None:
+            with self.logger(
+                dataset_name, datetime_column, datetime_format, tags, metadata
+            ) as logger:
+                logger.log_dataframe(df)
+        else:
             logger.log_dataframe(df)
 
     def close(self):
@@ -110,9 +139,6 @@ class Session:
         for name, logger in self._loggers.items():
             if logger.is_active():
                 logger.close()
-
-    def is_active(self):
-        return self._active
 
 
 def session_from_config(config: SessionConfig) -> Session:
@@ -143,7 +169,7 @@ def get_or_create_session():
     create the session.
     """
     global _session
-    if _session is not None and _session.is_active():
+    if _session is not None and _session.active:
         _getLogger(__name__).debug("Active session found, ignoring session kwargs")
     else:
         config = load_config()

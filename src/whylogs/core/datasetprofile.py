@@ -74,7 +74,7 @@ class DatasetProfile:
     name: str
         A human readable name for the dataset profile. Could be model name.
         This is stored under "name" tag
-    data_timestamp: datetime.datetime
+    dataset_timestamp: datetime.datetime
         The timestamp associated with the data (i.e. batch run). Optional.
     session_timestamp : datetime.datetime
         Timestamp of the dataset
@@ -93,12 +93,12 @@ class DatasetProfile:
     def __init__(
         self,
         name: str,
-        data_timestamp: datetime.datetime = None,
+        session_id: str = None,
+        dataset_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
         columns: dict = None,
         tags: typing.Dict[str, str] = None,
         metadata: typing.Dict[str, str] = None,
-        session_id: str = None,
     ):
         # Default values
         if columns is None:
@@ -112,9 +112,9 @@ class DatasetProfile:
 
         self.session_id = session_id
         self.session_timestamp = session_timestamp
-        self.data_timestamp = data_timestamp
+        self.data_timestamp = dataset_timestamp
         self._tags = dict(tags)
-        self._metadata = metadata.copy()
+        self._metadata = dict(metadata)
         self.columns = columns
 
         # Store Name attribute
@@ -150,7 +150,7 @@ class DatasetProfile:
         """
         return time.to_utc_ms(self.session_timestamp)
 
-    def track(self, columns, data=None):
+    def track(self, columns: typing.Union[str, dict], data=None):
         """
         Add value(s) to tracking statistics for column(s)
 
@@ -337,8 +337,8 @@ class DatasetProfile:
         return DatasetProfile(
             name=self.name,
             session_id=self.session_id,
+            dataset_timestamp=self.data_timestamp,
             session_timestamp=self.session_timestamp,
-            data_timestamp=self.data_timestamp,
             columns=columns,
             tags=self.tags,
             metadata=self.metadata,
@@ -391,8 +391,8 @@ class DatasetProfile:
         return DatasetProfile(
             name=message.properties.tags["Name"],
             session_id=message.properties.session_id,
+            dataset_timestamp=from_utc_ms(message.properties.data_timestamp),
             session_timestamp=from_utc_ms(message.properties.session_timestamp),
-            data_timestamp=from_utc_ms(message.properties.data_timestamp),
             columns={
                 k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
             },

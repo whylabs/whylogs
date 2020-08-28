@@ -19,7 +19,12 @@ def test_write_template_path():
         "local", ["protobuf", "flat"], "output", path_template, "dataset-profile-$name"
     )
     writer = writer_from_config(writer_config)
-    dp = DatasetProfile("name", data_time, session_time, session_id="session")
+    dp = DatasetProfile(
+        "name",
+        session_id="session",
+        dataset_timestamp=data_time,
+        session_timestamp=session_time,
+    )
     assert writer.path_suffix(dp) == "name-88888-9999-session"
     assert writer.file_name(dp, ".txt") == "dataset-profile-name.txt"
 
