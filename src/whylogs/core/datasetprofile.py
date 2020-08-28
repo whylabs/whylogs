@@ -676,6 +676,6 @@ def array_profile(
         name = "dataset"
     if timestamp is None:
         timestamp = datetime.datetime.utcnow()
-    prof = DatasetProfile(name, timestamp)
+    prof = DatasetProfile(name, dataset_timestamp=timestamp)
     prof.track_array(x, columns)
     return prof
