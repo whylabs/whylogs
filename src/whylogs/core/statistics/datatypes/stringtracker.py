@@ -15,11 +15,11 @@ class StringTracker:
 
     Parameters
     ----------
-    count
+    count : int
         Total number of processed values
-    items
+    items : frequent_strings_sketch
         Sketch for tracking string counts
-    theta_sketch
+    theta_sketch : ThetaSketch
         Sketch for approximate cardinality tracking
     """
 
