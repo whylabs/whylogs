@@ -1,3 +1,6 @@
+"""
+Defines the primary interface class for tracking dataset statistics.
+"""
 import datetime
 import io
 from collections import OrderedDict
@@ -263,6 +266,16 @@ class DatasetProfile:
         frequent_strings : dict
             Dictionary of frequent string counts with (column name, counts)
             key, val pairs.  `counts` are a pandas Series.
+
+        Notes
+        -----
+        Some relevant info on the summary mapping:
+
+        .. runblock:: pycon
+
+            >>> from whylogs.core.datasetprofile import SCALAR_NAME_MAPPING
+            >>> import json
+            >>> print(json.dumps(SCALAR_NAME_MAPPING, indent=2))
         """
         summary = self.to_summary()
         return flatten_summary(summary)

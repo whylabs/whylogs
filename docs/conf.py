@@ -47,6 +47,7 @@ extensions = [
     "sphinxcontrib.contentui",
     "sphinx_gitstamp",
     "sphinx.ext.autosectionlabel",
+    "sphinx_autorun",
 ]
 
 autoapi_type = "python"

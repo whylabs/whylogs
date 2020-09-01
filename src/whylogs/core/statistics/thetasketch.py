@@ -11,13 +11,14 @@ def _copy_union(union):
 
 class ThetaSketch:
     """
+    A sketch for approximate cardinality tracking.
+
     A wrapper class for `datasketches.update_theta_sketch` which implements
     merging for updatable theta sketches.
 
     Currently, datasketches only implements merging for compact (read-only)
     theta sketches.
     """
-
     def __init__(self, theta_sketch=None, union=None, compact_theta=None):
         if theta_sketch is None:
             theta_sketch = datasketches.update_theta_sketch()

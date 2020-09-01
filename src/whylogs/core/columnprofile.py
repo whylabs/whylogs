@@ -12,7 +12,9 @@ _UNIQUE_COUNT_BOUNDS_STD = 1
 
 class ColumnProfile:
     """
-    Statistics tracking for a column
+    Statistics tracking for a column (i.e. a feature)
+
+    The primary method for
 
     Parameters
     ----------
@@ -26,6 +28,10 @@ class ColumnProfile:
         Implements tracking of schema-related information
     counters : CountersTracker
         Keep count of various things
+    frequent_tiems : FrequentItemsSketch
+        Keep track of all frequent items, even for mixed datatype features
+    cardinality_tracker : HllSketch
+        Track feature cardinality (even for mixed data types)
 
     TODO:
         * Proper TypedDataConverter type checking
@@ -34,13 +40,13 @@ class ColumnProfile:
 
     def __init__(
         self,
-        name,
-        number_tracker=None,
-        string_tracker=None,
-        schema_tracker=None,
-        counters=None,
-        frequent_items=None,
-        cardinality_tracker=None,
+        name: str,
+        number_tracker: NumberTracker=None,
+        string_tracker: StringTracker=None,
+        schema_tracker: SchemaTracker=None,
+        counters: CountersTracker=None,
+        frequent_items: FrequentItemsSketch=None,
+        cardinality_tracker: HllSketch=None,
     ):
         # Handle default values
         if counters is None:

@@ -28,7 +28,7 @@ class VarianceTracker:
         Add a number to tracking estimates
 
         Based on
-        https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm   # noqa
+        https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
 
         Parameters
         ----------
@@ -62,7 +62,7 @@ class VarianceTracker:
         Merge statistics from another VarianceTracker into this one
 
         See:
-        https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm  # noqa
+        https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
 
         Parameters
         ----------
