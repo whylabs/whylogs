@@ -1,3 +1,6 @@
+"""
+Define classes for interacting with whylogs data paths
+"""
 import os
 import re
 from copy import deepcopy
@@ -8,6 +11,23 @@ CLOUD_PROVIDERS = ("s3",)
 
 
 def parse_uri(x: str):
+    """
+    Parse an URI path
+
+    Parameters
+    ----------
+    x : str
+        URI
+
+    Returns
+    -------
+    cloud_provider : str, None
+        The cloud provider, e.g. s3.  None if a local path
+    bucket : str
+        The remote storage bucket, None if a local path
+    key : str
+        The object key (if remote) or path (if local)
+    """
     parts = x.split("://")
     key = None
     bucket = None
@@ -28,7 +48,17 @@ def parse_uri(x: str):
 class CloudPath:
     """
     A path interface which tracks the key, bucket, and cloud provider (e.g.
-    S3) for a cloud data path
+    S3) for a cloud data path or a local path
+
+    Parameters
+    ----------
+    key : str
+        Key (for remote, object store data) or the path (for local storage)
+    bucket : str, None
+        For remote object store data, specifies the data path.  Set to
+        `None` for local data
+    cloud_proivider : str, None
+        Specify the cloud provider, e.g. 's3'.  Set to `None` for local data.
     """
 
     def __init__(self, key, bucket=None, cloud_provider=None):

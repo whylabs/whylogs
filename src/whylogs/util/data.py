@@ -1,13 +1,33 @@
+"""
+Utility functions for interacting with data
+"""
 from collections import OrderedDict
 
 
-def getter(x, k, *args):
+def getter(x, k: str, *args):
     """
-    get an attribute (from an object) or k (from a dict-like object)
+    get an attribute (from an object) or key (from a dict-like object)
 
     `getter(x, k)` raise KeyError if `k` not present
 
     `getter(x, k, default)` return default if `k` not present
+
+    This is a convenience function that allows you to interact the same with
+    an object or a dictionary
+
+    Parameters
+    ----------
+    x : object, dict
+        Item to get attribute from
+    k : str
+        Key or attribute name
+    default : optional
+        Default value if `k` not present
+
+    Returns
+    -------
+    val : object
+        Associated value
     """
     try:
         try:
@@ -44,6 +64,7 @@ def remap(x, mapping: dict):
         Nested dictionary specifying the mapping.  ONLY values specified in the
         mapping will be returned.
         For example:
+
         .. code-block:: python
 
             {'a': {
@@ -52,7 +73,7 @@ def remap(x, mapping: dict):
                 }
             }
 
-        could flatten `x.a.b.c` or `x.a['b']['c']` to 'new_name'
+        could flatten `x.a.b.c` or `x.a['b']['c']` to `x['new_name']`
 
     Returns
     -------
@@ -86,8 +107,11 @@ def get_valid_filename(s):
     filename. Remove leading and trailing spaces; convert other spaces to
     underscores; and remove anything that is not an alphanumeric, dash,
     underscore, or dot.
-    >>> get_valid_filename("john's portrait in 2004.jpg")
-    'johns_portrpyait_in_2004.jpg'
+
+    .. runblock:: pycon
+
+        >>> from whylogs.util.data import get_valid_filename
+        >>> get_valid_filename("  Background of tim's 8/1/2019 party!.jpg ")
     """
     import re
 

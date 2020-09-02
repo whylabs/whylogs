@@ -1,3 +1,6 @@
+"""
+Statistical functions used by WhyLogs
+"""
 CARDINALITY_SLOP = 1
 
 
@@ -27,7 +30,7 @@ def is_discrete(num_records: int, cardinality: int, p=0.15):
     if cardinality < 1:
         raise ValueError("Cardinality must be >= 1 for num records >= 1")
     discrete = False
-    density = num_records / (cardinality + 1)
+    density = num_records / (cardinality + CARDINALITY_SLOP)
     if 1 / density <= p:
         discrete = True
 

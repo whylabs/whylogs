@@ -1,3 +1,6 @@
+"""
+Define functions and classes for interfacing with `datasketches`
+"""
 import json
 from collections import defaultdict
 
@@ -67,16 +70,27 @@ def deserialize_frequent_strings_sketch(x: bytes):
 
 class FrequentItemsSketch:
     """
-    A class to implement frequent number counting.
+    A class to implement frequent item counting for mixed data types.
 
-    Wraps datasketches.frequent_strings_sketch by encoding numbers as strings.
+    Wraps `datasketches.frequent_strings_sketch` by encoding numbers as
+    strings since the `datasketches` python implementation does not implement
+    frequent number tracking.
+
+    Parameters
+    ----------
+    lg_max_k : int, optional
+        Parameter controlling the size and accuracy of the sketch.  A larger
+        number increases accuracy and the memory requirements for the sketch
+    sketch : datasketches.frequent_strings_sketch, optional
+        Initialize with an existing frequent strings sketch
     """
-
     DEFAULT_MAX_ITEMS_SIZE = 32
     DEFAULT_ERROR_TYPE = datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES
 
     def __init__(
-        self, lg_max_k: int = None, sketch: datasketches.frequent_strings_sketch = None
+        self,
+        lg_max_k: int = None,
+        sketch: datasketches.frequent_strings_sketch = None
     ):
         self.lg_max_k = lg_max_k
         if sketch is None:
@@ -87,8 +101,24 @@ class FrequentItemsSketch:
             assert isinstance(sketch, datasketches.frequent_strings_sketch)
         self.sketch = sketch
 
-    def get_apriori_error(self, lg_max_map_size: int, estimated_total_weight: int):
-        return self.sketch.get_apriori_error(lg_max_map_size, estimated_total_weight)
+    def get_apriori_error(self, lg_max_map_size: int,
+                          estimated_total_weight: int):
+        """
+        Return an apriori estimate of the uncertainty for various parameters
+
+        Parameters
+        ----------
+        lg_max_map_size : int
+            The `lg_max_k` value
+        estimated_total_weight
+            Total weight (see :func:`FrequentItems.get_total_weight`)
+        Returns
+        -------
+        error : float
+            Approximate uncertainty
+        """
+        return self.sketch.get_apriori_error(lg_max_map_size,
+                                             estimated_total_weight)
 
     def get_epsilon_for_lg_size(self, lg_max_map_size: int):
         return self.sketch.get_epsilon_for_lg_size(lg_max_map_size)
@@ -108,6 +138,25 @@ class FrequentItemsSketch:
         threshold: int = 0,
         decode: bool = True,
     ):
+        """
+        Retrieve the frequent items.
+
+
+        Parameters
+        ----------
+        err_type : datasketches.frequent_items_error_type
+            Override default error type
+        threshold : int
+            Minimum count for returned items
+        decode : bool (default=True)
+            Decode the returned values.  Internally, all items are encoded
+            as strings.
+
+        Returns
+        -------
+        items : list
+            A list of tuples of items: ``[(item, count)]``
+        """
         if err_type is None:
             err_type = self.DEFAULT_ERROR_TYPE
         items = self.sketch.get_frequent_items(err_type, threshold)
@@ -137,7 +186,14 @@ class FrequentItemsSketch:
 
     def merge(self, other):
         """
+        Merge the item counts of this sketch with another.
 
+        This object will not be modified.  This operation is commutative.
+
+        Parameters
+        ----------
+        other: FrequentItemsSketch
+            The other sketch
         """
         # We want all our "merge" methods to return a NEW object.
         # TODO: investigate relaxing this constraint
@@ -146,6 +202,12 @@ class FrequentItemsSketch:
         return self_copy
 
     def copy(self):
+        """
+        Returns
+        -------
+        sketch : FrequentItemsSketch
+            A copy of this sketch
+        """
         self_copy = FrequentItemsSketch.deserialize(self.serialize())
         if self_copy is None:
             # Self must be empty
@@ -153,18 +215,51 @@ class FrequentItemsSketch:
         return self_copy
 
     def serialize(self):
+        """
+        Serialize this sketch as a bytes string.
+
+        See also :func:`FrequentItemsSketch.deserialize`
+
+        Returns
+        -------
+        data : bytes
+            Serialized object.
+        """
         return self.sketch.serialize()
 
     def to_string(self, print_items=False):
         return self.sketch.to_string(print_items)
 
     def update(self, x, weight=1):
+        """
+        Track an item.
+
+        Parameters
+        ----------
+        x : object
+            Item to track
+        weight : int
+            Number of times the item appears
+        """
         self.sketch.update(self._encode_item(x), weight)
 
     def to_summary(self, max_items=30, min_count=1):
         """
         Generate a protobuf summary.  Returns None if there are no frequent
         items.
+
+        Parameters
+        ----------
+        max_items : int
+            Maximum number of items to return.  The most frequent items will
+            be returned
+        min_count : int
+            Minimum number counts for all returned items
+
+        Returns
+        -------
+        summary : FrequentItemsSummary
+            Protobuf summary message
         """
         items = self.get_frequent_items(threshold=min_count - 1, decode=False)
         if len(items) < 1:
@@ -188,6 +283,10 @@ class FrequentItemsSketch:
 
     @staticmethod
     def from_protobuf(message: FrequentItemsSketchMessage):
+        """
+        Initialize a FrequentItemsSketch from a protobuf
+        FrequentItemsSketchMessage
+        """
         lg_max_k = message.lg_max_k
         if lg_max_k < 0:
             lg_max_k = None
@@ -217,7 +316,16 @@ class FrequentItemsSketch:
 
 
 class FrequentNumbersSketch(FrequentItemsSketch):
+    """
+    A class to implement frequent number counting
+    """
     def copy(self):
+        """
+        Returns
+        -------
+        self_copy : FrequentNumbersSketch
+            A copy of this object
+        """
         self_copy = FrequentNumbersSketch.deserialize(self.serialize())
         if self_copy is None:
             # Self must be empty
@@ -228,6 +336,19 @@ class FrequentNumbersSketch(FrequentItemsSketch):
         """
         Generate a protobuf summary.  Returns None if there are no frequent
         items.
+
+        Parameters
+        ----------
+        max_items : int
+            Maximum number of items to return.  The most frequent items will
+            be returned
+        min_count : int
+            Minimum number counts for all returned items
+
+        Returns
+        -------
+        summary : FrequentNumbersSummary
+            Protobuf summary message
         """
         items = self.get_frequent_items(threshold=min_count - 1)
         if len(items) < 1:

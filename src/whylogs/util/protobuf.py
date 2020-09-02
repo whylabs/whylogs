@@ -1,3 +1,6 @@
+"""
+Functions for interacting with protobuf
+"""
 import google.protobuf.message
 from google.protobuf.json_format import MessageToDict, MessageToJson
 from google.protobuf.pyext._message import MessageMapContainer
@@ -85,8 +88,8 @@ def multi_msg_reader(f, msg_class):
 
 def read_multi_msg(f, msg_class):
     """
-    Wrapper for `multi_msg_reader` which reads all the messages and returns
-    them as a list.
+    Wrapper for :func:`multi_msg_reader` which reads all the messages and
+    returns them as a list.
     """
     return [x for x in multi_msg_reader(f, msg_class)]
 
