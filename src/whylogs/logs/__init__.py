@@ -1,12 +1,17 @@
+"""
+Convenience module for displaying/configuring python logs for WhyLogs
+"""
+
+
 def display_logging(level="DEBUG", root_logger=False):
     """
-    Convenience utility for setting whylogs to print logs to stdout.
+    Convenience utility for setting WhyLogs to print logs to stdout.
 
     Parameters
     ----------
     level : str
         Logging level
-    root_logger : bool
+    root_logger : bool, default=False
         Redirect to the root logger.
     """
     import logging

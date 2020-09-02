@@ -7,6 +7,7 @@ Here's a quick and dirty module to help avoid reimplementing the same thing
 over and over again.
 
 Taken from https://github.com/fmoo/python-varint/blob/master/varint.py
+
 MIT License
 """
 # byte-oriented StringIO was moved to io.BytesIO in py3k

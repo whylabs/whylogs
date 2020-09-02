@@ -22,6 +22,8 @@ from collections import namedtuple
 import sphinx_rtd_theme
 from sphinx.ext.autodoc import between
 
+
+# Add package paths to the python path to allow sphinx to import modules
 sys.path.insert(0, os.path.abspath("../src/"))
 
 # -- Project information -----------------------------------------------------

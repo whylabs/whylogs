@@ -1,3 +1,7 @@
+"""
+Define utility functions for interacting with remote cloud object storage
+(i.e. AWS S3)
+"""
 import threading
 from logging import getLogger
 
@@ -7,9 +11,14 @@ import boto3
 _s3client_rlock = threading.RLock()
 
 
-def check_bucket(bucket_name,):
+def check_bucket(bucket_name):
     """
     Check access to a cloud storage bucket.
+
+    Parameters
+    ----------
+    bucket_name : str
+        The S3 bucket
 
     Returns
     -------
@@ -28,14 +37,14 @@ def check_bucket(bucket_name,):
 
 def s3client(**kwargs):
     """
-    Returns an client client in a threadsafe manner.
+    Returns a client in a threadsafe manner.
 
-    Returned clients should be threadsafe
+    Returned clients are threadsafe
 
     Parameters
     ----------
-    kwargs :
-        Passed to the boto3 constructor
+    kwargs : optional
+        Passed to the `boto3.client` constructor
 
     Returns
     -------
@@ -67,12 +76,12 @@ def list_keys(bucket, prefix="", suffix="", client=None):
 
 
 def list_objects(
-    bucket: str,
-    prefix: str = None,
-    suffix: str = None,
-    start_after: str = None,
-    client=None,
-):
+        bucket: str,
+        prefix: str = None,
+        suffix: str = None,
+        start_after: str = None,
+        client=None,
+    ):
     """
     Generator to list objects in an S3 bucket.
 
