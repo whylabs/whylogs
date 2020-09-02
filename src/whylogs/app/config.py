@@ -1,4 +1,5 @@
 """
+Classes/functions for configuring the WhyLogs app
 """
 from logging import getLogger
 from typing import List
@@ -15,6 +16,33 @@ ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
 
 
 class WriterConfig:
+    """
+    Config for WhyLogs writers
+
+    See also :class:`WriterConfigSchema`
+
+    Parameters
+    ----------
+    type : str
+        Destination for the writer output, e.g. 'local' or 's3'
+    formats : list
+        All output formats.  See :data:`ALL_SUPPORTED_FORMATS`
+    output_path : str
+        Prefix of where to output files.  A directory for `type = 'local'`,
+        or key prefix for `type = 's3'`
+    path_template : str, optional
+        Templatized path output using standard python string templates.
+        Variables are accessed via $identifier or ${identifier}.
+        See :func:`whylogs.app.writers.Writer.template_params` for a list of
+        available identifers.
+        Default = :data:`whylogs.app.writers.DEFAULT_PATH_TEMPLATE`
+    filename_template : str, optional
+        Templatized output filename using standardized python string templates.
+        Variables are accessed via $identifier or ${identifier}.
+        See :func:`whylogs.app.writers.Writer.template_params` for a list of
+        available identifers.
+        Default = :data:`whylogs.app.writers.DEFAULT_FILENAME_TEMPLATE`
+    """
     def __init__(
         self,
         type: str,
@@ -30,18 +58,56 @@ class WriterConfig:
         self.filename_template = filename_template
 
     def to_yaml(self, stream=None):
+        """
+        Serialize this config to YAML
+
+        Parameters
+        ----------
+        stream
+            If None (default) return a string, else dump the yaml into this
+            stream.
+        """
         dump = WriterConfigSchema().dump(self)
         return yaml.dump(dump, stream)
 
     @staticmethod
     def from_yaml(stream, **kwargs):
+        """
+        Load config from yaml
+
+        Parameters
+        ----------
+        stream : str, file-obj
+            String or file-like object to load yaml from
+
+        kwargs
+            ignored
+
+        Returns
+        -------
+        config : `WriterConfig`
+            Generated config
+        """
         data = yaml.safe_load(stream)
         return WriterConfigSchema().load(data)
 
 
 class SessionConfig:
     """
-    Configuration for a WhyLogs session. The 
+    Configuration for a WhyLogs session.
+
+    See also :class:`SessionConfigSchema`
+
+    Parameters
+    ----------
+    project : str
+        Project associated with this WhyLogs session
+    pipeline : str
+        Name of the associated data pipeline
+    writers : list
+        A list of `WriterConfig` objects defining writer outputs
+    verbose : bool, default=False
+        Output verbosity
     """
 
     def __init__(
@@ -57,14 +123,39 @@ class SessionConfig:
         self.writers = writers
 
     def to_yaml(self, stream=None):
+        """
+        Serialize this config to YAML
+
+        Parameters
+        ----------
+        stream
+            If None (default) return a string, else dump the yaml into this
+            stream.
+        """
         return yaml.dump(SessionConfigSchema().dump(self), stream)
 
     @staticmethod
     def from_yaml(stream):
+        """
+        Load config from yaml
+
+        Parameters
+        ----------
+        stream : str, file-obj
+            String or file-like object to load yaml from
+
+        Returns
+        -------
+        config : SessionConfig
+            Generated config
+        """
         return SessionConfigSchema().load(yaml.safe_load(stream=stream))
 
 
 class WriterConfigSchema(Schema):
+    """
+    Marshmallow schema for :class:`WriterConfig` class.
+    """
     type = fields.Str(validate=validate.OneOf(["local", "s3"]), required=True)
     formats = fields.List(
         fields.Str(validate=validate.OneOf(ALL_SUPPORTED_FORMATS)),
@@ -81,6 +172,9 @@ class WriterConfigSchema(Schema):
 
 
 class SessionConfigSchema(Schema):
+    """
+    Marshmallow schema for :class:`SessionConfig` class.
+    """
     project = fields.Str(required=True)
     pipeline = fields.Str(required=True)
     verbose = fields.Bool(missing=False)
@@ -99,12 +193,19 @@ def load_config():
     """
     Load logging configuration, from disk and from the environment.
 
-    Config is loaded by attempting to load files basd on:
+    Config is loaded by attempting to load files in the following order.  The
+    first valid file will be used
 
-    1. Path set in WHYLOGS_CONFIG environment variable
-    2. Current directory's .whylogs.yaml file
-    3. ~/.whylogs.yaml (home directory)
-    4. /opt/whylogs/.whylogs.yaml path
+    1. Path set in ``WHYLOGS_CONFIG`` environment variable
+    2. Current directory's ``.whylogs.yaml`` file
+    3. ``~/.whylogs.yaml`` (home directory)
+    4. ``/opt/whylogs/.whylogs.yaml`` path
+
+    Returns
+    -------
+    config : SessionConfig, None
+        Config for the logger, if a valid config file is found, else returns
+        `None`.
     """
     import os
 

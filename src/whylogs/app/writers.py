@@ -1,3 +1,5 @@
+"""
+"""
 import json
 import os
 import typing
@@ -58,17 +60,41 @@ class Writer(ABC):
         pass
 
     def path_suffix(self, profile: DatasetProfile):
-        kwargs = self.get_kwargs(profile)
+        kwargs = self.template_params(profile)
         path = self.path_template.substitute(**kwargs)
         return path
 
     def file_name(self, profile: DatasetProfile, file_extension: str):
-        kwargs = self.get_kwargs(profile)
+        kwargs = self.template_params(profile)
         file_name = self.filename_template.substitute(**kwargs)
         return file_name + file_extension
 
     @staticmethod
-    def get_kwargs(profile: DatasetProfile) -> dict:
+    def template_params(profile: DatasetProfile) -> dict:
+        """
+        Return a dictionary of dataset profile metadata which can be used for
+        generating templatized variables or paths.
+
+        Parameters
+        ----------
+        profile : DatasetProfile
+            The dataset profile
+
+        Returns
+        -------
+        params : dict
+            Variables which can be substituted into a template string.
+
+
+        Notes
+        -----
+        Template params:
+
+        * ``name``: name of the dataset
+        * ``session_timestamp``: session time in UTC epoch milliseconds
+        * ``dataset_timestamp``: timestamp for the data in UTC epoch ms
+        * ``session_id``: Unique identifier for the session
+        """
         dataset_timestamp = "batch"
         if profile.data_timestamp is not None:
             dataset_timestamp = time.to_utc_ms(profile.data_timestamp).__str__()

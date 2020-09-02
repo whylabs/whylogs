@@ -26,12 +26,15 @@ from sphinx.ext.autodoc import between
 # Add package paths to the python path to allow sphinx to import modules
 sys.path.insert(0, os.path.abspath("../src/"))
 
+import whylogs
+
 # -- Project information -----------------------------------------------------
 
 project = "WhyLogs"
 copyright = "2020, WhyLabs, Inc"
 author = "WhyLabs"
 gitstamp_fmt = "%d %b %Y"
+version = whylogs.__version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -54,6 +57,16 @@ extensions = [
 
 autoapi_type = "python"
 autoapi_dirs = ["../src/whylogs"]
+autoapi_options = [
+    'members',
+    'undoc-members',
+    'private-members',
+    'show-inheritance',
+    'show-module-summary',
+    'special-members',
+    'imported-members',
+    'inherited-members',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -78,3 +91,8 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 html_css_files = ["style.css"]
+
+html_theme_options = {
+    'navigation_depth': 6,
+    'github_url': 'https://github.com/whylabs/whylogs-python',
+}

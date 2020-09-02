@@ -17,7 +17,7 @@ communication between teams. Head over to the :ref:`intro` to learn more, or jum
    This site is a work in progress. Feel free to join our Slack channel if you have questions `Slack channel <https://whylogs.slack.com>`__!
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 5
 
     overview
     getting_started
@@ -31,6 +31,6 @@ Index
 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 5
 
     autoapi/index
