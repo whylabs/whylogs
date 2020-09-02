@@ -27,13 +27,14 @@ from whylogs.util.time import from_utc_ms, to_utc_ms
 from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 
-COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10
+COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10  #: Used for chunking serialized dataset profile messages
 TYPENUM_COLUMN_NAMES = OrderedDict()
 for k in TYPES.keys():
     TYPENUM_COLUMN_NAMES[k] = "type_" + k.lower() + "_count"
 
 # NOTE: I use ordered dicts here to control the ordering of generated columns
 # dictionaries are also valid
+#: Define (some of) the mapping from dataset summary to flat table
 SCALAR_NAME_MAPPING = OrderedDict(
     counters=OrderedDict(
         count="count",
@@ -216,6 +217,14 @@ class DatasetProfile:
                 self.track(col_str, xi)
 
     def to_properties(self):
+        """
+        Return dataset profile related metadata
+
+        Returns
+        -------
+        properties : DatasetProperties
+            The metadata as a protobuf object.
+        """
         tags = self.tags
         metadata = self.metadata
         if len(metadata) < 1:
@@ -254,28 +263,11 @@ class DatasetProfile:
 
     def flat_summary(self):
         """
-        Generate and flatten a summary of the statistics
+        Generate and flatten a summary of the statistics.
 
-        Returns
-        -------
-        summary : pd.DataFrame
-            Per-column summary statistics
-        hist : dict
-            Dictionary of histograms with (column name, histogram) key, value
-            pairs.  Histograms are formatted as a `pandas.Series`
-        frequent_strings : dict
-            Dictionary of frequent string counts with (column name, counts)
-            key, val pairs.  `counts` are a pandas Series.
+        See :func:`flatten_summary` for a description
 
-        Notes
-        -----
-        Some relevant info on the summary mapping:
 
-        .. runblock:: pycon
-
-            >>> from whylogs.core.datasetprofile import SCALAR_NAME_MAPPING
-            >>> import json
-            >>> print(json.dumps(SCALAR_NAME_MAPPING, indent=2))
         """
         summary = self.to_summary()
         return flatten_summary(summary)
@@ -304,7 +296,9 @@ class DatasetProfile:
             yield MessageSegment(columns=msg)
 
     def validate(self):
-        """Sanity check for this object.  Raises an Exception if invalid"""
+        """
+        Sanity check for this object.  Raises an AssertionError if invalid
+        """
         for attr in (
             "name",
             "session_id",
@@ -357,6 +351,25 @@ class DatasetProfile:
             metadata=self.metadata,
         )
 
+    def serialize_delimited(self) -> bytes:
+        """
+        Write out in delimited format (data is prefixed with the length of the
+        datastream).
+
+        This is useful when you are streaming multiple dataset profile objects
+
+        Returns
+        -------
+        data : bytes
+            A sequence of bytes
+        """
+        with io.BytesIO() as f:
+            protobuf: DatasetProfileMessage = self.to_protobuf()
+            size = protobuf.ByteSize()
+            f.write(_VarintBytes(size))
+            f.write(protobuf.SerializeToString(deterministic=True))
+            return f.getvalue()
+
     def to_protobuf(self) -> DatasetProfileMessage:
         """
         Return the object serialized as a protobuf message
@@ -372,30 +385,16 @@ class DatasetProfile:
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
         )
 
-    def serialize_delimited(self) -> bytes:
+    @staticmethod
+    def from_protobuf(message: DatasetProfileMessage):
         """
-        Write out in delimited format (data is prefixed with the length of the datastream).
-
-        This is useful when you are streaming multiple dataset profile objects
+        Load from a protobuf message
 
         Parameters
         ----------
-
-        Returns
-        -------
-        a sequence of bytes
-        """
-        with io.BytesIO() as f:
-            protobuf: DatasetProfileMessage = self.to_protobuf()
-            size = protobuf.ByteSize()
-            f.write(_VarintBytes(size))
-            f.write(protobuf.SerializeToString(deterministic=True))
-            return f.getvalue()
-
-    @staticmethod
-    def from_protobuf(message):
-        """
-        Load from a protobuf message
+        message : DatasetProfileMessage
+            The protobuf message.  Should match the output of
+            `DatasetProfile.to_protobuf()`
 
         Returns
         -------
@@ -416,7 +415,17 @@ class DatasetProfile:
     @staticmethod
     def from_protobuf_string(data: bytes):
         """
-        Deserialize a serialized protobuf message
+        Deserialize a serialized `DatasetProfileMessage`
+
+        Parameters
+        ----------
+        data : bytes
+            The serialized message
+
+        Returns
+        -------
+        profile : DatasetProfile
+            The deserialized dataset profile
         """
         msg = DatasetProfileMessage.FromString(data)
         return DatasetProfile.from_protobuf(msg)
@@ -435,12 +444,17 @@ class DatasetProfile:
         Parse a single delimited entry from a byte stream
         Parameters
         ----------
-        data the bytestream
-        pos the starting position. Default is zero
+        data : bytes
+            The bytestream
+        pos : int
+            The starting position. Default is zero
 
-        Returns a DatasetProfile object if successful.
+        Returns
         -------
-
+        pos : int
+            Current position in the stream after parsing
+        profile : DatasetProfile
+            A dataset profile
         """
         msg_len, new_pos = _DecodeVarint32(data, pos)
         pos = new_pos
@@ -454,15 +468,19 @@ class DatasetProfile:
         """
         Parse delimited data (i.e. data prefixed with the message length).
 
-        Java protobuf writes delimited messages, which is convenient for storing multiple dataset profiles. This means
-        that the main data is prefixed with the length of the message.
+        Java protobuf writes delimited messages, which is convenient for
+        storing multiple dataset profiles. This means that the main data is
+        prefixed with the length of the message.
 
         Parameters
         ----------
-        data the input byte stream
+        data : bytes
+            The input byte stream
 
-        Returns list of Dataset profile objects
+        Returns
         -------
+        profiles : list
+            List of all Dataset profile objects
 
         """
         return list(DatasetProfile._parse_delimited_generator(data))
@@ -514,16 +532,27 @@ def flatten_summary(dataset_summary: DatasetSummary) -> dict:
 
     Returns
     -------
-    A dictionary with the following keys:
+    data : dict
+        A dictionary with the following keys:
 
-    summary : pd.DataFrame
-        Per-column summary statistics
-    hist : pd.Series
-        Series of histogram Series with (column name, histogram) key, value
-        pairs.  Histograms are formatted as a `pandas.Series`
-    frequent_strings : pd.Series
-        Series of frequent string counts with (column name, counts)
-        key, val pairs.  `counts` are a pandas Series.
+            summary : pandas.DataFrame
+                Per-column summary statistics
+            hist : pandas.Series
+                Series of histogram Series with (column name, histogram) key,
+                value pairs.  Histograms are formatted as a `pandas.Series`
+            frequent_strings : pandas.Series
+                Series of frequent string counts with (column name, counts)
+                key, val pairs.  `counts` are a pandas Series.
+
+    Notes
+    -----
+    Some relevant info on the summary mapping:
+
+    .. runblock:: pycon
+
+        >>> from whylogs.core.datasetprofile import SCALAR_NAME_MAPPING
+        >>> import json
+        >>> print(json.dumps(SCALAR_NAME_MAPPING, indent=2))
     """
     hist = flatten_dataset_histograms(dataset_summary)
     frequent_strings = flatten_dataset_frequent_strings(dataset_summary)
@@ -620,6 +649,13 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
     """
     Get a dataframe from scalar values flattened from a dataset summary
 
+    Parameters
+    ----------
+    dataset_summary : DatasetSummary
+        The dataset summary.
+    mapping : dict, optional
+        Override the default variable mapping.
+
     Returns
     -------
     summary : pd.DataFrame
@@ -637,9 +673,9 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
     return scalar_summary.reset_index()
 
 
-def dataframe_profile(
-    df: pd.DataFrame, name: str = None, timestamp: datetime.datetime = None
-):
+def dataframe_profile(df: pd.DataFrame,
+                      name: str = None,
+                      timestamp: datetime.datetime = None):
     """
     Generate a dataset profile for a dataframe
 
@@ -648,10 +684,14 @@ def dataframe_profile(
     df : pandas.DataFrame
         Dataframe to track, treated as a complete dataset.
     name : str
-        Name of the dataset (e.g. timestamp string)
+        Name of the dataset
     timestamp : datetime.datetime, float
         Timestamp of the dataset.  Defaults to current UTC time.  Can be a
         datetime or UTC epoch seconds.
+
+    Returns
+    -------
+    prof : DatasetProfile
     """
     if name is None:
         name = "dataset"
@@ -666,11 +706,11 @@ def dataframe_profile(
 
 
 def array_profile(
-    x: np.ndarray,
-    name: str = None,
-    timestamp: datetime.datetime = None,
-    columns: list = None,
-):
+        x: np.ndarray,
+        name: str = None,
+        timestamp: datetime.datetime = None,
+        columns: list = None,
+    ):
     """
     Generate a dataset profile for an array
 
@@ -679,11 +719,15 @@ def array_profile(
     x : np.ndarray
         Array-like object to track.  Will be treated as an full dataset
     name : str
-        Name of the dataset (e.g. timestamp string)
+        Name of the dataset
     timestamp : datetime.datetime
         Timestamp of the dataset.  Defaults to current UTC time
     columns : list
         Optional column labels
+
+    Returns
+    -------
+    prof : DatasetProfile
     """
     if name is None:
         name = "dataset"
