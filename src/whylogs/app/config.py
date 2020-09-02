@@ -19,7 +19,11 @@ class WriterConfig:
     """
     Config for WhyLogs writers
 
-    See also :class:`WriterConfigSchema`
+    See also:
+
+    * :class:`WriterConfigSchema`
+    * :class:`whylogs.app.writers.Writer`
+    * :fun:`whylogs.app.writers.writer_from_config`
 
     Parameters
     ----------

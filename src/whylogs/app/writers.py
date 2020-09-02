@@ -1,4 +1,5 @@
 """
+Classes for writing WhyLogs output
 """
 import json
 import os
@@ -27,6 +28,28 @@ DEFAULT_FILENAME_TEMPLATE = "dataset_profile"
 
 
 class Writer(ABC):
+    """
+    Class for writing to disk
+
+    Parameters
+    ----------
+    output_path : str
+        Prefix of where to output files.  A directory for `type = 'local'`,
+        or key prefix for `type = 's3'`
+    formats : list
+        All output formats.
+        See :data:`whylogs.app.config.ALL_SUPPORTED_FORMATS`
+    path_template : str, optional
+        Templatized path output using standard python string templates.
+        Variables are accessed via $identifier or ${identifier}.
+        See :func:`Writer.template_params` for a list of available identifers.
+        Default = :data:`DEFAULT_PATH_TEMPLATE`
+    filename_template : str, optional
+        Templatized output filename using standardized python string templates.
+        Variables are accessed via $identifier or ${identifier}.
+        See :func:`Writer.template_params` for a list of available identifers.
+        Default = :data:`DEFAULT_FILENAME_TEMPLATE`
+    """
     def __init__(
         self,
         output_path: str,
@@ -57,14 +80,26 @@ class Writer(ABC):
 
     @abstractmethod
     def write(self, profile: DatasetProfile):
-        pass
+        """
+        Abstract method to write a dataset profile to disk.  Must be
+        implemented
+        """
+        raise NotImplementedError
 
     def path_suffix(self, profile: DatasetProfile):
+        """
+        Generate a path string for an output path from a dataset profile by
+        applying the path templating defined in `self.path_template`
+        """
         kwargs = self.template_params(profile)
         path = self.path_template.substitute(**kwargs)
         return path
 
     def file_name(self, profile: DatasetProfile, file_extension: str):
+        """
+        For a given DatasetProfile, generate an output filename based on the
+        templating defined in `self.filename_template`
+        """
         kwargs = self.template_params(profile)
         file_name = self.filename_template.substitute(**kwargs)
         return file_name + file_extension
@@ -107,6 +142,11 @@ class Writer(ABC):
 
 
 class LocalWriter(Writer):
+    """
+    WhyLogs Writer class that can write to disk.
+
+    See :class:`Writer` for a description of arguments
+    """
     def __init__(
         self,
         output_path: str,
@@ -119,6 +159,9 @@ class LocalWriter(Writer):
         super().__init__(output_path, formats, path_template, filename_template)
 
     def write(self, profile: DatasetProfile):
+        """
+        Write a dataset profile to disk
+        """
         for fmt in self.formats:
             if fmt == OutputFormat.json:
                 self._write_json(profile)
@@ -130,13 +173,17 @@ class LocalWriter(Writer):
                 raise ValueError(f"Unsupported format: {fmt}")
 
     def _write_json(self, profile: DatasetProfile):
+        """
+        Write a JSON summary of the dataset profile to disk
+        """
         path = self.ensure_path(os.path.join(self.path_suffix(profile), "json"))
 
         output_file = os.path.join(path, self.file_name(profile, ".json"))
 
         path = os.path.join(self.output_path, self.path_suffix(profile))
         os.makedirs(path, exist_ok=True)
-
+        # TODO: only calculate this summary once.  No need to calculate it for
+        # _write_flat() as well
         summary = profile.to_summary()
         with open(output_file, "wt") as f:
             f.write(message_to_json(summary))
@@ -147,11 +194,13 @@ class LocalWriter(Writer):
 
         Parameters
         ----------
-        profile the dataset profile to output
-        indent the JSON indentation. Default is 4
-        -------
-
+        profile : DatasetProfile
+            the dataset profile to output
+        indent : int
+            The JSON indentation to use. Default is 4
         """
+        # TODO: only calculate this summary once.  No need to calculate it for
+        # _write_json() as well
         summary = profile.to_summary()
 
         flat_table_path = self.ensure_path(
@@ -185,7 +234,11 @@ class LocalWriter(Writer):
             json.dump(histogram, f, indent=indent)
 
     def _write_protobuf(self, profile: DatasetProfile):
-        path = self.ensure_path(os.path.join(self.path_suffix(profile), "protobuf"))
+        """
+        Write a protobuf serialization of the DatasetProfile to disk
+        """
+        path = self.ensure_path(os.path.join(self.path_suffix(profile),
+                                             "protobuf"))
 
         protobuf: Message = profile.to_protobuf()
 
@@ -193,8 +246,11 @@ class LocalWriter(Writer):
             f.write(protobuf.SerializeToString())
 
     def ensure_path(
-        self, suffix: str, addition_part: typing.Optional[str] = None
-    ) -> str:
+            self, suffix: str, addition_part: typing.Optional[str] = None
+        ) -> str:
+        """
+        Ensure that a path exists, creating it if not
+        """
         path = os.path.join(self.output_path, suffix)
         if addition_part is not None:
             path = os.path.join(path, addition_part)
@@ -204,6 +260,11 @@ class LocalWriter(Writer):
 
 
 class S3Writer(Writer):
+    """
+    WhyLogs Writer class that can write to S3.
+
+    See :class:`Writer` for a description of arguments
+    """
     def __init__(
         self,
         output_path: str,
@@ -215,6 +276,9 @@ class S3Writer(Writer):
         self.fs = s3fs.S3FileSystem(anon=False)
 
     def write(self, profile: DatasetProfile):
+        """
+        Write a dataset profile to S3
+        """
         for fmt in self.formats:
             if fmt == OutputFormat.json:
                 self._write_json(profile)
@@ -226,6 +290,9 @@ class S3Writer(Writer):
                 raise ValueError(f"Unsupported format: {fmt}")
 
     def _write_json(self, profile: DatasetProfile):
+        """
+        Write a dataset profile JSON summary to disk
+        """
         output_file = os.path.join(
             self.output_path,
             self.path_suffix(profile),
@@ -243,10 +310,10 @@ class S3Writer(Writer):
 
         Parameters
         ----------
-        profile the dataset profile to output
-        indent the JSON indentation. Default is 4
-        -------
-
+        profile : DatasetProfile
+            the dataset profile to output
+        indent : int
+            The JSON indentation to use. Default is 4
         """
         summary = profile.to_summary()
 
@@ -288,6 +355,9 @@ class S3Writer(Writer):
             json.dump(histogram, f, indent=indent)
 
     def _write_protobuf(self, profile: DatasetProfile):
+        """
+        Write a datasetprofile protobuf serialization to S3
+        """
         path = os.path.join(self.output_path, self.path_suffix(profile), "protobuf")
 
         protobuf: Message = profile.to_protobuf()
@@ -299,6 +369,14 @@ class S3Writer(Writer):
 
 
 def writer_from_config(config: WriterConfig):
+    """
+    Construct a WhyLogs `Writer` from a `WriterConfig`
+
+    Returns
+    -------
+    writer : Writer
+        WhyLogs writer
+    """
     abs_path = os.path.abspath(config.output_path)
     if not os.path.exists(abs_path):
         os.makedirs(abs_path, exist_ok=True)
