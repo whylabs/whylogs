@@ -1,3 +1,6 @@
+"""
+Defines the ColumnProfile class for tracking per-column statistics
+"""
 from whylogs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
 from whylogs.core.statistics.datatypes import StringTracker
 from whylogs.core.statistics.hllsketch import HllSketch
