@@ -88,5 +88,15 @@ See the `scripts/` directory for some example scripts for interacting with `whyl
 See the `notebooks/` directory for some example notebooks.
 
 
-## Doc string format
+## Documentation
+Auto-generated documentation is handled with [sphinx](https://www.sphinx-doc.org/en/master/).  
+See the `docs/` folder for more and refer to [docs/README.md](docs/README.md)
+
+### Examples
+Example scripts which help demonstrate the use of WhyLogs can be placed under the `examples/` folder.
+Refer to [examples/README.md](examples/README.md) for more info
+
+
+### Doc string format
 We use the [numpydocs docstring standard](https://numpydoc.readthedocs.io/en/latest/format.html), which is human-readable and works with [sphinx](https://www.sphinx-doc.org/en/master/) api documentation generator.
+
