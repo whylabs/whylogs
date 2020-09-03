@@ -50,6 +50,7 @@ class WriterConfig:
         available identifers.
         Default = :data:`whylogs.app.writers.DEFAULT_FILENAME_TEMPLATE`
     """
+
     def __init__(
         self,
         type: str,
@@ -163,6 +164,7 @@ class WriterConfigSchema(Schema):
     """
     Marshmallow schema for :class:`WriterConfig` class.
     """
+
     type = fields.Str(validate=validate.OneOf(["local", "s3"]), required=True)
     formats = fields.List(
         fields.Str(validate=validate.OneOf(ALL_SUPPORTED_FORMATS)),
@@ -182,6 +184,7 @@ class SessionConfigSchema(Schema):
     """
     Marshmallow schema for :class:`SessionConfig` class.
     """
+
     project = fields.Str(required=True)
     pipeline = fields.Str(required=True)
     verbose = fields.Bool(missing=False)

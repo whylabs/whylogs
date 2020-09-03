@@ -27,10 +27,10 @@ class Session:
     verbose : bool
         enable verbose logging for not. Default is ``False``
     """
+
     def __init__(
-            self, project: str, pipeline: str, writers: List[Writer],
-            verbose: bool = False,
-        ):
+        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False,
+    ):
         if writers is None:
             writers = []
         self.project = project
@@ -52,11 +52,11 @@ class Session:
         return self._active
 
     def logger(
-            self,
-            dataset_name: Optional[str] = None,
-            dataset_timestamp: Optional[datetime.datetime] = None,
-            session_timestamp: Optional[datetime.datetime] = None,
-        ) -> Logger:
+        self,
+        dataset_name: Optional[str] = None,
+        dataset_timestamp: Optional[datetime.datetime] = None,
+        session_timestamp: Optional[datetime.datetime] = None,
+    ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
         If no dataset_name is specified, we default to project name
@@ -84,8 +84,7 @@ class Session:
             session_timestamp = self._session_time
 
         if not self._active:
-            raise RuntimeError(
-                "Session is already closed. Cannot create more loggers")
+            raise RuntimeError("Session is already closed. Cannot create more loggers")
         logger = self._loggers.get(dataset_name)
         if logger is None:
             logger = Logger(
@@ -100,12 +99,12 @@ class Session:
         return logger
 
     def log_dataframe(
-            self,
-            df: pd.DataFrame,
-            dataset_name: Optional[str] = None,
-            datetime_column: Optional = None,
-            datetime_format: Optional[str] = None,
-        ):
+        self,
+        df: pd.DataFrame,
+        dataset_name: Optional[str] = None,
+        datetime_column: Optional = None,
+        datetime_format: Optional[str] = None,
+    ):
         """
         Perform statistics caluclations and log a pandas dataframe
 
@@ -189,14 +188,12 @@ def get_or_create_session():
     """
     global _session
     if _session is not None and _session.is_active():
-        _getLogger(__name__).debug(
-            "Active session found, ignoring session kwargs")
+        _getLogger(__name__).debug("Active session found, ignoring session kwargs")
     else:
         config = load_config()
         if config is None:
             print("WARN: Missing config")
-            writer = WriterConfig(type="local", output_path="output",
-                                  formats=["all"])
+            writer = WriterConfig(type="local", output_path="output", formats=["all"])
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False
             )

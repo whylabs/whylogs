@@ -84,13 +84,12 @@ class FrequentItemsSketch:
     sketch : datasketches.frequent_strings_sketch, optional
         Initialize with an existing frequent strings sketch
     """
+
     DEFAULT_MAX_ITEMS_SIZE = 32
     DEFAULT_ERROR_TYPE = datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES
 
     def __init__(
-        self,
-        lg_max_k: int = None,
-        sketch: datasketches.frequent_strings_sketch = None
+        self, lg_max_k: int = None, sketch: datasketches.frequent_strings_sketch = None
     ):
         self.lg_max_k = lg_max_k
         if sketch is None:
@@ -101,8 +100,7 @@ class FrequentItemsSketch:
             assert isinstance(sketch, datasketches.frequent_strings_sketch)
         self.sketch = sketch
 
-    def get_apriori_error(self, lg_max_map_size: int,
-                          estimated_total_weight: int):
+    def get_apriori_error(self, lg_max_map_size: int, estimated_total_weight: int):
         """
         Return an apriori estimate of the uncertainty for various parameters
 
@@ -117,8 +115,7 @@ class FrequentItemsSketch:
         error : float
             Approximate uncertainty
         """
-        return self.sketch.get_apriori_error(lg_max_map_size,
-                                             estimated_total_weight)
+        return self.sketch.get_apriori_error(lg_max_map_size, estimated_total_weight)
 
     def get_epsilon_for_lg_size(self, lg_max_map_size: int):
         return self.sketch.get_epsilon_for_lg_size(lg_max_map_size)
@@ -319,6 +316,7 @@ class FrequentNumbersSketch(FrequentItemsSketch):
     """
     A class to implement frequent number counting
     """
+
     def copy(self):
         """
         Returns

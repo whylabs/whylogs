@@ -19,6 +19,7 @@ class OutputFormat(Enum):
     protobuf
         output as a binary protobuf file. This is the most compact format
     """
+
     json = auto()
     flat = auto()
     protobuf = auto()

@@ -76,12 +76,12 @@ def list_keys(bucket, prefix="", suffix="", client=None):
 
 
 def list_objects(
-        bucket: str,
-        prefix: str = None,
-        suffix: str = None,
-        start_after: str = None,
-        client=None,
-    ):
+    bucket: str,
+    prefix: str = None,
+    suffix: str = None,
+    start_after: str = None,
+    client=None,
+):
     """
     Generator to list objects in an S3 bucket.
 

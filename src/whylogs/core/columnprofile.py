@@ -44,12 +44,12 @@ class ColumnProfile:
     def __init__(
         self,
         name: str,
-        number_tracker: NumberTracker=None,
-        string_tracker: StringTracker=None,
-        schema_tracker: SchemaTracker=None,
-        counters: CountersTracker=None,
-        frequent_items: FrequentItemsSketch=None,
-        cardinality_tracker: HllSketch=None,
+        number_tracker: NumberTracker = None,
+        string_tracker: StringTracker = None,
+        schema_tracker: SchemaTracker = None,
+        counters: CountersTracker = None,
+        frequent_items: FrequentItemsSketch = None,
+        cardinality_tracker: HllSketch = None,
     ):
         # Handle default values
         if counters is None:
