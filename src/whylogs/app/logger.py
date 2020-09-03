@@ -1,3 +1,6 @@
+"""
+Class and functions for WhyLogs logging
+"""
 import datetime
 from typing import List, Optional
 
@@ -15,7 +18,18 @@ class Logger:
 
     Parameters
     ----------
-
+    dataset_name : str
+        The name of the dataset. Gets included in the DatasetProfile metadata
+        and can be used in generated filenames.
+    dataset_timestamp : datetime.datetime
+        Timestamp of the data.
+    session_timestamp : datetime.datetime
+        Timestamp of the logging session
+    writers : list
+        A list of `Writer` objects which will be used to write the dataset
+        profile.
+    verbose : bool
+        Control output verbosity
     """
 
     def __init__(
@@ -45,6 +59,9 @@ class Logger:
         self.close()
 
     def flush(self):
+        """
+        Synchronously perform all remaining write tasks
+        """
         if not self._active:
             print("WARNING: attempting to flush a closed logger")
             return
@@ -53,6 +70,9 @@ class Logger:
             writer.write(self._profile)
 
     def close(self):
+        """
+        Flush and close out the logger.
+        """
         if not self._active:
             print("WARNING: attempting to close a closed logger")
             return
@@ -75,4 +95,7 @@ class Logger:
         self._profile.track_dataframe(df)
 
     def is_active(self):
+        """
+        Return the boolean state of the logger
+        """
         return self._active

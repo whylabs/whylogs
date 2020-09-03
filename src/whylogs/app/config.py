@@ -1,5 +1,7 @@
 """
 Classes/functions for configuring the WhyLogs app
+
+.. autodata:: ALL_SUPPORTED_FORMATS
 """
 from logging import getLogger
 from typing import List
@@ -13,6 +15,7 @@ from whylogs.app.output_formats import SUPPORTED_OUTPUT_FORMATS
 WHYLOGS_YML = ".whylogs.yaml"
 
 ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
+"""Supported output formats for WhyLogs writer configuration"""
 
 
 class WriterConfig:
@@ -23,7 +26,7 @@ class WriterConfig:
 
     * :class:`WriterConfigSchema`
     * :class:`whylogs.app.writers.Writer`
-    * :fun:`whylogs.app.writers.writer_from_config`
+    * :func:`whylogs.app.writers.writer_from_config`
 
     Parameters
     ----------
