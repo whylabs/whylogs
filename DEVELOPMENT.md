@@ -2,6 +2,10 @@
 
 Please take a look at this doc before contributing to WhyLogs python.
 
+## Code format
+We use [black](https://pypi.org/project/black/) to format all our code.  Before submitting a PR you'll need to format the code by running (from the repo root dir):
+
+```python setup.py format```
 
 ## Installation
 
