@@ -20,7 +20,10 @@ class FloatTracker:
     """
 
     def __init__(
-        self, min: float = None, max: float = None, sum: float = None,
+        self,
+        min: float = None,
+        max: float = None,
+        sum: float = None,
         count: int = None,
     ):
         if min is None:

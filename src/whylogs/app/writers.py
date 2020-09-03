@@ -50,6 +50,7 @@ class Writer(ABC):
         See :func:`Writer.template_params` for a list of available identifers.
         Default = :data:`DEFAULT_FILENAME_TEMPLATE`
     """
+
     def __init__(
         self,
         output_path: str,
@@ -147,6 +148,7 @@ class LocalWriter(Writer):
 
     See :class:`Writer` for a description of arguments
     """
+
     def __init__(
         self,
         output_path: str,
@@ -237,8 +239,7 @@ class LocalWriter(Writer):
         """
         Write a protobuf serialization of the DatasetProfile to disk
         """
-        path = self.ensure_path(os.path.join(self.path_suffix(profile),
-                                             "protobuf"))
+        path = self.ensure_path(os.path.join(self.path_suffix(profile), "protobuf"))
 
         protobuf: Message = profile.to_protobuf()
 
@@ -246,8 +247,8 @@ class LocalWriter(Writer):
             f.write(protobuf.SerializeToString())
 
     def ensure_path(
-            self, suffix: str, addition_part: typing.Optional[str] = None
-        ) -> str:
+        self, suffix: str, addition_part: typing.Optional[str] = None
+    ) -> str:
         """
         Ensure that a path exists, creating it if not
         """
@@ -265,6 +266,7 @@ class S3Writer(Writer):
 
     See :class:`Writer` for a description of arguments
     """
+
     def __init__(
         self,
         output_path: str,

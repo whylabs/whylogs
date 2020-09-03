@@ -89,9 +89,8 @@ def quantiles_from_sketch(sketch: kll_floats_sketch, quantiles=None):
 
 
 def histogram_from_sketch(
-        sketch: kll_floats_sketch, max_buckets: int = None,
-        avg_per_bucket: int = None
-    ):
+    sketch: kll_floats_sketch, max_buckets: int = None, avg_per_bucket: int = None
+):
     """
     Generate a summary of a kll_floats_sketch, including a histogram
 

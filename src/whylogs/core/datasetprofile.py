@@ -27,7 +27,9 @@ from whylogs.util.time import from_utc_ms, to_utc_ms
 from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 
-COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10  #: Used for chunking serialized dataset profile messages
+COLUMN_CHUNK_MAX_LEN_IN_BYTES = (
+    int(1e6) - 10
+)  #: Used for chunking serialized dataset profile messages
 TYPENUM_COLUMN_NAMES = OrderedDict()
 for k in TYPES.keys():
     TYPENUM_COLUMN_NAMES[k] = "type_" + k.lower() + "_count"
@@ -673,9 +675,9 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
     return scalar_summary.reset_index()
 
 
-def dataframe_profile(df: pd.DataFrame,
-                      name: str = None,
-                      timestamp: datetime.datetime = None):
+def dataframe_profile(
+    df: pd.DataFrame, name: str = None, timestamp: datetime.datetime = None
+):
     """
     Generate a dataset profile for a dataframe
 
@@ -706,11 +708,11 @@ def dataframe_profile(df: pd.DataFrame,
 
 
 def array_profile(
-        x: np.ndarray,
-        name: str = None,
-        timestamp: datetime.datetime = None,
-        columns: list = None,
-    ):
+    x: np.ndarray,
+    name: str = None,
+    timestamp: datetime.datetime = None,
+    columns: list = None,
+):
     """
     Generate a dataset profile for an array
 
