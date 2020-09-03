@@ -1,4 +1,5 @@
 """
+WhyLogs logging session
 """
 import datetime
 from logging import getLogger as _getLogger
@@ -12,18 +13,24 @@ from whylogs.app.writers import Writer, writer_from_config
 
 
 class Session:
+    """
+    Parameters
+    ----------
+    project : str
+        The project name. We will default to the project name when logging
+        a dataset if the dataset name is not specified
+    pipeline : str
+        Name of the pipeline associated with this session
+    writers : list
+        configuration for the output writers. This is where the log data
+        will go
+    verbose : bool
+        enable verbose logging for not. Default is ``False``
+    """
     def __init__(
-        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False,
-    ):
-        """
-
-        Parameters
-        ----------
-        project : the project name. We will default to the project name when logging a dataset
-         if the dataset name is not specified
-        writers : configuration for the output writers. This is where the log data will go
-        verbose : enable verbose logging for not. Default is False
-        """
+            self, project: str, pipeline: str, writers: List[Writer],
+            verbose: bool = False,
+        ):
         if writers is None:
             writers = []
         self.project = project
@@ -45,27 +52,30 @@ class Session:
         return self._active
 
     def logger(
-        self,
-        dataset_name: Optional[str] = None,
-        dataset_timestamp: Optional[datetime.datetime] = None,
-        session_timestamp: Optional[datetime.datetime] = None,
-    ) -> Logger:
+            self,
+            dataset_name: Optional[str] = None,
+            dataset_timestamp: Optional[datetime.datetime] = None,
+            session_timestamp: Optional[datetime.datetime] = None,
+        ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
         If no dataset_name is specified, we default to project name
 
         Parameters
         ----------
-        dataset_name :
+        dataset_name : str
             Name of the dataset. Default is the project name
-        dataset_timestamp:
-            The timestamp associated with the dataset. Could be the timestamp for the batch, or the timestamp
+        dataset_timestamp: datetime.datetime, optional
+            The timestamp associated with the dataset. Could be the timestamp
+            for the batch, or the timestamp
             for the window that you are tracking
-        session_timestamp
-            Override the timestamp associated with the session. Normally you shouldn't need to override this value
+        session_timestamp: datetime.datetime, optional
+            Override the timestamp associated with the session. Normally you
+            shouldn't need to override this value
         Returns
         -------
-
+        ylog : whylogs.app.logger.Logger
+            WhyLogs logger
         """
         if dataset_name is None:
             # using the project name for the datasetname
@@ -74,7 +84,8 @@ class Session:
             session_timestamp = self._session_time
 
         if not self._active:
-            raise RuntimeError("Session is already closed. Cannot create more loggers")
+            raise RuntimeError(
+                "Session is already closed. Cannot create more loggers")
         logger = self._loggers.get(dataset_name)
         if logger is None:
             logger = Logger(
@@ -89,12 +100,27 @@ class Session:
         return logger
 
     def log_dataframe(
-        self,
-        df: pd.DataFrame,
-        dataset_name: Optional[str] = None,
-        datetime_column: Optional[str] = None,
-        datetime_format: Optional[str] = None,
-    ):
+            self,
+            df: pd.DataFrame,
+            dataset_name: Optional[str] = None,
+            datetime_column: Optional = None,
+            datetime_format: Optional[str] = None,
+        ):
+        """
+        Perform statistics caluclations and log a pandas dataframe
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Pandas DataFrame
+        dataset_name : str
+            Name of the dataset
+        datetime_column : hash-able
+            Specify a column to be parsed as a datetime which can be used to
+            split the dataframe into multiple batches
+        datetime_format : str
+            Specify a datetime format.  See `datetime.strftime`
+        """
         if not self.is_active():
             return
 
@@ -102,6 +128,9 @@ class Session:
             logger.log_dataframe(df)
 
     def close(self):
+        """
+        Deactivate this session and flush all associated loggers
+        """
         if not self._active:
             print("WARNING: attempting to close an inactive session")
             return
@@ -112,21 +141,27 @@ class Session:
                 logger.close()
 
     def is_active(self):
+        """
+        Return the boolean state of this Session
+        """
         return self._active
 
 
 def session_from_config(config: SessionConfig) -> Session:
+    """
+    Construct a WhyLogs session from a `SessionConfig`
+    """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
     return Session(config.project, config.pipeline, writers, config.verbose)
 
 
-# Create a global session
+#: A global session
 _session = None
 
 
 def reset_default():
     """
-    Reset and inactivate the logging session.
+    Reset and inactivate the global WhyLogs logging session.
     """
     global _session
     if _session is not None:
@@ -139,17 +174,29 @@ def reset_default():
 
 def get_or_create_session():
     """
-    Retrieve the current active session.  If no active session is found,
-    create the session.
+    Retrieve the current active global session.
+
+    If no active session exists, attempt to load config and create a new
+    session.
+
+    If an active session exists, return the session without loading new
+    config.
+
+    Returns
+    -------
+    session : Session
+        The global active session
     """
     global _session
     if _session is not None and _session.is_active():
-        _getLogger(__name__).debug("Active session found, ignoring session kwargs")
+        _getLogger(__name__).debug(
+            "Active session found, ignoring session kwargs")
     else:
         config = load_config()
         if config is None:
             print("WARN: Missing config")
-            writer = WriterConfig(type="local", output_path="output", formats=["all"])
+            writer = WriterConfig(type="local", output_path="output",
+                                  formats=["all"])
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False
             )
@@ -160,12 +207,22 @@ def get_or_create_session():
 def get_session():
     """
     Retrieve the logging session without altering or activating it.
+
+    Returns
+    -------
+    session : Session
+        The global session
     """
     return _session
 
 
 def get_logger():
     """
-    Retrieve the logger.
+    Retrieve the global session logger
+
+    Returns
+    -------
+    ylog : whylogs.app.logger.Logger
+        The global session logger
     """
     return _session.logger
