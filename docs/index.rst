@@ -22,6 +22,7 @@ communication between teams. Head over to the :ref:`intro` to learn more, or jum
     overview
     getting_started
     concepts
+    auto_examples/index
 
 Index
 ==================

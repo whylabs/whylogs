@@ -22,7 +22,7 @@ def display_logging(level="DEBUG", root_logger=False):
     if isinstance(level, str):
         level = level.upper()
 
-    logger = logging.getLogger("whylogs.logs")
+    logger = logging.getLogger("whylogs")
     logger.propagate = root_logger
     logger.setLevel(level)
     handlers = getattr(logger, "handlers", [])

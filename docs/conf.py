@@ -42,6 +42,7 @@ version = whylogs.__version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx_gallery.gen_gallery',
     "autoapi.extension",
     "sphinx_rtd_theme",
     "sphinx.ext.autodoc",
@@ -53,7 +54,17 @@ extensions = [
     "sphinx_gitstamp",
     "sphinx.ext.autosectionlabel",
     "sphinx_autorun",
+
 ]
+
+sphinx_gallery_conf = {
+    'examples_dirs': '../examples',  # path to your example scripts
+    'gallery_dirs': 'auto_examples',  # path to where to save gallery generated output
+    # 'filename_pattern': '/plot_',  # Default pattern of filenames to execute
+    # 'ignore_pattern': r'__init__\.py',  # Default filename ignore pattern
+    'filename_pattern': '.*\.py$',
+}
+
 
 autoapi_type = "python"
 autoapi_dirs = ["../src/whylogs"]
@@ -94,5 +105,5 @@ html_css_files = ["style.css"]
 
 html_theme_options = {
     'navigation_depth': 6,
-    'github_url': 'https://github.com/whylabs/whylogs-python',
+    # 'github_url': 'https://github.com/whylabs/whylogs-python',
 }
