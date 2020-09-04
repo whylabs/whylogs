@@ -21,7 +21,7 @@ class TypedDataConverter:
 
     To see available types:
 
-    .. runblock:: pycon
+    .. code-block:: python
 
         >>> from whylogs.core.types.typeddataconverter import TYPES
         >>> print("\\n".join(sorted(TYPES.keys())))

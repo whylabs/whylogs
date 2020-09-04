@@ -108,7 +108,7 @@ def get_valid_filename(s):
     underscores; and remove anything that is not an alphanumeric, dash,
     underscore, or dot.
 
-    .. runblock:: pycon
+    .. code-block:: python
 
         >>> from whylogs.util.data import get_valid_filename
         >>> get_valid_filename("  Background of tim's 8/1/2019 party!.jpg ")

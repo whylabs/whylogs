@@ -81,6 +81,7 @@ sphinx_gallery_conf = {
     # 'filename_pattern': '/plot_',  # Default pattern of filenames to execute
     # 'ignore_pattern': r'__init__\.py',  # Default filename ignore pattern
     # 'filename_pattern': '.*\.py$',
+    # 'ignore_pattern': '.*',
 }
 
 
