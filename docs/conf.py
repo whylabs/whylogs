@@ -27,6 +27,54 @@ from sphinx.ext.autodoc import between
 sys.path.insert(0, os.path.abspath("../src/"))
 
 
+# ------------------------------------------------------------------------
+# Install protoc and whylogs if not installed
+#
+# Note: this is a super hacky way of allowing readthedocs to install
+# the protoc compiler
+# ------------------------------------------------------------------------
+def execute(cmd):
+    import subprocess
+    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
+                             universal_newlines=True)
+    for stdout_line in iter(popen.stdout.readline, ""):
+        yield stdout_line
+    popen.stdout.close()
+    return_code = popen.wait()
+    if return_code:
+        raise subprocess.CalledProcessError(return_code, cmd)
+
+
+# Find the Protocol Compiler.
+def find_protoc():
+    from distutils.spawn import find_executable
+    if "PROTOC" in os.environ and os.path.exists(os.environ["PROTOC"]):
+        protoc = os.environ["PROTOC"]
+    elif os.path.exists("../src/protoc"):
+        protoc = "../src/protoc"
+    elif os.path.exists("../src/protoc.exe"):
+        protoc = "../src/protoc.exe"
+    elif os.path.exists("../vsprojects/Debug/protoc.exe"):
+        protoc = "../vsprojects/Debug/protoc.exe"
+    elif os.path.exists("../vsprojects/Release/protoc.exe"):
+        protoc = "../vsprojects/Release/protoc.exe"
+    else:
+        protoc = find_executable("protoc")
+    return protoc
+
+if find_protoc() is None:
+    # Install protoc
+    execute(['apt install -y protobuf-compiler'.split()])
+    assert find_protoc() is not None
+
+
+try:
+    import whylogs
+except ImportError:
+    # Install whylogs
+    ...
+
 
 # -- Project information -----------------------------------------------------
 
