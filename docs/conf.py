@@ -65,7 +65,8 @@ def find_protoc():
 
 if find_protoc() is None:
     # Install protoc
-    execute(['apt install -y protobuf-compiler'.split()])
+    print('Installing protoc.  CWD:', os.getcwd())
+    execute('./readthedocs-install-protoc.sh')
     assert find_protoc() is not None
 
 
