@@ -550,7 +550,7 @@ def flatten_summary(dataset_summary: DatasetSummary) -> dict:
     -----
     Some relevant info on the summary mapping:
 
-    .. runblock:: pycon
+    .. code-block:: python
 
         >>> from whylogs.core.datasetprofile import SCALAR_NAME_MAPPING
         >>> import json
