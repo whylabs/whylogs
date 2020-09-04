@@ -1,10 +1,22 @@
 import json
 
 import pytest
-from helpers.testutil import compare_frequent_items
+from testutil import compare_frequent_items
 
 from whylogs.core import ColumnProfile
 from whylogs.util.protobuf import message_to_dict
+
+
+def test_frequent_items_do_not_track_nulls():
+    import numpy as np
+    data = [None, np.nan, None]
+    c = ColumnProfile('col')
+    for val in data:
+        c.track(val)
+    assert c.frequent_items.to_summary() is None
+    assert c.frequent_items.is_empty()
+    assert c.cardinality_tracker.is_empty()
+    assert c.cardinality_tracker.to_summary() is None
 
 
 def test_track():

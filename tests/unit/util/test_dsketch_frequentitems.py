@@ -2,7 +2,7 @@ import json
 
 import datasketches
 import numpy as np
-from helpers.testutil import compare_frequent_items
+from testutil import compare_frequent_items
 
 from whylogs.util import dsketch
 

@@ -82,3 +82,4 @@ virtualenv==20.0.31
 wcwidth==0.2.5
 webencodings==0.5.1
 whylabs-datasketches==2.0.0b6
+ipdb >= 0.13.3
