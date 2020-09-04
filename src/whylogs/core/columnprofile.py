@@ -8,6 +8,8 @@ from whylogs.core.types import TypedDataConverter
 from whylogs.proto import ColumnMessage, ColumnSummary, InferredType
 from whylogs.util.dsketch import FrequentItemsSketch
 
+import pandas as pd
+
 _TYPES = InferredType.Type
 _NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}
 _UNIQUE_COUNT_BOUNDS_STD = 1
@@ -88,8 +90,10 @@ class ColumnProfile:
 
         # TODO: Implement real typed data conversion
         typed_data = TypedDataConverter.convert(value)
-        self.cardinality_tracker.update(typed_data)
-        self.frequent_items.update(typed_data)
+
+        if not pd.isnull(typed_data):
+            self.cardinality_tracker.update(typed_data)
+            self.frequent_items.update(typed_data)
         dtype = TypedDataConverter.get_type(typed_data)
         self.schema_tracker.track(dtype)
 

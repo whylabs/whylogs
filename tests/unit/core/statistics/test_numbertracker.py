@@ -1,5 +1,5 @@
 import pytest
-from helpers.testutil import compare_frequent_items
+from testutil import compare_frequent_items
 
 from whylogs.core.statistics import NumberTracker
 
