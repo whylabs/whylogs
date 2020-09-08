@@ -4,24 +4,24 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE)
 
-WhyLogs is the first of its kind statistical logging library. Whether you are running an experimentation or production ML/AI pipeline, understanding the properties of data that flows through an application is critical for stable model behavior and great customer experience. With WhyLogs, data science and ML teams can effortlessly instrument ML/AI pipelines and applications. Resulting log files are used for monitoring, alerting, analytics and error analysis. 
+Understanding the properties of data as it moves through applications is essential to keeping your ML/AI pipeline stable and improving your user experience, whether your pipeline is built for production or experimentation.. WhyLogs is an open source statistical logging library that allows data science and ML teams to effortlessly profile ML/AI pipelines and applications, producing log files that can be used for monitoring, alerts, analytics, and error analysis. 
 
-WhyLogs is an open source package that calculates approximate statistics for datasets of any size (from small to TB-size) in order to identify changes in the statistical properties of model's inputs or outputs. Approximate statistics allows the package to be deployed with minimal infrastructure requirements, and to work with an entire dataset as opposed to calculating actual statistics on a small sample of data which may miss outliers and other anomalies. These qualities make WhyLogs an excellent solution for instrumenting production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.  
+WhyLogs calculates approximate statistics for datasets of any size up to TB-scale, making it easy for users to identify changes in the statistical properties of a model's inputs or outputs. Using approximate statistics allows the package to run on minimal infrastructure and monitor an entire dataset, rather than miss outliers and other anomalies by calculating more precise statistics on only a small data sample. These qualities make WhyLogs an excellent solution for profiling production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.  
 
 # Key Features
 
-* **Data Insight** provides complex statistics across different stages of your ML/AI pipelines and applications.
+* **Data Insight:** WhyLogs provides complex statistics across different stages of your ML/AI pipelines and applications.
 
-* **Scalability** scales with your system, from local development mode to live production system in multi-node clusters. Suitable for batch and streaming architectures. 
+* **Scalability:** WhyLogs scales with your system, from local development mode to live production systems in multi-node clusters, and works well with batch and streaming architectures. 
 
-* **Lightweight** using sketching algorithms and summarization statistics, WhyLogs produces small mergeable lightweight
-  outputs in a variety of formats.
+* **Lightweight:** WhyLogs produces small mergeable lightweight outputs in a variety of formats, using sketching algorithms and summarizing statistics.
 
-* **Unified data instrumentation** enable both data engineering pipelines and ML pipelines to share a common framework for tracking data quality and drifts. WhyLogs library supports multiple languages and many integrations. 
+* **Unified data instrumentation:** To enable data engineering pipelines and ML pipelines to share a common framework for tracking data quality and drifts, the WhyLogs library supports multiple languages and integrations. 
   
-* **Observability** on top of supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused data quality and data drift detection, analytics and error analysis. 
+* **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection. 
 
 # Examples
+(Insert Content Here)
 
 # Installation
 
@@ -30,24 +30,24 @@ WhyLogs is an open source package that calculates approximate statistics for dat
 [![PyPi Downloads](https://pepy.tech/badge/whylogs)](https://pepy.tech/project/whylogs)
 [![PyPi Version](https://badge.fury.io/py/whylogs.svg)](https://pypi.org/project/whylogs/)
 
-You can install using the pip package manager by running
+Install WhyLogs using the pip package manager by running
 
     pip install whylogs
     
 ### From source
 
 Download the source code by cloning the repository or by pressing ['Download ZIP'](https://github.com/whylabs/whylogs-python/archive/master.zip) on this page. 
-Install by navigating to the proper directory and running
+Install by navigating to the desired directory and running
 
     python setup.py install
 
 ## Documentation
 
-API documentation for `whylogs` can be found [whylogs.readthedocs.io](http://whylogs.readthedocs.io/).
+API documentation for `whylogs` can be found at [whylogs.readthedocs.io](http://whylogs.readthedocs.io/).
 
 ### Demo CLI
 
-Our demo CLI will generate a demo project flow by running:
+Our demo CLI generates a demo project flow by running
 
      whylogs-demo
 
@@ -72,12 +72,13 @@ configuration for your project. You can run the following command in the root of
 
 
 ### Integrations
+(Insert Content Here)
 
 ### Dependencies
  
-See [requirements.txt](https://github.com/whylabs/whylogs-python/blob/mainline/requirements.txt) for the core requirements.
+For the core requirements, see [requirements.txt](https://github.com/whylabs/whylogs-python/blob/mainline/requirements.txt).
 
-For development environment, see [requirements-dev.txt](https://github.com/whylabs/whylogs-python/blob/mainline/requirements-dev.txt) for the development enviornment.
+For the development environment, see [requirements-dev.txt](https://github.com/whylabs/whylogs-python/blob/mainline/requirements-dev.txt).
 
 # Development/contributing
-Please take a quick look at [`DEVELOPMENT.md`](DEVELOPMENT.md) for more information on contributing to WhyLogs
+For more information on contributing to WhyLogs, see [`DEVELOPMENT.md`](DEVELOPMENT.md).
