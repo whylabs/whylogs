@@ -21,7 +21,8 @@ WhyLogs calculates approximate statistics for datasets of any size up to TB-scal
 * **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection. 
 
 # Examples
-(Insert Content Here)
+- [Logging a Dataframe](https://whylogs.readthedocs.io/en/latest/auto_examples/log_dataframe.html)
+- [Logger Options](https://whylogs.readthedocs.io/en/latest/auto_examples/configure_logger.html#sphx-glr-auto-examples-configure-logger-py)
 
 # Installation
 
@@ -52,27 +53,30 @@ Our demo CLI generates a demo project flow by running
      whylogs-demo
 
 ### Quick start CLI
-WhyLogs can be configured programmatically or with our config YAML file. The quick start CLI can help you bootstrap the
-configuration for your project. You can run the following command in the root of your Python project
+WhyLogs can be configured programmatically or by using our config YAML file. The quick start CLI can help you bootstrap the
+configuration for your project. To use the quick start CLI, run the following command in the root of your Python project.
 
      whylogs-quickstart
      
 ### Glossary/Concepts 
-**Project:** A collection of related data sets that are used for multiple models or applications.
+**Project:** A collection of related data sets used for multiple models or applications.
 
-**Pipeline:** A series of one or multiple datasets to build a single model or application. A project might contain multiple pipelines.
+**Pipeline:** One or more datasets used to build a single model or application. A project may contain multiple pipelines.
 
-**Dataset:** A collection of records. WhyLogs v0.0.2 supports structured datasets; meaning that the data can be represented as a table where each row is a different record, and each column is a feature of the record. 
+**Dataset:** A collection of records. WhyLogs v0.0.2 supports structured datasets, which represent data as a table where each row is a different record and each column is a feature of the record. 
 
-**Feature:** In the context of WhyLogs v0.0.2 and structured data, a feature is a column in a dataset. A feature can be discrete (think of gender or eye color) or continuous (think of age or salary). 
+**Feature:** In the context of WhyLogs v0.0.2 and structured data, a feature is a column in a dataset. A feature can be discrete (like gender or eye color) or continuous (like age or salary). 
 
-**WhyLogs Output:** A profile summary file is returned by WhyLogs on a given dataset in JSON format. For convenience, files for this content are provided in flat table, histogram, and frequency format.
+**WhyLogs Output:** WhyLogs returns profile summary files for a dataset in JSON format. For convenience, these files are provided in flat table, histogram, and frequency formats.
 
-**Statistical Profile:** A collection of statistical properties of a given feature. Properties can be different for discrete and continuous features. 
-
+**Statistical Profile:** A collection of statistical properties of a feature. Properties can be different for discrete and continuous features.
 
 ### Integrations
-(Insert Content Here)
+The WhyLogs library is integrated with the following:
+- NumPy and Pandas
+- [Java and Apache Spark](https://github.com/whylabs/whylogs-java)
+- AWS S3 (for output storage)
+- Jupyter Notebooks
 
 ### Dependencies
  
