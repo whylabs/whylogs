@@ -8,29 +8,26 @@ Introduction
 ===================================
 
 WhyLogs (https://github.com/whylabs/whylogs) is an open source data quality \
-library for logging and monitoring data for your AI/ML application with advanced \
-data science statistics. WhyLogs is designed for scaling with your MLOps workflow, \
-and can scale from local development to production terabyte-size datasets.
+library that uses advanced data science statistics to log and monitor data \
+for your AI/ML application. WhyLogs is designed to scale with your MLOps \
+workflow, from local development to production terabyte-size datasets.
 
 
 Whether you are running an experimentation or production pipeline, understanding the \
-properties of data that flows through the application is critical for the success of \
-the ML project. WhyLogs enables advanced statistical collection using lightweight techniques \
-(i.e. building sketches for data) that can enable complex monitoring and data quality check for your \
+properties of the data that flows through your application is critical to the success of \
+your ML project. WhyLogs enables advanced statistical collection using lightweight techniques, \
+such as building sketches for data, that enable complex monitoring and data quality checks for your \
 pipeline.
 
-Benefits
+Key Features
 ===================================
 
-* **Data Insight** provides complex statistics across different stages of your pipelines.
+* **Data Insight:** WhyLogs provides complex statistics across different stages of your ML/AI pipelines and applications.
 
-* **Scalability** scales with your system, from local development mode to live production system in multi-node clusters.
+* **Scalability:** WhyLogs scales with your system, from local development mode to live production systems in multi-node clusters, and works well with batch and streaming architectures. 
 
-* **Lightweight** using sketching algorithms and summarization statistics, WhyLogs produces small mergeable lightweight
-  outputs that can be used for local analysis.
+* **Lightweight:** WhyLogs produces small mergeable lightweight outputs in a variety of formats, using sketching algorithms and summarizing statistics.
 
-* **Advanced monitoring** on top of supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused
-  data quality and monitoring checks such as drift detection, data type distribution, histogram shifts.
-
-* **Unified data monitoring** enable both data engineering pipelines and ML pipelines to share a common framework
-  for monitoring data quality and drifts.
+* **Unified data instrumentation:** To enable data engineering pipelines and ML pipelines to share a common framework for tracking data quality and drifts, the WhyLogs library supports multiple languages and integrations. 
+  
+* **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection. 
