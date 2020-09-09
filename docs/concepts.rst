@@ -6,7 +6,7 @@ Concepts
 - In **batch mode**, WhyLogs processes a dataset in batches.
 - A **dataset** is a collection of related data that will be analyzed together. WhyLogs accepts tabular data: each column of the table represents a particular variable, and each row represents a record of the dataset. When used alongside a statistical model, the dataset often represents features as columns, with additional columns for the output. More complex data formats will be supported in the future.
 - A **DatasetProfile** is a collection of summary statistics and related metadata for a dataset that WhyLogs has processed.
-- **Data Sketches** are a class of algorithms that efficiently extract information from large or streaming datasets in a single pass. This term is sometimes used to refer specifically to the [Apache DataSketches](https://datasketches.apache.org/) project.
+- **Data Sketches** are a class of algorithms that efficiently extract information from large or streaming datasets in a single pass. This term is sometimes used to refer specifically to the `Apache DataSketches <https://datasketches.apache.org/>`_ project.
 
 - A **logger** represents the WhyLogs tracking object for a given dataset (in batch mode) or a collection of data points (in streaming mode). A logger is always associated with a timestamp for its creation and a timestamp for the dataset. Different loggers may write to different storage systems using different output formats.
 - **Metadata** is data that describes either a dataset or information from WhyLogs' processing of the dataset.
