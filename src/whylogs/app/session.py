@@ -160,7 +160,7 @@ _session = None
 
 def reset_default():
     """
-    Reset and inactivate the global WhyLogs logging session.
+    Reset and deactivate the global WhyLogs logging session.
     """
     global _session
     if _session is not None:
