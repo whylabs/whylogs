@@ -102,7 +102,7 @@ class WriterConfig:
 
 class SessionConfig:
     """
-    Configuration for a WhyLogs session.
+    Config for a WhyLogs session.
 
     See also :class:`SessionConfigSchema`
 
