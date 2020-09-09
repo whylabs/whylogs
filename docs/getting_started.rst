@@ -65,8 +65,8 @@ Create a Logger
 Loggers log statistical information about your data. They have the following parameters:
 
 - **dataset_name** sets the name of the dataset, to be used in DatasetProfile metadata and generated filenames.
-- **dataset_timestamp** sets start and end timestamps for the data.
-- **session_timestamp** sets start and end timestamps for the session.
+- **dataset_timestamp** sets a timestamp for the data.
+- **session_timestamp** sets a timestamp for the creation of the session.
 - **writers** provides a list of writers that will be used to create the DatasetProfile.
 - **verbose** sets the verbosity of the output.
 
@@ -77,11 +77,13 @@ For more information, see the `documentation <https://whylogs.readthedocs.io/en/
 Configure a Writer
 ########################
 
-Writers write the statistics gathered by the logger into an output file. They have the following parameters:
+Writers write the statistics gathered by the logger into an output file. They use the following parameters to create output file paths:
 - **output_path** sets the location output files will be stored. Use a directory path if your writer ``type = 'local'``, or a key prefix for ``type = 's3'``.
 - **formats** lists all supported output formats.
 - **path_template** optionally sets an output path using Python string templates.
 - **filename_template** optionally sets output filenames using Python string templates.
+- **dataset_timestamp** sets a timestamp for the data.
+- **session_timestamp** sets a timestamp for the creation of the session.
 
 For more information, see the `documentation <https://whylogs.readthedocs.io/en/latest/autoapi/whylogs/app/writers/index.html>`_ for the writer class.
 
