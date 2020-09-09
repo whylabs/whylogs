@@ -78,6 +78,7 @@ Configure a Writer
 ########################
 
 Writers write the statistics gathered by the logger into an output file. They use the following parameters to create output file paths:
+
 - **output_path** sets the location output files will be stored. Use a directory path if your writer ``type = 'local'``, or a key prefix for ``type = 's3'``.
 - **formats** lists all supported output formats.
 - **path_template** optionally sets an output path using Python string templates.
