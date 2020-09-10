@@ -36,6 +36,7 @@ gitstamp_fmt = "%d %b %Y"
 
 def read(rel_path):
     import codecs
+
     here = os.path.abspath(os.path.dirname(__file__))
     with codecs.open(os.path.join(here, rel_path), "r") as fp:
         return fp.read()
@@ -51,6 +52,7 @@ def get_version(rel_path):
     else:
         raise RuntimeError("Unable to find version string.")
 
+
 version = get_version("../src/whylogs/_version.py")
 
 
@@ -60,7 +62,7 @@ version = get_version("../src/whylogs/_version.py")
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx_gallery.gen_gallery',
+    "sphinx_gallery.gen_gallery",
     "autoapi.extension",
     "sphinx_rtd_theme",
     "sphinx.ext.autodoc",
@@ -72,12 +74,11 @@ extensions = [
     "sphinx_gitstamp",
     "sphinx.ext.autosectionlabel",
     "sphinx_autorun",
-
 ]
 
 sphinx_gallery_conf = {
-    'examples_dirs': '../examples',  # path to your example scripts
-    'gallery_dirs': 'auto_examples',  # path to where to save gallery generated output
+    "examples_dirs": "../examples",  # path to your example scripts
+    "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
     # 'filename_pattern': '/plot_',  # Default pattern of filenames to execute
     # 'ignore_pattern': r'__init__\.py',  # Default filename ignore pattern
     # 'filename_pattern': '.*\.py$',
@@ -88,14 +89,14 @@ sphinx_gallery_conf = {
 autoapi_type = "python"
 autoapi_dirs = ["../src/whylogs"]
 autoapi_options = [
-    'members',
-    'undoc-members',
-    'private-members',
-    'show-inheritance',
-    'show-module-summary',
-    'special-members',
-    'imported-members',
-    'inherited-members',
+    "members",
+    "undoc-members",
+    "private-members",
+    "show-inheritance",
+    "show-module-summary",
+    "special-members",
+    "imported-members",
+    "inherited-members",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -123,6 +124,6 @@ html_static_path = ["_static"]
 html_css_files = ["style.css"]
 
 html_theme_options = {
-    'navigation_depth': 6,
+    "navigation_depth": 6,
     # 'github_url': 'https://github.com/whylabs/whylogs-python',
 }
