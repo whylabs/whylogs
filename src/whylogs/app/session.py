@@ -77,14 +77,20 @@ class Session:
         ylog : whylogs.app.logger.Logger
             WhyLogs logger
         """
+        if not self._active:
+            raise RuntimeError("Session is already closed. Cannot create more loggers")
+
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
         if session_timestamp is None:
             session_timestamp = self._session_time
 
-        if not self._active:
-            raise RuntimeError("Session is already closed. Cannot create more loggers")
+        # remove inactive loggers first
+        for name, logger in list(self._loggers.items()):
+            if not logger.is_active():
+                self._loggers.pop(name)
+
         logger = self._loggers.get(dataset_name)
         if logger is None:
             logger = Logger(
@@ -138,12 +144,29 @@ class Session:
         for name, logger in self._loggers.items():
             if logger.is_active():
                 logger.close()
+            self.remove_logger(name)
 
-    def is_active(self):
+    def remove_logger(self, dataset_name):
         """
-        Return the boolean state of this Session
+        Remove a logger from the dataset. This is called by the logger when it's being closed
+
+        Parameters
+        ----------
+        dataset_name the name of the dataset. used to identify the logger
+
+        Returns None
+        -------
+
         """
-        return self._active
+        if self._loggers.get(dataset_name) is None:
+            print(
+                "WARNING: logger {} is not present in the current Session".format(
+                    dataset_name
+                )
+            )
+            return
+
+        self._loggers.pop(dataset_name)
 
 
 def session_from_config(config: SessionConfig) -> Session:
