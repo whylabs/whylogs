@@ -3,9 +3,9 @@
 [![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-core)
 [![openjdk](https://img.shields.io/badge/opendjk-%3E=1.8-green)](https://openjdk.java.net)
 
-WhyLogs is the first of its kind statistical logging library. Whether you are running an experimentation or production ML/AI pipeline, understanding the properties of data that flows through an application is critical for stable model behavior and great customer experience. With WhyLogs, data science and ML teams can effortlessly instrument ML/AI pipelines and applications. Resulting log files are used for monitoring, alerting, analytics and error analysis.
+Understanding the properties of data as it moves through applications is essential to keeping your ML/AI pipeline stable and improving your user experience, whether your pipeline is built for production or experimentation. WhyLogs is an open source statistical logging library that allows data science and ML teams to effortlessly profile ML/AI pipelines and applications, producing log files that can be used for monitoring, alerts, analytics, and error analysis.
 
-WhyLogs is an open source package that calculates approximate statistics for datasets of any size (from small to TB-size) in order to identify changes in the statistical properties of model's inputs or outputs. Approximate statistics allows the package to be deployed with minimal infrastructure requirements, and to work with an entire dataset as opposed to calculating actual statistics on a small sample of data which may miss outliers and other anomalies. These qualities make WhyLogs an excellent solution for instrumenting production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.
+WhyLogs calculates approximate statistics for datasets of any size up to TB-scale, making it easy for users to identify changes in the statistical properties of a model's inputs or outputs. Using approximate statistics allows the package to run on minimal infrastructure and monitor an entire dataset, rather than miss outliers and other anomalies by only using a sample of the data to calculate statistics. These qualities make WhyLogs an excellent solution for profiling production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.
  
 This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets.
 
@@ -13,19 +13,17 @@ Python version: [whylogs-python](https://github.com/whylabs/whylogs-python).
 
 ## Key Features
 
-* **Data Insight** provides complex statistics across different stages of your ML/AI pipelines and applications.
+* **Data Insight:** WhyLogs provides complex statistics across different stages of your ML/AI pipelines and applications.
 
-* **Scalability** scales with your system, from local development mode to live production system in multi-node clusters. Suitable for batch and streaming architectures. 
+* **Scalability:** WhyLogs scales with your system, from local development mode to live production systems in multi-node clusters, and works well with batch and streaming architectures.
 
-* **Lightweight** using sketching algorithms and summarization statistics, WhyLogs produces small mergeable lightweight
-  outputs in a variety of formats.
+* **Lightweight:** Lightweight: WhyLogs produces small mergeable lightweight outputs in a variety of formats, using sketching algorithms and summarizing statistics.
 
-* **Unified data instrumentation** enable both data engineering pipelines and ML pipelines to share a common framework for tracking data quality and drifts. WhyLogs library supports multiple languages and many integrations. 
+* **Unified data instrumentation:** To enable data engineering pipelines and ML pipelines to share a common framework for tracking data quality and drifts, the WhyLogs library supports multiple languages and integrations.
   
-* **Observability** on top of supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused data quality and data drift detection, analytics and error analysis. 
+* **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection.
 
 ## Usage
-
 
 To get started, add WhyLogs to your Maven POM:
 ```xml
@@ -35,7 +33,7 @@ To get started, add WhyLogs to your Maven POM:
   <version>0.0.2b2</version>
 </dependency>
 ```
-For full Java API signature, please refer to the [Java Documentation](https://www.javadoc.io/doc/ai.whylabs/whylogs-core/latest/index.html).
+For the full Java API signature, see the [Java Documentation](https://www.javadoc.io/doc/ai.whylabs/whylogs-core/latest/index.html).
 
 Spark package (Scala 2.11 or 2.12 only):
 ```xml
@@ -45,11 +43,11 @@ Spark package (Scala 2.11 or 2.12 only):
   <version>0.0.2b2</version>
 </dependency>
 ```
-For full Scala API signature, please refer to the [Scala API Documentation](https://javadoc.io/doc/ai.whylabs/whylogs-spark_2.11/latest/index.html).
+For the full Scala API signature, see the [Scala API Documentation](https://javadoc.io/doc/ai.whylabs/whylogs-spark_2.11/latest/index.html).
 
 
 ### Simple tracking
-A simple tracking example without outputing data to disk:
+The following code is a simple tracking example that does not output data to disk:
 
 ```java
 import com.whylogs.core.DatasetProfile;
@@ -75,8 +73,8 @@ public class Demo {
 ```
 
 ### Serialization and deserialization
-WhyLogs uses Protobuf as the backing storage format. To write the data to disk, you can use standard Protobuf
-serialization API:
+WhyLogs uses Protobuf as the backing storage format. To write the data to disk, use the standard Protobuf
+serialization API as follows.
 
 ```java
 import com.whylogs.core.DatasetProfile;
@@ -101,19 +99,17 @@ class SerializationDemo {
     }
 }
 ```
-### Merging multiple dataset profiles
-A common pattern in enterprise system is to partition your data across different machine for distributed processing. For
-online system, data can also be processed independently on multiple machines, and in order to build complex metrics such
-as counting unique visitors for a website, engineers have to flow data into an ETL-based system to run ad hoc analysis.
+### Merging dataset profiles
+In enterprise systems, data is often partitioned across multiple machines for distributed processing. Online systems may also process data on multiple machines, requiring engineers to run ad-hoc analysis using an ETL-based system to build complex metrics, such as counting unique visitors to a website.
 
-WhyLogs addresses this use cases by allowing users to merge your sketches across different machines. To merge two WhyLogs
-`DatasetProfile` files, they must:
+WhyLogs resolves this by allowing users to merge sketches from different machines. To merge two WhyLogs
+`DatasetProfile` files, those files must:
 * Have the same name
-* Have the same session IDs
+* Have the same session ID
 * Have the same data timestamp
 * Have the same tags
 
-In that case, the merging code looks like this:
+The following is an example of the code for merging files that meet these requirements.
 
 ```java
 import com.whylogs.core.DatasetProfile;
@@ -152,8 +148,7 @@ val profiles = df.newProfilingSession("FireDepartment")
   .aggProfiles() // returns a dataframe of <timestamp, datasetProfile> entries
 
 ```
-The dataframes can be stored in either Parquet file or collected to the driver (if the number of entries is small enough)
-for further analysis.
+For further analysis, dataframes can be stored in a Parquet file, or collected to the driver if the number of entries is small enough.
 
 ## Building and Testing
 * To build, run `./gradlew build`
