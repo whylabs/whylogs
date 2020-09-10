@@ -3,13 +3,11 @@
 [![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-core)
 [![openjdk](https://img.shields.io/badge/opendjk-%3E=1.8-green)](https://openjdk.java.net)
 
+This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets. The Python implementation can be found [here](https://github.com/whylabs/whylogs-python).
+
 Understanding the properties of data as it moves through applications is essential to keeping your ML/AI pipeline stable and improving your user experience, whether your pipeline is built for production or experimentation. WhyLogs is an open source statistical logging library that allows data science and ML teams to effortlessly profile ML/AI pipelines and applications, producing log files that can be used for monitoring, alerts, analytics, and error analysis.
 
 WhyLogs calculates approximate statistics for datasets of any size up to TB-scale, making it easy for users to identify changes in the statistical properties of a model's inputs or outputs. Using approximate statistics allows the package to run on minimal infrastructure and monitor an entire dataset, rather than miss outliers and other anomalies by only using a sample of the data to calculate statistics. These qualities make WhyLogs an excellent solution for profiling production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.
- 
-This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets.
-
-Python version: [whylogs-python](https://github.com/whylabs/whylogs-python).
 
 ## Key Features
 
