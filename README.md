@@ -4,6 +4,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE)
 
+This is a Python implementation of WhyLogs. The Java implementation can be found [here](https://github.com/whylabs/whylogs-java).
+
 Understanding the properties of data as it moves through applications is essential to keeping your ML/AI pipeline stable and improving your user experience, whether your pipeline is built for production or experimentation. WhyLogs is an open source statistical logging library that allows data science and ML teams to effortlessly profile ML/AI pipelines and applications, producing log files that can be used for monitoring, alerts, analytics, and error analysis. 
 
 WhyLogs calculates approximate statistics for datasets of any size up to TB-scale, making it easy for users to identify changes in the statistical properties of a model's inputs or outputs. Using approximate statistics allows the package to run on minimal infrastructure and monitor an entire dataset, rather than miss outliers and other anomalies by only using a sample of the data to calculate statistics. These qualities make WhyLogs an excellent solution for profiling production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.  
