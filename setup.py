@@ -164,7 +164,7 @@ setuptools.setup(
     license="Apache-2.0",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/whylabs/whylogs",
+    url="https://github.com/whylabs/whylogs-python",
     cmdclass={
         "clean": BuildClean,
         "build_py": BuildPy,
