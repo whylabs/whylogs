@@ -151,3 +151,16 @@ For further analysis, dataframes can be stored in a Parquet file, or collected t
 ## Building and Testing
 * To build, run `./gradlew build`
 * To test, run `./gradlew test`
+
+### Glossary/Concepts 
+**Project:** A collection of related data sets used for multiple models or applications.
+
+**Pipeline:** One or more datasets used to build a single model or application. A project may contain multiple pipelines.
+
+**Dataset:** A collection of records. WhyLogs v0.0.2 supports structured datasets, which represent data as a table where each row is a different record and each column is a feature of the record. 
+
+**Feature:** In the context of WhyLogs v0.0.2 and structured data, a feature is a column in a dataset. A feature can be discrete (like gender or eye color) or continuous (like age or salary). 
+
+**WhyLogs Output:** WhyLogs returns profile summary files for a dataset in JSON format. For convenience, these files are provided in flat table, histogram, and frequency formats.
+
+**Statistical Profile:** A collection of statistical properties of a feature. Properties can be different for discrete and continuous features.
