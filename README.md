@@ -42,7 +42,7 @@ WhyLogs collects approximate statistics and sketches of data on a column-basis i
 * **Histograms** for numerical features. WhyLogs binary output can be queried to with dynamic binning based on the shape of your data. 
 * **Top frequent items** (default is 30). Note that this configuration affects the memory footprint, especially for text features.
 
-## Performance
+### Performance
 We tested WhyLogs Java performance on the following datasets to validate WhyLogs memory footprint and the output binary.
 
 * Lending Club Data: [Kaggle Link](https://www.kaggle.com/wordsforthewise/lending-club)
