@@ -402,16 +402,17 @@ class DatasetProfile:
         -------
         dataset_profile : DatasetProfile
         """
+        properties: DatasetProperties = message.properties
         return DatasetProfile(
-            name=message.properties.tags["Name"],
-            session_id=message.properties.session_id,
-            session_timestamp=from_utc_ms(message.properties.session_timestamp),
-            data_timestamp=from_utc_ms(message.properties.data_timestamp),
+            name=(properties.tags or {}).get("Name") or "",
+            session_id=properties.session_id,
+            session_timestamp=from_utc_ms(properties.session_timestamp),
+            data_timestamp=from_utc_ms(properties.data_timestamp),
             columns={
                 k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
             },
-            tags=dict(message.properties.tags),
-            metadata=dict(message.properties.metadata),
+            tags=dict(properties.tags or {}),
+            metadata=dict(properties.metadata or {}),
         )
 
     @staticmethod
