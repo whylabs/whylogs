@@ -168,18 +168,23 @@ class SerializationDemo {
 }
 ```
 ### Apache Spark integration
+
+This example shows how we use WhyLogs to profile a dataset based on time and categorical information. The data is from the
+public dataset for [Fire Department Calls & Incident](https://databricks-prod-cloudfront.cloud.databricks.com/public/4027ec902e239c93eaaa8714f173bcfc/4338404698899132/4435723924568266/2419783655524824/latest.html).
+
 ```scala
 import org.apache.spark.sql.functions._
-// implicit import for WhyLogs to enable
+// implicit import for WhyLogs to enable newProfilingSession API
 import com.whylogs.spark.WhyLogs._
 
+// load the data
 val raw_df = spark.read.option("header", "true").csv("/databricks-datasets/timeseries/Fires/Fire_Department_Calls_for_Service.csv")
 val df = raw_df.withColumn("call_date", to_timestamp(col("Call Date"), "MM/dd/YYYY"))
 
-val profiles = df.newProfilingSession("FireDepartment")
+val profiles = df.newProfilingSession("FireDepartment") // start a new WhyLogs profiling job
   .withTimeColumn("call_date") // split dataset by call_date
-  .groupBy("Zipcode of Incident")
-  .aggProfiles() // returns a dataframe of <timestamp, datasetProfile> entries
+  .groupBy("Zipcode of Incident", "unit_type") // tag and group the data with categorical information
+  .aggProfiles() //  runs the aggregation. returns a dataframe of <timestamp, datasetProfile> entries
 
 ```
 For further analysis, dataframes can be stored in a Parquet file, or collected to the driver if the number of entries is small enough.
