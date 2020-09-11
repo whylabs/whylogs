@@ -1,3 +1,3 @@
 """WhyLabs version number."""
 
-__version__ = "0.0.2b9"
+__version__ = "0.0.2b10"
