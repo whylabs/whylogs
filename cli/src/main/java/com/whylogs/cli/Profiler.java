@@ -6,20 +6,6 @@ import com.whylogs.cli.utils.RandomWordGenerator;
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.datetime.EasyDateTimeParser;
 import com.whylogs.core.message.DatasetSummaries;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -35,6 +21,20 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Command(
     name = "profiler",
     description = "Run WhyLogs profiling against custom CSV dataset",
@@ -42,7 +42,6 @@ import picocli.CommandLine.Option;
 public class Profiler implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(Profiler.class);
 
-  private static final Scanner SCANNER = new Scanner(System.in);
   private static final CSVFormat CSV_FORMAT =
       CSVFormat.DEFAULT.withFirstRecordAsHeader().withNullString("");
 
@@ -93,12 +92,6 @@ public class Profiler implements Runnable {
     String format;
   }
 
-  @Option(
-      names = {"-p", "--parallelism"},
-      paramLabel = "NUMBER_OF_THREADS",
-      description = "the number of threads. Default is (default: ${DEFAULT-VALUE})")
-  int parallelism = 1;
-
   private EasyDateTimeParser dateTimeParser;
   private Path binaryOutput;
 
@@ -122,11 +115,6 @@ public class Profiler implements Runnable {
     } else {
       LOG.info("Using batch mode. Will use current time for DatasetProfile: {}", now.toString());
     }
-
-    final int parallelism = Math.max(1, this.parallelism);
-
-    LOG.info("Using parallelism of: {} threads", parallelism);
-
     try {
       LOG.info("Reading input from: {}", input.getAbsolutePath());
       @Cleanup val fr = new FileReader(input);
@@ -176,7 +164,7 @@ public class Profiler implements Runnable {
       }
 
       try (val fileWriter = new FileWriter(output);
-          val writer = new BufferedWriter(fileWriter)) {
+           val writer = new BufferedWriter(fileWriter)) {
         JsonFormat.printer().appendTo(profilesBuilder, writer);
       }
 
@@ -231,7 +219,9 @@ public class Profiler implements Runnable {
     System.exit(1);
   }
 
-  /** Switch to #stressTest if we want to battle test the memory usage further */
+  /**
+   * Switch to #stressTest if we want to battle test the memory usage further
+   */
   private void parseToDateTime(final Map<String, Integer> headers, final CSVRecord record) {
     String issueDate = record.get(this.datetime.column);
     val time = this.dateTimeParser.parse(issueDate);
@@ -245,7 +235,7 @@ public class Profiler implements Runnable {
 
   private void parseBatch(
       final Instant time, final Map<String, Integer> headers, final CSVRecord record) {
-    val ds = profiles.getOrDefault(time, new DatasetProfile(input.getName(), time));
+    val ds = profiles.computeIfAbsent(time, (t) -> new DatasetProfile(input.getName(), t));
     for (String header : headers.keySet()) {
       val idx = headers.get(header);
       val value = record.get(idx);
