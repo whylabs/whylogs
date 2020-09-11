@@ -9,7 +9,7 @@ Understanding the properties of data as it moves through applications is essenti
 
 WhyLogs calculates approximate statistics for datasets of any size up to TB-scale, making it easy for users to identify changes in the statistical properties of a model's inputs or outputs. Using approximate statistics allows the package to run on minimal infrastructure and monitor an entire dataset, rather than miss outliers and other anomalies by only using a sample of the data to calculate statistics. These qualities make WhyLogs an excellent solution for profiling production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.
 
-## Key Features
+### Key Features
 
 * **Data Insight:** WhyLogs provides complex statistics across different stages of your ML/AI pipelines and applications.
 
@@ -34,11 +34,22 @@ WhyLogs calculates approximate statistics for datasets of any size up to TB-scal
 
 **Statistical Profile:** A collection of statistical properties of a feature. Properties can be different for discrete and continuous features.
 
+### Statistical Profile
+WhyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
+* **Simple counters**: (boolean, null values, data types).
+* Sum, min, max, variance.
+* **Unique value counter** or **cardinality**: tracks an approximate unique value of your feature using HyperLogLog algorithm.
+* **Histograms** for numerical features. WhyLogs binary output can be queried to with dynamic binning based on the shape of your data. 
+* **Top frequent items** (default is 30). Note that this configuration affects the memory footprint, especially for text features.
+
 ## Performance
-We tested WhyLogs Java performance on these datasets
+We tested WhyLogs Java performance on the following datasets to validate WhyLogs memory footprint and the output binary.
+
 * Lending Club Data: [Kaggle Link](https://www.kaggle.com/wordsforthewise/lending-club)
 * NYC Tickets: [Kaggle Link](https://www.kaggle.com/new-york-city/nyc-parking-tickets)
 * Pain Pills in the USA: [Kaggle Link](https://www.kaggle.com/paultimothymooney/pain-pills-in-the-usa)
+
+We ran our profile (in `cli` sub-module in this package) on each the dataset and collected JMX metrics.
 
 |        Dataset        | Size  | No. of Entries | No. of Features | Est. Memory Consumption | Output Size (uncompressed) |
 |:---------------------:|-------|----------------|-----------------|-------------------------|-----------------------|
