@@ -21,6 +21,31 @@ WhyLogs calculates approximate statistics for datasets of any size up to TB-scal
   
 * **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection.
 
+### Glossary/Concepts 
+**Project:** A collection of related data sets used for multiple models or applications.
+
+**Pipeline:** One or more datasets used to build a single model or application. A project may contain multiple pipelines.
+
+**Dataset:** A collection of records. WhyLogs v0.0.2 supports structured datasets, which represent data as a table where each row is a different record and each column is a feature of the record. 
+
+**Feature:** In the context of WhyLogs v0.0.2 and structured data, a feature is a column in a dataset. A feature can be discrete (like gender or eye color) or continuous (like age or salary). 
+
+**WhyLogs Output:** WhyLogs returns profile summary files for a dataset in JSON format. For convenience, these files are provided in flat table, histogram, and frequency formats.
+
+**Statistical Profile:** A collection of statistical properties of a feature. Properties can be different for discrete and continuous features.
+
+## Performance
+We tested WhyLogs Java performance on these datasets
+* Lending Club Data: [Kaggle Link](https://www.kaggle.com/wordsforthewise/lending-club)
+* NYC Tickets: [Kaggle Link](https://www.kaggle.com/new-york-city/nyc-parking-tickets)
+* Pain Pills in the USA: [Kaggle Link](https://www.kaggle.com/paultimothymooney/pain-pills-in-the-usa)
+
+|        Dataset        | Size  | No. of Entries | No. of Features | Est. Memory Consumption | Output Size (uncompressed) |
+|:---------------------:|-------|----------------|-----------------|-------------------------|-----------------------|
+| Lending Club          | 1.6GB | 2.2M           | 151             | 14MB                    | 11MB                  |
+| NYC Tickets           | 1.9GB | 10.8M          | 43              | 14MB                    | 2.3MB                 |
+| Pain pills in the USA | 75GB  | 178M           | 42              | 15MB                    | 2MB                   |
+
 ## Usage
 
 To get started, add WhyLogs to your Maven POM:
@@ -151,16 +176,3 @@ For further analysis, dataframes can be stored in a Parquet file, or collected t
 ## Building and Testing
 * To build, run `./gradlew build`
 * To test, run `./gradlew test`
-
-### Glossary/Concepts 
-**Project:** A collection of related data sets used for multiple models or applications.
-
-**Pipeline:** One or more datasets used to build a single model or application. A project may contain multiple pipelines.
-
-**Dataset:** A collection of records. WhyLogs v0.0.2 supports structured datasets, which represent data as a table where each row is a different record and each column is a feature of the record. 
-
-**Feature:** In the context of WhyLogs v0.0.2 and structured data, a feature is a column in a dataset. A feature can be discrete (like gender or eye color) or continuous (like age or salary). 
-
-**WhyLogs Output:** WhyLogs returns profile summary files for a dataset in JSON format. For convenience, these files are provided in flat table, histogram, and frequency formats.
-
-**Statistical Profile:** A collection of statistical properties of a feature. Properties can be different for discrete and continuous features.
