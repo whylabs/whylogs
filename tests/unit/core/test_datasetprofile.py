@@ -169,18 +169,18 @@ def test_name_always_appear_in_tags():
     assert x1.tags["Name"] == "test"
 
 
-# def test_parse_delimited_from_java_single():
-#     with open("output_from_java_08242020.bin", "rb") as f:
-#         data = f.read()
-#         assert DatasetProfile.parse_delimited_single(data) is not None
-#
-#
-# def test_parse_delimited_from_java_multiple():
-#     with open("output_from_java_08242020.bin", "rb") as f:
-#         data = f.read()
-#         multiple = data + data
-#         result = DatasetProfile.parse_delimited(multiple)
-#         assert len(result) == 2
+def test_parse_delimited_from_java_single():
+    with open("output_from_java_08242020.bin", "rb") as f:
+        data = f.read()
+        assert DatasetProfile.parse_delimited_single(data) is not None
+
+
+def test_parse_delimited_from_java_multiple():
+    with open("output_from_java_08242020.bin", "rb") as f:
+        data = f.read()
+        multiple = data + data
+        result = DatasetProfile.parse_delimited(multiple)
+        assert len(result) == 2
 
 
 def test_write_delimited_single():
