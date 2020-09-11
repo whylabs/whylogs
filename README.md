@@ -22,6 +22,15 @@ WhyLogs calculates approximate statistics for datasets of any size up to TB-scal
   
 * **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection. 
 
+### Statistical Profile
+WhyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
+
+* **Simple counters**: (boolean, null values, data types).
+* Sum, min, max, variance.
+* **Unique value counter** or **cardinality**: tracks an approximate unique value of your feature using HyperLogLog algorithm.
+* **Histograms** for numerical features. WhyLogs binary output can be queried to with dynamic binning based on the shape of your data. 
+* **Top frequent items** (default is 30). Note that this configuration affects the memory footprint, especially for text features.
+
 # Examples
 - [Logging a Dataframe](https://whylogs.readthedocs.io/en/latest/auto_examples/log_dataframe.html)
 - [Logger Options](https://whylogs.readthedocs.io/en/latest/auto_examples/configure_logger.html#sphx-glr-auto-examples-configure-logger-py)
