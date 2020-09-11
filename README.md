@@ -22,7 +22,7 @@ WhyLogs calculates approximate statistics for datasets of any size up to TB-scal
   
 * **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection. 
 
-### Statistical Profile
+## Statistical Profile
 WhyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
 
 * **Simple counters**: (boolean, null values, data types).
