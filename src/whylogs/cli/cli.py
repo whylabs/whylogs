@@ -3,7 +3,7 @@ import logging
 import click
 
 from whylogs.cli import init
-from whylogs.logs import __version__ as whylogs_version
+from whylogs import __version__ as whylogs_version
 
 try:
     import colorama
@@ -48,7 +48,7 @@ Supported basic commands:
         logger.setLevel(logging.DEBUG)
 
 
-cli.add_command(init)
+cli.add_command(init.init)
 
 
 def main():

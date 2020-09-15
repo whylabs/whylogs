@@ -173,7 +173,7 @@ setuptools.setup(
     package_dir={"": "src"},
     include_package_data=True,
     packages=setuptools.find_packages("src"),
-    entry_points={"console_scripts": ["whylogs=whylogs.logs.cli:main"]},
+    entry_points={"console_scripts": ["whylogs=whylogs.cli:main"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Environment :: Console",
