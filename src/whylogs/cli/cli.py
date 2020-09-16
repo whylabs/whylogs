@@ -2,8 +2,8 @@ import logging
 
 import click
 
-from whylogs.cli import init
-from whylogs.logs import __version__ as whylogs_version
+from whylogs import __version__ as whylogs_version
+from whylogs.cli.init import init
 
 try:
     import colorama
@@ -41,7 +41,8 @@ Welcome to WhyLogs CLI!
 
 Supported basic commands:
 
-- whylogs init : create a new WhyLogs project
+- whylogs init : create a new WhyLogs project configuration
+
 """
     logger = _set_up_logger()
     if verbose:

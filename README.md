@@ -61,13 +61,13 @@ API documentation for `whylogs` can be found at [whylogs.readthedocs.io](http://
 
 Our demo CLI generates a demo project flow by running
 
-     whylogs-demo
+     whylogs-demo init
 
 ### Quick start CLI
 WhyLogs can be configured programmatically or by using our config YAML file. The quick start CLI can help you bootstrap the
 configuration for your project. To use the quick start CLI, run the following command in the root of your Python project.
 
-     whylogs-quickstart
+     whylogs init
      
 ### Glossary/Concepts 
 **Project:** A collection of related data sets used for multiple models or applications.

@@ -13,23 +13,7 @@ INTRO_MESSAGE = """
 
 Welcome to WhyLogs!
 
-This CLI will guide you through initializing a basic WhyLogs project.
-
-The generated project will have this structure:
-    .
-    ├── output
-    │   └── test-project
-    │       └── 1595376294660
-    │           ├── protobuf.bin
-    │           ├── summmary_histogram.json
-    │           ├── summmary_strings.json
-    │           ├── summmary_summary.csv
-    │           └── whylogs.json
-    ├── notebooks
-    │   ├── Analysis.ipynb
-    │   └── Logging.ipynb
-    └── whylogs.yml
-
+This CLI will guide you through initializing a basic WhyLogs configurations.
 """
 
 DOING_NOTHING_ABORTING = "Doing nothing. Aborting"

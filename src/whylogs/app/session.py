@@ -141,7 +141,8 @@ class Session:
             return
 
         self._active = False
-        for name, logger in self._loggers.items():
+        loggers = list(self._loggers.items())
+        for name, logger in loggers:
             if logger.is_active():
                 logger.close()
             self.remove_logger(name)
@@ -182,6 +183,16 @@ _session = None
 
 
 def reset_default():
+    """
+    DEPRECATED. Please use reset_default_session()
+    """
+    from warnings import warn
+
+    warn("DEPRECATED. use reset_default_session() instead of reset_default()")
+    reset_default_session()
+
+
+def reset_default_session():
     """
     Reset and deactivate the global WhyLogs logging session.
     """

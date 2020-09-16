@@ -20,14 +20,20 @@ Install our library in a Python 3.6+ environment.
 
 Demo CLI
 #######################
-Our demo CLI will walk you through a .
+Our demo CLI will walk you through setting up a WhyLogs project.
 
 .. code-block:: bash
 
-   whylogs-quickstart demo
+   whylogs-demo init
 
 Configuration
 ===================
+To run the configuration CLI that will help you generate a simple configuration file:
+.. code-block:: bash
+
+   whylogs init
+
+
 A WhyLogs config file contains the following parameters:
 
 - **project** sets the name of the project.
