@@ -141,7 +141,8 @@ class Session:
             return
 
         self._active = False
-        for name, logger in self._loggers.items():
+        loggers = list(self._loggers.items())
+        for name, logger in loggers:
             if logger.is_active():
                 logger.close()
             self.remove_logger(name)
