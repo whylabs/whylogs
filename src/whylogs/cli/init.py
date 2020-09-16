@@ -5,6 +5,7 @@ import sys
 import click
 
 from whylogs.app import SessionConfig, WriterConfig
+from whylogs.app.config import WHYLOGS_YML
 from whylogs.cli.cli_text import *
 from whylogs.cli.utils import echo
 
@@ -71,8 +72,11 @@ def init(project_dir):
     session_config = SessionConfig(
         project_name, pipeline_name, writers=[writer], verbose=False
     )
-    config_yml = os.path.join(project_dir, "whylogs.yml")
-    with open(file=config_yml, mode="w") as f:
+    config_yml = os.path.join(project_dir, WHYLOGS_YML)
+    with open(file=config_yml, mode="wt") as f:
         session_config.to_yaml(f)
     echo(f"Config YAML file was written to: {config_yml}\n")
-    echo("To get started with your project, ")
+    echo(
+        "To get started with a WhyLogs session, use whylogs.get_or_created_session() in the project folder.",
+        fg="green",
+    )
