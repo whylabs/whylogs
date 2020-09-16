@@ -183,6 +183,16 @@ _session = None
 
 def reset_default():
     """
+    DEPRECATED. Please use reset_default_session()
+    """
+    from warnings import warn
+
+    warn("DEPRECATED. use reset_default_session() instead of reset_default()")
+    reset_default_session()
+
+
+def reset_default_session():
+    """
     Reset and deactivate the global WhyLogs logging session.
     """
     global _session
