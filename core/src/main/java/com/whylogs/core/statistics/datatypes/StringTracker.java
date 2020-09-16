@@ -19,6 +19,8 @@ import org.apache.datasketches.theta.UpdateSketch;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StringTracker {
   public static final ArrayOfStringsSerDe ARRAY_OF_STRINGS_SER_DE = new ArrayOfStringsSerDe();
+  // be careful to not use 32 here - somehow the sketches are empty
+  public static final int MAX_FREQUENT_ITEM_SIZE = 128;
 
   private long count;
 
@@ -28,7 +30,7 @@ public final class StringTracker {
 
   public StringTracker() {
     this.count = 0L;
-    this.items = new ItemsSketch<>(32); // TODO: make this value configurable
+    this.items = new ItemsSketch<>(MAX_FREQUENT_ITEM_SIZE); // TODO: make this value configurable
     this.thetaSketch = UpdateSketch.builder().build();
   }
 
