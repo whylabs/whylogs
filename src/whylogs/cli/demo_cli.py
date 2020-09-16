@@ -142,9 +142,9 @@ def init(project_dir):
             show_default=True,
         )
         if should_open:
-            echo("Open WhyLabs playground...")
-            sleep(5)
-            webbrowser.open("https://play.whylabsapp.com")
+            echo(
+                "WhyLabs playground is not ready yet. Please check back when we launch!"
+            )
         echo(DONE)
     else:
         echo("Skip initial profiling and notebook generation")
