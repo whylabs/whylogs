@@ -16,6 +16,7 @@ class SchemaTracker:
     """
 
     UNKNOWN_TYPE = InferredType(type=Type.UNKNOWN)
+    NULL_TYPE = InferredType(type=Type.NULL, ratio=1.0)
     CANDIDATE_MIN_FRAC = 0.7
 
     def __init__(self, type_counts: dict = None):
@@ -25,6 +26,12 @@ class SchemaTracker:
             # Assume we have a protobuf object
             type_counts = {k: v for k, v in type_counts.items()}
         self.type_counts = type_counts
+
+    def _non_null_type_counts(self):
+        type_counts = self.type_counts.copy()
+        if Type.NULL in type_counts:
+            type_counts.pop(Type.NULL)
+        return type_counts
 
     def track(self, item_type):
         """
@@ -50,9 +57,14 @@ class SchemaTracker:
         type_guess : object
             The guess tome.  See `InferredType.Type` for candidates
         """
-        total_count = sum(self.type_counts.values())
+        null_count = self.get_count(Type.NULL)
+        type_counts = self._non_null_type_counts()
+        total_count = sum(type_counts.values())
         if total_count == 0:
-            return SchemaTracker.UNKNOWN_TYPE
+            if null_count > 0:
+                return SchemaTracker.NULL_TYPE
+            else:
+                return SchemaTracker.UNKNOWN_TYPE
 
         candidate = self._get_most_popular_type(total_count)
         if candidate.ratio > SchemaTracker.CANDIDATE_MIN_FRAC:
@@ -60,17 +72,17 @@ class SchemaTracker:
 
         # Integral is considered a subset of fractional here
         fractional_count = sum(
-            [self.type_counts.get(k, 0) for k in (Type.INTEGRAL, Type.FRACTIONAL)]
+            [type_counts.get(k, 0) for k in (Type.INTEGRAL, Type.FRACTIONAL)]
         )
 
         if (
             candidate.type == Type.STRING
-            and self.type_counts.get(Type.STRING, 0) > fractional_count
+            and type_counts.get(Type.STRING, 0) > fractional_count
         ):
             # treat everything else as "String" except UNKNOWN
             coerced_count = sum(
                 [
-                    self.type_counts.get(k, 0)
+                    type_counts.get(k, 0)
                     for k in (Type.INTEGRAL, Type.FRACTIONAL, Type.STRING, Type.BOOLEAN)
                 ]
             )
@@ -79,7 +91,7 @@ class SchemaTracker:
 
         if candidate.ratio >= 0.5:
             # Not a string, but something else with a majority
-            actual_count = self.type_counts[candidate.type]
+            actual_count = type_counts[candidate.type]
             if candidate.type == Type.FRACTIONAL:
                 actual_count = fractional_count
             return InferredType(
@@ -95,8 +107,9 @@ class SchemaTracker:
 
     def _get_most_popular_type(self, total_count):
         item_type = Type.UNKNOWN
+        type_counts = self._non_null_type_counts()
         count = -1
-        for candidate_type, candidate_count in self.type_counts.items():
+        for candidate_type, candidate_count in type_counts.items():
             if candidate_count > count:
                 item_type = candidate_type
                 count = candidate_count
@@ -168,5 +181,6 @@ class SchemaTracker:
         # Convert the integer keys to their corresponding string names
         type_counts_with_names = {Type.Name(k): v for k, v in type_counts.items()}
         return SchemaSummary(
-            inferred_type=self.infer_type(), type_counts=type_counts_with_names,
+            inferred_type=self.infer_type(),
+            type_counts=type_counts_with_names,
         )

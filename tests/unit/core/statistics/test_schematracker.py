@@ -10,6 +10,30 @@ def multiple_track(tracker, counts: dict):
             tracker.track(item)
 
 
+def test_mainly_null_inferred_type_not_null():
+    counts = {Type.INTEGRAL: 1, Type.NULL: 30}
+    tracker = SchemaTracker()
+    multiple_track(tracker, counts)
+    inferred_type = tracker.infer_type()
+    assert inferred_type.type == Type.INTEGRAL
+
+    counts = {Type.INTEGRAL: 1, Type.STRING: 2, Type.NULL: 30}
+    tracker = SchemaTracker()
+    multiple_track(tracker, counts)
+    inferred_type = tracker.infer_type()
+    assert inferred_type.type != Type.NULL
+
+
+def test_all_null_inferred_type_is_null():
+    counts = {
+        Type.NULL: 1,
+    }
+    tracker = SchemaTracker()
+    multiple_track(tracker, counts)
+    inferred_type = tracker.infer_type()
+    assert inferred_type.type == Type.NULL
+
+
 def test_track_nothing_should_return_unknown():
     tracker = SchemaTracker()
     inferred_type = tracker.infer_type()
@@ -67,7 +91,12 @@ def test_majority_int():
 def test_float_and_int():
     tracker = SchemaTracker()
     multiple_track(
-        tracker, counts={Type.INTEGRAL: 50, Type.FRACTIONAL: 50, Type.STRING: 10,}
+        tracker,
+        counts={
+            Type.INTEGRAL: 50,
+            Type.FRACTIONAL: 50,
+            Type.STRING: 10,
+        },
     )
     assert tracker.infer_type().type == Type.FRACTIONAL
 
@@ -75,7 +104,12 @@ def test_float_and_int():
 def test_all_types_equal_coerced_to_string():
     tracker = SchemaTracker()
     multiple_track(
-        tracker, counts={Type.INTEGRAL: 20, Type.FRACTIONAL: 29, Type.STRING: 50,}
+        tracker,
+        counts={
+            Type.INTEGRAL: 20,
+            Type.FRACTIONAL: 29,
+            Type.STRING: 50,
+        },
     )
     assert tracker.infer_type().type == Type.STRING
 

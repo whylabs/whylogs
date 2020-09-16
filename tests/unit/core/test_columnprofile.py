@@ -7,6 +7,32 @@ from whylogs.core import ColumnProfile
 from whylogs.util.protobuf import message_to_dict
 
 
+def test_all_nulls_inferred_type_null():
+    import numpy as np
+    from whylogs.proto import InferredType
+
+    Type = InferredType.Type
+    c = ColumnProfile("col")
+    data = [None, np.nan, None] * 3
+    for val in data:
+        c.track(val)
+    summary = c.to_summary()
+    assert summary.schema.inferred_type.type == Type.NULL
+
+
+def test_mostly_nulls_inferred_type_not_null():
+    import numpy as np
+    from whylogs.proto import InferredType
+
+    Type = InferredType.Type
+    c = ColumnProfile("col")
+    data = [None, np.nan, None] * 3 + ["not a null val!"]
+    for val in data:
+        c.track(val)
+    summary = c.to_summary()
+    assert summary.schema.inferred_type.type != Type.NULL
+
+
 def test_frequent_items_do_not_track_nulls():
     import numpy as np
 
@@ -62,7 +88,9 @@ def test_summary():
     summary = c.to_summary()
     actual_val = message_to_dict(summary)
     expected_val = {
-        "counters": {"count": "3",},
+        "counters": {
+            "count": "3",
+        },
         "schema": {
             "inferredType": {"type": "INTEGRAL", "ratio": 1.0},
             "typeCounts": {"INTEGRAL": "3"},
