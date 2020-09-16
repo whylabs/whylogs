@@ -2,6 +2,7 @@
 Define functions and classes for interfacing with `datasketches`
 """
 import json
+import math
 from collections import defaultdict
 
 import datasketches
@@ -94,7 +95,7 @@ class FrequentItemsSketch:
         self.lg_max_k = lg_max_k
         if sketch is None:
             if lg_max_k is None:
-                lg_max_k = self.DEFAULT_MAX_ITEMS_SIZE
+                lg_max_k = round(math.log(self.DEFAULT_MAX_ITEMS_SIZE))
             sketch = datasketches.frequent_strings_sketch(lg_max_k)
         else:
             assert isinstance(sketch, datasketches.frequent_strings_sketch)
