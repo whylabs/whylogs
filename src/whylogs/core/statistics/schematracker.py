@@ -181,6 +181,5 @@ class SchemaTracker:
         # Convert the integer keys to their corresponding string names
         type_counts_with_names = {Type.Name(k): v for k, v in type_counts.items()}
         return SchemaSummary(
-            inferred_type=self.infer_type(),
-            type_counts=type_counts_with_names,
+            inferred_type=self.infer_type(), type_counts=type_counts_with_names,
         )
