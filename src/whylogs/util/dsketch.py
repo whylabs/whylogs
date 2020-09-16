@@ -86,7 +86,7 @@ class FrequentItemsSketch:
         Initialize with an existing frequent strings sketch
     """
 
-    DEFAULT_MAX_ITEMS_SIZE = 32
+    DEFAULT_MAX_ITEMS_SIZE = 128
     DEFAULT_ERROR_TYPE = datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES
 
     def __init__(
