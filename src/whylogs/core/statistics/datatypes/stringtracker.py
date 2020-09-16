@@ -1,3 +1,5 @@
+import math
+
 from datasketches import frequent_strings_sketch
 
 from whylogs.core.statistics.thetasketch import ThetaSketch
@@ -5,7 +7,7 @@ from whylogs.core.summaryconverters import from_string_sketch
 from whylogs.proto import StringsMessage, StringsSummary
 from whylogs.util import dsketch
 
-MAX_ITEMS_SIZE = 32
+MAX_ITEMS_SIZE = 128
 MAX_SUMMARY_ITEMS = 100
 
 
@@ -32,7 +34,7 @@ class StringTracker:
         if count is None:
             count = 0
         if items is None:
-            items = frequent_strings_sketch(MAX_ITEMS_SIZE)
+            items = frequent_strings_sketch(round(math.log(MAX_ITEMS_SIZE)))
         if theta_sketch is None:
             theta_sketch = ThetaSketch()
         self.count = count
