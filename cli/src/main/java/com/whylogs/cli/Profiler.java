@@ -6,6 +6,19 @@ import com.whylogs.cli.utils.RandomWordGenerator;
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.datetime.EasyDateTimeParser;
 import com.whylogs.core.message.DatasetSummaries;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -20,20 +33,6 @@ import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.MessageFormat;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Command(
     name = "profiler",
@@ -164,7 +163,7 @@ public class Profiler implements Runnable {
       }
 
       try (val fileWriter = new FileWriter(output);
-           val writer = new BufferedWriter(fileWriter)) {
+          val writer = new BufferedWriter(fileWriter)) {
         JsonFormat.printer().appendTo(profilesBuilder, writer);
       }
 
@@ -219,9 +218,7 @@ public class Profiler implements Runnable {
     System.exit(1);
   }
 
-  /**
-   * Switch to #stressTest if we want to battle test the memory usage further
-   */
+  /** Switch to #stressTest if we want to battle test the memory usage further */
   private void parseToDateTime(final Map<String, Integer> headers, final CSVRecord record) {
     String issueDate = record.get(this.datetime.column);
     val time = this.dateTimeParser.parse(issueDate);
