@@ -16,7 +16,6 @@ class Logger:
     """
     Class for logging WhyLogs statistics.
 
-    TODO: logger overrides for session config
 
     Parameters
     ----------
@@ -27,6 +26,10 @@ class Logger:
         Timestamp of the data.
     session_timestamp : datetime.datetime
         Timestamp of the logging session
+    tags: dict
+        A mapping of (key, value). Used to aggregate the data upstream.
+    metadata:
+        A mapping of (key, value). Useful for debugging (i.e. associate the original data with individual machines)
     writers : list
         A list of `Writer` objects which will be used to write the dataset
         profile.
@@ -39,6 +42,8 @@ class Logger:
         dataset_name: str,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
+        tags: typing.Dict[str, str] = None,
+        metadata: typing.Dict[str, str] = None,
         writers=List[Writer],
         verbose: bool = False,
     ):
@@ -51,6 +56,8 @@ class Logger:
             dataset_name,
             data_timestamp=dataset_timestamp,
             session_timestamp=session_timestamp,
+            tags=tags,
+            metadata=metadata,
         )
         self._active = True
 
