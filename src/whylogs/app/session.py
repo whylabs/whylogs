@@ -10,6 +10,7 @@ import pandas as pd
 from whylogs.app.config import SessionConfig, WriterConfig, load_config
 from whylogs.app.logger import Logger
 from whylogs.app.writers import Writer, writer_from_config
+from whylogs.core import DatasetProfile
 
 
 class Session:
@@ -119,29 +120,36 @@ class Session:
         self,
         df: pd.DataFrame,
         dataset_name: Optional[str] = None,
-        datetime_column: Optional = None,
-        datetime_format: Optional[str] = None,
-    ):
+        dataset_timestamp: Optional[datetime.datetime] = None,
+        session_timestamp: Optional[datetime.datetime] = None,
+        tags: Dict[str, str] = None,
+        metadata: Dict[str, str] = None,
+    ) -> Optional[DatasetProfile]:
         """
         Perform statistics caluclations and log a pandas dataframe
 
-        Parameters
-        ----------
-        df : pd.DataFrame
-            Pandas DataFrame
-        dataset_name : str
-            Name of the dataset
-        datetime_column : hash-able
-            Specify a column to be parsed as a datetime which can be used to
-            split the dataframe into multiple batches
-        datetime_format : str
-            Specify a datetime format.  See `datetime.strftime`
+        :param df: the dataframe to profile 
+        :param dataset_name: name of the dataset
+        :param dataset_timestamp: the timestamp for the dataset
+        :param session_timestamp: the timestamp for the session. Override the default one
+        :param tags: the tags for the profile. Useful when merging
+        :param metadata: information about this current profile. Can be discarded when merging
+        :return: a dataset profile if the session is active
         """
         if not self.is_active():
-            return
+            return None
 
-        with self.logger(dataset_name, datetime_column, datetime_format) as logger:
-            logger.log_dataframe(df)
+        if dataset_name is None:
+            # using the project name for the datasetname
+            dataset_name = self.project
+
+        ylog = self.logger(
+            dataset_name, dataset_timestamp, session_timestamp, tags, metadata
+        )
+
+        ylog.log_dataframe(df)
+
+        return ylog.close()
 
     def close(self):
         """
