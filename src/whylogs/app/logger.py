@@ -16,25 +16,13 @@ class Logger:
     """
     Class for logging WhyLogs statistics.
 
-
-    Parameters
-    ----------
-    dataset_name : str
-        The name of the dataset. Gets included in the DatasetProfile metadata
-        and can be used in generated filenames.
-    dataset_timestamp : datetime.datetime
-        Timestamp of the data.
-    session_timestamp : datetime.datetime
-        Timestamp of the logging session
-    tags: dict
-        A mapping of (key, value). Used to aggregate the data upstream.
-    metadata:
-        A mapping of (key, value). Useful for debugging (i.e. associate the original data with individual machines)
-    writers : list
-        A list of `Writer` objects which will be used to write the dataset
-        profile.
-    verbose : bool
-        Control output verbosity
+    :param dataset_name: The name of the dataset. Gets included in the DatasetProfile metadata and can be used in generated filenames.
+    :param dataset_timestamp: Optional. The timestamp that the logger represents
+    :param session_timestamp: Optional. The time the session was created
+    :param tags: Optional. Dictionary of key, value for aggregating data upstream
+    :param metadata: Optional. Dictionary of key, value. Useful for debugging (associated with every single dataset profile)
+    :param writers: List of Writer objects used to write out the data
+    :param verbose: enable debug logging or not
     """
 
     def __init__(
@@ -47,6 +35,8 @@ class Logger:
         writers=List[Writer],
         verbose: bool = False,
     ):
+        """
+        """
         if session_timestamp is None:
             session_timestamp = datetime.datetime.now(datetime.timezone.utc)
         self.dataset_name = dataset_name
@@ -66,6 +56,14 @@ class Logger:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    @property
+    def profile(self):
+        """
+        :return: the backing dataset profile
+        :rtype: DatasetProfile
+        """
+        return self._profile
 
     def flush(self):
         """
@@ -99,14 +97,9 @@ class Logger:
         """
         Logs a collection of features or a single feature (must specify one or the other).
 
-        Parameters
-        ----------
-        features a dictionary of key->value for multiple features. Each entry represent a single columnar feature
-        feature_name name of a single feature. Cannot be specified if 'features' is speecified
-        value value of as single feature. Cannot be specified if 'features' is specified
-
-        Returns
-        -------
+        :param feature_name: a dictionary of key->value for multiple features. Each entry represent a single columnar feature
+        :param feature_name: name of a single feature. Cannot be specified if 'features' is specified
+        :param value: value of as single feature. Cannot be specified if 'features' is specified
 
         """
         if not self._active:
