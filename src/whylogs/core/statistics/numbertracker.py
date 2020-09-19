@@ -83,7 +83,11 @@ class NumberTracker:
         number : int, float
             A numeric value
         """
-        if pd.isnull(number) or not isinstance(number, numbers.Real):
+        if (
+            pd.isnull(number)
+            or (not isinstance(number, numbers.Real))
+            or isinstance(number, bool)
+        ):
             # XXX: this type checking may still be fragile in python.
             return
         self.variance.update(number)
