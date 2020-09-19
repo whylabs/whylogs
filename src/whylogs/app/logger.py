@@ -76,17 +76,22 @@ class Logger:
         for writer in self.writers:
             writer.write(self._profile)
 
-    def close(self):
+    def close(self) -> Optional[DatasetProfile]:
         """
         Flush and close out the logger.
+        
+        :return: the result dataset profile. None if the logger is closed
         """
         if not self._active:
             print("WARNING: attempting to close a closed logger")
-            return
+            return None
 
         self.flush()
 
         self._active = False
+        profile = self._profile
+        self._profile = None
+        return profile
 
     def log(
         self,
@@ -97,6 +102,7 @@ class Logger:
         """
         Logs a collection of features or a single feature (must specify one or the other).
 
+        :param features: a map of key value feature for model input
         :param feature_name: a dictionary of key->value for multiple features. Each entry represent a single columnar feature
         :param feature_name: name of a single feature. Cannot be specified if 'features' is specified
         :param value: value of as single feature. Cannot be specified if 'features' is specified
@@ -120,10 +126,9 @@ class Logger:
         """
         Log a CSV file. This supports the same parameters as :func`pandas.red_csv<pandas.read_csv>` function.
 
-        Parameters
-        ----------
-        filepath_or_buffer : Union[str, Path, IO[AnyStr]]
-            A path to the CSV file or an IO Stream for CSV data
+        :param filepath_or_buffer: the path to the CSV or a CSV buffer
+        :type filepath_or_buffer: FilePathOrBuffer
+        :param kwargs: from pandas:read_csv
         """
         if not self._active:
             return
@@ -131,20 +136,17 @@ class Logger:
         df = pd.read_csv(filepath_or_buffer, **kwargs)
         self._profile.track_dataframe(df)
 
-    def log_dataframe(self, df: pd.DataFrame):
+    def log_dataframe(self, df):
         """
         Generate and log a WhyLogs DatasetProfile from a pandas dataframe
 
-        Parameters
-        ----------
-        df : pd.DataFrame
-            Dataframe to log
+        :param df: the Pandas dataframe to log
         """
         if not self._active:
             return
         self._profile.track_dataframe(df)
 
-    def is_active(self):
+    def is_active(self) -> bool:
         """
         Return the boolean state of the logger
         """
