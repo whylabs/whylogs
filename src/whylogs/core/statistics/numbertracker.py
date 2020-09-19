@@ -86,7 +86,6 @@ class NumberTracker:
         if pd.isnull(number) or not isinstance(number, numbers.Real):
             # XXX: this type checking may still be fragile in python.
             return
-        print("tracking")
         self.variance.update(number)
         self.theta_sketch.update(number)
         self.frequent_numbers.update(number)
