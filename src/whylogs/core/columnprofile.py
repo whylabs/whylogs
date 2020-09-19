@@ -101,8 +101,7 @@ class ColumnProfile:
             # Note: bools are sub-classes of ints in python, so we should check
             # for bool type first
             self.counters.increment_bool()
-        elif isinstance(typed_data, (float, int)):
-            self.number_tracker.track(typed_data)
+        self.number_tracker.track(typed_data)
 
     def to_summary(self):
         """

@@ -5,6 +5,26 @@ from testutil import compare_frequent_items
 
 from whylogs.core import ColumnProfile
 from whylogs.util.protobuf import message_to_dict
+import numpy as np
+import pandas as pd
+
+
+def test_all_numeric_types_get_tracked_by_number_tracker():
+
+    all_values = [
+        [1.0, 2.0, 3.0],
+        [1, 2, 3],
+        np.arange(4),
+        np.linspace(1, 2, 5),
+        pd.Series(np.arange(3)),
+        np.zeros(3, dtype=np.int32),
+        np.zeros(3, dtype=np.int16),
+    ]
+    for values in all_values:
+        c = ColumnProfile("test")
+        for v in values:
+            c.track(v)
+        assert c.number_tracker.count == len(values)
 
 
 def test_all_nulls_inferred_type_null():

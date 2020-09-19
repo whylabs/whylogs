@@ -4,6 +4,7 @@ TODO:
 """
 import datasketches
 import pandas as pd
+import numbers
 
 from whylogs.core.statistics.datatypes import FloatTracker, IntTracker, VarianceTracker
 from whylogs.core.statistics.thetasketch import ThetaSketch
@@ -82,8 +83,10 @@ class NumberTracker:
         number : int, float
             A numeric value
         """
-        if pd.isnull(number):
+        if pd.isnull(number) or not isinstance(number, numbers.Real):
+            # XXX: this type checking may still be fragile in python.
             return
+        print("tracking")
         self.variance.update(number)
         self.theta_sketch.update(number)
         self.frequent_numbers.update(number)
