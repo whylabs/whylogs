@@ -3,12 +3,14 @@ Defines the primary interface class for tracking dataset statistics.
 """
 import datetime
 import io
+import typing
 from collections import OrderedDict
 from uuid import uuid4
 
 import numpy as np
 import pandas as pd
-import typing
+from google.protobuf.internal.decoder import _DecodeVarint32
+from google.protobuf.internal.encoder import _VarintBytes
 
 from whylogs.core import ColumnProfile
 from whylogs.core.types.typeddataconverter import TYPES
@@ -24,8 +26,6 @@ from whylogs.util import time
 from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch
 from whylogs.util.time import from_utc_ms, to_utc_ms
-from google.protobuf.internal.decoder import _DecodeVarint32
-from google.protobuf.internal.encoder import _VarintBytes
 
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = (
     int(1e6) - 10
@@ -171,12 +171,12 @@ class DatasetProfile:
             Value to track.  Specify if `columns` is a string.
         """
         if data is not None:
-            self._track_single_column(columns, data)
+            self.track_datum(columns, data)
         else:
             for column_name, data in columns.items():
-                self._track_single_column(column_name, data)
+                self.track_datum(column_name, data)
 
-    def _track_single_column(self, column_name, data):
+    def track_datum(self, column_name, data):
         try:
             prof = self.columns[column_name]
         except KeyError:

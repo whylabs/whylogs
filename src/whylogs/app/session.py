@@ -3,7 +3,7 @@ WhyLogs logging session
 """
 import datetime
 from logging import getLogger as _getLogger
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import pandas as pd
 
@@ -56,6 +56,8 @@ class Session:
         dataset_name: Optional[str] = None,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
+        tags: Dict[str, str] = None,
+        metadata: Dict[str, str] = None,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -63,12 +65,19 @@ class Session:
 
         Parameters
         ----------
+        metadata
         dataset_name : str
             Name of the dataset. Default is the project name
         dataset_timestamp: datetime.datetime, optional
             The timestamp associated with the dataset. Could be the timestamp
             for the batch, or the timestamp
             for the window that you are tracking
+        tags: dict
+            Tag the data with groupable information. For example, you might want to tag your data
+            with the stage information (development, testing, production etc...)
+        metadata: dict
+            Useful to debug the data source. You can associate non-groupable information in this field
+            such as hostname,
         session_timestamp: datetime.datetime, optional
             Override the timestamp associated with the session. Normally you
             shouldn't need to override this value
@@ -98,6 +107,8 @@ class Session:
                 dataset_timestamp=dataset_timestamp,
                 session_timestamp=session_timestamp,
                 writers=self.writers,
+                tags=tags,
+                metadata=metadata,
                 verbose=self.verbose,
             )
             self._loggers[dataset_name] = logger
