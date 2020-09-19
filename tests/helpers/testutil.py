@@ -1,6 +1,3 @@
-TEST_BUCKET = "whylabs-isaac"
-
-
 def frequent_items_to_dict(x: list):
     d = {}
     for xi in x:
