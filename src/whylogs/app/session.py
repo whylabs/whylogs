@@ -4,6 +4,7 @@ WhyLogs logging session
 import datetime
 from logging import getLogger as _getLogger
 from typing import Dict, List, Optional
+from uuid import uuid4
 
 import pandas as pd
 
@@ -41,6 +42,7 @@ class Session:
         self._active = True
         self._loggers = {}
         self._session_time = datetime.datetime.now()
+        self._session_id = str(uuid4())
 
     def __enter__(self):
         # TODO: configure other aspects
@@ -104,6 +106,7 @@ class Session:
         logger = self._loggers.get(dataset_name)
         if logger is None:
             logger = Logger(
+                session_id=self._session_id,
                 dataset_name=dataset_name,
                 dataset_timestamp=dataset_timestamp,
                 session_timestamp=session_timestamp,

@@ -16,6 +16,7 @@ class Logger:
     """
     Class for logging WhyLogs statistics.
 
+    :param session_id: The session ID value. Should be set by the Session boject
     :param dataset_name: The name of the dataset. Gets included in the DatasetProfile metadata and can be used in generated filenames.
     :param dataset_timestamp: Optional. The timestamp that the logger represents
     :param session_timestamp: Optional. The time the session was created
@@ -27,6 +28,7 @@ class Logger:
 
     def __init__(
         self,
+        session_id: str,
         dataset_name: str,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
@@ -48,6 +50,7 @@ class Logger:
             session_timestamp=session_timestamp,
             tags=tags,
             metadata=metadata,
+            session_id=session_id,
         )
         self._active = True
 
