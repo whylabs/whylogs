@@ -1,4 +1,4 @@
-## WhyLogs Java Library
+# WhyLogs Java Library
 [![license](https://img.shields.io/github/license/whylabs/whylogs-java)](https://github.com/whylabs/whylogs-java/blob/mainline/LICENSE)
 [![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-core)
 [![openjdk](https://img.shields.io/badge/opendjk-%3E=1.8-green)](https://openjdk.java.net)
@@ -9,7 +9,7 @@ Understanding the properties of data as it moves through applications is essenti
 
 WhyLogs calculates approximate statistics for datasets of any size up to TB-scale, making it easy for users to identify changes in the statistical properties of a model's inputs or outputs. Using approximate statistics allows the package to run on minimal infrastructure and monitor an entire dataset, rather than miss outliers and other anomalies by only using a sample of the data to calculate statistics. These qualities make WhyLogs an excellent solution for profiling production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.
 
-### Key Features
+# Key Features
 
 * **Data Insight:** WhyLogs provides complex statistics across different stages of your ML/AI pipelines and applications.
 
@@ -21,7 +21,7 @@ WhyLogs calculates approximate statistics for datasets of any size up to TB-scal
   
 * **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection.
 
-### Glossary/Concepts 
+## Glossary/Concepts 
 **Project:** A collection of related data sets used for multiple models or applications.
 
 **Pipeline:** One or more datasets used to build a single model or application. A project may contain multiple pipelines.
@@ -34,7 +34,7 @@ WhyLogs calculates approximate statistics for datasets of any size up to TB-scal
 
 **Statistical Profile:** A collection of statistical properties of a feature. Properties can be different for discrete and continuous features.
 
-### Statistical Profile
+## Statistical Profile
 WhyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
 * **Simple counters**: boolean, null values, data types.
 * **Summary statistics**: sum, min, max, variance.
@@ -42,7 +42,7 @@ WhyLogs collects approximate statistics and sketches of data on a column-basis i
 * **Histograms** for numerical features. WhyLogs binary output can be queried to with dynamic binning based on the shape of your data. 
 * **Top frequent items** (default is 30). Note that this configuration affects the memory footprint, especially for text features.
 
-### Performance
+## Performance
 We tested WhyLogs Java performance on the following datasets to validate WhyLogs memory footprint and the output binary.
 
 * Lending Club Data: [Kaggle Link](https://www.kaggle.com/wordsforthewise/lending-club)
@@ -53,11 +53,11 @@ We ran our profile (in `cli` sub-module in this package) on each the dataset and
 
 |        Dataset        | Size  | No. of Entries | No. of Features | Est. Memory Consumption | Output Size (uncompressed) |
 |:---------------------:|-------|----------------|-----------------|-------------------------|-----------------------|
-| Lending Club          | 1.6GB | 2.2M           | 151             | 14MB                    | 11MB                  |
+| Lending Club          | 1.6GB | 2.2M           | 151             | 14MB                    | 7.4MB                  |
 | NYC Tickets           | 1.9GB | 10.8M          | 43              | 14MB                    | 2.3MB                 |
 | Pain pills in the USA | 75GB  | 178M           | 42              | 15MB                    | 2MB                   |
 
-## Usage
+# Usage
 
 To get started, add WhyLogs to your Maven POM:
 ```xml
@@ -80,7 +80,7 @@ Spark package (Scala 2.11 or 2.12 only):
 For the full Scala API signature, see the [Scala API Documentation](https://javadoc.io/doc/ai.whylabs/whylogs-spark_2.11/latest/index.html).
 
 
-### Simple tracking
+## Simple tracking
 The following code is a simple tracking example that does not output data to disk:
 
 ```java
@@ -106,7 +106,7 @@ public class Demo {
 }
 ```
 
-### Serialization and deserialization
+## Serialization and deserialization
 WhyLogs uses Protobuf as the backing storage format. To write the data to disk, use the standard Protobuf
 serialization API as follows.
 
@@ -133,7 +133,7 @@ class SerializationDemo {
     }
 }
 ```
-### Merging dataset profiles
+## Merging dataset profiles
 In enterprise systems, data is often partitioned across multiple machines for distributed processing. Online systems may also process data on multiple machines, requiring engineers to run ad-hoc analysis using an ETL-based system to build complex metrics, such as counting unique visitors to a website.
 
 WhyLogs resolves this by allowing users to merge sketches from different machines. To merge two WhyLogs
@@ -167,7 +167,7 @@ class SerializationDemo {
     }
 }
 ```
-### Apache Spark integration
+## Apache Spark integration
 
 This example shows how we use WhyLogs to profile a dataset based on time and categorical information. The data is from the
 public dataset for [Fire Department Calls & Incident](https://databricks-prod-cloudfront.cloud.databricks.com/public/4027ec902e239c93eaaa8714f173bcfc/4338404698899132/4435723924568266/2419783655524824/latest.html).
