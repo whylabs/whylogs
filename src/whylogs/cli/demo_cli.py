@@ -137,14 +137,12 @@ def init(project_dir):
         echo(OBSERVATORY_EXPLANATION)
         echo("Your original data (CSV file) will remain locally.")
         should_open = click.confirm(
-            "Would you like to proceed to WhyLabs playground to see how our data visualization works?",
+            "Would you like to proceed to WhyLabs Playground to see how our data visualization works?",
             default=False,
             show_default=True,
         )
         if should_open:
-            echo(
-                "WhyLabs playground is not ready yet. Please check back when we launch!"
-            )
+            webbrowser.open("https://try.whylabsapp.com/?utm_source=whylogs")
         echo(DONE)
     else:
         echo("Skip initial profiling and notebook generation")
