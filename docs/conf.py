@@ -22,7 +22,6 @@ from collections import namedtuple
 import sphinx_rtd_theme
 from sphinx.ext.autodoc import between
 
-
 # Add package paths to the python path to allow sphinx to import modules
 sys.path.insert(0, os.path.abspath("../src/"))
 
@@ -42,18 +41,8 @@ def read(rel_path):
         return fp.read()
 
 
-def get_version(rel_path):
-    for line in read(rel_path).splitlines():
-        if line.startswith("__version__"):
-            delimiter = '"' if '"' in line else "'"
-            v = line.split(delimiter)[1]
-            print(f"WhyLogs version: {v}")
-            return v
-    else:
-        raise RuntimeError("Unable to find version string.")
-
-
-version = get_version("../src/whylogs/_version.py")
+# This string is managed by bump2version
+version = " 0.0.2b19"
 
 
 # -- General configuration ---------------------------------------------------
