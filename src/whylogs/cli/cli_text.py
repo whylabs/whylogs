@@ -22,7 +22,7 @@ OVERRIDE_CONFIRM = "Would you like to proceed with the above path?"
 EMPTY_PATH_WARNING = "WARNING: we will override the content in the non-empty path"
 
 BEGIN_WORKFLOW = """
-Great. We will now generate the default configuration for WhyLogs'
+Great! We will now generate the default configuration for WhyLogs'
 We'll need a few details from you before we can proceed
 """
 
