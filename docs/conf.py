@@ -120,5 +120,4 @@ html_css_files = ["style.css"]
 
 html_theme_options = {
     "navigation_depth": 6,
-    # 'github_url': 'https://github.com/whylabs/whylogs-python',
 }
