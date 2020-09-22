@@ -64,7 +64,9 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
     def _summary_data_preprocessing(self, variable):
         """Applies general data preprocessing for each chart."""
-        return self.summary_data[self.summary_data["column"] == variable]
+        proc_data = self.summary_data[self.summary_data["column"] == variable]
+        proc_data.dropna(axis=0, subset=["date"])
+        return proc_data
 
     def plot_distribution(self, variable, variant="auto", **kwargs):
         """Plots a distribution chart."""
