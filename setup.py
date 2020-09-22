@@ -118,11 +118,7 @@ def validate_version(v):
 # Currently, all requirements will be made mandatory, but long term we could
 # remove these optional requirements.  Such packages are only needed for
 # certain modules, but aren't required for core WhyLogs functionality
-OPTIONAL_REQS = [
-    "boto3",
-    "s3fs",
-    "matplotlib"
-]
+OPTIONAL_REQS = ["boto3", "s3fs", "matplotlib"]
 
 REQUIREMENTS = [
     "click>=click==7.1.2",
