@@ -3,9 +3,10 @@ import logging
 import os
 import re
 import shutil
+import subprocess
 import sys
+import tempfile
 import webbrowser
-from time import sleep
 
 import click
 import pandas as pd
@@ -13,10 +14,10 @@ import pandas as pd
 from whylogs.app import SessionConfig, WriterConfig
 from whylogs.app.session import session_from_config
 from whylogs.cli.cli_text import *
-from whylogs.cli.generate_notebooks import generate_notebooks
 from whylogs.cli.utils import echo
 
-LENDING_CLUB_CSV = "lending_club_1000.csv"
+_LENDING_CLUB_CSV = "lending_club_1000.csv"
+_EXAMPLE_REPO = "git@github.com:whylabs/whylogs-examples.git"
 
 from whylogs import __version__ as whylogs_version
 
@@ -100,6 +101,31 @@ def init(project_dir):
         session_config.to_yaml(f)
     echo(f"Config YAML file was written to: {config_yml}\n")
 
+    echo("Adding example notebooks to your workspace")
+    git = shutil.which("git")
+    if git is None:
+        echo(
+            "We can't seem to find git utility on your system. We'll have kip this step"
+        )
+        echo(
+            "You can check out our repo on: https://github.com/whylabs/whylogs-examples"
+        )
+    else:
+        # do git checkout here
+        tmp_path = tempfile.mkdtemp("profiler")
+        subprocess.run(
+            [git, "clone", "--depth", "1", _EXAMPLE_REPO],
+            capture_output=True,
+            cwd=tmp_path,
+            check=True,
+        )
+
+        example_python = os.path.join(tmp_path, "whylogs-examples", "python")
+        files = os.listdir(example_python)
+        for f in files:
+            shutil.copy(os.path.join(example_python, f), os.path.join(project_dir, f))
+        shutil.rmtree(tmp_path)
+
     if click.confirm(INITIAL_PROFILING_CONFIRM, default=True):
         echo(DATA_SOURCE_MESSAGE)
         choices = [
@@ -122,17 +148,7 @@ def init(project_dir):
             filter(lambda x: re.match("[0-9]*", x), os.listdir(output_full_path))
         )[0]
         full_output_path = os.path.join(output_path, generated_datetime)
-        generate_notebooks(
-            project_dir,
-            {
-                "INPUT_PATH": full_input,
-                "PROFILE_DIR": full_output_path,
-                "GENERATED_DATETIME": generated_datetime,
-            },
-        )
-        echo(
-            f'You should find the output under: {os.path.join(project_dir, "notebooks")}'
-        )
+        echo(f"You should find the output under: {full_output_path}")
 
         echo(OBSERVATORY_EXPLANATION)
         echo("Your original data (CSV file) will remain locally.")
@@ -150,8 +166,6 @@ def init(project_dir):
 
 
 def profile_csv(session_config: SessionConfig, project_dir: str) -> str:
-    package_nb_path = os.path.join(os.path.dirname(__file__), "notebooks")
-    demo_csv = os.path.join(package_nb_path, LENDING_CLUB_CSV)
     file: io.TextIOWrapper = click.prompt(
         "CSV input path (leave blank to use our demo dataset)",
         type=click.File(mode="rt"),
@@ -160,9 +174,7 @@ def profile_csv(session_config: SessionConfig, project_dir: str) -> str:
     )
     if type(file) is io.StringIO:
         echo("Using the demo Lending Club Data (1K randomized samples)", fg="green")
-        destination_csv = os.path.join(project_dir, LENDING_CLUB_CSV)
-        echo("Copying the demo file to: %s" % destination_csv)
-        shutil.copy(demo_csv, destination_csv)
+        destination_csv = os.path.join(project_dir, _LENDING_CLUB_CSV)
         full_input = os.path.realpath(destination_csv)
     else:
         file.close()
