@@ -99,7 +99,7 @@ case class DatasetProfileAggregator(datasetName: String,
     val schema = row.schema
     groupByColumns
       .map(col => (col, schema.fieldIndex(col)))
-      .map(idxCol => (idxCol._1, row.get(idxCol._2).toString))
+      .map(idxCol => (idxCol._1, Option(row.get(idxCol._2)).map(_.toString).getOrElse("")))
       .toMap
   }
 

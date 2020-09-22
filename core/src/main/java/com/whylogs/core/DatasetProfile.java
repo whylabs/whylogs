@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -63,9 +64,10 @@ public class DatasetProfile implements Serializable {
     this.sessionTimestamp = sessionTimestamp;
     this.dataTimestamp = dataTimestamp;
     this.columns = new ConcurrentHashMap<>();
-    this.tags = new ConcurrentHashMap<>(tags);
+    this.tags = new ConcurrentHashMap<>(Optional.ofNullable(tags).orElse(Collections.emptyMap()));
     this.metadata = new ConcurrentHashMap<>();
-    this.columns = new ConcurrentHashMap<>(columns);
+    this.columns =
+        new ConcurrentHashMap<>(Optional.ofNullable(columns).orElse(Collections.emptyMap()));
   }
 
   /**
