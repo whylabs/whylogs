@@ -42,7 +42,7 @@ def read(rel_path):
 
 
 # This string is managed by bump2version
-version = " 0.0.2b19"
+version = " 0.0.2b20"
 
 
 # -- General configuration ---------------------------------------------------
