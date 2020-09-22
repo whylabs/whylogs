@@ -175,7 +175,7 @@ class Session:
         :param metadata: information about this current profile. Can be discarded when merging
         :return: a dataset profile if the session is active
         """
-        dataset_profile = self.new_dataset_profile(
+        dataset_profile = self.new_profile(
             dataset_name, dataset_timestamp, session_timestamp, tags, metadata
         )
 
@@ -216,6 +216,8 @@ class Session:
         if session_timestamp is None:
             session_timestamp = self._session_time
 
+        if tags is None:
+            tags = dict()
         if self.pipeline:
             tags["Pipeline"] = self.pipeline
 

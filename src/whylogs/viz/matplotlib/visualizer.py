@@ -1,8 +1,7 @@
-import pandas as pd
-
-import matplotlib.pyplot as _plt
 import matplotlib.dates as _dates
+import matplotlib.pyplot as _plt
 import matplotlib.ticker as _ticker
+import pandas as pd
 
 from whylogs.viz import BaseProfileVisualizer
 
@@ -17,7 +16,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             "fill_colors": ["#D2F9FF", "#7AC0CB"],
             "font_color": "#4F595B",
         }
-        super().__init__(framework="matplotlib")
+        super().__init__(framework="matplotlib", visualizer=self)
 
         self._init_theming()
 
@@ -27,7 +26,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             df_flat = prof.flat_summary()["summary"]
             if len(df_flat) <= 0:
                 continue
-            df_flat.loc[:, "date"] = prof.data_timestamp
+            df_flat.loc[:, "date"] = prof.dataset_timestamp
             filtered_data.append(df_flat)
 
         self.summary_data = pd.concat(filtered_data).sort_values(by=["date"])
