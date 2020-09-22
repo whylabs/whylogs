@@ -1,11 +1,19 @@
+from typing import List
+
+from whylogs import DatasetProfile
+
+
 class BaseProfileVisualizer:
     def __init__(self, framework=None, visualizer=None):
         self.framework = framework
         self.visualizer = visualizer
         self.profiles = []
 
-    def set_profiles(self, profiles):
-        """"""
+    def set_profiles(self, profiles: List[DatasetProfile]):
+        """
+        Set the list of DatasetProfiles for the visualizer
+        :param profiles: list of dataset profiles
+        """
         if len(profiles) <= 1:
             self.profiles = [profiles]
         else:
