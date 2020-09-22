@@ -13,7 +13,7 @@ from google.protobuf.message import Message
 
 from whylogs.app.output_formats import OutputFormat
 from whylogs.core import DatasetProfile
-from .config import WriterConfig
+
 from ..core.datasetprofile import (
     flatten_dataset_frequent_numbers,
     flatten_dataset_frequent_strings,
@@ -22,6 +22,7 @@ from ..core.datasetprofile import (
 )
 from ..util import time
 from ..util.protobuf import message_to_json
+from .config import WriterConfig
 
 DEFAULT_PATH_TEMPLATE = "$name/$session_id"
 DEFAULT_FILENAME_TEMPLATE = "dataset_profile"
@@ -132,8 +133,8 @@ class Writer(ABC):
         * ``session_id``: Unique identifier for the session
         """
         dataset_timestamp = "batch"
-        if profile.data_timestamp is not None:
-            dataset_timestamp = time.to_utc_ms(profile.data_timestamp).__str__()
+        if profile.dataset_timestamp is not None:
+            dataset_timestamp = time.to_utc_ms(profile.dataset_timestamp).__str__()
         return {
             "name": profile.name,
             "session_timestamp": str(time.to_utc_ms(profile.session_timestamp)),

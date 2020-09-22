@@ -80,7 +80,7 @@ class DatasetProfile:
     name: str
         A human readable name for the dataset profile. Could be model name.
         This is stored under "name" tag
-    data_timestamp: datetime.datetime
+    dataset_timestamp: datetime.datetime
         The timestamp associated with the data (i.e. batch run). Optional.
     session_timestamp : datetime.datetime
         Timestamp of the dataset
@@ -99,7 +99,7 @@ class DatasetProfile:
     def __init__(
         self,
         name: str,
-        data_timestamp: datetime.datetime = None,
+        dataset_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
         columns: dict = None,
         tags: typing.Dict[str, str] = None,
@@ -118,7 +118,7 @@ class DatasetProfile:
 
         self.session_id = session_id
         self.session_timestamp = session_timestamp
-        self.data_timestamp = data_timestamp
+        self.dataset_timestamp = dataset_timestamp
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
@@ -233,7 +233,7 @@ class DatasetProfile:
             metadata = None
 
         session_timestamp = to_utc_ms(self.session_timestamp)
-        data_timestamp = to_utc_ms(self.data_timestamp)
+        data_timestamp = to_utc_ms(self.dataset_timestamp)
 
         return DatasetProperties(
             schema_major_version=1,
@@ -332,7 +332,7 @@ class DatasetProfile:
 
         assert self.session_id == other.session_id
         assert self.session_timestamp == other.session_timestamp
-        assert self.data_timestamp == other.data_timestamp
+        assert self.dataset_timestamp == other.dataset_timestamp
         assert self.tags == other.tags
 
         columns_set = set(list(self.columns.keys()) + list(other.columns.keys()))
@@ -347,7 +347,7 @@ class DatasetProfile:
             name=self.name,
             session_id=self.session_id,
             session_timestamp=self.session_timestamp,
-            data_timestamp=self.data_timestamp,
+            dataset_timestamp=self.dataset_timestamp,
             columns=columns,
             tags=self.tags,
             metadata=self.metadata,
@@ -387,6 +387,40 @@ class DatasetProfile:
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
         )
 
+    def write_protobuf(self, protobuf_path: str, delimited_file: bool = True):
+        """
+        Write the dataset profile to disk in binary format
+
+        :param protobuf_path: the local path for storage. The parent directory must already exist
+        :param delimited_file: whether to prefix the data with the length of output or not. Default is True
+        """
+        with open(protobuf_path, "wb") as f:
+            msg = self.to_protobuf()
+            size = msg.ByteSize()
+            if delimited_file:
+                f.write(_VarintBytes(size))
+            f.write(msg.SerializeToString())
+
+    @staticmethod
+    def read_protobuf(protobuf_path: str, delimited_file: bool = True):
+        """
+        Parse a protobuf file and return a DatasetProfile object
+
+        :param protobuf_path: the path of the protobuf data
+        :param delimited_file: whether the data is delimited or not. Default is True
+        :return: a DatasetProfile object if successful
+        :rtype: whylogs.DatasetProfile
+        """
+        with open(protobuf_path, "rb") as f:
+            data = f.read()
+            if delimited_file:
+                msg_len, new_pos = _DecodeVarint32(data, 0)
+            else:
+                msg_len = len(data)
+                new_pos = 0
+            msg_buf = data[new_pos : new_pos + msg_len]
+            return DatasetProfile.from_protobuf_string(msg_buf)
+
     @staticmethod
     def from_protobuf(message: DatasetProfileMessage):
         """
@@ -407,7 +441,7 @@ class DatasetProfile:
             name=(properties.tags or {}).get("Name") or "",
             session_id=properties.session_id,
             session_timestamp=from_utc_ms(properties.session_timestamp),
-            data_timestamp=from_utc_ms(properties.data_timestamp),
+            dataset_timestamp=from_utc_ms(properties.data_timestamp),
             columns={
                 k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
             },

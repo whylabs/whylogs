@@ -46,7 +46,7 @@ class Logger:
         self.verbose = verbose
         self._profile = DatasetProfile(
             dataset_name,
-            data_timestamp=dataset_timestamp,
+            dataset_timestamp=dataset_timestamp,
             session_timestamp=session_timestamp,
             tags=tags,
             metadata=metadata,
