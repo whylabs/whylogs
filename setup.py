@@ -121,6 +121,7 @@ def validate_version(v):
 OPTIONAL_REQS = [
     "boto3",
     "s3fs",
+    "matplotlib"
 ]
 
 REQUIREMENTS = [
