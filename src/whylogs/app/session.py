@@ -167,7 +167,36 @@ class Session:
         Profile a Pandas dataframe without actually writing data to disk.
         This is useful when you just want to quickly capture and explore a dataset profile.
 
-        :param df: the dataframe to profile 
+        :param df: the dataframe to profile
+        :param dataset_name: name of the dataset
+        :param dataset_timestamp: the timestamp for the dataset
+        :param session_timestamp: the timestamp for the session. Override the default one
+        :param tags: the tags for the profile. Useful when merging
+        :param metadata: information about this current profile. Can be discarded when merging
+        :return: a dataset profile if the session is active
+        """
+        dataset_profile = self.new_dataset_profile(
+            dataset_name, dataset_timestamp, session_timestamp, tags, metadata
+        )
+
+        if dataset_profile is None:
+            return None
+
+        dataset_profile.track_dataframe(df)
+
+        return dataset_profile
+
+    def new_profile(
+        self,
+        dataset_name: Optional[str] = None,
+        dataset_timestamp: Optional[datetime.datetime] = None,
+        session_timestamp: Optional[datetime.datetime] = None,
+        tags: Dict[str, str] = None,
+        metadata: Dict[str, str] = None,
+    ) -> Optional[DatasetProfile]:
+        """
+        Create an empty dataset profile with the metadata from the session.
+
         :param dataset_name: name of the dataset
         :param dataset_timestamp: the timestamp for the dataset
         :param session_timestamp: the timestamp for the session. Override the default one
@@ -197,8 +226,6 @@ class Session:
             tags=tags,
             metadata=metadata,
         )
-
-        profile.track_dataframe(df)
 
         return profile
 
