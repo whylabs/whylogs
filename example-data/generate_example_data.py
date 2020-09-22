@@ -5,7 +5,7 @@ A script to generate some example data
 if __name__ == "__main__":
     import os
 
-    from whylogs.logs import DatasetProfile
+    from whylogs import DatasetProfile
     from whylogs.util import message_to_json
 
     MYDIR = os.path.realpath(os.path.dirname(__file__))

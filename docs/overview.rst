@@ -7,7 +7,7 @@ Overview
 Introduction
 ===================================
 
-WhyLogs (https://github.com/whylabs/whylogs) is an open source data quality \
+WhyLogs (https://github.com/whylabs/whylogs-python) is an open source data quality \
 library that uses advanced data science statistics to log and monitor data \
 for your AI/ML application. WhyLogs is designed to scale with your MLOps \
 workflow, from local development to production terabyte-size datasets.

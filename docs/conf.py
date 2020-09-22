@@ -22,7 +22,6 @@ from collections import namedtuple
 import sphinx_rtd_theme
 from sphinx.ext.autodoc import between
 
-
 # Add package paths to the python path to allow sphinx to import modules
 sys.path.insert(0, os.path.abspath("../src/"))
 
@@ -79,10 +78,7 @@ extensions = [
 sphinx_gallery_conf = {
     "examples_dirs": "../examples",  # path to your example scripts
     "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
-    # 'filename_pattern': '/plot_',  # Default pattern of filenames to execute
-    # 'ignore_pattern': r'__init__\.py',  # Default filename ignore pattern
-    # 'filename_pattern': '.*\.py$',
-    # 'ignore_pattern': '.*',
+    "filename_pattern": "/run_",
 }
 
 
@@ -108,7 +104,6 @@ templates_path = ["_templates"]
 exclude_patterns = []
 
 index_doc = "index"
-
 
 # -- Options for HTML output -------------------------------------------------
 

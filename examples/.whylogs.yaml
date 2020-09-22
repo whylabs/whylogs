@@ -8,7 +8,7 @@ writers:
 # Save out the full protobuf datasketches data locally
 - formats:
     - protobuf
-  output_path: whylogs-output
+  output_path: output
   # Template variables can be accessed via $variable or ${variable}
   path_template: $name/dataset_profile
   filename_template: datase_profile-$dataset_timestamp

@@ -8,3 +8,5 @@ autoapi>=2.0.1
 sphinx-autorun >= 1.1.1
 sphinx-gallery >= 0.8.0
 pillow
+whylogs
+matplotlib

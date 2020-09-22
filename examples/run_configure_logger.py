@@ -5,8 +5,9 @@ Logger options
 Example showing the use of a few logger options which can control
 output locations
 """
-from whylogs.app.session import get_or_create_session
 import pandas as pd
+
+from whylogs import get_or_create_session
 
 # Load some example data, using 'issue_d' as a datetime column
 df = pd.read_csv("data/lending_club_1000.csv", parse_dates=["issue_d"])
