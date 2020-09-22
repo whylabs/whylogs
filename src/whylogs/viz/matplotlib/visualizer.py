@@ -144,11 +144,9 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             ncol=3,
         )
         ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
-        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(
-            useOffset=False,
-            useMathText=False,
-            useLocale=None
-        ))
+        ax.yaxis.set_major_formatter(
+            _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
+        )
 
         return fig
 
@@ -182,11 +180,9 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             ncol=3,
         )
         ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
-        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(
-            useOffset=False,
-            useMathText=False,
-            useLocale=None
-        ))
+        ax.yaxis.set_major_formatter(
+            _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
+        )
 
         return fig
 
@@ -261,11 +257,9 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             ncol=3,
         )
         ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
-        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(
-            useOffset=False,
-            useMathText=False,
-            useLocale=None
-        ))
+        ax.yaxis.set_major_formatter(
+            _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
+        )
 
         return fig
 
@@ -305,10 +299,8 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             ncol=3,
         )
         ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
-        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(
-            useOffset=False,
-            useMathText=False,
-            useLocale=None
-        ))
+        ax.yaxis.set_major_formatter(
+            _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
+        )
 
         return fig
