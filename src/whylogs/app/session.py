@@ -154,6 +154,54 @@ class Session:
 
         return ylog.close()
 
+    def profile_dataframe(
+        self,
+        df: pd.DataFrame,
+        dataset_name: Optional[str] = None,
+        dataset_timestamp: Optional[datetime.datetime] = None,
+        session_timestamp: Optional[datetime.datetime] = None,
+        tags: Dict[str, str] = None,
+        metadata: Dict[str, str] = None,
+    ) -> Optional[DatasetProfile]:
+        """
+        Profile a Pandas dataframe without actually writing data to disk.
+        This is useful when you just want to quickly capture and explore a dataset profile.
+
+        :param df: the dataframe to profile 
+        :param dataset_name: name of the dataset
+        :param dataset_timestamp: the timestamp for the dataset
+        :param session_timestamp: the timestamp for the session. Override the default one
+        :param tags: the tags for the profile. Useful when merging
+        :param metadata: information about this current profile. Can be discarded when merging
+        :return: a dataset profile if the session is active
+        """
+        if not self.is_active():
+            return None
+
+        if not self._active:
+            raise RuntimeError("Session is already closed. Cannot create more loggers")
+
+        if dataset_name is None:
+            # using the project name for the datasetname
+            dataset_name = self.project
+        if session_timestamp is None:
+            session_timestamp = self._session_time
+
+        if self.pipeline:
+            tags["Pipeline"] = self.pipeline
+
+        profile = DatasetProfile(
+            dataset_name,
+            dataset_timestamp=dataset_timestamp,
+            session_timestamp=session_timestamp,
+            tags=tags,
+            metadata=metadata,
+        )
+
+        profile.track_dataframe(df)
+
+        return profile
+
     def close(self):
         """
         Deactivate this session and flush all associated loggers
