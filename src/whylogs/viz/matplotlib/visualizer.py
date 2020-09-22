@@ -7,7 +7,7 @@ import pandas as pd
 from whylogs import DatasetProfile
 from whylogs.viz import BaseProfileVisualizer
 
-DATE_COLUMN = "date"
+_DATE_COLUMN = "date"
 
 
 class MatplotlibProfileVisualizer(BaseProfileVisualizer):
@@ -37,10 +37,10 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             df_flat = prof.flat_summary()["summary"]
             if len(df_flat) <= 0:
                 continue
-            df_flat.loc[:, DATE_COLUMN] = prof.data_timestamp
+            df_flat.loc[:, _DATE_COLUMN] = prof.data_timestamp
             filtered_data.append(df_flat)
 
-        self.summary_data = pd.concat(filtered_data).sort_values(by=[DATE_COLUMN])
+        self.summary_data = pd.concat(filtered_data).sort_values(by=[_DATE_COLUMN])
 
     def _init_theming(self):
         _plt.style.use("seaborn-whitegrid")
@@ -85,7 +85,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
         # Primary line
         ax.plot(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             chart_data.loc[:, "quantile_0.5000"],
             color=self.theme["colors"][0],
             linewidth=1.5,
@@ -94,25 +94,25 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
         # Lines bordering the fill area
         ax.plot(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             chart_data.loc[:, "quantile_0.0500"],
             color=self.theme["fill_colors"][0],
             linewidth=0.5,
         )
         ax.plot(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             chart_data.loc[:, "quantile_0.9500"],
             color=self.theme["fill_colors"][0],
             linewidth=0.5,
         )
         ax.plot(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             chart_data.loc[:, "quantile_0.2500"],
             color=self.theme["fill_colors"][1],
             linewidth=0.5,
         )
         ax.plot(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             chart_data.loc[:, "quantile_0.7500"],
             color=self.theme["fill_colors"][1],
             linewidth=0.5,
@@ -120,7 +120,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
         # Fill areas
         ax.fill_between(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             y1=chart_data.loc[:, "quantile_0.0500"],
             y2=chart_data.loc[:, "quantile_0.9500"],
             alpha=0.5,
@@ -128,7 +128,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             label="5-95%",
         )
         ax.fill_between(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             y1=chart_data.loc[:, "quantile_0.2500"],
             y2=chart_data.loc[:, "quantile_0.7500"],
             alpha=0.5,
@@ -168,7 +168,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
         # Primary line
         ax.plot(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             chart_data.loc[:, "mv_ratio"],
             color=self.theme["colors"][0],
             linewidth=1.5,
@@ -216,7 +216,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
         # Primary line
         ax.plot(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             chart_data.loc[:, metrics[0]],
             color=self.theme["colors"][0],
             linewidth=1.5,
@@ -225,13 +225,13 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
         # Lines bordering the fill area
         ax.plot(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             chart_data.loc[:, metrics[1]],
             color=self.theme["fill_colors"][1],
             linewidth=0.5,
         )
         ax.plot(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             chart_data.loc[:, metrics[2]],
             color=self.theme["fill_colors"][1],
             linewidth=0.5,
@@ -239,7 +239,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
         # Fill areas
         ax.fill_between(
-            chart_data.loc[:, DATE_COLUMN],
+            chart_data.loc[:, _DATE_COLUMN],
             y1=chart_data.loc[:, metrics[1]],
             y2=chart_data.loc[:, metrics[2]],
             alpha=0.5,
@@ -284,7 +284,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
         for metric in type_metrics.keys():
             if chart_data.loc[:, type_metrics[metric]].sum() > 0:
                 ax.plot(
-                    chart_data.loc[:, DATE_COLUMN],
+                    chart_data.loc[:, _DATE_COLUMN],
                     chart_data.loc[:, type_metrics[metric]],
                     linewidth=1.5,
                     label=metric,
