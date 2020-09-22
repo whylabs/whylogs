@@ -12,6 +12,7 @@ import click
 import pandas as pd
 
 from whylogs.app import SessionConfig, WriterConfig
+from whylogs.app.config import WHYLOGS_YML
 from whylogs.app.session import session_from_config
 from whylogs.cli.cli_text import *
 from whylogs.cli.utils import echo
@@ -96,10 +97,6 @@ def init(project_dir):
     session_config = SessionConfig(
         project_name, pipeline_name, writers=[writer], verbose=False
     )
-    config_yml = os.path.join(project_dir, "whylogs.yml")
-    with open(file=config_yml, mode="w") as f:
-        session_config.to_yaml(f)
-    echo(f"Config YAML file was written to: {config_yml}\n")
 
     echo("Adding example notebooks to your workspace")
     git = shutil.which("git")
@@ -125,6 +122,11 @@ def init(project_dir):
         for f in files:
             shutil.copy(os.path.join(example_python, f), os.path.join(project_dir, f))
         shutil.rmtree(tmp_path)
+
+    config_yml = os.path.join(project_dir, WHYLOGS_YML)
+    with open(file=config_yml, mode="wt") as f:
+        session_config.to_yaml(f)
+    echo(f"Config YAML file was written to: {config_yml}\n")
 
     if click.confirm(INITIAL_PROFILING_CONFIRM, default=True):
         echo(DATA_SOURCE_MESSAGE)
