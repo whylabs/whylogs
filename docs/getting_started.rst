@@ -28,7 +28,8 @@ Our demo CLI will walk you through setting up a WhyLogs project.
 
 Configuration
 ===================
-To run the configuration CLI that will help you generate a simple configuration file:
+To get started, you can generate a simple cnofiguration file with `whylogs` CLI:
+
 .. code-block:: bash
 
    whylogs init
