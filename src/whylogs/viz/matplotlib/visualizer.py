@@ -2,6 +2,7 @@ import pandas as pd
 
 import matplotlib.pyplot as _plt
 import matplotlib.dates as _dates
+import matplotlib.ticker as _ticker
 
 from whylogs.viz import BaseProfileVisualizer
 
@@ -142,9 +143,12 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             frameon=False,
             ncol=3,
         )
-        ax.xaxis.set_major_formatter(_dates.DateFormatter("%m-%y"))
-        # ax.yaxis.set_major_formatter(_ticker.FuncFormatter(
-        #       lambda x, pos: '{:.0f}'.format(x) + 'k'))
+        ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
+        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(
+            useOffset=False,
+            useMathText=False,
+            useLocale=None
+        ))
 
         return fig
 
@@ -177,7 +181,12 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             frameon=False,
             ncol=3,
         )
-        ax.xaxis.set_major_formatter(_dates.DateFormatter("%m-%y"))
+        ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
+        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(
+            useOffset=False,
+            useMathText=False,
+            useLocale=None
+        ))
 
         return fig
 
@@ -251,9 +260,12 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             frameon=False,
             ncol=3,
         )
-        ax.xaxis.set_major_formatter(_dates.DateFormatter("%m-%y"))
-        # ax.yaxis.set_major_formatter(_ticker.FuncFormatter(
-        #       lambda x, pos: '{:.0f}'.format(x) + 'k'))
+        ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
+        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(
+            useOffset=False,
+            useMathText=False,
+            useLocale=None
+        ))
 
         return fig
 
@@ -292,6 +304,11 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             frameon=False,
             ncol=3,
         )
-        ax.xaxis.set_major_formatter(_dates.DateFormatter("%m-%Y"))
+        ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
+        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(
+            useOffset=False,
+            useMathText=False,
+            useLocale=None
+        ))
 
         return fig
