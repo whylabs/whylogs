@@ -20,6 +20,18 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
         self._init_theming()
 
+    def available_plots(self):
+        """Returns available plots for matplotlib framework."""
+        print(
+            """
+Available plots for WhyLogs visualizations using matplotlib:
+plot_data_types()
+plot_distribution()
+plot_missing_values()
+plot_uniqueness()
+"""
+        )
+
     def _init_data_preprocessing(self, profiles):
         filtered_data = []
         for prof in profiles:
@@ -34,8 +46,8 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
     def _init_theming(self):
         _plt.style.use("seaborn-whitegrid")
         _plt.rcParams["font.family"] = "sans-serif"
-        _plt.rcParams["font.sans-serif"] = ["Asap"]
-        _plt.rcParams["font.size"] = 12
+        _plt.rcParams["font.sans-serif"] = ["Asap", "Verdana"]
+        _plt.rcParams["font.size"] = 10
         _plt.rcParams["figure.dpi"] = 200
         _plt.rcParams["savefig.dpi"] = 200
         _plt.rcParams["text.color"] = self.theme["font_color"]
@@ -47,7 +59,8 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
     @staticmethod
     def _chart_theming():
         """Applies theming needed for each chart."""
-        fig = _plt.figure(figsize=(8, 2))
+        _plt.ioff()
+        fig = _plt.figure(figsize=(10, 2))
         ax = _plt.axes()
         fig.text(
             1.0,
@@ -68,8 +81,22 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
         proc_data.dropna(axis=0, subset=["date"])
         return proc_data
 
+    def _confirm_profile_data(self):
+        """Checks for that profiles and profile data already set."""
+        if not self.summary_data and len(self.summary_data) > 0:
+            print(
+                "Profiles have not been set for visualizer. "
+                "Try ProfileVisualizer.set_profiles(...)."
+            )
+            return False
+
+        return True
+
     def plot_distribution(self, variable, variant="auto", **kwargs):
         """Plots a distribution chart."""
+        if not self._confirm_profile_data:
+            return
+
         chart_data = self._summary_data_preprocessing(variable)
 
         fig, ax = MatplotlibProfileVisualizer._chart_theming()
@@ -151,6 +178,9 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
     def plot_missing_values(self, variable, variant="auto", **kwargs):
         """Plots a Missing Value to Total Count ratio chart."""
+        if not self._confirm_profile_data:
+            return
+
         chart_data = self._summary_data_preprocessing(variable)
         chart_data.loc[:, "mv_ratio"] = (
             chart_data.loc[:, "type_null_count"] / chart_data.loc[:, "count"]
@@ -167,7 +197,9 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
             label="Missing Value Ratio",
         )
 
-        ax.yaxis.set_label_text("Missing Value to Total Count Ratio", fontweight="bold")
+        ax.yaxis.set_label_text(
+            "Missing Value to\nTotal Count Ratio", fontweight="bold"
+        )
         ax.set_title(f"Missing Values ({variable})", loc="left", fontweight="bold")
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(
@@ -187,6 +219,9 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
     def plot_uniqueness(self, variable, variant="auto", **kwargs):
         """Plots a Estimated Unique Values chart."""
+        if not self._confirm_profile_data:
+            return
+
         chart_data = self._summary_data_preprocessing(variable)
 
         if (
@@ -264,6 +299,9 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
 
     def plot_data_types(self, variable, **kwargs):
         """Plots a Inferred Data Types chart."""
+        if not self._confirm_profile_data:
+            return
+
         chart_data = self._summary_data_preprocessing(variable)
 
         fig, ax = MatplotlibProfileVisualizer._chart_theming()

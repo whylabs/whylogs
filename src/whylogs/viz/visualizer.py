@@ -26,6 +26,3 @@ class ProfileVisualizer(BaseProfileVisualizer):
             RuntimeWarning,
         )
         return
-
-    def enable_framework(self, framework="matplotlib"):
-        return self.__subclass_framework(framework)
