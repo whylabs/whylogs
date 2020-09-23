@@ -28,3 +28,7 @@ class BaseProfileVisualizer:
     def plot_data_types(self, variable, **kwargs):
         """Plots a Inferred Data Types chart."""
         return self.visualizer.plot_data_types(variable, **kwargs)
+
+    def available_plots(self):
+        """Returns available plots for selected framework."""
+        return self.visualizer.available_plots()
