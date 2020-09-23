@@ -88,13 +88,14 @@ tasks.test {
     }
 }
 
+val javadocJar by tasks
+
 publishing {
     val ossrhUsername: String? by project
     val ossrhPassword: String? by project
 
     publications {
         val isSnapShot = version.toString().endsWith("SNAPSHOT")
-
 
         repositories {
             maven {
