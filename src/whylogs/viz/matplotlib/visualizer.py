@@ -83,16 +83,14 @@ plot_uniqueness()
 
     def _confirm_profile_data(self):
         """Checks for that profiles and profile data already set."""
-        if not self.summary_data and len(self.summary_data) > 0:
-            print(
-                "Profiles have not been set for visualizer. "
-                "Try ProfileVisualizer.set_profiles(...)."
-            )
-            return False
+        if self.summary_data is not None and len(self.summary_data) > 0:
+            return True
 
-        return True
+        print("Profiles have not been set for visualizer. "
+            "Try ProfileVisualizer.set_profiles(...).")
+        return False
 
-    def plot_distribution(self, variable, variant="auto", **kwargs):
+    def plot_distribution(self, variable, ts_format="%d-%b-%y", **kwargs):
         """Plots a distribution chart."""
         if not self._confirm_profile_data:
             return
@@ -169,14 +167,14 @@ plot_uniqueness()
             frameon=False,
             ncol=3,
         )
-        ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
+        ax.xaxis.set_major_formatter(_dates.DateFormatter(ts_format))
         ax.yaxis.set_major_formatter(
             _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
         )
 
         return fig
 
-    def plot_missing_values(self, variable, variant="auto", **kwargs):
+    def plot_missing_values(self, variable, ts_format="%d-%b-%y", **kwargs):
         """Plots a Missing Value to Total Count ratio chart."""
         if not self._confirm_profile_data:
             return
@@ -210,14 +208,14 @@ plot_uniqueness()
             frameon=False,
             ncol=3,
         )
-        ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
+        ax.xaxis.set_major_formatter(_dates.DateFormatter(ts_format))
         ax.yaxis.set_major_formatter(
             _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
         )
 
         return fig
 
-    def plot_uniqueness(self, variable, variant="auto", **kwargs):
+    def plot_uniqueness(self, variable, ts_format="%d-%b-%y", **kwargs):
         """Plots a Estimated Unique Values chart."""
         if not self._confirm_profile_data:
             return
@@ -290,14 +288,14 @@ plot_uniqueness()
             frameon=False,
             ncol=3,
         )
-        ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
+        ax.xaxis.set_major_formatter(_dates.DateFormatter(ts_format))
         ax.yaxis.set_major_formatter(
             _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
         )
 
         return fig
 
-    def plot_data_types(self, variable, **kwargs):
+    def plot_data_types(self, variable, ts_format="%d-%b-%y", **kwargs):
         """Plots a Inferred Data Types chart."""
         if not self._confirm_profile_data:
             return
@@ -335,7 +333,7 @@ plot_uniqueness()
             frameon=False,
             ncol=3,
         )
-        ax.xaxis.set_major_formatter(_dates.DateFormatter("%d-%m-%y"))
+        ax.xaxis.set_major_formatter(_dates.DateFormatter(ts_format))
         ax.yaxis.set_major_formatter(
             _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
         )
