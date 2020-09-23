@@ -64,7 +64,7 @@ To get started, add WhyLogs to your Maven POM:
 <dependency>
   <groupId>ai.whylabs</groupId>
   <artifactId>whylogs-core</artifactId>
-  <version>0.0.2b2</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 For the full Java API signature, see the [Java Documentation](https://www.javadoc.io/doc/ai.whylabs/whylogs-core/latest/index.html).
@@ -74,11 +74,14 @@ Spark package (Scala 2.11 or 2.12 only):
 <dependency>
   <groupId>ai.whylabs</groupId>
   <artifactId>whylogs-spark_2.11</artifactId>
-  <version>0.0.2b2</version>
+  <version>0.1.0</version>
 </dependency>
 ```
 For the full Scala API signature, see the [Scala API Documentation](https://javadoc.io/doc/ai.whylabs/whylogs-spark_2.11/latest/index.html).
 
+## Examples Repo
+
+For examples in different languages, please checkout our [whylogs-examples](https://github.com/whylabs/whylogs-examples) repository.
 
 ## Simple tracking
 The following code is a simple tracking example that does not output data to disk:
