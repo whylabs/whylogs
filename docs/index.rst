@@ -12,7 +12,7 @@ your data, read our :ref:`intro` and our :ref:`getting_started` guide.
 
 .. attention::
 
-   This site is a work in progress. If you have questions, ask them in our `Slack channel <https://whylogs.slack.com>`__!
+   This site is a work in progress. If you have questions, ask them in our `Slack channel <http://join.slack.whylabs.ai/>`__!
 
 .. toctree::
     :maxdepth: 5
