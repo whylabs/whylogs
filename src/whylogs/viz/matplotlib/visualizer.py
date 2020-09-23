@@ -86,8 +86,10 @@ plot_uniqueness()
         if self.summary_data is not None and len(self.summary_data) > 0:
             return True
 
-        print("Profiles have not been set for visualizer. "
-            "Try ProfileVisualizer.set_profiles(...).")
+        print(
+            "Profiles have not been set for visualizer. "
+            "Try ProfileVisualizer.set_profiles(...)."
+        )
         return False
 
     def plot_distribution(self, variable, ts_format="%d-%b-%y", **kwargs):
