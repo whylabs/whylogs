@@ -6,29 +6,43 @@
 
 This is a Python implementation of WhyLogs. The Java implementation can be found [here](https://github.com/whylabs/whylogs-java).
 
-Understanding the properties of data as it moves through applications is essential to keeping your ML/AI pipeline stable and improving your user experience, whether your pipeline is built for production or experimentation. WhyLogs is an open source statistical logging library that allows data science and ML teams to effortlessly profile ML/AI pipelines and applications, producing log files that can be used for monitoring, alerts, analytics, and error analysis. 
+Understanding the properties of data as it moves through applications is essential to keeping your ML/AI pipeline stable
+ and improving your user experience, whether your pipeline is built for production or experimentation. WhyLogs is an 
+ open source statistical logging library that allows data science and ML teams to effortlessly profile ML/AI pipelines and applications, producing log files that can be used for monitoring, alerts, analytics, and error analysis. 
 
-WhyLogs calculates approximate statistics for datasets of any size up to TB-scale, making it easy for users to identify changes in the statistical properties of a model's inputs or outputs. Using approximate statistics allows the package to run on minimal infrastructure and monitor an entire dataset, rather than miss outliers and other anomalies by only using a sample of the data to calculate statistics. These qualities make WhyLogs an excellent solution for profiling production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.  
+WhyLogs calculates approximate statistics for datasets of any size up to TB-scale, making it easy for users to identify
+ changes in the statistical properties of a model's inputs or outputs. Using approximate statistics allows the package 
+ to run on minimal infrastructure and monitor an entire dataset, rather than miss outliers and other anomalies by only 
+ using a sample of the data to calculate statistics. These qualities make WhyLogs an excellent solution for profiling 
+ production ML/AI pipelines that operate on TB-scale data and with enterprise SLAs.  
+ 
+For questions and discussions, hop on our [slack channel](http://join.slack.whylabs.ai/)!
 
 # Key Features
 
 * **Data Insight:** WhyLogs provides complex statistics across different stages of your ML/AI pipelines and applications.
 
-* **Scalability:** WhyLogs scales with your system, from local development mode to live production systems in multi-node clusters, and works well with batch and streaming architectures. 
+* **Scalability:** WhyLogs scales with your system, from local development mode to live production systems in multi-node 
+clusters, and works well with batch and streaming architectures. 
 
-* **Lightweight:** WhyLogs produces small mergeable lightweight outputs in a variety of formats, using sketching algorithms and summarizing statistics.
+* **Lightweight:** WhyLogs produces small mergeable lightweight outputs in a variety of formats, using sketching 
+algorithms and summarizing statistics.
 
-* **Unified data instrumentation:** To enable data engineering pipelines and ML pipelines to share a common framework for tracking data quality and drifts, the WhyLogs library supports multiple languages and integrations. 
+* **Unified data instrumentation:** To enable data engineering pipelines and ML pipelines to share a common framework 
+for tracking data quality and drifts, the WhyLogs library supports multiple languages and integrations. 
   
-* **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection. 
+* **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced 
+ML-focused analytics, error analysis, and data quality and data drift detection. 
 
 ## Statistical Profile
-WhyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
+WhyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. 
+These metrics include:
 
 * **Simple counters**: boolean, null values, data types.
 * **Summary statistics**: sum, min, max, variance.
 * **Unique value counter** or **cardinality**: tracks an approximate unique value of your feature using HyperLogLog algorithm.
-* **Histograms** for numerical features. WhyLogs binary output can be queried to with dynamic binning based on the shape of your data. 
+* **Histograms** for numerical features. WhyLogs binary output can be queried to with dynamic binning based on the 
+shape of your data. 
 * **Top frequent items** (default is 30). Note that this configuration affects the memory footprint, especially for text features.
 
 # Examples
@@ -79,13 +93,17 @@ configuration for your project. To use the quick start CLI, run the following co
 
 **Pipeline:** One or more datasets used to build a single model or application. A project may contain multiple pipelines.
 
-**Dataset:** A collection of records. WhyLogs v0.0.2 supports structured datasets, which represent data as a table where each row is a different record and each column is a feature of the record. 
+**Dataset:** A collection of records. WhyLogs v0.0.2 supports structured datasets, which represent data as a table 
+where each row is a different record and each column is a feature of the record. 
 
-**Feature:** In the context of WhyLogs v0.0.2 and structured data, a feature is a column in a dataset. A feature can be discrete (like gender or eye color) or continuous (like age or salary). 
+**Feature:** In the context of WhyLogs v0.0.2 and structured data, a feature is a column in a dataset. A feature can 
+be discrete (like gender or eye color) or continuous (like age or salary). 
 
-**WhyLogs Output:** WhyLogs returns profile summary files for a dataset in JSON format. For convenience, these files are provided in flat table, histogram, and frequency formats.
+**WhyLogs Output:** WhyLogs returns profile summary files for a dataset in JSON format. For convenience, these files 
+are provided in flat table, histogram, and frequency formats.
 
-**Statistical Profile:** A collection of statistical properties of a feature. Properties can be different for discrete and continuous features.
+**Statistical Profile:** A collection of statistical properties of a feature. Properties can be different for discrete 
+and continuous features.
 
 ### Integrations
 The WhyLogs library is integrated with the following:
