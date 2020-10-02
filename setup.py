@@ -147,6 +147,7 @@ DEV_EXTRA_REQUIREMENTS = [
     "setuptools_black",
     "coverage<5",  # Required for pycharm to run tests with coverage
 ]
+VIZ_EXTRA_REQUIREMENTS = ["matplotlib", "pandas"]
 
 # Pip setup
 with open("README.md", "rt") as f:
@@ -191,6 +192,6 @@ setuptools.setup(
     ],
     python_requires=">=3.5",
     install_requires=REQUIREMENTS,
-    extras_require={"dev": DEV_EXTRA_REQUIREMENTS},
+    extras_require={"dev": DEV_EXTRA_REQUIREMENTS, "viz": VIZ_EXTRA_REQUIREMENTS},
     tests_require=["pytest"],
 )
