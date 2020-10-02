@@ -46,11 +46,16 @@ shape of your data.
 * **Top frequent items** (default is 30). Note that this configuration affects the memory footprint, especially for text features.
 
 # Examples
-For a full set of our examples, please check out [whylogs-examples](https://github.com/whylabs/whylogs-examples)
+For a full set of our examples, please check out [whylogs-examples](https://github.com/whylabs/whylogs-examples).
 
-Some of the notable ones:
-- [Getting Started](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb)
-- [Logging](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging.ipynb)
+Note that to use the run with matplotlib vizualiation, you'll have to install whylogs with `viz` dependencies:
+```
+pip install "whylogs[viz]"
+```
+
+Some of the notable notebooks:
+- [Getting Started notebook](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb)
+- [Logging Example notebook](https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb)
 - [Logging a Dataframe](https://whylogs.readthedocs.io/en/latest/auto_examples/log_dataframe.html)
 - [Logger Options](https://whylogs.readthedocs.io/en/latest/auto_examples/configure_logger.html#sphx-glr-auto-examples-configure-logger-py)
 
