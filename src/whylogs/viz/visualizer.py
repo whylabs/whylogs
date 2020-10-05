@@ -15,7 +15,7 @@ class ProfileVisualizer(BaseProfileVisualizer):
 
     def __subclass_framework(self, framework="matplotlib"):
         if framework == "matplotlib":
-            from .matplotlib.visualizer import MatplotlibProfileVisualizer
+            from .matplotlib import MatplotlibProfileVisualizer
 
             return MatplotlibProfileVisualizer()
 
