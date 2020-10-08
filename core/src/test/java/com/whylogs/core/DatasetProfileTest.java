@@ -24,7 +24,7 @@ public class DatasetProfileTest {
     val first = new DatasetProfile("test", now);
     val second = new DatasetProfile("test", now);
 
-    final val result = first.merge(second);
+    val result = first.merge(second);
     assertThat(result.getSessionId(), is("test"));
     assertThat(result.getSessionTimestamp(), is(now));
     assertThat(result.columns, is(anEmptyMap()));
@@ -38,7 +38,7 @@ public class DatasetProfileTest {
     val second = new DatasetProfile("test", now, ImmutableMap.of("key", "value"));
     second.track("col2", "value");
 
-    final val result = first.merge(second);
+    val result = first.merge(second);
     assertThat(result.getSessionId(), is("test"));
     assertThat(result.getSessionTimestamp(), is(now));
     assertThat(result.columns, aMapWithSize(2));
@@ -61,7 +61,7 @@ public class DatasetProfileTest {
     second.track("col1", "value1");
     second.track("col2", "value");
 
-    final val result = first.merge(second);
+    val result = first.merge(second);
     assertThat(result.getSessionId(), is("test"));
     assertThat(result.getSessionTimestamp(), is(now));
     assertThat(result.columns, aMapWithSize(2));
@@ -86,7 +86,7 @@ public class DatasetProfileTest {
             "test", now, dataTimestamp, ImmutableMap.of("key", "value"), Collections.emptyMap());
     second.track("col2", "value");
 
-    final val result = first.merge(second);
+    val result = first.merge(second);
     assertThat(result.getSessionId(), is("test"));
     assertThat(result.getSessionTimestamp(), is(now));
     assertThat(result.columns, aMapWithSize(2));
@@ -102,26 +102,41 @@ public class DatasetProfileTest {
     assertThat(result.columns.get("col2").getCounters().getCount(), is(1L));
   }
 
+  @Test
+  public void merge_ContainsDifferentTagGroups_ShouldRetainCommonTags() {
+    val now = Instant.now();
+    val first = new DatasetProfile("test", now, ImmutableMap.of("key", "foo", "key2", "foo2"));
+    first.withMetadata("m1", "v1").withMetadata("m2", "v2").withMetadata("m0", "v0");
+    val second =
+        new DatasetProfile(
+            "test", now.plusSeconds(60), ImmutableMap.of("key", "foo", "key2", "foo3"));
+    second.withMetadata("m1", "v1").withMetadata("m2", "v2").withMetadata("m3", "v3");
+
+    val result = first.merge(second);
+    assertThat(result.getTags(), is(ImmutableMap.of("key", "foo")));
+    assertThat(result.getMetadata(), is(ImmutableMap.of("m1", "v1", "m2", "v2")));
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void merge_MismatchedTags_ThrowsIllegalArgumentException() {
+  public void mergeStrict_MismatchedTags_ThrowsIllegalArgumentException() {
     val now = Instant.now();
     val first = new DatasetProfile("test", now, ImmutableMap.of("key", "foo"));
     val second = new DatasetProfile("test", now, ImmutableMap.of("key", "bar"));
 
-    first.merge(second);
+    first.mergeStrict(second);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void merge_MismatchedSessionTime_ThrowsIllegalArgumentException() {
+  public void mergeStrict_MismatchedSessionTime_ThrowsIllegalArgumentException() {
     val now = Instant.now();
     val first = new DatasetProfile("test", now);
     val second = new DatasetProfile("test", now.minusMillis(1));
 
-    first.merge(second);
+    first.mergeStrict(second);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void merge_MismatchedDataTime_ThrowsIllegalArgumentException() {
+  public void mergeStrict_MismatchedDataTime_ThrowsIllegalArgumentException() {
     val now = Instant.now();
     val first =
         new DatasetProfile(
@@ -130,7 +145,7 @@ public class DatasetProfileTest {
         new DatasetProfile(
             "test", now, now.plusMillis(1), Collections.emptyMap(), Collections.emptyMap());
 
-    first.merge(second);
+    first.mergeStrict(second);
   }
 
   @Test
@@ -144,8 +159,8 @@ public class DatasetProfileTest {
     original.track("col2", "value");
     original.withMetadata("mKey", "mData");
 
-    final val msg = original.toProtobuf().build();
-    final val roundTrip = DatasetProfile.fromProtobuf(msg);
+    val msg = original.toProtobuf().build();
+    val roundTrip = DatasetProfile.fromProtobuf(msg);
 
     assertThat(roundTrip.getSessionId(), is("test"));
     assertThat(roundTrip.getDataTimestamp(), is(dataTime));

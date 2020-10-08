@@ -132,8 +132,17 @@ public class SchemaTracker {
     return InferredType.newBuilder().setType(mostPopularType).setRatio(ratio);
   }
 
+  public void add(SchemaTracker other) {
+    final InferredType.Type[] allTypes = InferredType.Type.values();
+    for (val type : allTypes) {
+      if (this.typeCounts.containsKey(type) || other.typeCounts.containsKey(type)) {
+        this.typeCounts.merge(type, other.getCount(type), Long::sum);
+      }
+    }
+  }
+
   public SchemaTracker merge(SchemaTracker other) {
-    final val thisCopy = new SchemaTracker(Maps.newHashMap(typeCounts));
+    val thisCopy = new SchemaTracker(Maps.newHashMap(typeCounts));
 
     final InferredType.Type[] allTypes = InferredType.Type.values();
     for (val type : allTypes) {

@@ -7,7 +7,7 @@
  * in the user manual at https://docs.gradle.org/6.3/userguide/multi_project_builds.html
  */
 
-rootProject.name = "whylogs"
+rootProject.name = "whylogs-java"
 
 include(
         ":core",

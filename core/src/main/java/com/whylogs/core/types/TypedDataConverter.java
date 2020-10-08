@@ -12,6 +12,9 @@ import lombok.val;
 
 @UtilityClass
 public class TypedDataConverter {
+  public static final Set<InferredType.Type> NUMERIC_TYPES =
+      Stream.of(InferredType.Type.FRACTIONAL, InferredType.Type.INTEGRAL).collect(toSet());
+
   private final Pattern FRACTIONAL = Pattern.compile("^[-+]? ?\\d+[.]\\d+$");
   private final Pattern INTEGRAL = Pattern.compile("^[-+]? ?\\d+$");
   private final Pattern BOOLEAN = Pattern.compile("^(?i)true|false$");
@@ -25,9 +28,6 @@ public class TypedDataConverter {
       ThreadLocal.withInitial(() -> BOOLEAN.matcher(""));
   private final ThreadLocal<Matcher> EMPTY_SPACES_REMOVER =
       ThreadLocal.withInitial(() -> EMPTY_SPACES.matcher(""));
-
-  private final Set<InferredType.Type> NUMERIC_TYPES =
-      Stream.of(InferredType.Type.FRACTIONAL, InferredType.Type.INTEGRAL).collect(toSet());
 
   public TypedData convert(Object data) {
     if (data == null) {

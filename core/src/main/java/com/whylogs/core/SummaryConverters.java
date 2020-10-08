@@ -89,7 +89,6 @@ public class SummaryConverters {
     }
 
     val histogram = fromUpdateDoublesSketch(numberTracker.getHistogram());
-    val uniqueCount = fromSketch(numberTracker.getThetaSketch());
 
     return NumberSummary.newBuilder()
         .setCount(count)
@@ -98,7 +97,6 @@ public class SummaryConverters {
         .setMax(max)
         .setMean(mean)
         .setHistogram(histogram)
-        .setUniqueCount(uniqueCount)
         .build();
   }
 

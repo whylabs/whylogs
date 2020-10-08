@@ -131,8 +131,8 @@ publishing {
             description = "WhyLogs - a powerful data profiling library for your ML pipelines"
 
             pom {
-                name.set("WhyLogs-Spark-Bundle")
-                description.set("A single jar to easily deploy WhyLogs to Spark")
+                name.set("whylogs-spark")
+                description.set("Spark integration for WhyLogs")
                 url.set("https://github.com/whylabs/whylogs-java")
                 licenses {
                     license {

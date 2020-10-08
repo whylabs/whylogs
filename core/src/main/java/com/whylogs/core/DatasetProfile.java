@@ -1,6 +1,7 @@
 package com.whylogs.core;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.whylogs.core.iterator.ColumnsChunkSegmentIterator;
@@ -41,8 +42,8 @@ public class DatasetProfile implements Serializable {
   @Getter Instant dataTimestamp;
   // always sorted
   @Getter Map<String, String> tags;
+  @Getter Map<String, String> metadata;
   Map<String, ColumnProfile> columns;
-  Map<String, String> metadata;
 
   /**
    * DEVELOPER API. DO NOT USE DIRECTLY
@@ -166,10 +167,7 @@ public class DatasetProfile implements Serializable {
     return Iterators.concat(Iterators.singletonIterator(metadataSegment), columnSegmentMessages);
   }
 
-  public DatasetProfile merge(@NonNull DatasetProfile other) {
-    this.validate();
-    other.validate();
-
+  public DatasetProfile mergeStrict(@NonNull DatasetProfile other) {
     Preconditions.checkArgument(
         Objects.equals(this.sessionId, other.sessionId),
         "Mismatched name. Current name [%s] is merged with [%s]",
@@ -192,16 +190,54 @@ public class DatasetProfile implements Serializable {
         this.tags,
         other.tags);
 
+    return doMerge(other, this.tags);
+  }
+
+  /**
+   * Merge the data of another {@link DatasetProfile} into this one.
+   *
+   * <p>We will only retain the shared tags and share metadata. The timestamps are copied over from
+   * this dataset. It is the responsibility of the user to ensure that the two datasets are matched
+   * on important grouping information
+   *
+   * @param other a {@link DatasetProfile}
+   * @return a merged {@link DatasetProfile} with summed up columns
+   */
+  public DatasetProfile merge(@NonNull DatasetProfile other) {
+    val sharedTags = ImmutableMap.<String, String>builder();
+    for (val tagKey : this.tags.keySet()) {
+      val tagValue = this.tags.get(tagKey);
+      if (tagValue.equals(other.tags.get(tagKey))) {
+        sharedTags.put(tagKey, tagValue);
+      }
+    }
+
+    return doMerge(other, sharedTags.build());
+  }
+
+  private DatasetProfile doMerge(@NonNull DatasetProfile other, Map<String, String> tags) {
+    this.validate();
+    other.validate();
+
     val result =
         new DatasetProfile(
             this.sessionId,
             this.sessionTimestamp,
             this.dataTimestamp,
-            this.tags,
+            tags,
             Collections.emptyMap());
 
+    val sharedMetadata = ImmutableMap.<String, String>builder();
+    for (val mKey : this.metadata.keySet()) {
+      val mValue = this.metadata.get(mKey);
+      if (mValue.equals(other.metadata.get(mKey))) {
+        sharedMetadata.put(mKey, mValue);
+      }
+    }
+    result.withAllMetadata(sharedMetadata.build());
+
     val unionColumns = Sets.union(this.columns.keySet(), other.columns.keySet());
-    for (String column : unionColumns) {
+    for (val column : unionColumns) {
       val emptyColumn = new ColumnProfile(column);
       val thisColumn = this.columns.getOrDefault(column, emptyColumn);
       val otherColumn = other.columns.getOrDefault(column, emptyColumn);

@@ -21,7 +21,6 @@ public class NumberTrackerTest {
     assertThat(numberTracker.getVariance().stddev(), closeTo(1.0, 0.001));
 
     assertThat(numberTracker.getHistogram().getN(), is(3L));
-    assertThat(numberTracker.getThetaSketch().getEstimate(), closeTo(3, 0.001));
     assertThat((double) numberTracker.getHistogram().getMaxValue(), closeTo(12, 0.0001));
     assertThat((double) numberTracker.getHistogram().getMinValue(), closeTo(10, 0.0001));
   }
@@ -38,7 +37,6 @@ public class NumberTrackerTest {
     assertThat(numberTracker.getVariance().stddev(), closeTo(1.0, 0.001));
 
     assertThat(numberTracker.getHistogram().getN(), is(3L));
-    assertThat(numberTracker.getThetaSketch().getEstimate(), closeTo(3, 0.001));
     assertThat((double) numberTracker.getHistogram().getMaxValue(), closeTo(12, 0.0001));
     assertThat((double) numberTracker.getHistogram().getMinValue(), closeTo(10, 0.0001));
   }
@@ -59,7 +57,6 @@ public class NumberTrackerTest {
     assertThat(numberTracker.getVariance().stddev(), closeTo(1.0, 0.001));
 
     assertThat(numberTracker.getHistogram().getN(), is(3L));
-    assertThat(numberTracker.getThetaSketch().getEstimate(), closeTo(3, 0.001));
     assertThat((double) numberTracker.getHistogram().getMaxValue(), closeTo(12, 0.0001));
     assertThat((double) numberTracker.getHistogram().getMinValue(), closeTo(10, 0.0001));
   }

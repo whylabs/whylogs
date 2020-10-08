@@ -13,9 +13,6 @@ import lombok.Getter;
 import lombok.val;
 import org.apache.datasketches.kll.KllFloatsSketch;
 import org.apache.datasketches.memory.Memory;
-import org.apache.datasketches.memory.WritableMemory;
-import org.apache.datasketches.theta.Union;
-import org.apache.datasketches.theta.UpdateSketch;
 
 @Getter
 @Builder(setterPrefix = "set")
@@ -28,21 +25,18 @@ public class NumberTracker {
 
   // sketches
   KllFloatsSketch histogram; // histogram
-  UpdateSketch thetaSketch;
 
   public NumberTracker() {
     this.variance = new VarianceTracker();
     this.doubles = new DoubleTracker();
     this.longs = new LongTracker();
 
-    this.thetaSketch = UpdateSketch.builder().build();
     this.histogram = new KllFloatsSketch(256);
   }
 
   public void track(Number number) {
     float dValue = number.floatValue();
     variance.update(dValue);
-    thetaSketch.update(dValue);
     histogram.update(dValue);
 
     if (doubles.getCount() > 0) {
@@ -56,21 +50,30 @@ public class NumberTracker {
     }
   }
 
+  public void add(NumberTracker other) {
+    if (other == null) {
+      return;
+    }
+
+    this.variance.add(other.variance);
+    this.doubles.add(other.doubles);
+    this.longs.add(other.longs);
+    this.histogram.merge(other.histogram);
+  }
+
   public NumberTracker merge(NumberTracker other) {
+    if (other == null) {
+      return this;
+    }
+
     val unionHistogram = KllFloatsSketch.heapify(Memory.wrap(this.histogram.toByteArray()));
     unionHistogram.merge(other.histogram);
-
-    val unionTheta = Union.builder().buildUnion();
-    unionTheta.update(this.thetaSketch);
-    unionTheta.update(other.thetaSketch);
-    val thetaSketch = UpdateSketch.heapify(WritableMemory.wrap(unionTheta.toByteArray()));
 
     return NumberTracker.builder()
         .setVariance(this.variance.merge(other.variance))
         .setDoubles(this.doubles.merge(other.doubles))
         .setLongs(this.longs.merge(other.longs))
         .setHistogram(unionHistogram)
-        .setThetaSketch(thetaSketch)
         .build();
   }
 
@@ -78,7 +81,6 @@ public class NumberTracker {
     val builder =
         NumbersMessage.newBuilder()
             .setVariance(variance.toProtobuf())
-            .setTheta(ByteString.copyFrom(thetaSketch.toByteArray()))
             .setHistogram(ByteString.copyFrom(histogram.toByteArray()));
 
     if (this.doubles.getCount() > 0) {
@@ -91,11 +93,9 @@ public class NumberTracker {
   }
 
   public static NumberTracker fromProtobuf(NumbersMessage message) {
-    val tMem = WritableMemory.wrap(message.getTheta().toByteArray());
     val hMem = Memory.wrap(message.getHistogram().toByteArray());
     val builder =
         NumberTracker.builder()
-            .setThetaSketch(UpdateSketch.heapify(tMem))
             .setHistogram(KllFloatsSketch.heapify(hMem))
             .setVariance(VarianceTracker.fromProtobuf(message.getVariance()));
 

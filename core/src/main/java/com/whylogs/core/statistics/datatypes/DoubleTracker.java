@@ -50,18 +50,24 @@ public class DoubleTracker {
     sum += value;
   }
 
+  public void add(DoubleTracker other) {
+    if (other == null) {
+      return;
+    }
+    if (other.min < this.min) {
+      this.min = other.min;
+    }
+
+    if (other.max > this.max) {
+      this.max = other.max;
+    }
+    this.sum += other.sum;
+    this.count += other.count;
+  }
+
   public DoubleTracker merge(DoubleTracker other) {
     val thisCopy = new DoubleTracker(min, max, sum, count);
-    if (other.min < thisCopy.min) {
-      thisCopy.min = other.min;
-    }
-
-    if (other.max > thisCopy.max) {
-      thisCopy.max = other.max;
-    }
-    thisCopy.sum += other.sum;
-    thisCopy.count += other.count;
-
+    thisCopy.add(other);
     return thisCopy;
   }
 

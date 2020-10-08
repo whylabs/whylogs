@@ -42,26 +42,31 @@ public class VarianceTracker {
   }
 
   /** https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm */
-  public VarianceTracker merge(VarianceTracker other) {
-    final VarianceTracker thisCopy = this.copy();
-    if (other.count == 0L) {
-      return thisCopy;
+  public void add(VarianceTracker other) {
+    if (other == null || other.count == 0L) {
+      return;
     }
 
     if (this.count == 0L) {
-      return other.copy();
+      this.count = other.count;
+      this.mean = other.mean;
+      this.sum = other.sum;
+      return;
     }
 
-    val delta = thisCopy.mean - other.mean;
-    val totalCount = thisCopy.count + other.count;
-    thisCopy.sum +=
-        other.sum + Math.pow(delta, 2) * thisCopy.count * other.count / (double) totalCount;
+    val delta = this.mean - other.mean;
+    val totalCount = this.count + other.count;
+    this.sum += other.sum + Math.pow(delta, 2) * this.count * other.count / (double) totalCount;
 
-    val thisRatio = thisCopy.count / (double) totalCount;
+    val thisRatio = this.count / (double) totalCount;
     val otherRatio = 1.0 - thisRatio;
-    thisCopy.mean = thisCopy.mean * thisRatio + other.mean * otherRatio;
-    thisCopy.count += other.count;
+    this.mean = this.mean * thisRatio + other.mean * otherRatio;
+    this.count += other.count;
+  }
 
+  public VarianceTracker merge(VarianceTracker other) {
+    final VarianceTracker thisCopy = this.copy();
+    thisCopy.add(other);
     return thisCopy;
   }
 

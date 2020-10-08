@@ -40,17 +40,25 @@ public class LongTracker {
     sum += value;
   }
 
-  public LongTracker merge(LongTracker other) {
-    val thisCopy = new LongTracker(min, max, sum, count);
-    if (other.min < thisCopy.min) {
-      thisCopy.min = other.min;
+  public void add(LongTracker other) {
+    if (other == null) {
+      return;
     }
 
-    if (other.max > thisCopy.max) {
-      thisCopy.max = other.max;
+    if (other.min < this.min) {
+      this.min = other.min;
     }
-    thisCopy.sum += other.sum;
-    thisCopy.count += other.count;
+
+    if (other.max > this.max) {
+      this.max = other.max;
+    }
+    this.sum += other.sum;
+    this.count += other.count;
+  }
+
+  public LongTracker merge(LongTracker other) {
+    val thisCopy = new LongTracker(min, max, sum, count);
+    thisCopy.add(other);
     return thisCopy;
   }
 

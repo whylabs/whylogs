@@ -23,7 +23,6 @@ public class ColumnProfileTest {
     assertThat(col.getCounters().getTrueCount(), is(1L));
     assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
     assertThat(col.getNumberTracker().getDoubles().getCount(), is(2L));
-    assertThat(col.getStringTracker().getCount(), is(1L));
   }
 
   @Test
@@ -42,7 +41,30 @@ public class ColumnProfileTest {
     assertThat(merged.getCounters().getTrueCount(), is(2L));
     assertThat(merged.getNumberTracker().getLongs().getCount(), is(0L));
     assertThat(merged.getNumberTracker().getDoubles().getCount(), is(4L));
-    assertThat(merged.getStringTracker().getCount(), is(2L));
+
+    // verify that the merged profile is updatable
+    merged.track("value");
+  }
+
+  @Test
+  public void column_Merge_RetainCommonTags() {
+    val col = new ColumnProfile("test");
+    col.track(1L);
+    col.track(1.0);
+    col.track("string");
+    col.track(true);
+    col.track(false);
+    col.track(null);
+
+    val merged = col.merge(col);
+    assertThat(merged.getCounters().getCount(), is(12L));
+    assertThat(merged.getCounters().getNullCount(), is(2L));
+    assertThat(merged.getCounters().getTrueCount(), is(2L));
+    assertThat(merged.getNumberTracker().getLongs().getCount(), is(0L));
+    assertThat(merged.getNumberTracker().getDoubles().getCount(), is(4L));
+
+    // verify that the merged profile is updatable
+    merged.track("value");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
