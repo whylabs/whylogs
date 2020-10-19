@@ -144,10 +144,9 @@ class WhyLogsRun(object):
 
 
 _active_whylogs = []
-_original_end_run = mlflow.tracking.fluent.end_run
 
 
-def _end_run(status=RunStatus.to_string(RunStatus.FINISHED)):
+def _end_run(status):
     """Redefine when an MLRun ends by closing Whylogs."""
     global _active_whylogs
     global _original_end_run
@@ -208,5 +207,13 @@ def enable_mlflow():
         _active_whylogs.append(ylogs)
 
     mlflow.whylogs = ylogs
-    mlflow.end_run = _end_run
-    mlflow.tracking.fluent.end_run = _end_run
+    # Store the original end_run
+    original_end_run = mlflow.tracking.fluent.end_run
+
+    def end_run(status=RunStatus.to_string(RunStatus.FINISHED)):
+        logger.debug("Closing whylogs before ending the MLFlow run")
+        mlflow.whylogs._close()
+        original_end_run(status)
+
+    mlflow.end_run = end_run
+    mlflow.tracking.fluent.end_run = end_run
