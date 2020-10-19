@@ -130,24 +130,30 @@ REQUIREMENTS = [
     "numpy>=1.18",
     "whylabs-datasketches>=2.0.0b6",
 ] + OPTIONAL_REQS
-DEV_EXTRA_REQUIREMENTS = [
-    "ipython",
-    "argh>=0.26",
-    "pytest-runner>=5.2",
-    "pytest",
-    "ipykernel",
-    "pyarrow",
-    # 'vmprof',
-    "matplotlib",
-    "pre-commit",
-    "bump2version",
-    "twine",
-    "wheel",
-    "awscli >= 1.18.93",
-    "setuptools_black",
-    "coverage<5",  # Required for pycharm to run tests with coverage
-]
 VIZ_EXTRA_REQUIREMENTS = ["matplotlib", "pandas"]
+MLFLOW = ["mlflow"]
+
+DEV_EXTRA_REQUIREMENTS = (
+    [
+        "ipython",
+        "argh>=0.26",
+        "pytest-runner>=5.2",
+        "pytest",
+        "ipykernel",
+        "pyarrow",
+        # 'vmprof',
+        "matplotlib",
+        "pre-commit",
+        "bump2version",
+        "twine",
+        "wheel",
+        "awscli >= 1.18.93",
+        "setuptools_black",
+        "coverage<5",  # Required for pycharm to run tests with coverage
+    ]
+    + VIZ_EXTRA_REQUIREMENTS
+    + MLFLOW
+)
 
 # Pip setup
 with open("README.md", "rt") as f:
@@ -192,6 +198,10 @@ setuptools.setup(
     ],
     python_requires=">=3.5",
     install_requires=REQUIREMENTS,
-    extras_require={"dev": DEV_EXTRA_REQUIREMENTS, "viz": VIZ_EXTRA_REQUIREMENTS},
+    extras_require={
+        "dev": DEV_EXTRA_REQUIREMENTS,
+        "viz": VIZ_EXTRA_REQUIREMENTS,
+        "mlflow": MLFLOW,
+    },
     tests_require=["pytest"],
 )
