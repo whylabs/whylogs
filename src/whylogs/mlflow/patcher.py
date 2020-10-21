@@ -60,7 +60,7 @@ class WhyLogsRun(object):
             run_info.run_id,
             logger_dataset_name,
             session_timestamp=session_timestamp,
-            tags=dict(),
+            tags=tags,
             writers=[],
         )
 
