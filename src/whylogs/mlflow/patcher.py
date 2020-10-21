@@ -15,7 +15,6 @@ try:
     from mlflow.entities import RunStatus
     from mlflow.tracking import MlflowClient
 except ImportError:
-    logger.warning("Failed to import MLFLow")
     pass
 
 
