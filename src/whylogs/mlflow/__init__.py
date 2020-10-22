@@ -1,13 +1,14 @@
 from .patcher import enable_mlflow
+from .patcher import disable_mlflow
 
 _WHYLOGS_PATH = "whylogs"
 
 
-def list_runs(experiment_id: str, dataset_name: str = "default"):
+def list_whylogs_runs(experiment_id: str, dataset_name: str = "default"):
     """
     List all the runs from an experiment that contains WhyLogs
 
-    :rtype: :py:class:`mlflow.entities.Run`
+    :rtype: :py:class:`typing.List[mlflow.entities.Run]`
     :param experiment_id: the experiment id
     :param dataset_name: the name of the dataset. Default to "default"
     """
@@ -49,7 +50,7 @@ def get_run_profiles(run_id: str, dataset_name: str = "default", client=None):
     if client is None:
         client = mlflow.tracking.MlflowClient()
 
-    artifacts = client.list_artifacts(run_id, path=f"${_WHYLOGS_PATH}/{dataset_name}")
+    artifacts = client.list_artifacts(run_id, path=f"{_WHYLOGS_PATH}/{dataset_name}")
     if len(artifacts) == 1 and not artifacts[0].is_dir:
         tmp_dir = tempfile.mkdtemp()
         output_file = client.download_artifacts(run_id, artifacts[0].path, tmp_dir)
@@ -58,6 +59,8 @@ def get_run_profiles(run_id: str, dataset_name: str = "default", client=None):
                 return list(DatasetProfile.parse_delimited(f.read()))
         finally:
             shutil.rmtree(tmp_dir)
+    else:
+        return []
 
 
 def get_experiment_profiles(experiment_id: str, dataset_name: str = "default"):
@@ -72,7 +75,7 @@ def get_experiment_profiles(experiment_id: str, dataset_name: str = "default"):
     import mlflow
 
     client = mlflow.tracking.MlflowClient()
-    run_infos = list_runs(experiment_id, dataset_name)
+    run_infos = list_whylogs_runs(experiment_id, dataset_name)
 
     res = []
     for run in run_infos:
@@ -82,7 +85,8 @@ def get_experiment_profiles(experiment_id: str, dataset_name: str = "default"):
 
 __all__ = [
     "enable_mlflow",
+    "disable_mlflow",
     "get_experiment_profiles",
     "get_run_profiles",
-    "list_runs",
+    "list_whylogs_runs",
 ]

@@ -10,12 +10,10 @@ from whylogs.app.logger import Logger
 
 logger = logging.getLogger("whylogs.mlflow")
 
-try:
-    import mlflow
-    from mlflow.entities import RunStatus
-    from mlflow.tracking import MlflowClient
-except ImportError:
-    pass
+_mlflow = None
+_original_end_run = None
+_active_whylogs = []
+_is_patched = False
 
 
 class WhyLogsRun(object):
@@ -24,7 +22,7 @@ class WhyLogsRun(object):
     _loggers: Dict[str, Logger] = dict()
 
     def _create_logger(self, dataset_name: Optional[str] = None):
-        active_run: mlflow.ActiveRun = mlflow.active_run()
+        active_run = _mlflow.active_run()
 
         if self._active_run_id is not None and active_run is None:
             self._close()
@@ -44,7 +42,7 @@ class WhyLogsRun(object):
         session_timestamp = datetime.datetime.utcfromtimestamp(
             run_info.start_time / 1000.0
         )
-        experiment: mlflow.entities.Experiment = MlflowClient().get_experiment(
+        experiment: _mlflow.entities.Experiment = _mlflow.tracking.MlflowClient().get_experiment(
             run_info.experiment_id
         )
         logger_dataset_name = dataset_name or experiment.name
@@ -128,7 +126,7 @@ class WhyLogsRun(object):
                 output = os.path.join(output_dir, "profile.bin")
                 logger.debug("Writing logger %s's data to %s", name, output)
                 ylogs.profile.write_protobuf(output)
-                mlflow.log_artifact(output, artifact_path=f"whylogs/{dataset_dir}")
+                _mlflow.log_artifact(output, artifact_path=f"whylogs/{dataset_dir}")
                 logger.debug("Successfully uploaded logger %s data to MLFlow", name)
                 self._loggers.pop(name)
             except:
@@ -142,24 +140,11 @@ class WhyLogsRun(object):
             self._active_run_id = None
 
 
-_active_whylogs = []
-
-
-def _end_run(status):
-    """Redefine when an MLRun ends by closing Whylogs."""
-    global _active_whylogs
-    global _original_end_run
-    logger.debug("Closing whylogs before ending the MLFlow run")
-    mlflow.whylogs._close()
-    _original_end_run(status)
-
-
-_is_patched = False
-
-
-def enable_mlflow():
+def enable_mlflow() -> bool:
     """
     Enable WhyLogs in ``mlflow`` module via ``mlflow.whylogs``.
+
+    :returns: True if MLFlow has been patched. False otherwise.
 
     .. code-block:: python
         :caption: Example of WhyLogs and MLFlow
@@ -189,15 +174,23 @@ def enable_mlflow():
         mlflow.end_run()
 
     """
+    global _mlflow
+    global _is_patched
+    global _original_end_run
+
     if _is_patched:
         logger.warning("whylogs has been enabled for MLFlow. Ignoring...")
-        return
+        return True
 
-    if mlflow is None:
+    try:
+        import mlflow
+
+        _mlflow = mlflow
+    except ImportError:
         logger.warning(
             "Failed to import MLFlow. Please make sure MLFlow is installed in your runtime"
         )
-        return
+        return False
 
     if len(_active_whylogs) > 0:
         ylogs = _active_whylogs[0]
@@ -205,14 +198,38 @@ def enable_mlflow():
         ylogs = WhyLogsRun()
         _active_whylogs.append(ylogs)
 
-    mlflow.whylogs = ylogs
+    _mlflow.whylogs = ylogs
     # Store the original end_run
-    original_end_run = mlflow.tracking.fluent.end_run
+    _original_end_run = _mlflow.tracking.fluent.end_run
 
-    def end_run(status=RunStatus.to_string(RunStatus.FINISHED)):
+    def end_run(
+        status=_mlflow.entities.RunStatus.to_string(
+            _mlflow.entities.RunStatus.FINISHED
+        ),
+    ):
         logger.debug("Closing whylogs before ending the MLFlow run")
-        mlflow.whylogs._close()
-        original_end_run(status)
+        _mlflow.whylogs._close()
+        _original_end_run(status)
 
-    mlflow.end_run = end_run
-    mlflow.tracking.fluent.end_run = end_run
+    _mlflow.end_run = end_run
+    _mlflow.tracking.fluent.end_run = end_run
+    _is_patched = True
+
+    return True
+
+
+def disable_mlflow():
+    try:
+        import mlflow
+
+        mlflow.end_run()
+        mlflow.end_run = _original_end_run
+        mlflow.tracking.fluent.end_run = _original_end_run
+        del mlflow.whylogs
+    except:
+        pass
+
+    global _mlflow
+    global _is_patched
+    _mlflow = None
+    _is_patched = False
