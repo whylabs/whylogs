@@ -72,5 +72,6 @@ def test_get_run_profiles_shouldReturn_multipleProfiles(tmpdir):
     assert len(default_profiles) == 1
     assert len(another_profile) == 1
     assert default_profiles[0].name == "default"
-    assert another_profile[0].name == "another-profile"
+    assert default_profiles[0].dataset_timestamp is not None
+    assert another_profile[0].dataset_timestamp is not None
     whylogs.mlflow.disable_mlflow()
