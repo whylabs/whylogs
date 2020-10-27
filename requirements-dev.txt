@@ -20,7 +20,7 @@ click==7.1.2
 cloudpickle==1.6.0
 colorama==0.4.3
 coverage==4.5.4
-cryptography==3.1.1
+cryptography==3.2
 cycler==0.10.0
 databricks-cli==0.12.2
 decorator==4.4.2
