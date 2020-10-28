@@ -104,3 +104,7 @@ whylogs supports the following output formats:
 - **JSON** displays the protobuf data in JSON format.
 - **Flat** outputs multiple files with both CSV and JSON content to represent different views of the data, including histograms, upperbound, lowerbound, and frequent values.
 
+WhyLabs Platform Sandbox
+########################
+
+Check out `WhyLabs Platform Sandbox <https://try.whylabsapp.com>`_ to see how whylogs can be used for large-scale data monitoring and visualization in enterprise settings.
