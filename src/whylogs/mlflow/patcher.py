@@ -143,12 +143,12 @@ class WhyLogsRun(object):
 
 def enable_mlflow() -> bool:
     """
-    Enable WhyLogs in ``mlflow`` module via ``mlflow.whylogs``.
+    Enable whylogs in ``mlflow`` module via ``mlflow.whylogs``.
 
     :returns: True if MLFlow has been patched. False otherwise.
 
     .. code-block:: python
-        :caption: Example of WhyLogs and MLFlow
+        :caption: Example of whylogs and MLFlow
 
         import mlflow
         import whylogs

@@ -33,15 +33,15 @@ def _set_up_logger():
     "-v",
     is_flag=True,
     default=False,
-    help="Set WhyLogs CLI to use verbose output.",
+    help="Set whylogs CLI to use verbose output.",
 )
 def cli(verbose):
     """
-Welcome to WhyLogs CLI!
+Welcome to whylogs CLI!
 
 Supported basic commands:
 
-- whylogs init : create a new WhyLogs project configuration
+- whylogs init : create a new whylogs project configuration
 
 """
     logger = _set_up_logger()

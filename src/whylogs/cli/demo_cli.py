@@ -53,11 +53,11 @@ class NameParamType(click.ParamType):
     "--project-dir",
     "-d",
     default="./",
-    help="The root of the new WhyLogs demo project.",
+    help="The root of the new whylogs demo project.",
 )
 def init(project_dir):
     """
-    Initialize and configure a new WhyLogs project.
+    Initialize and configure a new whylogs project.
 
     This guided input walks the user through setting up a new project and also
     on-boards a new developer in an existing project.
@@ -90,7 +90,7 @@ def init(project_dir):
     )
     echo(f"Using pipeline name: {pipeline_name}", fg="green")
     output_path = click.prompt(
-        "Specify the WhyLogs output path", default="output", show_default=True
+        "Specify the whylogs output path", default="output", show_default=True
     )
     echo(f"Using output path: {output_path}", fg="green")
     writer = WriterConfig("local", ["all"], output_path)
@@ -139,7 +139,7 @@ def init(project_dir):
         assert choice == 1
         full_input = profile_csv(session_config, project_dir)
         echo(
-            f"You should find the WhyLogs output under: {os.path.join(project_dir, output_path, project_name)}",
+            f"You should find the whylogs output under: {os.path.join(project_dir, output_path, project_name)}",
             fg="green",
         )
 
@@ -197,15 +197,15 @@ def profile_csv(session_config: SessionConfig, project_dir: str) -> str:
     "-v",
     is_flag=True,
     default=False,
-    help="Set WhyLogs CLI to use verbose output.",
+    help="Set whylogs CLI to use verbose output.",
 )
 def cli(verbose):
     """
-Welcome to WhyLogs Demo CLI!
+Welcome to whylogs Demo CLI!
 
 Supported commands:
 
-- whylogs-demo init : create a demo WhyLogs project with example data and notebooks
+- whylogs-demo init : create a demo whylogs project with example data and notebooks
 
 """
     logger = _set_up_logger()

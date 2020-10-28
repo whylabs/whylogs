@@ -5,4 +5,4 @@
 Examples
 ========
 
-Gallery of example WhyLogs scripts
+Gallery of example whylogs scripts

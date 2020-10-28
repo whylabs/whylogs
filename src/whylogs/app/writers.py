@@ -1,5 +1,5 @@
 """
-Classes for writing WhyLogs output
+Classes for writing whylogs output
 """
 import json
 import os
@@ -145,7 +145,7 @@ class Writer(ABC):
 
 class LocalWriter(Writer):
     """
-    WhyLogs Writer class that can write to disk.
+    whylogs Writer class that can write to disk.
 
     See :class:`Writer` for a description of arguments
     """
@@ -263,7 +263,7 @@ class LocalWriter(Writer):
 
 class S3Writer(Writer):
     """
-    WhyLogs Writer class that can write to S3.
+    whylogs Writer class that can write to S3.
 
     See :class:`Writer` for a description of arguments
     """
@@ -373,12 +373,12 @@ class S3Writer(Writer):
 
 def writer_from_config(config: WriterConfig):
     """
-    Construct a WhyLogs `Writer` from a `WriterConfig`
+    Construct a whylogs `Writer` from a `WriterConfig`
 
     Returns
     -------
     writer : Writer
-        WhyLogs writer
+        whylogs writer
     """
     abs_path = os.path.abspath(config.output_path)
     if not os.path.exists(abs_path):

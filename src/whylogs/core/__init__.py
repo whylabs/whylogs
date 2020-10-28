@@ -1,5 +1,5 @@
 """
-This subpackage defines the core components of the WhyLogs python library.
+This subpackage defines the core components of the whylogs python library.
 
 In particular, look at the `DatasetProfile` class
 """

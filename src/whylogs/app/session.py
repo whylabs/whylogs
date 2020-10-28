@@ -1,5 +1,5 @@
 """
-WhyLogs logging session
+whylogs logging session
 """
 import datetime
 from logging import getLogger as _getLogger
@@ -87,7 +87,7 @@ class Session:
         Returns
         -------
         ylog : whylogs.app.logger.Logger
-            WhyLogs logger
+            whylogs logger
         """
         if not self._active:
             raise RuntimeError("Session is already closed. Cannot create more loggers")
@@ -271,7 +271,7 @@ class Session:
 
 def session_from_config(config: SessionConfig) -> Session:
     """
-    Construct a WhyLogs session from a `SessionConfig`
+    Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
     return Session(config.project, config.pipeline, writers, config.verbose)
@@ -293,14 +293,14 @@ def reset_default():
 
 def reset_default_session():
     """
-    Reset and deactivate the global WhyLogs logging session.
+    Reset and deactivate the global whylogs logging session.
     """
     global _session
     if _session is not None:
         _session.close()
     config: SessionConfig = load_config()
     if config is None:
-        raise EnvironmentError("Unable to load WhyLogs config")
+        raise EnvironmentError("Unable to load whylogs config")
     _session = session_from_config(config)
 
 

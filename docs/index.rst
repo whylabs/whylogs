@@ -1,11 +1,11 @@
-.. WhyLogs documentation master file
+.. whylogs documentation master file
 
-WhyLogs
+whylogs
 ==================
 
 *Profile and monitor your ML data pipeline end-to-end*
 
-WhyLogs is a library for building insights to your data and minimizing data monitoring issues in order
+whylogs is a library for building insights to your data and minimizing data monitoring issues in order
 to maintain quality and improve communication between teams. To learn more about generating
 :ref:`validating <expectations>`, :ref:`documenting <data_docs>`, and :ref:`profiling <profiling>`
 your data, read our :ref:`intro` and our :ref:`getting_started` guide.

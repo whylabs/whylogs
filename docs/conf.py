@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.abspath("../src/"))
 
 # -- Project information -----------------------------------------------------
 
-project = "WhyLogs"
+project = "whylogs"
 copyright = "2020, WhyLabs, Inc"
 author = "WhyLabs"
 gitstamp_fmt = "%d %b %Y"
