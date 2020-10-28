@@ -125,3 +125,11 @@ For the development environment, see [requirements-dev.txt](https://github.com/w
 
 # Development/contributing
 For more information on contributing to whylogs, see [`DEVELOPMENT.md`](DEVELOPMENT.md).
+
+# Who maintains whylogs?
+whylogs is maintained by [WhyLabs](https://whylabs.ai).
+
+If you have any questions, comments, or just want to hang out with us, please join [our Slack channel](http://join.slack.whylabs.ai/).
+
+If you want to see whylogs in action in enterprise settings with complex visualizations, check out the [WhyLabs Platform Sandbox](http://try.whylabsapp.com/).
+You'll need a GitHub/Google/LinkedIn account to login to view the sandbox (it's a 1-click experience!).
