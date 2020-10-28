@@ -6,7 +6,7 @@ _WHYLOGS_PATH = "whylogs"
 
 def list_whylogs_runs(experiment_id: str, dataset_name: str = "default"):
     """
-    List all the runs from an experiment that contains WhyLogs
+    List all the runs from an experiment that contains whylogs
 
     :rtype: :py:class:`typing.List[mlflow.entities.Run]`
     :param experiment_id: the experiment id
@@ -34,7 +34,7 @@ def list_whylogs_runs(experiment_id: str, dataset_name: str = "default"):
 
 def get_run_profiles(run_id: str, dataset_name: str = "default", client=None):
     """
-    Retrieve all WhyLogs DatasetProfile for a given run and a given dataset name.
+    Retrieve all whylogs DatasetProfile for a given run and a given dataset name.
 
     :param client: :py:class:`mlflow.tracking.MlflowClient`
     :rtype: :py:class:`typing.List[whylogs.DatasetProfile]`
@@ -65,7 +65,7 @@ def get_run_profiles(run_id: str, dataset_name: str = "default", client=None):
 
 def get_experiment_profiles(experiment_id: str, dataset_name: str = "default"):
     """
-    Retrieve all WhyLogs profiles for a given experiment. This only
+    Retrieve all whylogs profiles for a given experiment. This only
     returns Active Runs at the moment.
 
     :rtype: :py:class:`typing.List[whylogs.DatasetProfile]`

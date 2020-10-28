@@ -1,4 +1,4 @@
-name: WhyLogs CI
+name: whylogs CI
 
 on:
   push:

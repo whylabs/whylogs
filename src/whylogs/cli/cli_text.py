@@ -11,9 +11,9 @@ INTRO_MESSAGE = """
                      /   (_____/
                     /_____/   U
 
-Welcome to WhyLogs!
+Welcome to whylogs!
 
-This CLI will guide you through initializing a basic WhyLogs configurations.
+This CLI will guide you through initializing a basic whylogs configurations.
 """
 
 DOING_NOTHING_ABORTING = "Doing nothing. Aborting"
@@ -22,7 +22,7 @@ OVERRIDE_CONFIRM = "Would you like to proceed with the above path?"
 EMPTY_PATH_WARNING = "WARNING: we will override the content in the non-empty path"
 
 BEGIN_WORKFLOW = """
-Great. We will now generate the default configuration for WhyLogs'
+Great. We will now generate the default configuration for whylogs'
 We'll need a few details from you before we can proceed
 """
 
@@ -38,7 +38,7 @@ PROJECT_NAME_PROMPT = (
 PROJECT_DESCRIPTION = '"Project" is a collection of related datasets that are used for multiple models or applications.'
 
 DATETIME_EXPLANATION = """
-WhyLogs can break down the data by time for you
+whylogs can break down the data by time for you
 This will enable users to run time-based analysis
 """
 
@@ -67,7 +67,7 @@ OBSERVATORY_EXPLANATION = (
     "your statistics to WhyLabs endpoint. Your original data (CSV file) will remain locally."
 )
 
-RUN_PROFILING = "Run WhyLogs profiling..."
+RUN_PROFILING = "Run whylogs profiling..."
 
 GENERATE_NOTEBOOKS = "Generate Jupyter notebooks"
 

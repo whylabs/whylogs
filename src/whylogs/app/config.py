@@ -1,5 +1,5 @@
 """
-Classes/functions for configuring the WhyLogs app
+Classes/functions for configuring the whylogs app
 
 .. autodata:: ALL_SUPPORTED_FORMATS
 """
@@ -15,12 +15,12 @@ from whylogs.app.output_formats import SUPPORTED_OUTPUT_FORMATS
 WHYLOGS_YML = ".whylogs.yaml"
 
 ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
-"""Supported output formats for WhyLogs writer configuration"""
+"""Supported output formats for whylogs writer configuration"""
 
 
 class WriterConfig:
     """
-    Config for WhyLogs writers
+    Config for whylogs writers
 
     See also:
 
@@ -102,14 +102,14 @@ class WriterConfig:
 
 class SessionConfig:
     """
-    Config for a WhyLogs session.
+    Config for a whylogs session.
 
     See also :class:`SessionConfigSchema`
 
     Parameters
     ----------
     project : str
-        Project associated with this WhyLogs session
+        Project associated with this whylogs session
     pipeline : str
         Name of the associated data pipeline
     writers : list

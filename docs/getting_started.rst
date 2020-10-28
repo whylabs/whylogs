@@ -4,7 +4,7 @@
 Getting Started
 ================
 
-WhyLogs library comes with quickstart CLI to help you initialize the configuration. You can also use the API directly without \
+whylogs library comes with quickstart CLI to help you initialize the configuration. You can also use the API directly without \
 going through the CLI.
 
 Quick Start
@@ -20,7 +20,7 @@ Install our library in a Python 3.6+ environment.
 
 Demo CLI
 #######################
-Our demo CLI will walk you through setting up a WhyLogs project.
+Our demo CLI will walk you through setting up a whylogs project.
 
 .. code-block:: bash
 
@@ -35,7 +35,7 @@ To get started, you can generate a simple cnofiguration file with `whylogs` CLI:
    whylogs init
 
 
-A WhyLogs config file contains the following parameters:
+A whylogs config file contains the following parameters:
 
 - **project** sets the name of the project.
 - **pipeline** specifies the pipeline to be used.
@@ -58,7 +58,7 @@ An example config file can be found `here <https://whylogs.readthedocs.io/en/lat
 4. ``/opt/whylogs/.whylogs.yaml``
 
 
-Using WhyLogs API
+Using whylogs API
 ===================
 
 Initialize a Logging Session
@@ -95,12 +95,12 @@ Writers write the statistics gathered by the logger into an output file. They us
 
 For more information, see the `documentation <https://whylogs.readthedocs.io/en/latest/autoapi/whylogs/app/writers/index.html>`_ for the writer class.
 
-Output WhyLogs data
+Output whylogs data
 ########################
 
-WhyLogs supports the following output formats:
+whylogs supports the following output formats:
 
-- **Protobuf** is a lightweight binary format that maps one-to-one with the memory representation of a WhyLogs object. Use this format if you plan to apply advanced transformations to WhyLogs output.
+- **Protobuf** is a lightweight binary format that maps one-to-one with the memory representation of a whylogs object. Use this format if you plan to apply advanced transformations to whylogs output.
 - **JSON** displays the protobuf data in JSON format.
 - **Flat** outputs multiple files with both CSV and JSON content to represent different views of the data, including histograms, upperbound, lowerbound, and frequent values.
 

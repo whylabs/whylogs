@@ -1,5 +1,5 @@
 """
-Statistical functions used by WhyLogs
+Statistical functions used by whylogs
 """
 CARDINALITY_SLOP = 1
 

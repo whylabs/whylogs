@@ -1,6 +1,6 @@
-# Developing WhyLogs Python
+# Developing whylogs Python
 
-Please take a look at this doc before contributing to WhyLogs python.
+Please take a look at this doc before contributing to whylogs python.
 
 ## Code format
 We use [black](https://pypi.org/project/black/) to format all our code.  Before submitting a PR you'll need to format the code by running (from the repo root dir):
@@ -97,7 +97,7 @@ Auto-generated documentation is handled with [sphinx](https://www.sphinx-doc.org
 See the `docs/` folder for more and refer to [docs/README.md](docs/README.md)
 
 ### Examples
-Example scripts which help demonstrate the use of WhyLogs can be placed under the `examples/` folder.
+Example scripts which help demonstrate the use of whylogs can be placed under the `examples/` folder.
 Refer to [examples/README.md](examples/README.md) for more info
 
 

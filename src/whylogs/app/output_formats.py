@@ -25,5 +25,5 @@ class OutputFormat(Enum):
     protobuf = auto()
 
 
-#: All supported WhyLogs output formats
+#: All supported whylogs output formats
 SUPPORTED_OUTPUT_FORMATS = list(OutputFormat.__members__.keys())

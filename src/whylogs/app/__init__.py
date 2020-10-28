@@ -1,5 +1,5 @@
 """
-The WhyLogs client application API
+The whylogs client application API
 """
 from .config import load_config
 from .session import SessionConfig

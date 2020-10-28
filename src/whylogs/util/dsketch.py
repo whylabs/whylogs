@@ -18,9 +18,9 @@ from whylogs.proto import (
 
 def deserialize_kll_floats_sketch(x: bytes, kind: str = "float"):
     """
-    Deserialize a KLL floats sketch.  Compatible with WhyLogs-Java
+    Deserialize a KLL floats sketch.  Compatible with whylogs-java
 
-    WhyLogs histograms are serialized as kll floats sketches
+    whylogs histograms are serialized as kll floats sketches
 
     Parameters
     ----------
@@ -48,7 +48,7 @@ def deserialize_kll_floats_sketch(x: bytes, kind: str = "float"):
 
 def deserialize_frequent_strings_sketch(x: bytes):
     """
-    Deserialize a frequent strings sketch.  Compatible with WhyLogs-Java
+    Deserialize a frequent strings sketch.  Compatible with whylogs-java
 
     Wrapper for `datasketches.frequent_strings_sketch.deserialize`
 

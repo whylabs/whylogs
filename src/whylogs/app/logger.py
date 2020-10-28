@@ -1,5 +1,5 @@
 """
-Class and functions for WhyLogs logging
+Class and functions for whylogs logging
 """
 import datetime
 import typing
@@ -14,7 +14,7 @@ from whylogs.core import DatasetProfile
 
 class Logger:
     """
-    Class for logging WhyLogs statistics.
+    Class for logging whylogs statistics.
 
     :param session_id: The session ID value. Should be set by the Session boject
     :param dataset_name: The name of the dataset. Gets included in the DatasetProfile metadata and can be used in generated filenames.
@@ -141,7 +141,7 @@ class Logger:
 
     def log_dataframe(self, df):
         """
-        Generate and log a WhyLogs DatasetProfile from a pandas dataframe
+        Generate and log a whylogs DatasetProfile from a pandas dataframe
 
         :param df: the Pandas dataframe to log
         """

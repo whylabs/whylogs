@@ -24,7 +24,7 @@ class MatplotlibProfileVisualizer(BaseProfileVisualizer):
         """Returns available plots for matplotlib framework."""
         print(
             """
-Available plots for WhyLogs visualizations using matplotlib:
+Available plots for whylogs visualizations using matplotlib:
 plot_data_types()
 plot_distribution()
 plot_missing_values()
@@ -65,7 +65,7 @@ plot_uniqueness()
         fig.text(
             1.0,
             1.06,
-            "Made with WhyLogs",
+            "Made with whylogs",
             horizontalalignment="right",
             verticalalignment="center",
             transform=ax.transAxes,

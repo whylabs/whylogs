@@ -1,6 +1,6 @@
 # .whylogs.yaml
 
-# Example WhyLogs YAML configuration
+# Example whylogs YAML configuration
 project: example-project
 pipeline: example-pipeline
 verbose: false

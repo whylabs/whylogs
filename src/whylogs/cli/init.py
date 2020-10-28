@@ -28,11 +28,11 @@ class NameParamType(click.ParamType):
     "--project-dir",
     "-d",
     default="./",
-    help="The root of the new WhyLogs profiling project.",
+    help="The root of the new whylogs profiling project.",
 )
 def init(project_dir):
     """
-    Initialize and configure a new WhyLogs project.
+    Initialize and configure a new whylogs project.
 
     This guided input walks the user through setting up a new project and also
     onboards a new developer in an existing project.
@@ -65,7 +65,7 @@ def init(project_dir):
     )
     echo(f"Using pipeline name: {pipeline_name}", fg="green")
     output_path = click.prompt(
-        "Specify the WhyLogs output path", default="output", show_default=True
+        "Specify the whylogs output path", default="output", show_default=True
     )
     echo(f"Using output path: {output_path}", fg="green")
     writer = WriterConfig("local", ["all"], output_path)
@@ -77,6 +77,6 @@ def init(project_dir):
         session_config.to_yaml(f)
     echo(f"Config YAML file was written to: {config_yml}\n")
     echo(
-        "To get started with a WhyLogs session, use whylogs.get_or_created_session() in the project folder.",
+        "To get started with a whylogs session, use whylogs.get_or_created_session() in the project folder.",
         fg="green",
     )

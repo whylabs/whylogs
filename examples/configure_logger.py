@@ -11,7 +11,7 @@ import pandas as pd
 # Load some example data, using 'issue_d' as a datetime column
 df = pd.read_csv("data/lending_club_1000.csv", parse_dates=["issue_d"])
 
-# Create a WhyLogs logging session
+# Create a whylogs logging session
 session = get_or_create_session()
 # Log statistics for the dataset with config options
 with session.logger(

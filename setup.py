@@ -94,7 +94,7 @@ def get_version(rel_path):
         if line.startswith("__version__"):
             delimiter = '"' if '"' in line else "'"
             v = line.split(delimiter)[1]
-            print(f"WhyLogs version: {v}")
+            print(f"whylogs version: {v}")
             return v
     else:
         raise RuntimeError("Unable to find version string.")
@@ -117,7 +117,7 @@ def validate_version(v):
 
 # Currently, all requirements will be made mandatory, but long term we could
 # remove these optional requirements.  Such packages are only needed for
-# certain modules, but aren't required for core WhyLogs functionality
+# certain modules, but aren't required for core whylogs functionality
 OPTIONAL_REQS = ["boto3", "s3fs", "matplotlib"]
 
 REQUIREMENTS = [

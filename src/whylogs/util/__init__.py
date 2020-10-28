@@ -1,3 +1,3 @@
 """
-Utilities for WhyLogs
+Utilities for whylogs
 """
