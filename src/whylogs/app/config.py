@@ -199,6 +199,9 @@ class SessionConfigSchema(Schema):
         return SessionConfig(**data)
 
 
+logger = getLogger(__name__)
+
+
 def load_config():
     """
     Load logging configuration, from disk and from the environment.
@@ -219,7 +222,6 @@ def load_config():
     """
     import os
 
-    logger = getLogger(__name__)
     cfg_candidates = [
         os.environ.get("WHYLOGS_CONFIG"),
         WHYLOGS_YML,

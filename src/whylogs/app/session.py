@@ -5,6 +5,7 @@ import datetime
 from logging import getLogger as _getLogger
 from typing import Dict, List, Optional
 from uuid import uuid4
+import logging
 
 import pandas as pd
 
@@ -12,6 +13,8 @@ from whylogs.app.config import SessionConfig, WriterConfig, load_config
 from whylogs.app.logger import Logger
 from whylogs.app.writers import Writer, writer_from_config
 from whylogs.core import DatasetProfile
+
+py_logger = logging.getLogger(__name__)
 
 
 class Session:
@@ -236,7 +239,7 @@ class Session:
         Deactivate this session and flush all associated loggers
         """
         if not self._active:
-            print("WARNING: attempting to close an inactive session")
+            py_logger.warning("WARNING: attempting to close an inactive session")
             return
 
         self._active = False
@@ -259,10 +262,8 @@ class Session:
 
         """
         if self._loggers.get(dataset_name) is None:
-            print(
-                "WARNING: logger {} is not present in the current Session".format(
-                    dataset_name
-                )
+            py_logger.info(
+                "WARNING: logger %s is not present in the current Session", dataset_name
             )
             return
 
@@ -325,7 +326,7 @@ def get_or_create_session():
     else:
         config = load_config()
         if config is None:
-            print("WARN: Missing config")
+            py_logger.warning("WARN: Missing config")
             writer = WriterConfig(type="local", output_path="output", formats=["all"])
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False

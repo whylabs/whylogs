@@ -2,6 +2,7 @@
 Class and functions for whylogs logging
 """
 import datetime
+import logging
 import typing
 from typing import List, Optional
 
@@ -10,6 +11,9 @@ from pandas._typing import FilePathOrBuffer
 
 from whylogs.app.writers import Writer
 from whylogs.core import DatasetProfile
+
+
+py_logger = logging.getLogger(__name__)
 
 
 class Logger:
@@ -73,7 +77,7 @@ class Logger:
         Synchronously perform all remaining write tasks
         """
         if not self._active:
-            print("WARNING: attempting to flush a closed logger")
+            py_logger.warning("WARNING: attempting to flush a closed logger")
             return
 
         for writer in self.writers:
@@ -86,7 +90,7 @@ class Logger:
         :return: the result dataset profile. None if the logger is closed
         """
         if not self._active:
-            print("WARNING: attempting to close a closed logger")
+            py_logger.warning("WARNING: attempting to close a closed logger")
             return None
 
         self.flush()

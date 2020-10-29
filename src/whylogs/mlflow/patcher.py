@@ -8,7 +8,7 @@ import pandas as pd
 
 from whylogs.app.logger import Logger
 
-logger = logging.getLogger("whylogs.mlflow")
+logger = logging.getLogger(__name__)
 
 _mlflow = None
 _original_end_run = None
