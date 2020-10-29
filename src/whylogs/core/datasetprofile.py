@@ -316,6 +316,47 @@ class DatasetProfile:
         """
         Merge this profile with another dataset profile object.
 
+        We will use metadata and timestamps from the current DatasetProfile in the result.
+
+        This operation will drop the metadata from the 'other' profile object.
+
+        Parameters
+        ----------
+        other : DatasetProfile
+
+        Returns
+        -------
+        merged : DatasetProfile
+            New, merged DatasetProfile
+        """
+        self.validate()
+        other.validate()
+
+        return self._do_merge(other)
+
+    def _do_merge(self, other):
+        columns_set = set(list(self.columns.keys()) + list(other.columns.keys()))
+        columns = {}
+        for col_name in columns_set:
+            empty_column = ColumnProfile(col_name)
+            this_column = self.columns.get(col_name, empty_column)
+            other_column = other.columns.get(col_name, empty_column)
+            columns[col_name] = this_column.merge(other_column)
+        return DatasetProfile(
+            name=self.name,
+            session_id=self.session_id,
+            session_timestamp=self.session_timestamp,
+            dataset_timestamp=self.dataset_timestamp,
+            columns=columns,
+            tags=self.tags,
+            metadata=self.metadata,
+        )
+
+    def merge_strict(self, other):
+        """
+        Merge this profile with another dataset profile object. This throws exception
+        if session_id, timestamps and tags don't match.
+
         This operation will drop the metadata from the 'other' profile object.
 
         Parameters
@@ -335,23 +376,7 @@ class DatasetProfile:
         assert self.dataset_timestamp == other.dataset_timestamp
         assert self.tags == other.tags
 
-        columns_set = set(list(self.columns.keys()) + list(other.columns.keys()))
-        columns = {}
-        for col_name in columns_set:
-            empty_column = ColumnProfile(col_name)
-            this_column = self.columns.get(col_name, empty_column)
-            other_column = other.columns.get(col_name, empty_column)
-            columns[col_name] = this_column.merge(other_column)
-
-        return DatasetProfile(
-            name=self.name,
-            session_id=self.session_id,
-            session_timestamp=self.session_timestamp,
-            dataset_timestamp=self.dataset_timestamp,
-            columns=columns,
-            tags=self.tags,
-            metadata=self.metadata,
-        )
+        return self._do_merge(other)
 
     def serialize_delimited(self) -> bytes:
         """

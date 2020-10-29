@@ -159,10 +159,19 @@ def test_mismatched_tags_raises_assertion_error():
     x1 = DatasetProfile("test", now, tags={"key": "foo"})
     x2 = DatasetProfile("test", now, tags={"key": "bar"})
     try:
-        x1.merge(x2)
+        x1.merge_strict(x2)
         raise RuntimeError("Assertion error not raised")
     except AssertionError:
         pass
+
+
+def test_mismatched_tags_merge_succeeds():
+    now = datetime.datetime.utcnow()
+    x1 = DatasetProfile("test", now, tags={"key": "foo"})
+    x2 = DatasetProfile("test2", now, tags={"key": "bar"})
+
+    result = x1.merge(x2)
+    assert result.tags.get("key") == "foo"
 
 
 def test_name_always_appear_in_tags():
