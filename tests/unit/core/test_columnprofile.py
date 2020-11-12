@@ -108,7 +108,9 @@ def test_summary():
     summary = c.to_summary()
     actual_val = message_to_dict(summary)
     expected_val = {
-        "counters": {"count": "3",},
+        "counters": {
+            "count": "3",
+        },
         "schema": {
             "inferredType": {"type": "INTEGRAL", "ratio": 1.0},
             "typeCounts": {"INTEGRAL": "3"},

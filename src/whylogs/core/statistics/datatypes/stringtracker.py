@@ -122,7 +122,9 @@ class StringTracker:
         if self.count == 0:
             return None
         unique_count = self.theta_sketch.to_summary()
-        opts = dict(unique_count=unique_count,)
+        opts = dict(
+            unique_count=unique_count,
+        )
         if unique_count.estimate < MAX_SUMMARY_ITEMS:
             frequent_strings = from_string_sketch(self.items)
             if frequent_strings is not None:

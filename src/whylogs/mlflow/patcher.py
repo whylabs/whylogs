@@ -42,8 +42,8 @@ class WhyLogsRun(object):
         session_timestamp = datetime.datetime.utcfromtimestamp(
             run_info.start_time / 1000.0
         )
-        experiment: _mlflow.entities.Experiment = _mlflow.tracking.MlflowClient().get_experiment(
-            run_info.experiment_id
+        experiment: _mlflow.entities.Experiment = (
+            _mlflow.tracking.MlflowClient().get_experiment(run_info.experiment_id)
         )
         logger_dataset_name = dataset_name or experiment.name
         tags = dict(active_run.data.tags)

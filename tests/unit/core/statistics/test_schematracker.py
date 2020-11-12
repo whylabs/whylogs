@@ -91,7 +91,12 @@ def test_majority_int():
 def test_float_and_int():
     tracker = SchemaTracker()
     multiple_track(
-        tracker, counts={Type.INTEGRAL: 50, Type.FRACTIONAL: 50, Type.STRING: 10,},
+        tracker,
+        counts={
+            Type.INTEGRAL: 50,
+            Type.FRACTIONAL: 50,
+            Type.STRING: 10,
+        },
     )
     assert tracker.infer_type().type == Type.FRACTIONAL
 
@@ -99,7 +104,12 @@ def test_float_and_int():
 def test_all_types_equal_coerced_to_string():
     tracker = SchemaTracker()
     multiple_track(
-        tracker, counts={Type.INTEGRAL: 20, Type.FRACTIONAL: 29, Type.STRING: 50,},
+        tracker,
+        counts={
+            Type.INTEGRAL: 20,
+            Type.FRACTIONAL: 29,
+            Type.STRING: 50,
+        },
     )
     assert tracker.infer_type().type == Type.STRING
 

@@ -37,8 +37,7 @@ class Logger:
         writers=List[Writer],
         verbose: bool = False,
     ):
-        """
-        """
+        """"""
         if session_timestamp is None:
             session_timestamp = datetime.datetime.now(datetime.timezone.utc)
         self.dataset_name = dataset_name
@@ -82,7 +81,7 @@ class Logger:
     def close(self) -> Optional[DatasetProfile]:
         """
         Flush and close out the logger.
-        
+
         :return: the result dataset profile. None if the logger is closed
         """
         if not self._active:

@@ -210,8 +210,7 @@ class DatasetProfile:
         columns = [str(c) for c in columns]
         return self.track_dataframe(pd.DataFrame(x, columns=columns))
 
-    def track_dataframe(self,
-                        df: typing.Union[pd.DataFrame, cudfDataFrame]):
+    def track_dataframe(self, df: typing.Union[pd.DataFrame, cudfDataFrame]):
         """
         Track statistics for a Pandas or RAPIDS CuDF dataframe
 
@@ -268,7 +267,8 @@ class DatasetProfile:
         }
 
         return DatasetSummary(
-            properties=self.to_properties(), columns=column_summaries,
+            properties=self.to_properties(),
+            columns=column_summaries,
         )
 
     def flat_summary(self):
@@ -298,7 +298,10 @@ class DatasetProfile:
         properties = self.to_properties()
 
         yield MessageSegment(
-            marker=marker, metadata=DatasetMetadataSegment(properties=properties,)
+            marker=marker,
+            metadata=DatasetMetadataSegment(
+                properties=properties,
+            ),
         )
 
         chunked_columns = self._column_message_iterator()

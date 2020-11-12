@@ -85,7 +85,10 @@ def quantiles_from_sketch(sketch: kll_floats_sketch, quantiles=None):
     if quantiles is None:
         quantiles = QUANTILES
     qvals = sketch.get_quantiles(quantiles)
-    return QuantileSummary(quantiles=quantiles, quantile_values=qvals,)
+    return QuantileSummary(
+        quantiles=quantiles,
+        quantile_values=qvals,
+    )
 
 
 def histogram_from_sketch(
