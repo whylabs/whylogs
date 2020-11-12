@@ -3,7 +3,7 @@ whylogs logging session
 """
 import datetime
 from logging import getLogger as _getLogger
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from uuid import uuid4
 
 import pandas as pd
@@ -12,6 +12,12 @@ from whylogs.app.config import SessionConfig, WriterConfig, load_config
 from whylogs.app.logger import Logger
 from whylogs.app.writers import Writer, writer_from_config
 from whylogs.core import DatasetProfile
+
+# Optional import for cudf
+try:
+    from cudf.core.dataframe import DataFrame as cudfDataFrame
+except:
+    cudfDataFrame = None
 
 
 class Session:
@@ -121,7 +127,7 @@ class Session:
 
     def log_dataframe(
         self,
-        df: pd.DataFrame,
+        df: Union[pd.DataFrame, cudfDataFrame],
         dataset_name: Optional[str] = None,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
@@ -131,7 +137,7 @@ class Session:
         """
         Perform statistics caluclations and log a pandas dataframe
 
-        :param df: the dataframe to profile 
+        :param df: the Pandas or RAPIDS CuDF dataframe to profile
         :param dataset_name: name of the dataset
         :param dataset_timestamp: the timestamp for the dataset
         :param session_timestamp: the timestamp for the session. Override the default one
@@ -156,7 +162,7 @@ class Session:
 
     def profile_dataframe(
         self,
-        df: pd.DataFrame,
+        df: Union[pd.DataFrame, cudfDataFrame],
         dataset_name: Optional[str] = None,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
@@ -164,7 +170,8 @@ class Session:
         metadata: Dict[str, str] = None,
     ) -> Optional[DatasetProfile]:
         """
-        Profile a Pandas dataframe without actually writing data to disk.
+        Profile a Pandas or RAPIDS CuDF dataframe without actually writing
+        data to disk.
         This is useful when you just want to quickly capture and explore a dataset profile.
 
         :param df: the dataframe to profile

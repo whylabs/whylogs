@@ -27,6 +27,13 @@ from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch
 from whylogs.util.time import from_utc_ms, to_utc_ms
 
+# Optional import for cudf
+try:
+    from cudf.core.dataframe import DataFrame as cudfDataFrame
+except:
+    cudfDataFrame = None
+
+
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = (
     int(1e6) - 10
 )  #: Used for chunking serialized dataset profile messages
@@ -203,9 +210,10 @@ class DatasetProfile:
         columns = [str(c) for c in columns]
         return self.track_dataframe(pd.DataFrame(x, columns=columns))
 
-    def track_dataframe(self, df: pd.DataFrame):
+    def track_dataframe(self,
+                        df: typing.Union[pd.DataFrame, cudfDataFrame]):
         """
-        Track statistics for a dataframe
+        Track statistics for a Pandas or RAPIDS CuDF dataframe
 
         Parameters
         ----------
