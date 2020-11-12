@@ -27,6 +27,14 @@ from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch
 from whylogs.util.time import from_utc_ms, to_utc_ms
 
+# Optional import for cudf
+try:
+    # noinspection PyUnresolvedReferences
+    from cudf.core.dataframe import DataFrame as cudfDataFrame
+except:
+    cudfDataFrame = None
+
+
 COLUMN_CHUNK_MAX_LEN_IN_BYTES = (
     int(1e6) - 10
 )  #: Used for chunking serialized dataset profile messages
@@ -212,6 +220,9 @@ class DatasetProfile:
         df : pandas.DataFrame
             DataFrame to track
         """
+        # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
+        if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
+            df = df.to_pandas()
         for col in df.columns:
             col_str = str(col)
             x = df[col].values
