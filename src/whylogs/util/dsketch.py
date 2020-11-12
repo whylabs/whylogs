@@ -276,8 +276,7 @@ class FrequentItemsSketch:
         if lg_max_k is None:
             lg_max_k = -1
         return FrequentItemsSketchMessage(
-            sketch=self.sketch.serialize(),
-            lg_max_k=lg_max_k,
+            sketch=self.sketch.serialize(), lg_max_k=lg_max_k,
         )
 
     @staticmethod
@@ -372,8 +371,7 @@ class FrequentNumbersSketch(FrequentItemsSketch):
         if lg_max_k is None:
             lg_max_k = -1
         return FrequentNumbersSketchMessage(
-            sketch=self.sketch.serialize(),
-            lg_max_k=lg_max_k,
+            sketch=self.sketch.serialize(), lg_max_k=lg_max_k,
         )
 
     @staticmethod

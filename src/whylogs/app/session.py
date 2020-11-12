@@ -37,11 +37,7 @@ class Session:
     """
 
     def __init__(
-        self,
-        project: str,
-        pipeline: str,
-        writers: List[Writer],
-        verbose: bool = False,
+        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False,
     ):
         if writers is None:
             writers = []

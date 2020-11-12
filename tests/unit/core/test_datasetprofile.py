@@ -117,11 +117,7 @@ def test_merge_same_columns():
 def test_protobuf_round_trip():
     now = datetime.datetime.utcnow()
     tags = {"k1": "rock", "k2": "scissors", "k3": "paper"}
-    original = DatasetProfile(
-        name="test",
-        dataset_timestamp=now,
-        tags=tags,
-    )
+    original = DatasetProfile(name="test", dataset_timestamp=now, tags=tags,)
     original.track("col1", "value")
     original.track("col2", "value")
 

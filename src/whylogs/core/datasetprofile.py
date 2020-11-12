@@ -267,8 +267,7 @@ class DatasetProfile:
         }
 
         return DatasetSummary(
-            properties=self.to_properties(),
-            columns=column_summaries,
+            properties=self.to_properties(), columns=column_summaries,
         )
 
     def flat_summary(self):
@@ -298,10 +297,7 @@ class DatasetProfile:
         properties = self.to_properties()
 
         yield MessageSegment(
-            marker=marker,
-            metadata=DatasetMetadataSegment(
-                properties=properties,
-            ),
+            marker=marker, metadata=DatasetMetadataSegment(properties=properties,),
         )
 
         chunked_columns = self._column_message_iterator()
