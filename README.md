@@ -18,17 +18,17 @@ WhyLogs calculates approximate statistics for datasets of any size up to TB-scal
 * **Lightweight:** Lightweight: WhyLogs produces small mergeable lightweight outputs in a variety of formats, using sketching algorithms and summarizing statistics.
 
 * **Unified data instrumentation:** To enable data engineering pipelines and ML pipelines to share a common framework for tracking data quality and drifts, the WhyLogs library supports multiple languages and integrations.
-  
+
 * **Observability:** In addition to supporting traditional monitoring approaches, WhyLogs data can support advanced ML-focused analytics, error analysis, and data quality and data drift detection.
 
-## Glossary/Concepts 
+## Glossary/Concepts
 **Project:** A collection of related data sets used for multiple models or applications.
 
 **Pipeline:** One or more datasets used to build a single model or application. A project may contain multiple pipelines.
 
-**Dataset:** A collection of records. WhyLogs v0.0.2 supports structured datasets, which represent data as a table where each row is a different record and each column is a feature of the record. 
+**Dataset:** A collection of records. WhyLogs v0.0.2 supports structured datasets, which represent data as a table where each row is a different record and each column is a feature of the record.
 
-**Feature:** In the context of WhyLogs v0.0.2 and structured data, a feature is a column in a dataset. A feature can be discrete (like gender or eye color) or continuous (like age or salary). 
+**Feature:** In the context of WhyLogs v0.0.2 and structured data, a feature is a column in a dataset. A feature can be discrete (like gender or eye color) or continuous (like age or salary).
 
 **WhyLogs Output:** WhyLogs returns profile summary files for a dataset in JSON format. For convenience, these files are provided in flat table, histogram, and frequency formats.
 
@@ -39,7 +39,7 @@ WhyLogs collects approximate statistics and sketches of data on a column-basis i
 * **Simple counters**: boolean, null values, data types.
 * **Summary statistics**: sum, min, max, variance.
 * **Unique value counter** or **cardinality**: tracks an approximate unique value of your feature using HyperLogLog algorithm.
-* **Histograms** for numerical features. WhyLogs binary output can be queried to with dynamic binning based on the shape of your data. 
+* **Histograms** for numerical features. WhyLogs binary output can be queried to with dynamic binning based on the shape of your data.
 * **Top frequent items** (default is 30). Note that this configuration affects the memory footprint, especially for text features.
 
 ## Performance
@@ -94,7 +94,7 @@ import com.google.common.collect.ImmutableMap;
 
 public class Demo {
     public void demo() {
-        final List<String> tags = ImmutableMap.of("tag", "tagValue");
+        final Map<String, String> tags = ImmutableMap.of("tag", "tagValue");
         final DatasetProfile profile = new DatasetProfile("test-session", Instant.now(), tags);
         profile.track("my_feature", 1);
         profile.track("my_feature", "stringValue");
@@ -128,7 +128,7 @@ class SerializationDemo {
         try (final InputStream is = new FileInputStream("profile.bin")) {
             final DatasetProfileMessage msg = DatasetProfileMessage.parseDelimitedFrom(is);
             final DatasetProfile profile = DatasetProfile.fromProtobuf(msg);
-            
+
             // continue tracking
             profile.track("feature_1", 1);
         }
