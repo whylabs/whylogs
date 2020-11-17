@@ -158,7 +158,7 @@ class Session:
         """
         Perform statistics caluclations and log a pandas dataframe
 
-        :param df: the dataframe to profile 
+        :param df: the dataframe to profile
         :param dataset_name: name of the dataset
         :param dataset_timestamp: the timestamp for the dataset
         :param session_timestamp: the timestamp for the session. Override the default one

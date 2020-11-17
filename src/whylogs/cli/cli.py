@@ -37,13 +37,12 @@ def _set_up_logger():
 )
 def cli(verbose):
     """
-Welcome to whylogs CLI!
+    Welcome to whylogs CLI!
 
-Supported basic commands:
+    Supported basic commands:
 
-- whylogs init : create a new whylogs project configuration
-
-"""
+    - whylogs init : create a new whylogs project configuration
+    """
     logger = _set_up_logger()
     if verbose:
         logger.setLevel(logging.DEBUG)

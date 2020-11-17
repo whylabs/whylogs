@@ -14,6 +14,8 @@ _mlflow = None
 _original_end_run = None
 _active_whylogs = []
 _is_patched = False
+_original_mlflow_conda_env = None
+_original_add_to_model = None
 
 
 class WhyLogsRun(object):
@@ -42,8 +44,8 @@ class WhyLogsRun(object):
         session_timestamp = datetime.datetime.utcfromtimestamp(
             run_info.start_time / 1000.0
         )
-        experiment: _mlflow.entities.Experiment = _mlflow.tracking.MlflowClient().get_experiment(
-            run_info.experiment_id
+        experiment: _mlflow.entities.Experiment = (
+            _mlflow.tracking.MlflowClient().get_experiment(run_info.experiment_id)
         )
         logger_dataset_name = dataset_name or experiment.name
         tags = dict(active_run.data.tags)
@@ -141,6 +143,50 @@ class WhyLogsRun(object):
             self._active_run_id = None
 
 
+def _new_mlflow_conda_env(
+    path=None,
+    additional_conda_deps=None,
+    additional_pip_deps=None,
+    additional_conda_channels=None,
+    install_mlflow=True,
+):
+    global _original_mlflow_conda_env
+    pip_deps = additional_pip_deps or []
+    if "whylogs" not in pip_deps:
+        pip_deps.append("whylogs")
+    return _original_mlflow_conda_env(
+        path, additional_conda_deps, pip_deps, additional_conda_channels, install_mlflow
+    )
+
+
+def _new_add_to_model(model, loader_module, data=None, code=None, env=None, **kwargs):
+    """
+    Replaces the MLFLow's original add_to_model
+    https://github.com/mlflow/mlflow/blob/4e68f960d4520ade6b64a28c297816f622adc83e/mlflow/pyfunc/__init__.py#L242
+
+    Accepts the same signature as MLFlow's original add_to_model call. We inject our loader module.
+
+    We also inject `whylogs` into the Conda environment by patching `_mlflow_conda_env`.
+
+    :param model: Existing model.
+    :param loader_module: The module to be used to load the model.
+    :param data: Path to the model data.
+    :param code: Path to the code dependencies.
+    :param env: Conda environment.
+    :param kwargs: Additional key-value pairs to include in the ``pyfunc`` flavor specification.
+                   Values must be YAML-serializable.
+    :return: Updated model configuration.
+    """
+
+    global _original_add_to_model
+    patched_loader_module = loader_module
+    # TODO: support more loader module
+    if loader_module == "mlflow.sklearn":
+        patched_loader_module = "whylogs.mlflow.sklearn"
+
+    _original_add_to_model(model, patched_loader_module, data, code, env, **kwargs)
+
+
 def enable_mlflow() -> bool:
     """
     Enable whylogs in ``mlflow`` module via ``mlflow.whylogs``.
@@ -178,6 +224,8 @@ def enable_mlflow() -> bool:
     global _mlflow
     global _is_patched
     global _original_end_run
+    global _original_mlflow_conda_env
+    global _original_add_to_model
 
     if _is_patched:
         logger.warning("whylogs has been enabled for MLFlow. Ignoring...")
@@ -192,6 +240,8 @@ def enable_mlflow() -> bool:
             "Failed to import MLFlow. Please make sure MLFlow is installed in your runtime"
         )
         return False
+    _original_mlflow_conda_env = _mlflow.utils.environment._mlflow_conda_env
+    _original_add_to_model = _mlflow.pyfunc.add_to_model
 
     if len(_active_whylogs) > 0:
         ylogs = _active_whylogs[0]
@@ -212,25 +262,43 @@ def enable_mlflow() -> bool:
         _mlflow.whylogs._close()
         _original_end_run(status)
 
+    _mlflow.utils.environment._mlflow_conda_env = _new_mlflow_conda_env
+    _mlflow.pyfunc.add_to_model = _new_add_to_model
     _mlflow.end_run = end_run
     _mlflow.tracking.fluent.end_run = end_run
+
+    try:
+        import sys
+
+        del sys.modules["mlflow.sklearn"]
+        del sys.modules["mlflow.pyfunc"]
+        del sys.modules["mlflow.tracking.fluent"]
+    except:
+        pass
+
     _is_patched = True
 
     return True
 
 
 def disable_mlflow():
+    global _mlflow
+    global _is_patched
+    global _original_end_run
+    global _original_mlflow_conda_env
+    global _original_add_to_model
+
     try:
         import mlflow
 
         mlflow.end_run()
         mlflow.end_run = _original_end_run
         mlflow.tracking.fluent.end_run = _original_end_run
+        mlflow.utils.environment._mlflow_conda_env = _original_mlflow_conda_env
+        mlflow.pyfunc.add_to_model = _original_add_to_model
         del mlflow.whylogs
     except:
         pass
 
-    global _mlflow
-    global _is_patched
     _mlflow = None
     _is_patched = False

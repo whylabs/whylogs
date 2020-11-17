@@ -200,13 +200,12 @@ def profile_csv(session_config: SessionConfig, project_dir: str) -> str:
 )
 def cli(verbose):
     """
-Welcome to whylogs Demo CLI!
+    Welcome to whylogs Demo CLI!
 
-Supported commands:
+    Supported commands:
 
-- whylogs-demo init : create a demo whylogs project with example data and notebooks
-
-"""
+    - whylogs-demo init : create a demo whylogs project with example data and notebooks
+    """
     logger = _set_up_logger()
     if verbose:
         logger.setLevel(logging.DEBUG)
