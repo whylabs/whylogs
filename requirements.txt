@@ -16,4 +16,4 @@ s3fs==0.4.2
 s3transfer==0.3.3
 six==1.15.0
 urllib3==1.25.10
-whylabs-datasketches==2.0.0b6
+whylabs-datasketches==2.0.0b7
