@@ -128,7 +128,7 @@ REQUIREMENTS = [
     "pandas>1.0",
     "marshmallow>=3.7.1",
     "numpy>=1.18",
-    "whylabs-datasketches>=2.0.0b6",
+    "whylabs-datasketches>=2.0.0b7",
 ] + OPTIONAL_REQS
 VIZ_EXTRA_REQUIREMENTS = ["matplotlib", "pandas"]
 MLFLOW = ["mlflow"]
