@@ -240,7 +240,7 @@ plot_uniqueness()
                 "nunique_numbers_upper",
             ]
         else:
-            metrics = ["nunique_str", "nunique_str_lower", "ununique_str_upper"]
+            metrics = ["nunique_str", "nunique_str_lower", "nunique_str_upper"]
 
         fig, ax = MatplotlibProfileVisualizer._chart_theming()
 
