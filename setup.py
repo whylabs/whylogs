@@ -3,7 +3,7 @@ import os.path
 import re
 import subprocess
 import sys
-from distutils.command.build_py import build_py_2to3 as _build_py
+from distutils.command.build_py import build_py as _build_py
 from distutils.command.clean import clean as _clean
 from distutils.spawn import find_executable
 from distutils.util import run_2to3
