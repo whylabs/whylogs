@@ -71,7 +71,7 @@ SCALAR_NAME_MAPPING = OrderedDict(
         unique_count=OrderedDict(
             estimate="nunique_str",
             lower="nunique_str_lower",
-            upper="ununique_str_upper",
+            upper="nunique_str_upper",
         )
     ),
 )
