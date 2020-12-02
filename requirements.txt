@@ -1,19 +1,17 @@
-boto3==1.14.49
-botocore==1.17.49
-certifi==2020.6.20
-click==7.1.2
-docutils==0.15.2
-fsspec==0.8.0
-jmespath==0.10.0
-marshmallow==3.7.1
-numpy==1.19.1
-pandas==1.1.0
-protobuf==3.13.0
-python-dateutil==2.8.1
-pytz==2020.1
-PyYAML==5.3.1
-s3fs==0.4.2
-s3transfer==0.3.3
-six==1.15.0
-urllib3==1.25.10
-whylabs-datasketches==2.0.0b7
+# =============================================================================
+# DEPRECATION WARNING:
+#
+# The file `requirements.txt` does not influence the package dependencies and
+# will not be automatically created in the next version of PyScaffold (v4.x).
+#
+# Please have look at the docs for better alternatives
+# (`Dependency Management` section).
+# =============================================================================
+#
+# Add your pinned requirements so that they can be easily installed with:
+# pip install -r requirements.txt
+# Remember to also add them in setup.cfg but unpinned.
+# Example:
+# numpy==1.13.3
+# scipy==1.0
+#

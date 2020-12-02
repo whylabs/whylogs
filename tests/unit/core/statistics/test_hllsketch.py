@@ -24,31 +24,7 @@ def test_serialize_then_merge_does_not_fail():
     """
     import numpy as np
 
-    vals = np.array(
-        [
-            21.0,
-            15.0,
-            14.0,
-            23.0,
-            24.0,
-            2.0,
-            26.0,
-            31.0,
-            26.0,
-            30.0,
-            17.0,
-            36.0,
-            18.0,
-            28.0,
-            58.0,
-            32.0,
-            10.0,
-            19.0,
-            15.0,
-            8.0,
-            31.0,
-        ]
-    )
+    vals = np.array([21.0, 15.0, 14.0, 23.0, 24.0, 2.0, 26.0, 31.0, 26.0, 30.0, 17.0, 36.0, 18.0, 28.0, 58.0, 32.0, 10.0, 19.0, 15.0, 8.0, 31.0,])
 
     for attempt in range(50):
         # A larger lg_k seems to increase the odds of failure

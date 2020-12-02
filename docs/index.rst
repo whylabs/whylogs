@@ -21,13 +21,15 @@ your data, read our :ref:`intro` and our :ref:`getting_started` guide.
     getting_started
     concepts
     auto_examples/index
+    Changelog <changelog>
+    License <license>
 
-Index
+Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
-
+* :ref:`search`
 
 .. toctree::
     :maxdepth: 5

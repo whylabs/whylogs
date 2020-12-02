@@ -30,20 +30,8 @@ def test_all_zeros_returns_summary_with_stats():
 def test_empty_valid_datasetprofiles_empty():
     now = datetime.datetime.utcnow()
     shared_session_id = uuid4().hex
-    x1 = DatasetProfile(
-        name="test",
-        session_id=shared_session_id,
-        session_timestamp=now,
-        tags={"key": "value"},
-        metadata={"key": "value"},
-    )
-    x2 = DatasetProfile(
-        name="test",
-        session_id=shared_session_id,
-        session_timestamp=now,
-        tags={"key": "value"},
-        metadata={"key": "value"},
-    )
+    x1 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={"key": "value"}, metadata={"key": "value"},)
+    x2 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={"key": "value"}, metadata={"key": "value"},)
 
     merged = x1.merge(x2)
     assert merged.name == "test"
@@ -55,21 +43,9 @@ def test_empty_valid_datasetprofiles_empty():
 def test_merge_different_columns():
     now = datetime.datetime.utcnow()
     shared_session_id = uuid4().hex
-    x1 = DatasetProfile(
-        name="test",
-        session_id=shared_session_id,
-        session_timestamp=now,
-        tags={"key": "value"},
-        metadata={"key": "x1"},
-    )
+    x1 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={"key": "value"}, metadata={"key": "x1"},)
     x1.track("col1", "value")
-    x2 = DatasetProfile(
-        name="test",
-        session_id=shared_session_id,
-        session_timestamp=now,
-        tags={"key": "value"},
-        metadata={"key": "x2"},
-    )
+    x2 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={"key": "value"}, metadata={"key": "x2"},)
     x2.track("col2", "value")
 
     merged = x1.merge(x2)
@@ -87,21 +63,9 @@ def test_merge_different_columns():
 def test_merge_same_columns():
     now = datetime.datetime.utcnow()
     shared_session_id = uuid4().hex
-    x1 = DatasetProfile(
-        name="test",
-        session_id=shared_session_id,
-        session_timestamp=now,
-        tags={"key": "value"},
-        metadata={"key": "value"},
-    )
+    x1 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={"key": "value"}, metadata={"key": "value"},)
     x1.track("col1", "value1")
-    x2 = DatasetProfile(
-        name="test",
-        session_id=shared_session_id,
-        session_timestamp=now,
-        tags={"key": "value"},
-        metadata={"key": "value"},
-    )
+    x2 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={"key": "value"}, metadata={"key": "value"},)
     x2.track("col1", "value1")
     x2.track("col2", "value")
 
@@ -127,9 +91,7 @@ def test_protobuf_round_trip():
     assert roundtrip.to_protobuf() == msg
     assert roundtrip.name == "test"
     assert roundtrip.session_id == original.session_id
-    assert to_utc_ms(roundtrip.session_timestamp) == to_utc_ms(
-        original.session_timestamp
-    )
+    assert to_utc_ms(roundtrip.session_timestamp) == to_utc_ms(original.session_timestamp)
     assert set(list(roundtrip.columns.keys())) == {"col1", "col2"}
     assert roundtrip.columns["col1"].counters.count == 1
     assert roundtrip.columns["col2"].counters.count == 1
@@ -200,13 +162,7 @@ def test_parse_delimited_from_java_multiple():
 def test_write_delimited_single():
     now = datetime.datetime.utcnow()
 
-    original = DatasetProfile(
-        name="test",
-        session_id="test.session.id",
-        session_timestamp=now,
-        tags={"key": "value"},
-        metadata={"key": "value"},
-    )
+    original = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=now, tags={"key": "value"}, metadata={"key": "value"},)
     original.track("col1", "value")
 
     output_bytes = original.serialize_delimited()
@@ -214,9 +170,7 @@ def test_write_delimited_single():
 
     assert roundtrip.session_id == original.session_id
     # Python time precision includes nanoseconds
-    assert time.to_utc_ms(roundtrip.session_timestamp) == time.to_utc_ms(
-        original.session_timestamp
-    )
+    assert time.to_utc_ms(roundtrip.session_timestamp) == time.to_utc_ms(original.session_timestamp)
     assert roundtrip.tags == original.tags
     assert roundtrip.metadata == original.metadata
 
@@ -224,13 +178,7 @@ def test_write_delimited_single():
 def test_write_delimited_multiple():
     now = datetime.datetime.utcnow()
 
-    original = DatasetProfile(
-        name="test",
-        session_id="test.session.id",
-        session_timestamp=now,
-        tags={"key": "value"},
-        metadata={"key": "value"},
-    )
+    original = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=now, tags={"key": "value"}, metadata={"key": "value"},)
     original.track("col1", "value")
 
     output_bytes = original.serialize_delimited()
@@ -245,21 +193,13 @@ def test_write_delimited_multiple():
     for entry in entries:
         assert entry.session_id == original.session_id
         # Python time precisions are different
-        assert time.to_utc_ms(entry.session_timestamp) == time.to_utc_ms(
-            original.session_timestamp
-        )
+        assert time.to_utc_ms(entry.session_timestamp) == time.to_utc_ms(original.session_timestamp)
         assert entry.tags == original.tags
         assert entry.metadata == original.metadata
 
 
 def test_verify_schema_version():
-    dp = DatasetProfile(
-        name="test",
-        session_id="test.session.id",
-        session_timestamp=datetime.datetime.now(),
-        tags={"key": "value"},
-        metadata={"key": "value"},
-    )
+    dp = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=datetime.datetime.now(), tags={"key": "value"}, metadata={"key": "value"},)
     props = dp.to_properties()
     assert props.schema_major_version == 1
     assert props.schema_minor_version == 1

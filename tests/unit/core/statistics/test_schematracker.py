@@ -144,14 +144,10 @@ def test_summary():
 
 def test_merge_total_counts_match():
     x1 = SchemaTracker()
-    multiple_track(
-        x1, {Type.INTEGRAL: 10, Type.FRACTIONAL: 10, Type.BOOLEAN: 10, Type.UNKNOWN: 10}
-    )
+    multiple_track(x1, {Type.INTEGRAL: 10, Type.FRACTIONAL: 10, Type.BOOLEAN: 10, Type.UNKNOWN: 10})
 
     x2 = SchemaTracker()
-    multiple_track(
-        x2, {Type.INTEGRAL: 20, Type.FRACTIONAL: 20, Type.BOOLEAN: 20, Type.UNKNOWN: 20}
-    )
+    multiple_track(x2, {Type.INTEGRAL: 20, Type.FRACTIONAL: 20, Type.BOOLEAN: 20, Type.UNKNOWN: 20})
 
     merged = x1.merge(x2)
     assert merged.get_count(Type.INTEGRAL) == 30
