@@ -11,14 +11,14 @@ from whylogs.app.session import get_or_create_session, session_from_config
 from whylogs.app.writers import writer_from_config
 from whylogs.util import time
 
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
 
 def test_write_template_path():
     data_time = time.from_utc_ms(9999)
     session_time = time.from_utc_ms(88888)
     path_template = "$name-$session_timestamp-$dataset_timestamp-$session_id"
-    writer_config = WriterConfig(
-        "local", ["protobuf", "flat"], "output", path_template, "dataset-profile-$name"
-    )
+    writer_config = WriterConfig("local", ["protobuf", "flat"], "output", path_template, "dataset-profile-$name")
     writer = writer_from_config(writer_config)
     dp = DatasetProfile("name", data_time, session_time, session_id="session")
     assert writer.path_suffix(dp) == "name-88888-9999-session"
@@ -44,6 +44,7 @@ def test_config_api(tmpdir):
 def test_load_config(tmpdir):
     original_dir = os.curdir
 
+    os.chdir(script_dir)
     p = tmpdir.mkdir("whylogs")
 
     try:
@@ -78,9 +79,11 @@ def test_log_dataframe(tmpdir, df_lending_club):
 
 
 def test_log_multiple_calls(tmpdir, df_lending_club):
+    os.chdir(script_dir)
+
     p = tmpdir.mkdir("whylogs")
 
-    writer_config = WriterConfig("local", ["protobuf", "flat"], p.realpath())
+    writer_config = WriterConfig("local", ["protobuf", "flat"], p.realpath(), filename_template="dataset_summary-$dataset_timestamp")
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
 
@@ -89,9 +92,7 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
 
     now = datetime.datetime.now()
     for i in range(0, 5):
-        with session.logger(
-            dataset_timestamp=now + datetime.timedelta(days=i)
-        ) as logger:
+        with session.logger(dataset_timestamp=now + datetime.timedelta(days=i)) as logger:
             logger.log_dataframe(df_lending_club)
 
     output_files = []

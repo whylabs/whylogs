@@ -94,8 +94,7 @@ def test_protobuf():
     # We cannot do a straight equality comparison for serialized frequent
     # strings objects
     compare_frequent_items(
-        c1.number_tracker.frequent_numbers.get_frequent_items(),
-        c.number_tracker.frequent_numbers.get_frequent_items(),
+        c1.number_tracker.frequent_numbers.get_frequent_items(), c.number_tracker.frequent_numbers.get_frequent_items(),
     )
     msg.numbers.frequent_numbers.sketch = bytes()
     msg2.numbers.frequent_numbers.sketch = bytes()
@@ -109,10 +108,7 @@ def test_summary():
     actual_val = message_to_dict(summary)
     expected_val = {
         "counters": {"count": "3",},
-        "schema": {
-            "inferredType": {"type": "INTEGRAL", "ratio": 1.0},
-            "typeCounts": {"INTEGRAL": "3"},
-        },
+        "schema": {"inferredType": {"type": "INTEGRAL", "ratio": 1.0}, "typeCounts": {"INTEGRAL": "3"},},
         "numberSummary": {
             "count": "3",
             "min": 1.0,
@@ -120,20 +116,8 @@ def test_summary():
             "mean": 2.0,
             "stddev": 1.0,
             "isDiscrete": False,
-            "histogram": {
-                "start": 1.0,
-                "end": 3.0000003,
-                "counts": ["3"],
-                "max": 3.0,
-                "min": 1.0,
-                "bins": [1.0, 3.0000003],
-                "n": "3",
-                "width": 0.0,
-            },
-            "quantiles": {
-                "quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0],
-                "quantileValues": [1.0, 1.0, 1.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0],
-            },
+            "histogram": {"start": 1.0, "end": 3.0000003, "counts": ["3"], "max": 3.0, "min": 1.0, "bins": [1.0, 3.0000003], "n": "3", "width": 0.0,},
+            "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [1.0, 1.0, 1.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0],},
             "uniqueCount": {"estimate": 3.0, "upper": 3.0, "lower": 3.0},
         },
     }

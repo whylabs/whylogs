@@ -161,12 +161,7 @@ def run(
         parent_folder = os.path.dirname(os.path.realpath(input_path))
         basename = os.path.splitext(os.path.basename(input_path))[0]
         epoch_minutes = int(time.time() / 60)
-        output_base = "{}.{}-{}-{}".format(
-            basename,
-            epoch_minutes,
-            random.randint(100000, 999999),
-            random.randint(100000, 999999),
-        )
+        output_base = "{}.{}-{}-{}".format(basename, epoch_minutes, random.randint(100000, 999999), random.randint(100000, 999999),)
         output_prefix = os.path.join(parent_folder, output_base)
 
     output_base = output_prefix
@@ -174,15 +169,7 @@ def run(
     json_output_path = output_base + ".json"
 
     # Process records
-    reader = csv_reader(
-        input_path,
-        fmt,
-        parse_dates=parse_dates,
-        nrows=nrows,
-        sep=separator,
-        dropna=dropna,
-        infer_dtypes=infer_dtypes,
-    )
+    reader = csv_reader(input_path, fmt, parse_dates=parse_dates, nrows=nrows, sep=separator, dropna=dropna, infer_dtypes=infer_dtypes,)
     profiles = {}
     for record in reader:
         dt = record.get(datetime_col, datetime.utcnow())
@@ -198,9 +185,7 @@ def run(
     logger.info("Finished collecting statistics")
 
     # Build summaries for the JSON output
-    summaries = DatasetSummaries(
-        profiles={k: v.to_summary() for k, v in profiles.items()}
-    )
+    summaries = DatasetSummaries(profiles={k: v.to_summary() for k, v in profiles.items()})
     with open(json_output_path, "wt") as fp:
         logger.info("Writing JSON summaries to: {}".format(json_output_path))
         fp.write(message_to_json(summaries))
