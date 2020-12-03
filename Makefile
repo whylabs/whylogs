@@ -32,6 +32,7 @@ clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/
 	rm -fr .eggs/
+	rm -fr src/whylogs/proto/*pb2.py
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
 
@@ -50,10 +51,10 @@ clean-test: ## remove test and coverage artifacts
 lint: ## check style with flake8
 	flake8 src tests
 
-test: proto ## run tests quickly with the default Python
+test: build-proto ## run tests quickly with the default Python
 	python setup.py test
 
-test-all: proto ## run tests on every Python version with tox
+test-all: build-proto ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
@@ -62,7 +63,7 @@ coverage: ## check code coverage quickly with the default Python
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
-docs: proto ## generate Sphinx HTML documentation, including API docs
+docs: build-proto ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/whylogs.rst
 	rm -f docs/modules.rst
 	cd docs
@@ -81,8 +82,11 @@ dist: clean ## builds source and wheel package
 	python setup.py bdist_wheel
 	ls -l dist
 
-install: proto clean ## install the package to the active Python's site-packages
+install: build-proto clean ## install the package to the active Python's site-packages
 	python setup.py install
 
-proto:
+build-proto:
 	python setup.py proto
+
+build: build-proto lint
+	python setup.py build
