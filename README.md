@@ -1,8 +1,10 @@
 # whylogs Library
 [![PyPI version](https://badge.fury.io/py/whylogs.svg)](https://badge.fury.io/py/whylogs)
 [![Python Version](https://img.shields.io/pypi/pyversions/whylogs)](https://pypi.org/project/whylogs/)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4490/badge)](https://bestpractices.coreinfrastructure.org/projects/4490)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE)
+[![PyPi Downloads](https://pepy.tech/badge/whylogs)](https://pepy.tech/project/whylogs)
 
 This is a Python implementation of whylogs. The Java implementation can be found [here](https://github.com/whylabs/whylogs-java).
 
