@@ -49,7 +49,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
-	flake8 src tests
+	tox flake8
 
 test: build-proto ## run tests quickly with the default Python
 	python setup.py test
@@ -90,3 +90,6 @@ build-proto:
 
 build: build-proto lint
 	python setup.py build
+
+develop: build-proto
+	python setup.py develop

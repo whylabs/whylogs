@@ -3,9 +3,15 @@
 Please take a look at this doc before contributing to whylogs python.
 
 ## Code format
-We use [black](https://pypi.org/project/black/) to format all our code.  Before submitting a PR you'll need to format the code by running (from the repo root dir):
 
-```python setup.py format```
+We use `flake8` for linting. To run flake8 lint verification:
+```
+make lint
+```
+
+We use [black](https://pypi.org/project/black/) to format all our code.  Before submitting a PR you'll need to format the code by running (from the repo root dir):
+(note: this is currently disabled)
+```black .```
 
 ## Installation
 
@@ -22,12 +28,17 @@ We use [black](https://pypi.org/project/black/) to format all our code.  Before 
 
 5. Install whylogs in editable mode to the current python environment
 
-    ```pip install -e .[dev]```
+```python setup.py develop```
    
 6. (optional) Install sphinx documentation generation dependencies
 
     ```cd docs && pip install -r requirements.txt```
 
+## Testing
+To run tests using the current Python environment:
+```
+make test
+```
 
  ## Release process
  * If you are doing development locally, use the following command to create a local dev version. 
@@ -52,11 +63,11 @@ cd whylogs-python/
 bump2version dev --verbose --dry-run [--allow-dirty]
 bump2version dev --verbose
 ```
-Then from the root of the repo
-```
-./gradlew publish-python
-```
 
+To run tests against different Python, we use tox:
+```
+make test-all
+```
 You can keep bumping the local version if you need to (you can't republish a version twice so this is needed).
 
 ### 2. Pushing to master branch
@@ -84,7 +95,16 @@ bump2version release --verbose
 
 ## Tests
 Testing is handled with the `pytest` framework.
-You can run all the tests by running `pytest -vvs tests/` from the parent directory.
+
+To run test using the current Python environment (assuming you have all the dependencies):
+```
+make test
+```
+
+To run tests using tox, which will create test environments for you, run:
+```
+make test-all
+```
 
 ## Examples
 See the `scripts/` directory for some example scripts for interacting with `whylogs-python`
