@@ -10,29 +10,56 @@ make lint
 ```
 
 We use [black](https://pypi.org/project/black/) to format all our code.  Before submitting a PR you'll need to format the code by running (from the repo root dir):
-(note: this is currently disabled)
-```black .```
+(note: this is currently disabled). Black is configured by `pyproject.toml`
 
-## Installation
+```
+black .
+```
 
-1. Clone the repo
-2. Update all the submodules (to get the protobuf definitions): 
+## Development Environment
+
+1. It's recommended that you use [miniconda](https://docs.conda.io/en/latest/miniconda.html) to develop.
+2. Install [tox](https://tox.readthedocs.io/en/latest/) and [https://flake8.pycqa.org/en/latest/](flake8) and [black](https://black.readthedocs.io/en/stable/)
+    ```
+    # note that we are install these tools globally
+    pip install tox --user
+    pip install flake8 --user
+    pip install black --user
+    ```
+3. Clone the repo
+4. Update all the submodules (to get the protobuf definitions): 
     
-    ```git submodule update --init --recursive```
+    ```
+    git submodule update --init --recursive
+    ```
 
-3. (optional) Create and activate a new [virtual env](https://docs.python.org/3/library/venv.html#creating-virtual-environments) or [conda env](https://docs.python.org/3/library/venv.html#creating-virtual-environments)
+4. Create a new conda environment for whylogs development. We need Python 3.7
+ (though whylogs target multiple Python versions via `tox`):
+ 
+    ```
+    conda create --name=whylogs-dev python=3.7
+    conda activate whylogs-dev
+    ```
 
 4. Install dependencies
 
-    ```pip install -r requirements-dev.txt```
+    ```
+    conda install pip
+    pip install -r requirements-dev.txt
+    ```
 
 5. Install whylogs in editable mode to the current python environment
 
-```python setup.py develop```
+    ```
+    make develop
+    ```
    
-6. (optional) Install sphinx documentation generation dependencies
+6. (optional) Build and serve documentation
 
-    ```cd docs && pip install -r requirements.txt```
+    ```
+    make docs
+    make servedocs
+    ```
 
 ## Testing
 To run tests using the current Python environment:
@@ -122,5 +149,6 @@ Refer to [examples/README.md](examples/README.md) for more info
 
 
 ### Doc string format
-We use the [numpydocs docstring standard](https://numpydoc.readthedocs.io/en/latest/format.html), which is human-readable and works with [sphinx](https://www.sphinx-doc.org/en/master/) api documentation generator.
+We use the [numpydocs docstring standard](https://numpydoc.readthedocs.io/en/latest/format.html), which is human-readable
+ and works with [sphinx](https://www.sphinx-doc.org/en/master/) api documentation generator.
 
