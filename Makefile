@@ -50,10 +50,10 @@ clean-test: ## remove test and coverage artifacts
 lint: ## check style with flake8
 	flake8 src tests
 
-test: ## run tests quickly with the default Python
+test: proto ## run tests quickly with the default Python
 	python setup.py test
 
-test-all: ## run tests on every Python version with tox
+test-all: proto ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
@@ -62,7 +62,7 @@ coverage: ## check code coverage quickly with the default Python
 	coverage html
 	$(BROWSER) htmlcov/index.html
 
-docs: ## generate Sphinx HTML documentation, including API docs
+docs: proto ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/whylogs.rst
 	rm -f docs/modules.rst
 	cd docs
