@@ -7,20 +7,17 @@
     PyScaffold helps you to put up the scaffold of your new Python project.
     Learn more under: https://pyscaffold.org/
 """
-import sys
 
-from pkg_resources import VersionConflict, require
-from setuptools import setup
-import codecs
-import os.path
-import re
 import subprocess
 import sys
-from distutils.command.build_py import build_py as _build_py
+
+import os.path
 from distutils.command.clean import clean as _clean
 from distutils.spawn import find_executable
 from distutils.util import run_2to3
 from glob import glob
+from pkg_resources import VersionConflict, require
+from setuptools import setup
 
 try:
     require("setuptools>=38.3")
@@ -69,12 +66,5 @@ class BuildProto(_clean):
         generate_proto("./proto/src", "src/whylogs/proto")
 
 
-class BuildPy(_build_py):
-    def run(self):
-        generate_proto("./proto/src", "src/whylogs/proto")
-        # _build_py is an old-style class, so super() doesn't work.
-        _build_py.run(self)
-
-
 if __name__ == "__main__":
-    setup(cmdclass={"proto": BuildProto,}, use_pyscaffold=True)
+    setup(cmdclass={"proto": BuildProto}, use_pyscaffold=True)
