@@ -19,6 +19,7 @@ black .
 ## Development Environment
 
 1. It's recommended that you use [miniconda](https://docs.conda.io/en/latest/miniconda.html) to develop.
+
 2. Install [tox](https://tox.readthedocs.io/en/latest/) and [https://flake8.pycqa.org/en/latest/](flake8) and [black](https://black.readthedocs.io/en/stable/)
     ```
     # note that we are install these tools globally
@@ -27,13 +28,20 @@ black .
     pip install black --user
     ```
 3. Clone the repo
-4. Update all the submodules (to get the protobuf definitions): 
+
+4. Clean potential previous 
+
+```
+make clean
+```
+
+5. Update all the submodules (to get the protobuf definitions): 
     
     ```
     git submodule update --init --recursive
     ```
 
-4. Create a new conda environment for whylogs development. We need Python 3.7
+6. Create a new conda environment for whylogs development. We need Python 3.7
  (though whylogs target multiple Python versions via `tox`):
  
     ```
@@ -41,33 +49,46 @@ black .
     conda activate whylogs-dev
     ```
 
-4. Install dependencies
+7. Install dependencies
 
     ```
     conda install pip
     pip install -r requirements-dev.txt
     ```
 
-5. Install whylogs in editable mode to the current python environment
+8. Install whylogs in editable mode to the current python environment
 
     ```
     make develop
     ```
    
-6. (optional) Build and serve documentation
+9. (optional) Build and serve documentation
 
     ```
     make docs
     make servedocs
     ```
 
+
+
+
 ## Testing
+
 To run tests using the current Python environment:
 ```
 make test
 ```
 
- ## Release process
+### Coverage 
+
+Coverage can be checked with 
+
+```
+make coverage
+```
+
+## Release process
+
  * If you are doing development locally, use the following command to create a local dev version. 
  
  Some basic guideline for choosing whether it's `patch|minor|major`:
@@ -144,6 +165,7 @@ Auto-generated documentation is handled with [sphinx](https://www.sphinx-doc.org
 See the `docs/` folder for more and refer to [docs/README.md](docs/README.md)
 
 ### Examples
+
 Example scripts which help demonstrate the use of whylogs can be placed under the `examples/` folder.
 Refer to [examples/README.md](examples/README.md) for more info
 
