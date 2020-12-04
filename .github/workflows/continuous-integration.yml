@@ -9,11 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # runs-on: ubuntu-18.04
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
-
+        python-version: [3.6, 3.7, 3.8]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -37,5 +37,4 @@ jobs:
         pip install tox tox-gh-actions pytest pytest-cov coverage 
     - name: Test with tox
       run: make test-all
-    - name: Run coverage
-      run: make coverage
+
