@@ -24,6 +24,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Protoc
       uses: arduino/setup-protoc@master
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Cache Python dependencies
       uses: actions/cache@v2
       with:
@@ -37,4 +39,12 @@ jobs:
         pip install tox tox-gh-actions pytest pytest-cov coverage 
     - name: Test with tox
       run: make test-all
+
+    - name: Test & publish code coverage
+      if: runner.os == 'ubuntu-latest'
+      if: ${{ matrix.python-version }} == 3.8
+      uses: paambaati/codeclimate-action@v2.7.4
+      env:
+        CC_TEST_REPORTER_ID: 5f97bd2b70f7b44c97f3c88d2ecc7b5b25594c1eeacfe16cb6c5edd91e1527bd
+
 
