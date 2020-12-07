@@ -12,10 +12,11 @@ jobs:
     # runs-on: ubuntu-latest
     
     strategy:
-      max-parallel: 4
+      fail-fast: false
+      max-parallel: 6
       matrix:
         python-version: [3.6, 3.7, 3.8]
-        os: [ubuntu-latest, macOS-latest]
+        os: [ubuntu-18.04, macOS-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -45,7 +46,7 @@ jobs:
 
     - name: Test & publish code coverage
       if: runner.os == 'ubuntu-latest' && ${{ matrix.python-version }} == 3.8 
-      uses: paambaati/codeclimate-action@v2.7.4
+      uses: paambaati/codeclimate-action@v2.5.0
       env:
         CC_TEST_REPORTER_ID: 5f97bd2b70f7b44c97f3c88d2ecc7b5b25594c1eeacfe16cb6c5edd91e1527bd
 
