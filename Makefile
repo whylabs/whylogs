@@ -59,7 +59,7 @@ test-all: build-proto ## run tests on every Python version with tox
 
 coverage: ## check code coverage quickly with the default Python
 	pytest --cov='src/.' tests/
-	python -m coverage html
+	python -m coverage report
 
 docs: build-proto ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/whylogs.rst
