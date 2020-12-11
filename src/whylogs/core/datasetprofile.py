@@ -179,6 +179,8 @@ class DatasetProfile:
             Value to track.  Specify if `columns` is a string.
         """
         if data is not None:
+            if type(columns)!= str:
+                raise TypeError("Unambigious column to data mapping")
             self.track_datum(columns, data)
         else:
             for column_name, data in columns.items():
