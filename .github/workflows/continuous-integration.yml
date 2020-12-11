@@ -7,9 +7,8 @@ on:
     branches: [ mainline ]
 
 jobs:
-  build:
+  test:
     runs-on: ${{ matrix.os }}
-    # runs-on: ubuntu-latest
     
     strategy:
       fail-fast: false
