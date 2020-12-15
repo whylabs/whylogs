@@ -18,7 +18,7 @@ from whylogs.cli.cli_text import *
 from whylogs.cli.utils import echo
 
 _LENDING_CLUB_CSV = "lending_club_1000.csv"
-_EXAMPLE_REPO = "git@github.com:whylabs/whylogs-examples.git"
+_EXAMPLE_REPO = "https://github.com/whylabs/whylogs-examples.git"
 
 from whylogs import __version__ as whylogs_version
 
