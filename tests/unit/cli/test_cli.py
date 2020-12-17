@@ -46,35 +46,35 @@ def test_demo_init_empty_dir(tmp_path):
 
     os.remove(project_directory/"plain.txt")
 
-def test_demo_init_dir(tmp_path):
+# def test_demo_init_dir(tmp_path):
 
-    runner = CliRunner()
+#     runner = CliRunner()
    
-    project_directory = tmp_path / "sub"
-    project_directory.mkdir()
+#     project_directory = tmp_path / "sub"
+#     project_directory.mkdir()
 
-    result = runner.invoke(democli, ['-v','init','--project-dir', project_directory],input='yes\ntest\ntest\n{}\nyes\n1\nyes\n'.format(tmp_path))
+#     result = runner.invoke(democli, ['-v','init','--project-dir', project_directory],input='yes\ntest\ntest\n{}\nyes\n1\nyes\n'.format(tmp_path))
         
-    assert result.exit_code == 0
+#     assert result.exit_code == 0
 
-def test_demo_noweb_dir(tmp_path):
+# def test_demo_noweb_dir(tmp_path):
 
-    runner = CliRunner()
+#     runner = CliRunner()
    
-    project_directory = tmp_path/ "sub"
-    project_directory.mkdir()
+#     project_directory = tmp_path/ "sub"
+#     project_directory.mkdir()
 
-    result = runner.invoke(democli, ['-v','init','--project-dir', project_directory],input='yes\ntest\ntest\n{}\nyes\n1\nno\n'.format(tmp_path))
+#     result = runner.invoke(democli, ['-v','init','--project-dir', project_directory],input='yes\ntest\ntest\n{}\nyes\n1\nno\n'.format(tmp_path))
         
-    assert result.exit_code == 0
+#     assert result.exit_code == 0
 
-def test_demo_no_init_prof_dir(tmp_path):
+# def test_demo_no_init_prof_dir(tmp_path):
 
-    runner = CliRunner()
+#     runner = CliRunner()
    
-    project_directory = tmp_path/ "sub"
-    project_directory.mkdir()
+#     project_directory = tmp_path/ "sub"
+#     project_directory.mkdir()
 
-    result = runner.invoke(democli, ['-v','init','--project-dir', project_directory],input='yes\ntest\ntest\n{}\nno\n'.format(tmp_path))
+#     result = runner.invoke(democli, ['-v','init','--project-dir', project_directory],input='yes\ntest\ntest\n{}\nno\n'.format(tmp_path))
         
-    assert result.exit_code == 0
+#     assert result.exit_code == 0
