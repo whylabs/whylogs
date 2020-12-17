@@ -155,7 +155,7 @@ def init(project_dir):
         echo(OBSERVATORY_EXPLANATION)
         echo("Your original data (CSV file) will remain locally.")
         should_open = click.confirm(
-            "Would you like to proceed to WhyLogs Playground to see how our data visualization works?",
+            "Would you like to proceed to WhyLabs Playground to see how our data visualization works?",
             default=False,
             show_default=True,
         )
