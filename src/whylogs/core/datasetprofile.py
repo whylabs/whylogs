@@ -289,7 +289,7 @@ class DatasetProfile:
 
     def _column_message_iterator(self):
         self.validate()
-        for col in self.columns.items():
+        for k, col in self.columns.items():
             yield col.to_protobuf()
 
     def chunk_iterator(self):

@@ -34,7 +34,7 @@ class Logger:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: typing.Dict[str, str] = None,
         metadata: typing.Dict[str, str] = None,
-        writers=List[Writer],
+        writers: List[Writer] = [],
         verbose: bool = False,
     ):
         """
@@ -146,8 +146,7 @@ class Logger:
         :param df: the Pandas dataframe to log
         """
         if not self._active:
-            return
-        self._profile.track_dataframe(df)
+            return self._profile.track_dataframe(df)
 
     def is_active(self) -> bool:
         """
