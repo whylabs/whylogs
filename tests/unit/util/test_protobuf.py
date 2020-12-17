@@ -1,7 +1,10 @@
 import json
+import os
 
-from whylogs.proto import DoublesMessage
+from whylogs.proto import DoublesMessage,DatasetProperties,NumbersMessage
 from whylogs.util import protobuf
+
+_MY_DIR = os.path.realpath(os.path.dirname(__file__))
 
 
 def test_message_to_dict_returns_default_values():
@@ -26,3 +29,8 @@ def test_message_to_dict_equals_message_to_json():
     d1 = protobuf.message_to_dict(msg)
     d2 = json.loads(protobuf.message_to_json(msg))
     assert d1 == d2
+
+def test_message_to_dict():
+    msg1 = DoublesMessage(min=0, max=0, sum=0, count=10)
+    protobuf.repr_message(msg1)
+    

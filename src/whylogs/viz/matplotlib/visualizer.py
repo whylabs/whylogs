@@ -138,7 +138,7 @@ plot_uniqueness()
 
         # Fill areas
         ax.fill_between(
-            chart_data.loc[:, "date"],
+            pd.to_datetime(chart_data.loc[:, "date"]),
             y1=chart_data.loc[:, "quantile_0.0500"],
             y2=chart_data.loc[:, "quantile_0.9500"],
             alpha=0.5,
@@ -146,7 +146,7 @@ plot_uniqueness()
             label="5-95%",
         )
         ax.fill_between(
-            chart_data.loc[:, "date"],
+            pd.to_datetime(chart_data.loc[:, "date"]),
             y1=chart_data.loc[:, "quantile_0.2500"],
             y2=chart_data.loc[:, "quantile_0.7500"],
             alpha=0.5,
@@ -269,9 +269,9 @@ plot_uniqueness()
 
         # Fill areas
         ax.fill_between(
-            chart_data.loc[:, "date"],
-            y1=chart_data.loc[:, metrics[1]],
-            y2=chart_data.loc[:, metrics[2]],
+            pd.to_datetime(chart_data.loc[:, "date"]),
+            y1=chart_data.loc[:, metrics[1]].astype(float),
+            y2=chart_data.loc[:, metrics[2]].astype(float),
             alpha=0.5,
             color=self.theme["fill_colors"][1],
             label="5-95%",

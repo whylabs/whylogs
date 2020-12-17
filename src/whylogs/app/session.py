@@ -207,9 +207,6 @@ class Session:
         if not self.is_active():
             return None
 
-        if not self._active:
-            raise RuntimeError("Session is already closed. Cannot create more loggers")
-
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
@@ -246,7 +243,7 @@ class Session:
                 logger.close()
             self.remove_logger(name)
 
-    def remove_logger(self, dataset_name):
+    def remove_logger(self, dataset_name:str):
         """
         Remove a logger from the dataset. This is called by the logger when it's being closed
 
@@ -259,12 +256,11 @@ class Session:
 
         """
         if self._loggers.get(dataset_name) is None:
-            print(
+            raise KeyError(
                 "WARNING: logger {} is not present in the current Session".format(
                     dataset_name
                 )
             )
-            return
 
         self._loggers.pop(dataset_name)
 
@@ -281,15 +277,6 @@ def session_from_config(config: SessionConfig) -> Session:
 _session = None
 
 
-def reset_default():
-    """
-    DEPRECATED. Please use reset_default_session()
-    """
-    from warnings import warn
-
-    warn("DEPRECATED. use reset_default_session() instead of reset_default()")
-    reset_default_session()
-
 
 def reset_default_session():
     """
@@ -300,7 +287,9 @@ def reset_default_session():
         _session.close()
     config: SessionConfig = load_config()
     if config is None:
-        raise EnvironmentError("Unable to load whylogs config")
+        config = SessionConfig(
+                "default-project", "default-pipeline", [WriterConfig(type="local", output_path="output", formats=["all"])], False
+        )
     _session = session_from_config(config)
 
 
@@ -355,4 +344,4 @@ def get_logger():
     ylog : whylogs.app.logger.Logger
         The global session logger
     """
-    return _session.logger
+    return _session.logger()

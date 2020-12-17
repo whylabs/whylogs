@@ -179,6 +179,8 @@ class DatasetProfile:
             Value to track.  Specify if `columns` is a string.
         """
         if data is not None:
+            if type(columns)!= str:
+                raise TypeError("Unambigious column to data mapping")
             self.track_datum(columns, data)
         else:
             for column_name, data in columns.items():
@@ -287,7 +289,7 @@ class DatasetProfile:
 
     def _column_message_iterator(self):
         self.validate()
-        for col in self.columns.items():
+        for k, col in self.columns.items():
             yield col.to_protobuf()
 
     def chunk_iterator(self):

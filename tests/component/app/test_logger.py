@@ -79,6 +79,7 @@ def test_log_dataframe(tmpdir, df_lending_club):
 
 
 def test_log_multiple_calls(tmpdir, df_lending_club):
+    original_dir = os.curdir
     os.chdir(script_dir)
 
     p = tmpdir.mkdir("whylogs")
@@ -100,3 +101,5 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
         output_files += files
     # we run 5 times, so we should have five times more files than the above test
     assert len(output_files) == 25
+    os.chdir(original_dir)
+
