@@ -73,7 +73,7 @@ prometheus-flask-exporter==0.18.1
 prompt-toolkit==3.0.8
 protobuf==3.14.0
 ptyprocess==0.6.0
-py==1.9.0
+py==1.10.0
 pyarrow==2.0.0
 pycparser==2.20
 Pygments==2.7.2

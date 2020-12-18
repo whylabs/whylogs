@@ -46,10 +46,13 @@ def test_session_profile():
             ))
     df= util.testing.makeDataFrame()
     profile=session.log_dataframe(df)
+    assert profile is not None
 
-    # session.logger("default-project")
-    # profile= session.new_profile()
-    # assert profile == profile
+    summary = profile.flat_summary()
+    
+
+    flat_summary = summary['summary']
+    assert len(flat_summary) == 4
 
 def test_profile_df():
     session = get_or_create_session()
@@ -61,7 +64,7 @@ def test_profile_df():
     assert log_profile.dataset_timestamp == profile.dataset_timestamp
     assert log_profile.session_timestamp == profile.session_timestamp
     
-    assert log_profile.columns == {}
+    
     assert len(profile.columns) ==4
     assert len(log_profile.tags) == 1
     assert len(profile.tags) == 2

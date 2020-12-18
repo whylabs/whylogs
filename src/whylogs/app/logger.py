@@ -26,17 +26,15 @@ class Logger:
     :param verbose: enable debug logging or not
     """
 
-    def __init__(
-        self,
+    def __init__(self,
         session_id: str,
         dataset_name: str,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
         tags: typing.Dict[str, str] = None,
         metadata: typing.Dict[str, str] = None,
-        writers: List[Writer] = [],
-        verbose: bool = False,
-    ):
+        writers = List[Writer],
+        verbose: bool = False):
         """
         """
         if session_timestamp is None:
@@ -146,9 +144,11 @@ class Logger:
         :param df: the Pandas dataframe to log
         """
         if not self._active:
-            return self._profile.track_dataframe(df)
+            return None
+        
+        self._profile.track_dataframe(df)
 
-    def is_active(self) -> bool:
+    def is_active(self):
         """
         Return the boolean state of the logger
         """

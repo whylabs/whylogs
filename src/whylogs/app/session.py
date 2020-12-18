@@ -119,6 +119,8 @@ class Session:
 
         return logger
 
+
+
     def log_dataframe(
         self,
         df: pd.DataFrame,
