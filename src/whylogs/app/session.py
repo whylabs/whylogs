@@ -119,6 +119,8 @@ class Session:
 
         return logger
 
+
+
     def log_dataframe(
         self,
         df: pd.DataFrame,
@@ -150,7 +152,7 @@ class Session:
             dataset_name, dataset_timestamp, session_timestamp, tags, metadata
         )
 
-        ylog.log_dataframe(df)
+        _ = ylog.log_dataframe(df)
 
         return ylog.close()
 
