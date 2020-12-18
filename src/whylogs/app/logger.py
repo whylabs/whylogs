@@ -146,7 +146,7 @@ class Logger:
         if not self._active:
             return None
         
-        return self._profile.track_dataframe(df)
+        self._profile.track_dataframe(df)
 
     def is_active(self):
         """

@@ -71,8 +71,8 @@ def test_log_dataframe(tmpdir, df_lending_club):
 
     with session.logger("lendingclub") as logger:
         assert logger is not None
-        profile=logger.log_dataframe(df_lending_club)
-
+        logger.log_dataframe(df_lending_club)
+        profile = logger.profile
         assert profile is not None
 
         summary = profile.flat_summary()

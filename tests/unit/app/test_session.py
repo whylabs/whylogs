@@ -64,7 +64,7 @@ def test_profile_df():
     assert log_profile.dataset_timestamp == profile.dataset_timestamp
     assert log_profile.session_timestamp == profile.session_timestamp
     
-    assert log_profile.columns == {}
+    
     assert len(profile.columns) ==4
     assert len(log_profile.tags) == 1
     assert len(profile.tags) == 2

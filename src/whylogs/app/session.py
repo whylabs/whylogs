@@ -152,7 +152,7 @@ class Session:
             dataset_name, dataset_timestamp, session_timestamp, tags, metadata
         )
 
-        _ = ylog.log_dataframe(df)
+        ylog.log_dataframe(df)
 
         return ylog.close()
 
