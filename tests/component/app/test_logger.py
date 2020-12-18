@@ -70,7 +70,12 @@ def test_log_dataframe(tmpdir, df_lending_club):
     session = session_from_config(session_config)
 
     with session.logger("lendingclub") as logger:
-        logger.log_dataframe(df_lending_club)
+        profile = logger.log_dataframe(df_lending_club)
+
+        summary = profile.flat_summary()
+        flat_summary = summary['summary']
+        
+        assert len(flat_summary)==151
 
     output_files = []
     for root, subdirs, files in os.walk(p):
