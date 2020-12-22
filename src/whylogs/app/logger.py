@@ -34,7 +34,10 @@ class Logger:
         tags: typing.Dict[str, str] = None,
         metadata: typing.Dict[str, str] = None,
         writers = List[Writer],
-        verbose: bool = False):
+        verbose: bool = False, 
+        with_rotation_time: Optional[str] = None, 
+        cache: int =1,
+        ):
         """
         """
         if session_timestamp is None:
@@ -42,16 +45,39 @@ class Logger:
         self.dataset_name = dataset_name
         self.writers = writers
         self.verbose = verbose
-        self._profile = DatasetProfile(
-            dataset_name,
+        self.cache=cache
+    
+            
+        self._profiles = [ DatasetProfile(
+            self.dataset_name,
             dataset_timestamp=dataset_timestamp,
             session_timestamp=session_timestamp,
             tags=tags,
             metadata=metadata,
-            session_id=session_id,
-        )
+            session_id=session_id
+        )]
         self._active = True
 
+        self.with_rotation_time = with_rotation_time
+        if self.with_rotation_time is not None:
+            self.with_rotation_time= self.with_rotation_time.lower()
+
+            if self.with_rotation_time  == 's':
+                self.interval = 1 # one second
+                self.suffix = "%Y-%m-%d_%H-%M-%S"
+                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(\.\w+)?$"
+            elif self.with_rotation_time  == 'm':
+                self.interval = 60 # one minute
+                self.suffix = "%Y-%m-%d_%H-%M"
+                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}(\.\w+)?$"
+            elif self.with_rotation_time  == 'h':
+                self.interval = 60 * 60 # one hour
+                self.suffix = "%Y-%m-%d_%H"
+                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}(\.\w+)?$"
+            elif self.with_rotation_time  == 'd' or self.with_rotation_time == 'midnight':
+                self.interval = 60 * 60 * 24 # one day
+                self.suffix = "%Y-%m-%d"
+                self.extMatch = r"^\d{4}-\d{2}-\d{2}(\.\w+)?$"
     def __enter__(self):
         return self
 
@@ -61,10 +87,10 @@ class Logger:
     @property
     def profile(self):
         """
-        :return: the backing dataset profile
+        :return: the last backing dataset profile
         :rtype: DatasetProfile
         """
-        return self._profile
+        return self._profiles[-1]
 
     def flush(self):
         """
@@ -75,11 +101,14 @@ class Logger:
             return
 
         for writer in self.writers:
-            writer.write(self._profile)
+            writer.write(self._profiles[-1])
+        
+        if len(self._profiles)>self.cache:
+            self._profiles[-self.cache-1]=None
 
     def close(self) -> Optional[DatasetProfile]:
         """
-        Flush and close out the logger.
+        Flush and close out the logger, outputs the last profile
         
         :return: the result dataset profile. None if the logger is closed
         """
@@ -119,9 +148,9 @@ class Logger:
             raise ValueError("Cannot specify both features and feature_name")
 
         if features is not None:
-            self._profile.track(features)
+            self._profiles[-1].track(features)
         else:
-            self._profile.track_datum(feature_name, value)
+            self._profiles[-1].track_datum(feature_name, value)
 
     def log_csv(self, filepath_or_buffer: FilePathOrBuffer, **kwargs):
         """
@@ -135,7 +164,7 @@ class Logger:
             return
 
         df = pd.read_csv(filepath_or_buffer, **kwargs)
-        self._profile.track_dataframe(df)
+        self._profiles[-1].track_dataframe(df)
 
     def log_dataframe(self, df):
         """
@@ -146,7 +175,7 @@ class Logger:
         if not self._active:
             return None
         
-        self._profile.track_dataframe(df)
+        self._profiles[-1].track_dataframe(df)
 
     def is_active(self):
         """

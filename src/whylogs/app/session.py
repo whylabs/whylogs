@@ -43,6 +43,9 @@ class Session:
         self._loggers = {}
         self._session_time = datetime.datetime.now()
         self._session_id = str(uuid4())
+        self._config = SessionConfig(
+                project, pipeline, writers, verbose
+            )
 
     def __enter__(self):
         # TODO: configure other aspects
@@ -51,6 +54,11 @@ class Session:
     def __exit__(self, tpe, value, traceback):
         self.close()
 
+    def __repr__(self):
+        return self._config.to_yaml()
+
+    def get_config():
+        return self._config 
     def is_active(self):
         return self._active
 
