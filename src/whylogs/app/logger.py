@@ -66,7 +66,7 @@ class Logger:
         self._active = True
         # intialize to seconds in the day
         self.interval = 60*60*24
-
+        self.with_rotation_time = with_rotation_time
         self.set_rotation(with_rotation_time)
 
     def __enter__(self):
@@ -136,9 +136,9 @@ class Logger:
         sequence_start = self.rotate_at - self.interval
         timeTuple = datetime.datetime.fromtimestamp(sequence_start)
         rotation_suffix ="." + timeTuple.strftime(self.suffix)
-        self._profiles[-1].rotation_suffix=rotation_suffix
 
-        self.flush()
+
+        self.flush(rotation_suffix)
 
         if len(self._profiles)>self.cache:
             self._profiles[-self.cache-1]=None
@@ -159,7 +159,7 @@ class Logger:
             self.rotate_at += self.interval
 
 
-    def flush(self):
+    def flush(self,rotation_suffix:str =None):
         """
         Synchronously perform all remaining write tasks
         """
@@ -168,7 +168,10 @@ class Logger:
             return None
 
         for writer in self.writers:
-            writer.write(self._profiles[-1])
+            if rotation_suffix is None:
+                writer.write(self._profiles[-1])
+            else:
+                writer.write(self._profiles[-1],rotation_suffix)
         
 
     # def load_from_file():

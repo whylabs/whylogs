@@ -113,7 +113,6 @@ class DatasetProfile:
         tags: typing.Dict[str, str] = None,
         metadata: typing.Dict[str, str] = None,
         session_id: str = None,
-        rotation_suffix : str = ""
     ):
         # Default values
         if columns is None:
@@ -131,7 +130,6 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
-        self.rotation_suffix = rotation_suffix
         
         # Store Name attribute
         self._tags["name"] = name
@@ -478,7 +476,7 @@ class DatasetProfile:
         """
         properties: DatasetProperties = message.properties
         return DatasetProfile(
-            name=(properties.tags or {}).get("Name") or "",
+            name=(properties.tags or {}).get("name") or "",
             session_id=properties.session_id,
             session_timestamp=from_utc_ms(properties.session_timestamp),
             dataset_timestamp=from_utc_ms(properties.data_timestamp),
