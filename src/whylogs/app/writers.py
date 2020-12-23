@@ -104,7 +104,7 @@ class Writer(ABC):
         """
         kwargs = self.template_params(profile)
         file_name = self.filename_template.substitute(**kwargs)
-        return file_name + file_extension
+        return file_name + kwargs["rotation_suffix"]+ file_extension
 
     @staticmethod
     def template_params(profile: DatasetProfile) -> dict:
@@ -140,6 +140,7 @@ class Writer(ABC):
             "session_timestamp": str(time.to_utc_ms(profile.session_timestamp)),
             "dataset_timestamp": dataset_timestamp,
             "session_id": profile.session_id or "missing-session-id",
+            "rotation_suffix" : profile.rotation_suffix
         }
 
 

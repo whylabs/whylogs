@@ -7,14 +7,13 @@ if __name__ == "__main__":
     df = pd.read_csv("data/lending-club-accepted-10.csv")
     
     session = get_or_create_session()
-    profile = session.log_dataframe(df,'test.data')
-    summary = profile.flat_summary()
-    time.sleep(2)
-    profile = session.log_dataframe(df,'test.data')
-    summary = profile.flat_summary()
-    time.sleep(5)
-    profile = session.log_dataframe(df,'test.data')
-    summary = profile.flat_summary()
-    flat_summary = summary['summary']
-    print(flat_summary)
+    with session.logger("test", with_rotation_time='m',cache=1) as logger:
+        profile = logger.log_dataframe(df)
+        time.sleep(2)
+        profile = logger.log_dataframe(df)
+        profile = logger.log_dataframe(df)
+        time.sleep(2)
+        profile = logger.log_dataframe(df)
+
+
 

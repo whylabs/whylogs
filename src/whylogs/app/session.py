@@ -69,6 +69,8 @@ class Session:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
+        with_rotation_time: str = None,
+        cache: int = 1,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -122,6 +124,8 @@ class Session:
                 tags=tags,
                 metadata=metadata,
                 verbose=self.verbose,
+                with_rotation_time=with_rotation_time,
+                cache=cache
             )
             self._loggers[dataset_name] = logger
 
