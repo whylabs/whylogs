@@ -130,13 +130,13 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
-
+        
         # Store Name attribute
-        self._tags["Name"] = name
+        self._tags["name"] = name
 
     @property
     def name(self):
-        return self._tags["Name"]
+        return self._tags["name"]
 
     @property
     def tags(self):

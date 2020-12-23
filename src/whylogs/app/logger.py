@@ -59,6 +59,7 @@ class Logger:
         self._active = True
 
         self.with_rotation_time = with_rotation_time
+
         if self.with_rotation_time is not None:
             self.with_rotation_time= self.with_rotation_time.lower()
 
@@ -78,6 +79,13 @@ class Logger:
                 self.interval = 60 * 60 * 24 # one day
                 self.suffix = "%Y-%m-%d"
                 self.extMatch = r"^\d{4}-\d{2}-\d{2}(\.\w+)?$"
+
+        #time in seconds
+        current_time = int(datetime.utcnow().timestamp())
+
+        self.rotate_at = self.rotate_when(current_time)
+
+
     def __enter__(self):
         return self
 
@@ -92,20 +100,76 @@ class Logger:
         """
         return self._profiles[-1]
 
+    def rotate_when(self, time):
+
+        result = time + self.interval
+
+    def should_rotate(self,):
+        
+        if self.with_rotation_time is None:
+            return False
+        current_time = int(datetime.utcnow().timestamp())
+        if current_time >= self.rotate_at:
+            return True
+        return False
+
+    def rotate_time(self):
+        """
+        do a rollover; in this case, a date/time stamp is appended to the filename
+        when the rollover happens.  However, you want the file to be named for the
+        start of the interval, not the current time.  If there is a backup count,
+        then we have to get a list of matching filenames, sort them and remove
+        the one with the oldest suffix.
+        """
+        current_time=int(datetime.utcnow().timestamp())
+        # get the time that this current logging rotation started 
+        sequence_start = self.rolloverAt - self.interval
+        
+        timeTuple = datetime.fromtimestamp(sequence_start)
+        
+        new_profile_name =self.dataset_name + "." +
+                                     timeTuple.strftime(self.suffix)
+        print(new_profile_name)
+        
+        if self.should_rotate():
+            self._profiles[-1]._tags["name"]=new_profile_name
+
+        self.flush()
+
+        if len(self._profiles)>self.cache:
+            self._profiles[-self.cache-1]=None
+
+         self._profiles.append(DatasetProfile(
+            self.dataset_name,
+            dataset_timestamp=dataset_timestamp,
+            session_timestamp=session_timestamp,
+            tags=tags,
+            metadata=metadata,
+            session_id=session_id
+        ))
+
+        #compute new rotate_at and while loop in case current function
+        #takes longer than interval
+        self.rotate_at = self.rotate_when(current_time)
+        while self.rotate_at <= current_time:
+            self.rotate_at += self.interval
+
+
     def flush(self):
         """
         Synchronously perform all remaining write tasks
         """
         if not self._active:
             print("WARNING: attempting to flush a closed logger")
-            return
+            return None
 
         for writer in self.writers:
             writer.write(self._profiles[-1])
         
-        if len(self._profiles)>self.cache:
-            self._profiles[-self.cache-1]=None
 
+    # def load_from_file():
+
+        
     def close(self) -> Optional[DatasetProfile]:
         """
         Flush and close out the logger, outputs the last profile
@@ -119,8 +183,8 @@ class Logger:
         self.flush()
 
         self._active = False
-        profile = self._profile
-        self._profile = None
+        profile = self._profiles[-1]
+        self._profiles = None
         return profile
 
     def log(
@@ -139,7 +203,10 @@ class Logger:
 
         """
         if not self._active:
-            return
+            return None
+
+        if self.should_rotate():
+            self.rotate_time()
 
         if features is None and feature_name is None:
             return
@@ -162,6 +229,8 @@ class Logger:
         """
         if not self._active:
             return
+        if self.should_rotate():
+            self.rotate_time()
 
         df = pd.read_csv(filepath_or_buffer, **kwargs)
         self._profiles[-1].track_dataframe(df)
@@ -174,6 +243,8 @@ class Logger:
         """
         if not self._active:
             return None
+        if self.should_rotate():
+            self.rotate_time()
         
         self._profiles[-1].track_dataframe(df)
 
