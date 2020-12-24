@@ -112,7 +112,6 @@ def init(project_dir):
         tmp_path = tempfile.mkdtemp("profiler")
         subprocess.run(
             [git, "clone", "--depth", "1", _EXAMPLE_REPO],
-            capture_output=True,
             cwd=tmp_path,
             check=True,
         )
