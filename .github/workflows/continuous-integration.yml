@@ -42,3 +42,7 @@ jobs:
         pip install tox tox-gh-actions pytest pytest-cov coverage 
     - name: Test with tox
       run: make test-all
+    - name: coverage
+      run: |
+        export CODECOV_TOKEN="4d9289d0-5a68-41c1-9c51-23559653825a"
+        bash <(curl -s https://codecov.io/bash)
