@@ -9,7 +9,7 @@ import datetime
 from freezegun import freeze_time
 
 from whylogs.app.config import load_config
-from whylogs.app.session import session_from_config
+from whylogs.app.session import session_from_config,get_or_create_session
 from whylogs.app.config import SessionConfig, WriterConfig
 
 
@@ -22,7 +22,7 @@ def test_log_rotation_seconds(tmpdir):
 
     session_config = SessionConfig("project", "pipeline", writers=[writer_config])
     with freeze_time("2012-01-14 03:21:34", tz_offset=-4) as frozen_time:
-            session = session_from_config(session_config)
+        session = session_from_config(session_config)
         with session.logger("test", with_rotation_time='s',cache=1) as logger:
             df= util.testing.makeDataFrame()
             logger.log_dataframe(df)
@@ -109,8 +109,7 @@ def test_log_rotation_hour(tmpdir):
             df= util.testing.makeDataFrame()
             logger.log_dataframe(df)
             frozen_time.tick(delta=datetime.timedelta(hours=3))
-            df= util.testing.makeDataFrame()
-            logger.log_dataframe(df)
+            logger.log(feature_name="E",value=4)
             df= util.testing.makeDataFrame()
             logger.log_dataframe(df)
             
@@ -119,4 +118,12 @@ def test_log_rotation_hour(tmpdir):
         output_files += files
     assert len(output_files) == 2
     shutil.rmtree(output_path)
-#
+
+
+def test_incorrect_rotation_time():
+
+    with pytest.raises(TypeError):
+        session=get_or_create_session()
+        with session.logger("test2",with_rotation_time='W2') as logger:
+            df= util.testing.makeDataFrame()
+            logger.log_dataframe(df)
