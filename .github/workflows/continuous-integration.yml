@@ -43,6 +43,7 @@ jobs:
     - name: Test with tox
       run: make test-all
     - name: Coveralls Parallel
+      if: matrix.os == 'ubuntu-latest'
       uses: AndreMiras/coveralls-python-action@develop
       with:
         flag-name: run-${{ matrix.os }}-${{matrix.python-version}}
