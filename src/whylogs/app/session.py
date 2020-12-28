@@ -31,7 +31,7 @@ class Session:
     """
 
     def __init__(
-        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False,
+        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False, with_rotation_time:str= None, cache: int = None 
     ):
         if writers is None:
             writers = []
@@ -43,6 +43,11 @@ class Session:
         self._loggers = {}
         self._session_time = datetime.datetime.now()
         self._session_id = str(uuid4())
+        self._config = SessionConfig(
+                project, pipeline, writers, verbose
+            )
+        self.with_rotation_time=with_rotation_time
+        self.cache= cache
 
     def __enter__(self):
         # TODO: configure other aspects
@@ -50,6 +55,12 @@ class Session:
 
     def __exit__(self, tpe, value, traceback):
         self.close()
+
+    def __repr__(self):
+        return self._config.to_yaml()
+
+    def get_config():
+        return self._config 
 
     def is_active(self):
         return self._active
@@ -61,6 +72,8 @@ class Session:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
+        with_rotation_time: str = None,
+        cache: int = None,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -92,12 +105,16 @@ class Session:
         if not self._active:
             raise RuntimeError("Session is already closed. Cannot create more loggers")
 
+
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
         if session_timestamp is None:
             session_timestamp = self._session_time
-
+        if with_rotation_time is None:
+            with_rotation_time = self.with_rotation_time
+        if cache is None:
+            cache = self.cache
         # remove inactive loggers first
         for name, logger in list(self._loggers.items()):
             if not logger.is_active():
@@ -114,6 +131,8 @@ class Session:
                 tags=tags,
                 metadata=metadata,
                 verbose=self.verbose,
+                with_rotation_time=with_rotation_time,
+                cache=cache
             )
             self._loggers[dataset_name] = logger
 
@@ -147,7 +166,7 @@ class Session:
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
-
+        
         ylog = self.logger(
             dataset_name, dataset_timestamp, session_timestamp, tags, metadata
         )
@@ -265,6 +284,7 @@ class Session:
             )
 
         self._loggers.pop(dataset_name)
+        
 
 
 def session_from_config(config: SessionConfig) -> Session:
@@ -272,7 +292,7 @@ def session_from_config(config: SessionConfig) -> Session:
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    return Session(config.project, config.pipeline, writers, config.verbose)
+    return Session(config.project, config.pipeline, writers, config.verbose,config.with_rotation_time, config.cache)
 
 
 #: A global session

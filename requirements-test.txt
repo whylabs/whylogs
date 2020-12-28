@@ -15,4 +15,6 @@ s3fs==0.4.2
 s3transfer==0.3.3
 six==1.15.0
 urllib3==1.26.2
+coverage==5.3
 whylabs-datasketches==2.0.0b7
+freezegun==1.0.0

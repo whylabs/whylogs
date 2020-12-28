@@ -59,7 +59,7 @@ def test_merge_different_columns():
     assert set(list(merged.columns.keys())) == {"col1", "col2"}
     assert merged.columns["col1"].counters.count == 1
     assert merged.columns["col2"].counters.count == 1
-    assert merged.tags == dict({"Name": "test", "key": "value"})
+    assert merged.tags == dict({"name": "test", "key": "value"})
     assert merged.metadata == dict({"key": "x1"})
 
 
@@ -99,7 +99,7 @@ def test_protobuf_round_trip():
     assert roundtrip.columns["col1"].counters.count == 1
     assert roundtrip.columns["col2"].counters.count == 1
 
-    tags["Name"] = "test"
+    tags["name"] = "test"
     assert set(roundtrip.tags) == set(tags)
     assert roundtrip.metadata == original.metadata
 
@@ -141,7 +141,7 @@ def test_mismatched_tags_merge_succeeds():
 
 def test_name_always_appear_in_tags():
     x1 = DatasetProfile(name="test")
-    assert x1.tags["Name"] == "test"
+    assert x1.tags["name"] == "test"
 
 
 def test_parse_delimited_from_java_single():

@@ -130,13 +130,13 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
-
+        
         # Store Name attribute
-        self._tags["Name"] = name
+        self._tags["name"] = name
 
     @property
     def name(self):
-        return self._tags["Name"]
+        return self._tags["name"]
 
     @property
     def tags(self):
@@ -476,7 +476,7 @@ class DatasetProfile:
         """
         properties: DatasetProperties = message.properties
         return DatasetProfile(
-            name=(properties.tags or {}).get("Name") or "",
+            name=(properties.tags or {}).get("name") or "",
             session_id=properties.session_id,
             session_timestamp=from_utc_ms(properties.session_timestamp),
             dataset_timestamp=from_utc_ms(properties.data_timestamp),

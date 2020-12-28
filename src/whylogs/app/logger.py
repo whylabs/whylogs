@@ -1,7 +1,7 @@
 """
 Class and functions for whylogs logging
 """
-import datetime
+import  datetime 
 import typing
 from typing import List, Optional
 
@@ -11,6 +11,7 @@ from pandas._typing import FilePathOrBuffer
 from whylogs.app.writers import Writer
 from whylogs.core import DatasetProfile
 
+TIME_ROTATION_VALUES= [ "s", "m", "h", "d"] 
 
 class Logger:
     """
@@ -23,7 +24,9 @@ class Logger:
     :param tags: Optional. Dictionary of key, value for aggregating data upstream
     :param metadata: Optional. Dictionary of key, value. Useful for debugging (associated with every single dataset profile)
     :param writers: List of Writer objects used to write out the data
+    :param with_rotation_time. Whether to rotate with time.     
     :param verbose: enable debug logging or not
+    :param cache: set how many dataprofiles to cache
     """
 
     def __init__(self,
@@ -34,23 +37,37 @@ class Logger:
         tags: typing.Dict[str, str] = None,
         metadata: typing.Dict[str, str] = None,
         writers = List[Writer],
-        verbose: bool = False):
+        verbose: bool = False, 
+        with_rotation_time: Optional[str] = None, 
+        cache: int =1,
+        ):
         """
         """
         if session_timestamp is None:
-            session_timestamp = datetime.datetime.now(datetime.timezone.utc)
+            self.session_timestamp = datetime.datetime.now(datetime.timezone.utc)
+        else:
+            self.session_timestamp= session_timestamp
         self.dataset_name = dataset_name
         self.writers = writers
         self.verbose = verbose
-        self._profile = DatasetProfile(
-            dataset_name,
+        self.cache=cache
+        self.tags=tags
+        self.session_id=session_id
+        self.metadata= metadata
+            
+        self._profiles = [ DatasetProfile(
+            self.dataset_name,
             dataset_timestamp=dataset_timestamp,
-            session_timestamp=session_timestamp,
-            tags=tags,
-            metadata=metadata,
-            session_id=session_id,
-        )
+            session_timestamp=self.session_timestamp,
+            tags=self.tags,
+            metadata=self.metadata,
+            session_id=self.session_id
+        )]
         self._active = True
+        # intialize to seconds in the day
+        self.interval = 60*60*24
+        self.with_rotation_time = with_rotation_time
+        self.set_rotation(with_rotation_time)
 
     def __enter__(self):
         return self
@@ -61,37 +78,123 @@ class Logger:
     @property
     def profile(self):
         """
-        :return: the backing dataset profile
+        :return: the last backing dataset profile
         :rtype: DatasetProfile
         """
-        return self._profile
+        return self._profiles[-1]
 
-    def flush(self):
+
+    def set_rotation(self,with_rotation_time: str = None):
+
+        if with_rotation_time is not None:
+            self.with_rotation_time= with_rotation_time.lower()
+
+            if self.with_rotation_time  == 's':
+                self.interval = 1 # one second
+                self.suffix = "%Y-%m-%d_%H-%M-%S"
+                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(\.\w+)?$"
+            elif self.with_rotation_time  == 'm':
+                self.interval = 60 # one minute
+                self.suffix = "%Y-%m-%d_%H-%M"
+                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}(\.\w+)?$"
+            elif self.with_rotation_time  == 'h':
+                self.interval = 60 * 60 # one hour
+                self.suffix = "%Y-%m-%d_%H"
+                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}(\.\w+)?$"
+            elif self.with_rotation_time  == 'd':
+                self.interval = 60 * 60 * 24 # one day
+                self.suffix = "%Y-%m-%d"
+                self.extMatch = r"^\d{4}-\d{2}-\d{2}(\.\w+)?$"
+            else:
+                raise TypeError("Invalid choice of rotation time, valid choices are {}".format(TIME_ROTATION_VALUES))
+            #time in seconds
+            current_time = int(datetime.datetime.utcnow().timestamp())
+            self.rotate_at = self.rotate_when(current_time)
+        else:
+            ValueError("with_rotation_time required")
+    def rotate_when(self, time):
+
+        result = time + self.interval
+        return result
+
+    def should_rotate(self,):
+        
+        if self.with_rotation_time is None:
+            return False
+
+        current_time = int(datetime.datetime.utcnow().timestamp())
+        if current_time >= self.rotate_at:
+            return True
+        return False
+
+    def rotate_time(self):
+        """
+        rotate with time add a suffix 
+        """
+        current_time=int(datetime.datetime.utcnow().timestamp())
+        # get the time that this current logging rotation started 
+        sequence_start = self.rotate_at - self.interval
+        timeTuple = datetime.datetime.fromtimestamp(sequence_start)
+        rotation_suffix ="." + timeTuple.strftime(self.suffix)
+
+
+        self.flush(rotation_suffix)
+
+        if len(self._profiles)>self.cache:
+            self._profiles[-self.cache-1]=None
+
+        self._profiles.append(DatasetProfile(
+            self.dataset_name,
+            dataset_timestamp=datetime.datetime.now(datetime.timezone.utc),
+            session_timestamp=self.session_timestamp,
+            tags=self.tags,
+            metadata=self.metadata,
+            session_id=self.session_id
+        ))
+
+        #compute new rotate_at and while loop in case current function
+        #takes longer than interval
+        self.rotate_at = self.rotate_when(current_time)
+        while self.rotate_at <= current_time:
+            self.rotate_at += self.interval
+
+
+    def flush(self,rotation_suffix:str =None):
         """
         Synchronously perform all remaining write tasks
         """
         if not self._active:
             print("WARNING: attempting to flush a closed logger")
-            return
+            return None
 
         for writer in self.writers:
-            writer.write(self._profile)
+            if rotation_suffix is None:
+                writer.write(self._profiles[-1])
+            else:
+                writer.write(self._profiles[-1],rotation_suffix)
+        
 
+    # def load_from_file():
+
+        
     def close(self) -> Optional[DatasetProfile]:
         """
-        Flush and close out the logger.
+        Flush and close out the logger, outputs the last profile
         
         :return: the result dataset profile. None if the logger is closed
         """
         if not self._active:
             print("WARNING: attempting to close a closed logger")
             return None
-
-        self.flush()
+        if self.with_rotation_time is None:
+            self.flush()
+        else:
+            self.rotate_time()       
+            _ = self._profiles.pop()
 
         self._active = False
-        profile = self._profile
-        self._profile = None
+        profile = self._profiles[-1]
+        self._profiles = None
         return profile
 
     def log(
@@ -110,7 +213,10 @@ class Logger:
 
         """
         if not self._active:
-            return
+            return None
+
+        if self.should_rotate():
+            self.rotate_time()
 
         if features is None and feature_name is None:
             return
@@ -119,9 +225,9 @@ class Logger:
             raise ValueError("Cannot specify both features and feature_name")
 
         if features is not None:
-            self._profile.track(features)
+            self._profiles[-1].track(features)
         else:
-            self._profile.track_datum(feature_name, value)
+            self._profiles[-1].track_datum(feature_name, value)
 
     def log_csv(self, filepath_or_buffer: FilePathOrBuffer, **kwargs):
         """
@@ -133,9 +239,11 @@ class Logger:
         """
         if not self._active:
             return
+        if self.should_rotate():
+            self.rotate_time()
 
         df = pd.read_csv(filepath_or_buffer, **kwargs)
-        self._profile.track_dataframe(df)
+        self._profiles[-1].track_dataframe(df)
 
     def log_dataframe(self, df):
         """
@@ -145,8 +253,10 @@ class Logger:
         """
         if not self._active:
             return None
+        if self.should_rotate():
+            self.rotate_time()
         
-        self._profile.track_dataframe(df)
+        self._profiles[-1].track_dataframe(df)
 
     def is_active(self):
         """
