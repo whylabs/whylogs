@@ -42,7 +42,18 @@ jobs:
         pip install tox tox-gh-actions pytest pytest-cov coverage 
     - name: Test with tox
       run: make test-all
-    - name: coverage
-      run: |
-        export CODECOV_TOKEN="4d9289d0-5a68-41c1-9c51-23559653825a"
-        bash <(curl -s https://codecov.io/bash)
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-${{ matrix.os }}-${{matrix.python-version}}
+        parallel: true
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
