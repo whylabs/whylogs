@@ -313,7 +313,7 @@ class Logger:
             if self.segments:
                 self.log_segments(pd.DataFrame(features))
         else:
-            if (self.segments is None) or ((self.segments is not None) and self.profile_full_dataset):
+            if full_profile_check():
                 self._profiles[-1]["full_profile"].track_datum(
                     feature_name, value)
 
