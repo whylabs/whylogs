@@ -13,27 +13,26 @@ if __name__ == "__main__":
     ) as logger:
         print(session.get_config())
         logger.log_dataframe(df)
-        profile_seg=logger.segemented_profiles
+        profile_seg = logger.segemented_profiles
 
     with session.logger("my_rotated_seg", segments=["home_ownership"], with_rotation_time="s", cache=1) as logger:
         print(session.get_config())
         logger.log_dataframe(df)
         time.sleep(2)
         logger.log_dataframe(df)
-        profile_seg=logger.segemented_profiles
-
+        profile_seg = logger.segemented_profiles
 
     with session.logger("my_rotated_seg_two_keys", segments=["home_ownership", "sub_grade"], with_rotation_time="s", cache=1) as logger:
         print(session.get_config())
         logger.log_csv("data/lending-club-accepted-10.csv")
         time.sleep(2)
         logger.log_dataframe(df)
-        profile_seg=logger.segemented_profiles
+        profile_seg = logger.segemented_profiles
 
-    with session.logger("my_rotated_seg_two_keys", segments=["home_ownership"],full_dataset_profile=True, with_rotation_time="s", cache=1) as logger:
+    with session.logger("my_rotated_seg_two_keys", segments=["home_ownership"], profile_full_dataset=True, with_rotation_time="s", cache=1) as logger:
         print(session.get_config())
         logger.log_csv("data/lending-club-accepted-10.csv")
         time.sleep(2)
         logger.log_dataframe(df)
-        profile_seg=logger.segemented_profiles
-        full_profile=logger.profile
+        profile_seg = logger.segemented_profiles
+        full_profile = logger.profile

@@ -124,15 +124,15 @@ class SessionConfig:
         pipeline: str,
         writers: List[WriterConfig],
         verbose: bool = False,
-        with_rotation_time: str =None,
-        cache :int = None,
+        with_rotation_time: str = None,
+        cache: int = None,
     ):
         self.project = project
         self.pipeline = pipeline
         self.verbose = verbose
         self.writers = writers
         self.with_rotation_time = with_rotation_time
-        self.cache =cache 
+        self.cache = cache
 
     def to_yaml(self, stream=None):
         """
@@ -191,8 +191,9 @@ class SessionConfigSchema(Schema):
 
     project = fields.Str(required=True)
     pipeline = fields.Str(required=True)
-    with_rotation_time=fields.Str(required=False, validate=validate.OneOf(["s","m","h","d"]))
-    cache= fields.Int(required=False)
+    with_rotation_time = fields.Str(
+        required=False, validate=validate.OneOf(["s", "m", "h", "d"]))
+    cache = fields.Int(required=False)
     verbose = fields.Bool(missing=False)
     writers = fields.List(
         fields.Nested(WriterConfigSchema),
@@ -227,13 +228,13 @@ def load_config():
 
     logger = getLogger(__name__)
     cfg_candidates = {
-    "enviroment":  os.environ.get("WHYLOGS_CONFIG"),
-    "current_dir":    WHYLOGS_YML,
-    "home_dir":    os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
-    "opt" :   os.path.join("/opt/whylogs/", WHYLOGS_YML),
+        "enviroment":  os.environ.get("WHYLOGS_CONFIG"),
+        "current_dir":    WHYLOGS_YML,
+        "home_dir":    os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
+        "opt":   os.path.join("/opt/whylogs/", WHYLOGS_YML),
     }
 
-    location_found=None
+    location_found = None
 
     for k, fpath in cfg_candidates.items():
         logger.debug(f"Attempting to load config file: {fpath}")
@@ -242,10 +243,11 @@ def load_config():
 
         try:
             with open(fpath, "rt") as f:
-                session_config=SessionConfig.from_yaml(f)
-                location_found= {k, fpath} 
+                session_config = SessionConfig.from_yaml(f)
+                location_found = {k, fpath}
                 return session_config
         except IOError as e:
             logger.warning("Failed to load YAML config", e)
             pass
     return None
+
