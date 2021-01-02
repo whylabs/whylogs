@@ -59,8 +59,11 @@ class Session:
     def __repr__(self):
         return self._config.to_yaml()
 
+    @property
     def get_config():
         return self._config 
+
+
 
     def is_active(self):
         return self._active
@@ -196,7 +199,7 @@ class Session:
         :param metadata: information about this current profile. Can be discarded when merging
         :return: a dataset profile if the session is active
         """
-        dataset_profile = self.new_profile(
+        dataset_profile = self. (
             dataset_name, dataset_timestamp, session_timestamp, tags, metadata
         )
 

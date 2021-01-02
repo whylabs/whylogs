@@ -3,7 +3,7 @@ Defines the primary interface class for tracking dataset statistics.
 """
 import datetime
 import io
-import typing
+from typing import Dict
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -110,8 +110,8 @@ class DatasetProfile:
         dataset_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
         columns: dict = None,
-        tags: typing.Dict[str, str] = None,
-        metadata: typing.Dict[str, str] = None,
+        tags: Dict[str, str] = None,
+        metadata: Dict[str, str] = None,
         session_id: str = None,
     ):
         # Default values
@@ -131,6 +131,7 @@ class DatasetProfile:
         self._metadata = metadata.copy()
         self.columns = columns
         
+        self._active=True
         # Store Name attribute
         self._tags["name"] = name
 

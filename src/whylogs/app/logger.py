@@ -2,7 +2,7 @@
 Class and functions for whylogs logging
 """
 import  datetime 
-import typing
+from typing import List, Optional,Dict,Union
 from typing import List, Optional
 
 import pandas as pd
@@ -34,8 +34,8 @@ class Logger:
         dataset_name: str,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
-        tags: typing.Dict[str, str] = None,
-        metadata: typing.Dict[str, str] = None,
+        tags: Dict[str, str] = None,
+        metadata: Dict[str, str] = None,
         writers = List[Writer],
         verbose: bool = False, 
         with_rotation_time: Optional[str] = None, 
