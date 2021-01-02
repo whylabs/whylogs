@@ -3,7 +3,7 @@ whylogs logging session
 """
 import datetime
 from logging import getLogger as _getLogger
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional,Union
 from uuid import uuid4
 
 import pandas as pd
@@ -59,8 +59,8 @@ class Session:
     def __repr__(self):
         return self._config.to_yaml()
 
-    @property
-    def get_config():
+
+    def get_config(self,):
         return self._config 
 
 
@@ -73,8 +73,10 @@ class Session:
         dataset_name: Optional[str] = None,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
-        tags: Dict[str, str] = None,
+        tags: Dict[str, str] = {},
         metadata: Dict[str, str] = None,
+        segments:Optional[Union[List[Dict], List[str]]] = None,
+        profile_full_dataset: bool = False,
         with_rotation_time: str = None,
         cache: int = None,
     ) -> Logger:
@@ -112,6 +114,7 @@ class Session:
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
+
         if session_timestamp is None:
             session_timestamp = self._session_time
         if with_rotation_time is None:
@@ -124,6 +127,7 @@ class Session:
                 self._loggers.pop(name)
 
         logger = self._loggers.get(dataset_name)
+
         if logger is None:
             logger = Logger(
                 session_id=self._session_id,
@@ -135,6 +139,8 @@ class Session:
                 metadata=metadata,
                 verbose=self.verbose,
                 with_rotation_time=with_rotation_time,
+                segments=segments,
+                profile_full_dataset=profile_full_dataset,
                 cache=cache
             )
             self._loggers[dataset_name] = logger
@@ -151,6 +157,8 @@ class Session:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
+        segments: Optional[Union[List[Dict], List[str]]] = None,
+        profile_full_dataset: bool = False,
     ) -> Optional[DatasetProfile]:
         """
         Perform statistics caluclations and log a pandas dataframe
@@ -171,7 +179,9 @@ class Session:
             dataset_name = self.project
         
         ylog = self.logger(
-            dataset_name, dataset_timestamp, session_timestamp, tags, metadata
+            dataset_name, dataset_timestamp, session_timestamp, tags, metadata,
+            segments=segments,
+            profile_full_dataset=profile_full_dataset,
         )
 
         ylog.log_dataframe(df)
@@ -199,7 +209,7 @@ class Session:
         :param metadata: information about this current profile. Can be discarded when merging
         :return: a dataset profile if the session is active
         """
-        dataset_profile = self. (
+        dataset_profile = self.new_profile(
             dataset_name, dataset_timestamp, session_timestamp, tags, metadata
         )
 
