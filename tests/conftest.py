@@ -34,4 +34,4 @@ def df_lending_club():
 
     df = pd.read_csv(os.path.join(_MY_DIR, os.pardir,"testdata", "lending_club_1000.csv"))
     
-    return df
+    return df.head(50)

@@ -80,13 +80,23 @@ class Logger:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+
     @property
-    def profile(self,segment=None):
+    def profile(self,):
         """
         :return: the last backing dataset profile
         :rtype: DatasetProfile
         """
         return self._profiles[-1]["full_profile"]
+
+    @property
+    def segmented_profiles(self,)->DatasetProfile:
+        """
+        :return: the last backing dataset profile
+        :rtype: DatasetProfile
+        """
+        
+        return self._profiles[-1]["segmented_profiles"]
 
     def set_segments(self, segments: Union[List[List[Dict[str,str]]],List[str]]) -> None:
         if segments:
@@ -368,10 +378,13 @@ class Logger:
             raise TypeError("segments type not supported")
 
     def log_segments_keys(self,data):
+        try:
+            grouped_data = data.groupby(self.segments)
+        except KeyError as e:
+            return 
 
-        grouped_data = data.groupby(self.segments)
         segments = grouped_data.groups.keys()
-    
+
         for each_segment in segments:
             # assert len(each_segment) == len(self.segments)
             try:
