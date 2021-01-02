@@ -259,7 +259,7 @@ class Logger:
 
     def log(
         self,
-        features: Dict[str, any] = None,
+        features: Optional[Dict[str, any]] = None,
         feature_name: str = None,
         value: any = None,
         segments: Union[List[Dict[str,Union[str,int,float,bool]]],List[str]] =None,
