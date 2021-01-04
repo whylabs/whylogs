@@ -131,7 +131,6 @@ class DatasetProfile:
         self._metadata = metadata.copy()
         self.columns = columns
         
-        self._active=True
         # Store Name attribute
         self._tags["name"] = name
 
