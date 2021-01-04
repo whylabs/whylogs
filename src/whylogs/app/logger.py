@@ -55,10 +55,10 @@ class Logger:
                  writers=List[Writer],
                  verbose: bool = False,
                  with_rotation_time: Optional[str] = None,
+                 interval: int = 1,
                  cache: int = 1,
                  segments: Optional[Union[List[SegmentTags], List[str]]] = None,
                  profile_full_dataset: bool = False,
-                 interval: int = 1
                  ):
         """
         """
@@ -81,7 +81,7 @@ class Logger:
         self.set_segments(segments)
 
         self._profiles = []
-        self.intialize_profiles(dataset_timestamp)
+        self._intialize_profiles(dataset_timestamp)
         # intialize to seconds in the day
         self.interval = interval
         self.with_rotation_time = with_rotation_time
@@ -109,6 +109,16 @@ class Logger:
         """
         return self._profiles[-1]["segmented_profiles"]
 
+    def get_segment(self, segment_tags: SegmentTags, copy: bool = False)->Optional[DatasetProfile]:
+
+        hashed_seg = hash_segment(segment_tags)
+        segment_profile = self._profiles[-1]["segmented_profiles"].get(
+            hashed_seg, None)
+        if copy and (segment_profile is not None):
+            return segment_profile.copy()
+        else:
+            return segment_profile
+
     def set_segments(self, segments: Union[List[SegmentTags], List[str]]) -> None:
         if segments:
             if all(isinstance(elem, str) for elem in segments):
@@ -121,8 +131,8 @@ class Logger:
             self.segments = None
             self.segment_type = None
 
-    def intialize_profiles(self,
-                           dataset_timestamp: Optional[datetime.datetime] = datetime.datetime.now(datetime.timezone.utc)) -> None:
+    def _intialize_profiles(self,
+                            dataset_timestamp: Optional[datetime.datetime] = datetime.datetime.now(datetime.timezone.utc)) -> None:
 
         full_profile = None
         if self.full_profile_check():
@@ -204,7 +214,7 @@ class Logger:
         if len(self._profiles) > self.cache:
             self._profiles[-self.cache-1] = None
 
-        self.intialize_profiles()
+        self._intialize_profiles()
 
         # compute new rotate_at and while loop in case current function
         # takes longer than interval
@@ -283,7 +293,7 @@ class Logger:
         :param feature_name: a dictionary of key->value for multiple features. Each entry represent a single columnar feature
         :param feature_name: name of a single feature. Cannot be specified if 'features' is specified
         :param value: value of as single feature. Cannot be specified if 'features' is specified
-        :param segment: define either a list of egment keys or a list of segments tags: 
+        :param segment: define either a list of egment keys or a list of segments tags:
         `[{"key":<featurename>,"value": <featurevalue>},... ]`
         :param profile_full_data: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
 
@@ -307,22 +317,35 @@ class Logger:
 
         if features is not None:
             # full profile
-            if self.full_profile_check():
-                self._profiles[-1]["full_profile"].track(features)
-
-            if self.segments:
-                self.log_segments(pd.DataFrame(features))
+            self.log_dataframe(pd.DataFrame([features]))
         else:
-            if full_profile_check():
+            if self.full_profile_check():
                 self._profiles[-1]["full_profile"].track_datum(
                     feature_name, value)
 
             if self.segments:
-                if (segment_type == "keys") and (feature_name in self.segments):
-                    pass
+                self.log_segment_datum(feature_name, value)
+
+    def log_segment_datum(self, feature_name, value):
+        segment_tags = []
+        segment_tags.append(
+            {"key": feature_name, "value": value})
+        segment_profile = self.get_segment(segment_tags)
+        if (segment_type == "keys"):
+            if (feature_name in self.segments):
+
+                if segment_profile is None:
+                    return
                 else:
-                    for each_profile in self._profiles[-1]["segmented_profiles"]:
-                        each_profile.track_datum(feature_name, value)
+                    segment_profile.track_datum(feature_name, value)
+            else:
+                for each_profile in self._profiles[-1]["segmented_profiles"]:
+                    each_profile.track_datum(feature_name, value)
+        elif (segment_type == "set"):
+            if segment_tags not in self.segments:
+                return
+            else:
+                segment_profile.track_datum(feature_name, value)
 
     def log_csv(self,
                 filepath_or_buffer: FilePathOrBuffer,
@@ -347,12 +370,7 @@ class Logger:
             self.set_segments(segments)
 
         df = pd.read_csv(filepath_or_buffer, **kwargs)
-
-        if self.full_profile_check():
-            self._profiles[-1]["full_profile"].track_dataframe(df)
-
-        if self.segments:
-            self.log_segments(df)
+        self.log_dataframe(df)
 
     def log_dataframe(self, df,
                       segments: Optional[Union[List[SegmentTags], List[str]]] = None,
@@ -390,12 +408,11 @@ class Logger:
         try:
             grouped_data = data.groupby(self.segments)
         except KeyError as e:
-            return
+            raise e
 
         segments = grouped_data.groups.keys()
 
         for each_segment in segments:
-            # assert len(each_segment) == len(self.segments)
             try:
                 segment_df = grouped_data.get_group(each_segment)
                 segment_tags = []
@@ -408,24 +425,29 @@ class Logger:
 
     def log_fixed_segments(self, data):
 
-        for each_seg in self.segments:
-            segment_keys = [feature["key"] for feature in each_seg]
-            seg = tuple([feature["value"] for feature in each_seg])
+        # we group each segment seperately since the segment tags are allowed
+        # to overlap
+
+        for segment_tag in self.segments:
+            # create keys
+            segment_keys = [feature["key"] for feature in segment_tag]
+            seg = tuple([feature["value"] for feature in segment_tag])
 
             grouped_data = data.groupby(segment_keys)
+
             if len(seg) == 1:
                 seg = seg[0]
+            # check if segment exist
             if seg not in grouped_data.groups:
                 continue
             segment_df = grouped_data.get_group(seg)
-            self.log_df_segment(segment_df, each_seg)
+
+            self.log_df_segment(segment_df, segment_tag)
 
     def log_df_segment(self, df, segment_tags: SegmentTags):
         segment_tags = sorted(segment_tags, key=lambda x: x["key"])
-        # check if segment is being tracked
-        hashed_seg = hash_segment(segment_tags)
-        segment_profile = self._profiles[-1]["segmented_profiles"].get(
-            hashed_seg, None)
+
+        segment_profile = self.get_segment(segment_tags)
         if segment_profile is None:
             segment_profile = DatasetProfile(
                 self.dataset_name,
@@ -436,6 +458,7 @@ class Logger:
                 session_id=self.session_id
             )
             segment_profile.track_dataframe(df)
+            hashed_seg = hash_segment(segment_tags)
             self._profiles[-1]["segmented_profiles"][hashed_seg] = segment_profile
         else:
             segment_profile.track_dataframe(df)

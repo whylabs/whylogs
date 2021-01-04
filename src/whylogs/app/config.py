@@ -4,9 +4,9 @@ Classes/functions for configuring the whylogs app
 .. autodata:: ALL_SUPPORTED_FORMATS
 """
 from logging import getLogger
-from typing import List
+from typing import List, Dict, Union, Optional
 
-import typing
+# import typing
 import yaml as yaml
 from marshmallow import Schema, fields, post_load, validate
 
@@ -16,6 +16,10 @@ WHYLOGS_YML = ".whylogs.yaml"
 
 ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
 """Supported output formats for whylogs writer configuration"""
+
+
+SegmentTag = Dict[str, any]
+SegmentTags = List[SegmentTag]
 
 
 class WriterConfig:
@@ -56,8 +60,8 @@ class WriterConfig:
         type: str,
         formats: List[str],
         output_path: str,
-        path_template: typing.Optional[str] = None,
-        filename_template: typing.Optional[str] = None,
+        path_template: Optional[str] = None,
+        filename_template: Optional[str] = None,
     ):
         self.type = type
         self.formats = formats
@@ -116,6 +120,14 @@ class SessionConfig:
         A list of `WriterConfig` objects defining writer outputs
     verbose : bool, default=False
         Output verbosity
+    with_rotation_time: str, default = None, to rotate profiles with time, takes values of overall rotation interval,
+            "s" for seconds
+            "m" for minutes
+            "h" for hours
+            "d" for days
+
+    cache: int default =1, sets how many dataprofiles to cache in logger during rotation
+    segments: List 
     """
 
     def __init__(
@@ -126,6 +138,8 @@ class SessionConfig:
         verbose: bool = False,
         with_rotation_time: str = None,
         cache: int = None,
+        segments: Optional[Union[List[str], List[SegmentTags]]] = None,
+        full_dataset_profile: bool = True,
     ):
         self.project = project
         self.pipeline = pipeline
@@ -250,4 +264,3 @@ def load_config():
             logger.warning("Failed to load YAML config", e)
             pass
     return None
-

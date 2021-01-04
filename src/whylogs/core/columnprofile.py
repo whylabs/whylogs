@@ -119,7 +119,8 @@ class ColumnProfile:
         opts = dict(
             counters=self.counters.to_protobuf(),
             frequent_items=self.frequent_items.to_summary(),
-            unique_count=self.cardinality_tracker.to_summary(_UNIQUE_COUNT_BOUNDS_STD),
+            unique_count=self.cardinality_tracker.to_summary(
+                _UNIQUE_COUNT_BOUNDS_STD),
         )
         if self.string_tracker is not None and self.string_tracker.count > 0:
             opts["string_summary"] = self.string_tracker.to_summary()
@@ -190,6 +191,8 @@ class ColumnProfile:
             schema_tracker=SchemaTracker.from_protobuf(message.schema),
             number_tracker=NumberTracker.from_protobuf(message.numbers),
             string_tracker=StringTracker.from_protobuf(message.strings),
-            frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),
-            cardinality_tracker=HllSketch.from_protobuf(message.cardinality_tracker),
+            frequent_items=FrequentItemsSketch.from_protobuf(
+                message.frequent_items),
+            cardinality_tracker=HllSketch.from_protobuf(
+                message.cardinality_tracker),
         )

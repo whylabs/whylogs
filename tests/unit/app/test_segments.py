@@ -1,9 +1,12 @@
 import os
 import shutil
+import pytest
 from freezegun import freeze_time
 from pandas import util
 import datetime
 import json
+import hashlib
+
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config, get_or_create_session
 from whylogs.app.config import SessionConfig, WriterConfig
@@ -91,8 +94,10 @@ def test_segments_with_rotation(df_lending_club, tmpdir):
             frozen_time.tick(delta=datetime.timedelta(seconds=1))
             logger.log_dataframe(df_lending_club)
             frozen_time.tick(delta=datetime.timedelta(seconds=1))
+
             df = util.testing.makeDataFrame()
-            logger.log_dataframe(df)
+            with pytest.raises(KeyError):
+                logger.log_dataframe(df)
     output_files = []
     for root, subdirs, files in os.walk(output_path):
         output_files += files
