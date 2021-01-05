@@ -79,14 +79,15 @@ class Writer(ABC):
                     self.formats.append(fmt_)
 
         self.output_path = output_path
-        self.rotation_suffix= None
+        self.rotation_suffix = None
+
     @abstractmethod
-    def write(self, profile: DatasetProfile, rotation_suffix:str =None):
+    def write(self, profile: DatasetProfile, rotation_suffix: str = None):
         """
         Abstract method to write a dataset profile to disk.  Must be
         implemented
         """
-        
+
         raise NotImplementedError
 
     def path_suffix(self, profile: DatasetProfile):
@@ -98,7 +99,7 @@ class Writer(ABC):
         path = self.path_template.substitute(**kwargs)
         return path
 
-    def file_name(self, profile: DatasetProfile, file_extension: str ):
+    def file_name(self, profile: DatasetProfile, file_extension: str):
         """
         For a given DatasetProfile, generate an output filename based on the
         templating defined in `self.filename_template`
@@ -106,9 +107,9 @@ class Writer(ABC):
         kwargs = self.template_params(profile)
         file_name = self.filename_template.substitute(**kwargs)
         if self.rotation_suffix is not None:
-            return file_name + self.rotation_suffix+ file_extension
+            return file_name + self.rotation_suffix + file_extension
         else:
-            return file_name +file_extension
+            return file_name + file_extension
 
     @staticmethod
     def template_params(profile: DatasetProfile) -> dict:
@@ -138,7 +139,8 @@ class Writer(ABC):
         """
         dataset_timestamp = "batch"
         if profile.dataset_timestamp is not None:
-            dataset_timestamp = time.to_utc_ms(profile.dataset_timestamp).__str__()
+            dataset_timestamp = time.to_utc_ms(
+                profile.dataset_timestamp).__str__()
         return {
             "name": profile.name,
             "session_timestamp": str(time.to_utc_ms(profile.session_timestamp)),
@@ -165,11 +167,11 @@ class LocalWriter(Writer):
             raise FileNotFoundError(f"Path does not exist: {output_path}")
         super().__init__(output_path, formats, path_template, filename_template)
 
-    def write(self, profile: DatasetProfile,rotation_suffix:str=None):
+    def write(self, profile: DatasetProfile, rotation_suffix: str = None):
         """
         Write a dataset profile to disk
         """
-        self.rotation_suffix=rotation_suffix
+        self.rotation_suffix = rotation_suffix
         for fmt in self.formats:
             if fmt == OutputFormat.json:
                 self._write_json(profile)
@@ -179,12 +181,14 @@ class LocalWriter(Writer):
                 self._write_protobuf(profile)
             else:
                 raise ValueError(f"Unsupported format: {fmt}")
-        self.rotation_suffix=None
+        self.rotation_suffix = None
+
     def _write_json(self, profile: DatasetProfile):
         """
         Write a JSON summary of the dataset profile to disk
         """
-        path = self.ensure_path(os.path.join(self.path_suffix(profile), "json"))
+        path = self.ensure_path(os.path.join(
+            self.path_suffix(profile), "json"))
 
         output_file = os.path.join(path, self.file_name(profile, ".json"))
 
@@ -245,7 +249,8 @@ class LocalWriter(Writer):
         """
         Write a protobuf serialization of the DatasetProfile to disk
         """
-        path = self.ensure_path(os.path.join(self.path_suffix(profile), "protobuf"))
+        path = self.ensure_path(os.path.join(
+            self.path_suffix(profile), "protobuf"))
 
         protobuf: Message = profile.to_protobuf()
 
@@ -283,11 +288,11 @@ class S3Writer(Writer):
         super().__init__(output_path, formats, path_template, filename_template)
         self.fs = s3fs.S3FileSystem(anon=False)
 
-    def write(self, profile: DatasetProfile, rotation_suffix:str=None):
+    def write(self, profile: DatasetProfile, rotation_suffix: str = None):
         """
         Write a dataset profile to S3
         """
-        self.rotation_suffix=rotation_suffix
+        self.rotation_suffix = rotation_suffix
 
         for fmt in self.formats:
             if fmt == OutputFormat.json:
@@ -298,7 +303,8 @@ class S3Writer(Writer):
                 self._write_protobuf(profile)
             else:
                 raise ValueError(f"Unsupported format: {fmt}")
-        self.rotation_suffix=None
+        self.rotation_suffix = None
+
     def _write_json(self, profile: DatasetProfile):
         """
         Write a dataset profile JSON summary to disk
@@ -332,7 +338,8 @@ class S3Writer(Writer):
         )
         summary_df = get_dataset_frame(summary)
         with self.fs.open(
-            os.path.join(flat_table_path, self.file_name(profile, ".csv")), "wt"
+            os.path.join(flat_table_path, self.file_name(
+                profile, ".csv")), "wt"
         ) as f:
             summary_df.to_csv(f, index=False)
 
@@ -368,7 +375,8 @@ class S3Writer(Writer):
         """
         Write a datasetprofile protobuf serialization to S3
         """
-        path = os.path.join(self.output_path, self.path_suffix(profile), "protobuf")
+        path = os.path.join(
+            self.output_path, self.path_suffix(profile), "protobuf")
 
         protobuf: Message = profile.to_protobuf()
 

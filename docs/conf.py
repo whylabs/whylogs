@@ -85,7 +85,14 @@ def setup(app):
     from recommonmark.transform import AutoStructify
 
     app.add_config_value(
-        "recommonmark_config", {"auto_toc_tree_section": "Contents", "enable_eval_rst": True, "enable_math": True, "enable_inline_math": True,}, True,
+        "recommonmark_config",
+        {
+            "auto_toc_tree_section": "Contents",
+            "enable_eval_rst": True,
+            "enable_math": True,
+            "enable_inline_math": True,
+        },
+        True,
     )
     app.add_transform(AutoStructify)
 
@@ -249,7 +256,13 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "whylogs Documentation", "WhyLabs", "manual",),
+    (
+        "index",
+        "user_guide.tex",
+        "whylogs Documentation",
+        "WhyLabs",
+        "manual",
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

@@ -2,9 +2,9 @@ name: whylogs CI
 
 on:
   push:
-    branches: [ mainline ]
+    branches: [ mainline, release]
   pull_request:
-    branches: [ mainline ]
+    branches: [ mainline, release]
 
 jobs:
   test:
@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       max-parallel: 6
       matrix:
-        python-version: [ 3.6,3.7,3.8]
+        python-version: [3.6,3.7, 3.8]
         os: [ubuntu-latest, macOS-latest]
 
     steps:
@@ -48,6 +48,7 @@ jobs:
       with:
         flag-name: run-${{ matrix.os }}-${{matrix.python-version}}
         parallel: true
+        file:  ./coverage.xml
   finish:
     needs: test
     runs-on: ubuntu-latest
@@ -56,3 +57,4 @@ jobs:
       uses: AndreMiras/coveralls-python-action@develop
       with:
         parallel-finished: true
+        file:  ./coverage.xml

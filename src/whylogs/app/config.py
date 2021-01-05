@@ -4,9 +4,9 @@ Classes/functions for configuring the whylogs app
 .. autodata:: ALL_SUPPORTED_FORMATS
 """
 from logging import getLogger
-from typing import List
+from typing import List, Dict, Union, Optional
 
-import typing
+# import typing
 import yaml as yaml
 from marshmallow import Schema, fields, post_load, validate
 
@@ -16,6 +16,10 @@ WHYLOGS_YML = ".whylogs.yaml"
 
 ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
 """Supported output formats for whylogs writer configuration"""
+
+
+SegmentTag = Dict[str, any]
+SegmentTags = List[SegmentTag]
 
 
 class WriterConfig:
@@ -56,8 +60,8 @@ class WriterConfig:
         type: str,
         formats: List[str],
         output_path: str,
-        path_template: typing.Optional[str] = None,
-        filename_template: typing.Optional[str] = None,
+        path_template: Optional[str] = None,
+        filename_template: Optional[str] = None,
     ):
         self.type = type
         self.formats = formats
@@ -116,6 +120,14 @@ class SessionConfig:
         A list of `WriterConfig` objects defining writer outputs
     verbose : bool, default=False
         Output verbosity
+    with_rotation_time: str, default = None, to rotate profiles with time, takes values of overall rotation interval,
+            "s" for seconds
+            "m" for minutes
+            "h" for hours
+            "d" for days
+
+    cache: int default =1, sets how many dataprofiles to cache in logger during rotation
+    segments: List 
     """
 
     def __init__(
@@ -124,15 +136,17 @@ class SessionConfig:
         pipeline: str,
         writers: List[WriterConfig],
         verbose: bool = False,
-        with_rotation_time: str =None,
-        cache :int = None,
+        with_rotation_time: str = None,
+        cache: int = None,
+        segments: Optional[Union[List[str], List[SegmentTags]]] = None,
+        full_dataset_profile: bool = True,
     ):
         self.project = project
         self.pipeline = pipeline
         self.verbose = verbose
         self.writers = writers
         self.with_rotation_time = with_rotation_time
-        self.cache =cache 
+        self.cache = cache
 
     def to_yaml(self, stream=None):
         """
@@ -191,8 +205,9 @@ class SessionConfigSchema(Schema):
 
     project = fields.Str(required=True)
     pipeline = fields.Str(required=True)
-    with_rotation_time=fields.Str(required=False, validate=validate.OneOf(["s","m","h","d"]))
-    cache= fields.Int(required=False)
+    with_rotation_time = fields.Str(
+        required=False, validate=validate.OneOf(["s", "m", "h", "d"]))
+    cache = fields.Int(required=False)
     verbose = fields.Bool(missing=False)
     writers = fields.List(
         fields.Nested(WriterConfigSchema),
@@ -227,13 +242,13 @@ def load_config():
 
     logger = getLogger(__name__)
     cfg_candidates = {
-    "enviroment":  os.environ.get("WHYLOGS_CONFIG"),
-    "current_dir":    WHYLOGS_YML,
-    "home_dir":    os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
-    "opt" :   os.path.join("/opt/whylogs/", WHYLOGS_YML),
+        "enviroment":  os.environ.get("WHYLOGS_CONFIG"),
+        "current_dir":    WHYLOGS_YML,
+        "home_dir":    os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
+        "opt":   os.path.join("/opt/whylogs/", WHYLOGS_YML),
     }
 
-    location_found=None
+    location_found = None
 
     for k, fpath in cfg_candidates.items():
         logger.debug(f"Attempting to load config file: {fpath}")
@@ -242,8 +257,8 @@ def load_config():
 
         try:
             with open(fpath, "rt") as f:
-                session_config=SessionConfig.from_yaml(f)
-                location_found= {k, fpath} 
+                session_config = SessionConfig.from_yaml(f)
+                location_found = {k, fpath}
                 return session_config
         except IOError as e:
             logger.warning("Failed to load YAML config", e)

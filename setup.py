@@ -49,7 +49,12 @@ def generate_proto(sr_path, dst_path):
         sys.stderr.write("Unable to locate proto source files")
         sys.exit(-1)
 
-    protoc_command = [protoc, "-I", sr_path, "--python_out={}".format(dst_path),] + proto_files
+    protoc_command = [
+        protoc,
+        "-I",
+        sr_path,
+        "--python_out={}".format(dst_path),
+    ] + proto_files
     if protoc is None:
         sys.stderr.write("protoc is not installed nor found in ../src.  Please compile it " "or install the binary package.\n")
         sys.exit(-1)

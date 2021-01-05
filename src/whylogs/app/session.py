@@ -3,7 +3,7 @@ whylogs logging session
 """
 import datetime
 from logging import getLogger as _getLogger
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from uuid import uuid4
 
 import pandas as pd
@@ -31,7 +31,7 @@ class Session:
     """
 
     def __init__(
-        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False, with_rotation_time:str= None, cache: int = None 
+        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False, with_rotation_time: str = None, cache: int = None
     ):
         if writers is None:
             writers = []
@@ -44,10 +44,10 @@ class Session:
         self._session_time = datetime.datetime.now()
         self._session_id = str(uuid4())
         self._config = SessionConfig(
-                project, pipeline, writers, verbose
-            )
-        self.with_rotation_time=with_rotation_time
-        self.cache= cache
+            project, pipeline, writers, verbose
+        )
+        self.with_rotation_time = with_rotation_time
+        self.cache = cache
 
     def __enter__(self):
         # TODO: configure other aspects
@@ -59,8 +59,8 @@ class Session:
     def __repr__(self):
         return self._config.to_yaml()
 
-    def get_config():
-        return self._config 
+    def get_config(self,):
+        return self._config
 
     def is_active(self):
         return self._active
@@ -70,8 +70,10 @@ class Session:
         dataset_name: Optional[str] = None,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
-        tags: Dict[str, str] = None,
+        tags: Dict[str, str] = {},
         metadata: Dict[str, str] = None,
+        segments: Optional[Union[List[Dict], List[str]]] = None,
+        profile_full_dataset: bool = False,
         with_rotation_time: str = None,
         cache: int = None,
     ) -> Logger:
@@ -103,12 +105,13 @@ class Session:
             whylogs logger
         """
         if not self._active:
-            raise RuntimeError("Session is already closed. Cannot create more loggers")
-
+            raise RuntimeError(
+                "Session is already closed. Cannot create more loggers")
 
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
+
         if session_timestamp is None:
             session_timestamp = self._session_time
         if with_rotation_time is None:
@@ -121,6 +124,7 @@ class Session:
                 self._loggers.pop(name)
 
         logger = self._loggers.get(dataset_name)
+
         if logger is None:
             logger = Logger(
                 session_id=self._session_id,
@@ -132,13 +136,13 @@ class Session:
                 metadata=metadata,
                 verbose=self.verbose,
                 with_rotation_time=with_rotation_time,
+                segments=segments,
+                profile_full_dataset=profile_full_dataset,
                 cache=cache
             )
             self._loggers[dataset_name] = logger
 
         return logger
-
-
 
     def log_dataframe(
         self,
@@ -148,6 +152,8 @@ class Session:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
+        segments: Optional[Union[List[Dict], List[str]]] = None,
+        profile_full_dataset: bool = False,
     ) -> Optional[DatasetProfile]:
         """
         Perform statistics caluclations and log a pandas dataframe
@@ -166,9 +172,11 @@ class Session:
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
-        
+
         ylog = self.logger(
-            dataset_name, dataset_timestamp, session_timestamp, tags, metadata
+            dataset_name, dataset_timestamp, session_timestamp, tags, metadata,
+            segments=segments,
+            profile_full_dataset=profile_full_dataset,
         )
 
         ylog.log_dataframe(df)
@@ -264,7 +272,7 @@ class Session:
                 logger.close()
             self.remove_logger(name)
 
-    def remove_logger(self, dataset_name:str):
+    def remove_logger(self, dataset_name: str):
         """
         Remove a logger from the dataset. This is called by the logger when it's being closed
 
@@ -284,7 +292,6 @@ class Session:
             )
 
         self._loggers.pop(dataset_name)
-        
 
 
 def session_from_config(config: SessionConfig) -> Session:
@@ -292,12 +299,11 @@ def session_from_config(config: SessionConfig) -> Session:
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    return Session(config.project, config.pipeline, writers, config.verbose,config.with_rotation_time, config.cache)
+    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache)
 
 
 #: A global session
 _session = None
-
 
 
 def reset_default_session():
@@ -310,7 +316,8 @@ def reset_default_session():
     config: SessionConfig = load_config()
     if config is None:
         config = SessionConfig(
-                "default-project", "default-pipeline", [WriterConfig(type="local", output_path="output", formats=["all"])], False
+            "default-project", "default-pipeline", [WriterConfig(
+                type="local", output_path="output", formats=["all"])], False
         )
     _session = session_from_config(config)
 
@@ -332,12 +339,14 @@ def get_or_create_session():
     """
     global _session
     if _session is not None and _session.is_active():
-        _getLogger(__name__).debug("Active session found, ignoring session kwargs")
+        _getLogger(__name__).debug(
+            "Active session found, ignoring session kwargs")
     else:
         config = load_config()
         if config is None:
             print("WARN: Missing config")
-            writer = WriterConfig(type="local", output_path="output", formats=["all"])
+            writer = WriterConfig(
+                type="local", output_path="output", formats=["all"])
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False
             )
