@@ -395,11 +395,11 @@ def writer_from_config(config: WriterConfig):
     writer : Writer
         whylogs writer
     """
-    abs_path = os.path.abspath(config.output_path)
-    if not os.path.exists(abs_path):
-        os.makedirs(abs_path, exist_ok=True)
-
     if config.type == "local":
+        abs_path = os.path.abspath(config.output_path)
+        if not os.path.exists(abs_path):
+            os.makedirs(abs_path, exist_ok=True)
+
         return LocalWriter(
             config.output_path,
             config.formats,
