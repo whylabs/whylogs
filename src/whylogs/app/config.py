@@ -220,7 +220,7 @@ class SessionConfigSchema(Schema):
         return SessionConfig(**data)
 
 
-def load_config():
+def load_config(path_to_config: str = None):
     """
     Load logging configuration, from disk and from the environment.
 
@@ -241,24 +241,34 @@ def load_config():
     import os
 
     logger = getLogger(__name__)
-    cfg_candidates = {
-        "enviroment":  os.environ.get("WHYLOGS_CONFIG"),
-        "current_dir":    WHYLOGS_YML,
-        "home_dir":    os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
-        "opt":   os.path.join("/opt/whylogs/", WHYLOGS_YML),
-    }
+    if path_to_config is None:
+        cfg_candidates = {
+            "enviroment":  os.environ.get("WHYLOGS_CONFIG"),
+            "current_dir":    WHYLOGS_YML,
+            "home_dir":    os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
+            "opt":   os.path.join("/opt/whylogs/", WHYLOGS_YML),
+        }
 
-    location_found = None
+        location_found = None
 
-    for k, fpath in cfg_candidates.items():
-        logger.debug(f"Attempting to load config file: {fpath}")
-        if fpath is None or not os.path.isfile(fpath):
-            continue
+        for k, fpath in cfg_candidates.items():
+            logger.debug(f"Attempting to load config file: {fpath}")
+            if fpath is None or not os.path.isfile(fpath):
+                continue
 
+            try:
+                with open(fpath, "rt") as f:
+                    session_config = SessionConfig.from_yaml(f)
+                    location_found = {k, fpath}
+                    return session_config
+            except IOError as e:
+                logger.warning("Failed to load YAML config", e)
+                pass
+    else:
+        print("here")
         try:
-            with open(fpath, "rt") as f:
+            with open(path_to_config, "rt") as f:
                 session_config = SessionConfig.from_yaml(f)
-                location_found = {k, fpath}
                 return session_config
         except IOError as e:
             logger.warning("Failed to load YAML config", e)
