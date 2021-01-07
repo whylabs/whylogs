@@ -1,0 +1,23 @@
+project: test-project-yaml
+pipeline: test-pipeline
+verbose: false
+writers:
+- formats:
+  - protobuf
+  output_path: s3://mocked_bucket/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary
+  type: s3
+- formats:
+  - flat
+  output_path: s3://mocked_bucket/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary
+  type: s3
+- formats:
+  - json
+  output_path: s3://mocked_bucket/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary
+  type: s3
+

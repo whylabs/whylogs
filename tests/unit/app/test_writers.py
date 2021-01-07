@@ -12,6 +12,13 @@ BUCKET = "mocked_bucket"
 MY_PREFIX = "mock_folder"
 # @pytest.fixture(autouse=True)
 
+object_keys = ["dataset_test_s3/dataset_summary/flat_table/dataset_summary.csv",
+               "dataset_test_s3/dataset_summary/freq_numbers/dataset_summary.json",
+               "dataset_test_s3/dataset_summary/frequent_strings/dataset_summary.json",
+               "dataset_test_s3/dataset_summary/histogram/dataset_summary.json",
+               "dataset_test_s3/dataset_summary/json/dataset_summary.json",
+               "dataset_test_s3/dataset_summary/protobuf/dataset_summary.bin"]
+
 
 @pytest.fixture
 def moto_boto():
@@ -44,3 +51,21 @@ def test_s3_writer(df_lending_club, moto_boto, s3_config_path):
     assert objects["Contents"][0]["Key"] == "dataset_test_s3/dataset_summary/protobuf/dataset_summary.bin"
     assert "s3:" not in [d.name for d in os.scandir(
         os.getcwd()) if d.is_dir()]
+
+
+@pytest.mark.usefixtures("moto_boto")
+def test_s3_writer(df_lending_club, moto_boto, s3_all_config_path):
+
+    assert os.path.exists(s3_all_config_path)
+
+    config = load_config(s3_all_config_path)
+    session = session_from_config(config)
+
+    with session.logger("dataset_test_s3") as logger:
+        logger.log_dataframe(df_lending_club)
+
+    client = boto3.client('s3')
+    objects = client.list_objects(Bucket="mocked_bucket")
+
+    for idx, each_objc in enumerate(objects["Contents"]):
+        assert each_objc["Key"] == object_keys[idx]
