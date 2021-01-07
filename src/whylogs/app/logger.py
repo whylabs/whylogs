@@ -38,6 +38,7 @@ class Logger:
             "m" for minutes
             "h" for hours
             "d" for days
+    :param interval. Additinal time rotation multipler.
     :param verbose: enable debug logging or not
 
     :param cache: set how many dataprofiles to cache
