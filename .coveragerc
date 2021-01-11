@@ -2,6 +2,7 @@
 [run]
 branch = True
 source = whylogs
+relative_files = True
 # omit = bad_file.py
 
 [paths]
