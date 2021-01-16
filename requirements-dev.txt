@@ -64,7 +64,7 @@ parso==0.7.1
 pathspec==0.8.1
 pexpect==4.8.0
 pickleshare==0.7.5
-Pillow==8.0.1
+Pillow==8.1.1
 pkginfo==1.6.1
 pluggy==0.13.1
 pre-commit==2.9.2
