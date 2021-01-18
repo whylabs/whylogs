@@ -7,7 +7,7 @@ if __name__ == "__main__":
     df = pd.read_csv("data/lending-club-accepted-10.csv")
     print(df.head())
     session = get_or_create_session()
-
+    # example with 4 seperate loggers
     with session.logger(
         "segment", segments=[[{"key": "home_ownership", "value": "RENT"}], [{"key": "home_ownership", "value": "MORTGAGE"}]], cache=1
     ) as logger:
@@ -36,3 +36,7 @@ if __name__ == "__main__":
         logger.log_dataframe(df)
         profile_seg = logger.segemented_profiles
         full_profile = logger.profile
+        # each segment profile has a tag associated with the segment
+        for k, prof in profile_seg.items():
+            print(prof.tags)
+            
