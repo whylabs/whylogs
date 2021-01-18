@@ -1,11 +1,24 @@
+autoapi>=2.0.1
+click
+pillow
 sphinx>=2.1
 sybil>=1.2.1
 sphinx_rtd_theme>=0.4.3
 sphinxcontrib-contentui>=0.2.4
 sphinx-gitstamp>=0.3.1
 sphinx-autoapi>=1.4.0
-autoapi>=2.0.1
+sphinx-bootstrap-theme==0.7.1
+sphinx-click==2.5.0
+sphinx-gallery==0.8.1
+sphinx-gitstamp==0.3.1
+sphinx-material==0.0.30
+sphinx-rtd-theme==0.5.0
+sphinxcontrib-applehelp==1.0.2
+sphinxcontrib-contentui==0.2.5
+sphinxcontrib-devhelp==1.0.2
+sphinxcontrib-htmlhelp==1.0.3
+sphinxcontrib-jsmath==1.0.1
+sphinxcontrib-qthelp==1.0.3
+sphinxcontrib-serializinghtml==1.1.4
 sphinx-autorun >= 1.1.1
 sphinx-gallery >= 0.8.0
-pillow
-sphinx_autodoc_typehints

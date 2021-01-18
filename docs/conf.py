@@ -7,13 +7,10 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
-
+import glob
 import os
 import sys
 import inspect
-import shutil
-
-import sphinx_rtd_theme
 
 __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
 
@@ -35,18 +32,22 @@ try:  # for Sphinx >= 1.7
 except ImportError:
     from sphinx import apidoc
 
-output_dir = os.path.join(__location__, "api")
+output_dir = os.path.join(__location__, "python_api")
 module_dir = os.path.join(__location__, "../src/whylogs")
-try:
-    shutil.rmtree(output_dir)
-except FileNotFoundError:
-    pass
+file_list = glob.glob(output_dir + '/*.rst')
+for file in file_list:
+    if file.endswith('index.rst'):
+        continue
+    try:
+        os.remove(file)
+    except:  # noqa
+        print("Error while deleting file : ", file)
 
 try:
     import sphinx
     from pkg_resources import parse_version
 
-    cmd_line_template = "sphinx-apidoc -f -o {outputdir} {moduledir}"
+    cmd_line_template = "sphinx-apidoc -f --no-toc -o {outputdir} {moduledir}"
     cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
 
     args = cmd_line.split(" ")
@@ -63,18 +64,20 @@ except Exception as e:
 # needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
-# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     "autoapi.extension",
     "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.napoleon",
+    "sphinx.ext.autosummary",
+    "sphinx_click.ext",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
     "sphinx.ext.coverage",
     "sphinx.ext.doctest",
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
+    "sphinx.ext.napoleon",
 ]
 
 autoapi_type = 'python'
@@ -147,14 +150,9 @@ pygments_style = "sphinx"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "sphinx_rtd_theme"
+html_theme = "whylogs"
 
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-html_theme_options = {"sidebar_width": "300px", "page_width": "1200px"}
-
-html_theme_path = ["_themes", ]
+html_theme_path = ["./theme/"]
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -245,7 +243,7 @@ latex_elements = {
 latex_documents = [
     (
         "index",
-        "user_guide.tex",
+        "whylogs.tex",
         "whylogs Documentation",
         "WhyLabs",
         "manual",

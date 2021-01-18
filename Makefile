@@ -62,8 +62,6 @@ coverage: ## check code coverage quickly with the default Python
 	python -m coverage report
 
 docs: build-proto ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/whylogs.rst
-	rm -f docs/modules.rst
 	cd docs
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
