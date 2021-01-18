@@ -1,13 +1,15 @@
 
 import numpy as np
-from typing import Union, Callable
+from typing import Union, Callable, List
+from PIL.Image import Image
 
 
 class ComposeTransforms:
     """
+     Outputs the composition of each transformation passed in transforms
     """
 
-    def __init__(self, transforms):
+    def __init__(self, transforms: List):
         self.transforms = transforms
 
     def __call__(self, x):
@@ -28,6 +30,7 @@ class ComposeTransforms:
 class Brightness:
 
     """
+     Outputs the Brightness of each pixel in the image
     """
 
     def __call__(self, img: Union[Image, np.ndarray])->np.ndarray:
@@ -96,7 +99,7 @@ class Hue:
 class SimpleBlur:
 
     """Simple Blur Ammount computation based on variance of laplacian
-    Overall metric of how blurry is the image. 
+    Overall metric of how blurry is the image. No overall scale.  
 
     """
 

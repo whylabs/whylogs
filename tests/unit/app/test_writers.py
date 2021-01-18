@@ -5,7 +5,7 @@ from whylogs.app.session import session_from_config
 from whylogs.app.config import load_config
 import boto3
 
-from moto.s3.response import DEFAULT_REGION_NAME
+from moto.s3.responses import DEFAULT_REGION_NAME
 from moto import mock_s3
 import pytest
 
