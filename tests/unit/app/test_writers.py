@@ -25,7 +25,7 @@ def moto_boto():
     # setup: start moto server and create the bucket
     mocks3 = mock_s3()
     mocks3.start()
-    res = boto3.resource('s3')
+    res = boto3.resource('s3', region_name='us-east-1')
     res.create_bucket(Bucket=BUCKET)
 
     yield
