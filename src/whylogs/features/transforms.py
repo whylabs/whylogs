@@ -1,5 +1,6 @@
 
 import numpy as np
+import numpy.typing as npt
 
 
 class ComposeTransforms:
@@ -29,7 +30,7 @@ class Brightness:
     """
     """
 
-    def __call__(self, img):
+    def __call__(self, img: Union[Image, npt.ArrayLike])->np.ndarray:
         """
         Args:
             pic (PIL Image or numpy.ndarray): Image to be converted to tensor.
@@ -37,6 +38,9 @@ class Brightness:
         Returns:
             Tensor: Converted image.
         """
+        if isinstance(img, np.ndarray):
+            img = Image.fromarray(img)
+
         _, _, bright = img.convert("HSV").split()
         return np.array(bright).reshape((-1, 1))
 
@@ -45,13 +49,21 @@ class Brightness:
 
 
 class Saturation:
+
+    """Summary
+    Outputs the saturation of each pixel in the image
     """
 
-    """
+    def __call__(self, img: Union[Image, npt.ArrayLike])->np.ndarray:
+        """
+        Args:
+            img (Union[Image, npt.ArrayLike]): Description
 
-    def __call__(self, img):
+        Returns:
+            np.ndarray: Description
         """
-        """
+        if isinstance(img, np.ndarray):
+            img = Image.fromarray(img)
         _, sat, _ = img.convert("HSV").split()
         return np.array(sat).reshape((-1, 1))
 
@@ -61,11 +73,40 @@ class Saturation:
 
 class Hue:
 
-    def __call__(self, img):
+    def __call__(self, img: Union[Image, npt.ArrayLike])->np.ndarray:
         """
+        Args:
+            img (Union[Image, npt.ArrayLike]): Description
+
+        Returns:
+            np.ndarray: Description
         """
+        if isinstance(img, np.ndarray):
+            img = Image.fromarray(img)
         h, _, _ = img.convert("HSV").split()
         return np.array(h).reshape((-1, 1))
+
+    def __repr__(self):
+        return self.__class__.__name__
+
+
+class SimpleBlur:
+
+    """Simple Blur Ammount computation based on variance of laplacian
+    Overall metric of how blurry is the image. 
+
+    """
+
+    def __call__(self, img: Union[Image, npt.ArrayLike])->float:
+        """
+        """
+        if isinstance(img, np.ndarray):
+            img = Image.fromarray(img)
+        # compute laplacian
+        img = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
+                                                     -1, -1, -1, -1), 1, 0))
+        value = np.variance(np.array(img).flatten()).reshape((-1, 1))
+        return value
 
     def __repr__(self):
         return self.__class__.__name__

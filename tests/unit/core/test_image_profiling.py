@@ -37,6 +37,4 @@ def test_track_image():
     columns = profile_1.columns
     assert len(columns) == total_default_features
     assert columns["Saturation"].number_tracker.count == 67500
-
     assert columns["BitsPerSample"].counters.count == 3
-    assert columns["BitsPerSample"].number_tracker.counters.ints.count == 3

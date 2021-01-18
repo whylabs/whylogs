@@ -12,7 +12,6 @@ sys.path.insert(0, os.path.join(_MY_DIR, os.pardir, "helpers"))
 # Test the parent package
 sys.path.insert(0, os.path.join(_MY_DIR, os.pardir, "testdata"))
 # Verify whylogs is importable
-TEST_DATA_PATH = os.path.abspath(os.path.join(_MY_DIR, os.pardir, "testdata"))
 
 
 @pytest.fixture(scope="session")
@@ -52,5 +51,14 @@ def df_lending_club():
 
     df = pd.read_csv(os.path.join(_MY_DIR, os.pardir,
                                   "testdata", "lending_club_1000.csv"))
-
     return df.head(50)
+
+
+@pytest.fixture(scope="session")
+def pil_img():
+    from PIL import Image
+    imag_path = os.path.join(
+        _MY_DIR, os.pardir, "testdata", "images", "flower2.jpg")
+    with open(imag_path, "rb") as img_f:
+        img = Image.open(img_f)
+        return img
