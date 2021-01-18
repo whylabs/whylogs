@@ -1,6 +1,6 @@
 
 import numpy as np
-import numpy.typing as npt
+from typing import Union, Callable
 
 
 class ComposeTransforms:
@@ -30,13 +30,16 @@ class Brightness:
     """
     """
 
-    def __call__(self, img: Union[Image, npt.ArrayLike])->np.ndarray:
+    def __call__(self, img: Union[Image, np.ndarray])->np.ndarray:
         """
         Args:
-            pic (PIL Image or numpy.ndarray): Image to be converted to tensor.
+            img (Union[Image, np.ndarray]): Description
 
         Returns:
-            Tensor: Converted image.
+            np.ndarray: Converted image.
+
+        Deleted Parameters:
+            pic (PIL Image or numpy.ndarray): Image to be converted to tensor.
         """
         if isinstance(img, np.ndarray):
             img = Image.fromarray(img)
@@ -54,10 +57,10 @@ class Saturation:
     Outputs the saturation of each pixel in the image
     """
 
-    def __call__(self, img: Union[Image, npt.ArrayLike])->np.ndarray:
+    def __call__(self, img: Union[Image, np.ndarray])->np.ndarray:
         """
         Args:
-            img (Union[Image, npt.ArrayLike]): Description
+            img (Union[Image, np.ndarray]): Description
 
         Returns:
             np.ndarray: Description
@@ -73,10 +76,10 @@ class Saturation:
 
 class Hue:
 
-    def __call__(self, img: Union[Image, npt.ArrayLike])->np.ndarray:
+    def __call__(self, img: Union[Image, np.ndarray])->np.ndarray:
         """
         Args:
-            img (Union[Image, npt.ArrayLike]): Description
+            img (Union[Image, np.ndarray]): Description
 
         Returns:
             np.ndarray: Description
@@ -97,8 +100,13 @@ class SimpleBlur:
 
     """
 
-    def __call__(self, img: Union[Image, npt.ArrayLike])->float:
+    def __call__(self, img: Union[Image, np.ndarray])->float:
         """
+        Args:
+            img (Union[Image, np.ndarray]): Description
+
+        Returns:
+            float: Description
         """
         if isinstance(img, np.ndarray):
             img = Image.fromarray(img)
