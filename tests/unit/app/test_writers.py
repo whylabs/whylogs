@@ -5,6 +5,7 @@ from whylogs.app.session import session_from_config
 from whylogs.app.config import load_config
 import boto3
 
+from moto.s3.response import DEFAULT_REGION_NAME
 from moto import mock_s3
 import pytest
 
@@ -25,7 +26,7 @@ def moto_boto():
     # setup: start moto server and create the bucket
     mocks3 = mock_s3()
     mocks3.start()
-    res = boto3.resource('s3')
+    res = boto3.resource('s3', region_name=DEFAULT_REGION_NAME)
     res.create_bucket(Bucket=BUCKET)
 
     yield
