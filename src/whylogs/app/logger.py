@@ -338,15 +338,21 @@ class Logger:
             else:
                 segment_profile.track_datum(feature_name, value)
 
-    def log_image(self, filepath, feature_transforms: Optional[List[Callable]] = None, metadata_attributes: Optional[List[str]] = _METADATA_DEFAULT_ATTRIBUTES, feature_name: str = ""):
+    def log_image(self, image, feature_transforms: Optional[List[Callable]] = None, metadata_attributes: Optional[List[str]] = _METADATA_DEFAULT_ATTRIBUTES, feature_name: str = ""):
 
         if not self._active:
             return
         if self.should_rotate():
             self._rotate_time()
 
-        track_image = TrackImage(filepath, feature_transforms=feature_transforms,
-                                 metadata_attributes=metadata_attributes, feature_name=feature_name)
+        if isinstance(image, str):
+
+            track_image = TrackImage(image, feature_transforms=feature_transforms,
+                                     metadata_attributes=metadata_attributes, feature_name=feature_name)
+        else:
+            track_image = TrackImage(img=image, feature_transforms=feature_transforms,
+                                     metadata_attributes=metadata_attributes, feature_name=feature_name)
+
         track_image(self._profiles[-1]["full_profile"])
 
     def log_csv(self,
