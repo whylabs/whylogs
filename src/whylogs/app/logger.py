@@ -346,7 +346,6 @@ class Logger:
             self._rotate_time()
 
         if isinstance(image, str):
-
             track_image = TrackImage(image, feature_transforms=feature_transforms,
                                      metadata_attributes=metadata_attributes, feature_name=feature_name)
         else:
