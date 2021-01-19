@@ -44,11 +44,6 @@ def image_loader(path: str = None)-> Image:
         return img
 
 
-# def init():
-
-#     for feature in _IMAGE_FEATURES:
-#         __import__(f"")
-
 class TrackImage:
 
     def __init__(self,
