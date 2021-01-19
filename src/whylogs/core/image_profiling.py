@@ -96,7 +96,7 @@ class TrackImage:
                             self.feature_name+each_attr, attribute_value)
 
 
-def get_pil_image_metadata(img: Image)->Dict:
+def get_pil_image_metadata(img: Image) -> Dict:
 
     metadata = {TAGS[k]:  "{}".format(v) if (isinstance(v, IFDRational)) else v
                 for k, v in dict(img.getexif()).items()
