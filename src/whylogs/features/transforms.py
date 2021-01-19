@@ -65,10 +65,10 @@ class Saturation:
     def __call__(self, img: Union[ImageType, np.ndarray])->np.ndarray:
         """
         Args:
-            img (Union[Image, np.ndarray]): Description
+            img (Union[Image, np.ndarray]): Either a PIL image or numpy array with int8 values
 
         Returns:
-            np.ndarray: Description
+            np.ndarray:  (1,number_pixels) array for saturation values for the image
         """
         if isinstance(img, np.ndarray):
             img = Image.fromarray(img)
@@ -84,10 +84,9 @@ class Hue:
     def __call__(self, img: Union[ImageType, np.ndarray])->np.ndarray:
         """
         Args:
-            img (Union[Image, np.ndarray]): Description
-
+            img (Union[Image, np.ndarray]): Either a PIL image or numpy array with int8 values
         Returns:
-            np.ndarray: Description
+            np.ndarray: (1,number_pixels) array for hue values for the image
         """
         if isinstance(img, np.ndarray):
             img = Image.fromarray(img)
@@ -108,10 +107,10 @@ class SimpleBlur:
     def __call__(self, img: Union[ImageType, np.ndarray])->float:
         """
         Args:
-            img (Union[Image, np.ndarray]): Description
+            img (Union[Image, np.ndarray]): Either a PIL image or numpy array with int8 values
 
         Returns:
-            float: Description
+            float: variance of laplacian of image.
         """
         if isinstance(img, np.ndarray):
             img = Image.fromarray(img)
