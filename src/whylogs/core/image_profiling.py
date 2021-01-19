@@ -38,7 +38,6 @@ _METADATA_DEFAULT_ATTRIBUTES = [
 
 
 def image_loader(path: str = None)-> Image:
-
     with open(path, "rb") as file_p:
         img = Image.open(file_p).copy()
         return img
