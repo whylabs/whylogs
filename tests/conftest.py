@@ -62,3 +62,21 @@ def pil_img():
     with open(imag_path, "rb") as img_f:
         img = Image.open(img_f)
         return img
+
+
+@pytest.fixture(scope="session")
+def test_data_path():
+
+    imag_path = os.path.join(
+        _MY_DIR, os.pardir, "testdata")
+    return test_data_path
+
+
+@pytest.fixture(scope="session")
+def image_files():
+    from os import listdir
+    from os.path import isfile, join
+    image_dir = os.path.join(
+        _MY_DIR, os.pardir, "testdata", "images")
+    image_files = [f for f in listdir(image_dir) if isfile(join(image_dir, f))]
+    return image_files
