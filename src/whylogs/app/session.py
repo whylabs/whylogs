@@ -158,7 +158,7 @@ class Session:
         """
         Perform statistics caluclations and log a pandas dataframe
 
-        :param df: the dataframe to profile 
+        :param df: the dataframe to profile
         :param dataset_name: name of the dataset
         :param dataset_timestamp: the timestamp for the dataset
         :param session_timestamp: the timestamp for the session. Override the default one
@@ -322,7 +322,7 @@ def reset_default_session():
     _session = session_from_config(config)
 
 
-def get_or_create_session():
+def get_or_create_session(path_to_config: Optional[str] = None):
     """
     Retrieve the current active global session.
 
@@ -332,17 +332,16 @@ def get_or_create_session():
     If an active session exists, return the session without loading new
     config.
 
-    Returns
-    -------
-    session : Session
-        The global active session
+    :return: The global active session
+    :rtype: Session
+    :type path_to_config: str
     """
     global _session
     if _session is not None and _session.is_active():
         _getLogger(__name__).debug(
             "Active session found, ignoring session kwargs")
     else:
-        config = load_config()
+        config = load_config(path_to_config)
         if config is None:
             print("WARN: Missing config")
             writer = WriterConfig(
