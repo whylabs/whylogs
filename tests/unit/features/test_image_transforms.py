@@ -1,10 +1,11 @@
 
-from whylogs.features.transforms import Hue, Brightness, Saturation, ComposeTransforms
+from whylogs.features.transforms import Hue, Brightness, Saturation, ComposeTransforms, SimpleBlur
 from whylogs.core.image_profiling import image_loader
 import os
 import numpy as np
 from PIL import Image
 import pytest
+
 
 TEST_DATA_PATH = os.path.abspath(os.path.join(os.path.realpath(
     os.path.dirname(__file__)), os.pardir, os.pardir, os.pardir, "testdata"))
@@ -41,6 +42,9 @@ def test_zero_brightness():
 
     for each_va in res_img:
         assert each_va[0] == 0
+    res_img = transform(zero_images.astype('uint8'))
+    for each_va in res_img:
+        assert each_va[0] == 0
 
 
 def test_Brightness():
@@ -51,6 +55,21 @@ def test_Brightness():
     # compute average brightness
     res = np.mean(res_img)
     assert pytest.approx(res, 0.1) == 117.1
+    res_img = transform(np.array(img))
+    # compute average brightness
+    res = np.mean(res_img)
+    assert pytest.approx(res, 0.1) == 117.1
+
+
+def test_simple_blur(image_files):
+    expected_results = [1392.5, 13544.2, 3754.4, ]
+    transform = SimpleBlur()
+    for idx, eachimg in enumerate(image_files):
+        img = image_loader(eachimg)
+        res = transform(img)
+        # compute average brightness
+
+        assert pytest.approx(res, 0.1) == expected_results[idx]
 
 
 def test_compose():

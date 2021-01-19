@@ -55,16 +55,6 @@ def df_lending_club():
 
 
 @pytest.fixture(scope="session")
-def pil_img():
-    from PIL import Image
-    imag_path = os.path.join(
-        _MY_DIR, os.pardir, "testdata", "images", "flower2.jpg")
-    with open(imag_path, "rb") as img_f:
-        img = Image.open(img_f)
-        return img
-
-
-@pytest.fixture(scope="session")
 def test_data_path():
 
     imag_path = os.path.join(
@@ -78,5 +68,6 @@ def image_files():
     from os.path import isfile, join
     image_dir = os.path.join(
         _MY_DIR, os.pardir, "testdata", "images")
-    image_files = [f for f in listdir(image_dir) if isfile(join(image_dir, f))]
+    image_files = [os.path.join(image_dir, f) for f in listdir(
+        image_dir) if isfile(join(image_dir, f))]
     return image_files

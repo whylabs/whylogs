@@ -33,7 +33,10 @@ def test_segments(df_lending_club, tmpdir):
             [{"key": "home_ownership", "value": "RENT"}])
         assert profiles[list(profiles.keys())[1]].tags["segment"] == json.dumps(
             [{"key": "home_ownership", "value": "MORTGAGE"}])
-
+        mortage_segment = logger.get_segment(
+            [{"key": "home_ownership", "value": "MORTGAGE"}])
+        check_segment = profiles[list(profiles.keys())[1]]
+        assert mortage_segment == check_segment
     shutil.rmtree(output_path)
 
 

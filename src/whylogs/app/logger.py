@@ -110,15 +110,12 @@ class Logger:
         """
         return self._profiles[-1]["segmented_profiles"]
 
-    def get_segment(self, segment_tags: SegmentTags, copy: bool = False)->Optional[DatasetProfile]:
+    def get_segment(self, segment_tags: SegmentTags)->Optional[DatasetProfile]:
 
         hashed_seg = hash_segment(segment_tags)
         segment_profile = self._profiles[-1]["segmented_profiles"].get(
             hashed_seg, None)
-        if copy and (segment_profile is not None):
-            return segment_profile.copy()
-        else:
-            return segment_profile
+        return segment_profile
 
     def set_segments(self, segments: Union[List[SegmentTags], List[str]]) -> None:
         if segments:

@@ -1,7 +1,9 @@
 
 import numpy as np
 from typing import Union, Callable, List
-from PIL.Image import Image
+from PIL.Image import Image as ImageType
+from PIL import Image
+from PIL import ImageFilter
 
 
 class ComposeTransforms:
@@ -33,7 +35,7 @@ class Brightness:
      Outputs the Brightness of each pixel in the image
     """
 
-    def __call__(self, img: Union[Image, np.ndarray])->np.ndarray:
+    def __call__(self, img: Union[ImageType, np.ndarray])->np.ndarray:
         """
         Args:
             img (Union[Image, np.ndarray]): Description
@@ -60,7 +62,7 @@ class Saturation:
     Outputs the saturation of each pixel in the image
     """
 
-    def __call__(self, img: Union[Image, np.ndarray])->np.ndarray:
+    def __call__(self, img: Union[ImageType, np.ndarray])->np.ndarray:
         """
         Args:
             img (Union[Image, np.ndarray]): Description
@@ -79,7 +81,7 @@ class Saturation:
 
 class Hue:
 
-    def __call__(self, img: Union[Image, np.ndarray])->np.ndarray:
+    def __call__(self, img: Union[ImageType, np.ndarray])->np.ndarray:
         """
         Args:
             img (Union[Image, np.ndarray]): Description
@@ -103,7 +105,7 @@ class SimpleBlur:
 
     """
 
-    def __call__(self, img: Union[Image, np.ndarray])->float:
+    def __call__(self, img: Union[ImageType, np.ndarray])->float:
         """
         Args:
             img (Union[Image, np.ndarray]): Description
@@ -114,9 +116,10 @@ class SimpleBlur:
         if isinstance(img, np.ndarray):
             img = Image.fromarray(img)
         # compute laplacian
+        img = img.convert("RGB")
         img = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
                                                      -1, -1, -1, -1), 1, 0))
-        value = np.variance(np.array(img).flatten()).reshape((-1, 1))
+        value = np.var(np.array(img).flatten())
         return value
 
     def __repr__(self):
