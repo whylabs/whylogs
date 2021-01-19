@@ -70,4 +70,4 @@ def image_files():
         _MY_DIR, os.pardir, "testdata", "images")
     image_files = [os.path.join(image_dir, f) for f in listdir(
         image_dir) if isfile(join(image_dir, f))]
-    return image_files
+    return sorted(image_files)
