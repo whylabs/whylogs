@@ -1,7 +1,7 @@
 import os
 from typing import Any, Callable, List, Optional, Tuple
 import abc
-from PIL import Image
+
 
 EXTENSIONS = ('.csv', '.xls', '.jpg', '.jpeg', '.png', '.ppm', '.bmp',
               '.pgm', '.tif', '.tiff', '.webp')
@@ -13,7 +13,7 @@ def valid_file(fname):
 
 
 def file_loader(path: str) -> Any:
-
+    from PIL import Image
     check_extensions = os.path.splitext(path)[1]
 
     try:

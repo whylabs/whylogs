@@ -280,9 +280,7 @@ class Logger:
         self,
         features: Optional[Dict[str, any]] = None,
         feature_name: str = None,
-        value: any = None,
-        segments: Optional[Union[List[SegmentTags], List[str]]] = None,
-        profile_full_dataset: bool = False,
+        value: any = None
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
@@ -301,11 +299,6 @@ class Logger:
 
         if self.should_rotate():
             self._rotate_time()
-
-        # segmnet check  in case segments are just keys
-        self.profile_full_dataset = profile_full_dataset
-        if (segments is not None):
-            self.set_segments(segments)
 
         if features is None and feature_name is None:
             return
