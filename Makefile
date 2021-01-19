@@ -75,7 +75,8 @@ servedocs: docs ## compile the docs watching for changes
 release: dist ## package and upload a release
 	twine upload dist/*
 
-dist: clean ## builds source and wheel package
+dist: clean-build build-proto ## builds source and wheel package
+	python setup.py build
 	python setup.py sdist
 	python setup.py bdist_wheel
 	ls -l dist
