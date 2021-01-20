@@ -57,12 +57,12 @@ def test_one_brightness():
     ones_images = np.ones((3, 3, 3))*255
     transform = Brightness()
 
-    im = Image.fromarray(zero_images.astype('uint8')).convert('RGBA')
+    im = Image.fromarray(ones_images.astype('uint8')).convert('RGBA')
     res_img = transform(im)
 
     for each_va in res_img:
         assert each_va[0] == 255
-    res_img = transform(zero_images.astype('uint8'))
+    res_img = transform(ones_images.astype('uint8'))
     for each_va in res_img:
         assert each_va[0] == 255
 
@@ -84,6 +84,7 @@ def test_Brightness():
 def test_simple_blur(image_files):
     expected_results = [3754.4, 1392.5, 13544.2, ]
     transform = SimpleBlur()
+
     for idx, eachimg in enumerate(image_files):
         img = image_loader(eachimg)
         res = transform(img)
