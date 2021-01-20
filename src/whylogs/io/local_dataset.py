@@ -32,7 +32,7 @@ class Dataset(abc.ABC):
                  )->None:
         self.root_folder = os.path.expanduser(root_folder)
         self.feature_transforms = feature_transforms
-
+    @abc.abstractmethod
     def __getitem__(self, index: int) -> Any:
         raise NotImplementedError
 
