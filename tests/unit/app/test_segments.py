@@ -106,5 +106,3 @@ def test_segments_with_rotation(df_lending_club, tmpdir):
         output_files += files
     assert len(output_files) == 8
     shutil.rmtree(output_path)
-
-# def test_update_segments(profile_lending_club,tmpdir):

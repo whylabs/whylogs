@@ -137,7 +137,7 @@ class SessionConfig:
         writers: List[WriterConfig],
         verbose: bool = False,
         with_rotation_time: str = None,
-        cache: int = None,
+        cache: int = 1,
         segments: Optional[Union[List[str], List[SegmentTags]]] = None,
         full_dataset_profile: bool = True,
     ):
