@@ -2,13 +2,13 @@
 Class and functions for whylogs logging
 """
 import datetime
-from typing import List, Optional, Dict, Union
+from typing import List, Optional, Dict, Union, Callable
 
 import pandas as pd
 from pandas._typing import FilePathOrBuffer
 
 from whylogs.app.writers import Writer
-from whylogs.core import DatasetProfile
+from whylogs.core import DatasetProfile, TrackImage, _METADATA_DEFAULT_ATTRIBUTES
 
 import hashlib
 import json
@@ -110,15 +110,12 @@ class Logger:
         """
         return self._profiles[-1]["segmented_profiles"]
 
-    def get_segment(self, segment_tags: SegmentTags, copy: bool = False)->Optional[DatasetProfile]:
+    def get_segment(self, segment_tags: SegmentTags)->Optional[DatasetProfile]:
 
         hashed_seg = hash_segment(segment_tags)
         segment_profile = self._profiles[-1]["segmented_profiles"].get(
             hashed_seg, None)
-        if copy and (segment_profile is not None):
-            return segment_profile.copy()
-        else:
-            return segment_profile
+        return segment_profile
 
     def set_segments(self, segments: Union[List[SegmentTags], List[str]]) -> None:
         if segments:
@@ -283,9 +280,7 @@ class Logger:
         self,
         features: Optional[Dict[str, any]] = None,
         feature_name: str = None,
-        value: any = None,
-        segments: Optional[Union[List[SegmentTags], List[str]]] = None,
-        profile_full_dataset: bool = False,
+        value: any = None
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
@@ -304,11 +299,6 @@ class Logger:
 
         if self.should_rotate():
             self._rotate_time()
-
-        # segmnet check  in case segments are just keys
-        self.profile_full_dataset = profile_full_dataset
-        if (segments is not None):
-            self.set_segments(segments)
 
         if features is None and feature_name is None:
             return
@@ -347,6 +337,22 @@ class Logger:
                 return
             else:
                 segment_profile.track_datum(feature_name, value)
+
+    def log_image(self, image, feature_transforms: Optional[List[Callable]] = None, metadata_attributes: Optional[List[str]] = _METADATA_DEFAULT_ATTRIBUTES, feature_name: str = ""):
+
+        if not self._active:
+            return
+        if self.should_rotate():
+            self._rotate_time()
+
+        if isinstance(image, str):
+            track_image = TrackImage(image, feature_transforms=feature_transforms,
+                                     metadata_attributes=metadata_attributes, feature_name=feature_name)
+        else:
+            track_image = TrackImage(img=image, feature_transforms=feature_transforms,
+                                     metadata_attributes=metadata_attributes, feature_name=feature_name)
+
+        track_image(self._profiles[-1]["full_profile"])
 
     def log_csv(self,
                 filepath_or_buffer: FilePathOrBuffer,
