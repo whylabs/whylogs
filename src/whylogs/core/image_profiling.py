@@ -1,5 +1,5 @@
-from PIL import Image
 
+from PIL.Image import Image as ImageType
 from PIL.ExifTags import TAGS as eTAGs
 
 from PIL.TiffTags import TAGS
@@ -37,7 +37,8 @@ _METADATA_DEFAULT_ATTRIBUTES = [
 ]
 
 
-def image_loader(path: str = None)-> Image:
+def image_loader(path: str = None)-> ImageType:
+    from PIL import Image
     with open(path, "rb") as file_p:
         img = Image.open(file_p).copy()
         return img
@@ -45,9 +46,19 @@ def image_loader(path: str = None)-> Image:
 
 class TrackImage:
 
+    """
+    This is a class that computes image features and visits profiles and so image features can be sketched.
+
+    Attributes:
+        feature_name (str): name given to this image feature, will prefix all image based features
+        feature_transforms (List[Callable]): Feature transforms to be apply to image data. 
+        img (PIL.Image): the PIL.Image 
+        metadata_attributes (TYPE): metadata attributes to track
+    """
+
     def __init__(self,
                  filepath: str = None,
-                 img: Image = None,
+                 img: ImageType = None,
                  feature_transforms: List[Callable] = DEFAULT_IMAGE_FEATURES,
                  feature_name: str = "",
                  metadata_attributes: Optional[List[str]] = _METADATA_DEFAULT_ATTRIBUTES,
@@ -70,7 +81,12 @@ class TrackImage:
         self.metadata_attributes = metadata_attributes
 
     def __call__(self, profiles):
+        """
+        Call method to add image data and metadata to associated profiles
 
+        Args:
+            profiles (Union[List[DatasetProfile],DatasetProfile]): DatasetProfile
+        """
         if not isinstance(profiles, list):
             profiles = [profiles]
 
@@ -95,24 +111,29 @@ class TrackImage:
                             self.feature_name+each_attr, attribute_value)
 
 
-def get_pil_image_metadata(img: Image) -> Dict:
+def get_pil_image_metadata(img: ImageType) -> Dict:
+    """
+    Grab metra data from a PIL Image
 
+    Args:
+        img (ImageType): PIL Image
+
+    Returns:
+        Dict: of metadata
+    """
     metadata = {TAGS[k]:  "{}".format(v) if (isinstance(v, IFDRational)) else v
                 for k, v in dict(img.getexif()).items()
                 }
 
-    if metadata is None:
-        metadata = image_based_metadata(img)
-    else:
-        metadata.update({"ImageFormat": img.format})
+    metadata.update({"ImageFormat": img.format})
 
     return metadata
 
 
 def image_based_metadata(img):
 
-    return {"ImageWidth": img.width,
-            "ImageHeight": img.height,
-            "PhotometricInterpretation": img.mode,
+    return {"ImagePixelWidth": img.width,
+            "ImagePixelHeight": img.height,
+            "Colorspace": img.mode,
             "ImageFormat": img.format
             }

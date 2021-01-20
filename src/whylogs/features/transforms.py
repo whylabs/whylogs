@@ -1,4 +1,3 @@
-
 import numpy as np
 from typing import Union, Callable, List
 from PIL.Image import Image as ImageType
