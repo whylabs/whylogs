@@ -83,7 +83,6 @@ class TrackImage:
     def __call__(self, profiles):
         """
         Call method to add image data and metadata to associated profiles
-
         Args:
             profiles (Union[List[DatasetProfile],DatasetProfile]): DatasetProfile
         """
