@@ -75,7 +75,7 @@ class Session:
         segments: Optional[Union[List[Dict], List[str]]] = None,
         profile_full_dataset: bool = False,
         with_rotation_time: str = None,
-        cache: int = None,
+        cache: int = 1,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -116,8 +116,7 @@ class Session:
             session_timestamp = self._session_time
         if with_rotation_time is None:
             with_rotation_time = self.with_rotation_time
-        if cache is None:
-            cache = self.cache
+
         # remove inactive loggers first
         for name, logger in list(self._loggers.items()):
             if not logger.is_active():

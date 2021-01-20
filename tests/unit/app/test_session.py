@@ -84,6 +84,14 @@ def test_close_session():
         session.logger()
 
 
+def test_logger_cache():
+    _session = None
+    session = get_or_create_session()
+    with session.logger("cache-test", with_rotation_time="s") as logger:
+        logger.log({"name": 1})
+    session.close()
+
+
 def test_remove_logger():
     session = get_or_create_session()
     session.logger("default-project")
