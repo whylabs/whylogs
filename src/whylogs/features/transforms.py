@@ -37,8 +37,7 @@ class Brightness:
     def __call__(self, img: Union[ImageType, np.ndarray])->np.ndarray:
         """
         Args:
-            img (Union[Image, np.ndarray]): Description
-
+            img (Union[Image, np.ndarray]): Either a PIL image or numpy array with int8 values
         Returns:
             np.ndarray: Converted image.
 
