@@ -126,7 +126,7 @@ class SessionConfig:
             "h" for hours
             "d" for days
 
-    cache: int default =1, sets how many dataprofiles to cache in logger during rotation
+    cache_size: int default =1, sets how many dataprofiles to cache in logger during rotation
     segments: List 
     """
 
@@ -137,16 +137,14 @@ class SessionConfig:
         writers: List[WriterConfig],
         verbose: bool = False,
         with_rotation_time: str = None,
-        cache: int = 1,
-        segments: Optional[Union[List[str], List[SegmentTags]]] = None,
-        full_dataset_profile: bool = True,
+        cache_size: int = 1,
     ):
         self.project = project
         self.pipeline = pipeline
         self.verbose = verbose
         self.writers = writers
         self.with_rotation_time = with_rotation_time
-        self.cache = cache
+        self.cache_size = cache_size
 
     def to_yaml(self, stream=None):
         """

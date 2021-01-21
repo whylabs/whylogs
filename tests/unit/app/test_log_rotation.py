@@ -8,7 +8,6 @@ import shutil
 import datetime
 from freezegun import freeze_time
 
-from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config, get_or_create_session
 from whylogs.app.config import SessionConfig, WriterConfig
 
@@ -24,7 +23,7 @@ def test_log_rotation_seconds(tmpdir):
         "project", "pipeline", writers=[writer_config])
     with freeze_time("2012-01-14 03:21:34", tz_offset=-4) as frozen_time:
         session = session_from_config(session_config)
-        with session.logger("test", with_rotation_time='s', cache=1) as logger:
+        with session.logger("test", with_rotation_time='s', cache_size=1) as logger:
             df = util.testing.makeDataFrame()
             logger.log_dataframe(df)
             frozen_time.tick(delta=datetime.timedelta(seconds=1))
@@ -53,7 +52,7 @@ def test_log_rotation_minutes(tmpdir):
         "project", "pipeline", writers=[writer_config])
     with freeze_time("2012-01-14 03:21:34", tz_offset=-4) as frozen_time:
         session = session_from_config(session_config)
-        with session.logger("test", with_rotation_time='m', cache=1) as logger:
+        with session.logger("test", with_rotation_time='m', cache_size=1) as logger:
             df = util.testing.makeDataFrame()
             logger.log_dataframe(df)
             frozen_time.tick(delta=datetime.timedelta(minutes=2))
@@ -82,7 +81,7 @@ def test_log_rotation_days(tmpdir):
         "project", "pipeline", writers=[writer_config])
     with freeze_time("2012-01-14 03:21:34", tz_offset=-4) as frozen_time:
         session = session_from_config(session_config)
-        with session.logger("test", with_rotation_time='d', cache=1) as logger:
+        with session.logger("test", with_rotation_time='d', cache_size=1) as logger:
             df = util.testing.makeDataFrame()
             logger.log_dataframe(df)
             frozen_time.tick(delta=datetime.timedelta(days=1))
@@ -111,7 +110,7 @@ def test_log_rotation_hour(tmpdir):
         "project", "pipeline", writers=[writer_config])
     with freeze_time("2012-01-14 03:21:34", tz_offset=-4) as frozen_time:
         session = session_from_config(session_config)
-        with session.logger("test", with_rotation_time='h', cache=1) as logger:
+        with session.logger("test", with_rotation_time='h', cache_size=1) as logger:
             df = util.testing.makeDataFrame()
             logger.log_dataframe(df)
             frozen_time.tick(delta=datetime.timedelta(hours=3))

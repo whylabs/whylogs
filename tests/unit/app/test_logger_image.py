@@ -1,12 +1,6 @@
-import pytest
-import unittest
-from pandas import util
-
 import shutil
-from whylogs.app.config import load_config
-from whylogs.app.session import session_from_config, get_or_create_session
+from whylogs.app.session import session_from_config
 from whylogs.app.config import SessionConfig, WriterConfig
-from freezegun import freeze_time
 from PIL import Image
 
 
@@ -45,7 +39,7 @@ def test_log_pil_image(tmpdir, image_files):
 
     session = session_from_config(session_config)
 
-    with session.logger("image_pil_test", with_rotation_time="s", cache=1) as logger:
+    with session.logger("image_pil_test", with_rotation_time="s", cache_size=1) as logger:
 
         for image_file_path in image_files:
             img = Image.open(image_file_path)
