@@ -1,20 +1,21 @@
+import logging
+from typing import Optional, Callable, List, Dict
 
-from PIL.Image import Image as ImageType
-from PIL.ExifTags import TAGS as eTAGs
-
-from PIL.TiffTags import TAGS
-from PIL.TiffImagePlugin import IFDRational
-from whylogs.core.datasetprofile import DatasetProfile
-
-from typing import Optional, Callable, List, Union, Dict
-import numpy as np
-
-from whylogs.features import _IMAGE_FEATURES
 from whylogs.features.transforms import Hue, Saturation, Brightness
 
+logger = logging.getLogger(__name__)
+
+try:
+    from PIL.Image import Image as ImageType
+
+    from PIL.TiffTags import TAGS
+    from PIL.TiffImagePlugin import IFDRational
+except ImportError as e:
+    ImageType = None
+    logger.debug(str(e))
+    logger.debug("Unable to load PIL; install pillow for image support")
 
 DEFAULT_IMAGE_FEATURES = [Hue(), Saturation(), Brightness()]
-
 
 _METADATA_DEFAULT_ATTRIBUTES = [
     "ImageWidth",
@@ -37,7 +38,7 @@ _METADATA_DEFAULT_ATTRIBUTES = [
 ]
 
 
-def image_loader(path: str = None)-> ImageType:
+def image_loader(path: str = None) -> ImageType:
     from PIL import Image
     with open(path, "rb") as file_p:
         img = Image.open(file_p).copy()
@@ -45,14 +46,13 @@ def image_loader(path: str = None)-> ImageType:
 
 
 class TrackImage:
-
     """
     This is a class that computes image features and visits profiles and so image features can be sketched.
 
     Attributes:
         feature_name (str): name given to this image feature, will prefix all image based features
-        feature_transforms (List[Callable]): Feature transforms to be apply to image data. 
-        img (PIL.Image): the PIL.Image 
+        feature_transforms (List[Callable]): Feature transforms to be apply to image data.
+        img (PIL.Image): the PIL.Image
         metadata_attributes (TYPE): metadata attributes to track
     """
 
@@ -98,7 +98,7 @@ class TrackImage:
             for each_profile in profiles:
 
                 each_profile.track_array(
-                    columns=[self.feature_name+transform_name], x=transformed_image)
+                    columns=[self.feature_name + transform_name], x=transformed_image)
 
                 if self.metadata_attributes == "all":
                     each_profile.track(metadata)
@@ -107,7 +107,7 @@ class TrackImage:
                     for each_attr in self.metadata_attributes:
                         attribute_value = metadata.get(each_attr, None)
                         each_profile.track(
-                            self.feature_name+each_attr, attribute_value)
+                            self.feature_name + each_attr, attribute_value)
 
 
 def get_pil_image_metadata(img: ImageType) -> Dict:
@@ -120,7 +120,7 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
     Returns:
         Dict: of metadata
     """
-    metadata = {TAGS[k]:  "{}".format(v) if (isinstance(v, IFDRational)) else v
+    metadata = {TAGS[k]: "{}".format(v) if (isinstance(v, IFDRational)) else v
                 for k, v in dict(img.getexif()).items()
                 }
 
@@ -130,7 +130,6 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
 
 
 def image_based_metadata(img):
-
     return {"ImagePixelWidth": img.width,
             "ImagePixelHeight": img.height,
             "Colorspace": img.mode,

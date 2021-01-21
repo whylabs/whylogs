@@ -1,8 +1,18 @@
+import logging
 import numpy as np
-from typing import Union, Callable, List
-from PIL.Image import Image as ImageType
-from PIL import Image
-from PIL import ImageFilter
+
+from typing import Union, List
+
+logger = logging.getLogger(__name__)
+
+try:
+    from PIL import Image
+    from PIL import ImageFilter
+    from PIL.Image import Image as ImageType
+except ImportError as e:
+    ImageType = None
+    logger.debug(str(e))
+    logger.debug("Unable to load PIL; install pillow for image support")
 
 
 class ComposeTransforms:
@@ -29,12 +39,11 @@ class ComposeTransforms:
 
 
 class Brightness:
-
     """
      Outputs the Brightness of each pixel in the image
     """
 
-    def __call__(self, img: Union[ImageType, np.ndarray])->np.ndarray:
+    def __call__(self, img: Union[ImageType, np.ndarray]) -> np.ndarray:
         """
         Args:
             img (Union[Image, np.ndarray]): Either a PIL image or numpy array with int8 values
@@ -55,12 +64,11 @@ class Brightness:
 
 
 class Saturation:
-
     """Summary
     Outputs the saturation of each pixel in the image
     """
 
-    def __call__(self, img: Union[ImageType, np.ndarray])->np.ndarray:
+    def __call__(self, img: Union[ImageType, np.ndarray]) -> np.ndarray:
         """
         Args:
             img (Union[Image, np.ndarray]): Either a PIL image or numpy array with int8 values
@@ -79,7 +87,7 @@ class Saturation:
 
 class Hue:
 
-    def __call__(self, img: Union[ImageType, np.ndarray])->np.ndarray:
+    def __call__(self, img: Union[ImageType, np.ndarray]) -> np.ndarray:
         """
         Args:
             img (Union[Image, np.ndarray]): Either a PIL image or numpy array with int8 values
@@ -96,13 +104,12 @@ class Hue:
 
 
 class SimpleBlur:
-
     """Simple Blur Ammount computation based on variance of laplacian
-    Overall metric of how blurry is the image. No overall scale.  
+    Overall metric of how blurry is the image. No overall scale.
 
     """
 
-    def __call__(self, img: Union[ImageType, np.ndarray])->float:
+    def __call__(self, img: Union[ImageType, np.ndarray]) -> float:
         """
         Args:
             img (Union[Image, np.ndarray]): Either a PIL image or numpy array with int8 values

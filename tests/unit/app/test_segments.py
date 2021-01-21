@@ -1,15 +1,14 @@
+import datetime
+import json
 import os
 import shutil
+
 import pytest
 from freezegun import freeze_time
 from pandas import util
-import datetime
-import json
-import hashlib
 
-from whylogs.app.config import load_config
-from whylogs.app.session import session_from_config, get_or_create_session
 from whylogs.app.config import SessionConfig, WriterConfig
+from whylogs.app.session import session_from_config
 
 
 def test_segments(df_lending_club, tmpdir):
@@ -23,7 +22,7 @@ def test_segments(df_lending_club, tmpdir):
         "project", "pipeline", writers=[writer_config])
     session = session_from_config(session_config)
     with session.logger("test", segments=[[{"key": "home_ownership", "value": "RENT"}], [
-                                          {"key": "home_ownership", "value": "MORTGAGE"}]], cache=1) as logger:
+                                          {"key": "home_ownership", "value": "MORTGAGE"}]], cache_size=1) as logger:
         logger.log_dataframe(df_lending_club)
         profile = logger.profile
         assert profile is None
@@ -51,7 +50,7 @@ def test_segments_keys(df_lending_club, tmpdir):
         "project", "pipeline", writers=[writer_config])
     session = session_from_config(session_config)
     with session.logger("test", segments=["emp_title", "home_ownership"],
-                        cache=1) as logger:
+                        cache_size=1) as logger:
         logger.log_dataframe(df_lending_club)
         profiles = logger.segmented_profiles
         assert len(profiles) == 47
@@ -69,7 +68,7 @@ def test_segments_single_key(df_lending_club, tmpdir):
         "project", "pipeline", writers=[writer_config])
     session = session_from_config(session_config)
     with session.logger("test", segments=["home_ownership"],
-                        cache=1) as logger:
+                        cache_size=1) as logger:
         logger.log_dataframe(df_lending_club)
         profiles = logger.segmented_profiles
         assert len(profiles) == 4
@@ -92,7 +91,7 @@ def test_segments_with_rotation(df_lending_club, tmpdir):
         "project", "pipeline", writers=[writer_config])
     with freeze_time("2012-01-14 03:21:34", tz_offset=-4) as frozen_time:
         session = session_from_config(session_config)
-        with session.logger("test", with_rotation_time='s', segments=["home_ownership"], profile_full_dataset=True, cache=1) as logger:
+        with session.logger("test", with_rotation_time='s', segments=["home_ownership"], profile_full_dataset=True, cache_size=1) as logger:
             logger.log_dataframe(df_lending_club)
             frozen_time.tick(delta=datetime.timedelta(seconds=1))
             logger.log_dataframe(df_lending_club)

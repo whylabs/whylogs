@@ -1,10 +1,4 @@
 import pandas as pd
-import time
-from PIL import Image
-from PIL.ExifTags import TAGS
-from whylogs.core.datasetprofile import dataframe_profile
-
-from whylogs.io.local_dataset import LocalDataset
 from whylogs import get_or_create_session
 
 
@@ -13,7 +7,7 @@ if __name__ == "__main__":
     session = get_or_create_session()
 
     with session.logger(
-        "dataset_1", cache=1
+        "dataset_1", cache_size=1
     ) as logger:
 
         profile = logger.profile

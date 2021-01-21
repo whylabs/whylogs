@@ -2,24 +2,22 @@
 Class and functions for whylogs logging
 """
 import datetime
-from typing import List, Optional, Dict, Union, Callable
-
-import pandas as pd
-from pandas._typing import FilePathOrBuffer
-
-from whylogs.app.writers import Writer
-from whylogs.core import DatasetProfile, TrackImage, _METADATA_DEFAULT_ATTRIBUTES
-
 import hashlib
 import json
+from pathlib import Path
+from typing import List, Optional, Dict, Union, Callable, AnyStr
 
-import numpy as np
+import pandas as pd
+from typing.io import IO
+
+from whylogs.app.writers import Writer
+from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES
+
 TIME_ROTATION_VALUES = ["s", "m", "h", "d"]
-
 
 # TODO upgrade to Classes
 SegmentTag = Dict[str, any]
-SegmentTags = List[SegmentTag]
+Segment = List[SegmentTag]
 
 
 class Logger:
@@ -40,10 +38,9 @@ class Logger:
             "d" for days
     :param interval. Additinal time rotation multipler.
     :param verbose: enable debug logging or not
-
-    :param cache: set how many dataprofiles to cache
+    :param cache_size: set how many dataprofiles to cache
     :param segments: define either a list of egment keys or a list of segments tags: [  {"key":<featurename>,"value": <featurevalue>},... ]
-    :param profile_full_data: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
+    :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
     """
 
     def __init__(self,
@@ -57,8 +54,8 @@ class Logger:
                  verbose: bool = False,
                  with_rotation_time: Optional[str] = None,
                  interval: int = 1,
-                 cache: int = 1,
-                 segments: Optional[Union[List[SegmentTags], List[str]]] = None,
+                 cache_size: int = 1,
+                 segments: Optional[Union[List[Segment], List[str]]] = None,
                  profile_full_dataset: bool = False,
                  ):
         """
@@ -73,7 +70,7 @@ class Logger:
         self.dataset_name = dataset_name
         self.writers = writers
         self.verbose = verbose
-        self.cache = cache
+        self.cache_size = cache_size
         self.tags = tags
         self.session_id = session_id
         self.metadata = metadata
@@ -86,7 +83,7 @@ class Logger:
         # intialize to seconds in the day
         self.interval = interval
         self.with_rotation_time = with_rotation_time
-        self.set_rotation(with_rotation_time)
+        self._set_rotation(with_rotation_time)
 
     def __enter__(self):
         return self
@@ -95,7 +92,7 @@ class Logger:
         self.close()
 
     @property
-    def profile(self,)->DatasetProfile:
+    def profile(self, ) -> DatasetProfile:
         """
         :return: the last backing dataset profile
         :rtype: DatasetProfile
@@ -103,21 +100,20 @@ class Logger:
         return self._profiles[-1]["full_profile"]
 
     @property
-    def segmented_profiles(self,)->Dict[str, DatasetProfile]:
+    def segmented_profiles(self, ) -> Dict[str, DatasetProfile]:
         """
         :return: the last backing dataset profile
         :rtype: Dict[str, DatasetProfile]
         """
         return self._profiles[-1]["segmented_profiles"]
 
-    def get_segment(self, segment_tags: SegmentTags)->Optional[DatasetProfile]:
-
-        hashed_seg = hash_segment(segment_tags)
+    def get_segment(self, segment: Segment) -> Optional[DatasetProfile]:
+        hashed_seg = hash_segment(segment)
         segment_profile = self._profiles[-1]["segmented_profiles"].get(
             hashed_seg, None)
         return segment_profile
 
-    def set_segments(self, segments: Union[List[SegmentTags], List[str]]) -> None:
+    def set_segments(self, segments: Union[List[Segment], List[str]]) -> None:
         if segments:
             if all(isinstance(elem, str) for elem in segments):
                 self.segment_type = "keys"
@@ -130,7 +126,8 @@ class Logger:
             self.segment_type = None
 
     def _intialize_profiles(self,
-                            dataset_timestamp: Optional[datetime.datetime] = datetime.datetime.now(datetime.timezone.utc)) -> None:
+                            dataset_timestamp: Optional[datetime.datetime] = datetime.datetime.now(
+                                datetime.timezone.utc)) -> None:
 
         full_profile = None
         if self.full_profile_check():
@@ -145,8 +142,7 @@ class Logger:
         self._profiles.append(
             {"full_profile": full_profile, "segmented_profiles": {}})
 
-    def set_rotation(self, with_rotation_time: str = None):
-
+    def _set_rotation(self, with_rotation_time: str = None):
         if with_rotation_time is not None:
             self.with_rotation_time = with_rotation_time.lower()
 
@@ -178,7 +174,7 @@ class Logger:
         result = time + self.interval
         return result
 
-    def should_rotate(self,):
+    def should_rotate(self, ):
 
         if self.with_rotation_time is None:
             return False
@@ -195,10 +191,10 @@ class Logger:
         current_time = int(datetime.datetime.utcnow().timestamp())
         # get the time that this current logging rotation started
         sequence_start = self.rotate_at - self.interval
-        timeTuple = datetime.datetime.fromtimestamp(sequence_start)
-        rotation_suffix = "." + timeTuple.strftime(self.suffix)
+        time_tuple = datetime.datetime.fromtimestamp(sequence_start)
+        rotation_suffix = "." + time_tuple.strftime(self.suffix)
         log_datetime = datetime.datetime.strptime(
-            timeTuple.strftime(self.suffix), self.suffix)
+            time_tuple.strftime(self.suffix), self.suffix)
 
         # modify the segment datetime stamps
         if (self.segments is None) or ((self.segments is not None) and self.profile_full_dataset):
@@ -209,8 +205,8 @@ class Logger:
 
         self.flush(rotation_suffix)
 
-        if len(self._profiles) > self.cache:
-            self._profiles[-self.cache-1] = None
+        if len(self._profiles) > self.cache_size:
+            self._profiles[-self.cache_size - 1] = None
 
         self._intialize_profiles()
 
@@ -243,18 +239,18 @@ class Logger:
 
                 for hashseg, each_seg_prof in self._profiles[-1]["segmented_profiles"].items():
                     seg_suffix = hashseg
-                    full_suffix = "_"+seg_suffix
+                    full_suffix = "_" + seg_suffix
                     if rotation_suffix is None:
                         writer.write(each_seg_prof, full_suffix)
                     else:
                         full_suffix += rotation_suffix
                         writer.write(each_seg_prof, full_suffix)
 
-    def full_profile_check(self,)->bool:
+    def full_profile_check(self, ) -> bool:
         """
         returns a bool to determine if unsegmented dataset should be profiled.
         """
-        return ((self.segments is None) or ((self.segments is not None) and self.profile_full_dataset))
+        return (self.segments is None) or ((self.segments is not None) and self.profile_full_dataset)
 
     def close(self) -> Optional[DatasetProfile]:
         """
@@ -277,10 +273,10 @@ class Logger:
         return profile
 
     def log(
-        self,
-        features: Optional[Dict[str, any]] = None,
-        feature_name: str = None,
-        value: any = None
+            self,
+            features: Optional[Dict[str, any]] = None,
+            feature_name: str = None,
+            value: any = None
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
@@ -289,9 +285,6 @@ class Logger:
         :param feature_name: a dictionary of key->value for multiple features. Each entry represent a single columnar feature
         :param feature_name: name of a single feature. Cannot be specified if 'features' is specified
         :param value: value of as single feature. Cannot be specified if 'features' is specified
-        :param segment: define either a list of egment keys or a list of segments tags:
-        `[{"key":<featurename>,"value": <featurevalue>},... ]`
-        :param profile_full_data: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
 
         """
         if not self._active:
@@ -318,13 +311,10 @@ class Logger:
                 self.log_segment_datum(feature_name, value)
 
     def log_segment_datum(self, feature_name, value):
-        segment_tags = []
-        segment_tags.append(
-            {"key": feature_name, "value": value})
-        segment_profile = self.get_segment(segment_tags)
-        if (segment_type == "keys"):
-            if (feature_name in self.segments):
-
+        segment = [{"key": feature_name, "value": value}]
+        segment_profile = self.get_segment(segment)
+        if self.segment_type == "keys":
+            if feature_name in self.segments:
                 if segment_profile is None:
                     return
                 else:
@@ -332,14 +322,25 @@ class Logger:
             else:
                 for each_profile in self._profiles[-1]["segmented_profiles"]:
                     each_profile.track_datum(feature_name, value)
-        elif (segment_type == "set"):
-            if segment_tags not in self.segments:
+        elif self.segment_type == "set":
+            if segment not in self.segments:
                 return
             else:
                 segment_profile.track_datum(feature_name, value)
 
-    def log_image(self, image, feature_transforms: Optional[List[Callable]] = None, metadata_attributes: Optional[List[str]] = _METADATA_DEFAULT_ATTRIBUTES, feature_name: str = ""):
+    def log_image(self,
+                  image,
+                  feature_transforms: Optional[List[Callable]] = None,
+                  metadata_attributes: Optional[List[str]] = METADATA_DEFAULT_ATTRIBUTES,
+                  feature_name: str = ""):
+        """
+        API to track an image, either in PIL format or as an input path
 
+        :param feature_name: name of the feature
+        :param metadata_attributes: metadata attributes to extract for the images
+        :param feature_transforms: a list of callables to transform the input into metrics
+        :type image: Union[str, PIL.image]
+        """
         if not self._active:
             return
         if self.should_rotate():
@@ -355,17 +356,18 @@ class Logger:
         track_image(self._profiles[-1]["full_profile"])
 
     def log_csv(self,
-                filepath_or_buffer: FilePathOrBuffer,
-                segments: Optional[Union[List[SegmentTags], List[str]]] = None,
-                profile_full_dataset: bool = False, **kwargs,):
+                filepath_or_buffer: Union[str, Path, IO[AnyStr]],
+                segments: Optional[Union[List[Segment], List[str]]] = None,
+                profile_full_dataset: bool = False, **kwargs, ):
         """
         Log a CSV file. This supports the same parameters as :func`pandas.red_csv<pandas.read_csv>` function.
 
         :param filepath_or_buffer: the path to the CSV or a CSV buffer
         :type filepath_or_buffer: FilePathOrBuffer
         :param kwargs: from pandas:read_csv
-        :param segment: define either a list of egment keys or a list of segments tags: `[  {"key":<featurename>,"value": <featurevalue>},... ]`
-        :param profile_full_data: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
+        :param segments: define either a list of segment keys or a list of segments tags: `[  {"key":<featurename>,"value": <featurevalue>},... ]`
+        :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the
+        dataset.
         """
         if not self._active:
             return
@@ -373,17 +375,21 @@ class Logger:
             self._rotate_time()
 
         self.profile_full_dataset = profile_full_dataset
-        if (segments is not None):
+        if segments is not None:
             self.set_segments(segments)
 
         df = pd.read_csv(filepath_or_buffer, **kwargs)
         self.log_dataframe(df)
 
     def log_dataframe(self, df,
-                      segments: Optional[Union[List[SegmentTags], List[str]]] = None,
-                      profile_full_dataset: bool = False,):
+                      segments: Optional[Union[List[Segment], List[str]]] = None,
+                      profile_full_dataset: bool = False,
+                      ):
         """
         Generate and log a whylogs DatasetProfile from a pandas dataframe
+        :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the
+         dataset.
+        :param segments: specify the tag key value pairs for segments
         :param df: the Pandas dataframe to log
         """
         if not self._active:
@@ -391,9 +397,9 @@ class Logger:
         if self.should_rotate():
             self._rotate_time()
 
-        # segmnet check  in case segments are just keys
+        # segment check  in case segments are just keys
         self.profile_full_dataset = profile_full_dataset
-        if (segments is not None):
+        if segments is not None:
             self.set_segments(segments)
 
         if self.full_profile_check():
@@ -431,10 +437,8 @@ class Logger:
                 continue
 
     def log_fixed_segments(self, data):
-
         # we group each segment seperately since the segment tags are allowed
         # to overlap
-
         for segment_tag in self.segments:
             # create keys
             segment_keys = [feature["key"] for feature in segment_tag]
@@ -451,21 +455,21 @@ class Logger:
 
             self.log_df_segment(segment_df, segment_tag)
 
-    def log_df_segment(self, df, segment_tags: SegmentTags):
-        segment_tags = sorted(segment_tags, key=lambda x: x["key"])
+    def log_df_segment(self, df, segment: Segment):
+        segment = sorted(segment, key=lambda x: x["key"])
 
-        segment_profile = self.get_segment(segment_tags)
+        segment_profile = self.get_segment(segment)
         if segment_profile is None:
             segment_profile = DatasetProfile(
                 self.dataset_name,
                 dataset_timestamp=datetime.datetime.now(datetime.timezone.utc),
                 session_timestamp=self.session_timestamp,
-                tags={**self.tags, **{"segment": json.dumps(segment_tags)}},
+                tags={**self.tags, **{"segment": json.dumps(segment)}},
                 metadata=self.metadata,
                 session_id=self.session_id
             )
             segment_profile.track_dataframe(df)
-            hashed_seg = hash_segment(segment_tags)
+            hashed_seg = hash_segment(segment)
             self._profiles[-1]["segmented_profiles"][hashed_seg] = segment_profile
         else:
             segment_profile.track_dataframe(df)
@@ -477,5 +481,5 @@ class Logger:
         return self._active
 
 
-def hash_segment(seg: List[Dict])-> str:
+def hash_segment(seg: List[Dict]) -> str:
     return hashlib.sha256(json.dumps(seg).encode('utf-8')).hexdigest()

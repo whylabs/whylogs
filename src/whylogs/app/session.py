@@ -31,7 +31,7 @@ class Session:
     """
 
     def __init__(
-        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False, with_rotation_time: str = None, cache: int = None
+        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False, with_rotation_time: str = None, cache_size: int = None
     ):
         if writers is None:
             writers = []
@@ -47,7 +47,7 @@ class Session:
             project, pipeline, writers, verbose
         )
         self.with_rotation_time = with_rotation_time
-        self.cache = cache
+        self.cache_size = cache_size
 
     def __enter__(self):
         # TODO: configure other aspects
@@ -70,12 +70,12 @@ class Session:
         dataset_name: Optional[str] = None,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
-        tags: Dict[str, str] = {},
+        tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         segments: Optional[Union[List[Dict], List[str]]] = None,
         profile_full_dataset: bool = False,
         with_rotation_time: str = None,
-        cache: int = 1,
+        cache_size: int = 1,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -99,11 +99,18 @@ class Session:
         session_timestamp: datetime.datetime, optional
             Override the timestamp associated with the session. Normally you
             shouldn't need to override this value
+        segments:
+            Can be either:
+            - List of tag key value pairs for tracking datasetments
+            - List of tag keys for whylogs to split up the data in the backend
         Returns
         -------
         ylog : whylogs.app.logger.Logger
             whylogs logger
         """
+        if tags is None:
+            tags = {}
+
         if not self._active:
             raise RuntimeError(
                 "Session is already closed. Cannot create more loggers")
@@ -137,7 +144,7 @@ class Session:
                 with_rotation_time=with_rotation_time,
                 segments=segments,
                 profile_full_dataset=profile_full_dataset,
-                cache=cache
+                cache_size=cache_size
             )
             self._loggers[dataset_name] = logger
 
@@ -163,6 +170,10 @@ class Session:
         :param session_timestamp: the timestamp for the session. Override the default one
         :param tags: the tags for the profile. Useful when merging
         :param metadata: information about this current profile. Can be discarded when merging
+        :param segments: can be either
+        - a list of tag key value pairs for marking the segment of the data
+        - a list of tag keys to group the data by
+        :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
         :return: a dataset profile if the session is active
         """
         if not self.is_active():
@@ -298,7 +309,7 @@ def session_from_config(config: SessionConfig) -> Session:
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache)
+    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache_size)
 
 
 #: A global session
