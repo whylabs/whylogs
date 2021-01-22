@@ -133,7 +133,7 @@ class WhyLogsRun(object):
                 _mlflow.log_artifact(output, artifact_path=f"whylogs/{dataset_dir}")
                 logger.debug("Successfully uploaded logger %s data to MLFlow", name)
                 self._loggers.pop(name)
-            except:
+            except:  # noqa
                 logger.warning(
                     "Exception happened when saving %s for run %s",
                     name,
@@ -302,7 +302,7 @@ def enable_mlflow() -> bool:
         del sys.modules["mlflow.pyfunc"]
         del sys.modules["mlflow.tracking.fluent"]
         del sys.modules["mlflow.models"]
-    except:
+    except:  # noqa
         pass
 
     _is_patched = True
@@ -328,7 +328,7 @@ def disable_mlflow():
         mlflow.pyfunc.add_to_model = _original_add_to_model
         mlflow.models.Model.log = _original_model_log
         del mlflow.whylogs
-    except:
+    except:  # noqa
         pass
 
     _mlflow = None

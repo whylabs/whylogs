@@ -1,7 +1,8 @@
+import copy
+
 from whylogs.proto import InferredType, SchemaMessage, SchemaSummary
 
 Type = InferredType.Type
-import copy
 
 
 class SchemaTracker:
@@ -76,8 +77,8 @@ class SchemaTracker:
         )
 
         if (
-            candidate.type == Type.STRING
-            and type_counts.get(Type.STRING, 0) > fractional_count
+                candidate.type == Type.STRING
+                and type_counts.get(Type.STRING, 0) > fractional_count
         ):
             # treat everything else as "String" except UNKNOWN
             coerced_count = sum(
