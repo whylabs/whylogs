@@ -7,6 +7,7 @@ from typing import Optional, Dict
 import pandas as pd
 
 from whylogs.app.logger import Logger
+from whylogs import __version__ as whylogs_version
 
 logger = logging.getLogger(__name__)
 
@@ -153,8 +154,7 @@ def _new_mlflow_conda_env(
 ):
     global _original_mlflow_conda_env
     pip_deps = additional_pip_deps or []
-    if "whylogs" not in pip_deps:
-        pip_deps.append("whylogs")
+    pip_deps.append(f"whylogs=={whylogs_version}")
     return _original_mlflow_conda_env(
         path, additional_conda_deps, pip_deps, additional_conda_channels, install_mlflow
     )
