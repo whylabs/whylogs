@@ -3,6 +3,7 @@ Defines the primary interface class for tracking dataset statistics.
 """
 import datetime
 import io
+import logging
 from typing import Dict
 from collections import OrderedDict
 from uuid import uuid4
@@ -27,11 +28,14 @@ from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch
 from whylogs.util.time import from_utc_ms, to_utc_ms
 
+logger = logging.getLogger(__name__)
 # Optional import for cudf
 try:
     # noinspection PyUnresolvedReferences
     from cudf.core.dataframe import DataFrame as cudfDataFrame
-except:
+except ImportError as e:
+    logger.debug(str(e))
+    logger.debug('Failed to import CudaDataFrame. Install cudf for CUDA support')
     cudfDataFrame = None
 
 

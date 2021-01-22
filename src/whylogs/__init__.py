@@ -13,4 +13,5 @@ __all__ = [
     "enable_mlflow",
     "get_or_create_session",
     "reset_default_session",
+    "__version__",
 ]

@@ -433,7 +433,7 @@ class Logger:
                     segment_tags.append(
                         {"key": self.segments[i], "value": each_segment[i]})
                 self.log_df_segment(segment_df, segment_tags)
-            except KeyError as e:
+            except KeyError:
                 continue
 
     def log_fixed_segments(self, data):

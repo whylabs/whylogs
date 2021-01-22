@@ -9,33 +9,37 @@ if __name__ == "__main__":
 
     # example with 4 seperate loggers
 
-    #logger with two specific segments
+    # logger with two specific segments
     with session.logger(
-        "segment", segments=[
-        [{"key": "home_ownership", "value": "RENT"}],[{"key": "home_ownership", "value": "MORTGAGE"}]], cache_size=1
+            "segment", segments=[
+                [{"key": "home_ownership", "value": "RENT"}], [{"key": "home_ownership", "value": "MORTGAGE"}]],
+            cache_size=1
     ) as logger:
         print(session.get_config())
         logger.log_dataframe(df)
         profile_seg = logger.segemented_profiles
 
     # logger with rotation with time and single key segment
-    with session.logger("rotated_segments", segments=["home_ownership"], with_rotation_time="s", cache_size=1) as logger:
+    with session.logger("rotated_segments", segments=["home_ownership"], with_rotation_time="s",
+                        cache_size=1) as logger:
         print(session.get_config())
         logger.log_dataframe(df)
         time.sleep(2)
         logger.log_dataframe(df)
         profile_seg = logger.segemented_profiles
 
-# logger with rotation with time and two keys segment
-    with session.logger("rotated_seg_two_keys", segments=["home_ownership", "sub_grade"], with_rotation_time="s", cache_size=1) as logger:
+    # logger with rotation with time and two keys segment
+    with session.logger("rotated_seg_two_keys", segments=["home_ownership", "sub_grade"], with_rotation_time="s",
+                        cache_size=1) as logger:
         print(session.get_config())
         logger.log_csv("data/lending_club_1000.csv")
         time.sleep(2)
         logger.log_dataframe(df)
         profile_seg = logger.segemented_profiles
 
-# logger 
-    with session.logger("rotated_seg_two_keys", segments=["home_ownership"], profile_full_dataset=True, with_rotation_time="s", cache_size=1) as logger:
+    # logger
+    with session.logger("rotated_seg_two_keys", segments=["home_ownership"], profile_full_dataset=True,
+                        with_rotation_time="s", cache_size=1) as logger:
         print(session.get_config())
         logger.log_csv("data/lending_club_1000.csv")
         time.sleep(2)
@@ -45,4 +49,3 @@ if __name__ == "__main__":
         # each segment profile has a tag associated with the segment
         for k, prof in profile_seg.items():
             print(prof.tags)
-            

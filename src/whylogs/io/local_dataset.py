@@ -2,7 +2,6 @@ import os
 from typing import Any, Callable, List, Optional, Tuple
 import abc
 
-
 EXTENSIONS = ('.csv', '.xls', '.jpg', '.jpeg', '.png', '.ppm', '.bmp',
               '.pgm', '.tif', '.tiff', '.webp')
 
@@ -14,14 +13,13 @@ def valid_file(fname):
 
 def file_loader(path: str) -> Any:
     from PIL import Image
-    check_extensions = os.path.splitext(path)[1]
 
     try:
         with open(path, 'rb') as f:
             img = Image.open(f)
             return img, img.format
     except Exception as e:
-        raise(e)
+        raise e
 
 
 class Dataset(abc.ABC):
@@ -29,17 +27,18 @@ class Dataset(abc.ABC):
     def __init__(self,
                  root_folder: str = "",
                  feature_transforms: Optional[List[Callable]] = None,
-                 )->None:
+                 ) -> None:
         self.root_folder = os.path.expanduser(root_folder)
         self.feature_transforms = feature_transforms
+
     @abc.abstractmethod
     def __getitem__(self, index: int) -> Any:
         raise NotImplementedError
 
-    def __len__(self)-> int:
+    def __len__(self) -> int:
         raise NotImplementedError
 
-    def __repr__(self)-> str:
+    def __repr__(self) -> str:
 
         head = "Dataset " + self.__class__.__name__
         body = ["Number of files: {}".format(self.__len__())]
@@ -55,12 +54,12 @@ class Dataset(abc.ABC):
 class LocalDataset(Dataset):
 
     def __init__(
-        self,
-        root_folder,
-        loader: Callable[[str], Any] = file_loader,
-        extensions: List[str] = EXTENSIONS,
-        feature_transforms: Optional[List[Callable]] = None,
-        is_valid_file: Optional[Callable[[str], bool]] = None,
+            self,
+            root_folder,
+            loader: Callable[[str], Any] = file_loader,
+            extensions: List[str] = EXTENSIONS,
+            feature_transforms: Optional[List[Callable]] = None,
+            is_valid_file: Optional[Callable[[str], bool]] = None,
     ) -> None:
         super().__init__(root_folder, feature_transforms=feature_transforms)
         self.folder_segmented_feature = []
@@ -68,14 +67,14 @@ class LocalDataset(Dataset):
         self._init_dataset()
         self.loader = loader
 
-    def _find_folder_feature(self, )-> None:
+    def _find_folder_feature(self, ) -> None:
         self.folder_segmented_feature = [
             d.name for d in os.scandir(self.root_folder) if d.is_dir()]
         self.folder_segmented_feature.sort()
         self.folder_feature_dict = {
             seg_value: i for i, seg_value in enumerate(self.folder_segmented_feature)}
 
-    def _init_dataset(self,) -> List[Tuple[str, int]]:
+    def _init_dataset(self, ) -> List[Tuple[str, int]]:
 
         self.samples = []
         # is_valid_file = cast(Callable[[str], bool], is_valid_file)
@@ -100,5 +99,5 @@ class LocalDataset(Dataset):
 
         return (sample, file_format), self.folder_segmented_feature[folder_feature_index],
 
-    def __len__(self)->int:
+    def __len__(self) -> int:
         return len(self.samples)

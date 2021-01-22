@@ -4,7 +4,7 @@ Classes/functions for configuring the whylogs app
 .. autodata:: ALL_SUPPORTED_FORMATS
 """
 from logging import getLogger
-from typing import List, Dict, Union, Optional
+from typing import List, Dict, Optional
 
 # import typing
 import yaml as yaml
@@ -16,7 +16,6 @@ WHYLOGS_YML = ".whylogs.yaml"
 
 ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
 """Supported output formats for whylogs writer configuration"""
-
 
 SegmentTag = Dict[str, any]
 SegmentTags = List[SegmentTag]
@@ -56,12 +55,12 @@ class WriterConfig:
     """
 
     def __init__(
-        self,
-        type: str,
-        formats: List[str],
-        output_path: str,
-        path_template: Optional[str] = None,
-        filename_template: Optional[str] = None,
+            self,
+            type: str,
+            formats: List[str],
+            output_path: str,
+            path_template: Optional[str] = None,
+            filename_template: Optional[str] = None,
     ):
         self.type = type
         self.formats = formats
@@ -127,17 +126,16 @@ class SessionConfig:
             "d" for days
 
     cache_size: int default =1, sets how many dataprofiles to cache in logger during rotation
-    segments: List 
     """
 
     def __init__(
-        self,
-        project: str,
-        pipeline: str,
-        writers: List[WriterConfig],
-        verbose: bool = False,
-        with_rotation_time: str = None,
-        cache_size: int = 1,
+            self,
+            project: str,
+            pipeline: str,
+            writers: List[WriterConfig],
+            verbose: bool = False,
+            with_rotation_time: str = None,
+            cache_size: int = 1,
     ):
         self.project = project
         self.pipeline = pipeline
@@ -241,10 +239,10 @@ def load_config(path_to_config: str = None):
     logger = getLogger(__name__)
     if path_to_config is None:
         cfg_candidates = {
-            "enviroment":  os.environ.get("WHYLOGS_CONFIG"),
-            "current_dir":    WHYLOGS_YML,
-            "home_dir":    os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
-            "opt":   os.path.join("/opt/whylogs/", WHYLOGS_YML),
+            "enviroment": os.environ.get("WHYLOGS_CONFIG"),
+            "current_dir": WHYLOGS_YML,
+            "home_dir": os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
+            "opt": os.path.join("/opt/whylogs/", WHYLOGS_YML),
         }
 
         for k, f_path in cfg_candidates.items():

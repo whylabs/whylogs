@@ -14,13 +14,14 @@ import pandas as pd
 from whylogs.app import SessionConfig, WriterConfig
 from whylogs.app.config import WHYLOGS_YML
 from whylogs.app.session import session_from_config
-from whylogs.cli.cli_text import *
+from .cli_text import INITIAL_PROFILING_CONFIRM, DATA_SOURCE_MESSAGE, GENERATE_NOTEBOOKS, OBSERVATORY_EXPLANATION, \
+    DONE, INTRO_MESSAGE, EMPTY_PATH_WARNING, OVERRIDE_CONFIRM, DOING_NOTHING_ABORTING, BEGIN_WORKFLOW, \
+    PROJECT_DESCRIPTION, PROJECT_NAME_PROMPT, PIPELINE_DESCRIPTION, RUN_PROFILING
 from whylogs.cli.utils import echo
+from whylogs import __version__ as whylogs_version
 
 _LENDING_CLUB_CSV = "lending_club_1000.csv"
 _EXAMPLE_REPO = "https://github.com/whylabs/whylogs-examples.git"
-
-from whylogs import __version__ as whylogs_version
 
 
 def _set_up_logger():
@@ -136,7 +137,7 @@ def init(project_dir):
             echo(f"\t{i + 1}. {choices[i]}")
         choice = click.prompt("", type=click.IntRange(min=1, max=len(choices)))
         assert choice == 1
-        full_input = profile_csv(session_config, project_dir)
+        profile_csv(session_config, project_dir)
         echo(
             f"You should find the whylogs output under: {os.path.join(project_dir, output_path, project_name)}",
             fg="green",

@@ -41,7 +41,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions pytest pytest-cov coverage  
     - name: Test with tox
-      run: make test-all
+      run: |
+        make test-all
     - name: Coveralls Parallel
       if: ${{matrix.os == 'ubuntu-latest'}}
       env:
