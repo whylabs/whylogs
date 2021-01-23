@@ -59,7 +59,7 @@ def test_data_path():
 
     imag_path = os.path.join(
         _MY_DIR, os.pardir, "testdata")
-    return test_data_path
+    return imag_path
 
 
 @pytest.fixture(scope="session")

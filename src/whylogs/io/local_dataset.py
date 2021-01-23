@@ -12,14 +12,21 @@ def valid_file(fname):
 
 
 def file_loader(path: str) -> Any:
-    from PIL import Image
+    if not valid_file(path):
+        return None, None
+
+    check_extension = os.path.splitext(path)[1]
 
     try:
+        from PIL import Image
         with open(path, 'rb') as f:
             img = Image.open(f)
             return img, img.format
     except Exception as e:
-        raise e
+        raise(e)
+    if check_extension == ".csv":
+        dataframe = pd.read_csv(path)
+        return dataframe, "csv"
 
 
 class Dataset(abc.ABC):
@@ -42,9 +49,8 @@ class Dataset(abc.ABC):
 
         head = "Dataset " + self.__class__.__name__
         body = ["Number of files: {}".format(self.__len__())]
-        if self.root is not None:
-            body.append("Folder location: {}".format(self.root))
-        body += self.extra_repr().splitlines()
+        if self.root_folder is not None:
+            body.append("Folder location: {}".format(self.root_folder))
         if hasattr(self, "transforms") and self.transforms is not None:
             body += [repr(self.transforms)]
         lines = [head] + [" " * self._repr_indent + line for line in body]
@@ -76,8 +82,7 @@ class LocalDataset(Dataset):
 
     def _init_dataset(self, ) -> List[Tuple[str, int]]:
 
-        self.samples = []
-        # is_valid_file = cast(Callable[[str], bool], is_valid_file)
+        self.items = []
         for folder_feature_value in sorted(self.folder_feature_dict.keys()):
             print(folder_feature_value)
             folder_index = self.folder_feature_dict[folder_feature_value]
@@ -90,14 +95,14 @@ class LocalDataset(Dataset):
                     file_path = os.path.join(root, fname)
                     if valid_file(file_path):
                         item = file_path, folder_index
-                        self.samples.append(item)
+                        self.items.append(item)
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
 
-        path, folder_feature_index = self.samples[index]
-        sample, file_format = self.loader(path)
+        path, folder_feature_index = self.items[index]
+        output = self.loader(path)
+        # sample = file_info[0]
+        # file_format = file_info[1]
+        return output, self.folder_segmented_feature[folder_feature_index],
 
-        return (sample, file_format), self.folder_segmented_feature[folder_feature_index],
 
-    def __len__(self) -> int:
-        return len(self.samples)
