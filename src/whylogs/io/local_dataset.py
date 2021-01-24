@@ -1,32 +1,7 @@
 import os
 from typing import Any, Callable, List, Optional, Tuple
 import abc
-
-EXTENSIONS = ('.csv', '.xls', '.jpg', '.jpeg', '.png', '.ppm', '.bmp',
-              '.pgm', '.tif', '.tiff', '.webp')
-
-
-def valid_file(fname):
-    extension = os.path.splitext(fname)[1]
-    return extension in EXTENSIONS
-
-
-def file_loader(path: str) -> Any:
-    if not valid_file(path):
-        return None, None
-
-    check_extension = os.path.splitext(path)[1]
-
-    try:
-        from PIL import Image
-        with open(path, 'rb') as f:
-            img = Image.open(f)
-            return img, img.format
-    except Exception as e:
-        raise(e)
-    if check_extension == ".csv":
-        dataframe = pd.read_csv(path)
-        return dataframe, "csv"
+from .file_loader import file_loader, EXTENSIONS, valid_file
 
 
 class Dataset(abc.ABC):
@@ -65,7 +40,7 @@ class LocalDataset(Dataset):
             loader: Callable[[str], Any] = file_loader,
             extensions: List[str] = EXTENSIONS,
             feature_transforms: Optional[List[Callable]] = None,
-            is_valid_file: Optional[Callable[[str], bool]] = None,
+            valid_file: Optional[Callable[[str], bool]] = valid_file,
     ) -> None:
         super().__init__(root_folder, feature_transforms=feature_transforms)
         self.folder_segmented_feature = []
@@ -105,4 +80,5 @@ class LocalDataset(Dataset):
         # file_format = file_info[1]
         return output, self.folder_segmented_feature[folder_feature_index],
 
-
+    def __len__(self,):
+        return len(self.items)

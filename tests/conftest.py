@@ -71,3 +71,14 @@ def image_files():
     image_files = [os.path.join(image_dir, f) for f in listdir(
         image_dir) if isfile(join(image_dir, f))]
     return sorted(image_files)
+
+
+@pytest.fixture(scope="session")
+def file_list():
+    from os import listdir
+    from os.path import isfile, join
+    image_dir = os.path.join(
+        _MY_DIR, os.pardir, "testdata", "files")
+    image_files = [os.path.join(image_dir, f) for f in listdir(
+        image_dir) if isfile(join(image_dir, f))]
+    return sorted(image_files)

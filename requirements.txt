@@ -15,4 +15,6 @@ s3transfer==0.3.3
 six==1.15.0
 urllib3==1.26.2
 whylabs-datasketches==2.0.0b7
+xlrd==2.0.1
+puremagic == 1.10
 smart-open==4.1.2

@@ -1,16 +1,7 @@
 import unittest
 from PIL.Image import Image as ImageType
-from whylogs.io.local_dataset import LocalDataset, file_loader
+from whylogs.io.local_dataset import LocalDataset
 import os
-
-
-def test_file_loader(test_data_path):
-
-    img, imgfmt = file_loader(os.path.join(
-        test_data_path, "images", "flower2.jpg"))
-    assert isinstance(img, ImageType)
-    assert isinstance(imgfmt, str)
-    assert imgfmt == "JPEG"
 
 
 def test_imagefolder(test_data_path):
@@ -20,10 +11,10 @@ def test_imagefolder(test_data_path):
     folder_segmented_features = sorted(['A_target', 'B_target'])
 
     segment_A_target_files = [
-        os.path.join(folder_dataset, 'A_target', file) for file in ('flower2.jpg', 'grace_hopper_517x606.jpg',)
+        os.path.join(folder_dataset, 'A_target', file) for file in ('flower2.jpg', 'grace_hopper_517x606.jpg', "yolo_bounding_box.jsonl")
     ]
     segment_B_target_files = [
-        os.path.join(folder_dataset, 'B_target', file) for file in ('16bit.cropped.tif', 'lending_club_1000.csv')
+        os.path.join(folder_dataset, 'B_target', file) for file in ('16bit.cropped.tif', 'lending_club-accepted-10.csv')
     ]
     dataset = LocalDataset(
         folder_dataset, loader=lambda x: x)
@@ -58,6 +49,7 @@ def test_imagefolder(test_data_path):
 def test_empty_imagefolder(tmpdir):
     dataset = LocalDataset(
         tmpdir, loader=lambda x: x)
+    assert len(dataset) == 0
 
 
 def test_imagefolder(test_data_path):
@@ -67,7 +59,7 @@ def test_imagefolder(test_data_path):
     folder_segmented_features = sorted(['A_target', 'B_target'])
 
     segment_A_target_files = [
-        os.path.join(folder_dataset, 'A_target', file) for file in ('flower2.jpg', 'grace_hopper_517x606.jpg',)
+        os.path.join(folder_dataset, 'A_target', file) for file in ('flower2.jpg', 'grace_hopper_517x606.jpg', "yolo_bounding_box.jsonl")
     ]
     segment_B_target_files = [
         os.path.join(folder_dataset, 'B_target', file) for file in ('16bit.cropped.tif', 'lending_club_1000.csv')
