@@ -1,6 +1,5 @@
 
 
-import json
 from typing import Callable, Optional, Dict, List
 
 import pandas as pd
@@ -10,6 +9,22 @@ from whylogs.io.file_loader import file_loader
 
 
 class Rectangle:
+
+    """
+    Helper class to compute minimal bouding box intersections and/or iou
+    minimal stats properties of boudning box
+
+    Attributes:
+        area (float): Description
+        aspect_ratio (TYPE): Description
+        boundingBox (TYPE): Description
+        centroid (TYPE): Description
+        confidence (TYPE): Description
+        height (TYPE): Description
+        labels (TYPE): Description
+        width (TYPE): Description
+    """
+
     # replace with shapley functions and methods
     # or move to cpp/cpython
     def __init__(self, boundingBox, confidence=None, labels=None):
