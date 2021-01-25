@@ -359,14 +359,14 @@ class Logger:
 
         track_image(self._profiles[-1]["full_profile"])
 
-    def log_dataset(self, root_dir):
-        dst = LocalDataset(root_dir, file_loader=lambda x: x)
-        for idx in range(len(dst)):
-            data, fmt = dst[idx]
-            if ftm == "csv":
-                log_dataframe(data)
-            elif ftm == "image":
-                log_image(data)
+    # def log_dataset(self, root_dir):
+    #     dst = LocalDataset(root_dir, file_loader=lambda x: x)
+    #     for idx in range(len(dst)):
+    #         data, fmt = dst[idx]
+    #         if ftm == "csv":
+    #             log_dataframe(data)
+    #         elif ftm == "image":
+    #             log_image(data)
 
     def log_csv(self,
                 filepath_or_buffer: Union[str, Path, IO[AnyStr]],
