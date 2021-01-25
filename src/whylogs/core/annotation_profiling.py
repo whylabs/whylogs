@@ -1,15 +1,17 @@
 
 
-import numpy
 import json
+from typing import Callable, Optional, Dict, List
+
+import pandas as pd
+import numpy as np
 
 from whylogs.io.file_loader import file_loader
-import numpy as np
-from typing import Callable, Optional, Dict, List
 
 
 class Rectangle:
-
+    # replace with shapley functions and methods
+    # or move to cpp/cpython
     def __init__(self, boundingBox, confidence=None, labels=None):
         self.boundingBox = boundingBox
         self._x1 = boundingBox[0][0]
@@ -99,7 +101,6 @@ class TrackBB:
             annotation_metrics["annotation_density"] = annotation_metrics["annotation_count"]/img_rect.area
 
             # Get individual bbox metrics
-            bboxes_metrics = []
             annotation_metrics["area_coverage"] = 0
             annotation_metrics["avg_confidence"] = 0
 
@@ -134,13 +135,10 @@ class TrackBB:
             # Send object to metrics
             self.per_image_stas.append(annotation_metrics)
 
-    def __call__(self, profile):
+    def __call__(self, profiles):
 
         if not isinstance(profiles, list):
             profiles = [profiles]
-
-        if self.metadata_attributes is not None:
-            metadata = get_pil_image_metadata(self.img)
 
         per_image_dataframe = pd.Dataframe(self.per_image_stats)
         bounding_boxes = pd.Dataframe(self.all_bboxes)

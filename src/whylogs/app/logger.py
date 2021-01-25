@@ -99,6 +99,15 @@ class Logger:
         """
         return self._profiles[-1]["full_profile"]
 
+    def tracking_checks(self):
+
+        if not self._active:
+            return False
+
+        if self.should_rotate():
+            self._rotate_time()
+        return True
+
     @property
     def segmented_profiles(self, ) -> Dict[str, DatasetProfile]:
         """
@@ -287,11 +296,8 @@ class Logger:
         :param value: value of as single feature. Cannot be specified if 'features' is specified
 
         """
-        if not self._active:
+        if not self.tracking_checks():
             return None
-
-        if self.should_rotate():
-            self._rotate_time()
 
         if features is None and feature_name is None:
             return
@@ -341,10 +347,8 @@ class Logger:
         :param feature_transforms: a list of callables to transform the input into metrics
         :type image: Union[str, PIL.image]
         """
-        if not self._active:
-            return
-        if self.should_rotate():
-            self._rotate_time()
+        if not self.tracking_checks():
+            return None
 
         if isinstance(image, str):
             track_image = TrackImage(image, feature_transforms=feature_transforms,
@@ -354,6 +358,15 @@ class Logger:
                                      metadata_attributes=metadata_attributes, feature_name=feature_name)
 
         track_image(self._profiles[-1]["full_profile"])
+
+    def log_dataset(self, root_dir):
+        dst = LocalDataset(root_dir, file_loader=lambda x: x)
+        for idx in range(len(dst)):
+            data, fmt = dst[idx]
+            if ftm == "csv":
+                log_dataframe(data)
+            elif ftm == "image":
+                log_image(data)
 
     def log_csv(self,
                 filepath_or_buffer: Union[str, Path, IO[AnyStr]],
@@ -369,10 +382,6 @@ class Logger:
         :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the
         dataset.
         """
-        if not self._active:
-            return
-        if self.should_rotate():
-            self._rotate_time()
 
         self.profile_full_dataset = profile_full_dataset
         if segments is not None:
@@ -392,10 +401,8 @@ class Logger:
         :param segments: specify the tag key value pairs for segments
         :param df: the Pandas dataframe to log
         """
-        if not self._active:
+        if not self.tracking_checks():
             return None
-        if self.should_rotate():
-            self._rotate_time()
 
         # segment check  in case segments are just keys
         self.profile_full_dataset = profile_full_dataset

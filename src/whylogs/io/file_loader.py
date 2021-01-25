@@ -24,7 +24,7 @@ def valid_file(fname: str):
         fname (str): file path
 
     Returns:
-        bool 
+        bool
     """
     extension = os.path.splitext(fname)[1]
     return extension in EXTENSIONS
@@ -107,7 +107,7 @@ def file_loader(path: str, valid_file: Callable[[str], bool] = valid_file) -> An
 
     Args:
         path (str): path to file
-        valid_file (Callable[[str], bool], optional): Optional valid file check, 
+        valid_file (Callable[[str], bool], optional): Optional valid file check,
 
     Returns:
         Any: Dataframe or Image data (PIL format), or Dict
@@ -127,7 +127,11 @@ def file_loader(path: str, valid_file: Callable[[str], bool] = valid_file) -> An
         return data, "csv"
     elif (ext in PD_EXCEL_FORMATS):
         # default to 1st sheet
-        data = pd.read_excel(path)
-        return data, "excel"
+        try:
+            data = pd.read_excel(path)
+            return data, "excel"
+        except Exception as e:
+            raise NotImplementedError(
+                "File not supported: {}".format(e))
     else:
         IOError("File format, {} not supported yet : {} ".format(ext, magic_data))

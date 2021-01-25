@@ -1,9 +1,11 @@
+import sys
+from typing import Dict, List
+
+import pytest
+import pandas as pd
+from PIL.Image import Image as ImageType
 
 from whylogs.io.file_loader import file_loader
-import os
-from PIL.Image import Image as ImageType
-import pandas as pd
-from typing import Dict, List
 
 
 def test_image_loader(image_files):
@@ -15,6 +17,7 @@ def test_image_loader(image_files):
         assert imgfmt == imgfmts[idx]
 
 
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="requires python3.7 or higher")
 def test_file_loader(file_list):
 
     filefmts = [(pd.DataFrame, "excel"),
