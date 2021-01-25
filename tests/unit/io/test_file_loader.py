@@ -3,7 +3,7 @@ from whylogs.io.file_loader import file_loader
 import os
 from PIL.Image import Image as ImageType
 import pandas as pd
-from typing import Dict
+from typing import Dict, List
 
 
 def test_image_loader(image_files):
@@ -18,16 +18,10 @@ def test_image_loader(image_files):
 def test_file_loader(file_list):
 
     filefmts = [(pd.DataFrame, "excel"),
-                (pd.DataFrame, "csv"), (Dict,  "jsonl")]
+                (pd.DataFrame, "csv"), (list,  "jsonl")]
 
     for idx, file_path in enumerate(file_list):
         data, filefmt = file_loader(file_path)
         assert isinstance(data, filefmts[idx][0])
         assert isinstance(filefmt, str)
         assert filefmt == filefmts[idx][1]
-# def test_files_
-
-
-# fsegment_A_target_files = [
-#     os.path.join(folder_dataset, 'A_target', file) for file in ('flower2.jpg', 'grace_hopper_517x606.jpg',)
-# ]

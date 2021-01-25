@@ -59,6 +59,12 @@ class Rectangle:
             (self.area+Rectangle_2.area - intersection_area)
 
 
+BB_ATTRIBUTES = ("annotation_count", "annotation_density",
+                 "area_coverage", "area_confidence", "bb_width", "bb_height", "bb_area",
+                 "bb_aspect_ratio",
+                 )
+
+
 class TrackBB:
 
     def __init__(self, filepath: str = None,
