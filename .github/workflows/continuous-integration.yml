@@ -2,7 +2,7 @@ name: whylogs CI
 
 on:
   push:
-    branches: [ mainline, release]
+    branches: [ mainline, release,WHY-1849_annotation_local_dset ]
   pull_request:
     branches: [ mainline, release]
 
@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       max-parallel: 6
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [ 3.8]
         os: [ubuntu-latest, macOS-latest]
 
     steps:

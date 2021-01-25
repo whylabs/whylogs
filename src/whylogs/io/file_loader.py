@@ -4,6 +4,7 @@ import os
 import puremagic
 from typing import Callable, Any, Dict
 import pandas as pd
+import json
 
 EXTENSIONS = ('.csv', '.jpg', '.jpeg', '.png', '.ppm', '.bmp', ".jsonl",
               ".json", '.pgm', '.tif', '.tiff', '.webp', ".xls", ".xlsx",

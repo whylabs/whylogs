@@ -1,0 +1,144 @@
+
+
+import numpy
+import json
+
+from whylogs.io.file_loader import file_loader
+import numpy as np
+from typing import Callable, Optional, Dict, List
+
+
+class Rectangle:
+
+    def __init__(self, boundingBox, confidence=None, labels=None):
+        self.boundingBox = boundingBox
+        self._x1 = boundingBox[0][0]
+        self._x2 = boundingBox[1][0]
+        self._y1 = boundingBox[0][1]
+        self._y2 = boundingBox[1][0]
+        self.confidence = confidence
+        self.labels = labels
+        self.area = abs(self.x2 - self.x1)*abs(self.y2-self.y1)
+        self.width = abs(self.x2 - self.x1)
+        self.height = abs(self.y2 - self.y1)
+        self.aspect_ratio = self.width / self.height if self.height > 0 else 0.0
+        self.centroid = [self.x1 + self.width/2, self.y1 + self.height/2]
+
+    @property
+    def x1(self):
+        return self._x1
+
+    @property
+    def x2(self):
+        return self._x2
+
+    @property
+    def y1(self):
+        return self._y1
+
+    @property
+    def y2(self):
+        return self._y2
+
+    def intersection(self, Rectangle_2):
+        x_left = max(self.x1, Rectangle_2.x1)
+        y_top = max(self.y1, Rectangle_2.y1)
+        x_right = min(self.x2, Rectangle_2.x2)
+        y_bottom = min(self.y2, Rectangle_2.y2)
+        if x_right < x_left or y_bottom < y_top:
+            return 0.0
+        intersection_area = (x_right - x_left) * (y_bottom - y_top)
+
+        return intersection_area
+
+    def iou(self, Rectangle_2):
+        intersection_area = self.intersection(Rectangle_2)
+        if Rectangle_2.area <= 0 or self.area <= 0:
+            return 0.0
+        return intersection_area / \
+            (self.area+Rectangle_2.area - intersection_area)
+
+
+class TrackBB:
+
+    def __init__(self, filepath: str = None,
+                 obj: Dict = None,
+                 feature_transforms: Optional[List[Callable]] = None,
+                 feature_names: str = ""):
+
+        if filepath is None and obj is None:
+            raise ValueError("Need  filepath or object data")
+        if filepath is not None:
+            self.obj, self.fmt = file_loader(filepath)
+
+        else:
+            self.obj = obj
+        self.per_image_stas = []
+        self.all_bboxes = []
+        self.calculate_metrics()
+
+    def calculate_metrics(self,):
+
+        for obj in self.obj:
+
+            annotation_metrics = {}
+            annotations = obj.get("annotation", None)
+            if annotations is None:
+                continue
+            img_height_pixel = annotations["size"]["height"]
+            img_width_pixel = annotations["size"]["width"]
+            img_rect = Rectangle([[0, 0], [img_width_pixel, img_height_pixel]])
+            annotation_metrics["annotation_count"] = len(
+                annotations["object"])
+            annotation_metrics["annotation_density"] = annotation_metrics["annotation_count"]/img_rect.area
+
+            # Get individual bbox metrics
+            bboxes_metrics = []
+            annotation_metrics["area_coverage"] = 0
+            annotation_metrics["avg_confidence"] = 0
+
+            for bb_obj in filter(lambda x: "bndbox" in x,
+                                 annotations["object"]):
+                bounding_box_metric = {}
+
+                rect1 = Rectangle([[bb_obj["bndbox"]["xmin"], bb_obj["bndbox"]["ymin"]],
+                                   [bb_obj["bndbox"]["xmax"], bb_obj["bndbox"]["ymax"]]],
+                                  confidence=bb_obj["confidence"])
+
+                bounding_box_metric["confidence"] = rect1.confidence
+
+                bounding_box_metric["bb_width"] = rect1.width
+                bounding_box_metric["bb_height"] = rect1.height
+                bounding_box_metric["bb_area"] = rect1.area
+
+                bounding_box_metric["bb_aspect_ratio"] = rect1.aspect_ratio
+
+                bounding_box_metric["dist_to_center"] = np.linalg.norm([
+                    rect1.centroid[0] - (img_width_pixel / 2.0),
+                    rect1.centroid[1] - (img_height_pixel / 2.0)], ord=2)
+
+                annotation_metrics["area_coverage"] += rect1.intersection(
+                    img_rect) / (img_rect.area*annotation_metrics["annotation_count"])
+
+                annotation_metrics["avg_confidence"] += rect1.confidence / \
+                    annotation_metrics["annotation_count"]
+
+                self.all_bboxes.append(bounding_box_metric)
+
+            # Send object to metrics
+            self.per_image_stas.append(annotation_metrics)
+
+    def __call__(self, profile):
+
+        if not isinstance(profiles, list):
+            profiles = [profiles]
+
+        if self.metadata_attributes is not None:
+            metadata = get_pil_image_metadata(self.img)
+
+        per_image_dataframe = pd.Dataframe(self.per_image_stats)
+        bounding_boxes = pd.Dataframe(self.all_bboxes)
+        for each_profile in profiles:
+
+            each_profile.track_dataframe(per_image_dataframe)
+            each_profile.track_dataframe(bounding_boxes)
