@@ -4,9 +4,9 @@ Classes/functions for configuring the whylogs app
 .. autodata:: ALL_SUPPORTED_FORMATS
 """
 from logging import getLogger
-from typing import List
+from typing import List, Dict, Optional
 
-import typing
+# import typing
 import yaml as yaml
 from marshmallow import Schema, fields, post_load, validate
 
@@ -16,6 +16,9 @@ WHYLOGS_YML = ".whylogs.yaml"
 
 ALL_SUPPORTED_FORMATS = ["all"] + SUPPORTED_OUTPUT_FORMATS
 """Supported output formats for whylogs writer configuration"""
+
+SegmentTag = Dict[str, any]
+SegmentTags = List[SegmentTag]
 
 
 class WriterConfig:
@@ -52,12 +55,12 @@ class WriterConfig:
     """
 
     def __init__(
-        self,
-        type: str,
-        formats: List[str],
-        output_path: str,
-        path_template: typing.Optional[str] = None,
-        filename_template: typing.Optional[str] = None,
+            self,
+            type: str,
+            formats: List[str],
+            output_path: str,
+            path_template: Optional[str] = None,
+            filename_template: Optional[str] = None,
     ):
         self.type = type
         self.formats = formats
@@ -116,19 +119,30 @@ class SessionConfig:
         A list of `WriterConfig` objects defining writer outputs
     verbose : bool, default=False
         Output verbosity
+    with_rotation_time: str, default = None, to rotate profiles with time, takes values of overall rotation interval,
+            "s" for seconds
+            "m" for minutes
+            "h" for hours
+            "d" for days
+
+    cache_size: int default =1, sets how many dataprofiles to cache in logger during rotation
     """
 
     def __init__(
-        self,
-        project: str,
-        pipeline: str,
-        writers: List[WriterConfig],
-        verbose: bool = False,
+            self,
+            project: str,
+            pipeline: str,
+            writers: List[WriterConfig],
+            verbose: bool = False,
+            with_rotation_time: str = None,
+            cache_size: int = 1,
     ):
         self.project = project
         self.pipeline = pipeline
         self.verbose = verbose
         self.writers = writers
+        self.with_rotation_time = with_rotation_time
+        self.cache_size = cache_size
 
     def to_yaml(self, stream=None):
         """
@@ -187,6 +201,9 @@ class SessionConfigSchema(Schema):
 
     project = fields.Str(required=True)
     pipeline = fields.Str(required=True)
+    with_rotation_time = fields.Str(
+        required=False, validate=validate.OneOf(["s", "m", "h", "d"]))
+    cache = fields.Int(required=False)
     verbose = fields.Bool(missing=False)
     writers = fields.List(
         fields.Nested(WriterConfigSchema),
@@ -199,7 +216,7 @@ class SessionConfigSchema(Schema):
         return SessionConfig(**data)
 
 
-def load_config():
+def load_config(path_to_config: str = None):
     """
     Load logging configuration, from disk and from the environment.
 
@@ -220,21 +237,31 @@ def load_config():
     import os
 
     logger = getLogger(__name__)
-    cfg_candidates = [
-        os.environ.get("WHYLOGS_CONFIG"),
-        WHYLOGS_YML,
-        os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
-        os.path.join("/opt/whylogs/", WHYLOGS_YML),
-    ]
+    if path_to_config is None:
+        cfg_candidates = {
+            "enviroment": os.environ.get("WHYLOGS_CONFIG"),
+            "current_dir": WHYLOGS_YML,
+            "home_dir": os.path.join(os.path.expanduser("~"), WHYLOGS_YML),
+            "opt": os.path.join("/opt/whylogs/", WHYLOGS_YML),
+        }
 
-    for fpath in cfg_candidates:
-        logger.debug(f"Attempting to load config file: {fpath}")
-        if fpath is None or not os.path.isfile(fpath):
-            continue
+        for k, f_path in cfg_candidates.items():
+            logger.debug(f"Attempting to load config file: {f_path}")
+            if f_path is None or not os.path.isfile(f_path):
+                continue
 
+            try:
+                with open(f_path, "rt") as f:
+                    session_config = SessionConfig.from_yaml(f)
+                    return session_config
+            except IOError as e:
+                logger.warning("Failed to load YAML config", e)
+                pass
+    else:
         try:
-            with open(fpath, "rt") as f:
-                return SessionConfig.from_yaml(f)
+            with open(path_to_config, "rt") as f:
+                session_config = SessionConfig.from_yaml(f)
+                return session_config
         except IOError as e:
             logger.warning("Failed to load YAML config", e)
             pass

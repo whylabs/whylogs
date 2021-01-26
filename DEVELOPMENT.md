@@ -79,6 +79,7 @@ To run tests using the current Python environment:
 make test
 ```
 
+
 ### Coverage 
 
 Coverage can be checked with 
@@ -86,6 +87,30 @@ Coverage can be checked with
 ```
 make coverage
 ```
+
+### Testing CI locally
+
+you can run local github actions on the ubuntu using https://github.com/nektos/act. Currently you need to build a latest docker image for ubuntu using the following dockerfile
+
+```dockerfile
+FROM ubuntu:20.04
+ENV LC_CTYPE=en_US.UTF-8
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    git \
+    build-essential \
+    curl \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+```
+if you tag the above docker image as `ubuntu-builder`, then simply run at the root of the project
+
+```
+act -P ubuntu-latest=ubuntu-builder
+```
+It will run all the tests in ubuntu, currently act does not support matrix.os runs on mac-os or windows
 
 ## Release process
 

@@ -8,14 +8,14 @@ from google.protobuf.pyext._message import MessageMapContainer
 from whylogs.util import varint
 
 
-def message_to_json(x, **kwargs):
+def message_to_json(x: google.protobuf.message, **kwargs):
     """
     A wrapper for `google.protobuf.json_format.MessageToJson`
 
     Currently a very thin wrapper...x and kwargs are just passed to
     `MessageToJson`
     """
-    return MessageToJson(x, **kwargs)
+    return MessageToJson(x, including_default_value_fields=True, **kwargs)
 
 
 def message_to_dict(x: google.protobuf.message):
@@ -25,15 +25,6 @@ def message_to_dict(x: google.protobuf.message):
     A thin wrapper around the google built-in function.
     """
     return MessageToDict(x, including_default_value_fields=True)
-
-
-def message_to_json(x: google.protobuf.message):
-    """
-    Serialize a protobuf message as JSON
-
-    A thin wrapper around the google built-in function.
-    """
-    return MessageToJson(x, including_default_value_fields=True)
 
 
 def _varint_delim_reader(fp):

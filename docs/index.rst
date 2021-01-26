@@ -32,6 +32,6 @@ Indices and tables
 * :ref:`search`
 
 .. toctree::
-    :maxdepth: 5
+    :maxdepth: 2
 
-    autoapi/index
+    api/modules

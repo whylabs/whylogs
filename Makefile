@@ -49,10 +49,10 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
-	tox flake8
+	tox -e flake8
 
 test: build-proto ## run tests quickly with the default Python
-	python setup.py test
+	pytest
 
 test-all: build-proto ## run tests on every Python version with tox
 	tox
@@ -75,7 +75,8 @@ servedocs: docs ## compile the docs watching for changes
 release: dist ## package and upload a release
 	twine upload dist/*
 
-dist: clean ## builds source and wheel package
+dist: clean-build build-proto ## builds source and wheel package
+	python setup.py build
 	python setup.py sdist
 	python setup.py bdist_wheel
 	ls -l dist

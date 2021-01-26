@@ -6,7 +6,6 @@ TODO:
 """
 from logging import getLogger
 
-from whylogs.logs import write_flat_summaries
 from whylogs.util import protobuf
 
 CSV_READER_BATCH_SIZE = int(1e4)
@@ -62,7 +61,7 @@ def csv_reader(f, date_format: str = None, dropna=False, infer_dtypes=False, **k
 
     date_parser = None
     if date_format is not None:
-        date_parser = lambda x: pd.datetime.strptime(x, date_format)
+        date_parser = lambda x: pd.datetime.strptime(x, date_format)  # noqa pep8
     opts = {
         "chunksize": CSV_READER_BATCH_SIZE,
         "date_parser": date_parser,
@@ -79,16 +78,16 @@ def csv_reader(f, date_format: str = None, dropna=False, infer_dtypes=False, **k
 
 
 def run(
-    input_path,
-    datetime: str = None,
-    delivery_stream=None,
-    fmt=None,
-    limit=-1,
-    output_prefix=None,
-    region=None,
-    separator=None,
-    dropna=False,
-    infer_dtypes=False,
+        input_path,
+        datetime: str = None,
+        delivery_stream=None,
+        fmt=None,
+        limit=-1,
+        output_prefix=None,
+        region=None,
+        separator=None,
+        dropna=False,
+        infer_dtypes=False,
 ):
     """
     Run the profiler on CSV data
@@ -161,7 +160,12 @@ def run(
         parent_folder = os.path.dirname(os.path.realpath(input_path))
         basename = os.path.splitext(os.path.basename(input_path))[0]
         epoch_minutes = int(time.time() / 60)
-        output_base = "{}.{}-{}-{}".format(basename, epoch_minutes, random.randint(100000, 999999), random.randint(100000, 999999),)
+        output_base = "{}.{}-{}-{}".format(
+            basename,
+            epoch_minutes,
+            random.randint(100000, 999999),
+            random.randint(100000, 999999),
+        )
         output_prefix = os.path.join(parent_folder, output_base)
 
     output_base = output_prefix
@@ -169,7 +173,15 @@ def run(
     json_output_path = output_base + ".json"
 
     # Process records
-    reader = csv_reader(input_path, fmt, parse_dates=parse_dates, nrows=nrows, sep=separator, dropna=dropna, infer_dtypes=infer_dtypes,)
+    reader = csv_reader(
+        input_path,
+        fmt,
+        parse_dates=parse_dates,
+        nrows=nrows,
+        sep=separator,
+        dropna=dropna,
+        infer_dtypes=infer_dtypes,
+    )
     profiles = {}
     for record in reader:
         dt = record.get(datetime_col, datetime.utcnow())
@@ -189,9 +201,6 @@ def run(
     with open(json_output_path, "wt") as fp:
         logger.info("Writing JSON summaries to: {}".format(json_output_path))
         fp.write(message_to_json(summaries))
-
-    # Generate flat summary outputs
-    fnames = write_flat_summaries(summaries, output_base, dataframe_fmt="csv")
 
     # Write the protobuf binary file
     write_protobuf(profiles.values(), binary_output_path)

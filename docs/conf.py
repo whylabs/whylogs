@@ -13,6 +13,8 @@ import sys
 import inspect
 import shutil
 
+import sphinx_rtd_theme
+
 __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -73,8 +75,10 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
+    "sphinx_rtd_theme",
+    "recommonmark",
 ]
-extensions.append("recommonmark")
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -85,7 +89,14 @@ def setup(app):
     from recommonmark.transform import AutoStructify
 
     app.add_config_value(
-        "recommonmark_config", {"auto_toc_tree_section": "Contents", "enable_eval_rst": True, "enable_math": True, "enable_inline_math": True,}, True,
+        "recommonmark_config",
+        {
+            "auto_toc_tree_section": "Contents",
+            "enable_eval_rst": True,
+            "enable_math": True,
+            "enable_inline_math": True,
+        },
+        True,
     )
     app.add_transform(AutoStructify)
 
@@ -108,7 +119,7 @@ copyright = "2020, WhyLabs, Inc"
 # built documents.
 #
 # The short X.Y version.
-version = " 0.1.9-dev0"
+version = "0.1.13"
 # The full version, including alpha/beta/rc tags.
 release = ""  # Is set by calling `setup.py docs`
 
@@ -160,6 +171,8 @@ html_theme = "sphinx_rtd_theme"
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {"sidebar_width": "300px", "page_width": "1200px"}
+
+html_theme_path = ["_themes", ]
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -249,7 +262,13 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "whylogs Documentation", "WhyLabs", "manual",),
+    (
+        "index",
+        "user_guide.tex",
+        "whylogs Documentation",
+        "WhyLabs",
+        "manual",
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

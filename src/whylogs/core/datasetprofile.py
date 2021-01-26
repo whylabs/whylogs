@@ -3,7 +3,8 @@ Defines the primary interface class for tracking dataset statistics.
 """
 import datetime
 import io
-import typing
+import logging
+from typing import Dict
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -27,11 +28,14 @@ from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch
 from whylogs.util.time import from_utc_ms, to_utc_ms
 
+logger = logging.getLogger(__name__)
 # Optional import for cudf
 try:
     # noinspection PyUnresolvedReferences
     from cudf.core.dataframe import DataFrame as cudfDataFrame
-except:
+except ImportError as e:
+    logger.debug(str(e))
+    logger.debug('Failed to import CudaDataFrame. Install cudf for CUDA support')
     cudfDataFrame = None
 
 
@@ -64,7 +68,8 @@ SCALAR_NAME_MAPPING = OrderedDict(
         ),
     ),
     schema=OrderedDict(
-        inferred_type=OrderedDict(type="inferred_dtype", ratio="dtype_fraction"),
+        inferred_type=OrderedDict(
+            type="inferred_dtype", ratio="dtype_fraction"),
         type_counts=TYPENUM_COLUMN_NAMES,
     ),
     string_summary=OrderedDict(
@@ -110,8 +115,8 @@ class DatasetProfile:
         dataset_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
         columns: dict = None,
-        tags: typing.Dict[str, str] = None,
-        metadata: typing.Dict[str, str] = None,
+        tags: Dict[str, str] = None,
+        metadata: Dict[str, str] = None,
         session_id: str = None,
     ):
         # Default values
@@ -132,11 +137,11 @@ class DatasetProfile:
         self.columns = columns
 
         # Store Name attribute
-        self._tags["Name"] = name
+        self._tags["name"] = name
 
     @property
     def name(self):
-        return self._tags["Name"]
+        return self._tags["name"]
 
     @property
     def tags(self):
@@ -179,10 +184,18 @@ class DatasetProfile:
             Value to track.  Specify if `columns` is a string.
         """
         if data is not None:
+            if type(columns) != str:
+                raise TypeError("Unambigious column to data mapping")
             self.track_datum(columns, data)
         else:
-            for column_name, data in columns.items():
-                self.track_datum(column_name, data)
+            if isinstance(columns, dict):
+                for column_name, data in columns.items():
+                    self.track_datum(column_name, data)
+            elif isinstance(columns, str):
+                self.track_datum(columns, None)
+            else:
+                raise TypeError(" Data type of: {} not supported for tracking ".format(
+                    columns.__class__.__name__))
 
     def track_datum(self, column_name, data):
         try:
@@ -190,6 +203,7 @@ class DatasetProfile:
         except KeyError:
             prof = ColumnProfile(column_name)
             self.columns[column_name] = prof
+
         prof.track(data)
 
     def track_array(self, x: np.ndarray, columns=None):
@@ -227,6 +241,7 @@ class DatasetProfile:
             col_str = str(col)
             x = df[col].values
             for xi in x:
+
                 self.track(col_str, xi)
 
     def to_properties(self):
@@ -287,7 +302,7 @@ class DatasetProfile:
 
     def _column_message_iterator(self):
         self.validate()
-        for col in self.columns.items():
+        for k, col in self.columns.items():
             yield col.to_protobuf()
 
     def chunk_iterator(self):
@@ -301,7 +316,8 @@ class DatasetProfile:
         properties = self.to_properties()
 
         yield MessageSegment(
-            marker=marker, metadata=DatasetMetadataSegment(properties=properties,)
+            marker=marker, metadata=DatasetMetadataSegment(
+                properties=properties,)
         )
 
         chunked_columns = self._column_message_iterator()
@@ -346,7 +362,8 @@ class DatasetProfile:
         return self._do_merge(other)
 
     def _do_merge(self, other):
-        columns_set = set(list(self.columns.keys()) + list(other.columns.keys()))
+        columns_set = set(list(self.columns.keys()) +
+                          list(other.columns.keys()))
         columns = {}
         for col_name in columns_set:
             empty_column = ColumnProfile(col_name)
@@ -454,7 +471,7 @@ class DatasetProfile:
             else:
                 msg_len = len(data)
                 new_pos = 0
-            msg_buf = data[new_pos : new_pos + msg_len]
+            msg_buf = data[new_pos: new_pos + msg_len]
             return DatasetProfile.from_protobuf_string(msg_buf)
 
     @staticmethod
@@ -474,7 +491,7 @@ class DatasetProfile:
         """
         properties: DatasetProperties = message.properties
         return DatasetProfile(
-            name=(properties.tags or {}).get("Name") or "",
+            name=(properties.tags or {}).get("name") or "",
             session_id=properties.session_id,
             session_timestamp=from_utc_ms(properties.session_timestamp),
             dataset_timestamp=from_utc_ms(properties.data_timestamp),
@@ -531,7 +548,7 @@ class DatasetProfile:
         """
         msg_len, new_pos = _DecodeVarint32(data, pos)
         pos = new_pos
-        msg_buf = data[pos : pos + msg_len]
+        msg_buf = data[pos: pos + msg_len]
         pos += msg_len
         profile = DatasetProfile.from_protobuf_string(msg_buf)
         return pos, profile
@@ -706,7 +723,8 @@ def flatten_dataset_frequent_strings(dataset_summary: DatasetSummary):
 
     for col_name, col in dataset_summary.columns.items():
         try:
-            item_summary = getter(getter(col, "string_summary"), "frequent").items
+            item_summary = getter(
+                getter(col, "string_summary"), "frequent").items
             items = {}
             for item in item_summary:
                 items[item.value] = int(item.estimate)

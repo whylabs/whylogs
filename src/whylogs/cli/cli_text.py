@@ -5,15 +5,18 @@ INTRO_MESSAGE = """
 ██║███╗██║██╔══██║  ╚██╔╝  ██║     ██║   ██║██║   ██║╚════██║
 ╚███╔███╔╝██║  ██║   ██║   ███████╗╚██████╔╝╚██████╔╝███████║
  ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚═════╝  ╚═════╝ ╚══════╝
-                       / \__
-                      (    @\___
+                       / \\__
+                      (    @\\___
                       /         O
                      /   (_____/
                     /_____/   U
 
 Welcome to whylogs!
 
+Join us our community slack at  http://join.slack.whylabs.ai/
+
 This CLI will guide you through initializing a basic whylogs configurations.
+
 """
 
 DOING_NOTHING_ABORTING = "Doing nothing. Aborting"

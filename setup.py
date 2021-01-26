@@ -2,10 +2,6 @@
 """
     Setup file for whylogs_python.
     Use setup.cfg to configure your project.
-
-    This file was generated with PyScaffold 3.2.3.
-    PyScaffold helps you to put up the scaffold of your new Python project.
-    Learn more under: https://pyscaffold.org/
 """
 
 import subprocess
@@ -49,7 +45,12 @@ def generate_proto(sr_path, dst_path):
         sys.stderr.write("Unable to locate proto source files")
         sys.exit(-1)
 
-    protoc_command = [protoc, "-I", sr_path, "--python_out={}".format(dst_path),] + proto_files
+    protoc_command = [
+        protoc,
+        "-I",
+        sr_path,
+        "--python_out={}".format(dst_path),
+    ] + proto_files
     if protoc is None:
         sys.stderr.write("protoc is not installed nor found in ../src.  Please compile it " "or install the binary package.\n")
         sys.exit(-1)
@@ -67,4 +68,4 @@ class BuildProto(_clean):
 
 
 if __name__ == "__main__":
-    setup(cmdclass={"proto": BuildProto}, use_pyscaffold=True)
+    setup(cmdclass={"proto": BuildProto})

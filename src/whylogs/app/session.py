@@ -3,7 +3,7 @@ whylogs logging session
 """
 import datetime
 from logging import getLogger as _getLogger
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 from uuid import uuid4
 
 import pandas as pd
@@ -31,7 +31,7 @@ class Session:
     """
 
     def __init__(
-        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False,
+        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False, with_rotation_time: str = None, cache_size: int = None
     ):
         if writers is None:
             writers = []
@@ -43,6 +43,11 @@ class Session:
         self._loggers = {}
         self._session_time = datetime.datetime.now()
         self._session_id = str(uuid4())
+        self._config = SessionConfig(
+            project, pipeline, writers, verbose
+        )
+        self.with_rotation_time = with_rotation_time
+        self.cache_size = cache_size
 
     def __enter__(self):
         # TODO: configure other aspects
@@ -50,6 +55,12 @@ class Session:
 
     def __exit__(self, tpe, value, traceback):
         self.close()
+
+    def __repr__(self):
+        return self._config.to_yaml()
+
+    def get_config(self,):
+        return self._config
 
     def is_active(self):
         return self._active
@@ -61,6 +72,10 @@ class Session:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
+        segments: Optional[Union[List[Dict], List[str]]] = None,
+        profile_full_dataset: bool = False,
+        with_rotation_time: str = None,
+        cache_size: int = 1,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -84,19 +99,30 @@ class Session:
         session_timestamp: datetime.datetime, optional
             Override the timestamp associated with the session. Normally you
             shouldn't need to override this value
+        segments:
+            Can be either:
+            - List of tag key value pairs for tracking datasetments
+            - List of tag keys for whylogs to split up the data in the backend
         Returns
         -------
         ylog : whylogs.app.logger.Logger
             whylogs logger
         """
+        if tags is None:
+            tags = {}
+
         if not self._active:
-            raise RuntimeError("Session is already closed. Cannot create more loggers")
+            raise RuntimeError(
+                "Session is already closed. Cannot create more loggers")
 
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
+
         if session_timestamp is None:
             session_timestamp = self._session_time
+        if with_rotation_time is None:
+            with_rotation_time = self.with_rotation_time
 
         # remove inactive loggers first
         for name, logger in list(self._loggers.items()):
@@ -104,6 +130,7 @@ class Session:
                 self._loggers.pop(name)
 
         logger = self._loggers.get(dataset_name)
+
         if logger is None:
             logger = Logger(
                 session_id=self._session_id,
@@ -114,6 +141,10 @@ class Session:
                 tags=tags,
                 metadata=metadata,
                 verbose=self.verbose,
+                with_rotation_time=with_rotation_time,
+                segments=segments,
+                profile_full_dataset=profile_full_dataset,
+                cache_size=cache_size
             )
             self._loggers[dataset_name] = logger
 
@@ -127,16 +158,22 @@ class Session:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
+        segments: Optional[Union[List[Dict], List[str]]] = None,
+        profile_full_dataset: bool = False,
     ) -> Optional[DatasetProfile]:
         """
         Perform statistics caluclations and log a pandas dataframe
 
-        :param df: the dataframe to profile 
+        :param df: the dataframe to profile
         :param dataset_name: name of the dataset
         :param dataset_timestamp: the timestamp for the dataset
         :param session_timestamp: the timestamp for the session. Override the default one
         :param tags: the tags for the profile. Useful when merging
         :param metadata: information about this current profile. Can be discarded when merging
+        :param segments: can be either
+        - a list of tag key value pairs for marking the segment of the data
+        - a list of tag keys to group the data by
+        :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
         :return: a dataset profile if the session is active
         """
         if not self.is_active():
@@ -147,7 +184,9 @@ class Session:
             dataset_name = self.project
 
         ylog = self.logger(
-            dataset_name, dataset_timestamp, session_timestamp, tags, metadata
+            dataset_name, dataset_timestamp, session_timestamp, tags, metadata,
+            segments=segments,
+            profile_full_dataset=profile_full_dataset,
         )
 
         ylog.log_dataframe(df)
@@ -207,9 +246,6 @@ class Session:
         if not self.is_active():
             return None
 
-        if not self._active:
-            raise RuntimeError("Session is already closed. Cannot create more loggers")
-
         if dataset_name is None:
             # using the project name for the datasetname
             dataset_name = self.project
@@ -246,7 +282,7 @@ class Session:
                 logger.close()
             self.remove_logger(name)
 
-    def remove_logger(self, dataset_name):
+    def remove_logger(self, dataset_name: str):
         """
         Remove a logger from the dataset. This is called by the logger when it's being closed
 
@@ -259,12 +295,11 @@ class Session:
 
         """
         if self._loggers.get(dataset_name) is None:
-            print(
+            raise KeyError(
                 "WARNING: logger {} is not present in the current Session".format(
                     dataset_name
                 )
             )
-            return
 
         self._loggers.pop(dataset_name)
 
@@ -274,21 +309,11 @@ def session_from_config(config: SessionConfig) -> Session:
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    return Session(config.project, config.pipeline, writers, config.verbose)
+    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache_size)
 
 
 #: A global session
 _session = None
-
-
-def reset_default():
-    """
-    DEPRECATED. Please use reset_default_session()
-    """
-    from warnings import warn
-
-    warn("DEPRECATED. use reset_default_session() instead of reset_default()")
-    reset_default_session()
 
 
 def reset_default_session():
@@ -300,11 +325,14 @@ def reset_default_session():
         _session.close()
     config: SessionConfig = load_config()
     if config is None:
-        raise EnvironmentError("Unable to load whylogs config")
+        config = SessionConfig(
+            "default-project", "default-pipeline", [WriterConfig(
+                type="local", output_path="output", formats=["all"])], False
+        )
     _session = session_from_config(config)
 
 
-def get_or_create_session():
+def get_or_create_session(path_to_config: Optional[str] = None):
     """
     Retrieve the current active global session.
 
@@ -314,19 +342,20 @@ def get_or_create_session():
     If an active session exists, return the session without loading new
     config.
 
-    Returns
-    -------
-    session : Session
-        The global active session
+    :return: The global active session
+    :rtype: Session
+    :type path_to_config: str
     """
     global _session
     if _session is not None and _session.is_active():
-        _getLogger(__name__).debug("Active session found, ignoring session kwargs")
+        _getLogger(__name__).debug(
+            "Active session found, ignoring session kwargs")
     else:
-        config = load_config()
+        config = load_config(path_to_config)
         if config is None:
             print("WARN: Missing config")
-            writer = WriterConfig(type="local", output_path="output", formats=["all"])
+            writer = WriterConfig(
+                type="local", output_path="output", formats=["all"])
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False
             )
@@ -355,4 +384,4 @@ def get_logger():
     ylog : whylogs.app.logger.Logger
         The global session logger
     """
-    return _session.logger
+    return _session.logger()
