@@ -11,8 +11,8 @@ import pandas as pd
 from typing.io import IO
 
 from whylogs.app.writers import Writer
-from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES
-
+from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
+from whylogs.io import LocalDataset
 TIME_ROTATION_VALUES = ["s", "m", "h", "d"]
 
 # TODO upgrade to Classes
@@ -359,14 +359,27 @@ class Logger:
 
         track_image(self._profiles[-1]["full_profile"])
 
-    # def log_dataset(self, root_dir):
-    #     dst = LocalDataset(root_dir, file_loader=lambda x: x)
-    #     for idx in range(len(dst)):
-    #         data, fmt = dst[idx]
-    #         if ftm == "csv":
-    #             log_dataframe(data)
-    #         elif ftm == "image":
-    #             log_image(data)
+    def log_local_dataset(self, root_dir):
+        from PIL.Image import Image as ImageType
+        dst = LocalDataset(root_dir, file_loader=lambda x: x)
+        for idx in range(len(dst)):
+            (data, magic_data), fmt = dst[idx]
+            self.log(feature_name="file_format", data=fmt)
+            self.log(feature=magic_data)
+            if isinstance(data, pd.DataFrame):
+                self.log_dataframe(data)
+            elif isinstance(data, Dict) or isinstance(data, list):
+                self.log_annotation(annotation_data=data)
+            elif isinstance(data, ImageType):
+                self.log_image(data)
+            else:
+                raise NotImplementedError("File format not supported")
+
+    def log_annotation(self, annotation_data):
+        if not self.tracking_checks():
+            return None
+        track_bounding_box = TrackBB(obj=annotation_data)
+        track_bounding_box(self._profiles[-1]["full_profile"])
 
     def log_csv(self,
                 filepath_or_buffer: Union[str, Path, IO[AnyStr]],
