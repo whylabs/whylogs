@@ -1,5 +1,3 @@
-
-
 from typing import Callable, Optional, Dict, List
 
 import pandas as pd
@@ -77,8 +75,8 @@ class Rectangle:
 
 
 BB_ATTRIBUTES = ("annotation_count", "annotation_density",
-                 "area_coverage", "area_confidence", "bb_width", "bb_height", "bb_area",
-                 "bb_aspect_ratio",
+                 "area_coverage", "bb_width", "bb_height",
+                 "bb_area", "bb_aspect_ratio", "confidence", "dist_to_center"
                  )
 
 
@@ -87,16 +85,17 @@ class TrackBB:
     def __init__(self, filepath: str = None,
                  obj: Dict = None,
                  feature_transforms: Optional[List[Callable]] = None,
-                 feature_names: str = ""):
+                 feature_names: str = ""
+                 ):
 
         if filepath is None and obj is None:
             raise ValueError("Need  filepath or object data")
         if filepath is not None:
-            self.obj, self.fmt = file_loader(filepath)
+            (self.obj, magic_data), self.fmt = file_loader(filepath)
 
         else:
             self.obj = obj
-        self.per_image_stas = []
+        self.per_image_stats = []
         self.all_bboxes = []
         self.calculate_metrics()
 
@@ -117,7 +116,6 @@ class TrackBB:
 
             # Get individual bbox metrics
             annotation_metrics["area_coverage"] = 0
-            annotation_metrics["avg_confidence"] = 0
 
             for bb_obj in filter(lambda x: "bndbox" in x,
                                  annotations["object"]):
@@ -142,21 +140,18 @@ class TrackBB:
                 annotation_metrics["area_coverage"] += rect1.intersection(
                     img_rect) / (img_rect.area*annotation_metrics["annotation_count"])
 
-                annotation_metrics["avg_confidence"] += rect1.confidence / \
-                    annotation_metrics["annotation_count"]
-
                 self.all_bboxes.append(bounding_box_metric)
 
             # Send object to metrics
-            self.per_image_stas.append(annotation_metrics)
+            self.per_image_stats.append(annotation_metrics)
 
     def __call__(self, profiles):
 
         if not isinstance(profiles, list):
             profiles = [profiles]
 
-        per_image_dataframe = pd.Dataframe(self.per_image_stats)
-        bounding_boxes = pd.Dataframe(self.all_bboxes)
+        per_image_dataframe = pd.DataFrame(self.per_image_stats)
+        bounding_boxes = pd.DataFrame(self.all_bboxes)
         for each_profile in profiles:
 
             each_profile.track_dataframe(per_image_dataframe)

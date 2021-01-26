@@ -76,8 +76,7 @@ class LocalDataset(Dataset):
 
         path, folder_feature_index = self.items[index]
         output = self.loader(path)
-        # sample = file_info[0]
-        # file_format = file_info[1]
+
         return output, self.folder_segmented_feature[folder_feature_index],
 
     def __len__(self,):

@@ -1,9 +1,9 @@
-
+import json
 from uuid import uuid4
 import datetime
 
 from whylogs.core.datasetprofile import DatasetProfile, array_profile, dataframe_profile
-from whylogs.core.annotation_profiling import TrackBB
+from whylogs.core.annotation_profiling import TrackBB, BB_ATTRIBUTES
 
 import os
 
@@ -25,44 +25,39 @@ def test_track_bb_annotation():
                                session_timestamp=now,
                                tags={"key": "value"},
                                metadata={"key": "x1"},)
-    trackImage = TrackBB(test_annotation_path)
+    trackbb = TrackBB(test_annotation_path)
+    trackbb(profile_1)
 
-    # trackImage(profile_1)
-    # columns = profile_1.columns
-    # assert len(columns) == total_default_features
-    # assert columns["Saturation"].number_tracker.count == 67500
-    # assert columns["BitsPerSample"].counters.count == 3
-    # trackImage = TrackImage(test_image_path, metadata_attributes="all")
-    # trackImage(profile_1)
-    # columns = profile_1.columns
-    # assert len(columns) == total_default_features+11
-    # assert columns["Saturation"].number_tracker.count == 2*67500
+    columns = profile_1.columns
+    assert len(columns) == len(BB_ATTRIBUTES)
+    for each_attribute in BB_ATTRIBUTES:
+        assert columns.get(each_attribute, None) is not None
+        if each_attribute in ("annotation_count", "area_coverage", "annotation_density"):
+            assert columns[each_attribute].number_tracker.count == 100
+        else:
+            assert columns[each_attribute].number_tracker.count == 4183
 
 
-# def test_track_PIL_img():
-#     from whylogs.proto import InferredType
+def test_track_json_annotation():
 
-#     Type = InferredType.Type
+    now = datetime.datetime.utcnow()
+    shared_session_id = uuid4().hex
+    num_bb_features = len(BB_ATTRIBUTES)
 
-#     now = datetime.datetime.utcnow()
-#     shared_session_id = uuid4().hex
-#     num_image_features = len(_IMAGE_FEATURES)
-#     num_metadata_features = len(_METADATA_DEFAULT_ATTRIBUTES)
+    test_annotation_path = os.path.join(
+        TEST_DATA_PATH, "files", "yolo_bounding_box.jsonl")
 
-#     test_image_path = os.path.join(
-#         TEST_DATA_PATH, "images", "flower2.jpg")
+    profile_1 = DatasetProfile(name="test",
+                               session_id=shared_session_id,
+                               session_timestamp=now,
+                               tags={"key": "value"},
+                               metadata={"key": "x1"},)
 
-#     total_default_features = num_image_features + num_metadata_features
-#     profile_1 = DatasetProfile(name="test",
-#                                session_id=shared_session_id,
-#                                session_timestamp=now,
-#                                tags={"key": "value"},
-#                                metadata={"key": "x1"},)
-#     img = Image.open(open(test_image_path, "rb"))
-#     trackImage = TrackImage(img=img)
+    objs = [json.loads(eachline)
+            for eachline in open(test_annotation_path, "r")]
+    trackbb = TrackBB(obj=objs)
 
-#     trackImage(profile_1)
-#     columns = profile_1.columns
-#     assert len(columns) == total_default_features
-#     assert columns["Saturation"].number_tracker.count == 67500
-#     assert columns["BitsPerSample"].counters.count == 3
+    trackbb(profile_1)
+    columns = profile_1.columns
+    assert len(columns) == len(BB_ATTRIBUTES)
+    assert columns["annotation_count"].number_tracker.count == 100
