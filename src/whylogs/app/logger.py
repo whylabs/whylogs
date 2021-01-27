@@ -6,6 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 from typing import List, Optional, Dict, Union, Callable, AnyStr
+from tqdm import tqdm
 
 import pandas as pd
 from typing.io import IO
@@ -359,13 +360,14 @@ class Logger:
 
         track_image(self._profiles[-1]["full_profile"])
 
-    def log_local_dataset(self, root_dir):
+    def log_local_dataset(self, root_dir, folder_feature_name="folder_feature"):
         from PIL.Image import Image as ImageType
-        dst = LocalDataset(root_dir, file_loader=lambda x: x)
-        for idx in range(len(dst)):
-            (data, magic_data), fmt = dst[idx]
-            self.log(feature_name="file_format", data=fmt)
-            self.log(feature=magic_data)
+        dst = LocalDataset(root_dir)
+        for idx in tqdm(range(len(dst))):
+            ((data, magic_data), fmt), segment_value = dst[idx]
+            self.log(feature_name="file_format", value=fmt)
+            self.log(feature_name=folder_feature_name, value=segment_value)
+            self.log(features=magic_data)
             if isinstance(data, pd.DataFrame):
                 self.log_dataframe(data)
             elif isinstance(data, Dict) or isinstance(data, list):
@@ -373,7 +375,8 @@ class Logger:
             elif isinstance(data, ImageType):
                 self.log_image(data)
             else:
-                raise NotImplementedError("File format not supported")
+                raise NotImplementedError(
+                    "File format not supported {}, format:{}".format(type(data), fmt))
 
     def log_annotation(self, annotation_data):
         if not self.tracking_checks():

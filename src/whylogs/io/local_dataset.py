@@ -60,6 +60,7 @@ class LocalDataset(Dataset):
         self.items = []
         for folder_feature_value in sorted(self.folder_feature_dict.keys()):
             print(folder_feature_value)
+
             folder_index = self.folder_feature_dict[folder_feature_value]
             folder_feature_value = os.path.join(
                 self.root_folder, folder_feature_value)

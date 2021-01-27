@@ -26,6 +26,8 @@ def valid_file(fname: str):
     Returns:
         bool
     """
+    if os.path.isdir(fname):
+        return False
     extension = os.path.splitext(fname)[1]
     return extension in EXTENSIONS
 
@@ -62,7 +64,7 @@ def extension_file(path: str):
             return file_extension_given, magicdata
         else:
             magicdata = {
-                "byte_match": format_file[0].byte_match,
+                "byte_match": "{}".format(format_file[0].byte_match),
                 "mime_type": format_file[0].mime_type,
                 "name": format_file[0].name,
             }
