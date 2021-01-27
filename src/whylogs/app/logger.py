@@ -384,31 +384,6 @@ class Logger:
                 raise NotImplementedError(
                     "File format not supported {}, format:{}".format(type(data), fmt))
 
-    def log_image_dataset(self, root_dir, folder_feature_name="folder_feature", feature_transforms=None):
-
-        from PIL.Image import Image as ImageType
-        dst = LocalDataset(root_dir)
-        mylamdda = (lambda x: np.mean(x, axis=1).reshape(-1, 1))
-        for idx in tqdm(range(len(dst))):
-            ((data, magic_data), fmt), segment_value = dst[idx]
-            self.log(feature_name="file_format", value=fmt)
-            self.log(feature_name=folder_feature_name, value=segment_value)
-            self.log(features=magic_data)
-            if isinstance(data, pd.DataFrame):
-                self.log_dataframe(data)
-            elif isinstance(data, Dict) or isinstance(data, list):
-                self.log_annotation(annotation_data=data)
-            elif isinstance(data, ImageType):
-                if feature_transforms:
-                    self.log_image(
-                        data, feature_transforms=feature_transforms, metadata_attributes=[])
-                else:
-                    self.log_image(
-                        data, metadata_attributes=[])
-            else:
-                raise NotImplementedError(
-                    "File format not supported {}, format:{}".format(type(data), fmt))
-
     def log_annotation(self, annotation_data):
         if not self.tracking_checks():
             return None
