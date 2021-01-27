@@ -7,13 +7,14 @@ import json
 from pathlib import Path
 from typing import List, Optional, Dict, Union, Callable, AnyStr
 from tqdm import tqdm
-
+import numpy as np
 import pandas as pd
 from typing.io import IO
 
 from whylogs.app.writers import Writer
 from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
 from whylogs.io import LocalDataset
+from whylogs.features.transforms import ComposeTransforms, Brightness
 TIME_ROTATION_VALUES = ["s", "m", "h", "d"]
 
 # TODO upgrade to Classes
@@ -360,7 +361,7 @@ class Logger:
 
         track_image(self._profiles[-1]["full_profile"])
 
-    def log_local_dataset(self, root_dir, folder_feature_name="folder_feature"):
+    def log_local_dataset(self, root_dir, folder_feature_name="folder_feature", feature_transforms=None):
         from PIL.Image import Image as ImageType
         dst = LocalDataset(root_dir)
         for idx in tqdm(range(len(dst))):
@@ -373,7 +374,37 @@ class Logger:
             elif isinstance(data, Dict) or isinstance(data, list):
                 self.log_annotation(annotation_data=data)
             elif isinstance(data, ImageType):
-                self.log_image(data)
+                if feature_transforms:
+            self.log_image(
+                data, feature_transforms=feature_transforms, metadata_attributes=[])
+            else:
+                self.log_image(
+                    data, metadata_attributes=[])
+            else:
+                raise NotImplementedError(
+                    "File format not supported {}, format:{}".format(type(data), fmt))
+
+    def log_image_dataset(self, root_dir, folder_feature_name="folder_feature", feature_transforms=None):
+
+        from PIL.Image import Image as ImageType
+        dst = LocalDataset(root_dir)
+        mylamdda = (lambda x: np.mean(x, axis=1).reshape(-1, 1))
+        for idx in tqdm(range(len(dst))):
+            ((data, magic_data), fmt), segment_value = dst[idx]
+            self.log(feature_name="file_format", value=fmt)
+            self.log(feature_name=folder_feature_name, value=segment_value)
+            self.log(features=magic_data)
+            if isinstance(data, pd.DataFrame):
+                self.log_dataframe(data)
+            elif isinstance(data, Dict) or isinstance(data, list):
+                self.log_annotation(annotation_data=data)
+            elif isinstance(data, ImageType):
+                if feature_transforms:
+                    self.log_image(
+                        data, feature_transforms=feature_transforms, metadata_attributes=[])
+                else:
+                    self.log_image(
+                        data, metadata_attributes=[])
             else:
                 raise NotImplementedError(
                     "File format not supported {}, format:{}".format(type(data), fmt))
