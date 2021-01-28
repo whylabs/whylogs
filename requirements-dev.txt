@@ -118,4 +118,5 @@ zipp==3.4.0
 puremagic == 1.10
 xlrd==2.0.1
 openpyxl==3.0.6
+tqdm==4.54.0
 smart-open==4.1.2

@@ -361,30 +361,61 @@ class Logger:
 
         track_image(self._profiles[-1]["full_profile"])
 
-    def log_local_dataset(self, root_dir, folder_feature_name="folder_feature", feature_transforms=None):
+    def log_local_dataset(self, root_dir, folder_feature_name="folder_feature", image_feature_transforms=None):
+        """
+        Log a local folder dataset 
+        It will log data from the files, along with structure file data like metadata, and magic numbers.
+        If the folder has single layer for children folders, this will pick up folder names as a segmented feature
+
+        Args:
+            root_dir (TYPE): Description
+            folder_feature_name (str, optional): Description
+            feature_transforms (None, optional): Description
+
+        Raises:
+            NotImplementedError: Description
+        """
         from PIL.Image import Image as ImageType
         dst = LocalDataset(root_dir)
         for idx in tqdm(range(len(dst))):
+            # load internal and metadata from the next file
             ((data, magic_data), fmt), segment_value = dst[idx]
+
+            # log magic number data if any, fmt, and folder name.
             self.log(feature_name="file_format", value=fmt)
+
             self.log(feature_name=folder_feature_name, value=segment_value)
+
             self.log(features=magic_data)
+
             if isinstance(data, pd.DataFrame):
                 self.log_dataframe(data)
+
             elif isinstance(data, Dict) or isinstance(data, list):
                 self.log_annotation(annotation_data=data)
             elif isinstance(data, ImageType):
                 if feature_transforms:
-            self.log_image(
-                data, feature_transforms=feature_transforms, metadata_attributes=[])
-            else:
-                self.log_image(
-                    data, metadata_attributes=[])
+                    self.log_image(
+                        data, feature_transforms=image_feature_transforms, metadata_attributes=[])
+                else:
+                    self.log_image(
+                        data, metadata_attributes=[])
             else:
                 raise NotImplementedError(
                     "File format not supported {}, format:{}".format(type(data), fmt))
 
     def log_annotation(self, annotation_data):
+        """
+        Log structured annotation data ie. JSON like structures
+
+
+
+        Args:
+            annotation_data (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
         if not self.tracking_checks():
             return None
         track_bounding_box = TrackBB(obj=annotation_data)

@@ -30,14 +30,15 @@ class ComposeTransforms:
         return x
 
     def __repr__(self):
-        if name:
+        format_string = ""
+        if self.name:
             format_string = self.name
         else:
-            for t in self.transforms[-1::]:
+            for t in self.transforms[::-1]:
                 format_string += '{0}'.format(t)
                 format_string += "("
             format_string += "IMG"
-            for _ in range(len(self.transforms[-1::])):
+            for _ in range(len(self.transforms)):
                 format_string += ')'
 
         return format_string
