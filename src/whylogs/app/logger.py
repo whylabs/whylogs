@@ -4,12 +4,14 @@ Class and functions for whylogs logging
 import datetime
 import hashlib
 import json
-from pathlib import Path
 from typing import List, Optional, Dict, Union, Callable, AnyStr
-from tqdm import tqdm
-import numpy as np
-import pandas as pd
 from typing.io import IO
+from pathlib import Path
+
+
+from tqdm import tqdm
+import pandas as pd
+
 
 from whylogs.app.writers import Writer
 from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
@@ -363,9 +365,10 @@ class Logger:
 
     def log_local_dataset(self, root_dir, folder_feature_name="folder_feature", image_feature_transforms=None):
         """
-        Log a local folder dataset 
-        It will log data from the files, along with structure file data like metadata, and magic numbers.
-        If the folder has single layer for children folders, this will pick up folder names as a segmented feature
+        Log a local folder dataset
+        It will log data from the files, along with structure file data like
+        metadata, and magic numbers. If the folder has single layer for children
+        folders, this will pick up folder names as a segmented feature
 
         Args:
             root_dir (str): directory where dataset is located.
@@ -410,9 +413,8 @@ class Logger:
         Log structured annotation data ie. JSON like structures
 
 
-
         Args:
-            annotation_data (TYPE): Description
+            annotation_data (Dict or List): Description
 
         Returns:
             TYPE: Description
