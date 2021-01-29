@@ -14,7 +14,7 @@ from typing.io import IO
 from whylogs.app.writers import Writer
 from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
 from whylogs.io import LocalDataset
-from whylogs.features.transforms import ComposeTransforms, Brightness
+
 TIME_ROTATION_VALUES = ["s", "m", "h", "d"]
 
 # TODO upgrade to Classes
@@ -368,14 +368,15 @@ class Logger:
         If the folder has single layer for children folders, this will pick up folder names as a segmented feature
 
         Args:
-            root_dir (TYPE): Description
-            folder_feature_name (str, optional): Description
-            feature_transforms (None, optional): Description
+            root_dir (str): directory where dataset is located.
+            folder_feature_name (str, optional): Name for the subfolder features, i.e. class, store etc.
+            v (None, optional): image transform that you would like to use with the image log
 
         Raises:
             NotImplementedError: Description
         """
         from PIL.Image import Image as ImageType
+
         dst = LocalDataset(root_dir)
         for idx in tqdm(range(len(dst))):
             # load internal and metadata from the next file
@@ -394,7 +395,7 @@ class Logger:
             elif isinstance(data, Dict) or isinstance(data, list):
                 self.log_annotation(annotation_data=data)
             elif isinstance(data, ImageType):
-                if feature_transforms:
+                if image_feature_transforms:
                     self.log_image(
                         data, feature_transforms=image_feature_transforms, metadata_attributes=[])
                 else:
