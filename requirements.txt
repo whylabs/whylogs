@@ -1,5 +1,5 @@
-boto3==1.16.28
-botocore==1.19.28
+boto3==1.16.63
+botocore==1.19.63
 certifi==2020.12.5
 click==8.0.0a1
 fsspec==0.8.5
@@ -11,8 +11,8 @@ protobuf==3.14.0
 python-dateutil==2.8.1
 pytz==2020.5
 PyYAML==5.4.1
-s3fs==0.4.2
 s3transfer==0.3.3
 six==1.15.0
 urllib3==1.26.3
 whylabs-datasketches==2.0.0b7
+smart-open==4.1.2
