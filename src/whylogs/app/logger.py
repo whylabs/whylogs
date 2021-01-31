@@ -4,14 +4,13 @@ Class and functions for whylogs logging
 import datetime
 import hashlib
 import json
+import logging
 from typing import List, Optional, Dict, Union, Callable, AnyStr
 from typing.io import IO
 from pathlib import Path
 
 
-from tqdm import tqdm
 import pandas as pd
-
 
 from whylogs.app.writers import Writer
 from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
@@ -22,6 +21,8 @@ TIME_ROTATION_VALUES = ["s", "m", "h", "d"]
 # TODO upgrade to Classes
 SegmentTag = Dict[str, any]
 Segment = List[SegmentTag]
+
+logger = logging.getLogger(__name__)
 
 
 class Logger:
@@ -363,7 +364,7 @@ class Logger:
 
         track_image(self._profiles[-1]["full_profile"])
 
-    def log_local_dataset(self, root_dir, folder_feature_name="folder_feature", image_feature_transforms=None):
+    def log_local_dataset(self, root_dir, folder_feature_name="folder_feature", image_feature_transforms=None, show_progress=False):
         """
         Log a local folder dataset
         It will log data from the files, along with structure file data like
@@ -378,10 +379,25 @@ class Logger:
         Raises:
             NotImplementedError: Description
         """
-        from PIL.Image import Image as ImageType
+        try:
+            from PIL.Image import Image as ImageType
+        except ImportError as e:
+            ImageType = None
+            logger.debug(str(e))
+            logger.debug(
+                "Unable to load PIL; install Pillow for image support")
+
+        if show_progress:
+            try:
+                from tqdm import tqdm
+            except ImportError as e:
+                show_progress = False
+                logger.debug(str(e))
+                logger.debug(
+                    "Unable to load tqdm; install tqdm for progress support")
 
         dst = LocalDataset(root_dir)
-        for idx in tqdm(range(len(dst))):
+        for idx in tqdm(range(len(dst)), disable=(not show_progress)):
             # load internal and metadata from the next file
             ((data, magic_data), fmt), segment_value = dst[idx]
 
