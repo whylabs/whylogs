@@ -393,7 +393,7 @@ class Logger:
             except ImportError as e:
                 show_progress = False
                 logger.debug(str(e))
-                logger.debug(
+                logger.warning(
                     "Unable to load tqdm; install tqdm for progress support")
 
         dst = LocalDataset(root_dir)
