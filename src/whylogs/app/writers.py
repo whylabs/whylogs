@@ -8,7 +8,8 @@ from abc import ABC, abstractmethod
 from string import Template
 from typing import List
 
-import s3fs
+from smart_open import open
+
 from google.protobuf.message import Message
 
 from whylogs.app.output_formats import OutputFormat
@@ -286,7 +287,6 @@ class S3Writer(Writer):
         filename_template: str = None,
     ):
         super().__init__(output_path, formats, path_template, filename_template)
-        self.fs = s3fs.S3FileSystem(anon=False)
 
     def write(self, profile: DatasetProfile, rotation_suffix: str = None):
         """
@@ -317,7 +317,7 @@ class S3Writer(Writer):
         )
 
         summary = profile.to_summary()
-        with self.fs.open(output_file, "wt") as f:
+        with open(output_file, "wt") as f:
             f.write(message_to_json(summary))
 
     def _write_flat(self, profile: DatasetProfile, indent: int = 4):
@@ -337,7 +337,7 @@ class S3Writer(Writer):
             self.output_path, self.path_suffix(profile), "flat_table"
         )
         summary_df = get_dataset_frame(summary)
-        with self.fs.open(
+        with open(
             os.path.join(flat_table_path, self.file_name(
                 profile, ".csv")), "wt"
         ) as f:
@@ -348,7 +348,7 @@ class S3Writer(Writer):
         frequent_numbers_path = os.path.join(
             self.output_path, self.path_suffix(profile), "freq_numbers"
         )
-        with self.fs.open(
+        with open(
             os.path.join(frequent_numbers_path, json_flat_file), "wt"
         ) as f:
             hist = flatten_dataset_histograms(summary)
@@ -357,7 +357,7 @@ class S3Writer(Writer):
         frequent_strings_path = os.path.join(
             self.output_path, self.path_suffix(profile), "frequent_strings"
         )
-        with self.fs.open(
+        with open(
             os.path.join(frequent_strings_path, json_flat_file), "wt"
         ) as f:
             frequent_strings = flatten_dataset_frequent_strings(summary)
@@ -367,7 +367,7 @@ class S3Writer(Writer):
             self.output_path, self.path_suffix(profile), "histogram"
         )
 
-        with self.fs.open(os.path.join(histogram_path, json_flat_file), "wt") as f:
+        with open(os.path.join(histogram_path, json_flat_file), "wt") as f:
             histogram = flatten_dataset_histograms(summary)
             json.dump(histogram, f, indent=indent)
 
@@ -380,7 +380,7 @@ class S3Writer(Writer):
 
         protobuf: Message = profile.to_protobuf()
 
-        with self.fs.open(
+        with open(
             os.path.join(path, self.file_name(profile, ".bin")), "wb"
         ) as f:
             f.write(protobuf.SerializeToString())
