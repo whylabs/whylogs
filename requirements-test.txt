@@ -6,7 +6,7 @@ fsspec==0.8.5
 jmespath==0.10.0
 marshmallow==3.10.0
 matplotlib==3.3.3
-numpy>=1.19.4
+numpy>=1.19.4,<=1.20.0
 pandas>=1.1.4
 protobuf==4.0.0rc2
 python-dateutil==2.8.1
