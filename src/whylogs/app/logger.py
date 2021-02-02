@@ -379,6 +379,7 @@ class Logger:
         Raises:
             NotImplementedError: Description
         """
+        from tqdm import tqdm
         try:
             from PIL.Image import Image as ImageType
         except ImportError as e:
@@ -386,15 +387,6 @@ class Logger:
             logger.debug(str(e))
             logger.debug(
                 "Unable to load PIL; install Pillow for image support")
-
-        if show_progress:
-            try:
-                from tqdm import tqdm
-            except ImportError as e:
-                show_progress = False
-                logger.debug(str(e))
-                logger.warning(
-                    "Unable to load tqdm; install tqdm for progress support")
 
         dst = LocalDataset(root_dir)
         for idx in tqdm(range(len(dst)), disable=(not show_progress)):
