@@ -9,7 +9,7 @@ from typing import List, Optional, Dict, Union, Callable, AnyStr
 from typing.io import IO
 from pathlib import Path
 
-
+from tqdm import tqdm
 import pandas as pd
 
 from whylogs.app.writers import Writer
@@ -379,7 +379,6 @@ class Logger:
         Raises:
             NotImplementedError: Description
         """
-        from tqdm import tqdm
         try:
             from PIL.Image import Image as ImageType
         except ImportError as e:
@@ -530,6 +529,7 @@ class Logger:
         segment = sorted(segment, key=lambda x: x["key"])
 
         segment_profile = self.get_segment(segment)
+
         if segment_profile is None:
             segment_profile = DatasetProfile(
                 self.dataset_name,
