@@ -29,7 +29,6 @@ exclude-labels:
 
 template: |
 
-
   ## whylogs 
   
   $CHANGES
