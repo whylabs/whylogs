@@ -1,0 +1,34 @@
+name-template: "$NEXT_MINOR_VERSION"
+tag-template: "$NEXT_MINOR_VERSION"
+change-template: '- $TITLE #$NUMBER [@$AUTHOR]'
+
+categories:
+  - title: "✨ Features"
+    labels: 
+      - "feature"
+      - "✨"
+      - "⚡️"
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+      - '🐛'
+  - title: "📚 Documentation"
+    labels:
+      - "documentation"
+      - "docs"
+      - "📚"
+  - title: " 🚨 Testing"
+    labels: 
+      - "testing"
+      - "test"
+
+exclude-labels:
+  - "changelog: skip"
+
+template: |
+
+  ## whylogs 
+  
+  $CHANGES
