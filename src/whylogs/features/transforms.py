@@ -20,8 +20,9 @@ class ComposeTransforms:
      Outputs the composition of each transformation passed in transforms
     """
 
-    def __init__(self, transforms: List):
+    def __init__(self, transforms: List, name=None):
         self.transforms = transforms
+        self.name = name
 
     def __call__(self, x):
         for t in self.transforms:
@@ -29,12 +30,17 @@ class ComposeTransforms:
         return x
 
     def __repr__(self):
-        format_string = '('
-        for t in self.transforms:
-            format_string += '{0}'.format(t)
-            format_string += "->"
-        format_string = format_string[:-2]
-        format_string += ')'
+        format_string = ""
+        if self.name:
+            format_string = self.name
+        else:
+            for t in self.transforms[::-1]:
+                format_string += '{0}'.format(t)
+                format_string += "("
+            format_string += "IMG"
+            for _ in range(len(self.transforms)):
+                format_string += ')'
+
         return format_string
 
 
@@ -85,6 +91,34 @@ class Saturation:
         return self.__class__.__name__
 
 
+class Resize:
+
+    """
+    Helper Transform to resize images.
+
+    Attributes:
+        size (TYPE): Description
+    """
+
+    def __init__(self, size):
+        self.size = (size, size)
+
+    def __call__(self, img: Union[ImageType, np.ndarray]) -> np.ndarray:
+        """
+
+        Args:
+            img (Union[ImageType, np.ndarray]): Description
+
+        Returns:
+            np.ndarray: Description
+        """
+        img = img.resize(self.size, Image.ANTIALIAS)
+        return img
+
+    def __repr__(self):
+        return self.__class__.__name__
+
+
 class Hue:
 
     def __call__(self, img: Union[ImageType, np.ndarray]) -> np.ndarray:
@@ -123,7 +157,7 @@ class SimpleBlur:
         img = img.convert("RGB")
         img = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
                                                      -1, -1, -1, -1), 1, 0))
-        value = np.var(np.array(img).flatten())
+        value = np.var(np.array(img).flatten()).reshape((-1, 1))
         return value
 
     def __repr__(self):

@@ -59,7 +59,7 @@ def test_data_path():
 
     imag_path = os.path.join(
         _MY_DIR, os.pardir, "testdata")
-    return test_data_path
+    return imag_path
 
 
 @pytest.fixture(scope="session")
@@ -71,3 +71,14 @@ def image_files():
     image_files = [os.path.join(image_dir, f) for f in listdir(
         image_dir) if isfile(join(image_dir, f))]
     return sorted(image_files)
+
+
+@pytest.fixture(scope="session")
+def file_list():
+    from os import listdir
+    from os.path import isfile, join
+    file_dir = os.path.join(
+        _MY_DIR, os.pardir, "testdata", "files")
+    file_list = [os.path.join(file_dir, f) for f in listdir(
+        file_dir) if isfile(join(file_dir, f))]
+    return sorted(file_list)

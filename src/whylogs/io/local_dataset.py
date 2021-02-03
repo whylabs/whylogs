@@ -1,25 +1,7 @@
 import os
 from typing import Any, Callable, List, Optional, Tuple
 import abc
-
-EXTENSIONS = ('.csv', '.xls', '.jpg', '.jpeg', '.png', '.ppm', '.bmp',
-              '.pgm', '.tif', '.tiff', '.webp')
-
-
-def valid_file(fname):
-    extension = os.path.splitext(fname)[1]
-    return extension in EXTENSIONS
-
-
-def file_loader(path: str) -> Any:
-    from PIL import Image
-
-    try:
-        with open(path, 'rb') as f:
-            img = Image.open(f)
-            return img, img.format
-    except Exception as e:
-        raise e
+from .file_loader import file_loader, EXTENSIONS, valid_file
 
 
 class Dataset(abc.ABC):
@@ -42,9 +24,8 @@ class Dataset(abc.ABC):
 
         head = "Dataset " + self.__class__.__name__
         body = ["Number of files: {}".format(self.__len__())]
-        if self.root is not None:
-            body.append("Folder location: {}".format(self.root))
-        body += self.extra_repr().splitlines()
+        if self.root_folder is not None:
+            body.append("Folder location: {}".format(self.root_folder))
         if hasattr(self, "transforms") and self.transforms is not None:
             body += [repr(self.transforms)]
         lines = [head] + [" " * self._repr_indent + line for line in body]
@@ -59,7 +40,7 @@ class LocalDataset(Dataset):
             loader: Callable[[str], Any] = file_loader,
             extensions: List[str] = EXTENSIONS,
             feature_transforms: Optional[List[Callable]] = None,
-            is_valid_file: Optional[Callable[[str], bool]] = None,
+            valid_file: Optional[Callable[[str], bool]] = valid_file,
     ) -> None:
         super().__init__(root_folder, feature_transforms=feature_transforms)
         self.folder_segmented_feature = []
@@ -76,10 +57,10 @@ class LocalDataset(Dataset):
 
     def _init_dataset(self, ) -> List[Tuple[str, int]]:
 
-        self.samples = []
-        # is_valid_file = cast(Callable[[str], bool], is_valid_file)
+        self.items = []
         for folder_feature_value in sorted(self.folder_feature_dict.keys()):
             print(folder_feature_value)
+
             folder_index = self.folder_feature_dict[folder_feature_value]
             folder_feature_value = os.path.join(
                 self.root_folder, folder_feature_value)
@@ -90,14 +71,14 @@ class LocalDataset(Dataset):
                     file_path = os.path.join(root, fname)
                     if valid_file(file_path):
                         item = file_path, folder_index
-                        self.samples.append(item)
+                        self.items.append(item)
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
 
-        path, folder_feature_index = self.samples[index]
-        sample, file_format = self.loader(path)
+        path, folder_feature_index = self.items[index]
+        output = self.loader(path)
 
-        return (sample, file_format), self.folder_segmented_feature[folder_feature_index],
+        return output, self.folder_segmented_feature[folder_feature_index],
 
-    def __len__(self) -> int:
-        return len(self.samples)
+    def __len__(self,):
+        return len(self.items)
