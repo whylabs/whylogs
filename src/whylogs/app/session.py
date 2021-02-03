@@ -150,6 +150,9 @@ class Session:
 
         return logger
 
+    def get_logger(self, dataset_name: str = None):
+        return self._loggers.get(dataset_name, None)
+
     def log_dataframe(
         self,
         df: pd.DataFrame,

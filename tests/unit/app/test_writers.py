@@ -35,7 +35,7 @@ def moto_boto():
 
 
 @pytest.mark.usefixtures("moto_boto")
-def test_s3_writer(df_lending_club, moto_boto, s3_config_path):
+def test_s3_writer_bug(df_lending_club, moto_boto, s3_config_path):
 
     assert os.path.exists(s3_config_path)
 

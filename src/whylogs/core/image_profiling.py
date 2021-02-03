@@ -13,7 +13,7 @@ try:
 except ImportError as e:
     ImageType = None
     logger.debug(str(e))
-    logger.debug("Unable to load PIL; install pillow for image support")
+    logger.debug("Unable to load PIL; install Pillow for image support")
 
 DEFAULT_IMAGE_FEATURES = [Hue(), Saturation(), Brightness()]
 

@@ -84,7 +84,6 @@ def test_Brightness():
 def test_simple_blur(image_files):
     expected_results = [3754.4, 1392.5, 13544.2, ]
     transform = SimpleBlur()
-
     for idx, eachimg in enumerate(image_files):
         img = image_loader(eachimg)
         res = transform(img)

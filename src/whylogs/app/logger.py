@@ -4,20 +4,25 @@ Class and functions for whylogs logging
 import datetime
 import hashlib
 import json
-from pathlib import Path
+import logging
 from typing import List, Optional, Dict, Union, Callable, AnyStr
-
-import pandas as pd
 from typing.io import IO
+from pathlib import Path
+
+from tqdm import tqdm
+import pandas as pd
 
 from whylogs.app.writers import Writer
-from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES
+from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
+from whylogs.io import LocalDataset
 
 TIME_ROTATION_VALUES = ["s", "m", "h", "d"]
 
 # TODO upgrade to Classes
 SegmentTag = Dict[str, any]
 Segment = List[SegmentTag]
+
+logger = logging.getLogger(__name__)
 
 
 class Logger:
@@ -98,6 +103,15 @@ class Logger:
         :rtype: DatasetProfile
         """
         return self._profiles[-1]["full_profile"]
+
+    def tracking_checks(self):
+
+        if not self._active:
+            return False
+
+        if self.should_rotate():
+            self._rotate_time()
+        return True
 
     @property
     def segmented_profiles(self, ) -> Dict[str, DatasetProfile]:
@@ -287,11 +301,8 @@ class Logger:
         :param value: value of as single feature. Cannot be specified if 'features' is specified
 
         """
-        if not self._active:
+        if not self.tracking_checks():
             return None
-
-        if self.should_rotate():
-            self._rotate_time()
 
         if features is None and feature_name is None:
             return
@@ -341,10 +352,8 @@ class Logger:
         :param feature_transforms: a list of callables to transform the input into metrics
         :type image: Union[str, PIL.image]
         """
-        if not self._active:
-            return
-        if self.should_rotate():
-            self._rotate_time()
+        if not self.tracking_checks():
+            return None
 
         if isinstance(image, str):
             track_image = TrackImage(image, feature_transforms=feature_transforms,
@@ -354,6 +363,73 @@ class Logger:
                                      metadata_attributes=metadata_attributes, feature_name=feature_name)
 
         track_image(self._profiles[-1]["full_profile"])
+
+    def log_local_dataset(self, root_dir, folder_feature_name="folder_feature", image_feature_transforms=None, show_progress=False):
+        """
+        Log a local folder dataset
+        It will log data from the files, along with structure file data like
+        metadata, and magic numbers. If the folder has single layer for children
+        folders, this will pick up folder names as a segmented feature
+
+        Args:
+            root_dir (str): directory where dataset is located.
+            folder_feature_name (str, optional): Name for the subfolder features, i.e. class, store etc.
+            v (None, optional): image transform that you would like to use with the image log
+
+        Raises:
+            NotImplementedError: Description
+        """
+        try:
+            from PIL.Image import Image as ImageType
+        except ImportError as e:
+            ImageType = None
+            logger.debug(str(e))
+            logger.debug(
+                "Unable to load PIL; install Pillow for image support")
+
+        dst = LocalDataset(root_dir)
+        for idx in tqdm(range(len(dst)), disable=(not show_progress)):
+            # load internal and metadata from the next file
+            ((data, magic_data), fmt), segment_value = dst[idx]
+
+            # log magic number data if any, fmt, and folder name.
+            self.log(feature_name="file_format", value=fmt)
+
+            self.log(feature_name=folder_feature_name, value=segment_value)
+
+            self.log(features=magic_data)
+
+            if isinstance(data, pd.DataFrame):
+                self.log_dataframe(data)
+
+            elif isinstance(data, Dict) or isinstance(data, list):
+                self.log_annotation(annotation_data=data)
+            elif isinstance(data, ImageType):
+                if image_feature_transforms:
+                    self.log_image(
+                        data, feature_transforms=image_feature_transforms, metadata_attributes=[])
+                else:
+                    self.log_image(
+                        data, metadata_attributes=[])
+            else:
+                raise NotImplementedError(
+                    "File format not supported {}, format:{}".format(type(data), fmt))
+
+    def log_annotation(self, annotation_data):
+        """
+        Log structured annotation data ie. JSON like structures
+
+
+        Args:
+            annotation_data (Dict or List): Description
+
+        Returns:
+            TYPE: Description
+        """
+        if not self.tracking_checks():
+            return None
+        track_bounding_box = TrackBB(obj=annotation_data)
+        track_bounding_box(self._profiles[-1]["full_profile"])
 
     def log_csv(self,
                 filepath_or_buffer: Union[str, Path, IO[AnyStr]],
@@ -369,10 +445,6 @@ class Logger:
         :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the
         dataset.
         """
-        if not self._active:
-            return
-        if self.should_rotate():
-            self._rotate_time()
 
         self.profile_full_dataset = profile_full_dataset
         if segments is not None:
@@ -392,10 +464,8 @@ class Logger:
         :param segments: specify the tag key value pairs for segments
         :param df: the Pandas dataframe to log
         """
-        if not self._active:
+        if not self.tracking_checks():
             return None
-        if self.should_rotate():
-            self._rotate_time()
 
         # segment check  in case segments are just keys
         self.profile_full_dataset = profile_full_dataset
@@ -459,6 +529,7 @@ class Logger:
         segment = sorted(segment, key=lambda x: x["key"])
 
         segment_profile = self.get_segment(segment)
+
         if segment_profile is None:
             segment_profile = DatasetProfile(
                 self.dataset_name,
