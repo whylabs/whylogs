@@ -61,7 +61,7 @@ class DatasetProfileAggregatorTest extends AnyFunSuite with SharedSparkContext {
     groupedDf.printSchema()
 
     // extract the nested column, collect them and turn them into Summary objects
-    val summaries = groupedDf.select("whylogs_profile.value")
+    val summaries = groupedDf.select("whylogs_profile")
       .collect()
       .map(_.getAs[ScalaDatasetProfile](0))
       .map(_.value)
@@ -106,7 +106,7 @@ class DatasetProfileAggregatorTest extends AnyFunSuite with SharedSparkContext {
     groupedDf.explain()
 
     // extract the nested column, collect them and turn them into Summary objects
-    val summaries = groupedDf.select("whylogs_profile.value")
+    val summaries = groupedDf.select("whylogs_profile")
       .collect()
       .map(_.getAs[ScalaDatasetProfile](0))
       .map(_.value)

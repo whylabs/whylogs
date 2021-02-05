@@ -34,7 +34,7 @@ class ScalaDatasetProfileUDT extends UserDefinedType[ScalaDatasetProfile] {
   override def sqlType: DataType = BinaryType
 
   // TODO: support PySpark
-  override def pyUDT: String = "org.apache.spark.whylogs.DatasetProfileDataType"
+  override def pyUDT: String = "whyspark.udt.DatasetProfileUDT"
 
   override def serialize(obj: ScalaDatasetProfile): Array[Byte] = {
     val msg = obj.value.toProtobuf.build()

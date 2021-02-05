@@ -5,15 +5,12 @@ import java.time.{Instant, ZoneOffset}
 import java.util.{Collections, UUID}
 
 import com.whylogs.core.DatasetProfile
-import org.apache.spark.sql.catalyst.ScalaReflection
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.catalyst.expressions.BoundReference
 import org.apache.spark.sql.expressions.Aggregator
-import org.apache.spark.sql.types.{StructField, StructType}
+import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.{Encoder, Encoders, Row}
 
 import scala.collection.JavaConverters._
-import scala.reflect.ClassTag
 
 object InstantDateTimeFormatter {
   private val Formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneOffset.UTC)
@@ -123,29 +120,18 @@ case class DatasetProfileAggregator(datasetName: String,
 
   override def bufferEncoder: Encoder[DatasetProfile] = Encoders.javaSerialization(classOf[DatasetProfile])
 
-  /**
-   * To understand the detailed implementation of this class, see  [[ExpressionEncoder]].
-   *
-   * We use some internal Spark API here.
-   */
-  override def outputEncoder: Encoder[ScalaDatasetProfile] = {
-    val dataType = ScalaDatasetProfileUDT()
-    val structType = new StructType().add("value", dataType)
+  override def outputEncoder: Encoder[ScalaDatasetProfile] = ExpressionEncoder[ScalaDatasetProfile]()
+}
 
-    // based on ExpressionEncoder
-    // TODO: understand why we can't directly use use the 'dataType' object here
-    // but have to refer to the reflection logic (it returns an ObjectType)
-    val reflectionType = ScalaReflection.dataTypeFor[ScalaDatasetProfile]
-    val inputObject = BoundReference(0, reflectionType, nullable = true)
-    val serializer = ScalaReflection.serializerFor[ScalaDatasetProfile](inputObject)
-    val deserializer = ScalaReflection.deserializerFor[ScalaDatasetProfile]
+object DatasetProfileAggregator {
 
-    new ExpressionEncoder[ScalaDatasetProfile](
-      structType,
-      flat = false,
-      serializer.flatten,
-      deserializer,
-      ClassTag(dataType.userClass)
-    )
+  import org.apache.spark.sql.functions.udaf
+
+  def udf(datasetName: String,
+          sessionTimeInMillis: Long,
+          timeColumn: String = null,
+          groupByColumns: List[String] = List(),
+          sessionId: String = UUID.randomUUID().toString): Unit = {
+    udaf(DatasetProfileAggregator(datasetName, sessionTimeInMillis, timeColumn, groupByColumns, sessionId))
   }
 }

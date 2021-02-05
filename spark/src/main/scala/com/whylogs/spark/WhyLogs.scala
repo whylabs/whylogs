@@ -12,7 +12,7 @@ import scala.language.implicitConversions
 case class WhyProfileSession(private val dataFrame: DataFrame,
                              private val name: String,
                              private val timeColumn: String = null,
-                             private val groupByColumns: Seq[String] = Seq()) {
+                             private val groupByColumns: Seq[String] = List()) {
   private val logger = LoggerFactory.getLogger(getClass)
   private val columnNames = dataFrame.schema.fieldNames.toSet
 
@@ -59,7 +59,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     logger.debug(s"All columns: $columnNames")
 
     // we use an intermediate name so we can extract the "value" after
-    val whyStruct = "why_profile_struct"
+    val whyStruct = "why_profile"
 
     val timeInMillis = timestamp.toEpochMilli
     val whyStructDataFrame =
@@ -79,10 +79,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
           .agg(profileAgg)
       }
 
-    val excludingWhyStruct = whyStructDataFrame.columns.filter(_ != whyStruct).map(whyStructDataFrame.col)
-    val whyColumn = whyStructDataFrame.col(s"$whyStruct.value").alias("why_profile")
-
-    whyStructDataFrame.select(excludingWhyStruct :+ whyColumn: _*)
+    whyStructDataFrame
   }
 
   private def checkIfColumnExists(col: String): Unit = {

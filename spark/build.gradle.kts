@@ -19,8 +19,8 @@ spotless {
     }
 }
 
-val scalaVersion = project.properties.getOrDefault("scalaVersion", "2.11")
-val sparkVersion = "2.4.5"
+val scalaVersion = project.properties.getOrDefault("scalaVersion", "2.12")
+val sparkVersion = "3.0.1"
 val artifactBaseName = "${rootProject.name}-spark_$scalaVersion"
 
 tasks.jar {
