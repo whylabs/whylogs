@@ -7,6 +7,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.whylogs.DatasetProfileAggregator
 import org.slf4j.LoggerFactory
 
+import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
 case class WhyProfileSession(private val dataFrame: DataFrame,
@@ -45,7 +46,19 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
   }
 
   /**
+   * A Java friendly API. This is used by the Py4J gateway to pass data
+   * into the JV
+   * @param columns list of columns for grouping
+   * @return a new WhyProfileSession object
+   */
+  def groupBy(columns: java.util.List[String]): WhyProfileSession = {
+    this.copy(groupByColumns = columns.asScala)
+  }
+
+
+  /**
    * Run aggregation and build profile based on the specification of this session
+   *
    * @param timestamp the session timestamp for the whole run
    * @return a DataFrame with aggregated profiles under 'why_profile' column
    */
