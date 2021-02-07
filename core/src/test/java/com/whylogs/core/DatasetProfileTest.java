@@ -186,7 +186,7 @@ public class DatasetProfileTest {
 
     val roundTrip = SerializationUtils.clone(original);
     assertThat(roundTrip.getSessionId(), is("test"));
-    assertThat(roundTrip.getSessionTimestamp(), is(sessionTime));
+    assertThat(roundTrip.getSessionTimestamp().toEpochMilli(), is(sessionTime.toEpochMilli()));
     assertThat(roundTrip.getDataTimestamp(), is(dataTime));
     assertThat(roundTrip.columns, aMapWithSize(2));
     assertThat(roundTrip.tags, aMapWithSize(3));
@@ -207,7 +207,7 @@ public class DatasetProfileTest {
 
     val roundTrip = SerializationUtils.clone(original);
     assertThat(roundTrip.getSessionId(), is("test"));
-    assertThat(roundTrip.getSessionTimestamp(), is(sessionTime));
+    assertThat(roundTrip.getSessionTimestamp().toEpochMilli(), is(sessionTime.toEpochMilli()));
     assertThat(roundTrip.getDataTimestamp(), nullValue());
     assertThat(roundTrip.columns, aMapWithSize(2));
     assertThat(roundTrip.tags, aMapWithSize(3));
