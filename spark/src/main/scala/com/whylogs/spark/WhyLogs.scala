@@ -46,8 +46,17 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
 
   /**
    * Run aggregation and build profile based on the specification of this session
+   * @param timestamp the session timestamp for the whole run
+   * @return a DataFrame with aggregated profiles under 'why_profile' column
+   */
+  def aggProfiles(timestamp: Long): DataFrame = {
+    this.aggProfiles(Instant.ofEpochMilli(timestamp))
+  }
+
+  /**
+   * Run aggregation and build profile based on the specification of this session
    *
-   * @param timestamp the timestamp for the whole run (often the current time, or the start of the
+   * @param timestamp the session timestamp for the whole run (often the current time, or the start of the
    *                  batch run
    * @return a DataFrame with aggregated profiles under 'why_profile' column
    */
@@ -105,4 +114,11 @@ object WhyLogs {
     }
   }
 
+  def newProfilingSession(dataframe: Dataset[Row], name: String): WhyProfileSession = {
+    WhyProfileSession(dataframe, name)
+  }
+
+  def newProfilingSession(dataframe: Dataset[Row], name: String, timeColumn: String): WhyProfileSession = {
+    WhyProfileSession(dataframe, name, timeColumn)
+  }
 }

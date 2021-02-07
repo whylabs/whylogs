@@ -1,9 +1,12 @@
 package org.apache.spark.whylogs
 
+import java.io.ByteArrayOutputStream
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}
+import java.util
 import java.util.{Collections, UUID}
 
+import com.google.common.collect.Lists
 import com.whylogs.core.DatasetProfile
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.expressions.Aggregator
@@ -30,7 +33,7 @@ case class DatasetProfileAggregator(datasetName: String,
                                     timeColumn: String = null,
                                     groupByColumns: Seq[String] = Seq(),
                                     sessionId: String = UUID.randomUUID().toString)
-  extends Aggregator[Row, DatasetProfile, ScalaDatasetProfile] with Serializable {
+  extends Aggregator[Row, DatasetProfile, Array[Byte]] with Serializable {
 
   private val allGroupByColumns = (groupByColumns ++ Option(timeColumn).toSeq).toSet
 
@@ -107,7 +110,7 @@ case class DatasetProfileAggregator(datasetName: String,
     profile1.merge(profile2)
   }
 
-  override def finish(reduction: DatasetProfile): ScalaDatasetProfile = {
+  override def finish(reduction: DatasetProfile): Array[Byte] = {
     val finalProfile = new DatasetProfile(
       datasetName,
       reduction.getSessionTimestamp,
@@ -115,23 +118,24 @@ case class DatasetProfileAggregator(datasetName: String,
       reduction.getTags,
       reduction.getColumns
     )
-    ScalaDatasetProfile(finalProfile)
+    val msg = finalProfile.toProtobuf.build()
+    val bos = new ByteArrayOutputStream(msg.getSerializedSize)
+    msg.writeDelimitedTo(bos)
+    bos.toByteArray
   }
 
   override def bufferEncoder: Encoder[DatasetProfile] = Encoders.javaSerialization(classOf[DatasetProfile])
 
-  override def outputEncoder: Encoder[ScalaDatasetProfile] = ExpressionEncoder[ScalaDatasetProfile]()
+  override def outputEncoder: Encoder[Array[Byte]] = ExpressionEncoder[Array[Byte]]()
 }
 
 object DatasetProfileAggregator {
 
-  import org.apache.spark.sql.functions.udaf
-
-  def udf(datasetName: String,
-          sessionTimeInMillis: Long,
-          timeColumn: String = null,
-          groupByColumns: List[String] = List(),
-          sessionId: String = UUID.randomUUID().toString): Unit = {
-    udaf(DatasetProfileAggregator(datasetName, sessionTimeInMillis, timeColumn, groupByColumns, sessionId))
+  def aggregator(datasetName: String,
+                 sessionTimeInMillis: Long,
+                 timeColumn: String = null,
+                 groupByColumns: util.List[String] = Lists.newArrayList(),
+                 sessionId: String = UUID.randomUUID().toString) = {
+    DatasetProfileAggregator(datasetName, sessionTimeInMillis, timeColumn, groupByColumns.asScala, sessionId)
   }
 }

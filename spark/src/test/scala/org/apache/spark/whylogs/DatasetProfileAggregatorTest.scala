@@ -1,10 +1,12 @@
 package org.apache.spark.whylogs
 
+import java.io.ByteArrayInputStream
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-import com.whylogs.core.message.InferredType
+import com.whylogs.core.DatasetProfile
+import com.whylogs.core.message.{DatasetProfileMessage, InferredType}
 import org.scalatest.funsuite.AnyFunSuite
 
 case class ExamplePoint(x: Int, y: Double, z: String, ts: Timestamp = new Timestamp(Instant.now().toEpochMilli))
@@ -27,7 +29,9 @@ class DatasetProfileAggregatorTest extends AnyFunSuite with SharedSparkContext {
     val profiles = examples.select(dpAggregator.toColumn).collect()
     assert(profiles.length == 1)
 
-    val summary = profiles(0).value.toSummary
+
+    val profile = DatasetProfile.fromProtobuf(DatasetProfileMessage.parseDelimitedFrom(new ByteArrayInputStream(profiles(0))))
+    val summary = profile.toSummary
     assert(summary.getColumnsMap.size() == 4)
 
     // assert count
@@ -63,8 +67,9 @@ class DatasetProfileAggregatorTest extends AnyFunSuite with SharedSparkContext {
     // extract the nested column, collect them and turn them into Summary objects
     val summaries = groupedDf.select("whylogs_profile")
       .collect()
-      .map(_.getAs[ScalaDatasetProfile](0))
-      .map(_.value)
+      .map(_.getAs[Array[Byte]](0))
+      .map(new ByteArrayInputStream(_))
+      .map(DatasetProfile.parse(_))
       .map(_.toSummary)
     assert(summaries.length == 4)
 
@@ -108,8 +113,9 @@ class DatasetProfileAggregatorTest extends AnyFunSuite with SharedSparkContext {
     // extract the nested column, collect them and turn them into Summary objects
     val summaries = groupedDf.select("whylogs_profile")
       .collect()
-      .map(_.getAs[ScalaDatasetProfile](0))
-      .map(_.value)
+      .map(_.getAs[Array[Byte]](0))
+      .map(new ByteArrayInputStream(_))
+      .map(DatasetProfile.parse(_))
       .map(_.toSummary)
     assert(summaries.length == 12)
 

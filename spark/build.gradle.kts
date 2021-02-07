@@ -1,9 +1,16 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     scala
     `java-library`
     signing
     `maven-publish`
     id("com.github.maiflai.scalatest") version "0.26"
+    id("com.github.johnrengelman.shadow") version "6.1.0"
+}
+
+apply {
+    plugin("com.github.johnrengelman.shadow")
 }
 
 repositories {
@@ -40,6 +47,10 @@ sourceSets {
                     )
                 )
             }
+        }
+
+        resources {
+            includes.add("python/whyspark/__init__.py")
         }
     }
 }
@@ -97,6 +108,11 @@ tasks.test {
     }
 }
 
+tasks.jar {
+    into("whyspark/") {
+        from("python/whyspark/")
+    }
+}
 // expose only
 configurations.create("jar")
 
@@ -104,6 +120,9 @@ artifacts {
     add("jar", tasks.jar)
 }
 
+val shadowJar = tasks.getByName<ShadowJar>("shadowJar") {
+    excludes.add("spark-*")
+}
 
 publishing {
     val ossrhUsername: String? by project
