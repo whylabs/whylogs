@@ -12,5 +12,6 @@ rootProject.name = "whylogs-java"
 include(
         ":core",
         ":spark",
+        ":spark-bundle",
         ":cli"
         )
