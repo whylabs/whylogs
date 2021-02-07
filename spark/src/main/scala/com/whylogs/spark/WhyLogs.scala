@@ -10,6 +10,13 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
+/**
+ * A class that enable easy access to the profiling API
+ * @param dataFrame the dataframe to profile
+ * @param name the name of the dataset
+ * @param timeColumn the time column, if the data is to be broken down by time
+ * @param groupByColumns the group by column
+ */
 case class WhyProfileSession(private val dataFrame: DataFrame,
                              private val name: String,
                              private val timeColumn: String = null,
