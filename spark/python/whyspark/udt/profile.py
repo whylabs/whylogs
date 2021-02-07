@@ -49,7 +49,8 @@ class WhyProfileSession:
         elif timestamp_ms is None:
             timestamp_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
 
-        return j_session.aggProfiles(timestamp_ms)
+        jdf = j_session.aggProfiles(timestamp_ms)
+        return DataFrame(jdf=jdf, sql_ctx=self._df.sql_ctx)
 
     def aggParquet(self, path: str, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None):  # noqa
         """
