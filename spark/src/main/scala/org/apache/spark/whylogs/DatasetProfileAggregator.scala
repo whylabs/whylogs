@@ -3,10 +3,8 @@ package org.apache.spark.whylogs
 import java.io.ByteArrayOutputStream
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}
-import java.util
 import java.util.{Collections, UUID}
 
-import com.google.common.collect.Lists
 import com.whylogs.core.DatasetProfile
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.expressions.Aggregator
@@ -127,15 +125,4 @@ case class DatasetProfileAggregator(datasetName: String,
   override def bufferEncoder: Encoder[DatasetProfile] = Encoders.javaSerialization(classOf[DatasetProfile])
 
   override def outputEncoder: Encoder[Array[Byte]] = ExpressionEncoder[Array[Byte]]()
-}
-
-object DatasetProfileAggregator {
-
-  def aggregator(datasetName: String,
-                 sessionTimeInMillis: Long,
-                 timeColumn: String = null,
-                 groupByColumns: util.List[String] = Lists.newArrayList(),
-                 sessionId: String = UUID.randomUUID().toString) = {
-    DatasetProfileAggregator(datasetName, sessionTimeInMillis, timeColumn, groupByColumns.asScala, sessionId)
-  }
 }
