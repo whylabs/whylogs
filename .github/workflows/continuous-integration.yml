@@ -55,6 +55,8 @@ jobs:
   finish:
     needs: test
     runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 2
     steps:
     - name: Coveralls Finished
       env:
@@ -63,4 +65,7 @@ jobs:
       with:
         parallel-finished: true
         github-token : ${{ secrets.GITHUB_TOKEN }}
+    - name: Check example notebook
+      run: 
+        pytest test_notebooks/notebook_tests.py
         
