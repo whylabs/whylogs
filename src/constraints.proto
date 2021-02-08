@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+import "messages.proto";
+
+option java_package = "com.whylogs.core.constraint";
+option java_outer_classname = "Constraints";
+option java_multiple_files = true;
+
+/* constraints specify one of the following binary boolean relationships. */
+enum Op {
+    unused = 0;
+    LT = 1;
+    LE = 2;
+    EQ = 3;
+    NE = 4;
+    GE = 5;
+    GT = 6;
+  }
+
+/* Summary constraints specify a relationship between a summary field and a literal value,
+   or between two summary fields.
+   e.g.     'min' < 6
+            'std_dev' < 2.17
+            'min' > 'avg'
+   */
+message SummaryConstraintMsg {
+  string field = 1;
+  oneof second {
+     string name = 2;
+     double value = 3;
+  }
+  Op op = 4;
+}
+
+/* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal.
+   These are applied to every incoming value that is processed by whylogs.  */
+message ValueConstraintMsg {
+  double literal = 1;
+  Op op = 2;
+}
+
+/* NumericConstraint can be applied either to each incoming value or just to dataset summaries. */
+message NumericConstraintMsg {
+  oneof constraint {
+     SummaryConstraintMsg summary = 1;
+     ValueConstraintMsg value = 2;
+  }
+}
+
+/* For now, ColumnConstraints may contain only numeric constraints.
+   It is expected that the types of constraints will expand. */
+message ColumnConstraintMsg {
+  NumericConstraintMsg number_constraint = 1;
+}
+
+message ColumnConstraintMsgs {
+  repeated ColumnConstraintMsg constraints = 1;
+}
+
+message DatasetConstraintMsg {
+  DatasetProperties properties = 1;
+  map<string, ColumnConstraintMsgs> columns = 2;  // map from columns to list of applicable constraints
+}
+
+message DatasetConstraintMsgs {
+  map<string, DatasetConstraintMsg> profiles = 1;  // map from datasets to list of constraints applicable to each
+}
