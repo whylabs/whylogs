@@ -5,3 +5,4 @@ Protobuf allows us to serialize/deserialize classes across languages
 """
 from .messages_pb2 import *
 from .summaries_pb2 import *
+from .constraints_pb2 import *
