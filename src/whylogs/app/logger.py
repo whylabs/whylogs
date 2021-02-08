@@ -14,7 +14,9 @@ import pandas as pd
 
 from whylogs.app.writers import Writer
 from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
+from whylogs.core.statistics.constraints import DatasetConstraints
 from whylogs.io import LocalDataset
+
 
 TIME_ROTATION_VALUES = ["s", "m", "h", "d"]
 
@@ -62,6 +64,7 @@ class Logger:
                  cache_size: int = 1,
                  segments: Optional[Union[List[Segment], List[str]]] = None,
                  profile_full_dataset: bool = False,
+                 constraints: DatasetConstraints = None,
                  ):
         """
         """
@@ -80,7 +83,7 @@ class Logger:
         self.session_id = session_id
         self.metadata = metadata
         self.profile_full_dataset = profile_full_dataset
-
+        self.constraints = constraints
         self.set_segments(segments)
 
         self._profiles = []
@@ -152,6 +155,7 @@ class Logger:
                 tags=self.tags,
                 metadata=self.metadata,
                 session_id=self.session_id,
+                constraints=self.constraints,
             )
         self._profiles.append(
             {"full_profile": full_profile, "segmented_profiles": {}})
@@ -290,7 +294,8 @@ class Logger:
             self,
             features: Optional[Dict[str, any]] = None,
             feature_name: str = None,
-            value: any = None
+            value: any = None,
+            constraints: DatasetConstraints = None,
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
@@ -465,8 +470,7 @@ class Logger:
 
     def log_dataframe(self, df,
                       segments: Optional[Union[List[Segment], List[str]]] = None,
-                      profile_full_dataset: bool = False,
-                      ):
+                      profile_full_dataset: bool = False, ):
         """
         Generate and log a whylogs DatasetProfile from a pandas dataframe
         :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the
@@ -548,6 +552,7 @@ class Logger:
                 tags={**self.tags, **{"segment": json.dumps(segment)}},
                 metadata=self.metadata,
                 session_id=self.session_id,
+                constraints=self.constraints,
             )
             segment_profile.track_dataframe(df)
             hashed_seg = hash_segment(segment)

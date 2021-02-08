@@ -4,7 +4,7 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
-from typing import Dict, List, Union
+from typing import Dict, Mapping, Optional, List, Union
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -25,6 +25,7 @@ from whylogs.proto import (
     DatasetSummary,
     MessageSegment,
 )
+from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
 from whylogs.util import time
 from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch
@@ -122,6 +123,7 @@ class DatasetProfile:
         metadata: Dict[str, str] = None,
         session_id: str = None,
         model_profile: ModelProfile = ModelProfile(),
+        constraints: DatasetConstraints = None,
     ):
         # Default values
         if columns is None:
@@ -139,6 +141,7 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
+        self.constraints = constraints
 
         self.model_profile = model_profile
 
@@ -242,7 +245,8 @@ class DatasetProfile:
         try:
             prof = self.columns[column_name]
         except KeyError:
-            prof = ColumnProfile(column_name)
+            constraints = None if self.constraints is None else self.constraints[column_name]
+            prof = ColumnProfile(column_name, constraints=constraints)
             self.columns[column_name] = prof
 
         prof.track(data)
@@ -280,9 +284,9 @@ class DatasetProfile:
             df = df.to_pandas()
         for col in df.columns:
             col_str = str(col)
+
             x = df[col].values
             for xi in x:
-
                 self.track(col_str, xi)
 
     def to_properties(self):
@@ -329,6 +333,21 @@ class DatasetProfile:
         return DatasetSummary(
             properties=self.to_properties(), columns=column_summaries,
         )
+
+    def generate_constraints(self) -> DatasetConstraints:
+        """
+        Assemble a sparse dict of constraints for all features.
+
+        Returns
+        -------
+        summary : DatasetConstraints
+            Protobuf constraints message.
+        """
+        self.validate()
+        constraints = [(name, col.generate_constraints()) for name, col in self.columns.items()]
+        # filter empty constraints
+        constraints = [(n, c) for n, c in constraints if c is not None]
+        return DatasetConstraints(self.to_properties(), None, dict(constraints))
 
     def flat_summary(self):
         """
@@ -408,7 +427,8 @@ class DatasetProfile:
 
         columns = {}
         for col_name in columns_set:
-            empty_column = ColumnProfile(col_name)
+            constraints = None if self.constraints is None else self.constraints[col_name]
+            empty_column = ColumnProfile(col_name, constraints=constraints)
             this_column = self.columns.get(col_name, empty_column)
             other_column = other.columns.get(col_name, empty_column)
             columns[col_name] = this_column.merge(other_column)
@@ -627,6 +647,22 @@ class DatasetProfile:
 
         """
         return list(DatasetProfile._parse_delimited_generator(data))
+
+    def apply_summary_constraints(self, summary_constraints: Optional[Mapping[str, SummaryConstraints]] = None):
+        if summary_constraints is None:
+            summary_constraints = self.constraints.summary_constraint_map
+        for k, v in summary_constraints.items():
+            if isinstance(v, list):
+                summary_constraints[k] = SummaryConstraints(v)
+        for feature_name, constraints in summary_constraints.items():
+            if feature_name in self.columns:
+                colprof = self.columns[feature_name]
+                summ = colprof.to_summary()
+                constraints.track(summ.number_summary)
+            else:
+                logger.debug(f'unkown feature \'{feature_name}\' in summary constraints')
+
+        return [(k, s.report()) for k, s in summary_constraints.items()]
 
 
 def columns_chunk_iterator(iterator, marker: str):

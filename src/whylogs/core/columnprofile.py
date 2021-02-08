@@ -4,9 +4,11 @@ Defines the ColumnProfile class for tracking per-column statistics
 from whylogs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
 from whylogs.core.statistics.datatypes import StringTracker
 from whylogs.core.statistics.hllsketch import HllSketch
+from whylogs.core.statistics.constraints import ValueConstraints, SummaryConstraints, SummaryConstraint
 from whylogs.core.types import TypedDataConverter
-from whylogs.proto import ColumnMessage, ColumnSummary, InferredType
+from whylogs.proto import ColumnMessage, ColumnSummary, InferredType, Op
 from whylogs.util.dsketch import FrequentItemsSketch
+
 
 import pandas as pd
 
@@ -26,14 +28,14 @@ class ColumnProfile:
     name : str (required)
         Name of the column profile
     number_tracker : NumberTracker
-        Implements numeric data statisics tracking
+        Implements numeric data statistics tracking
     string_tracker : StringTracker
         Implements string data-type statistics tracking
     schema_tracker : SchemaTracker
         Implements tracking of schema-related information
     counters : CountersTracker
         Keep count of various things
-    frequent_tiems : FrequentItemsSketch
+    frequent_items : FrequentItemsSketch
         Keep track of all frequent items, even for mixed datatype features
     cardinality_tracker : HllSketch
         Track feature cardinality (even for mixed data types)
@@ -52,6 +54,7 @@ class ColumnProfile:
         counters: CountersTracker = None,
         frequent_items: FrequentItemsSketch = None,
         cardinality_tracker: HllSketch = None,
+        constraints: ValueConstraints = None,
     ):
         # Handle default values
         if counters is None:
@@ -66,6 +69,8 @@ class ColumnProfile:
             frequent_items = FrequentItemsSketch()
         if cardinality_tracker is None:
             cardinality_tracker = HllSketch()
+        if constraints is None:
+            constraints = ValueConstraints()
         # Assign values
         self.column_name = name
         self.number_tracker = number_tracker
@@ -74,6 +79,7 @@ class ColumnProfile:
         self.counters = counters
         self.frequent_items = frequent_items
         self.cardinality_tracker = cardinality_tracker
+        self.constraints = constraints
 
     def track(self, value):
         """
@@ -102,6 +108,8 @@ class ColumnProfile:
             # for bool type first
             self.counters.increment_bool()
         self.number_tracker.track(typed_data)
+
+        self.constraints.track(typed_data)
 
     def to_summary(self):
         """
@@ -132,9 +140,21 @@ class ColumnProfile:
 
         return ColumnSummary(**opts)
 
+    def generate_constraints(self) -> SummaryConstraints:
+        items = []
+        if self.number_tracker is not None and self.number_tracker.count > 0:
+            summ = self.number_tracker.to_summary()
+            if summ.min > 0:
+                items = [SummaryConstraint(op=Op.GT, field='min', value=0)]
+            # generate additional constraints here
+            if len(items) > 0:
+                return SummaryConstraints(items)
+
+        return None
+
     def merge(self, other):
         """
-        Merge this columprofile with another.
+        Merge this columnprofile with another.
 
         Parameters
         ----------
