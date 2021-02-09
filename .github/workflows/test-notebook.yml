@@ -1,0 +1,46 @@
+name: notebook test
+
+on:
+  push:
+    branches: [ mainline, release]
+  pull_request:
+    branches: [ mainline, release]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        python-version: [3.9]
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Protoc
+      uses: arduino/setup-protoc@master
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Cache Python dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-test.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-test.txt
+    - name: Run notebook test
+      run: |
+        pytest --no-cov test_notebooks/notebook_tests.py
+    
