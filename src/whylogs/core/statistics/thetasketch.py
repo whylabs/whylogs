@@ -110,10 +110,8 @@ class ThetaSketch:
         sketch : ThetaSketch
             ThetaSketch object
         """
-        theta = datasketches.theta_sketch.deserialize(msg)
-        if isinstance(theta, datasketches.update_theta_sketch):
-            return ThetaSketch(theta_sketch=theta)
-        elif isinstance(theta, datasketches.compact_theta_sketch):
+        theta = datasketches.compact_theta_sketch.deserialize(msg)
+        if isinstance(theta, datasketches.compact_theta_sketch):
             return ThetaSketch(compact_theta=theta)
         else:
             raise ValueError(f"Unrecognized type: {type(theta)}")

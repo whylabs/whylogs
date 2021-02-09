@@ -112,7 +112,7 @@ wcwidth==0.2.5
 webencodings==0.5.1
 websocket-client==0.57.0
 Werkzeug==1.0.1
-whylabs-datasketches==2.0.0b7
+whylabs-datasketches==2.2.0b1
 zipp==3.4.0
 puremagic == 1.10
 xlrd==2.0.1

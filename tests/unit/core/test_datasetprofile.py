@@ -158,6 +158,10 @@ def test_parse_delimited_from_java_single():
         data = f.read()
         assert DatasetProfile.parse_delimited_single(data) is not None
 
+    with open(os.path.join(dir_path, "output_from_java_01212021.bin"), "rb") as f:
+        data = f.read()
+        assert DatasetProfile.parse_delimited_single(data) is not None
+
 
 def test_parse_from_protobuf():
     dir_path = os.path.dirname(os.path.realpath(__file__))
