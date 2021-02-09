@@ -2,6 +2,8 @@
 TODO:
     * Implement histograms
 """
+import logging
+
 import datasketches
 import pandas as pd
 import numbers
@@ -14,6 +16,8 @@ from whylogs.util import dsketch, stats
 
 # Parameter controlling histogram accuracy.  Larger = more accurate
 DEFAULT_HIST_K = 256
+
+logger = logging.getLogger(__name__)
 
 
 class NumberTracker:
@@ -42,13 +46,13 @@ class NumberTracker:
     """
 
     def __init__(
-        self,
-        variance: VarianceTracker = None,
-        floats: FloatTracker = None,
-        ints: IntTracker = None,
-        theta_sketch: ThetaSketch = None,
-        histogram: datasketches.kll_floats_sketch = None,
-        frequent_numbers: dsketch.FrequentNumbersSketch = None,
+            self,
+            variance: VarianceTracker = None,
+            floats: FloatTracker = None,
+            ints: IntTracker = None,
+            theta_sketch: ThetaSketch = None,
+            histogram: datasketches.kll_floats_sketch = None,
+            frequent_numbers: dsketch.FrequentNumbersSketch = None,
     ):
         # Our own trackers
         if variance is None:
@@ -84,9 +88,9 @@ class NumberTracker:
             A numeric value
         """
         if (
-            pd.isnull(number)
-            or (not isinstance(number, numbers.Real))
-            or isinstance(number, bool)
+                pd.isnull(number)
+                or (not isinstance(number, numbers.Real))
+                or isinstance(number, bool)
         ):
             # XXX: this type checking may still be fragile in python.
             return
@@ -153,10 +157,10 @@ class NumberTracker:
         number_tracker : NumberTracker
         """
         theta = None
-        if message.theta is not None and len(message.theta) > 0:
-            theta = ThetaSketch.deserialize(message.theta)
-        elif message.compact_theta is not None and len(message.compact_theta) > 0:
+        if message.compact_theta is not None and len(message.compact_theta) > 0:
             theta = ThetaSketch.deserialize(message.compact_theta)
+        elif message.theta is not None and len(message.theta) > 0:
+            logger.warning('Possible missing data. Non-compact theta sketches are no longer supported')
 
         opts = dict(
             theta_sketch=theta,

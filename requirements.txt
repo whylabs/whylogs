@@ -14,7 +14,7 @@ PyYAML==5.4.1
 s3transfer==0.3.3
 six==1.15.0
 urllib3==1.26.3
-whylabs-datasketches==2.0.0b7
+whylabs-datasketches==2.2.0b1
 xlrd==2.0.1
 openpyxl==3.0.6
 puremagic == 1.10
