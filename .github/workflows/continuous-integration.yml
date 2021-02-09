@@ -65,7 +65,3 @@ jobs:
       with:
         parallel-finished: true
         github-token : ${{ secrets.GITHUB_TOKEN }}
-    - name: Check example notebook
-      run: 
-        pytest test_notebooks/notebook_tests.py
-        
