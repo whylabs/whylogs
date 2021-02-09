@@ -6,7 +6,7 @@ import os
 import pytest
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
-PARENT_DIR = os.path.join(TEST_DIR, os.pardir, "..")
+PARENT_DIR = os.path.join(TEST_DIR, os.pardir)
 
 
 def process_notebook(notebook_filename, html_directory="notebook-html"):
