@@ -1,16 +1,9 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     scala
     `java-library`
     signing
     `maven-publish`
     id("com.github.maiflai.scalatest") version "0.26"
-    id("com.github.johnrengelman.shadow") version "6.1.0"
-}
-
-apply {
-    plugin("com.github.johnrengelman.shadow")
 }
 
 repositories {
@@ -118,10 +111,6 @@ configurations.create("jar")
 
 artifacts {
     add("jar", tasks.jar)
-}
-
-val shadowJar = tasks.getByName<ShadowJar>("shadowJar") {
-    excludes.add("spark-*")
 }
 
 publishing {
