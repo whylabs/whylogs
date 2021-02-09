@@ -8,12 +8,12 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.whylogs.core.message.ColumnMessage;
 import com.whylogs.core.message.ColumnSummary;
-import com.whylogs.core.message.FrequentItemsSketchMessage;
 import com.whylogs.core.message.HllSketchMessage;
 import com.whylogs.core.statistics.CountersTracker;
 import com.whylogs.core.statistics.NumberTracker;
 import com.whylogs.core.statistics.SchemaTracker;
 import com.whylogs.core.types.TypedDataConverter;
+import com.whylogs.core.utils.sketches.FrequentStringsSketch;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +29,7 @@ import org.apache.datasketches.memory.Memory;
 @Getter
 @Builder(setterPrefix = "set")
 public class ColumnProfile {
-  private static final int FREQUENT_MAX_LG_K = 7;
+  public static final int FREQUENT_MAX_LG_K = 7;
   private static final int CARDINALITY_LG_K = 12;
 
   @NonNull private final String columnName;
@@ -44,7 +44,7 @@ public class ColumnProfile {
     this.counters = new CountersTracker();
     this.schemaTracker = new SchemaTracker();
     this.numberTracker = new NumberTracker();
-    this.frequentItems = new ItemsSketch<>((int) Math.pow(2, FREQUENT_MAX_LG_K));
+    this.frequentItems = FrequentStringsSketch.create();
     this.cardinalityTracker = new HllSketch(CARDINALITY_LG_K);
   }
 
@@ -133,11 +133,6 @@ public class ColumnProfile {
         HllSketchMessage.newBuilder()
             .setLgK(cardinalityTracker.getLgConfigK())
             .setSketch(ByteString.copyFrom(cardinalityTracker.toCompactByteArray()));
-    val frequentItems =
-        FrequentItemsSketchMessage.newBuilder()
-            .setLgMaxK(FREQUENT_MAX_LG_K)
-            .setSketch(
-                ByteString.copyFrom(this.frequentItems.toByteArray(ARRAY_OF_STRINGS_SER_DE)));
 
     return ColumnMessage.newBuilder()
         .setName(columnName)
@@ -145,13 +140,10 @@ public class ColumnProfile {
         .setSchema(schemaTracker.toProtobuf())
         .setNumbers(numberTracker.toProtobuf())
         .setCardinalityTracker(hllSketchMessage)
-        .setFrequentItems(frequentItems);
+        .setFrequentItems(FrequentStringsSketch.toStringSketch(this.frequentItems));
   }
 
   public static ColumnProfile fromProtobuf(ColumnMessage message) {
-    val iMem = Memory.wrap(message.getFrequentItems().getSketch().toByteArray());
-    val items = ItemsSketch.getInstance(iMem, ARRAY_OF_STRINGS_SER_DE);
-
     return ColumnProfile.builder()
         .setColumnName(message.getName())
         .setCounters(CountersTracker.fromProtobuf(message.getCounters()))
@@ -159,7 +151,7 @@ public class ColumnProfile {
         .setNumberTracker(NumberTracker.fromProtobuf(message.getNumbers()))
         .setCardinalityTracker(
             HllSketch.heapify(message.getCardinalityTracker().getSketch().toByteArray()))
-        .setFrequentItems(items)
+        .setFrequentItems(FrequentStringsSketch.deserialize(message.getFrequentItems().getSketch()))
         .build();
   }
 }

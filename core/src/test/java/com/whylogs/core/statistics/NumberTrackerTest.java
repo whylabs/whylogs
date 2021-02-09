@@ -75,16 +75,24 @@ public class NumberTrackerTest {
     assertThat(numberTracker.getHistogram().getMaxValue(), is(13.0f));
     assertThat(numberTracker.getHistogram().getMinValue(), is(10.0f));
 
-    val merged = numberTracker.merge(numberTracker);
-    assertThat(merged.getLongs().getCount(), is(6L));
-    assertThat(merged.getDoubles().getCount(), is(0L));
-    assertThat(merged.getLongs().getCount(), is(6L));
-    assertThat(merged.getHistogram().getN(), is(6L));
-    assertThat(merged.getHistogram().getMaxValue(), is(13.0f));
-    assertThat(merged.getHistogram().getMinValue(), is(10.0f));
+    val mergedOnce = numberTracker.merge(numberTracker);
+    assertThat(mergedOnce.getLongs().getCount(), is(6L));
+    assertThat(mergedOnce.getDoubles().getCount(), is(0L));
+    assertThat(mergedOnce.getLongs().getCount(), is(6L));
+    assertThat(mergedOnce.getHistogram().getN(), is(6L));
+    assertThat(mergedOnce.getHistogram().getMaxValue(), is(13.0f));
+    assertThat(mergedOnce.getHistogram().getMinValue(), is(10.0f));
+
+    val mergedTwice = mergedOnce.merge(mergedOnce);
+    assertThat(mergedTwice.getLongs().getCount(), is(12L));
+    assertThat(mergedTwice.getDoubles().getCount(), is(0L));
+    assertThat(mergedTwice.getLongs().getCount(), is(12L));
+    assertThat(mergedTwice.getHistogram().getN(), is(12L));
+    assertThat(mergedTwice.getHistogram().getMaxValue(), is(13.0f));
+    assertThat(mergedTwice.getHistogram().getMinValue(), is(10.0f));
 
     // test serialization with merged object
-    val mergedMsg = merged.toProtobuf().build();
+    val mergedMsg = mergedOnce.toProtobuf().build();
     NumberTracker.fromProtobuf(mergedMsg);
   }
 

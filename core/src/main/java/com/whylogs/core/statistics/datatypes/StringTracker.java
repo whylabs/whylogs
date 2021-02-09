@@ -2,6 +2,7 @@ package com.whylogs.core.statistics.datatypes;
 
 import com.google.protobuf.ByteString;
 import com.whylogs.core.message.StringsMessage;
+import com.whylogs.core.utils.sketches.ThetaSketch;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +13,6 @@ import org.apache.datasketches.frequencies.ItemsSketch;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.memory.WritableMemory;
 import org.apache.datasketches.theta.Union;
-import org.apache.datasketches.theta.UpdateSketch;
 
 @Builder
 @Getter
@@ -26,12 +26,12 @@ public final class StringTracker {
 
   // sketches
   private final ItemsSketch<String> items;
-  private final UpdateSketch thetaSketch;
+  private final Union thetaSketch;
 
   public StringTracker() {
     this.count = 0L;
     this.items = new ItemsSketch<>(MAX_FREQUENT_ITEM_SIZE); // TODO: make this value configurable
-    this.thetaSketch = UpdateSketch.builder().build();
+    this.thetaSketch = Union.builder().buildUnion();
   }
 
   public void update(String value) {
@@ -56,30 +56,27 @@ public final class StringTracker {
     itemsCopy.merge(other.items);
 
     val thetaUnion = Union.builder().buildUnion();
-    thetaUnion.update(this.thetaSketch);
-    thetaUnion.update(other.thetaSketch);
-    val thetaSketch = UpdateSketch.heapify(WritableMemory.wrap(thetaUnion.toByteArray()));
+    thetaUnion.update(this.thetaSketch.getResult());
+    thetaUnion.update(other.thetaSketch.getResult());
 
-    return new StringTracker(this.count + other.count, itemsCopy, thetaSketch);
+    return new StringTracker(this.count + other.count, itemsCopy, thetaUnion);
   }
 
   public StringsMessage.Builder toProtobuf() {
     return StringsMessage.newBuilder()
         .setCount(count)
         .setItems(ByteString.copyFrom(items.toByteArray(ARRAY_OF_STRINGS_SER_DE)))
-        .setTheta(ByteString.copyFrom(thetaSketch.toByteArray()));
+        .setCompactTheta(ThetaSketch.serialize(thetaSketch));
   }
 
   public static StringTracker fromProtobuf(StringsMessage message) {
     val iMem = Memory.wrap(message.getItems().toByteArray());
     val items = ItemsSketch.getInstance(iMem, ARRAY_OF_STRINGS_SER_DE);
-    val tMem = WritableMemory.wrap(message.getTheta().toByteArray());
-    val theta = UpdateSketch.heapify(tMem);
 
     return StringTracker.builder()
         .count(message.getCount())
         .items(items)
-        .thetaSketch(theta)
+        .thetaSketch(ThetaSketch.deserialize(message.getCompactTheta()))
         .build();
   }
 }

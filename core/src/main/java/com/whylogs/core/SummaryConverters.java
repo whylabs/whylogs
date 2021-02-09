@@ -1,5 +1,6 @@
 package com.whylogs.core;
 
+import com.whylogs.core.message.FrequentNumbersSummary;
 import com.whylogs.core.message.FrequentStringsSummary;
 import com.whylogs.core.message.HistogramSummary;
 import com.whylogs.core.message.NumberSummary;
@@ -18,15 +19,16 @@ import org.apache.datasketches.frequencies.ErrorType;
 import org.apache.datasketches.frequencies.ItemsSketch;
 import org.apache.datasketches.frequencies.ItemsSketch.Row;
 import org.apache.datasketches.kll.KllFloatsSketch;
-import org.apache.datasketches.theta.UpdateSketch;
+import org.apache.datasketches.theta.Union;
 
 public class SummaryConverters {
 
-  public static UniqueCountSummary fromSketch(UpdateSketch sketch) {
+  public static UniqueCountSummary fromSketch(Union sketch) {
+    val result = sketch.getResult();
     return UniqueCountSummary.newBuilder()
-        .setEstimate(sketch.getEstimate())
-        .setUpper(sketch.getUpperBound(1))
-        .setLower(sketch.getLowerBound(1))
+        .setEstimate(result.getEstimate())
+        .setUpper(result.getUpperBound(1))
+        .setLower(result.getLowerBound(1))
         .build();
   }
 
@@ -90,6 +92,38 @@ public class SummaryConverters {
 
     val histogram = fromUpdateDoublesSketch(numberTracker.getHistogram());
 
+    val items =
+        numberTracker.getFrequentNumbers().getFrequentItems(0, ErrorType.NO_FALSE_NEGATIVES);
+    val frequentNumbers = FrequentNumbersSummary.newBuilder();
+
+    for (int i = 0; i < items.length; i++) {
+      val item = items[i];
+      final String content = item.getItem();
+      if (content.contains(".")) {
+        val value =
+            FrequentNumbersSummary.FrequentDoubleItem.newBuilder()
+                .setValue(Double.parseDouble(content))
+                .setEstimate(item.getEstimate())
+                .setRank(i)
+                .build();
+        frequentNumbers.addDoubles(value);
+      } else {
+        val value =
+            FrequentNumbersSummary.FrequentLongItem.newBuilder()
+                .setValue(Long.parseLong(content))
+                .setEstimate(item.getEstimate())
+                .setRank(i)
+                .build();
+        frequentNumbers.addLongs(value);
+      }
+    }
+    val result = numberTracker.getThetaSketch().getResult();
+    val uniqueCountSummary =
+        UniqueCountSummary.newBuilder()
+            .setEstimate(result.getEstimate())
+            .setLower(result.getLowerBound(1))
+            .setUpper(result.getUpperBound(1));
+
     return NumberSummary.newBuilder()
         .setCount(count)
         .setStddev(stddev)
@@ -97,6 +131,9 @@ public class SummaryConverters {
         .setMax(max)
         .setMean(mean)
         .setHistogram(histogram)
+        .setFrequentNumbers(frequentNumbers)
+        .setUniqueCount(uniqueCountSummary)
+        .setIsDiscrete(false) // TODO: migrate Python code over
         .build();
   }
 

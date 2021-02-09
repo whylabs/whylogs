@@ -36,7 +36,7 @@ public class EasyDateTimeParserTest {
   @Test
   public void zonedDateTime_WithMilliSecond_ReturnsTime() {
     val parser = new EasyDateTimeParser("yyyy-MM-dd'T'HH:mm:ss.SSSzzz");
-    val actual = parser.parse("2019-11-13T07:15:00.01EDT");
+    val actual = parser.parse("2019-11-13T07:15:00.010EDT");
     assertEquals(actual, ZERO_INSTANT.plusMillis(10));
   }
 

@@ -17,7 +17,7 @@ public class StringTrackerTest {
 
     assertThat(tracker.getCount(), is(3L));
     assertThat(tracker.getItems().getNumActiveItems(), is(3));
-    assertThat(tracker.getThetaSketch().getEstimate(), is(3.0));
+    assertThat(tracker.getThetaSketch().getResult().getEstimate(), is(3.0));
   }
 
   @Test
@@ -47,7 +47,7 @@ public class StringTrackerTest {
     original.update("foo3");
 
     val msg = original.toProtobuf().build();
-    final val roundtrip = StringTracker.fromProtobuf(msg);
+    val roundtrip = StringTracker.fromProtobuf(msg);
     assertThat(roundtrip.getCount(), is(3L));
   }
 }
