@@ -39,29 +39,17 @@ message ValueConstraintMsg {
   Op op = 2;
 }
 
-/* NumericConstraint can be applied either to each incoming value or just to dataset summaries. */
-message NumericConstraintMsg {
-  oneof constraint {
-     SummaryConstraintMsg summary = 1;
-     ValueConstraintMsg value = 2;
-  }
+message ValueConstraintMsgs {
+  repeated ValueConstraintMsg constraints = 1;
 }
 
-/* For now, ColumnConstraints may contain only numeric constraints.
-   It is expected that the types of constraints will expand. */
-message ColumnConstraintMsg {
-  NumericConstraintMsg number_constraint = 1;
-}
-
-message ColumnConstraintMsgs {
-  repeated ColumnConstraintMsg constraints = 1;
+message SummaryConstraintMsgs {
+  repeated SummaryConstraintMsg constraints = 1;
 }
 
 message DatasetConstraintMsg {
   DatasetProperties properties = 1;
-  map<string, ColumnConstraintMsgs> columns = 2;  // map from columns to list of applicable constraints
+  map<string, ValueConstraintMsgs> value_constraints = 2;
+  map<string, SummaryConstraintMsgs> summary_constraints = 3;
 }
 
-message DatasetConstraintMsgs {
-  map<string, DatasetConstraintMsg> profiles = 1;  // map from datasets to list of constraints applicable to each
-}
