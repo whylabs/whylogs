@@ -24,19 +24,21 @@ enum Op {
             'min' > 'avg'
    */
 message SummaryConstraintMsg {
-  string field = 1;
+  string name = 1;
+  string field = 2;
   oneof second {
-     string name = 2;
-     double value = 3;
+     string field2 = 3;
+     double value = 4;
   }
-  Op op = 4;
+  Op op = 5;
 }
 
 /* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal.
    These are applied to every incoming value that is processed by whylogs.  */
 message ValueConstraintMsg {
-  double literal = 1;
-  Op op = 2;
+  string name = 1;
+  double value = 2;
+  Op op = 3;
 }
 
 message ValueConstraintMsgs {
