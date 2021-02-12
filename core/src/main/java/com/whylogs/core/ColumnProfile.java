@@ -1,9 +1,5 @@
 package com.whylogs.core;
 
-import static com.whylogs.core.SummaryConverters.fromSchemaTracker;
-import static com.whylogs.core.statistics.datatypes.StringTracker.ARRAY_OF_STRINGS_SER_DE;
-import static com.whylogs.core.types.TypedDataConverter.NUMERIC_TYPES;
-
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.whylogs.core.message.ColumnMessage;
@@ -25,6 +21,10 @@ import org.apache.datasketches.hll.HllSketch;
 import org.apache.datasketches.hll.Union;
 import org.apache.datasketches.memory.Memory;
 
+import static com.whylogs.core.SummaryConverters.fromSchemaTracker;
+import static com.whylogs.core.statistics.datatypes.StringTracker.ARRAY_OF_STRINGS_SER_DE;
+import static com.whylogs.core.types.TypedDataConverter.NUMERIC_TYPES;
+
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Builder(setterPrefix = "set")
@@ -32,12 +32,18 @@ public class ColumnProfile {
   public static final int FREQUENT_MAX_LG_K = 7;
   private static final int CARDINALITY_LG_K = 12;
 
-  @NonNull private final String columnName;
-  @NonNull private final CountersTracker counters;
-  @NonNull private final SchemaTracker schemaTracker;
-  @NonNull private final NumberTracker numberTracker;
-  @NonNull private final ItemsSketch<String> frequentItems;
-  @NonNull private final HllSketch cardinalityTracker;
+  @NonNull
+  private final String columnName;
+  @NonNull
+  private final CountersTracker counters;
+  @NonNull
+  private final SchemaTracker schemaTracker;
+  @NonNull
+  private final NumberTracker numberTracker;
+  @NonNull
+  private final ItemsSketch<String> frequentItems;
+  @NonNull
+  private final HllSketch cardinalityTracker;
 
   public ColumnProfile(String columnName) {
     this.columnName = columnName;
@@ -105,11 +111,17 @@ public class ColumnProfile {
   }
 
   public ColumnProfile merge(ColumnProfile other) {
-    Preconditions.checkArgument(
-        this.columnName.equals(other.columnName),
-        "Mismatched column name. Expected [%s], got [%s]",
-        this.columnName,
-        other.columnName);
+    return this.merge(other, true);
+  }
+
+  public ColumnProfile merge(ColumnProfile other, boolean checkName) {
+    if (checkName) {
+      Preconditions.checkArgument(
+          this.columnName.equals(other.columnName),
+          "Mismatched column name. Expected [%s], got [%s]",
+          this.columnName,
+          other.columnName);
+    }
 
     val mergedSketch = Union.heapify(this.cardinalityTracker.toCompactByteArray());
     mergedSketch.update(other.cardinalityTracker);

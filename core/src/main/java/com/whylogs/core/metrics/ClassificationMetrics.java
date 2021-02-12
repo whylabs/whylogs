@@ -4,38 +4,56 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.message.ClassificationMetricsMessage;
+import com.whylogs.core.statistics.NumberTracker;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClassificationMetrics {
-  @Getter
-  private List<String> labels = Lists.newArrayList();
-  private long[][] values = new long[0][0];
+  private List<String> labels;
+  private NumberTracker[][] values;
 
   public ClassificationMetrics() {
-    this(Lists.newArrayList(), new long[0][0]);
+    this(Lists.newArrayList(), newMatrix(0));
   }
 
   public static ClassificationMetrics of() {
     return new ClassificationMetrics();
   }
 
+  public List<String> getLabels() {
+    return Collections.unmodifiableList(labels);
+  }
+
   public long[][] getConfusionMatrix() {
     final int len = labels.size();
     val res = new long[len][len];
     for (int i = 0; i < len; i++) {
-      System.arraycopy(values[i], 0, res[i], 0, len);
+      for (int j = 0; j < len; j++) {
+        res[i][j] = values[i][j].getDoubles().getCount();
+      }
     }
+    return res;
+  }
+
+  private static NumberTracker[][] newMatrix(int len) {
+    val res = new NumberTracker[len][len];
+    if (len == 0) {
+      return res;
+    }
+    for (int i = 0; i < len; i++) {
+      for (int j = 0; j < len; j++) {
+        res[i][j] = new NumberTracker();
+      }
+    }
+
     return res;
   }
 
@@ -46,18 +64,10 @@ public class ClassificationMetrics {
     datasetProfile.track("whylogs.metrics.targets", targetText);
 
     val x = labels.indexOf(predictionText);
-    val y = labels.indexOf(target.toString());
+    val y = labels.indexOf(targetText);
     if (x >= 0 && y >= 0) {
       // happy case
-      values[x][y]++;
-
-      val correctColumn = "whylogs.metrics.scores.correct." + predictionText;
-      val incorrectColumn = "whylogs.metrics.scores.incorrect." + predictionText;
-      if (prediction.equals(target)) {
-        datasetProfile.track(correctColumn, score);
-      } else {
-        datasetProfile.track(incorrectColumn, score);
-      }
+      values[x][y].track(score);
     } else {
       val newLabels = Lists.newArrayList(labels);
 
@@ -70,14 +80,14 @@ public class ClassificationMetrics {
       Collections.sort(newLabels);
 
       final int newDim = newLabels.size();
-      val newValues = new long[newDim][newDim];
+      val newValues = newMatrix(newDim);
 
       // first copy existing values to the new matrix
       addMatrix(labels, values, newLabels, newValues);
 
       val i = newLabels.indexOf(predictionText);
       val j = newLabels.indexOf(targetText);
-      newValues[i][j] += 1;
+      newValues[i][j].track(score);
 
       this.labels = newLabels;
       this.values = newValues;
@@ -93,7 +103,6 @@ public class ClassificationMetrics {
           builder.append(it);
           builder.append(", ");
         });
-    labels.forEach(builder::append);
     builder.append('\n');
 
     final int len = labels.size();
@@ -120,8 +129,7 @@ public class ClassificationMetrics {
     val newLabels = Lists.newArrayList(allLabels);
     Collections.sort(newLabels);
 
-    final int newLen = newLabels.size();
-    val newValues = new long[newLen][newLen];
+    val newValues = newMatrix(newLabels.size());
 
     // copy the current object
     addMatrix(labels, values, newLabels, newValues);
@@ -132,26 +140,33 @@ public class ClassificationMetrics {
     return new ClassificationMetrics(newLabels, newValues);
   }
 
-  private void addMatrix(List<String> oldLabels, long[][] oldValues, List<String> newLabels, long[][] newValues) {
+  private void addMatrix(List<String> oldLabels, NumberTracker[][] oldValues, List<String> newLabels, NumberTracker[][] newValues) {
     for (int i = 0; i < oldLabels.size(); i++) {
       val iLabel = oldLabels.get(i);
       final int newI = newLabels.indexOf(iLabel);
       for (int j = 0; j < oldLabels.size(); j++) {
         val jLabel = oldLabels.get(j);
         int newJ = newLabels.indexOf(jLabel);
-        newValues[newI][newJ] += oldValues[i][j];
+        newValues[newI][newJ] = newValues[newI][newJ].merge(oldValues[i][j]);
       }
     }
   }
 
   @NonNull
   public ClassificationMetrics copy() {
-    return new ClassificationMetrics(Lists.newArrayList(this.labels), this.getConfusionMatrix());
+    final int len = this.labels.size();
+    val copyValues = newMatrix(len);
+    for (int i = 0; i < len; i++) {
+      for (int j = 0; j < len; j++) {
+        copyValues[i][j] = copyValues[i][j].merge(values[i][j]);
+      }
+    }
+    return new ClassificationMetrics(Lists.newArrayList(this.labels), copyValues);
   }
 
   @NonNull
   @SuppressWarnings("UnstableApiUsage")
-  public ClassificationMetricsMessage toProtobuf() {
+  public ClassificationMetricsMessage.Builder toProtobuf() {
     val builder =
         ClassificationMetricsMessage.newBuilder();
     labels.stream().map(Object::toString).forEach(builder::addLabels);
@@ -159,11 +174,11 @@ public class ClassificationMetrics {
     val len = labels.size();
     for (int i = 0; i < len; i++) {
       for (int j = 0; j < len; j++) {
-        builder.addConfusionMatrixValue(values[i][j]);
+        builder.addScores(values[i][j].toProtobuf());
       }
     }
 
-    return builder.build();
+    return builder;
   }
 
   public static ClassificationMetrics fromProtobuf(ClassificationMetricsMessage msg) {
@@ -173,11 +188,11 @@ public class ClassificationMetrics {
     }
 
     final int n = labels.size();
-    val values = new long[n][n];
-    for (int i = 0; i < msg.getConfusionMatrixValueCount(); i++) {
+    val values = newMatrix(n);
+    for (int i = 0; i < msg.getScoresCount(); i++) {
       int row = i / n;
       int col = i % n;
-      values[row][col] = msg.getConfusionMatrixValue(i);
+      values[row][col] = NumberTracker.fromProtobuf(msg.getScores(i));
     }
 
     return new ClassificationMetrics(labels, values);
