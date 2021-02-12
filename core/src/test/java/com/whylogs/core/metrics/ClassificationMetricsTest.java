@@ -17,7 +17,7 @@ public class ClassificationMetricsTest {
   @Test
   public void binaryClassification_should_be_correct() {
     val profile = new DatasetProfile("session", Instant.now());
-    val binaryMatrix = ClassificationMetrics.of(ImmutableList.of(0, 1));
+    val binaryMatrix = ClassificationMetrics.of();
     val predictions = ImmutableList.of(0, 1, 1, 0, 0, 1, 1);
     val targets = ImmutableList.of(1, 0, 1, 1, 0, 1, 1);
     Streams.zip(predictions.stream(), targets.stream(), Pair::of)
@@ -40,7 +40,7 @@ public class ClassificationMetricsTest {
   public void binaryClassification_merge_itself() {
     val profile = new DatasetProfile("session", Instant.now());
 
-    val binaryMatrix = ClassificationMetrics.of(ImmutableList.of(0, 1));
+    val binaryMatrix = ClassificationMetrics.of();
     val predictions = ImmutableList.of(0, 1, 1, 0, 0, 1, 1);
     val targets = ImmutableList.of(1, 0, 1, 1, 0, 1, 1);
     Streams.zip(predictions.stream(), targets.stream(), Pair::of)
@@ -74,7 +74,7 @@ public class ClassificationMetricsTest {
   public void multiclass_classification_string_labels() {
     val profile = new DatasetProfile("session", Instant.now());
 
-    val binaryMatrix = ClassificationMetrics.of(ImmutableList.of("ant", "bird", "cat"));
+    val binaryMatrix = ClassificationMetrics.of();
     val predictions = ImmutableList.of("cat", "ant", "cat", "cat", "ant", "bird");
     val targets = ImmutableList.of("ant", "ant", "cat", "cat", "ant", "cat");
     Streams.zip(predictions.stream(), targets.stream(), Pair::of)
@@ -105,7 +105,7 @@ public class ClassificationMetricsTest {
   public void multiclass_classification_integer_labels() {
     val profile = new DatasetProfile("session", Instant.now());
 
-    val binaryMatrix = ClassificationMetrics.of(ImmutableList.of(0, 1, 2));
+    val binaryMatrix = ClassificationMetrics.of();
     val predictions = ImmutableList.of(2, 0, 2, 2, 0, 1);
     val targets = ImmutableList.of(0, 0, 2, 2, 0, 2);
     Streams.zip(predictions.stream(), targets.stream(), Pair::of)
@@ -135,7 +135,7 @@ public class ClassificationMetricsTest {
   public void multiclass_classification_roundtrip() {
     val profile = new DatasetProfile("session", Instant.now());
 
-    val metrics = ClassificationMetrics.of(ImmutableList.of(0, 1, 2));
+    val metrics = ClassificationMetrics.of();
     val predictions = ImmutableList.of(2, 0, 2, 2, 0, 1);
     val targets = ImmutableList.of(0, 0, 2, 2, 0, 2);
     Streams.zip(predictions.stream(), targets.stream(), Pair::of)
@@ -153,7 +153,5 @@ public class ClassificationMetricsTest {
     }
     // note that the roundtrip object now contains labels in string format
     assertThat(roundtrip.getLabels(), containsInRelativeOrder("0", "1", "2"));
-    assertThat(roundtrip.getUnlabeledPredictionCount(), is(metrics.getUnlabeledPredictionCount()));
-    assertThat(roundtrip.getUnlabeledTargetCount(), is(metrics.getUnlabeledTargetCount()));
   }
 }

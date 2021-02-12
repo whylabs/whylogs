@@ -151,11 +151,10 @@ public class DatasetProfile implements Serializable {
    * Returns a new dataset profile with the same backing datastructure. However, this new object
    * contains a ClassificationMetrics object
    *
-   * @param labels list of labels for the classification metrics
    * @return a new DatasetProfile object
    */
-  public DatasetProfile withClassificationMetrics(List<?> labels) {
-    val metrics = ClassificationMetrics.of(labels);
+  public DatasetProfile withClassificationMetrics() {
+    val metrics = ClassificationMetrics.of();
     return new DatasetProfile(
         sessionId, sessionTimestamp, dataTimestamp, columns, tags, metadata, metrics);
   }
