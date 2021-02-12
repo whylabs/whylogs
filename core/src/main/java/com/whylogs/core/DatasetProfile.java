@@ -102,6 +102,14 @@ public class DatasetProfile implements Serializable {
     return Collections.unmodifiableMap(columns);
   }
 
+  public ClassificationMetrics getClassificationMetrics() {
+    if (classificationMetrics != null) {
+      return classificationMetrics.copy();
+    } else {
+      return null;
+    }
+  }
+
   public DatasetProfile withMetadata(String key, String value) {
     this.metadata.put(key, value);
     return this;
