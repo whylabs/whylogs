@@ -58,8 +58,8 @@ public class ClassificationMetrics {
   }
 
   public <T> void update(DatasetProfile datasetProfile, T prediction, T target, double score) {
-    val predictionText = prediction.toString();
-    val targetText = target.toString();
+    val predictionText = textValue(prediction);
+    val targetText = textValue(target);
     datasetProfile.track("whylogs.metrics.predictions", predictionText);
     datasetProfile.track("whylogs.metrics.targets", targetText);
 
@@ -92,6 +92,17 @@ public class ClassificationMetrics {
       this.labels = newLabels;
       this.values = newValues;
     }
+  }
+
+  private static String textValue(Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof Boolean) {
+      val boolVal = (Boolean) value;
+      return boolVal ? "1" : "0";
+    }
+    return value.toString();
   }
 
   @Override
