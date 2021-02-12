@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -226,10 +227,10 @@ public class DatasetProfileTest {
   @Test
   public void roundTripWithClassificationMetrics_should_succeed() {
     val dp =
-        new DatasetProfile("test", Instant.now()).withClassificationMetrics(ImmutableList.of(0, 1));
+        new DatasetProfile("test", Instant.now()).withClassificationMetrics();
     val msg = dp.toProtobuf().build();
     val roundTrip = DatasetProfile.fromProtobuf(msg);
     assertThat(roundTrip.classificationMetrics, is(notNullValue()));
-    assertThat(roundTrip.classificationMetrics.getLabels(), is(ImmutableList.of("0", "1")));
+    assertThat(roundTrip.classificationMetrics.getLabels(), is(empty()));
   }
 }
