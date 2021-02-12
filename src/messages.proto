@@ -112,7 +112,7 @@ message DatasetProperties {
 message ClassificationMetricsMessage {
   repeated string labels = 1;
   // a flattened NxN matrix (N = len(labels))
-  repeated uint64 confusion_matrix_value = 2 [packed = true];
+  repeated NumbersMessage scores = 2;
 }
 
 
