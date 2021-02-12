@@ -109,9 +109,18 @@ message DatasetProperties {
   // TODO: store other configuration here
 }
 
+message ClassificationMetricsMessage {
+  repeated string labels = 1;
+  // a flattened NxN matrix (N = len(labels))
+  repeated uint64 confusion_matrix_value = 2 [packed = true];
+}
+
+
 message DatasetProfileMessage {
   DatasetProperties properties = 1;
   map<string, ColumnMessage> columns = 2;
+  // reserve other fields for dataset level data
+  ClassificationMetricsMessage classification_metrics = 10;
 }
 
 /**
