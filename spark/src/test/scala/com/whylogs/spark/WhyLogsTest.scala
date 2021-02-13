@@ -13,6 +13,8 @@ import scala.reflect.io.Directory
 
 case class TestDataPoint(x: String, i: Int, d: Double, ts: Timestamp) extends Serializable
 
+case class TestPrediction(prediction: Int, target: Int, score: Double) extends Serializable
+
 class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
   test("test WhyLogsSession") {
     import com.whylogs.spark.WhyLogs._
@@ -52,4 +54,16 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
       }
     }
   }
+
+  test("test WhyLogsSession with ClassificationMetrics") {
+    import com.whylogs.spark.WhyLogs._
+
+    val df = spark.read.parquet("file:///tmp/data.parquet")
+    val res = df.newProfilingSession("model")
+        .withClassificationMetrics("predicted", "target", "score")
+        .aggProfiles(Instant.now())
+    res.count()
+    res.printSchema()
+  }
+
 }

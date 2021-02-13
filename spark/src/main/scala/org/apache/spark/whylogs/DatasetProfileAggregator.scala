@@ -83,18 +83,18 @@ case class DatasetProfileAggregator(datasetName: String,
 
     // TODO: we have the schema here. Support schema?
     for (field: StructField <- schema) {
-      if (!allGroupByColumns.contains(field.name)) {
+      if (!allGroupByColumns.contains(field.name) && !classificationMetrics.shouldExclude(field.name)) {
         timedProfile.track(field.name, row.get(schema.fieldIndex(field.name)))
       }
     }
 
     if (classificationMetrics != null) {
-      val classificationDatasetProfile = timedProfile.withClassificationMetrics(classificationMetrics.labels.asJava)
+      val classificationDatasetProfile = timedProfile.withClassificationMetrics()
       val prediction = row.get(schema.fieldIndex(classificationMetrics.predictionField))
       val target = row.get(schema.fieldIndex(classificationMetrics.targetField))
 
       val score = if (classificationMetrics.scoreField != null) {
-        row.getDouble(schema.fieldIndex(classificationMetrics.targetField))
+        row.getDouble(schema.fieldIndex(classificationMetrics.scoreField))
       } else {
         1.0
       }

@@ -3,7 +3,6 @@ package com.whylogs.core.metrics;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -67,7 +66,6 @@ public class ClassificationMetricsTest {
     assertThat(predictionColumn.getFrequentItems().getEstimate("1"), is(greaterThan(0L)));
     assertThat(predictionColumn.getFrequentItems().getEstimate("0"), is(greaterThan(0L)));
   }
-
 
   @Test
   public void binaryClassification_merge_itself() {
