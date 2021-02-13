@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Instant;
@@ -226,8 +225,7 @@ public class DatasetProfileTest {
 
   @Test
   public void roundTripWithClassificationMetrics_should_succeed() {
-    val dp =
-        new DatasetProfile("test", Instant.now()).withClassificationMetrics();
+    val dp = new DatasetProfile("test", Instant.now()).withClassificationMetrics();
     val msg = dp.toProtobuf().build();
     val roundTrip = DatasetProfile.fromProtobuf(msg);
     assertThat(roundTrip.classificationMetrics, is(notNullValue()));

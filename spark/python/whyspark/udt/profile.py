@@ -4,12 +4,20 @@ from typing import Optional
 from pyspark.sql import DataFrame
 
 
+class ClassificationMetricsSession:
+    def __init__(self, prediction_field: str, target_field: str, score_field: str):
+        self.prediction_field = prediction_field
+        self.target_field = target_field
+        self.score_field = score_field
+
+
 class WhyProfileSession:
     """
     A class that enable easy access to the profiling API
     """
 
-    def __init__(self, dataframe: DataFrame, name: str, time_column: Optional[str] = None, group_by_columns=None):
+    def __init__(self, dataframe: DataFrame, name: str, time_column: Optional[str] = None, group_by_columns=None,
+                 classification_metrics: ClassificationMetricsSession = None):
         if group_by_columns is None:
             group_by_columns = []
         self._group_by_columns = group_by_columns
@@ -17,6 +25,7 @@ class WhyProfileSession:
 
         self._name = name
         self._time_colunn = time_column
+        self._classification_metrics = classification_metrics
 
     def withTimeColumn(self, time_column: str):  # noqa
         """
@@ -29,6 +38,14 @@ class WhyProfileSession:
         """
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=time_column,
                                  group_by_columns=self._group_by_columns)
+
+    def withClassificationMetrics(self, prediction_field: str, target_field: str, score_field: str):  # noqa
+        """
+        :rtype: WhyLogSession
+        """
+        classification_metrics = ClassificationMetricsSession(prediction_field, target_field, score_field)
+        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
+                                 group_by_columns=self._group_by_columns, classification_metrics=classification_metrics)
 
     def groupBy(self, col: str, *cols):  # noqa
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
@@ -44,12 +61,18 @@ class WhyProfileSession:
         if len(self._group_by_columns) > 0:
             j_session = j_session.groupBy(list(self._group_by_columns))
 
+        if self._classification_metrics is not None:
+            metrics = self._classification_metrics
+            j_session = j_session.withClassificationMetrics(self._classification_metrics.prediction_field,
+                                                            self._classification_metrics.target_field,
+                                                            metrics.score_field)
         if datetime_ts is not None:
             timestamp_ms = int(datetime_ts.timestamp() * 1000)
         elif timestamp_ms is None:
             timestamp_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
 
         jdf = j_session.aggProfiles(timestamp_ms)
+
         return DataFrame(jdf=jdf, sql_ctx=self._df.sql_ctx)
 
     def aggParquet(self, path: str, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None):  # noqa

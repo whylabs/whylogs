@@ -5,14 +5,13 @@ import com.google.common.collect.Sets;
 import com.whylogs.core.DatasetProfile;
 import com.whylogs.core.message.ClassificationMetricsMessage;
 import com.whylogs.core.statistics.NumberTracker;
+import java.util.Collections;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
-import java.util.Collections;
-import java.util.List;
 
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -151,7 +150,11 @@ public class ClassificationMetrics {
     return new ClassificationMetrics(newLabels, newValues);
   }
 
-  private void addMatrix(List<String> oldLabels, NumberTracker[][] oldValues, List<String> newLabels, NumberTracker[][] newValues) {
+  private void addMatrix(
+      List<String> oldLabels,
+      NumberTracker[][] oldValues,
+      List<String> newLabels,
+      NumberTracker[][] newValues) {
     for (int i = 0; i < oldLabels.size(); i++) {
       val iLabel = oldLabels.get(i);
       final int newI = newLabels.indexOf(iLabel);
@@ -178,8 +181,7 @@ public class ClassificationMetrics {
   @NonNull
   @SuppressWarnings("UnstableApiUsage")
   public ClassificationMetricsMessage.Builder toProtobuf() {
-    val builder =
-        ClassificationMetricsMessage.newBuilder();
+    val builder = ClassificationMetricsMessage.newBuilder();
     labels.stream().map(Object::toString).forEach(builder::addLabels);
 
     val len = labels.size();

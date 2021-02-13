@@ -10,7 +10,11 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
-case class ClassificationMetricsSession(predictionField: String, targetField: String, scoreField: String, labels: Seq[String])
+case class ClassificationMetricsSession(predictionField: String, targetField: String, scoreField: String) {
+  def shouldExclude(field: String): Boolean = {
+    predictionField == field || targetField == field || scoreField == field;
+  }
+}
 
 /**
  * A class that enable easy access to the profiling API
@@ -69,8 +73,8 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     this.copy(groupByColumns = columns.asScala)
   }
 
-  def withClassificationMetrics(predictionField: String, targetField: String, scoreField: String, labels: java.util.List[String]): Unit = {
-    val classificationMetricsSession = ClassificationMetricsSession(predictionField, targetField, scoreField, labels.asScala);
+  def withClassificationMetrics(predictionField: String, targetField: String, scoreField: String): WhyProfileSession = {
+    val classificationMetricsSession = ClassificationMetricsSession(predictionField, targetField, scoreField);
     this.copy(classificationMetrics = classificationMetricsSession)
   }
 
