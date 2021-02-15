@@ -173,27 +173,17 @@ class Model(Profile):
             fn_scores_name = "whylogs.metrics.false_negative_scores.{}".format(
                 uniques[each_enco_target])
 
-            prof = ColumnProfile(tp_scores_name)
-            self.profiles[tp_scores_name] = prof
-            if len(tp_scores) > 0:
-                self.track_array(columns=[tp_scores_name],
-                                 x=tp_scores.reshape((-1, 1)))
+            self.track_metric(tp_scores_name, tp_scores)
+            self.track_metric(fp_scores_name, fp_scores)
+            self.track_metric(tn_scores_name, tn_scores)
+            self.track_metric(fn_scores_name, fn_scores)
 
-            prof = ColumnProfile(fp_scores_name)
-            self.profiles[fp_scores_name] = prof
-            if len(fp_scores) > 0:
-                self.track_array(columns=[fp_scores_name],
-                                 x=fp_scores.reshape((-1, 1)))
-            prof = ColumnProfile(tn_scores_name)
-            self.profiles[tn_scores_name] = prof
-            if len(tn_scores) > 0:
-                self.track_array(columns=[tn_scores_name],
-                                 x=tn_scores.reshape((-1, 1)))
-            prof = ColumnProfile(fn_scores_name)
-            self.profiles[fn_scores_name] = prof
-            if len(fn_scores) > 0:
-                self.track_array(columns=[fn_scores_name],
-                                 x=fn_scores.reshape((-1, 1)))
+    def track_metric(self, metric_name, values):
+        prof = ColumnProfile(metric_name)
+        self.profiles[metric_name] = prof
+        if len(values) > 0:
+            self.track_array(columns=[metric_name],
+                             x=values.reshape((-1, 1)))
 
 
 def enconde_to_integers(values, uniques):
