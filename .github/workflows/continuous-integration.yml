@@ -2,7 +2,7 @@ name: whylogs CI
 
 on:
   push:
-    branches: [ mainline, release]
+    branches: [ mainline, release, WHY-2329_metrics]
   pull_request:
     branches: [ mainline, release]
 
