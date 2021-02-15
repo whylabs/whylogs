@@ -83,7 +83,7 @@ case class DatasetProfileAggregator(datasetName: String,
 
     // TODO: we have the schema here. Support schema?
     for (field: StructField <- schema) {
-      if (!allGroupByColumns.contains(field.name) && !classificationMetrics.shouldExclude(field.name)) {
+      if (!allGroupByColumns.contains(field.name)) {
         timedProfile.track(field.name, row.get(schema.fieldIndex(field.name)))
       }
     }
