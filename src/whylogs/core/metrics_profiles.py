@@ -146,7 +146,6 @@ class Model(Profile):
             self.confusion_matrix = np.zeros((num_labels, num_labels))
 
         if num_labels == self.confusion_matrix.shape[0]:
-
             for each_tar in encoded_targets:
                 for each_pred in encoded_predictions:
                     self.confusion_matrix[each_tar, each_pred] += 1

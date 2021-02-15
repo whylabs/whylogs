@@ -62,6 +62,8 @@ class Logger:
                  cache_size: int = 1,
                  segments: Optional[Union[List[Segment], List[str]]] = None,
                  profile_full_dataset: bool = False,
+                 target_labels: List[str] = None,
+                 model_name: str = None
                  ):
         """
         """
@@ -81,6 +83,8 @@ class Logger:
         self.metadata = metadata
         self.profile_full_dataset = profile_full_dataset
 
+        self.target_labels = target_labels
+        self.model_name = model_name
         self.set_segments(segments)
 
         self._profiles = []
@@ -151,7 +155,9 @@ class Logger:
                 session_timestamp=self.session_timestamp,
                 tags=self.tags,
                 metadata=self.metadata,
-                session_id=self.session_id
+                session_id=self.session_id,
+                target_labels=self.target_labels,
+                model_name=self.model_name
             )
         self._profiles.append(
             {"full_profile": full_profile, "segmented_profiles": {}})
@@ -338,6 +344,12 @@ class Logger:
                 return
             else:
                 segment_profile.track_datum(feature_name, value)
+
+    def log_metrics(self,
+                    targets, predictions, scores=None):
+
+        self._profiles[-1]["full_profile"].track_metrics(
+            targets, predictions, scores)
 
     def log_image(self,
                   image,
@@ -537,7 +549,9 @@ class Logger:
                 session_timestamp=self.session_timestamp,
                 tags={**self.tags, **{"segment": json.dumps(segment)}},
                 metadata=self.metadata,
-                session_id=self.session_id
+                session_id=self.session_id,
+                target_labels=self.target_labels,
+                model_name=self.model_name
             )
             segment_profile.track_dataframe(df)
             hashed_seg = hash_segment(segment)

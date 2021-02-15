@@ -4,7 +4,7 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
-from typing import Dict
+from typing import Dict, List
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -14,6 +14,8 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 
 from whylogs.core import ColumnProfile
+from whylogs.core.metrics_profiles import Model
+
 from whylogs.core.types.typeddataconverter import TYPES
 from whylogs.proto import (
     ColumnsChunkSegment,
@@ -35,7 +37,8 @@ try:
     from cudf.core.dataframe import DataFrame as cudfDataFrame
 except ImportError as e:
     logger.debug(str(e))
-    logger.debug('Failed to import CudaDataFrame. Install cudf for CUDA support')
+    logger.debug(
+        'Failed to import CudaDataFrame. Install cudf for CUDA support')
     cudfDataFrame = None
 
 
@@ -118,6 +121,9 @@ class DatasetProfile:
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
+        ouputs: dict = None,
+        target_labels: List[str] = None,
+        model_name: str = None
     ):
         # Default values
         if columns is None:
@@ -136,6 +142,10 @@ class DatasetProfile:
         self._metadata = metadata.copy()
         self.columns = columns
 
+        if model_name is None:
+            model_name = name
+        self._model = Model(model_name, target_labels)
+        # self._outputs = Outputs(outputs)
         # Store Name attribute
         self._tags["name"] = name
 
@@ -168,6 +178,9 @@ class DatasetProfile:
         Return the session timestamp value in epoch milliseconds
         """
         return time.to_utc_ms(self.session_timestamp)
+
+    def track_metrics(self, targets, predictions, scores=None):
+        self._model.track_metrics(targets, predictions, scores)
 
     def track(self, columns, data=None):
         """
