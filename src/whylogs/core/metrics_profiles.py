@@ -140,10 +140,18 @@ class Model(Profile):
         encoded_targets = enconde_to_integers(targets, uniques)
         encoded_predictions = enconde_to_integers(predictions, uniques)
 
+        num_labels = len(self.labels)
         # compute confusion_matrix
-        for each_tar in encoded_targets:
-            for each_pred in encoded_predictions:
-                self.confusion_matrix[each_tar, each_pred] += 1
+        if self.confusion_matrix is None:
+            self.confusion_matrix = np.zeros((num_labels, num_labels))
+
+        if num_labels == self.confusion_matrix.shape[0]:
+
+            for each_tar in encoded_targets:
+                for each_pred in encoded_predictions:
+                    self.confusion_matrix[each_tar, each_pred] += 1
+        else:
+            ValueError("Number of labels changed")
 
         for each_enco_target in enconde_to_integers(uniques, uniques):
 
