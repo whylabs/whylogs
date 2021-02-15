@@ -1,5 +1,4 @@
 from typing import List
-import numbers
 from sklearn.utils.multiclass import type_of_target
 from whylogs.core import ColumnProfile
 import numpy as np
@@ -141,6 +140,7 @@ class Model(Profile):
         encoded_predictions = enconde_to_integers(predictions, uniques)
 
         num_labels = len(self.labels)
+
         # compute confusion_matrix
         if self.confusion_matrix is None:
             self.confusion_matrix = np.zeros((num_labels, num_labels))
