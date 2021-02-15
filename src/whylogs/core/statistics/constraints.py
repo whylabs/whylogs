@@ -12,6 +12,10 @@ from whylogs.proto import (
     NumberSummary,
 )
 
+from google.protobuf.json_format import Parse
+from whylogs.util.protobuf import message_to_json
+
+
 logger = logging.getLogger(__name__)
 
 """
@@ -86,6 +90,7 @@ class ValueConstraint:
             name=self.name,
             op=self.op,
             value=self.value,
+            verbose=self._verbose,
         )
 
     def report(self):
@@ -133,7 +138,12 @@ class SummaryConstraint:
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> 'SummaryConstraint':
-        return ValueConstraint(msg.op, msg.value, name=msg.name)
+        if msg.HasField('value') and not msg.HasField('field2'):
+            return SummaryConstraint(msg.field, msg.op, value=msg.value, name=msg.name)
+        elif msg.HasField('field2') and not msg.HasField('value'):
+            return SummaryConstraint(msg.field, msg.op, field2=msg.field2, name=msg.name)
+        else:
+            raise ValueError("SummaryConstraintMsg must specify a second value or field name, but not both")
 
     def to_protobuf(self) -> SummaryConstraintMsg:
         if self.field2 is None:
@@ -142,6 +152,7 @@ class SummaryConstraint:
                 field=self.field,
                 op=self.op,
                 value=self.value,
+                verbose=self._verbose,
             )
         else:
             msg = SummaryConstraintMsg(
@@ -149,6 +160,7 @@ class SummaryConstraint:
                 field=self.field,
                 op=self.op,
                 field2=self.field2,
+                verbose=self._verbose,
             )
         return msg
 
@@ -162,7 +174,7 @@ class ValueConstraints:
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsgs) -> 'ValueConstraints':
-        v = [ValueConstraint.from_proto(c) for c in msg.constraints]
+        v = [ValueConstraint.from_protobuf(c) for c in msg.constraints]
         if len(v) > 0:
             return ValueConstraints(v)
         return None
@@ -174,9 +186,6 @@ class ValueConstraints:
             vcmsg.constraints.extend(v)
             return vcmsg
         return None
-
-    def add_constraint(self, c: ValueConstraint):
-        self.constraints.append(c)
 
     def track(self, v):
         for c in self.constraints:
@@ -195,7 +204,7 @@ class SummaryConstraints:
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsgs) -> 'SummaryConstraints':
-        v = [SummaryConstraint.from_proto(c) for c in msg.constraints]
+        v = [SummaryConstraint.from_protobuf(c) for c in msg.constraints]
         if len(v) > 0:
             return SummaryConstraints(v)
         return None
@@ -207,9 +216,6 @@ class SummaryConstraints:
             scmsg.constraints.extend(v)
             return scmsg
         return None
-
-    def add_constraint(self, c: SummaryConstraint):
-        self.constraints.append(c)
 
     def track(self, v):
         for c in self.constraints:
@@ -254,6 +260,11 @@ class DatasetConstraints:
         sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
         return DatasetConstraints(msg.properties, vm, sm)
 
+    @staticmethod
+    def from_json(data: str) -> 'DatasetConstraints':
+        msg = Parse(data, DatasetConstraintMsg())
+        return DatasetConstraints.from_protobuf(msg)
+
     def to_protobuf(self) -> DatasetConstraintMsg:
         # construct tuple for each column, (name, [constraints,...])
         # turn that into a map indexed by column name
@@ -265,8 +276,10 @@ class DatasetConstraints:
             summary_constraints=sm,
         )
 
+    def to_json(self) -> str:
+        return message_to_json(self.to_protobuf())
+
     def report(self):
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
-        l1.extend(l2)
-        return l1
+        return l1 + l2
