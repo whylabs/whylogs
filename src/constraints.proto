@@ -31,6 +31,7 @@ message SummaryConstraintMsg {
      double value = 4;
   }
   Op op = 5;
+  bool verbose = 6;
 }
 
 /* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal.
@@ -39,6 +40,7 @@ message ValueConstraintMsg {
   string name = 1;
   double value = 2;
   Op op = 3;
+  bool verbose = 4;
 }
 
 message ValueConstraintMsgs {
