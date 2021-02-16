@@ -92,7 +92,6 @@ class ModelProfile:
             set(self.output_fields+model_profile.output_fields))
         metrics = self.metrics.merge(model_profile.metrics)
         return ModelProfile(output_fields=output_fields, metrics=metrics)
-#     # def calculate_metric(self, label, n_bins=10):
 
 #     #     bins = np.array(range(0, n_bins))/n_bins
 #     #     # print(bins)
