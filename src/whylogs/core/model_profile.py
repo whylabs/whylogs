@@ -55,7 +55,6 @@ class ModelProfile:
                         score_field=None
                         ):
 
-        # self.target_field = target_field
         # self.prediction_field = prediction_field
         # self.score_field = score_field
 
