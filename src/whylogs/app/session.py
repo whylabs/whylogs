@@ -153,8 +153,6 @@ class Session:
                 segments=segments,
                 profile_full_dataset=profile_full_dataset,
                 cache_size=cache_size,
-                target_labels=target_labels,
-                model_name=model_name
             )
             self._loggers[dataset_name] = logger
 

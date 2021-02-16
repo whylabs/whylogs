@@ -14,7 +14,7 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 
 from whylogs.core import ColumnProfile
-from whylogs.core.metrics_profiles import Model
+from whylogs.core.model_profile import ModelProfile
 
 from whylogs.core.types.typeddataconverter import TYPES
 from whylogs.proto import (
@@ -121,10 +121,7 @@ class DatasetProfile:
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
-        outputs: dict = None,
-        target_labels: List[str] = None,
-        model_name: str = None,
-        metrics: dict = {},
+        model_profile: ModelProfile = ModelProfile()
     ):
         # Default values
         if columns is None:
@@ -142,11 +139,9 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
-        self.outputs = outputs
-        if model_name is None:
-            model_name = name
-        self._model = Model(name=model_name, labels=target_labels)
-        self._model.profiles = metrics
+
+        self.model_profile = model_profile
+
         # self._outputs = Outputs(outputs)
         # Store Name attribute
         self._tags["name"] = name
@@ -181,8 +176,20 @@ class DatasetProfile:
         """
         return time.to_utc_ms(self.session_timestamp)
 
-    def track_metrics(self, targets, predictions, scores=None):
-        self._model.track_metrics(targets, predictions, scores)
+    def add_output_field(self, field):
+        if isinstance(fields, list):
+            for field_name in field:
+                self.model_profile.add_output_field(field)
+        else:
+            self.model_profile.add_output_field(field)
+
+    def track_metrics(self, targets, predictions, scores=None,
+                      target_field=None, prediction_field=None,
+                      score_field=None):
+        self.model_profile.compute_metrics(predictions, targets,
+                                           scores, target_field=target_field,
+                                           prediction_field=prediction_field,
+                                           score_field=score_field)
 
     def track(self, columns, data=None):
         """
@@ -209,7 +216,7 @@ class DatasetProfile:
             elif isinstance(columns, str):
                 self.track_datum(columns, None)
             else:
-                raise TypeError(" Data type of: {} not supported for tracking ".format(
+                raise TypeError("Data type of: {} not supported for tracking".format(
                     columns.__class__.__name__))
 
     def track_datum(self, column_name, data):
@@ -379,8 +386,6 @@ class DatasetProfile:
     def _do_merge(self, other):
         columns_set = set(list(self.columns.keys()) +
                           list(other.columns.keys()))
-        outputs_set = set(list(self.outputs.keys()) +
-                          list(other.outputs.keys()))
 
         columns = {}
         for col_name in columns_set:
@@ -389,27 +394,18 @@ class DatasetProfile:
             other_column = other.columns.get(col_name, empty_column)
             columns[col_name] = this_column.merge(other_column)
 
-        outputs = {}
-        for col_name in outputs_set:
-            empty_output = ColumnProfile(col_name)
-            this_column = self.outputs.get(col_name, empty_output)
-            other_output = other.outputs.get(col_name, empty_output)
-            outputs[col_name] = this_column.merge(other_output)
+        new_model_profile = self.model_profile.merge(other.model_profile)
 
-        new_model = self._model.merge(other._model)
-
-        dtset_profile = DatasetProfile(
+        return DatasetProfile(
             name=self.name,
             session_id=self.session_id,
             session_timestamp=self.session_timestamp,
             dataset_timestamp=self.dataset_timestamp,
             columns=columns,
-            outputs=outputs,
             tags=self.tags,
             metadata=self.metadata,
+            model_profile=new_model_profile
         )
-        dtset_profile._model = new_model
-        return dtset_profile
 
     def merge_strict(self, other):
         """
@@ -469,8 +465,8 @@ class DatasetProfile:
         return DatasetProfileMessage(
             properties=properties,
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
-            model=self._model.to_protobuf(),
-            outputs={k: v.to_protobuf() for k, v in self.outputs.items()}
+            modeProfile=self.model_profile.to_protobuf(),
+
         )
 
     def write_protobuf(self, protobuf_path: str, delimited_file: bool = True):
@@ -534,6 +530,7 @@ class DatasetProfile:
 
             tags=dict(properties.tags or {}),
             metadata=dict(properties.metadata or {}),
+            model_profile=ModelProfile.from_protobuf(message.modeProfile)
         )
 
     @staticmethod

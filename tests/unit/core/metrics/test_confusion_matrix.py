@@ -159,7 +159,7 @@ def test_Conf_to_protobuf():
 
     expected_1 = [[1, 0, 0], [0, 1, 1], [0, 0, 0]]
 
-    new_conf = ConfusionMatrix().from_protobuf(message)
+    new_conf = ConfusionMatrix.from_protobuf(message)
     for idx, value in enumerate(new_conf.labels):
         assert value == conf_M_1.labels[idx]
 

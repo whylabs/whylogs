@@ -64,7 +64,7 @@ class ConfusionMatrix:
         if not isinstance(predictions, list):
             predictions = [predictions]
 
-        if not scores:
+        if scores is None:
             scores = [1.0 for _ in range(len(targets))]
 
         if len(targets) != len(predictions):
@@ -88,10 +88,15 @@ class ConfusionMatrix:
         Returns:
             TYPE: Description
         """
-        other_labels = other_CM.labels
-        combined_labels = sorted(list(set(self.labels+other_labels)))
 
-        conf_Matrix = ConfusionMatrix(combined_labels)
+        if self.labels is None or self.labels == []:
+            return other_CM
+        if other_CM.labels is None or other_CM.labels == []:
+            return self
+
+        labels = list(set(self.labels+other_CM.labels))
+
+        conf_Matrix = ConfusionMatrix(labels)
 
         _merge_CM(self, conf_Matrix)
         _merge_CM(other_CM, conf_Matrix)
@@ -102,13 +107,14 @@ class ConfusionMatrix:
         return ScoreMatrixMessage(labels=self.labels, prediction_field=self.prediction_field,
                                   target_field=self.target_field,
                                   score_field=self.score_field,
-                                  scores=[nt.to_protobuf() for nt in np.ravel(self.confusion_matrix)])
+                                  scores=[nt.to_protobuf() if nt else NumberTracker.to_protobuf(NumberTracker()) for nt in np.ravel(self.confusion_matrix)])
 
+    @classmethod
     def from_protobuf(self, message,):
         labels = message.labels
         num_labels = len(labels)
         matrix = np.array([NumberTracker.from_protobuf(score)for score in message.scores]).reshape(
-            (num_labels, num_labels))
+            (num_labels, num_labels)) if num_labels > 0 else None
 
         CM_instance = ConfusionMatrix(labels=labels,
                                       prediction_field=message.prediction_field,
