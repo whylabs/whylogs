@@ -82,8 +82,6 @@ class Session:
         profile_full_dataset: bool = False,
         with_rotation_time: str = None,
         cache_size: int = 1,
-        target_labels: List[str] = None,
-        model_name: str = None
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
