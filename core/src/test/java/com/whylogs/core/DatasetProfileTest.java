@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -224,11 +223,16 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void roundTripWithClassificationMetrics_should_succeed() {
-    val dp = new DatasetProfile("test", Instant.now()).withClassificationMetrics();
+  public void roundTripWithModelData_should_succeed() {
+    val dp = new DatasetProfile("test", Instant.now()).withModelProfile("pred", "target", "score");
     val msg = dp.toProtobuf().build();
     val roundTrip = DatasetProfile.fromProtobuf(msg);
-    assertThat(roundTrip.classificationMetrics, is(notNullValue()));
-    assertThat(roundTrip.classificationMetrics.getLabels(), is(empty()));
+    assertThat(roundTrip.getModelProfile(), is(notNullValue()));
+    assertThat(
+        roundTrip.getModelProfile().getMetrics().getScoreMatrix().getPredictionField(), is("pred"));
+    assertThat(
+        roundTrip.getModelProfile().getMetrics().getScoreMatrix().getTargetField(), is("target"));
+    assertThat(
+        roundTrip.getModelProfile().getMetrics().getScoreMatrix().getScoreField(), is("score"));
   }
 }

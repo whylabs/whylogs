@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
-case class ClassificationMetricsSession(predictionField: String, targetField: String, scoreField: String) {
+case class ModelProfileSession(predictionField: String, targetField: String, scoreField: String) {
   def shouldExclude(field: String): Boolean = {
     predictionField == field || targetField == field || scoreField == field;
   }
@@ -29,7 +29,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
                              private val timeColumn: String = null,
                              private val groupByColumns: Seq[String] = List(),
                              // model metrics
-                             private val classificationMetrics: ClassificationMetricsSession = null,
+                             private val modelProfile: ModelProfileSession = null,
                             ) {
   private val logger = LoggerFactory.getLogger(getClass)
   private val columnNames = dataFrame.schema.fieldNames.toSet
@@ -73,9 +73,9 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     this.copy(groupByColumns = columns.asScala)
   }
 
-  def withClassificationMetrics(predictionField: String, targetField: String, scoreField: String): WhyProfileSession = {
-    val classificationMetricsSession = ClassificationMetricsSession(predictionField, targetField, scoreField);
-    this.copy(classificationMetrics = classificationMetricsSession)
+  def withModelProfile(predictionField: String, targetField: String, scoreField: String): WhyProfileSession = {
+    val classificationMetricsSession = ModelProfileSession(predictionField, targetField, scoreField);
+    this.copy(modelProfile = classificationMetricsSession)
   }
 
   /**
@@ -109,7 +109,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     val whyStructDataFrame =
       if (timeColumn != null) { // if timeColumn is specified
         logger.info(s"Run profiling with: [$name, $timestamp] with time column [$timeColumn], group by: $debugGroupByStr")
-        val profileAgg = DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns, classificationMetrics)
+        val profileAgg = DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns, modelProfile)
           .toColumn
           .alias(whyStruct)
         dataFrame.groupBy(timeColumn, groupByColumns: _*)
@@ -117,7 +117,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
       } else {
         logger.info(s"Run profiling with: [$name, $timestamp] without time column, group by: $debugGroupByStr")
         val profileAgg = DatasetProfileAggregator(name, timeInMillis, groupByColumns = groupByColumns,
-          classificationMetrics = classificationMetrics)
+          model = modelProfile)
           .toColumn
           .alias(whyStruct)
         dataFrame.groupBy(groupByColumns.map(dataFrame.col): _*)

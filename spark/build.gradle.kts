@@ -69,6 +69,27 @@ artifacts {
     add("archives", javadocJar)
 }
 
+val gitlabMavenToken = System.getenv("MAVEN_TOKEN")
+
+repositories {
+    mavenCentral()
+    maven {
+        // https://gitlab.com/whylabs/core/songbird-java-client/-/packages
+        url = uri("https://gitlab.com/api/v4/projects/22420498/packages/maven")
+        name = "Gitlab"
+
+
+        val headerName = if (System.getenv("CI_JOB_STAGE").isNullOrEmpty()) "Private-Token" else "Job-Token"
+        credentials(HttpHeaderCredentials::class) {
+            name = headerName
+            value = gitlabMavenToken
+        }
+
+        authentication {
+            create<HttpHeaderAuthentication>("header")
+        }
+    }
+}
 
 dependencies {
     api("org.slf4j:slf4j-api:1.7.27")
@@ -77,6 +98,9 @@ dependencies {
 
     // project dependencies
     implementation(project(":core"))
+
+    // Songbird
+    implementation("ai.whylabs:songbird-client:0.1-SNAPSHOT")
 
     // lombok support
     compileOnly("org.projectlombok:lombok:1.18.12")

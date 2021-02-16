@@ -1,30 +1,31 @@
 package com.whylogs.core.metrics;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.whylogs.core.DatasetProfile;
-import com.whylogs.core.message.ClassificationMetricsMessage;
+import com.whylogs.core.message.ScoreMatrixMessage;
 import com.whylogs.core.statistics.NumberTracker;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class ClassificationMetrics {
+public class ScoreMatrix {
   private List<String> labels;
+  @Getter private final String predictionField;
+  @Getter private final String targetField;
+  @Getter private final String scoreField;
   private NumberTracker[][] values;
 
-  public ClassificationMetrics() {
-    this(Lists.newArrayList(), newMatrix(0));
-  }
-
-  public static ClassificationMetrics of() {
-    return new ClassificationMetrics();
+  public ScoreMatrix(String predictionField, String targetField, String scoreField) {
+    this(Lists.newArrayList(), predictionField, targetField, scoreField, newMatrix(0));
   }
 
   public List<String> getLabels() {
@@ -56,11 +57,28 @@ public class ClassificationMetrics {
     return res;
   }
 
-  public <T> void update(DatasetProfile datasetProfile, T prediction, T target, double score) {
+  public void track(Map<String, ?> columns) {
+    Preconditions.checkState(predictionField != null);
+    Preconditions.checkState(targetField != null);
+    val prediction = columns.get(predictionField);
+    val target = columns.get(targetField);
+    val scoreRaw = columns.get(scoreField);
+    double score = 0;
+    if (scoreRaw instanceof Number) {
+      score = ((Number) scoreRaw).doubleValue();
+    } else {
+      try {
+        score = Double.parseDouble(scoreRaw.toString());
+      } catch (NumberFormatException e) {
+        log.warn("Failed to parse score: {}", scoreRaw, e);
+      }
+    }
+    this.update(prediction, target, score);
+  }
+
+  public <T> void update(T prediction, T target, double score) {
     val predictionText = textValue(prediction);
     val targetText = textValue(target);
-    datasetProfile.track("whylogs.metrics.predictions", predictionText);
-    datasetProfile.track("whylogs.metrics.targets", targetText);
 
     val x = labels.indexOf(predictionText);
     val y = labels.indexOf(targetText);
@@ -129,7 +147,7 @@ public class ClassificationMetrics {
     return builder.toString();
   }
 
-  public ClassificationMetrics merge(ClassificationMetrics other) {
+  public ScoreMatrix merge(ScoreMatrix other) {
     if (other == null) {
       return copy();
     }
@@ -147,7 +165,7 @@ public class ClassificationMetrics {
     // copy the other object
     addMatrix(other.labels, other.values, newLabels, newValues);
 
-    return new ClassificationMetrics(newLabels, newValues);
+    return new ScoreMatrix(newLabels, targetField, predictionField, scoreField, newValues);
   }
 
   private void addMatrix(
@@ -167,7 +185,7 @@ public class ClassificationMetrics {
   }
 
   @NonNull
-  public ClassificationMetrics copy() {
+  public ScoreMatrix copy() {
     final int len = this.labels.size();
     val copyValues = newMatrix(len);
     for (int i = 0; i < len; i++) {
@@ -175,13 +193,14 @@ public class ClassificationMetrics {
         copyValues[i][j] = copyValues[i][j].merge(values[i][j]);
       }
     }
-    return new ClassificationMetrics(Lists.newArrayList(this.labels), copyValues);
+    return new ScoreMatrix(
+        Lists.newArrayList(this.labels), predictionField, targetField, scoreField, copyValues);
   }
 
   @NonNull
   @SuppressWarnings("UnstableApiUsage")
-  public ClassificationMetricsMessage.Builder toProtobuf() {
-    val builder = ClassificationMetricsMessage.newBuilder();
+  public ScoreMatrixMessage.Builder toProtobuf() {
+    val builder = ScoreMatrixMessage.newBuilder();
     labels.stream().map(Object::toString).forEach(builder::addLabels);
 
     val len = labels.size();
@@ -191,10 +210,18 @@ public class ClassificationMetrics {
       }
     }
 
+    builder.setPredictionField(predictionField);
+    builder.setTargetField(targetField);
+    builder.setScoreField(scoreField);
+
     return builder;
   }
 
-  public static ClassificationMetrics fromProtobuf(ClassificationMetricsMessage msg) {
+  public static ScoreMatrix fromProtobuf(ScoreMatrixMessage msg) {
+    if (msg == null) {
+      return null;
+    }
+
     val labels = Lists.<String>newArrayList();
     for (int i = 0; i < msg.getLabelsCount(); i++) {
       labels.add(msg.getLabels(i));
@@ -208,6 +235,7 @@ public class ClassificationMetrics {
       values[row][col] = NumberTracker.fromProtobuf(msg.getScores(i));
     }
 
-    return new ClassificationMetrics(labels, values);
+    return new ScoreMatrix(
+        labels, msg.getPredictionField(), msg.getTargetField(), msg.getScoreField(), values);
   }
 }

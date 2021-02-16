@@ -4,7 +4,7 @@ from typing import Optional
 from pyspark.sql import DataFrame
 
 
-class ClassificationMetricsSession:
+class ModelProfileSession:
     def __init__(self, prediction_field: str, target_field: str, score_field: str):
         self.prediction_field = prediction_field
         self.target_field = target_field
@@ -17,7 +17,7 @@ class WhyProfileSession:
     """
 
     def __init__(self, dataframe: DataFrame, name: str, time_column: Optional[str] = None, group_by_columns=None,
-                 classification_metrics: ClassificationMetricsSession = None):
+                 model_profile: ModelProfileSession = None):
         if group_by_columns is None:
             group_by_columns = []
         self._group_by_columns = group_by_columns
@@ -25,7 +25,7 @@ class WhyProfileSession:
 
         self._name = name
         self._time_colunn = time_column
-        self._classification_metrics = classification_metrics
+        self._model_profile = model_profile
 
     def withTimeColumn(self, time_column: str):  # noqa
         """
@@ -39,13 +39,13 @@ class WhyProfileSession:
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=time_column,
                                  group_by_columns=self._group_by_columns)
 
-    def withClassificationMetrics(self, prediction_field: str, target_field: str, score_field: str):  # noqa
+    def withModelProfile(self, prediction_field: str, target_field: str, score_field: str):  # noqa
         """
         :rtype: WhyLogSession
         """
-        classification_metrics = ClassificationMetricsSession(prediction_field, target_field, score_field)
+        model_profile = ModelProfileSession(prediction_field, target_field, score_field)
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
-                                 group_by_columns=self._group_by_columns, classification_metrics=classification_metrics)
+                                 group_by_columns=self._group_by_columns, model_profile=model_profile)
 
     def groupBy(self, col: str, *cols):  # noqa
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
@@ -61,10 +61,10 @@ class WhyProfileSession:
         if len(self._group_by_columns) > 0:
             j_session = j_session.groupBy(list(self._group_by_columns))
 
-        if self._classification_metrics is not None:
-            metrics = self._classification_metrics
-            j_session = j_session.withClassificationMetrics(self._classification_metrics.prediction_field,
-                                                            self._classification_metrics.target_field,
+        if self._model_profile is not None:
+            metrics = self._model_profile
+            j_session = j_session.withModelProfile(metrics.prediction_field,
+                                                            metrics.target_field,
                                                             metrics.score_field)
         if datetime_ts is not None:
             timestamp_ms = int(datetime_ts.timestamp() * 1000)

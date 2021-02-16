@@ -60,7 +60,7 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
 
     val df = spark.read.parquet("file:///tmp/data.parquet")
     val res = df.newProfilingSession("model")
-        .withClassificationMetrics("predicted", "target", "score")
+        .withModelProfile("predicted", "target", "score")
         .aggProfiles(Instant.now())
     res.count()
     res.printSchema()

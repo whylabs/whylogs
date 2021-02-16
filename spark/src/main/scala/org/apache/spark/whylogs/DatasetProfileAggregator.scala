@@ -6,10 +6,9 @@ import java.time.{Instant, ZoneOffset}
 import java.util.{Collections, UUID}
 
 import com.whylogs.core.DatasetProfile
-import com.whylogs.spark.ClassificationMetricsSession
+import com.whylogs.spark.ModelProfileSession
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.expressions.Aggregator
-import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.{Encoder, Encoders, Row}
 
 import scala.collection.JavaConverters._
@@ -31,7 +30,7 @@ case class DatasetProfileAggregator(datasetName: String,
                                     sessionTimeInMillis: Long,
                                     timeColumn: String = null,
                                     groupByColumns: Seq[String] = Seq(),
-                                    classificationMetrics: ClassificationMetricsSession = null,
+                                    model: ModelProfileSession = null,
                                     sessionId: String = UUID.randomUUID().toString)
   extends Aggregator[Row, DatasetProfile, Array[Byte]] with Serializable {
 
@@ -53,7 +52,7 @@ case class DatasetProfileAggregator(datasetName: String,
       dataTimestampString.map(value => (timeColumn, value)).toMap ++
       Map("Name" -> datasetName)
 
-    val timedProfile: DatasetProfile = dataTimestamp match {
+    var timedProfile: DatasetProfile = dataTimestamp match {
       case None if isProfileEmpty(profile) =>
         // we have an empty profile
         new DatasetProfile(sessionId,
@@ -81,29 +80,17 @@ case class DatasetProfileAggregator(datasetName: String,
         profile
     }
 
+    if (model != null) {
+      timedProfile = timedProfile.withModelProfile(model.predictionField, model.targetField, model.scoreField)
+    }
+
     // TODO: we have the schema here. Support schema?
-    for (field: StructField <- schema) {
-      if (!allGroupByColumns.contains(field.name)) {
-        timedProfile.track(field.name, row.get(schema.fieldIndex(field.name)))
-      }
-    }
+    val values = schema.fields.filter(f => !allGroupByColumns.contains(f.name))
+      .map(f => f.name -> row.get(schema.fieldIndex(f.name)))
+      .toMap.asJava
+    timedProfile.track(values);
 
-    if (classificationMetrics != null) {
-      val classificationDatasetProfile = timedProfile.withClassificationMetrics()
-      val prediction = row.get(schema.fieldIndex(classificationMetrics.predictionField))
-      val target = row.get(schema.fieldIndex(classificationMetrics.targetField))
-
-      val score = if (classificationMetrics.scoreField != null) {
-        row.getDouble(schema.fieldIndex(classificationMetrics.scoreField))
-      } else {
-        1.0
-      }
-      classificationDatasetProfile.trackClassificationMetrics(prediction, target, score)
-
-      classificationDatasetProfile
-    } else {
-      timedProfile
-    }
+    timedProfile
   }
 
   private def isProfileEmpty(profile: DatasetProfile) = {
@@ -133,7 +120,7 @@ case class DatasetProfileAggregator(datasetName: String,
       reduction.getColumns,
       reduction.getTags,
       reduction.getMetadata,
-      reduction.getClassificationMetrics,
+      reduction.getModelProfile,
     )
     val msg = finalProfile.toProtobuf.build()
     val bos = new ByteArrayOutputStream(msg.getSerializedSize)
