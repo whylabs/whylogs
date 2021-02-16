@@ -142,7 +142,6 @@ class DatasetProfile:
 
         self.model_profile = model_profile
 
-        # self._outputs = Outputs(outputs)
         # Store Name attribute
         self._tags["name"] = name
 
