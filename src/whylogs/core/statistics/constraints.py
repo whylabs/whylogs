@@ -83,7 +83,7 @@ class ValueConstraint:
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> 'ValueConstraint':
-        return ValueConstraint(msg.op, msg.value, name=msg.name)
+        return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
         return ValueConstraintMsg(
@@ -139,9 +139,9 @@ class SummaryConstraint:
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> 'SummaryConstraint':
         if msg.HasField('value') and not msg.HasField('field2'):
-            return SummaryConstraint(msg.field, msg.op, value=msg.value, name=msg.name)
+            return SummaryConstraint(msg.field, msg.op, value=msg.value, name=msg.name, verbose=msg.verbose)
         elif msg.HasField('field2') and not msg.HasField('value'):
-            return SummaryConstraint(msg.field, msg.op, field2=msg.field2, name=msg.name)
+            return SummaryConstraint(msg.field, msg.op, field2=msg.field2, name=msg.name, verbose=msg.verbose)
         else:
             raise ValueError("SummaryConstraintMsg must specify a second value or field name, but not both")
 
