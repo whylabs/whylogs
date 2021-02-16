@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 
 
-from whylogs.core.metrics.confusion_matrix import ConfusionMatrix, SUPPORTED_TYPES
+from whylogs.core.metrics.confusion_matrix import ConfusionMatrix, SUPPORTED_TYPES, enconde_to_integers
 
 
 def test_positive_count():
@@ -100,6 +100,17 @@ def test_positive_count():
                 [nt.floats.count for nt in conf_M.confusion_matrix[each_ind, :]])
             assert (sum_fp-expectd_tp_counts[indx]
                     [label]) == expectd_fp_counts[indx][label]
+
+
+def test_enconde_to_integer():
+    with pytest.raises(ValueError):
+        enconde_to_integers(["1"], ["2", "3"])
+
+
+def test_enconde_to_integer():
+
+    res = enconde_to_integers(["1"], ["2", "1", "3"])
+    assert res[0] == 1
 
 
 def test_merge_Conf_matrix():
