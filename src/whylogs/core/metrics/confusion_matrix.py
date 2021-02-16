@@ -131,7 +131,6 @@ def _merge_CM(old_conf_Matrix, new_conf_Matrix):
         old_conf_Matrix.labels, new_conf_Matrix.labels)
     old_indxes = enconde_to_integers(
         old_conf_Matrix.labels, old_conf_Matrix.labels)
-    confusion_matrix = new_conf_Matrix.confusion_matrix
 
     for old_row_idx, each_row_indx in enumerate(new_indxes):
         for old_column_idx, each_column_inx in enumerate(new_indxes):

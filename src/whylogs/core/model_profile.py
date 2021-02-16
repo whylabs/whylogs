@@ -2,12 +2,9 @@ from typing import List
 
 from sklearn.utils.multiclass import type_of_target
 import numpy as np
-import pandas as pd
+
 
 from whylogs.proto import ModelProfileMessage
-
-from whylogs.core.metrics.confusion_matrix import ConfusionMatrix
-from whylogs.core import ColumnProfile
 from whylogs.core.metrics.model_metrics import ModelMetrics
 
 SUPPORTED_TYPES = ("binary", "multiclass")

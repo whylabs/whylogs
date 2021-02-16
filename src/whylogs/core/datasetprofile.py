@@ -4,7 +4,7 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
-from typing import Dict, List
+from typing import Dict
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -176,7 +176,7 @@ class DatasetProfile:
         return time.to_utc_ms(self.session_timestamp)
 
     def add_output_field(self, field):
-        if isinstance(fields, list):
+        if isinstance(field, list):
             for field_name in field:
                 self.model_profile.add_output_field(field)
         else:
