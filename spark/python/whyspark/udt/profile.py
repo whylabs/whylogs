@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -41,6 +42,9 @@ class WhyProfileSession:
 
     def withModelProfile(self, prediction_field: str, target_field: str, score_field: str):  # noqa
         """
+        Track model performance. Specify the prediction field, target field and score field. All must exist
+        in the Dataframe or exception will be thrown.
+
         :rtype: WhyLogSession
         """
         model_profile = ModelProfileSession(prediction_field, target_field, score_field)
@@ -52,28 +56,28 @@ class WhyProfileSession:
                                  group_by_columns=[col] + list(cols))
 
     def aggProfiles(self, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None) -> DataFrame:  # noqa
-        jvm = self._df.sql_ctx._sc._jvm  # noqa
-        j_session = jvm.com.whylogs.spark.WhyLogs.newProfilingSession(self._df._jdf, self._name)  # noqa
-
-        if self._time_colunn is not None:
-            j_session = j_session.withTimeColumn(self._time_colunn)
-
-        if len(self._group_by_columns) > 0:
-            j_session = j_session.groupBy(list(self._group_by_columns))
-
-        if self._model_profile is not None:
-            metrics = self._model_profile
-            j_session = j_session.withModelProfile(metrics.prediction_field,
-                                                            metrics.target_field,
-                                                            metrics.score_field)
         if datetime_ts is not None:
             timestamp_ms = int(datetime_ts.timestamp() * 1000)
         elif timestamp_ms is None:
             timestamp_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
 
-        jdf = j_session.aggProfiles(timestamp_ms)
+        jdf = self._create_j_session().aggProfiles(timestamp_ms)
 
         return DataFrame(jdf=jdf, sql_ctx=self._df.sql_ctx)
+
+    def _create_j_session(self):
+        jvm = self._df.sql_ctx._sc._jvm  # noqa
+        j_session = jvm.com.whylogs.spark.WhyLogs.newProfilingSession(self._df._jdf, self._name)  # noqa
+        if self._time_colunn is not None:
+            j_session = j_session.withTimeColumn(self._time_colunn)
+        if len(self._group_by_columns) > 0:
+            j_session = j_session.groupBy(list(self._group_by_columns))
+        if self._model_profile is not None:
+            mp = self._model_profile
+            j_session = j_session.withModelProfile(mp.prediction_field,
+                                                   mp.target_field,
+                                                   mp.score_field)
+        return j_session
 
     def aggParquet(self, path: str, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None):  # noqa
         """
@@ -84,6 +88,30 @@ class WhyProfileSession:
         """
         df = self.aggProfiles(datetime_ts=datetime_ts, timestamp_ms=timestamp_ms)
         df.write.parquet(path)
+
+    def log(self, org_id: str = None, model_id: str = None, api_key: str = None):
+        """
+        Run profiling and send results to WhyLabs using the WhyProfileSession's configurations.
+
+        Users must specify the organization ID, the model ID and the API key.
+
+        You can specify via WHYLABS_ORG_ID, WHYLABS_MODEL_ID and WHYLABS_API_KEY environment variables as well.
+        """
+        if org_id is None:
+            org_id = os.environ.get('WHYLABS_ORG_ID')
+            if org_id is None:
+                raise RuntimeError('Please specify the org ID')
+        if model_id is None:
+            model_id = os.environ.get('WHYLABS_MODEL_ID')
+            if model_id is None:
+                raise RuntimeError('Please specify the model ID')
+        if api_key is None:
+            api_key = os.environ.get('WHYLABS_API_KEY')
+            if api_key is None:
+                raise RuntimeError('Please specify the API key')
+
+        j_session = self._create_j_session()
+        j_session.log(org_id, model_id, api_key)
 
 
 def new_profiling_session(df: DataFrame, name: str, time_column: Optional[str] = None):

@@ -26,6 +26,7 @@ dependencies {
     // we only depends on the output of the whylogs-spark components
     // we don't want to pull in Spark dependencies here
     implementation(project(":spark", "jar"))
+    implementation("ai.whylabs:songbird-client:0.1-SNAPSHOT")
 }
 
 // Do not build the jar for this package
@@ -47,6 +48,9 @@ shadowJar.apply {
     relocate("org.apache.datasketches", "com.shaded.whylabs.org.apache.datasketches")
     relocate("com.google", "com.shaded.whylabs.com.google")
     relocate("org.checkerframework", "com.shaded.whylabs.org.checkerframework")
+
+    // okio is consumed by songbird
+    relocate("okio", "com.shaded.whylabs.okio")
 
     archiveFileName.set("$artifactBaseName-${versionString}.jar")
 }

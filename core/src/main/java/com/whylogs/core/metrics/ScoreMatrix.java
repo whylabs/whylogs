@@ -66,7 +66,7 @@ public class ScoreMatrix {
     double score = 0;
     if (scoreRaw instanceof Number) {
       score = ((Number) scoreRaw).doubleValue();
-    } else {
+    } else if (scoreRaw != null) {
       try {
         score = Double.parseDouble(scoreRaw.toString());
       } catch (NumberFormatException e) {
