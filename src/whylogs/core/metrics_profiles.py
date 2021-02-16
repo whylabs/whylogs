@@ -1,118 +1,56 @@
 from typing import List
+
 from sklearn.utils.multiclass import type_of_target
-from whylogs.core import ColumnProfile
 import numpy as np
 import pandas as pd
+
+from whylogs.proto import ModelSummary
+
+from whylogs.core.metrics.confusion_matrix import ConfusionMatrix
+from whylogs.core import ColumnProfile
+from whylogs.core.metrics.metrics import Metrics
 
 SUPPORTED_TYPES = ("binary", "multiclass")
 
 
-class Profile:
+class Model:
 
-    def __init__(self, profiles: dict = {}):
-        self.profiles = profiles
+    """
+    Model Class for sketch metrics for model outputs
 
-    def track(self, columns, data=None):
-        """
-        Add value(s) to tracking statistics for column(s)
+    Attributes
+    ----------
+    confusion_matrix : ConfusionMatrix
+        Confusion Matrix object
+    labels : list
+        list of label associated with classification
+    name : str
+        model name
+    profiles : dict
+        a dictonary of column profiles to sketch metrics
+    """
 
-        Parameters
-        ----------
-        columns : str, dict
-            Either the name of a column, or a dictionary specifying column
-            names and the data (value) for each column
-            If a string, `data` must be supplied.  Otherwise, `data` is
-            ignored.
-        data : object, None
-            Value to track.  Specify if `columns` is a string.
-        """
-        if data is not None:
-            if type(columns) != str:
-                raise TypeError("Unambigious column to data mapping")
-            self.track_datum(columns, data)
-        else:
-            if isinstance(columns, dict):
-                for column_name, data in columns.items():
-                    self.track_datum(column_name, data)
-            elif isinstance(columns, str):
-                self.track_datum(columns, None)
-            else:
-                raise TypeError(" Data type of: {} not supported for tracking ".format(
-                    columns.__class__.__name__))
-
-    def track_datum(self, column_name, data):
-        try:
-            prof = self.profiles[column_name]
-        except KeyError:
-            prof = ColumnProfile(column_name)
-            self.profiles[column_name] = prof
-
-        prof.track(data)
-
-    def track_array(self, x: np.ndarray, columns=None):
-        """
-        Track statistics for a numpy array
-
-        Parameters
-        ----------
-        x : np.ndarray
-            2D array to track.
-        columns : list
-            Optional column labels
-        """
-        x = np.asanyarray(x)
-        if np.ndim(x) != 2:
-            raise ValueError("Expected 2 dimensional array")
-        if columns is None:
-            columns = np.arange(x.shape[1])
-        columns = [str(c) for c in columns]
-        return self.track_dataframe(pd.DataFrame(x, columns=columns))
-
-    def track_dataframe(self, df: pd.DataFrame):
-        """
-        Track statistics for a dataframe
-
-        Parameters
-        ----------
-        df : pandas.DataFrame
-            DataFrame to track
-        """
-        # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
-        # if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
-        #     df = df.to_pandas()
-        for col in df.columns:
-            col_str = str(col)
-            x = df[col].values
-            for xi in x:
-                self.track(col_str, xi)
-
-
-class Model(Profile):
-
-    def __init__(self, name, labels: List[str] = None):
+    def __init__(self,
+                 output_fields: List[str] = None,
+                 metrics: Metrics = None):
         super().__init__()
 
-        self.name = name
-        self.profiles = {}
-        self.confusion_matrix = None
-        if labels:
-            self.labels = list(np.unique(labels))
-            num_labels = len(self.labels)
-            self.confusion_matrix = np.zeros((num_labels, num_labels))
-        else:
-            self.labels = None
+        self.output_fields = output_fields
+        self.metrics = metrics
 
     # def compute_full_metrics(self,):
 
-    def track_metrics(self, targets, predictions, scores=None):
+    def add_output_field(self, field: str):
+        if field not in self.output_fields:
+            self.output_fields.append(field)
 
-        for each_target in targets:
-            self.track("targets", each_target)
-        for each_pred in predictions:
-            self.track("predictions", each_pred)
-        if scores:
-            for each_score in scores:
-                self.track("scores", each_score)
+    def compute_metrics(self, targets,
+                        predictions,
+                        scores=None,
+                        target_field_name=None,
+                        prediction_field_name=None,
+                        score_field_name=None
+                        ):
 
         tgt_type = type_of_target(targets)
         if tgt_type not in ("binary", "multiclass"):
@@ -136,54 +74,173 @@ class Model(Profile):
 
         uniques = self.labels
 
-        encoded_targets = enconde_to_integers(targets, uniques)
-        encoded_predictions = enconde_to_integers(predictions, uniques)
-
-        num_labels = len(self.labels)
-
         # compute confusion_matrix
+        self.compute_confusion_matrix(uniques, targets, predictions)
+
+    def compute_confusion_matrix(self, labels, targets, predictions):
+
+        confusion_matrix = ConfusionMatrix(labels)
+        confusion_matrix.add(targets, predictions)
+
         if self.confusion_matrix is None:
-            self.confusion_matrix = np.zeros((num_labels, num_labels))
-
-        if num_labels == self.confusion_matrix.shape[0]:
-            for each_tar in encoded_targets:
-                for each_pred in encoded_predictions:
-                    self.confusion_matrix[each_tar, each_pred] += 1
+            self.confusion_matrix = confusion_matrix
         else:
-            ValueError("Number of labels changed")
+            self.confusion_matrix = self.confusion_matrix.merge(
+                confusion_matrix)
 
-        for each_enco_target in enconde_to_integers(uniques, uniques):
+    def to_protobuf(self):
 
-            mask = (encoded_targets == each_enco_target)
-            mask_pred = (encoded_predictions == each_enco_target)
+        return ModelSummary(
 
-            tp_scores = scores[mask & mask_pred]
-            tp_scores_name = "whylogs.metrics.true_positive_scores.{}".format(
-                uniques[each_enco_target])
+            confusion_matrix=self.confusion_matrix.to_protobuf(
+            ) if self.confusion_matrix else None,
 
-            fp_scores = scores[~mask & mask_pred]
-            fp_scores_name = "whylogs.metrics.false_positive_scores.{}".format(
-                uniques[each_enco_target])
+        )
 
-            tn_scores = scores[~mask & ~mask_pred]
-            tn_scores_name = "whylogs.metrics.true_negative_scores.{}".format(
-                uniques[each_enco_target])
+    def from_protobuf(self, message):
 
-            fn_scores = scores[mask & ~mask_pred]
-            fn_scores_name = "whylogs.metrics.false_negative_scores.{}".format(
-                uniques[each_enco_target])
+        confusion_Matrix = ConfusionMatrix.from_protobuf(
+            message.model.confusion_matrix)
 
-            self.track_metric(tp_scores_name, tp_scores)
-            self.track_metric(fp_scores_name, fp_scores)
-            self.track_metric(tn_scores_name, tn_scores)
-            self.track_metric(fn_scores_name, fn_scores)
+        mod = Model(message.name, labels=message.labels, metrics={
+            k: ColumnProfile.from_protobuf(v) for k, v in message.metrics.items()
+        })
+        mod.confusion_matrix = confusion_Matrix
+        return mod
 
-    def track_metric(self, metric_name, values):
-        prof = ColumnProfile(metric_name)
-        self.profiles[metric_name] = prof
-        if len(values) > 0:
-            self.track_array(columns=[metric_name],
-                             x=values.reshape((-1, 1)))
+    # def calculate_metric(self, label, n_bins=10):
+
+    #     bins = np.array(range(0, n_bins))/n_bins
+    #     # print(bins)
+    #     tp_profile = self.profiles["whylogs.metrics.true_positive_scores.{}".format(
+    #         label)].number_tracker
+
+    #     fp_profile = self.profiles["whylogs.metrics.false_positive_scores.{}".format(
+    #         label)].number_tracker
+
+    #     fn_profile = self.profiles["whylogs.metrics.false_negative_scores.{}".format(
+    #         label)].number_tracker
+
+    #     tn_profile = self.profiles["whylogs.metrics.true_negative_scores.{}".format(
+    #         label)].number_tracker
+
+    #     if tp_profile.floats.count > 0:
+    #         tp_cum = np.array(tp_profile.histogram.get_cdf(
+    #             bins))*tp_profile.floats.count
+    #     else:
+    #         tp_cum = np.append(np.zeros_like(bins), 0.0)
+
+    #     if fp_profile.floats.count > 0:
+    #         fp_cum = np.array(fp_profile.histogram.get_cdf(
+    #             bins))*fp_profile.floats.count
+    #     else:
+    #         fp_cum = np.append(np.zeros_like(bins), 0.0)
+
+    #     if tn_profile.floats.count > 0:
+    #         tn_cum = np.array(
+    #             tn_profile.histogram.get_cdf(bins))*tn_profile.floats.count
+    #     else:
+    #         tn_cum = np.append(np.zeros_like(bins), 0.0)
+
+    #     if fn_profile.floats.count > 0:
+    #         fn_cum = np.array(fn_profile.histogram.get_cdf(
+    #             bins))*fn_profile.floats.count
+    #     else:
+    #         fn_cum = np.append(np.zeros_like(bins), 0.0)
+
+    #     min_val = np.finfo(float).eps
+    #     recall = tp_cum/(np.add(tp_cum, fn_cum) + min_val)
+    #     precision = tp_cum/(np.add(tp_cum, fp_cum) + min_val)
+    #     # fpr = fp_cum / (np.add(fp_cum, tn_cum) + min_val)
+    #     return bins, recall, precision
+
+    # def calculate_roc(self, label, n_bins=10):
+
+    #     bins = np.array(range(0, n_bins))/n_bins
+    #     # print(bins)
+    #     tp_profile = self.profiles["whylogs.metrics.true_positive_scores.{}".format(
+    #         label)].number_tracker
+
+    #     fp_profile = self.profiles["whylogs.metrics.false_positive_scores.{}".format(
+    #         label)].number_tracker
+
+    #     fn_profile = self.profiles["whylogs.metrics.false_negative_scores.{}".format(
+    #         label)].number_tracker
+
+    #     tn_profile = self.profiles["whylogs.metrics.true_negative_scores.{}".format(
+    #         label)].number_tracker
+
+    #     if tp_profile.floats.count > 0:
+    #         tp_cum = np.array(tp_profile.histogram.get_cdf(
+    #             bins))*tp_profile.floats.count
+    #     else:
+    #         tp_cum = np.append(np.zeros_like(bins), 0.0)
+
+    #     if fp_profile.floats.count > 0:
+    #         fp_cum = np.array(fp_profile.histogram.get_cdf(
+    #             bins))*fp_profile.floats.count
+    #     else:
+    #         fp_cum = np.append(np.zeros_like(bins), 0.0)
+
+    #     if tn_profile.floats.count > 0:
+    #         tn_cum = np.array(
+    #             tn_profile.histogram.get_cdf(bins))*tn_profile.floats.count
+    #     else:
+    #         tn_cum = np.append(np.zeros_like(bins), 0.0)
+
+    #     if fn_profile.floats.count > 0:
+    #         fn_cum = np.array(fn_profile.histogram.get_cdf(
+    #             bins))*fn_profile.floats.count
+    #     else:
+    #         fn_cum = np.append(np.zeros_like(bins), 0.0)
+
+    #     min_val = np.finfo(float).eps
+    #     recall = tp_cum/(np.add(tp_cum, fn_cum) + min_val)
+    #     fpr = fp_cum / (np.add(fp_cum, tn_cum) + min_val)
+    #     return bins, recall[1::], fpr[1::]
+
+    # def calculate_f_score(self, label, n_bins=10, beta=1):
+    #     # Calculates
+    #     bins, recall, precision = self.calculate_metrics(label, n_bins)
+    #     f_score = []
+    #     for indx in range(len(recall[1:])):
+    #         f_score.append(f_score_beta(
+    #             beta=beta, precision=precision[indx], recall=recall[indx]))
+    #     return bins, f_score
+
+    def merge(self, other_model):
+        labels = []
+        if self.labels:
+            for lbl in self.labels:
+                if lbl not in labels:
+                    labels.append(lbl)
+        if other.labels:
+            for lbl in other_model.labels:
+                if lbl not in labels:
+                    labels.append(lbl)
+
+        metrics_set = set(list(self.profiles.keys()) +
+                          list(other.profiles.keys()))
+
+        metrics = {}
+        for col_name in metrics_set:
+            empty_column = ColumnProfile(col_name)
+            this_column = self.profiles.get(col_name, empty_column)
+            other_column = other.profiles.get(col_name, empty_column)
+            metrics[col_name] = this_column.merge(other_column)
+
+        mod = Model(name=name, labels=label, metrics=metrics)
+
+        mod.confusion_matrix = self.confusion_matrix.merge(
+            other_model.confusion_matrix)
+        return mod
+
+
+def f_score_beta(beta, precision, recall):
+    beta2 = beta*beta
+    min_val = np.finfo(float).eps
+    f_score = (1+beta2) + precision*recall/(beta2*precision+recall+min_val)
+    return f_score
 
 
 def enconde_to_integers(values, uniques):

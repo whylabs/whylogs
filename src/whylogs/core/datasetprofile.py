@@ -121,9 +121,10 @@ class DatasetProfile:
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
-        ouputs: dict = None,
+        outputs: dict = None,
         target_labels: List[str] = None,
-        model_name: str = None
+        model_name: str = None,
+        metrics: dict = {},
     ):
         # Default values
         if columns is None:
@@ -141,10 +142,11 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
-
+        self.outputs = outputs
         if model_name is None:
             model_name = name
-        self._model = Model(model_name, target_labels)
+        self._model = Model(name=model_name, labels=target_labels)
+        self._model.profiles = metrics
         # self._outputs = Outputs(outputs)
         # Store Name attribute
         self._tags["name"] = name
@@ -377,21 +379,37 @@ class DatasetProfile:
     def _do_merge(self, other):
         columns_set = set(list(self.columns.keys()) +
                           list(other.columns.keys()))
+        outputs_set = set(list(self.outputs.keys()) +
+                          list(other.outputs.keys()))
+
         columns = {}
         for col_name in columns_set:
             empty_column = ColumnProfile(col_name)
             this_column = self.columns.get(col_name, empty_column)
             other_column = other.columns.get(col_name, empty_column)
             columns[col_name] = this_column.merge(other_column)
-        return DatasetProfile(
+
+        outputs = {}
+        for col_name in outputs_set:
+            empty_output = ColumnProfile(col_name)
+            this_column = self.outputs.get(col_name, empty_output)
+            other_output = other.outputs.get(col_name, empty_output)
+            outputs[col_name] = this_column.merge(other_output)
+
+        new_model = self._model.merge(other._model)
+
+        dtset_profile = DatasetProfile(
             name=self.name,
             session_id=self.session_id,
             session_timestamp=self.session_timestamp,
             dataset_timestamp=self.dataset_timestamp,
             columns=columns,
+            outputs=outputs,
             tags=self.tags,
             metadata=self.metadata,
         )
+        dtset_profile._model = new_model
+        return dtset_profile
 
     def merge_strict(self, other):
         """
@@ -451,6 +469,8 @@ class DatasetProfile:
         return DatasetProfileMessage(
             properties=properties,
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
+            model=self._model.to_protobuf(),
+            outputs={k: v.to_protobuf() for k, v in self.outputs.items()}
         )
 
     def write_protobuf(self, protobuf_path: str, delimited_file: bool = True):
@@ -511,6 +531,7 @@ class DatasetProfile:
             columns={
                 k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
             },
+
             tags=dict(properties.tags or {}),
             metadata=dict(properties.metadata or {}),
         )
