@@ -121,7 +121,7 @@ class DatasetProfile:
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
-        model_profile: ModelProfile = ModelProfile()
+        model_profile: ModelProfile = ModelProfile(),
     ):
         # Default values
         if columns is None:
