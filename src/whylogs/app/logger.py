@@ -295,7 +295,6 @@ class Logger:
             features: Optional[Dict[str, any]] = None,
             feature_name: str = None,
             value: any = None,
-            constraints: DatasetConstraints = None,
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
