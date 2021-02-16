@@ -321,7 +321,7 @@ public class DatasetProfile implements Serializable {
         .putAllTags(tags)
         .putAllMetadata(metadata)
         .setSchemaMajorVersion(SchemaInformation.SCHEMA_MAJOR_VERSION)
-        .setSchemaMinorVersion(SchemaInformation.SCHEMA_MAJOR_VERSION);
+        .setSchemaMinorVersion(SchemaInformation.SCHEMA_MINOR_VERSION);
   }
 
   public static DatasetProfile fromProtobuf(DatasetProfileMessage message) {
