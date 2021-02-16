@@ -109,18 +109,32 @@ message DatasetProperties {
   // TODO: store other configuration here
 }
 
-message ClassificationMetricsMessage {
+message ScoreMatrixMessage {
   repeated string labels = 1;
+  string prediction_field = 2;
+  string target_field = 3;
+  string score_field = 4;
+
   // a flattened NxN matrix (N = len(labels))
-  repeated NumbersMessage scores = 2;
+  repeated NumbersMessage scores = 10;
 }
 
+message ModelMetricsMessage {
+  ScoreMatrixMessage scoreMatrix = 1;
+}
+
+message ModelProfileMessage {
+  repeated string output_fields = 1;
+  // Reserving fields for ModelMessage
+
+  ModelMetricsMessage metrics = 10;
+}
 
 message DatasetProfileMessage {
   DatasetProperties properties = 1;
   map<string, ColumnMessage> columns = 2;
   // reserve other fields for dataset level data
-  ClassificationMetricsMessage classification_metrics = 10;
+  ModelProfileMessage modeProfile = 10;
 }
 
 /**
