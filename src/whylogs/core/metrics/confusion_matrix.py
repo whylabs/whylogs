@@ -16,8 +16,8 @@ class ConfusionMatrix:
     Confusion Matrix Class to hold labels and matrix data
 
     Attributes:
-        confusion_matrix (nd.array): Description
-        labels (List[str]): Description
+        confusion_matrix (nd.array): Confusion Matrix kept as matrix of NumberTrackers
+        labels (List[str]): list of labels for the confusion_matrix axes
     """
 
     def __init__(self, labels: List[str] = None,
@@ -47,12 +47,13 @@ class ConfusionMatrix:
         add. predictions and targets to confusion matrix with scores
 
         Args:
-            predictions (TYPE): Description
-            targets (TYPE): Description
-            scores (TYPE): Description
+            predictions (List[Union[str, int, bool]]):
+            targets (List[Union[str, int, bool]]):
+            scores (List[float]):
 
         Raises:
-            ValueError: Description
+            NotImplementedError: in case targets do not fall into binary or multiclass suport
+            ValueError: incase missing validation or predictions
         """
 
         tgt_type = type_of_target(targets)
@@ -78,28 +79,28 @@ class ConfusionMatrix:
             self.confusion_matrix[prediction_indx[ind],
                                   targets_indx[ind]].track(scores[ind])
 
-    def merge(self, other_CM):
-        """
-        merge two seperate confusion matrix which may or may not overlap in labels
+    def merge(self, other_cm: ConfusionMatrix)-> ConfusionMatrix:
+      """
+      merge two seperate confusion matrix which may or may not overlap in labels
 
-        Args:
-            other_CM (TYPE): Description
+      Args:
+          other_cm (ConfusionMatrix): confusion_matrix to merge with self
 
-        Returns:
-            TYPE: Description
-        """
+      Returns:
+          ConfusionMatrix: merged confusion_matrix
+      """
 
-        if self.labels is None or self.labels == []:
-            return other_CM
-        if other_CM.labels is None or other_CM.labels == []:
+       if self.labels is None or self.labels == []:
+            return other_cm
+        if other_cm.labels is None or other_cm.labels == []:
             return self
 
-        labels = list(set(self.labels+other_CM.labels))
+        labels = list(set(self.labels+other_cm.labels))
 
         conf_Matrix = ConfusionMatrix(labels)
 
         _merge_CM(self, conf_Matrix)
-        _merge_CM(other_CM, conf_Matrix)
+        _merge_CM(other_cm, conf_Matrix)
 
         return conf_Matrix
 
@@ -125,8 +126,14 @@ class ConfusionMatrix:
         return CM_instance
 
 
-def _merge_CM(old_conf_Matrix, new_conf_Matrix):
-
+def _merge_CM(old_conf_Matrix:ConfusionMatrix, new_conf_Matrix:ConfusionMatrix):
+    """
+    Merges two confusion_matrix since distinc or overlaping labels
+    
+    Args:
+        old_conf_Matrix (ConfusionMatrix)
+        new_conf_Matrix (ConfusionMatrix): Will be overridden
+    """
     new_indxes = enconde_to_integers(
         old_conf_Matrix.labels, new_conf_Matrix.labels)
     old_indxes = enconde_to_integers(

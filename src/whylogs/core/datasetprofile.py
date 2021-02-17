@@ -4,7 +4,7 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
-from typing import Dict
+from typing import Dict, List, Union
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -182,9 +182,31 @@ class DatasetProfile:
         else:
             self.model_profile.add_output_field(field)
 
-    def track_metrics(self, targets, predictions, scores=None,
-                      target_field=None, prediction_field=None,
-                      score_field=None):
+    def track_metrics(self, targets: List[Union[str, bool, float, int]], predictions: List[Union[str, bool, float, int]], scores: List[float] = None,
+                      target_field: str = None, prediction_field: str = None,
+                      score_field: str = None):
+        """
+        Function to track metrics based on validation data,
+        user may also pass the associated attribute names associated with
+        target, prediction, and/or score
+
+        Parameters
+        ----------
+        targets : List[Union[str, bool, float, int]]
+            actual validated values
+        predictions : List[Union[str, bool, float, int]]
+            inferred/predicted values
+        scores : List[float], optional
+            assocaited scores for each inferred, all values set to 1 if not passed
+        target_field : str, optional
+
+        prediction_field : str, optional
+
+        score_field : str, optional
+
+        score_field : str, optional
+
+        """
         self.model_profile.compute_metrics(predictions, targets,
                                            scores, target_field=target_field,
                                            prediction_field=prediction_field,
@@ -518,8 +540,11 @@ class DatasetProfile:
         dataset_profile : DatasetProfile
         """
         properties: DatasetProperties = message.properties
+        name = (properties.tags or {}).get("name", None) or (
+            properties.tags or {}).get("Name", None) or ""
+
         return DatasetProfile(
-            name=(properties.tags or {}).get("name") or "",
+            name=name,
             session_id=properties.session_id,
             session_timestamp=from_utc_ms(properties.session_timestamp),
             dataset_timestamp=from_utc_ms(properties.data_timestamp),

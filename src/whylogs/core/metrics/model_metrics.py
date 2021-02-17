@@ -4,6 +4,13 @@ from whylogs.proto import ModelMetricsMessage
 
 class ModelMetrics:
 
+    """
+    Container class for Modelmetrics 
+
+    Attributes:
+        confusion_matrix (ConfusionMatrix): ConfusionMatrix which keeps it track of counts with numbertracker 
+    """
+
     def __init__(self, confusion_matrix: ConfusionMatrix = ConfusionMatrix()):
         self.confusion_matrix = confusion_matrix
 
@@ -14,10 +21,22 @@ class ModelMetrics:
     def from_protobuf(self, message,):
         return ModelMetrics(confusion_matrix=ConfusionMatrix.from_protobuf(message.scoreMatrix))
 
-    def compute_confusion_matrix(self, predictions, targets, scores=None, target_field=None,
-                                 prediction_field=None,
-                                 score_field=None):
+    def compute_confusion_matrix(self, predictions: List[Union[str, int, bool]],
+                                 targets: List[Union[str, int, bool]],
+                                 scores: List[float] = None, target_field: str = None,
+                                 prediction_field: str = None,
+                                 score_field: str = None):
+        """
+        computes the confusion_matrix, if one is already present merges to old one.
 
+        Args:
+            predictions (List[Union[str, int, bool]]): Description
+            targets (List[Union[str, int, bool]]): Description
+            scores (List[float], optional): Description
+            target_field (str, optional): Description
+            prediction_field (str, optional): Description
+            score_field (str, optional): Description
+        """
         labels = sorted(list(set(targets+predictions)))
         confusion_matrix = ConfusionMatrix(labels,
                                            target_field=target_field,
