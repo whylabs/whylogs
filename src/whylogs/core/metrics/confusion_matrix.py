@@ -12,7 +12,7 @@ SUPPORTED_TYPES = ("binary", "multiclass")
 
 class ConfusionMatrix:
     """
-    Confusion Matrix Class to hold labels and matrix data
+    Confusion Matrix Class to hold labels and matrix data.
 
     Attributes:
         confusion_matrix (nd.array): Confusion Matrix kept as matrix of NumberTrackers
@@ -43,7 +43,7 @@ class ConfusionMatrix:
             targets: List[Union[str, int, bool]],
             scores: List[float]):
         """
-        add. predictions and targets to confusion matrix with scores
+        Function adds predictions and targets to confusion matrix with scores.
 
         Args:
             predictions (List[Union[str, int, bool]]):
@@ -55,7 +55,6 @@ class ConfusionMatrix:
             multiclass suport
             ValueError: incase missing validation or predictions
         """
-
         tgt_type = type_of_target(targets)
         if tgt_type not in ("binary", "multiclass"):
             raise NotImplementedError("target type not supported yet")
@@ -81,7 +80,7 @@ class ConfusionMatrix:
 
     def merge(self, other_cm):
         """
-        merges two seperate confusion matrix which may or may not overlap in labels
+        Merge two seperate confusion matrix which may or may not overlap in labels.
 
         Args:
               other_cm (ConfusionMatrix): confusion_matrix to merge with self
@@ -104,6 +103,12 @@ class ConfusionMatrix:
         return conf_Matrix
 
     def to_protobuf(self, ):
+        """
+        Convert to 
+
+        Returns:
+            TYPE: Description
+        """
         return ScoreMatrixMessage(labels=self.labels,
                                   prediction_field=self.prediction_field,
                                   target_field=self.target_field,

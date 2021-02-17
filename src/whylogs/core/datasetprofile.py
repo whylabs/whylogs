@@ -171,7 +171,7 @@ class DatasetProfile:
     @property
     def session_timestamp_ms(self):
         """
-        Return the session timestamp value in epoch milliseconds
+        Return the session timestamp value in epoch milliseconds.
         """
         return time.to_utc_ms(self.session_timestamp)
 
@@ -186,9 +186,10 @@ class DatasetProfile:
                       target_field: str = None, prediction_field: str = None,
                       score_field: str = None):
         """
-        Function to track metrics based on validation data,
+        Function to track metrics based on validation data.
+
         user may also pass the associated attribute names associated with
-        target, prediction, and/or score
+        target, prediction, and/or score.
 
         Parameters
         ----------
@@ -199,11 +200,8 @@ class DatasetProfile:
         scores : List[float], optional
             assocaited scores for each inferred, all values set to 1 if not passed
         target_field : str, optional
-
         prediction_field : str, optional
-
         score_field : str, optional
-
         score_field : str, optional
 
         """
@@ -214,7 +212,7 @@ class DatasetProfile:
 
     def track(self, columns, data=None):
         """
-        Add value(s) to tracking statistics for column(s)
+        Add value(s) to tracking statistics for column(s).
 
         Parameters
         ----------
