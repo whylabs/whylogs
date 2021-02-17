@@ -80,7 +80,8 @@ case class DatasetProfileAggregator(datasetName: String,
         profile
     }
 
-    if (model != null) {
+    if (isProfileEmpty(profile) && model != null) {
+      // only append model profile configuration if the profile is empty
       timedProfile = timedProfile.withModelProfile(model.predictionField, model.targetField, model.scoreField)
     }
 

@@ -1,14 +1,18 @@
 package com.whylogs.spark
 
+import java.io.ByteArrayInputStream
+import java.nio.file.{Files, StandardCopyOption}
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+import com.whylogs.core.DatasetProfile
 import org.apache.commons.lang3.RandomUtils
 import org.apache.spark.sql.SaveMode
 import org.apache.spark.whylogs.SharedSparkContext
 import org.scalatest.funsuite.AnyFunSuite
 
+import scala.collection.JavaConverters._
 import scala.reflect.io.Directory
 
 case class TestDataPoint(x: String, i: Int, d: Double, ts: Timestamp) extends Serializable
@@ -58,12 +62,19 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
   test("test WhyLogsSession with ClassificationMetrics") {
     import com.whylogs.spark.WhyLogs._
 
-    val df = spark.read.parquet("file:///tmp/data.parquet")
+    val file = Files.createTempFile("data", ".parquet")
+    Files.copy(WhyLogs.getClass.getResourceAsStream("/prediction_data.parquet"), file, StandardCopyOption.REPLACE_EXISTING)
+
+    val df = spark.read.parquet("file://" + file.toAbsolutePath)
     val res = df.newProfilingSession("model")
-        .withModelProfile("predicted", "target", "score")
-        .aggProfiles(Instant.now())
+      .withModelProfile("predictions", "targets", "scores")
+      .aggProfiles(Instant.now())
     res.count()
-    res.printSchema()
+    val bytes = res.collect()(0).getAs[Array[Byte]](0)
+    val dp = DatasetProfile.parse(new ByteArrayInputStream(bytes))
+
+    assert(dp.getModelProfile != null)
+    assert(dp.getModelProfile.getMetrics.getScoreMatrix.getLabels == List("0", "1").asJava)
   }
 
 }
