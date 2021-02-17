@@ -25,9 +25,9 @@ enum Op {
    */
 message SummaryConstraintMsg {
   string name = 1;
-  string field = 2;
+  string first_field = 2;
   oneof second {
-     string field2 = 3;
+     string second_field = 3;
      double value = 4;
   }
   Op op = 5;
