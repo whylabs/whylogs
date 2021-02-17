@@ -11,7 +11,6 @@ SUPPORTED_TYPES = ("binary", "multiclass")
 
 
 class ConfusionMatrix:
-
     """
     Confusion Matrix Class to hold labels and matrix data
 
@@ -52,7 +51,8 @@ class ConfusionMatrix:
             scores (List[float]):
 
         Raises:
-            NotImplementedError: in case targets do not fall into binary or multiclass suport
+            NotImplementedError: in case targets do not fall into binary or
+            multiclass suport
             ValueError: incase missing validation or predictions
         """
 
@@ -79,18 +79,17 @@ class ConfusionMatrix:
             self.confusion_matrix[prediction_indx[ind],
                                   targets_indx[ind]].track(scores[ind])
 
-    def merge(self, other_cm: ConfusionMatrix)-> ConfusionMatrix:
-      """
-      merge two seperate confusion matrix which may or may not overlap in labels
+    def merge(self, other_cm):
+        """
+        merges two seperate confusion matrix which may or may not overlap in labels
 
-      Args:
-          other_cm (ConfusionMatrix): confusion_matrix to merge with self
+        Args:
+              other_cm (ConfusionMatrix): confusion_matrix to merge with self
+        Returns:
+              ConfusionMatrix: merged confusion_matrix
+        """
 
-      Returns:
-          ConfusionMatrix: merged confusion_matrix
-      """
-
-       if self.labels is None or self.labels == []:
+        if self.labels is None or self.labels == []:
             return other_cm
         if other_cm.labels is None or other_cm.labels == []:
             return self
@@ -105,10 +104,13 @@ class ConfusionMatrix:
         return conf_Matrix
 
     def to_protobuf(self, ):
-        return ScoreMatrixMessage(labels=self.labels, prediction_field=self.prediction_field,
+        return ScoreMatrixMessage(labels=self.labels,
+                                  prediction_field=self.prediction_field,
                                   target_field=self.target_field,
                                   score_field=self.score_field,
-                                  scores=[nt.to_protobuf() if nt else NumberTracker.to_protobuf(NumberTracker()) for nt in np.ravel(self.confusion_matrix)])
+                                  scores=[nt.to_protobuf() if nt else NumberTracker.to_protobuf(
+                                      NumberTracker()) for nt in np.ravel(
+                                      self.confusion_matrix)])
 
     @classmethod
     def from_protobuf(self, message,):
@@ -126,10 +128,10 @@ class ConfusionMatrix:
         return CM_instance
 
 
-def _merge_CM(old_conf_Matrix:ConfusionMatrix, new_conf_Matrix:ConfusionMatrix):
+def _merge_CM(old_conf_Matrix: ConfusionMatrix, new_conf_Matrix: ConfusionMatrix):
     """
     Merges two confusion_matrix since distinc or overlaping labels
-    
+
     Args:
         old_conf_Matrix (ConfusionMatrix)
         new_conf_Matrix (ConfusionMatrix): Will be overridden

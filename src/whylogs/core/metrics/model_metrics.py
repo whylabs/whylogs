@@ -1,14 +1,15 @@
+from typing import List, Union
+
 from whylogs.core.metrics.confusion_matrix import ConfusionMatrix
 from whylogs.proto import ModelMetricsMessage
 
 
 class ModelMetrics:
-
     """
-    Container class for Modelmetrics 
+    Container class for Modelmetrics
 
     Attributes:
-        confusion_matrix (ConfusionMatrix): ConfusionMatrix which keeps it track of counts with numbertracker 
+        confusion_matrix (ConfusionMatrix): ConfusionMatrix which keeps it track of counts with numbertracker
     """
 
     def __init__(self, confusion_matrix: ConfusionMatrix = ConfusionMatrix()):
@@ -30,12 +31,12 @@ class ModelMetrics:
         computes the confusion_matrix, if one is already present merges to old one.
 
         Args:
-            predictions (List[Union[str, int, bool]]): Description
-            targets (List[Union[str, int, bool]]): Description
-            scores (List[float], optional): Description
-            target_field (str, optional): Description
-            prediction_field (str, optional): Description
-            score_field (str, optional): Description
+            predictions (List[Union[str, int, bool]]):
+            targets (List[Union[str, int, bool]]):
+            scores (List[float], optional):
+            target_field (str, optional):
+            prediction_field (str, optional):
+            score_field (str, optional):
         """
         labels = sorted(list(set(targets+predictions)))
         confusion_matrix = ConfusionMatrix(labels,
