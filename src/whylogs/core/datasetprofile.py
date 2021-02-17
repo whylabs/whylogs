@@ -425,7 +425,7 @@ class DatasetProfile:
             columns=columns,
             tags=self.tags,
             metadata=self.metadata,
-            model_profile=new_model_profile
+            model_profile=new_model_profile,
         )
 
     def merge_strict(self, other):
