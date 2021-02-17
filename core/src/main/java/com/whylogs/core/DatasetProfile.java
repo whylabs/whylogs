@@ -365,6 +365,7 @@ public class DatasetProfile implements Serializable {
     this.metadata = copy.metadata;
     this.tags = copy.tags;
     this.columns = copy.columns;
+    this.modelProfile = copy.modelProfile;
 
     this.validate();
   }

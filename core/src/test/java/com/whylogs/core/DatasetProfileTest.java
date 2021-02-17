@@ -1,5 +1,17 @@
 package com.whylogs.core;
 
+import com.google.common.collect.ImmutableMap;
+import lombok.val;
+import org.apache.commons.lang3.SerializationUtils;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
@@ -9,15 +21,6 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-
-import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import lombok.val;
-import org.apache.commons.lang3.SerializationUtils;
-import org.testng.annotations.Test;
 
 public class DatasetProfileTest {
   @Test
@@ -218,13 +221,45 @@ public class DatasetProfileTest {
   }
 
   @Test
+  public void javaSerialization_RoundTripWithModelProfile_Success() {
+    val sessionTime = Instant.now();
+    val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
+    val original = new DatasetProfile("test", sessionTime, null, tags, Collections.emptyMap())
+        .withModelProfile("pred", "target", "score", "additionalOutput");
+
+    original.track("col1", "value");
+    original.track("col1", 1);
+    original.track("col2", "value");
+
+    val roundTrip = SerializationUtils.clone(original);
+    assertThat(roundTrip.getSessionId(), is("test"));
+    assertThat(roundTrip.getSessionTimestamp().toEpochMilli(), is(sessionTime.toEpochMilli()));
+    assertThat(roundTrip.getDataTimestamp(), nullValue());
+    assertThat(roundTrip.columns, aMapWithSize(2));
+    assertThat(roundTrip.tags, aMapWithSize(3));
+    assertThat(roundTrip.tags.values(), containsInAnyOrder("paper", "rock", "scissors"));
+    assertThat(roundTrip.modelProfile, is(notNullValue()));
+    assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getPredictionField(), is("pred"));
+    assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getTargetField(), is("target"));
+    assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getScoreField(), is("score"));
+  }
+
+  @Test
   public void deserialization_should_succeed() throws IOException {
     DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
   }
 
   @Test
+  public void decode() throws Exception {
+    val df = DatasetProfile.parse(Files.newInputStream(Paths.get("/Users/andy/Workspace/notebooks/jvm_output_2.bin")));
+    df.columns.size();
+  }
+
+  @Test
   public void roundTripWithModelData_should_succeed() {
     val dp = new DatasetProfile("test", Instant.now()).withModelProfile("pred", "target", "score");
+    dp.track(ImmutableMap.of("pred", 1, "target", 1, "score", 0.5));
+    dp.track(ImmutableMap.of("pred", 1, "target", 0, "score", 0.5));
     val msg = dp.toProtobuf().build();
     val roundTrip = DatasetProfile.fromProtobuf(msg);
     assertThat(roundTrip.getModelProfile(), is(notNullValue()));
