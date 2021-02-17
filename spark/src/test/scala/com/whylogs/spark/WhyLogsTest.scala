@@ -75,6 +75,11 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
 
     assert(dp.getModelProfile != null)
     assert(dp.getModelProfile.getMetrics.getScoreMatrix.getLabels == List("0", "1").asJava)
+    val matrix: Array[Array[Long]] = dp.getModelProfile.getMetrics.getScoreMatrix.getConfusionMatrix
+    assert(matrix(0)(0) == 40L)
+    assert(matrix(0)(1) == 7L)
+    assert(matrix(1)(0) == 11L)
+    assert(matrix(1)(1) == 42L)
   }
 
 }
