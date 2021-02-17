@@ -12,6 +12,7 @@ SUPPORTED_TYPES = ("binary", "multiclass")
 
 class ConfusionMatrix:
     """
+
     Confusion Matrix Class to hold labels and matrix data.
 
     Attributes:
@@ -93,18 +94,18 @@ class ConfusionMatrix:
         if other_cm.labels is None or other_cm.labels == []:
             return self
 
-        labels = list(set(self.labels+other_cm.labels))
+        labels = list(set(self.labels + other_cm.labels))
 
-        conf_Matrix = ConfusionMatrix(labels)
+        conf_matrix = ConfusionMatrix(labels)
 
-        _merge_CM(self, conf_Matrix)
-        _merge_CM(other_cm, conf_Matrix)
+        conf_matrix = _merge_CM(self, conf_matrix)
+        conf_matrix = _merge_CM(other_cm, conf_matrix)
 
-        return conf_Matrix
+        return conf_matrix
 
     def to_protobuf(self, ):
         """
-        Convert to 
+        Convert to protobuf
 
         Returns:
             TYPE: Description
@@ -124,36 +125,42 @@ class ConfusionMatrix:
         matrix = np.array([NumberTracker.from_protobuf(score)for score in message.scores]).reshape(
             (num_labels, num_labels)) if num_labels > 0 else None
 
-        CM_instance = ConfusionMatrix(labels=labels,
+        cm_instance = ConfusionMatrix(labels=labels,
                                       prediction_field=message.prediction_field,
                                       target_field=message.target_field,
                                       score_field=message.score_field)
-        CM_instance.confusion_matrix = matrix
+        cm_instance.confusion_matrix = matrix
 
-        return CM_instance
+        return cm_instance
 
 
-def _merge_CM(old_conf_Matrix: ConfusionMatrix, new_conf_Matrix: ConfusionMatrix):
+def _merge_CM(old_conf_matrix: ConfusionMatrix, new_conf_matrix: ConfusionMatrix):
     """
     Merges two confusion_matrix since distinc or overlaping labels
 
     Args:
-        old_conf_Matrix (ConfusionMatrix)
-        new_conf_Matrix (ConfusionMatrix): Will be overridden
+        old_conf_matrix (ConfusionMatrix)
+        new_conf_matrix (ConfusionMatrix): Will be overridden
     """
     new_indxes = enconde_to_integers(
-        old_conf_Matrix.labels, new_conf_Matrix.labels)
+        old_conf_matrix.labels, new_conf_matrix.labels)
     old_indxes = enconde_to_integers(
-        old_conf_Matrix.labels, old_conf_Matrix.labels)
+        old_conf_matrix.labels, old_conf_matrix.labels)
+
+    res_conf_matrix = ConfusionMatrix(new_conf_matrix.labels)
+
+    res_conf_matrix.confusion_matrix = new_conf_matrix.confusion_matrix
 
     for old_row_idx, each_row_indx in enumerate(new_indxes):
         for old_column_idx, each_column_inx in enumerate(new_indxes):
 
-            new_conf_Matrix.confusion_matrix[each_row_indx, each_column_inx] = \
-                new_conf_Matrix.confusion_matrix[each_row_indx,
+            res_conf_matrix.confusion_matrix[each_row_indx, each_column_inx] = \
+                new_conf_matrix.confusion_matrix[each_row_indx,
                                                  each_column_inx].merge(
-                old_conf_Matrix.confusion_matrix[old_indxes[old_row_idx],
+                old_conf_matrix.confusion_matrix[old_indxes[old_row_idx],
                                                  old_indxes[old_column_idx]])
+
+    return res_conf_matrix
 
 
 def enconde_to_integers(values, uniques):
