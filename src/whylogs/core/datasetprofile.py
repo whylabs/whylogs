@@ -107,10 +107,12 @@ class DatasetProfile:
         A dictionary of key->value. Can be used upstream for aggregating data. Tags must match when merging
         with another dataset profile object.
     metadata: dict
-        Metadata that can store abirtrary string mapping. Metadata is not used when aggregating data
+        Metadata that can store arbitrary string mapping. Metadata is not used when aggregating data
         and can be dropped when merging with another dataset profile object.
     session_id : str
         The unique session ID run. Should be a UUID.
+    constraints: DatasetConstraints
+        Static assertions to be applied to tracked numeric data and profile summaries.
     """
 
     def __init__(
@@ -658,7 +660,7 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
-                constraints.track(summ.number_summary)
+                constraints.update(summ.number_summary)
             else:
                 logger.debug(f'unkown feature \'{feature_name}\' in summary constraints')
 

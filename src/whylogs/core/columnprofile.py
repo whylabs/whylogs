@@ -39,6 +39,8 @@ class ColumnProfile:
         Keep track of all frequent items, even for mixed datatype features
     cardinality_tracker : HllSketch
         Track feature cardinality (even for mixed data types)
+    constraints : ValueConstraints
+        Static assertions to be applied to numeric data tracked in this column
 
     TODO:
         * Proper TypedDataConverter type checking
@@ -109,7 +111,7 @@ class ColumnProfile:
             self.counters.increment_bool()
         self.number_tracker.track(typed_data)
 
-        self.constraints.track(typed_data)
+        self.constraints.update(typed_data)
 
     def to_summary(self):
         """
@@ -145,7 +147,7 @@ class ColumnProfile:
         if self.number_tracker is not None and self.number_tracker.count > 0:
             summ = self.number_tracker.to_summary()
             if summ.min > 0:
-                items = [SummaryConstraint(op=Op.GT, field='min', value=0)]
+                items = [SummaryConstraint(op=Op.GT, first_field='min', value=0)]
             # generate additional constraints here
             if len(items) > 0:
                 return SummaryConstraints(items)
