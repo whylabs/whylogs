@@ -4,7 +4,7 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
-from typing import Dict
+from typing import Dict, List, Union
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -14,6 +14,8 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 
 from whylogs.core import ColumnProfile
+from whylogs.core.model_profile import ModelProfile
+
 from whylogs.core.types.typeddataconverter import TYPES
 from whylogs.proto import (
     ColumnsChunkSegment,
@@ -35,7 +37,8 @@ try:
     from cudf.core.dataframe import DataFrame as cudfDataFrame
 except ImportError as e:
     logger.debug(str(e))
-    logger.debug('Failed to import CudaDataFrame. Install cudf for CUDA support')
+    logger.debug(
+        'Failed to import CudaDataFrame. Install cudf for CUDA support')
     cudfDataFrame = None
 
 
@@ -118,6 +121,7 @@ class DatasetProfile:
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
+        model_profile: ModelProfile = ModelProfile(),
     ):
         # Default values
         if columns is None:
@@ -135,6 +139,8 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
+
+        self.model_profile = model_profile
 
         # Store Name attribute
         self._tags["name"] = name
@@ -165,13 +171,48 @@ class DatasetProfile:
     @property
     def session_timestamp_ms(self):
         """
-        Return the session timestamp value in epoch milliseconds
+        Return the session timestamp value in epoch milliseconds.
         """
         return time.to_utc_ms(self.session_timestamp)
 
+    def add_output_field(self, field):
+        if isinstance(field, list):
+            for field_name in field:
+                self.model_profile.add_output_field(field)
+        else:
+            self.model_profile.add_output_field(field)
+
+    def track_metrics(self, targets: List[Union[str, bool, float, int]], predictions: List[Union[str, bool, float, int]], scores: List[float] = None,
+                      target_field: str = None, prediction_field: str = None,
+                      score_field: str = None):
+        """
+        Function to track metrics based on validation data.
+
+        user may also pass the associated attribute names associated with
+        target, prediction, and/or score.
+
+        Parameters
+        ----------
+        targets : List[Union[str, bool, float, int]]
+            actual validated values
+        predictions : List[Union[str, bool, float, int]]
+            inferred/predicted values
+        scores : List[float], optional
+            assocaited scores for each inferred, all values set to 1 if not passed
+        target_field : str, optional
+        prediction_field : str, optional
+        score_field : str, optional
+        score_field : str, optional
+
+        """
+        self.model_profile.compute_metrics(predictions, targets,
+                                           scores, target_field=target_field,
+                                           prediction_field=prediction_field,
+                                           score_field=score_field)
+
     def track(self, columns, data=None):
         """
-        Add value(s) to tracking statistics for column(s)
+        Add value(s) to tracking statistics for column(s).
 
         Parameters
         ----------
@@ -194,7 +235,7 @@ class DatasetProfile:
             elif isinstance(columns, str):
                 self.track_datum(columns, None)
             else:
-                raise TypeError(" Data type of: {} not supported for tracking ".format(
+                raise TypeError("Data type of: {} not supported for tracking".format(
                     columns.__class__.__name__))
 
     def track_datum(self, column_name, data):
@@ -364,12 +405,16 @@ class DatasetProfile:
     def _do_merge(self, other):
         columns_set = set(list(self.columns.keys()) +
                           list(other.columns.keys()))
+
         columns = {}
         for col_name in columns_set:
             empty_column = ColumnProfile(col_name)
             this_column = self.columns.get(col_name, empty_column)
             other_column = other.columns.get(col_name, empty_column)
             columns[col_name] = this_column.merge(other_column)
+
+        new_model_profile = self.model_profile.merge(other.model_profile)
+
         return DatasetProfile(
             name=self.name,
             session_id=self.session_id,
@@ -378,6 +423,7 @@ class DatasetProfile:
             columns=columns,
             tags=self.tags,
             metadata=self.metadata,
+            model_profile=new_model_profile,
         )
 
     def merge_strict(self, other):
@@ -438,6 +484,8 @@ class DatasetProfile:
         return DatasetProfileMessage(
             properties=properties,
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
+            modeProfile=self.model_profile.to_protobuf(),
+
         )
 
     def write_protobuf(self, protobuf_path: str, delimited_file: bool = True):
@@ -490,16 +538,21 @@ class DatasetProfile:
         dataset_profile : DatasetProfile
         """
         properties: DatasetProperties = message.properties
+        name = (properties.tags or {}).get("name", None) or (
+            properties.tags or {}).get("Name", None) or ""
+
         return DatasetProfile(
-            name=(properties.tags or {}).get("name") or "",
+            name=name,
             session_id=properties.session_id,
             session_timestamp=from_utc_ms(properties.session_timestamp),
             dataset_timestamp=from_utc_ms(properties.data_timestamp),
             columns={
                 k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
             },
+
             tags=dict(properties.tags or {}),
             metadata=dict(properties.metadata or {}),
+            model_profile=ModelProfile.from_protobuf(message.modeProfile)
         )
 
     @staticmethod

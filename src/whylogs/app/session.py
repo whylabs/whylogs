@@ -31,7 +31,13 @@ class Session:
     """
 
     def __init__(
-        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False, with_rotation_time: str = None, cache_size: int = None
+        self,
+        project: str,
+        pipeline: str,
+        writers: List[Writer],
+        verbose: bool = False,
+        with_rotation_time: str = None,
+        cache_size: int = None
     ):
         if writers is None:
             writers = []
@@ -144,7 +150,7 @@ class Session:
                 with_rotation_time=with_rotation_time,
                 segments=segments,
                 profile_full_dataset=profile_full_dataset,
-                cache_size=cache_size
+                cache_size=cache_size,
             )
             self._loggers[dataset_name] = logger
 

@@ -6,6 +6,7 @@ categories:
   - title: "✨ Features"
     labels: 
       - "feature"
+      - "enhancement"
       - "✨"
       - "⚡️"
   - title: '🐛 Bug Fixes'
