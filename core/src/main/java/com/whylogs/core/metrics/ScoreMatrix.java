@@ -5,15 +5,16 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.whylogs.core.message.ScoreMatrixMessage;
 import com.whylogs.core.statistics.NumberTracker;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -86,17 +87,19 @@ public class ScoreMatrix {
       // happy case
       values[x][y].track(score);
     } else {
-      val newLabels = Lists.newArrayList(labels);
+      val newLabelsSet = Sets.newHashSet(labels);
 
       if (x < 0) {
-        newLabels.add(predictionText);
+        newLabelsSet.add(predictionText);
       }
       if (y < 0) {
-        newLabels.add(targetText);
+        newLabelsSet.add(targetText);
       }
+
+      val newLabels = Lists.newArrayList(newLabelsSet);
       Collections.sort(newLabels);
 
-      final int newDim = newLabels.size();
+      final int newDim = newLabelsSet.size();
       val newValues = newMatrix(newDim);
 
       // first copy existing values to the new matrix

@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 import com.whylogs.core.DatasetProfile;
 import java.time.Instant;
@@ -17,8 +18,23 @@ import org.testng.annotations.Test;
 @SuppressWarnings("UnstableApiUsage")
 public class ScoreMatrixTest {
   @Test
+  public void simple_binary_classification_check_label() {
+    val metrics = new ScoreMatrix("prediction", "target", "score");
+    val predictions = ImmutableList.of(0);
+    val targets = ImmutableList.of(0);
+    Streams.zip(predictions.stream(), targets.stream(), Pair::of)
+        .forEach(pair -> metrics.update(pair.getLeft(), pair.getRight(), 0));
+    val matrix = metrics.getConfusionMatrix();
+    assertThat(metrics.getLabels(), is(ImmutableList.of("0")));
+    // Result matrix
+    // [1]
+    assertThat(matrix.length, is(1));
+    assertThat(matrix[0].length, is(1));
+    assertThat(matrix[0][0], is(1L));
+  }
+
+  @Test
   public void binaryClassification_should_be_correct() {
-    val profile = new DatasetProfile("session", Instant.now());
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(0, 1, 1, 0, 0, 1, 1);
     val targets = ImmutableList.of(1, 0, 1, 1, 0, 1, 1);
@@ -69,8 +85,6 @@ public class ScoreMatrixTest {
 
   @Test
   public void binaryClassification_merge_itself() {
-    val profile = new DatasetProfile("session", Instant.now());
-
     val binaryMatrix = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(0, 1, 1, 0, 0, 1, 1);
     val targets = ImmutableList.of(1, 0, 1, 1, 0, 1, 1);
@@ -103,8 +117,6 @@ public class ScoreMatrixTest {
   // https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
   @Test
   public void multiclass_classification_string_labels() {
-    val profile = new DatasetProfile("session", Instant.now());
-
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of("cat", "ant", "cat", "cat", "ant", "bird");
     val targets = ImmutableList.of("ant", "ant", "cat", "cat", "ant", "cat");
@@ -134,8 +146,6 @@ public class ScoreMatrixTest {
   // https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
   @Test
   public void multiclass_classification_integer_labels() {
-    val profile = new DatasetProfile("session", Instant.now());
-
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(2, 0, 2, 2, 0, 1);
     val targets = ImmutableList.of(0, 0, 2, 2, 0, 2);
@@ -164,8 +174,6 @@ public class ScoreMatrixTest {
 
   @Test
   public void multiclass_classification_roundtrip() {
-    val profile = new DatasetProfile("session", Instant.now());
-
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(2, 0, 2, 2, 0, 1);
     val targets = ImmutableList.of(0, 0, 2, 2, 0, 2);
