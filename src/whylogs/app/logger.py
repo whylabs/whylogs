@@ -48,6 +48,7 @@ class Logger:
     :param cache_size: set how many dataprofiles to cache
     :param segments: define either a list of egment keys or a list of segments tags: [  {"key":<featurename>,"value": <featurevalue>},... ]
     :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
+    :param constraints: static assertions to be applied to streams and summaries.
     """
 
     def __init__(self,

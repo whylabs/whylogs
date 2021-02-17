@@ -58,7 +58,21 @@ _summary_funcs2 = {
 class ValueConstraint:
     """
     ValueConstraints express a binary boolean relationship between an implied numeric value and a literal.
-    These are applied to every incoming value that is processed by whylogs.
+    When associated with a ColumnProfile, the relation is evaluated for every incoming value that is processed by whylogs.
+
+    Parameters
+    ----------
+    op : whylogs.proto.Op (required)
+        Enumeration of binary comparison operator applied between static value and incoming stream.
+        Enum values are mapped to operators like '==', '<', and '<=', etc.
+    value :  (required)
+        Static value to compare against incoming stream using operator specified in `op`.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
     """
 
     def __init__(self, op: Op, value, name: str = None, verbose=False):
@@ -99,37 +113,58 @@ class ValueConstraint:
 
 class SummaryConstraint:
     """
-    Summary constraints specify a relationship between a summary field and a literal value,
+    Summary constraints specify a relationship between a summary field and a static value,
     or between two summary fields.
     e.g.     'min' < 6
              'std_dev' < 2.17
              'min' > 'avg'
+
+    Parameters
+    ----------
+    first_field : str
+        Name of field in NumberSummary that will be compared against either a second field or a static value.
+    op : whylogs.proto.Op (required)
+        Enumeration of binary comparison operator applied between summary values.
+        Enum values are mapped to operators like '==', '<', and '<=', etc.
+    value :  (one-of)
+        Static value to be compared against summary field specified in `first_field`.
+        Only one of `value` or `second_field` should be supplied.
+    second_field :  (one-of)
+        Name of second field in NumberSummary to be compared against summary field specified in `first_field`.
+        Only one of `value` or `second_field` should be supplied.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+
     """
 
-    def __init__(self, field: str, op: Op, value=None, field2: str = None, name: str = None, verbose=False):
+    def __init__(self, first_field: str, op: Op, value=None, second_field: str = None, name: str = None, verbose=False):
         self._verbose = verbose
         self._name = name
         self.op = op
-        self.field = field
-        self.field2 = field2
+        self.first_field = first_field
+        self.second_field = second_field
         self.total = 0
         self.failures = 0
-        if value is not None and field2 is None:
+        if value is not None and second_field is None:
             # field-value summary comparison
             self.value = value
-            self.func = _summary_funcs1[op](field, value)
-        elif field2 is not None and value is None:
+            self.func = _summary_funcs1[op](first_field, value)
+        elif second_field is not None and value is None:
             # field-field summary comparison
-            self.field2 = field2
-            self.func = _summary_funcs2[op](field, field2)
+            self.second_field = second_field
+            self.func = _summary_funcs2[op](first_field, second_field)
         else:
             raise ValueError("Summary constraint must specify a second value or field name, but not both")
 
     @property
     def name(self):
-        return self._name if self._name is not None else f'summary {self.field} {Op.Name(self.op)} {self.value}/{self.field2}'
+        return self._name if self._name is not None else f'summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}'
 
-    def track(self, summ: NumberSummary) -> bool:
+    def update(self, summ: NumberSummary) -> bool:
         self.total += 1
         if not self.func(summ):
             self.failures += 1
@@ -138,18 +173,18 @@ class SummaryConstraint:
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> 'SummaryConstraint':
-        if msg.HasField('value') and not msg.HasField('field2'):
-            return SummaryConstraint(msg.field, msg.op, value=msg.value, name=msg.name, verbose=msg.verbose)
-        elif msg.HasField('field2') and not msg.HasField('value'):
-            return SummaryConstraint(msg.field, msg.op, field2=msg.field2, name=msg.name, verbose=msg.verbose)
+        if msg.HasField('value') and not msg.HasField('second_field'):
+            return SummaryConstraint(msg.first_field, msg.op, value=msg.value, name=msg.name, verbose=msg.verbose)
+        elif msg.HasField('second_field') and not msg.HasField('value'):
+            return SummaryConstraint(msg.first_field, msg.op, second_field=msg.second_field, name=msg.name, verbose=msg.verbose)
         else:
-            raise ValueError("SummaryConstraintMsg must specify a second value or field name, but not both")
+            raise ValueError("SummaryConstraintMsg must specify a value or second field name, but not both")
 
     def to_protobuf(self) -> SummaryConstraintMsg:
-        if self.field2 is None:
+        if self.second_field is None:
             msg = SummaryConstraintMsg(
                 name=self.name,
-                field=self.field,
+                first_field=self.first_field,
                 op=self.op,
                 value=self.value,
                 verbose=self._verbose,
@@ -157,9 +192,9 @@ class SummaryConstraint:
         else:
             msg = SummaryConstraintMsg(
                 name=self.name,
-                field=self.field,
+                first_field=self.first_field,
                 op=self.op,
-                field2=self.field2,
+                second_field=self.second_field,
                 verbose=self._verbose,
             )
         return msg
@@ -187,9 +222,9 @@ class ValueConstraints:
             return vcmsg
         return None
 
-    def track(self, v):
+    def update(self, v):
         for c in self.constraints:
-            c.track(v)
+            c.update(v)
 
     def report(self) -> List[tuple]:
         v = [c.report() for c in self.constraints]
@@ -219,7 +254,7 @@ class SummaryConstraints:
 
     def track(self, v):
         for c in self.constraints:
-            c.track(v)
+            c.update(v)
 
     def report(self) -> List[tuple]:
         v = [c.report() for c in self.constraints]
