@@ -88,7 +88,7 @@ class ValueConstraint:
     def name(self):
         return self._name if self._name is not None else f'value {Op.Name(self.op)} {self.value}'
 
-    def track(self, v) -> bool:
+    def update(self, v) -> bool:
         self.total += 1
         if not self.func(v):
             self.failures += 1
@@ -252,7 +252,7 @@ class SummaryConstraints:
             return scmsg
         return None
 
-    def track(self, v):
+    def update(self, v):
         for c in self.constraints:
             c.update(v)
 
