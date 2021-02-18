@@ -172,6 +172,7 @@ public class DatasetProfileTest {
     assertThat(roundTrip.getSessionTimestamp().toEpochMilli(), is(sessionTime.toEpochMilli()));
     assertThat(roundTrip.columns, aMapWithSize(2));
     assertThat(roundTrip.tags, aMapWithSize(3));
+    assertThat(roundTrip.modelProfile, is(nullValue()));
     assertThat(roundTrip.tags.values(), containsInAnyOrder("paper", "rock", "scissors"));
     assertThat(roundTrip.columns.get("col1").getCounters().getCount(), is(1L));
     assertThat(roundTrip.columns.get("col2").getCounters().getCount(), is(1L));

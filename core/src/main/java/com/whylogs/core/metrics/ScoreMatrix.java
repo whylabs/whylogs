@@ -221,7 +221,7 @@ public class ScoreMatrix {
   }
 
   public static ScoreMatrix fromProtobuf(ScoreMatrixMessage msg) {
-    if (msg == null) {
+    if (msg == null || msg.getSerializedSize() == 0) {
       return null;
     }
 
