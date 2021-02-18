@@ -119,7 +119,9 @@ copyright = "2020, WhyLabs, Inc"
 # built documents.
 #
 # The short X.Y version.
-version = "0.1.13"
+
+version = "0.3.1"
+
 # The full version, including alpha/beta/rc tags.
 release = ""  # Is set by calling `setup.py docs`
 

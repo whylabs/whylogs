@@ -12,6 +12,7 @@ from whylogs.app.config import SessionConfig, WriterConfig, load_config
 from whylogs.app.logger import Logger
 from whylogs.app.writers import Writer, writer_from_config
 from whylogs.core import DatasetProfile
+from whylogs.core.statistics.constraints import DatasetConstraints
 
 
 class Session:
@@ -31,7 +32,13 @@ class Session:
     """
 
     def __init__(
-        self, project: str, pipeline: str, writers: List[Writer], verbose: bool = False, with_rotation_time: str = None, cache_size: int = None
+        self,
+        project: str,
+        pipeline: str,
+        writers: List[Writer],
+        verbose: bool = False,
+        with_rotation_time: str = None,
+        cache_size: int = None
     ):
         if writers is None:
             writers = []
@@ -76,6 +83,7 @@ class Session:
         profile_full_dataset: bool = False,
         with_rotation_time: str = None,
         cache_size: int = 1,
+        constraints: DatasetConstraints = None,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -144,11 +152,15 @@ class Session:
                 with_rotation_time=with_rotation_time,
                 segments=segments,
                 profile_full_dataset=profile_full_dataset,
-                cache_size=cache_size
+                cache_size=cache_size,
+                constraints=constraints,
             )
             self._loggers[dataset_name] = logger
 
         return logger
+
+    def get_logger(self, dataset_name: str = None):
+        return self._loggers.get(dataset_name, None)
 
     def log_dataframe(
         self,
@@ -160,6 +172,7 @@ class Session:
         metadata: Dict[str, str] = None,
         segments: Optional[Union[List[Dict], List[str]]] = None,
         profile_full_dataset: bool = False,
+        constraints: DatasetConstraints = None,
     ) -> Optional[DatasetProfile]:
         """
         Perform statistics caluclations and log a pandas dataframe
@@ -187,6 +200,7 @@ class Session:
             dataset_name, dataset_timestamp, session_timestamp, tags, metadata,
             segments=segments,
             profile_full_dataset=profile_full_dataset,
+            constraints=constraints,
         )
 
         ylog.log_dataframe(df)

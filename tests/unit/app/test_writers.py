@@ -1,17 +1,17 @@
-
-
 import os
-from whylogs.app.session import session_from_config
-from whylogs.app.config import load_config
-import boto3
 
+import pytest
+import boto3
 from moto.s3.responses import DEFAULT_REGION_NAME
 from moto import mock_s3
-import pytest
+
+from whylogs.app import WriterConfig
+from whylogs.app.session import session_from_config
+from whylogs.app.config import load_config
+from whylogs.app.writers import writer_from_config
 
 BUCKET = "mocked_bucket"
 MY_PREFIX = "mock_folder"
-# @pytest.fixture(autouse=True)
 
 object_keys = ["dataset_test_s3/dataset_summary/flat_table/dataset_summary.csv",
                "dataset_test_s3/dataset_summary/freq_numbers/dataset_summary.json",
@@ -35,7 +35,7 @@ def moto_boto():
 
 
 @pytest.mark.usefixtures("moto_boto")
-def test_s3_writer(df_lending_club, moto_boto, s3_config_path):
+def test_s3_writer_bug(df_lending_club, moto_boto, s3_config_path):
 
     assert os.path.exists(s3_config_path)
 
@@ -70,3 +70,10 @@ def test_s3_writer(df_lending_club, moto_boto, s3_all_config_path):
 
     for idx, each_objc in enumerate(objects["Contents"]):
         assert each_objc["Key"] == object_keys[idx]
+
+
+def test_non_valid_type(tmpdir):
+
+    config = WriterConfig(type="blob", formats=["json"], output_path=tmpdir)
+    with pytest.raises(ValueError):
+        writer = writer_from_config(config)

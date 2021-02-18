@@ -4,7 +4,7 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
-from typing import Dict
+from typing import Dict, Mapping, Optional, List, Union
 from collections import OrderedDict
 from uuid import uuid4
 
@@ -14,6 +14,8 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 
 from whylogs.core import ColumnProfile
+from whylogs.core.model_profile import ModelProfile
+
 from whylogs.core.types.typeddataconverter import TYPES
 from whylogs.proto import (
     ColumnsChunkSegment,
@@ -23,6 +25,7 @@ from whylogs.proto import (
     DatasetSummary,
     MessageSegment,
 )
+from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
 from whylogs.util import time
 from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch
@@ -35,7 +38,8 @@ try:
     from cudf.core.dataframe import DataFrame as cudfDataFrame
 except ImportError as e:
     logger.debug(str(e))
-    logger.debug('Failed to import CudaDataFrame. Install cudf for CUDA support')
+    logger.debug(
+        'Failed to import CudaDataFrame. Install cudf for CUDA support')
     cudfDataFrame = None
 
 
@@ -103,10 +107,12 @@ class DatasetProfile:
         A dictionary of key->value. Can be used upstream for aggregating data. Tags must match when merging
         with another dataset profile object.
     metadata: dict
-        Metadata that can store abirtrary string mapping. Metadata is not used when aggregating data
+        Metadata that can store arbitrary string mapping. Metadata is not used when aggregating data
         and can be dropped when merging with another dataset profile object.
     session_id : str
         The unique session ID run. Should be a UUID.
+    constraints: DatasetConstraints
+        Static assertions to be applied to tracked numeric data and profile summaries.
     """
 
     def __init__(
@@ -118,6 +124,8 @@ class DatasetProfile:
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
+        model_profile: ModelProfile = ModelProfile(),
+        constraints: DatasetConstraints = None,
     ):
         # Default values
         if columns is None:
@@ -135,6 +143,9 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
+        self.constraints = constraints
+
+        self.model_profile = model_profile
 
         # Store Name attribute
         self._tags["name"] = name
@@ -165,13 +176,48 @@ class DatasetProfile:
     @property
     def session_timestamp_ms(self):
         """
-        Return the session timestamp value in epoch milliseconds
+        Return the session timestamp value in epoch milliseconds.
         """
         return time.to_utc_ms(self.session_timestamp)
 
+    def add_output_field(self, field):
+        if isinstance(field, list):
+            for field_name in field:
+                self.model_profile.add_output_field(field)
+        else:
+            self.model_profile.add_output_field(field)
+
+    def track_metrics(self, targets: List[Union[str, bool, float, int]], predictions: List[Union[str, bool, float, int]], scores: List[float] = None,
+                      target_field: str = None, prediction_field: str = None,
+                      score_field: str = None):
+        """
+        Function to track metrics based on validation data.
+
+        user may also pass the associated attribute names associated with
+        target, prediction, and/or score.
+
+        Parameters
+        ----------
+        targets : List[Union[str, bool, float, int]]
+            actual validated values
+        predictions : List[Union[str, bool, float, int]]
+            inferred/predicted values
+        scores : List[float], optional
+            assocaited scores for each inferred, all values set to 1 if not passed
+        target_field : str, optional
+        prediction_field : str, optional
+        score_field : str, optional
+        score_field : str, optional
+
+        """
+        self.model_profile.compute_metrics(predictions, targets,
+                                           scores, target_field=target_field,
+                                           prediction_field=prediction_field,
+                                           score_field=score_field)
+
     def track(self, columns, data=None):
         """
-        Add value(s) to tracking statistics for column(s)
+        Add value(s) to tracking statistics for column(s).
 
         Parameters
         ----------
@@ -194,14 +240,15 @@ class DatasetProfile:
             elif isinstance(columns, str):
                 self.track_datum(columns, None)
             else:
-                raise TypeError(" Data type of: {} not supported for tracking ".format(
+                raise TypeError("Data type of: {} not supported for tracking".format(
                     columns.__class__.__name__))
 
     def track_datum(self, column_name, data):
         try:
             prof = self.columns[column_name]
         except KeyError:
-            prof = ColumnProfile(column_name)
+            constraints = None if self.constraints is None else self.constraints[column_name]
+            prof = ColumnProfile(column_name, constraints=constraints)
             self.columns[column_name] = prof
 
         prof.track(data)
@@ -239,9 +286,9 @@ class DatasetProfile:
             df = df.to_pandas()
         for col in df.columns:
             col_str = str(col)
+
             x = df[col].values
             for xi in x:
-
                 self.track(col_str, xi)
 
     def to_properties(self):
@@ -288,6 +335,21 @@ class DatasetProfile:
         return DatasetSummary(
             properties=self.to_properties(), columns=column_summaries,
         )
+
+    def generate_constraints(self) -> DatasetConstraints:
+        """
+        Assemble a sparse dict of constraints for all features.
+
+        Returns
+        -------
+        summary : DatasetConstraints
+            Protobuf constraints message.
+        """
+        self.validate()
+        constraints = [(name, col.generate_constraints()) for name, col in self.columns.items()]
+        # filter empty constraints
+        constraints = [(n, c) for n, c in constraints if c is not None]
+        return DatasetConstraints(self.to_properties(), None, dict(constraints))
 
     def flat_summary(self):
         """
@@ -364,12 +426,17 @@ class DatasetProfile:
     def _do_merge(self, other):
         columns_set = set(list(self.columns.keys()) +
                           list(other.columns.keys()))
+
         columns = {}
         for col_name in columns_set:
-            empty_column = ColumnProfile(col_name)
+            constraints = None if self.constraints is None else self.constraints[col_name]
+            empty_column = ColumnProfile(col_name, constraints=constraints)
             this_column = self.columns.get(col_name, empty_column)
             other_column = other.columns.get(col_name, empty_column)
             columns[col_name] = this_column.merge(other_column)
+
+        new_model_profile = self.model_profile.merge(other.model_profile)
+
         return DatasetProfile(
             name=self.name,
             session_id=self.session_id,
@@ -378,6 +445,7 @@ class DatasetProfile:
             columns=columns,
             tags=self.tags,
             metadata=self.metadata,
+            model_profile=new_model_profile,
         )
 
     def merge_strict(self, other):
@@ -438,6 +506,8 @@ class DatasetProfile:
         return DatasetProfileMessage(
             properties=properties,
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
+            modeProfile=self.model_profile.to_protobuf(),
+
         )
 
     def write_protobuf(self, protobuf_path: str, delimited_file: bool = True):
@@ -490,16 +560,21 @@ class DatasetProfile:
         dataset_profile : DatasetProfile
         """
         properties: DatasetProperties = message.properties
+        name = (properties.tags or {}).get("name", None) or (
+            properties.tags or {}).get("Name", None) or ""
+
         return DatasetProfile(
-            name=(properties.tags or {}).get("name") or "",
+            name=name,
             session_id=properties.session_id,
             session_timestamp=from_utc_ms(properties.session_timestamp),
             dataset_timestamp=from_utc_ms(properties.data_timestamp),
             columns={
                 k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
             },
+
             tags=dict(properties.tags or {}),
             metadata=dict(properties.metadata or {}),
+            model_profile=ModelProfile.from_protobuf(message.modeProfile)
         )
 
     @staticmethod
@@ -574,6 +649,22 @@ class DatasetProfile:
 
         """
         return list(DatasetProfile._parse_delimited_generator(data))
+
+    def apply_summary_constraints(self, summary_constraints: Optional[Mapping[str, SummaryConstraints]] = None):
+        if summary_constraints is None:
+            summary_constraints = self.constraints.summary_constraint_map
+        for k, v in summary_constraints.items():
+            if isinstance(v, list):
+                summary_constraints[k] = SummaryConstraints(v)
+        for feature_name, constraints in summary_constraints.items():
+            if feature_name in self.columns:
+                colprof = self.columns[feature_name]
+                summ = colprof.to_summary()
+                constraints.update(summ.number_summary)
+            else:
+                logger.debug(f'unkown feature \'{feature_name}\' in summary constraints')
+
+        return [(k, s.report()) for k, s in summary_constraints.items()]
 
 
 def columns_chunk_iterator(iterator, marker: str):
