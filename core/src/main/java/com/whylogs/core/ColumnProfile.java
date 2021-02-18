@@ -1,9 +1,5 @@
 package com.whylogs.core;
 
-import static com.whylogs.core.SummaryConverters.fromSchemaTracker;
-import static com.whylogs.core.statistics.datatypes.StringTracker.ARRAY_OF_STRINGS_SER_DE;
-import static com.whylogs.core.types.TypedDataConverter.NUMERIC_TYPES;
-
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.whylogs.core.message.ColumnMessage;
@@ -25,6 +21,10 @@ import org.apache.datasketches.hll.HllSketch;
 import org.apache.datasketches.hll.Union;
 import org.apache.datasketches.memory.Memory;
 
+import static com.whylogs.core.SummaryConverters.fromSchemaTracker;
+import static com.whylogs.core.statistics.datatypes.StringTracker.ARRAY_OF_STRINGS_SER_DE;
+import static com.whylogs.core.types.TypedDataConverter.NUMERIC_TYPES;
+
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Builder(setterPrefix = "set")
@@ -32,12 +32,18 @@ public class ColumnProfile {
   public static final int FREQUENT_MAX_LG_K = 7;
   private static final int CARDINALITY_LG_K = 12;
 
-  @NonNull private final String columnName;
-  @NonNull private final CountersTracker counters;
-  @NonNull private final SchemaTracker schemaTracker;
-  @NonNull private final NumberTracker numberTracker;
-  @NonNull private final ItemsSketch<String> frequentItems;
-  @NonNull private final HllSketch cardinalityTracker;
+  @NonNull
+  private final String columnName;
+  @NonNull
+  private final CountersTracker counters;
+  @NonNull
+  private final SchemaTracker schemaTracker;
+  @NonNull
+  private final NumberTracker numberTracker;
+  @NonNull
+  private final ItemsSketch<String> frequentItems;
+  @NonNull
+  private final HllSketch cardinalityTracker;
 
   public ColumnProfile(String columnName) {
     this.columnName = columnName;
@@ -57,32 +63,28 @@ public class ColumnProfile {
         return;
       }
 
-      // always track text information
       // TODO: ignore this if we already know the data type
-      if (value instanceof String) {
-        val stringValue = (String) value;
-        this.frequentItems.update(stringValue);
-      }
-
       val typedData = TypedDataConverter.convert(value);
       schemaTracker.track(typedData.getType());
 
       switch (typedData.getType()) {
         case FRACTIONAL:
-          frequentItems.update(typedData.toString());
+          frequentItems.update(String.valueOf(typedData.getFractional()));
           numberTracker.track(typedData.getFractional());
           break;
         case INTEGRAL:
-          frequentItems.update(typedData.toString());
+          frequentItems.update(String.valueOf(typedData.getIntegralValue()));
           numberTracker.track(typedData.getIntegralValue());
           break;
         case BOOLEAN:
           // TODO: handle boolean across languages? Python booleans are "True" vs Java "true"
-          frequentItems.update(typedData.toString());
+          frequentItems.update(String.valueOf(typedData.isBooleanValue()));
           if (typedData.isBooleanValue()) {
             counters.incrementTrue();
           }
           break;
+        case STRING:
+          frequentItems.update(typedData.getStringValue());
       }
     }
   }
