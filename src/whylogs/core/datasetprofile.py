@@ -212,6 +212,8 @@ class DatasetProfile:
         score_field : str, optional
 
         """
+        if self.model_profile is None:
+            self.model_profile = ModelProfile()
         self.model_profile.compute_metrics(predictions, targets,
                                            scores, target_field=target_field,
                                            prediction_field=prediction_field,

@@ -1,13 +1,14 @@
 import os
 
 from whylogs.core import DatasetProfile
+from whylogs.core.model_profile import ModelProfile
 
 TEST_DATA_PATH = os.path.abspath(os.path.join(os.path.realpath(
     os.path.dirname(__file__)), os.pardir, os.pardir, os.pardir, "testdata"))
 
 
 def test_dataset_profile_metrics():
-    x1 = DatasetProfile(name="test")
+    x1 = DatasetProfile(name="test", model_profile=ModelProfile())
     assert x1.tags["name"] == "test"
     targets_1 = ["cat", "dog", "pig"]
     predictions_1 = ["cat", "dog", "dog"]
