@@ -16,14 +16,19 @@ class ConfusionMatrix:
     Confusion Matrix Class to hold labels and matrix data.
 
     Attributes:
+        labels: list of labels in a sorted order
+        prediction_field: name of the prediction field
+        target_field: name of the target field
+        score_field: name of the score field
         confusion_matrix (nd.array): Confusion Matrix kept as matrix of NumberTrackers
         labels (List[str]): list of labels for the confusion_matrix axes
     """
 
-    def __init__(self, labels: List[str] = None,
-                 prediction_field=None,
-                 target_field=None,
-                 score_field=None):
+    def __init__(self,
+                 labels: List[str] = None,
+                 prediction_field: str = None,
+                 target_field: str = None,
+                 score_field: str =None):
         self.prediction_field = prediction_field
         self.target_field = target_field
         self.score_field = score_field
@@ -72,8 +77,8 @@ class ConfusionMatrix:
             raise ValueError(
                 "both targets and predictions need to have the same length")
 
-        targets_indx = enconde_to_integers(targets, self.labels)
-        prediction_indx = enconde_to_integers(predictions, self.labels)
+        targets_indx = encode_to_integers(targets, self.labels)
+        prediction_indx = encode_to_integers(predictions, self.labels)
 
         for ind in range(len(predictions)):
             self.confusion_matrix[prediction_indx[ind],
@@ -88,7 +93,6 @@ class ConfusionMatrix:
         Returns:
               ConfusionMatrix: merged confusion_matrix
         """
-
         if self.labels is None or self.labels == []:
             return other_cm
         if other_cm.labels is None or other_cm.labels == []:
@@ -119,7 +123,9 @@ class ConfusionMatrix:
                                       self.confusion_matrix)])
 
     @classmethod
-    def from_protobuf(self, message,):
+    def from_protobuf(cls, message: ScoreMatrixMessage, ):
+        if message.ByteSize() == 0:
+            return None
         labels = message.labels
         num_labels = len(labels)
         matrix = np.array([NumberTracker.from_protobuf(score)for score in message.scores]).reshape(
@@ -142,9 +148,9 @@ def _merge_CM(old_conf_matrix: ConfusionMatrix, new_conf_matrix: ConfusionMatrix
         old_conf_matrix (ConfusionMatrix)
         new_conf_matrix (ConfusionMatrix): Will be overridden
     """
-    new_indxes = enconde_to_integers(
+    new_indxes = encode_to_integers(
         old_conf_matrix.labels, new_conf_matrix.labels)
-    old_indxes = enconde_to_integers(
+    old_indxes = encode_to_integers(
         old_conf_matrix.labels, old_conf_matrix.labels)
 
     res_conf_matrix = ConfusionMatrix(new_conf_matrix.labels)
@@ -163,7 +169,7 @@ def _merge_CM(old_conf_matrix: ConfusionMatrix, new_conf_matrix: ConfusionMatrix
     return res_conf_matrix
 
 
-def enconde_to_integers(values, uniques):
+def encode_to_integers(values, uniques):
     table = {val: i for i, val in enumerate(uniques)}
     for v in values:
         if v not in uniques:
