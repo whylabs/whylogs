@@ -1,5 +1,3 @@
-from typing import List
-
 from sklearn.utils.multiclass import type_of_target
 import numpy as np
 

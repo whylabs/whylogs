@@ -6,7 +6,6 @@ from sklearn.utils.multiclass import type_of_target
 from whylogs.proto import ScoreMatrixMessage
 from whylogs.core.statistics import NumberTracker
 
-
 SUPPORTED_TYPES = ("binary", "multiclass")
 
 
@@ -28,7 +27,7 @@ class ConfusionMatrix:
                  labels: List[str] = None,
                  prediction_field: str = None,
                  target_field: str = None,
-                 score_field: str =None):
+                 score_field: str = None):
         self.prediction_field = prediction_field
         self.target_field = target_field
         self.score_field = score_field
@@ -131,7 +130,7 @@ class ConfusionMatrix:
             return None
         labels = message.labels
         num_labels = len(labels)
-        matrix = np.array([NumberTracker.from_protobuf(score)for score in message.scores]).reshape(
+        matrix = np.array([NumberTracker.from_protobuf(score) for score in message.scores]).reshape(
             (num_labels, num_labels)) if num_labels > 0 else None
 
         cm_instance = ConfusionMatrix(labels=labels,
@@ -162,12 +161,11 @@ def _merge_CM(old_conf_matrix: ConfusionMatrix, new_conf_matrix: ConfusionMatrix
 
     for old_row_idx, each_row_indx in enumerate(new_indxes):
         for old_column_idx, each_column_inx in enumerate(new_indxes):
-
             res_conf_matrix.confusion_matrix[each_row_indx, each_column_inx] = \
                 new_conf_matrix.confusion_matrix[each_row_indx,
                                                  each_column_inx].merge(
-                old_conf_matrix.confusion_matrix[old_indxes[old_row_idx],
-                                                 old_indxes[old_column_idx]])
+                    old_conf_matrix.confusion_matrix[old_indxes[old_row_idx],
+                                                     old_indxes[old_column_idx]])
 
     return res_conf_matrix
 
