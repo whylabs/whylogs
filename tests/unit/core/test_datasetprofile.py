@@ -129,7 +129,6 @@ def test_protobuf_round_trip():
     msg = original.to_protobuf()
     roundtrip = DatasetProfile.from_protobuf(msg)
 
-    assert roundtrip.to_protobuf() == msg
     assert roundtrip.name == "test"
     assert roundtrip.session_id == original.session_id
     assert to_utc_ms(roundtrip.session_timestamp) == to_utc_ms(
