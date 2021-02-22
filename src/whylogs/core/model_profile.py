@@ -98,6 +98,8 @@ class ModelProfile:
                             metrics=ModelMetrics.from_protobuf(message.metrics))
 
     def merge(self, model_profile):
+        if model_profile is None:
+            return self
         output_fields = list(
             set(self.output_fields + model_profile.output_fields))
         metrics = self.metrics.merge(model_profile.metrics)
