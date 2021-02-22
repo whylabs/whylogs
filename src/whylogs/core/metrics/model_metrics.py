@@ -52,5 +52,14 @@ class ModelMetrics:
             self.confusion_matrix = self.confusion_matrix.merge(
                 confusion_matrix)
 
-    def merge(self, model_metrics):
-        return ModelMetrics(confusion_matrix=self.confusion_matrix.merge(model_metrics.confusion_matrix))
+    def merge(self, other):
+        """
+
+        :type other: ModelMetrics
+        """
+        if other is None:
+            return self
+        if other.confusion_matrix is None:
+            # TODO: return a copy instead
+            return other
+        return ModelMetrics(confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix))

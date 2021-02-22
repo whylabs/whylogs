@@ -89,10 +89,13 @@ class ConfusionMatrix:
         Merge two seperate confusion matrix which may or may not overlap in labels.
 
         Args:
-              other_cm (ConfusionMatrix): confusion_matrix to merge with self
+              other_cm (Optional[ConfusionMatrix]): confusion_matrix to merge with self
         Returns:
               ConfusionMatrix: merged confusion_matrix
         """
+        # TODO: always return new objects
+        if other_cm is None:
+            return self
         if self.labels is None or self.labels == []:
             return other_cm
         if other_cm.labels is None or other_cm.labels == []:

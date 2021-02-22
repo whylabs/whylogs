@@ -180,3 +180,18 @@ def test_confusion_matrix_to_protobuf():
 def test_parse_empty_protobuf_should_return_none():
     empty_message = ScoreMatrixMessage()
     assert ConfusionMatrix.from_protobuf(empty_message) is None
+
+
+def test_merge_with_none():
+    targets_1 = ["cat", "dog", "pig"]
+    predictions_1 = ["cat", "dog", "dog"]
+    scores_1 = [0.1, 0.2, 0.4]
+
+    labels_1 = ["cat", "dog", "pig"]
+    matrix = ConfusionMatrix(labels_1)
+    matrix.add(predictions_1, targets_1, scores_1)
+
+    res = matrix.merge(other_cm=None)
+    assert res.target_field is None
+    assert res.prediction_field is None
+    assert res.score_field is None
