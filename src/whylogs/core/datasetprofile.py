@@ -508,11 +508,14 @@ class DatasetProfile:
         """
         properties = self.to_properties()
 
+        if self.model_profile is not None:
+            model_profile_msg = self.model_profile.to_protobuf()
+        else:
+            model_profile_msg = None
         return DatasetProfileMessage(
             properties=properties,
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
-            modeProfile=self.model_profile.to_protobuf(),
-
+            modeProfile=model_profile_msg,
         )
 
     def write_protobuf(self, protobuf_path: str, delimited_file: bool = True):
