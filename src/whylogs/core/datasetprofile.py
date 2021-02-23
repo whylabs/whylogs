@@ -124,7 +124,7 @@ class DatasetProfile:
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
-        model_profile: ModelProfile = ModelProfile(),
+        model_profile: ModelProfile = None,
         constraints: DatasetConstraints = None,
     ):
         # Default values
@@ -180,10 +180,12 @@ class DatasetProfile:
         """
         return time.to_utc_ms(self.session_timestamp)
 
-    def add_output_field(self, field):
+    def add_output_field(self, field: Union[str, List[str]]):
+        if self.model_profile is None:
+            self.model_profile = ModelProfile()
         if isinstance(field, list):
             for field_name in field:
-                self.model_profile.add_output_field(field)
+                self.model_profile.add_output_field(field_name)
         else:
             self.model_profile.add_output_field(field)
 
@@ -210,6 +212,8 @@ class DatasetProfile:
         score_field : str, optional
 
         """
+        if self.model_profile is None:
+            self.model_profile = ModelProfile()
         self.model_profile.compute_metrics(predictions, targets,
                                            scores, target_field=target_field,
                                            prediction_field=prediction_field,
@@ -231,7 +235,7 @@ class DatasetProfile:
         """
         if data is not None:
             if type(columns) != str:
-                raise TypeError("Unambigious column to data mapping")
+                raise TypeError("Unambiguous column to data mapping")
             self.track_datum(columns, data)
         else:
             if isinstance(columns, dict):
@@ -435,7 +439,10 @@ class DatasetProfile:
             other_column = other.columns.get(col_name, empty_column)
             columns[col_name] = this_column.merge(other_column)
 
-        new_model_profile = self.model_profile.merge(other.model_profile)
+        if self.model_profile is not None:
+            new_model_profile = self.model_profile.merge(other.model_profile)
+        else:
+            new_model_profile = other.model_profile
 
         return DatasetProfile(
             name=self.name,
@@ -503,11 +510,14 @@ class DatasetProfile:
         """
         properties = self.to_properties()
 
+        if self.model_profile is not None:
+            model_profile_msg = self.model_profile.to_protobuf()
+        else:
+            model_profile_msg = None
         return DatasetProfileMessage(
             properties=properties,
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
-            modeProfile=self.model_profile.to_protobuf(),
-
+            modeProfile=model_profile_msg,
         )
 
     def write_protobuf(self, protobuf_path: str, delimited_file: bool = True):
