@@ -12,7 +12,9 @@ class ModelMetrics:
         confusion_matrix (ConfusionMatrix): ConfusionMatrix which keeps it track of counts with NumberTracker
     """
 
-    def __init__(self, confusion_matrix: ConfusionMatrix = ConfusionMatrix()):
+    def __init__(self, confusion_matrix: ConfusionMatrix = None):
+        if confusion_matrix is None:
+            confusion_matrix = ConfusionMatrix()
         self.confusion_matrix = confusion_matrix
 
     def to_protobuf(self, ) -> ModelMetricsMessage:
@@ -61,5 +63,7 @@ class ModelMetrics:
             return self
         if other.confusion_matrix is None:
             # TODO: return a copy instead
+            return self
+        if self.confusion_matrix is None:
             return other
         return ModelMetrics(confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix))
