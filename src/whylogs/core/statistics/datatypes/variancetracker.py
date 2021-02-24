@@ -52,10 +52,11 @@ class VarianceTracker:
         """
         Return an estimate of the sample variance
         """
-        try:
-            return self.sum / (self.count - 1)
-        except ZeroDivisionError:
+        if self.count == 0:
             return math.nan
+        if self.count == 1:
+            return 0
+        return self.sum / (self.count - 1)
 
     def merge(self, other: "VarianceTracker"):
         """
