@@ -5,6 +5,14 @@ import pytest
 from whylogs.core.statistics.datatypes import VarianceTracker
 
 
+def test_single_value():
+    tracker = VarianceTracker()
+    tracker.update(1.0)
+
+    assert tracker.count == 1
+    assert tracker.variance() == 0
+
+
 def test_update():
     vals = [1.0, 2.0, 3]
     tracker = VarianceTracker()
