@@ -1,8 +1,3 @@
-
-import pytest
-import numpy as np
-from sklearn.utils.multiclass import type_of_target
-
 from whylogs.core.metrics.model_metrics import ModelMetrics
 
 
@@ -26,7 +21,6 @@ def tests_model_metrics():
 
 
 def tests_model_metrics_to_protobuf():
-
     mod_met = ModelMetrics()
 
     targets_1 = ["cat", "dog", "pig"]
@@ -39,4 +33,16 @@ def tests_model_metrics_to_protobuf():
 
     message = mod_met.to_protobuf()
 
-    read_mod_met = ModelMetrics.from_protobuf(message)
+    ModelMetrics.from_protobuf(message)
+
+
+def test_merge_none():
+    metrics = ModelMetrics()
+    metrics.merge(None)
+
+
+def test_merge_metrics_with_none_confusion_matrix():
+    metrics = ModelMetrics()
+    other = ModelMetrics()
+    other.confusion_matrix = None
+    metrics.merge(other)
