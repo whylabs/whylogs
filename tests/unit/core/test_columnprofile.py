@@ -4,13 +4,13 @@ import pytest
 from testutil import compare_frequent_items
 
 from whylogs.core import ColumnProfile
+from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.util.protobuf import message_to_dict
 import numpy as np
 import pandas as pd
 
 
 def test_all_numeric_types_get_tracked_by_number_tracker():
-
     all_values = [
         [1.0, 2.0, 3.0],
         [1, 2, 3],
@@ -118,8 +118,10 @@ def test_summary():
             "mean": 2.0,
             "stddev": 1.0,
             "isDiscrete": False,
-            "histogram": {"start": 1.0, "end": 3.0000003, "counts": ["3"], "max": 3.0, "min": 1.0, "bins": [1.0, 3.0000003], "n": "3", "width": 0.0, },
-            "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [1.0, 1.0, 1.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0], },
+            "histogram": {"start": 1.0, "end": 3.0000003, "counts": ["3"], "max": 3.0, "min": 1.0,
+                          "bins": [1.0, 3.0000003], "n": "3", "width": 0.0, },
+            "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0],
+                          "quantileValues": [1.0, 1.0, 1.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0], },
             "uniqueCount": {"estimate": 3.0, "upper": 3.0, "lower": 3.0},
         },
     }
@@ -179,3 +181,36 @@ def test_merge():
     assert merged.number_tracker.ints.count == 0
     assert merged.number_tracker.floats.count == 4
     assert merged.string_tracker.count == 2
+
+
+def test_fallback_number_counter():
+    col = ColumnProfile("test")
+    vals = [1, 1.0, 2, 3, 4, 5, 6, 6.0, "text"]
+    for v in vals:
+        col.track(v)
+    col.cardinality_tracker = HllSketch()
+
+    summary = col.to_summary()
+    assert summary.unique_count.estimate == summary.number_summary.unique_count.estimate
+
+
+def test_fallback_string_counter():
+    col = ColumnProfile("test")
+    vals = ["a", "b", "c", "d", "e", "f", 1.0, 2.0]
+    for v in vals:
+        col.track(v)
+    col.cardinality_tracker = HllSketch()
+
+    summary = col.to_summary()
+    assert summary.unique_count.estimate == summary.string_summary.unique_count.estimate
+
+
+def test_fallback_fallbacks_to_number_counter():
+    col = ColumnProfile("test")
+    vals = ["a", "b", 1.0, 2.0]
+    for v in vals:
+        col.track(v)
+    col.cardinality_tracker = HllSketch()
+
+    summary = col.to_summary()
+    assert summary.unique_count.estimate == summary.number_summary.unique_count.estimate
