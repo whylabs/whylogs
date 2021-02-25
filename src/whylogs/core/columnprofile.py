@@ -6,9 +6,8 @@ from whylogs.core.statistics.datatypes import StringTracker
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.statistics.constraints import ValueConstraints, SummaryConstraints, SummaryConstraint
 from whylogs.core.types import TypedDataConverter
-from whylogs.proto import ColumnMessage, ColumnSummary, InferredType, Op
+from whylogs.proto import ColumnMessage, ColumnSummary, InferredType, Op, UniqueCountSummary
 from whylogs.util.dsketch import FrequentItemsSketch
-
 
 import pandas as pd
 
@@ -48,15 +47,15 @@ class ColumnProfile:
     """
 
     def __init__(
-        self,
-        name: str,
-        number_tracker: NumberTracker = None,
-        string_tracker: StringTracker = None,
-        schema_tracker: SchemaTracker = None,
-        counters: CountersTracker = None,
-        frequent_items: FrequentItemsSketch = None,
-        cardinality_tracker: HllSketch = None,
-        constraints: ValueConstraints = None,
+            self,
+            name: str,
+            number_tracker: NumberTracker = None,
+            string_tracker: StringTracker = None,
+            schema_tracker: SchemaTracker = None,
+            counters: CountersTracker = None,
+            frequent_items: FrequentItemsSketch = None,
+            cardinality_tracker: HllSketch = None,
+            constraints: ValueConstraints = None,
     ):
         # Handle default values
         if counters is None:
@@ -113,6 +112,18 @@ class ColumnProfile:
 
         self.constraints.update(typed_data)
 
+    def _unique_count_summary(self) -> UniqueCountSummary:
+        cardinality_summary = self.cardinality_tracker.to_summary(_UNIQUE_COUNT_BOUNDS_STD)
+        if cardinality_summary:
+            return cardinality_summary
+
+        inferred_type = self.schema_tracker.infer_type()
+        if inferred_type.type == _TYPES.STRING:
+            cardinality_summary = self.string_tracker.theta_sketch.to_summary()
+        else:  # default is number summary
+            cardinality_summary = self.number_tracker.theta_sketch.to_summary()
+        return cardinality_summary
+
     def to_summary(self):
         """
         Generate a summary of the statistics
@@ -129,8 +140,7 @@ class ColumnProfile:
         opts = dict(
             counters=self.counters.to_protobuf(),
             frequent_items=self.frequent_items.to_summary(),
-            unique_count=self.cardinality_tracker.to_summary(
-                _UNIQUE_COUNT_BOUNDS_STD),
+            unique_count=self._unique_count_summary(),
         )
         if self.string_tracker is not None and self.string_tracker.count > 0:
             opts["string_summary"] = self.string_tracker.to_summary()
