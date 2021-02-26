@@ -205,7 +205,10 @@ class NumberTracker:
         frequent_numbers = self.frequent_numbers.to_summary()
         num_records = self.variance.count
         cardinality = unique_count.estimate
-        discrete = stats.is_discrete(num_records, cardinality)
+        if doubles.count > 0:
+            discrete = False
+        else:
+            discrete = stats.is_discrete(num_records, cardinality)
 
         return NumberSummary(
             count=self.variance.count,
