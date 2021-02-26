@@ -114,14 +114,14 @@ def test_one_value_not_discrete():
     assert not x.to_summary().is_discrete
 
 
-def test_low_cardinality_is_discrete():
+def test_not_discrete_if_float_is_present():
     vals = 3 * [1, 2, 3] + [4.0, 6.0, 9.0, 9.0]
     vals = vals * 10
     x = NumberTracker()
     for v in vals:
         x.track(v)
     summary = x.to_summary()
-    assert summary.is_discrete
+    assert not summary.is_discrete
 
 
 def test_track_floats_ints_unique_in_cardinality_estimate():
