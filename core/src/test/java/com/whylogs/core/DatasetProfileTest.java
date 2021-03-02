@@ -251,12 +251,6 @@ public class DatasetProfileTest {
   }
 
   @Test
-  public void decode() throws Exception {
-    val df = DatasetProfile.parse(Files.newInputStream(Paths.get("/Users/andy/Workspace/notebooks/jvm_output_2.bin")));
-    df.columns.size();
-  }
-
-  @Test
   public void roundTripWithModelData_should_succeed() {
     val dp = new DatasetProfile("test", Instant.now()).withModelProfile("pred", "target", "score");
     dp.track(ImmutableMap.of("pred", 1, "target", 1, "score", 0.5));

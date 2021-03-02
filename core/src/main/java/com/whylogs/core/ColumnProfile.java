@@ -69,24 +69,29 @@ public class ColumnProfile {
 
       switch (typedData.getType()) {
         case FRACTIONAL:
-          frequentItems.update(String.valueOf(typedData.getFractional()));
+          trackText(String.valueOf(typedData.getFractional()));
           numberTracker.track(typedData.getFractional());
           break;
         case INTEGRAL:
-          frequentItems.update(String.valueOf(typedData.getIntegralValue()));
+          trackText(String.valueOf(typedData.getIntegralValue()));
           numberTracker.track(typedData.getIntegralValue());
           break;
         case BOOLEAN:
           // TODO: handle boolean across languages? Python booleans are "True" vs Java "true"
-          frequentItems.update(String.valueOf(typedData.isBooleanValue()));
+          trackText(String.valueOf(typedData.isBooleanValue()));
           if (typedData.isBooleanValue()) {
             counters.incrementTrue();
           }
           break;
         case STRING:
-          frequentItems.update(typedData.getStringValue());
+          trackText(typedData.getStringValue());
       }
     }
+  }
+
+  private void trackText(String text) {
+    frequentItems.update(text);
+    cardinalityTracker.update(text);
   }
 
   public ColumnSummary toColumnSummary() {
