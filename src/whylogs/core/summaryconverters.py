@@ -124,9 +124,9 @@ def histogram_from_sketch(
         counts = [n]
     else:
         # Include the max value in the right-most bin
-        end += abs(end) * (1e-7)
+        end += abs(end) * 1e-7
         # Include the right edge in the bin edges
-        n_buckets = min(math.ceil(n / HIST_AVG_NUMBER_PER_BUCKET), MAX_HIST_BUCKETS)
+        n_buckets = min(math.ceil(n / avg_per_bucket), max_buckets)
         width = (end - start) / n_buckets
         # Calculate histograms from the Probability Mass Function
         bins = [start + i * width for i in range(n_buckets + 1)]
