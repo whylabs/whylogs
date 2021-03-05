@@ -1,6 +1,6 @@
-.. whylogs documentation master file
+:github_url: https://github.com/whylabs/whylogs
 
-whylogs
+whylogs API reference
 ==================
 
 *Profile and monitor your ML data pipeline end-to-end*
@@ -15,13 +15,12 @@ your data, read our :ref:`intro` and our :ref:`getting_started` guide.
    This site is a work in progress. If you have questions, ask them in our `Slack channel <http://join.slack.whylabs.ai/>`__!
 
 .. toctree::
-    :maxdepth: 5
+    :maxdepth: 2
 
     overview
     getting_started
     concepts
-    auto_examples/index
-    Changelog <changelog>
+    Examples <auto_examples/index>
     License <license>
 
 Indices and tables
@@ -30,8 +29,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-.. toctree::
-    :maxdepth: 2
-
-    api/modules
