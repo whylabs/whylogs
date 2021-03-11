@@ -48,7 +48,7 @@ These metrics include:
 * **Unique value counter** or **cardinality**: tracks an approximate unique value of your feature using HyperLogLog algorithm.
 * **Histograms** for numerical features. whylogs binary output can be queried to with dynamic binning based on the 
 shape of your data. 
-* **Top frequent items** (default is 30). Note that this configuration affects the memory footprint, especially for text features.
+* **Top frequent items** (default is 128). Note that this configuration affects the memory footprint, especially for text features.
 
 # Examples
 For a full set of our examples, please check out [whylogs-examples](https://github.com/whylabs/whylogs-examples).
