@@ -58,11 +58,11 @@ Note that to use the run with matplotlib vizualiation, you'll have to install wh
 pip install "whylogs[viz]"
 ```
 
-Some of the notable notebooks:
+Check out our example notebooks with Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/whylabs/whylogs-examples/HEAD)
 - [Getting Started notebook](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb)
 - [Logging Example notebook](https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb)
-- [Logging a Dataframe](https://whylogs.readthedocs.io/en/latest/auto_examples/log_dataframe.html)
-- [Logger Options](https://whylogs.readthedocs.io/en/latest/auto_examples/configure_logger.html#sphx-glr-auto-examples-configure-logger-py)
+- [Logging Images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb)
+- [MLflow Integration](https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb)
 
 # Installation
 
