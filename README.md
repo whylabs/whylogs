@@ -40,7 +40,7 @@ WhyLogs collects approximate statistics and sketches of data on a column-basis i
 * **Summary statistics**: sum, min, max, variance.
 * **Unique value counter** or **cardinality**: tracks an approximate unique value of your feature using HyperLogLog algorithm.
 * **Histograms** for numerical features. WhyLogs binary output can be queried to with dynamic binning based on the shape of your data.
-* **Top frequent items** (default is 30). Note that this configuration affects the memory footprint, especially for text features.
+* **Top frequent items** (default is 128). Note that this configuration affects the memory footprint, especially for text features.
 
 ## Performance
 We tested WhyLogs Java performance on the following datasets to validate WhyLogs memory footprint and the output binary.
@@ -186,7 +186,7 @@ import com.whylogs.spark.WhyLogs._
 val raw_df = spark.read.option("header", "true").csv("/databricks-datasets/timeseries/Fires/Fire_Department_Calls_for_Service.csv")
 val df = raw_df.withColumn("call_date", to_timestamp(col("Call Date"), "MM/dd/YYYY"))
 
-val profiles = df.newProfilingSession("PprofilingSession") // start a new WhyLogs profiling job
+val profiles = df.newProfilingSession("profilingSession") // start a new WhyLogs profiling job
                  .withTimeColumn("call_date") // split dataset by call_date
                  .groupBy("City", "Priority") // tag and group the data with categorical information
                  .aggProfiles() //  runs the aggregation. returns a dataframe of <timestamp, datasetProfile> entries
