@@ -1,7 +1,7 @@
 from google.protobuf.message import Message
 import whylabs_client
 from whylabs_client.api import sessions_api
-from smart_open import open
+import requests
 
 configuration = whylabs_client.Configuration( host = "https://songbird.development.whylabsdev.com" )
 
@@ -26,10 +26,9 @@ def upload_profile(protobuf_profile: Message):
     print(f"Uploading profile via songbird wrapper. Session token {session_token}")
     client = get_songbird_client()
     try:
-        response = client.create_dataset_profile_upload(session_token)
-        upload_url = response.get("uploadUrl")
-        with open(upload_url, "wt") as f:
-            f.write(protobuf_profile.SerializeToString())
+        songbird_response = client.create_dataset_profile_upload(session_token)
+        upload_url = songbird_response.get("upload_url")
+        s3_response = requests.put(upload_url, protobuf_profile.SerializeToString())
     except Exception as e:
         print(f"Failed to upload profile: {e}")
 
