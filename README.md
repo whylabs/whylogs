@@ -121,6 +121,7 @@ The whylogs library is integrated with the following:
 - [Java and Apache Spark](https://github.com/whylabs/whylogs-java)
 - AWS S3 (for output storage)
 - Jupyter Notebooks
+- MLflow
 
 ### Dependencies
  
