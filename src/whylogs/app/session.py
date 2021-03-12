@@ -303,7 +303,8 @@ class Session:
 
         if self.useSongbird:
             from whylogs.songbird.wrapper import end_session
-            end_session()
+            url = end_session()
+            print(f"You can explore your data in Observatory here: {url}")
 
     def remove_logger(self, dataset_name: str):
         """
