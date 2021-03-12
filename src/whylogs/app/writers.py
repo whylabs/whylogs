@@ -386,6 +386,37 @@ class S3Writer(Writer):
             f.write(protobuf.SerializeToString())
 
 
+class SongbirdWriter(Writer):
+    def write(self, profile: DatasetProfile, rotation_suffix: str = None):
+        """
+        Write a dataset profile to Songbird
+        """
+        self.rotation_suffix = rotation_suffix
+
+        for fmt in self.formats:
+            if fmt == OutputFormat.json:
+                pass
+            elif fmt == OutputFormat.flat:
+                pass
+            elif fmt == OutputFormat.protobuf:
+                self._write_protobuf(profile)
+                pass
+            else:
+                raise ValueError(f"Unsupported format: {fmt}")
+        self.rotation_suffix = None
+
+    def _write_protobuf(self, profile: DatasetProfile):
+        """
+        Write a protobuf profile to Songbird
+        """
+        from whylogs.songbird.wrapper import upload_profile
+        output_file = os.path.join(
+            self.output_path, self.path_suffix(profile), "protobuf", self.file_name(profile, ".bin"))
+
+        protobuf: Message = profile.to_protobuf()
+        upload_profile(protobuf)
+
+
 def writer_from_config(config: WriterConfig):
     """
     Construct a whylogs `Writer` from a `WriterConfig`
@@ -413,5 +444,11 @@ def writer_from_config(config: WriterConfig):
             config.path_template,
             config.filename_template,
         )
+    elif config.type == "songbird":
+        return SongbirdWriter(
+            config.output_path,
+            config.formats,
+            config.path_template,
+            config.filename_template)
     else:
         raise ValueError(f"Unknown writer type: {config.type}")
