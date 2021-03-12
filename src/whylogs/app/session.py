@@ -38,7 +38,8 @@ class Session:
         writers: List[Writer],
         verbose: bool = False,
         with_rotation_time: str = None,
-        cache_size: int = None
+        cache_size: int = None,
+        useSongbird: bool = False,
     ):
         if writers is None:
             writers = []
@@ -55,9 +56,13 @@ class Session:
         )
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
+        self.useSongbird = useSongbird
 
     def __enter__(self):
         # TODO: configure other aspects
+        if self.useSongbird:
+            from whylogs.songbird.wrapper import start_session
+            start_session()
         return self
 
     def __exit__(self, tpe, value, traceback):
@@ -296,6 +301,10 @@ class Session:
                 logger.close()
             self.remove_logger(name)
 
+        if self.useSongbird:
+            from whylogs.songbird.wrapper import end_session
+            end_session()
+
     def remove_logger(self, dataset_name: str):
         """
         Remove a logger from the dataset. This is called by the logger when it's being closed
@@ -318,12 +327,12 @@ class Session:
         self._loggers.pop(dataset_name)
 
 
-def session_from_config(config: SessionConfig) -> Session:
+def session_from_config(config: SessionConfig, use_songbird: Optional[bool] = None) -> Session:
     """
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache_size)
+    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache_size, use_songbird)
 
 
 #: A global session
@@ -345,8 +354,17 @@ def reset_default_session():
         )
     _session = session_from_config(config)
 
+def start_observatory_session(path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None):
+    if not data_collection_consent:
+        raise PermissionError("When creating a session that will send data to Observatory, data_collection_consent must be set to True")
 
-def get_or_create_session(path_to_config: Optional[str] = None):
+    # TODO: this is pointless if use can pass use_songbird to get_or_create_session
+    return get_or_create_session(path_to_config, True)
+
+
+def get_or_create_session(
+        path_to_config: Optional[str] = None,
+        use_songbird: Optional[bool] = None):
     """
     Retrieve the current active global session.
 
@@ -373,7 +391,7 @@ def get_or_create_session(path_to_config: Optional[str] = None):
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False
             )
-        _session = session_from_config(config)
+        _session = session_from_config(config, use_songbird)
     return _session
 
 
