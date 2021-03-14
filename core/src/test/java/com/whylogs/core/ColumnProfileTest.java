@@ -1,13 +1,13 @@
 package com.whylogs.core;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+
 import lombok.val;
 import org.apache.datasketches.frequencies.ErrorType;
 import org.apache.datasketches.frequencies.ItemsSketch;
 import org.testng.annotations.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.lessThan;
 
 public class ColumnProfileTest {
 
@@ -78,7 +78,8 @@ public class ColumnProfileTest {
       col.track(String.valueOf(i));
     }
     assertThat(col.getFrequentItems().getNumActiveItems(), is(lessThan(40)));
-    for (ItemsSketch.Row<String> item : col.getFrequentItems().getFrequentItems(ErrorType.NO_FALSE_NEGATIVES)) {
+    for (ItemsSketch.Row<String> item :
+        col.getFrequentItems().getFrequentItems(ErrorType.NO_FALSE_NEGATIVES)) {
       // attempt to parse all the values
       //noinspection ResultOfMethodCallIgnored
       Integer.parseInt(item.getItem());
@@ -93,13 +94,13 @@ public class ColumnProfileTest {
       col.track(i);
     }
     assertThat(col.getFrequentItems().getNumActiveItems(), is(lessThan(40)));
-    for (ItemsSketch.Row<String> item : col.getFrequentItems().getFrequentItems(ErrorType.NO_FALSE_NEGATIVES)) {
+    for (ItemsSketch.Row<String> item :
+        col.getFrequentItems().getFrequentItems(ErrorType.NO_FALSE_NEGATIVES)) {
       // attempt to parse all the values
       //noinspection ResultOfMethodCallIgnored
       Integer.parseInt(item.getItem());
     }
   }
-
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void column_Merge_Failure() {

@@ -2,16 +2,14 @@ package com.whylogs.core.metrics;
 
 import com.google.common.base.Preconditions;
 import com.whylogs.core.message.ModelMetricsMessage;
+import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import java.util.Map;
-
 @RequiredArgsConstructor
 public class ModelMetrics {
-  @Getter
-  private final ScoreMatrix scoreMatrix;
+  @Getter private final ScoreMatrix scoreMatrix;
 
   public ModelMetrics(String predictionField, String targetField, String scoreField) {
     this(new ScoreMatrix(predictionField, targetField, scoreField));

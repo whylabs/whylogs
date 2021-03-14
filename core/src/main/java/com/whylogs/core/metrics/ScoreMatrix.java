@@ -5,16 +5,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.whylogs.core.message.ScoreMatrixMessage;
 import com.whylogs.core.statistics.NumberTracker;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)

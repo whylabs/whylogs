@@ -3,19 +3,17 @@ package com.whylogs.core;
 import com.google.common.collect.Sets;
 import com.whylogs.core.message.ModelProfileMessage;
 import com.whylogs.core.metrics.ModelMetrics;
+import java.util.Map;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.val;
 
-import java.util.Map;
-import java.util.Set;
-
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModelProfile {
   private final Set<String> outputFields;
-  @Getter
-  private final ModelMetrics metrics;
+  @Getter private final ModelMetrics metrics;
 
   public ModelProfile(
       String prediction, String target, String score, String... additionalOutputFields) {

@@ -1,17 +1,5 @@
 package com.whylogs.core;
 
-import com.google.common.collect.ImmutableMap;
-import lombok.val;
-import org.apache.commons.lang3.SerializationUtils;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
@@ -21,6 +9,15 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+
+import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import lombok.val;
+import org.apache.commons.lang3.SerializationUtils;
+import org.testng.annotations.Test;
 
 public class DatasetProfileTest {
   @Test
@@ -225,8 +222,9 @@ public class DatasetProfileTest {
   public void javaSerialization_RoundTripWithModelProfile_Success() {
     val sessionTime = Instant.now();
     val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
-    val original = new DatasetProfile("test", sessionTime, null, tags, Collections.emptyMap())
-        .withModelProfile("pred", "target", "score", "additionalOutput");
+    val original =
+        new DatasetProfile("test", sessionTime, null, tags, Collections.emptyMap())
+            .withModelProfile("pred", "target", "score", "additionalOutput");
 
     original.track("col1", "value");
     original.track("col1", 1);
@@ -240,7 +238,8 @@ public class DatasetProfileTest {
     assertThat(roundTrip.tags, aMapWithSize(3));
     assertThat(roundTrip.tags.values(), containsInAnyOrder("paper", "rock", "scissors"));
     assertThat(roundTrip.modelProfile, is(notNullValue()));
-    assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getPredictionField(), is("pred"));
+    assertThat(
+        roundTrip.modelProfile.getMetrics().getScoreMatrix().getPredictionField(), is("pred"));
     assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getTargetField(), is("target"));
     assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getScoreField(), is("score"));
   }
