@@ -119,8 +119,26 @@ message ScoreMatrixMessage {
   repeated NumbersMessage scores = 10;
 }
 
+message RegressionMetricsMessage{
+  string prediction_field = 1;
+  string target_field = 2;
+  uint64 count = 3;
+  double sum_abs_diff = 4;
+  double sum_diff = 5;
+  double sum2_diff = 6;
+}
+
+enum ModelType {
+  UNKNOWN = 0;
+  CLASSIFICATION = 1;
+  REGRESSION = 2;
+  EMBEDDINGS = 3;
+}
+
 message ModelMetricsMessage {
   ScoreMatrixMessage scoreMatrix = 1;
+  ModelType modelType = 2;
+  RegressionMetricsMessage regressionMetrics = 3;
 }
 
 message ModelProfileMessage {
