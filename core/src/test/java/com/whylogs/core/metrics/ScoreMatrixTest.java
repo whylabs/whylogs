@@ -74,12 +74,7 @@ public class ScoreMatrixTest {
     assertThat(matrix[1][0], is(1L));
     assertThat(matrix[1][1], is(3L));
 
-    val columns = profile.getColumns();
-    val predictionColumn = columns.get("whylogs.metrics.predictions");
-    assertThat(predictionColumn, is(notNullValue()));
-    // verify that we are tracking "0" and "1" for boolean prediction
-    assertThat(predictionColumn.getFrequentItems().getEstimate("1"), is(greaterThan(0L)));
-    assertThat(predictionColumn.getFrequentItems().getEstimate("0"), is(greaterThan(0L)));
+    assertThat(metrics.getLabels(), is(ImmutableList.of("0", "1")));
   }
 
   @Test
