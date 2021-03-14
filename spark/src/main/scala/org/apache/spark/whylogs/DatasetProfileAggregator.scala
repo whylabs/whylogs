@@ -6,6 +6,7 @@ import java.time.{Instant, ZoneOffset}
 import java.util.{Collections, UUID}
 
 import com.whylogs.core.DatasetProfile
+import com.whylogs.spark.ClassificationMetricsSession
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.expressions.Aggregator
 import org.apache.spark.sql.types.StructField
@@ -30,6 +31,7 @@ case class DatasetProfileAggregator(datasetName: String,
                                     sessionTimeInMillis: Long,
                                     timeColumn: String = null,
                                     groupByColumns: Seq[String] = Seq(),
+                                    classificationMetrics: ClassificationMetricsSession = null,
                                     sessionId: String = UUID.randomUUID().toString)
   extends Aggregator[Row, DatasetProfile, Array[Byte]] with Serializable {
 
@@ -81,12 +83,27 @@ case class DatasetProfileAggregator(datasetName: String,
 
     // TODO: we have the schema here. Support schema?
     for (field: StructField <- schema) {
-      if (!allGroupByColumns.contains(field.name)) {
+      if (!allGroupByColumns.contains(field.name) && !classificationMetrics.shouldExclude(field.name)) {
         timedProfile.track(field.name, row.get(schema.fieldIndex(field.name)))
       }
     }
 
-    timedProfile
+    if (classificationMetrics != null) {
+      val classificationDatasetProfile = timedProfile.withClassificationMetrics()
+      val prediction = row.get(schema.fieldIndex(classificationMetrics.predictionField))
+      val target = row.get(schema.fieldIndex(classificationMetrics.targetField))
+
+      val score = if (classificationMetrics.scoreField != null) {
+        row.getDouble(schema.fieldIndex(classificationMetrics.scoreField))
+      } else {
+        1.0
+      }
+      classificationDatasetProfile.trackClassificationMetrics(prediction, target, score)
+
+      classificationDatasetProfile
+    } else {
+      timedProfile
+    }
   }
 
   private def isProfileEmpty(profile: DatasetProfile) = {
@@ -113,8 +130,10 @@ case class DatasetProfileAggregator(datasetName: String,
       datasetName,
       reduction.getSessionTimestamp,
       reduction.getDataTimestamp,
+      reduction.getColumns,
       reduction.getTags,
-      reduction.getColumns
+      reduction.getMetadata,
+      reduction.getClassificationMetrics,
     )
     val msg = finalProfile.toProtobuf.build()
     val bos = new ByteArrayOutputStream(msg.getSerializedSize)

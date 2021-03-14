@@ -105,11 +105,17 @@ public class ColumnProfile {
   }
 
   public ColumnProfile merge(ColumnProfile other) {
-    Preconditions.checkArgument(
-        this.columnName.equals(other.columnName),
-        "Mismatched column name. Expected [%s], got [%s]",
-        this.columnName,
-        other.columnName);
+    return this.merge(other, true);
+  }
+
+  public ColumnProfile merge(ColumnProfile other, boolean checkName) {
+    if (checkName) {
+      Preconditions.checkArgument(
+          this.columnName.equals(other.columnName),
+          "Mismatched column name. Expected [%s], got [%s]",
+          this.columnName,
+          other.columnName);
+    }
 
     val mergedSketch = Union.heapify(this.cardinalityTracker.toCompactByteArray());
     mergedSketch.update(other.cardinalityTracker);

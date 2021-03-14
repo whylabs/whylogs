@@ -1,23 +1,24 @@
 package com.whylogs.core;
 
-import com.google.common.collect.ImmutableMap;
-import lombok.val;
-import org.apache.commons.lang3.SerializationUtils;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+
+import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import lombok.val;
+import org.apache.commons.lang3.SerializationUtils;
+import org.testng.annotations.Test;
 
 public class DatasetProfileTest {
   @Test
@@ -220,5 +221,14 @@ public class DatasetProfileTest {
   @Test
   public void deserialization_should_succeed() throws IOException {
     DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
+  }
+
+  @Test
+  public void roundTripWithClassificationMetrics_should_succeed() {
+    val dp = new DatasetProfile("test", Instant.now()).withClassificationMetrics();
+    val msg = dp.toProtobuf().build();
+    val roundTrip = DatasetProfile.fromProtobuf(msg);
+    assertThat(roundTrip.classificationMetrics, is(notNullValue()));
+    assertThat(roundTrip.classificationMetrics.getLabels(), is(empty()));
   }
 }
