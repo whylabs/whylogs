@@ -10,7 +10,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.whylogs.core.metrics.RegressionMetrics;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -224,7 +226,7 @@ public class DatasetProfileTest {
     val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
     val original =
         new DatasetProfile("test", sessionTime, null, tags, Collections.emptyMap())
-            .withModelProfile("pred", "target", "score", "additionalOutput");
+            .withModelProfile("pred", "target", "score", ImmutableList.of("additionalOutput"));
 
     original.track("col1", "value");
     original.track("col1", 1);
@@ -247,6 +249,15 @@ public class DatasetProfileTest {
   @Test
   public void deserialization_should_succeed() throws IOException {
     DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
+  }
+
+  @Test
+  public void deserialization_withRegressionData() throws IOException {
+    val profile = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
+    final RegressionMetrics regressionMetrics =
+        profile.modelProfile.getMetrics().getRegressionMetrics();
+    assertThat(regressionMetrics, is(notNullValue()));
+    assertThat(regressionMetrics.getCount(), is(89L));
   }
 
   @Test

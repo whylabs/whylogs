@@ -40,11 +40,12 @@ class WhyProfileSession:
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=time_column,
                                  group_by_columns=self._group_by_columns)
 
-    def withModelProfile(self, prediction_field: str, target_field: str, score_field: str):  # noqa
+    def withModelProfile(self, prediction_field: str, target_field: str, score_field: str = None):  # noqa
         """
-        Track model performance. Specify the prediction field, target field and score field. All must exist
-        in the Dataframe or exception will be thrown.
+        Track model performance. Specify the prediction field, target field and score field.
 
+        If score_field is not specified, the profiler will track regression metrics.
+        If score_field is specified, the profiler will track classification metrics.
         :rtype: WhyLogSession
         """
         model_profile = ModelProfileSession(prediction_field, target_field, score_field)
@@ -74,9 +75,13 @@ class WhyProfileSession:
             j_session = j_session.groupBy(list(self._group_by_columns))
         if self._model_profile is not None:
             mp = self._model_profile
-            j_session = j_session.withModelProfile(mp.prediction_field,
-                                                   mp.target_field,
-                                                   mp.score_field)
+            if mp.score_field:
+                j_session = j_session.withModelProfile(mp.prediction_field,
+                                                       mp.target_field,
+                                                       mp.score_field)
+            else:
+                j_session = j_session.withModelProfile(mp.prediction_field,
+                                                       mp.target_field)
         return j_session
 
     def aggParquet(self, path: str, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None):  # noqa

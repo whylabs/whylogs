@@ -49,7 +49,7 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     try {
       profiles.write.mode(SaveMode.Overwrite).parquet(tmpDir.toURI.toString)
       // read the data back and print to stdout
-      spark.read.parquet(tmpDir.toURI.toString).show(truncate = false)
+      spark.read.parquet(tmpDir.toURI.toString)
     } finally {
       try {
         tmpDir.deleteRecursively()
@@ -80,6 +80,26 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     assert(matrix(0)(1) == 7L)
     assert(matrix(1)(0) == 11L)
     assert(matrix(1)(1) == 42L)
+  }
+
+  test("test WhyLogsSession with ModelMetrics") {
+    import com.whylogs.spark.WhyLogs._
+
+    val file = Files.createTempFile("data", ".parquet")
+    Files.copy(WhyLogs.getClass.getResourceAsStream("/prediction_data.parquet"), file, StandardCopyOption.REPLACE_EXISTING)
+
+    val df = spark.read.parquet("file://" + file.toAbsolutePath)
+    val res = df.newProfilingSession("model")
+      .withModelProfile("predictions", "targets")
+      .aggProfiles(Instant.now())
+    res.count()
+    val bytes = res.collect()(0).getAs[Array[Byte]](0)
+    val dp = DatasetProfile.parse(new ByteArrayInputStream(bytes))
+
+    assert(dp.getModelProfile != null)
+    assert(dp.getModelProfile != null)
+    assert(dp.getModelProfile.getMetrics.getScoreMatrix == null)
+    assert(dp.getModelProfile.getMetrics.getRegressionMetrics != null)
   }
 
 }

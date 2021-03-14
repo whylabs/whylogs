@@ -1,20 +1,19 @@
 package com.whylogs.spark
 
-import java.nio.file.{Files, StandardOpenOption}
-import java.time.Instant
-
 import ai.whylabs.songbird.api.LogApi
 import ai.whylabs.songbird.invoker.ApiClient
 import ai.whylabs.songbird.model.SegmentTag
-import org.apache.spark.sql.types.DataTypes
+import org.apache.spark.sql.types.{DataTypes, NumericType, StructField}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.whylogs.DatasetProfileAggregator
 import org.slf4j.LoggerFactory
 
+import java.nio.file.{Files, StandardOpenOption}
+import java.time.Instant
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
-case class ModelProfileSession(predictionField: String, targetField: String, scoreField: String) {
+case class ModelProfileSession(predictionField: String, targetField: String, scoreField: String = null) {
   def shouldExclude(field: String): Boolean = {
     predictionField == field || targetField == field || scoreField == field
   }
@@ -83,8 +82,23 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     checkIfColumnExists(predictionField)
     checkIfColumnExists(targetField)
 
-    val classificationMetricsSession = ModelProfileSession(predictionField, targetField, scoreField);
-    this.copy(modelProfile = classificationMetricsSession)
+    this.copy(modelProfile = ModelProfileSession(predictionField, targetField, scoreField))
+  }
+
+  def withModelProfile(predictionField: String, targetField: String): WhyProfileSession = {
+    checkIfColumnExists(predictionField)
+    checkIfColumnExists(targetField)
+
+    val predFieldSchema: StructField = dataFrame.schema.apply(predictionField)
+    if (!predFieldSchema.dataType.isInstanceOf[NumericType]) {
+      throw new IllegalStateException(s"Prediction field MUST be of numeric type. Got: ${predFieldSchema.dataType}")
+    }
+    val targetFieldSchema: StructField = dataFrame.schema.apply(targetField)
+    if (!predFieldSchema.dataType.isInstanceOf[NumericType]) {
+      throw new IllegalStateException(s"Target field MUST be of numeric type. Got: ${targetFieldSchema.dataType}")
+    }
+
+    this.copy(modelProfile = ModelProfileSession(predictionField, targetField))
   }
 
   /**
@@ -138,15 +152,19 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     val df = aggProfiles()
 
     df.foreachPartition((rows: Iterator[Row]) => {
-      val client = new ApiClient()
-      client.setBasePath("https://api.whylabsapp.com")
-      client.setApiKey(apiKey)
+      doUpload(orgId, modelId, apiKey, rows)
+    })
+  }
 
-      val logApi = new LogApi(client)
+  private def doUpload(orgId: String, modelId: String, apiKey: String, rows: Iterator[Row]): Unit = {
+    val client: ApiClient = new ApiClient()
+    client.setBasePath("https://api.whylabsapp.com")
+    client.setApiKey(apiKey)
 
-      rows.foreach(row => {
-        uploadRow(logApi, orgId, modelId, row)
-      })
+    val logApi = new LogApi(client)
+
+    rows.foreach(row => {
+      uploadRow(logApi, orgId, modelId, row)
     })
   }
 

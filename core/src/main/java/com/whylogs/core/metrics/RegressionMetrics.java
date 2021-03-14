@@ -2,12 +2,11 @@ package com.whylogs.core.metrics;
 
 import com.google.common.base.Preconditions;
 import com.whylogs.core.message.RegressionMetricsMessage;
+import java.util.Map;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
-import java.util.Map;
-import java.util.Objects;
 
 @RequiredArgsConstructor
 @Getter
@@ -65,7 +64,7 @@ public class RegressionMetrics {
     return result;
   }
 
-  public RegressionMetricsMessage toProtobuf() {
+  public RegressionMetricsMessage.Builder toProtobuf() {
     if (this.predictionField == null | this.targetField == null) {
       return null;
     }
@@ -75,8 +74,7 @@ public class RegressionMetrics {
         .setSumAbsDiff(this.sumAbsDiff)
         .setSumDiff(this.sumDiff)
         .setSum2Diff(this.sum2Diff)
-        .setCount(this.count)
-        .build();
+        .setCount(this.count);
   }
 
   public static RegressionMetrics fromProtobuf(RegressionMetricsMessage msg) {

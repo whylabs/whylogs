@@ -16,14 +16,16 @@ public class ModelProfile {
   @Getter private final ModelMetrics metrics;
 
   public ModelProfile(
-      String prediction, String target, String score, String... additionalOutputFields) {
+      String prediction, String target, String score, Iterable<String> additionalOutputFields) {
     this.outputFields = Sets.newHashSet(additionalOutputFields);
     this.outputFields.add(prediction);
     this.metrics = new ModelMetrics(prediction, target, score);
   }
 
-  public <T> void trackScore(T prediction, T target, double score) {
-    this.metrics.trackScore(prediction, target, score);
+  public ModelProfile(String prediction, String target, Iterable<String> additionalOutputFields) {
+    this.outputFields = Sets.newHashSet(additionalOutputFields);
+    this.outputFields.add(prediction);
+    this.metrics = new ModelMetrics(prediction, target);
   }
 
   public ModelProfileMessage.Builder toProtobuf() {

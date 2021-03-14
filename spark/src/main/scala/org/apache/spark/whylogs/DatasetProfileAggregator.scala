@@ -82,7 +82,11 @@ case class DatasetProfileAggregator(datasetName: String,
 
     if (isProfileEmpty(profile) && model != null) {
       // only append model profile configuration if the profile is empty
-      timedProfile = timedProfile.withModelProfile(model.predictionField, model.targetField, model.scoreField)
+      if (model.scoreField == null) {
+        timedProfile = timedProfile.withModelProfile(model.predictionField, model.targetField);
+      } else {
+        timedProfile = timedProfile.withModelProfile(model.predictionField, model.targetField, model.scoreField)
+      }
     }
 
     // TODO: we have the schema here. Support schema?

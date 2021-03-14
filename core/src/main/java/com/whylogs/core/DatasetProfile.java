@@ -138,12 +138,6 @@ public class DatasetProfile implements Serializable {
     }
   }
 
-  public <T> void trackScore(T prediction, T target, double score) {
-    if (modelProfile != null) {
-      modelProfile.trackScore(prediction, target, score);
-    }
-  }
-
   /**
    * Returns a new dataset profile with the same backing datastructure. However, this new object
    * contains a ClassificationMetrics object
@@ -151,8 +145,23 @@ public class DatasetProfile implements Serializable {
    * @return a new DatasetProfile object
    */
   public DatasetProfile withModelProfile(
-      String prediction, String target, String score, String... additionalOutputFields) {
+      String prediction, String target, String score, Iterable<String> additionalOutputFields) {
     val model = new ModelProfile(prediction, target, score, additionalOutputFields);
+    return new DatasetProfile(
+        sessionId, sessionTimestamp, dataTimestamp, columns, tags, metadata, model);
+  }
+
+  public DatasetProfile withModelProfile(String prediction, String target, String score) {
+    return this.withModelProfile(prediction, target, score, Collections.emptyList());
+  }
+
+  public DatasetProfile withModelProfile(String prediction, String target) {
+    return this.withModelProfile(prediction, target, Collections.emptyList());
+  }
+
+  public DatasetProfile withModelProfile(
+      String prediction, String target, Iterable<String> additionalOutputFields) {
+    val model = new ModelProfile(prediction, target, additionalOutputFields);
     return new DatasetProfile(
         sessionId, sessionTimestamp, dataTimestamp, columns, tags, metadata, model);
   }

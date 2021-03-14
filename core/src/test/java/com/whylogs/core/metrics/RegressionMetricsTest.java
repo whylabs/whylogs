@@ -1,11 +1,11 @@
 package com.whylogs.core.metrics;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.google.common.collect.ImmutableMap;
 import lombok.val;
 import org.testng.annotations.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class RegressionMetricsTest {
   @Test
@@ -32,7 +32,6 @@ public class RegressionMetricsTest {
     assertThat(merged.getSumDiff(), is(0.0));
     assertThat(merged.getSum2Diff(), is(0.0));
     assertThat(merged.getSumAbsDiff(), is(0.0));
-
   }
 
   @Test
