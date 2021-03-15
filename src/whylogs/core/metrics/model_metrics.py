@@ -33,8 +33,8 @@ class ModelMetrics:
             confusion_matrix=ConfusionMatrix.from_protobuf(message.scoreMatrix),
             regression_metrics=RegressionMetrics.from_protobuf(message.regressionMetrics))
 
-    def compute_confusion_matrix(self, predictions: List[Union[str, int, bool,float]],
-                                 targets: List[Union[str, int, bool,float]],
+    def compute_confusion_matrix(self, predictions: List[Union[str, int, bool, float]],
+                                 targets: List[Union[str, int, bool, float]],
                                  scores: List[float] = None,
                                  target_field: str = None,
                                  prediction_field: str = None,
@@ -63,16 +63,13 @@ class ModelMetrics:
             self.confusion_matrix = self.confusion_matrix.merge(
                 confusion_matrix)
 
-
     def compute_regression_metrics(self, predictions: List[float],
-                                 targets: List[float],
-                                 target_field: str = None,
-                                 prediction_field: str = None):
-        regression_metrics= RegressionMetrics(target_field=target_field,prediction_field=prediction_field)
+                                   targets: List[float],
+                                   target_field: str = None,
+                                   prediction_field: str = None):
+        regression_metrics = RegressionMetrics(target_field=target_field, prediction_field=prediction_field)
         regression_metrics.add(predictions, targets)
-        self.regression_metrics=self.regression_metrics.merge(regression_metrics)
-        
-
+        self.regression_metrics = self.regression_metrics.merge(regression_metrics)
 
     def merge(self, other):
         """
