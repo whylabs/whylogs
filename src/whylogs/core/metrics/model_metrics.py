@@ -14,14 +14,14 @@ class ModelMetrics:
         regression_metrics (RegressionMetrics): Regression Metrics keeps track of a common regression metrics in case the targets are continous.
     """
 
-    def __init__(self, confusion_matrix: ConfusionMatrix = ConfusionMatrix(),
-                 regression_metrics: RegressionMetrics = RegressionMetrics(),
+    def __init__(self, confusion_matrix: ConfusionMatrix = None,
+                 regression_metrics: RegressionMetrics = None,
                  model_type: ModelType = ModelType.UNKNOWN):
-        # if confusion_matrix is None:
-        #     confusion_matrix = ConfusionMatrix()
+        if confusion_matrix is None:
+            confusion_matrix = ConfusionMatrix()
         self.confusion_matrix = confusion_matrix
-        # if regression_metrics is None:
-        #     regression_metrics = RegressionMetrics()
+        if regression_metrics is None:
+            regression_metrics = RegressionMetrics()
         self.regression_metrics = regression_metrics
         self.model_type = ModelType.UNKNOWN
 

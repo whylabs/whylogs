@@ -65,26 +65,32 @@ class RegressionMetrics:
             return None
         return math.sqrt(self.sum2_diff / self.count)
 
-    def merge(self, other_reg_met):
+    def merge(self, other):
         """
         Merge two seperate confusion matrix which may or may not overlap in labels.
 
         Args:
-              other_reg_met : regression metrics to merge with self
+              other : regression metrics to merge with self
         Returns:
               RegressionMetrics: merged regression metrics
         """
 
         if self.count == 0:
-            return other_reg_met
-        if other_reg_met.count == 0:
+            return other
+        if other.count == 0:
             return self
 
-        new_reg = RegressionMetrics()
-        new_reg.count = self.count + other_reg_met.count
-        new_reg.sum_abs_diff = self.sum_abs_diff + other_reg_met.sum_abs_diff
-        new_reg.sum_diff = self.sum_diff + other_reg_met.sum_diff
-        new_reg.sum2_diff = self.sum2_diff + other_reg_met.sum2_diff
+        if self.prediction_field != other.prediction_field:
+            raise ValueError("prediction fields differ")
+        if self.target_field != other.target_field:
+            raise ValueError("target  fields differ")
+
+        new_reg = RegressionMetrics(prediction_field=self.prediction_field,
+                                    target_field=self.target_field)
+        new_reg.count = self.count + other.count
+        new_reg.sum_abs_diff = self.sum_abs_diff + other.sum_abs_diff
+        new_reg.sum_diff = self.sum_diff + other.sum_diff
+        new_reg.sum2_diff = self.sum2_diff + other.sum2_diff
 
         return new_reg
 
