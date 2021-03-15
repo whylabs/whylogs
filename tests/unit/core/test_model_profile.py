@@ -39,7 +39,7 @@ def test_merge_profile():
     mod_prof = ModelProfile()
 
     assert mod_prof.output_fields == []
-    mod_prof.add_output_fields("predictions")
+    mod_prof.add_output_field("predictions")
 
     mod_prof.compute_metrics(predictions_1, targets_1, scores_1)
     assert mod_prof.metrics is not None

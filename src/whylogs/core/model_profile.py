@@ -23,8 +23,7 @@ class ModelProfile:
 
     def __init__(self,
                  output_fields=None,
-                 metrics: ModelMetrics = None,
-                 model_type: ModelType = ModelType.UNKNOWN):
+                 metrics: ModelMetrics = None):
         super().__init__()
 
         if output_fields is None:
@@ -33,7 +32,6 @@ class ModelProfile:
         if metrics is None:
             metrics = ModelMetrics()
         self.metrics = metrics
-        self.model_type = ModelType.UNKNOWN
 
     def add_output_field(self, field: str):
         if field not in self.output_fields:
@@ -69,13 +67,14 @@ class ModelProfile:
         """
         tgt_type = type_of_target(targets)
         if tgt_type in ("continuous"):
-            self.model_type = ModelType.REGRESSION
+
             self.metrics.compute_regression_metrics(predictions=predictions,
                                                     targets=targets,
                                                     target_field=target_field,
                                                     prediction_field=prediction_field)
+            self.metrics.model_type = ModelType.REGRESSION
         elif tgt_type in ("binary", "multiclass"):
-            self.model_type = ModelType.CLASSIFICATION
+            self.metrics.model_type = ModelType.CLASSIFICATION
 
             # if score are not present set them to 1.
             if scores is None:
@@ -95,8 +94,7 @@ class ModelProfile:
 
     def to_protobuf(self):
         return ModelProfileMessage(output_fields=self.output_fields,
-                                   metrics=self.metrics.to_protobuf(),
-                                   modelType=self.model_type)
+                                   metrics=self.metrics.to_protobuf())
 
     @classmethod
     def from_protobuf(cls, message: ModelProfileMessage):
@@ -105,21 +103,15 @@ class ModelProfile:
         for f in message.output_fields:
             output_fields.append(f)
 
-        return ModelProfile(output_fields=output_fields, model_type=message.modelType,
+        return ModelProfile(output_fields=output_fields,
                             metrics=ModelMetrics.from_protobuf(message.metrics))
 
     def merge(self, model_profile):
         if model_profile is None:
             return self
-        if self.model_type is None or model_profile.model_type is None:
-            model_type = ModelType.UNKNOWN
-        elif model_profile.model_type != self.model_type:
-            model_type = ModelType.UNKNOWN
-        else:
-            model_type = self.model_type
 
         output_fields = list(
             set(self.output_fields + model_profile.output_fields))
         metrics = self.metrics.merge(model_profile.metrics)
 
-        return ModelProfile(output_fields=output_fields, metrics=metrics, model_type=model_type)
+        return ModelProfile(output_fields=output_fields, metrics=metrics)

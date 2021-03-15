@@ -2,7 +2,7 @@ from typing import List, Union
 
 from whylogs.core.metrics.confusion_matrix import ConfusionMatrix
 from whylogs.core.metrics.regression_metrics import RegressionMetrics
-from whylogs.proto import ModelMetricsMessage
+from whylogs.proto import ModelMetricsMessage, ModelType
 
 
 class ModelMetrics:
@@ -11,28 +11,32 @@ class ModelMetrics:
 
     Attributes:
         confusion_matrix (ConfusionMatrix): ConfusionMatrix which keeps it track of counts with NumberTracker
-        regression_metrics (RegressionMetrics): Regression Metrics keeps track of a common regression metrics in case the targets are continous. 
+        regression_metrics (RegressionMetrics): Regression Metrics keeps track of a common regression metrics in case the targets are continous.
     """
 
     def __init__(self, confusion_matrix: ConfusionMatrix = ConfusionMatrix(),
-                 regression_metrics: RegressionMetrics = RegressionMetrics()):
+                 regression_metrics: RegressionMetrics = RegressionMetrics(),
+                 model_type: ModelType = ModelType.UNKNOWN):
         # if confusion_matrix is None:
         #     confusion_matrix = ConfusionMatrix()
         self.confusion_matrix = confusion_matrix
         # if regression_metrics is None:
         #     regression_metrics = RegressionMetrics()
         self.regression_metrics = regression_metrics
+        self.model_type = ModelType.UNKNOWN
 
     def to_protobuf(self, ) -> ModelMetricsMessage:
         return ModelMetricsMessage(
             scoreMatrix=self.confusion_matrix.to_protobuf() if self.confusion_matrix else None,
-            regressionMetrics=self.regression_metrics.to_protobuf() if self.regression_metrics else None)
+            regressionMetrics=self.regression_metrics.to_protobuf() if self.regression_metrics else None,
+            modelType=self.model_type)
 
     @classmethod
     def from_protobuf(cls, message, ):
         return ModelMetrics(
             confusion_matrix=ConfusionMatrix.from_protobuf(message.scoreMatrix),
-            regression_metrics=RegressionMetrics.from_protobuf(message.regressionMetrics))
+            regression_metrics=RegressionMetrics.from_protobuf(message.regressionMetrics),
+            model_type=message.modelType)
 
     def compute_confusion_matrix(self, predictions: List[Union[str, int, bool, float]],
                                  targets: List[Union[str, int, bool, float]],
@@ -84,6 +88,15 @@ class ModelMetrics:
             return self
         if self.confusion_matrix is None:
             return other
+
+        if self.model_type is None or other.model_type is None:
+            model_type = ModelType.UNKNOWN
+        elif other.model_type != self.model_type:
+            model_type = ModelType.UNKNOWN
+        else:
+            model_type = self.model_type
+
         return ModelMetrics(
             confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix),
-            regression_metrics=self.regression_metrics.merge(other.regression_metrics))
+            regression_metrics=self.regression_metrics.merge(other.regression_metrics),
+            model_type= model_type)
