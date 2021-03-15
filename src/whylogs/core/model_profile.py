@@ -113,9 +113,9 @@ class ModelProfile:
         if model_profile is None:
             return self
         if self.model_type is None or model_profile.model_type is None:
-            model_type= Model.UNKNOWN
+            model_type= ModelType.UNKNOWN
         elif model_profile.model_type != self.model_type:
-            model_type= Model.UNKNOWN
+            model_type= ModelType.UNKNOWN
         else:
             model_type=self.model_type
 
