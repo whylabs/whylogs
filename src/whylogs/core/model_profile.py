@@ -111,7 +111,9 @@ class ModelProfile:
     def merge(self, model_profile):
         if model_profile is None:
             return self
-        if model_profile.model_type != self.model_type:
+        if self.model_type is None or model_profile.model_type is None:
+            model_type= Model.UNKNOWN
+        elif model_profile.model_type != self.model_type:
             model_type= Model.UNKNOWN
         else:
             model_type=self.model_type
