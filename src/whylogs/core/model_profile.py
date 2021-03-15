@@ -94,9 +94,9 @@ class ModelProfile:
             raise NotImplementedError(f"target type {tgt_type} not supported yet")
 
     def to_protobuf(self):
-        return ModelProfileMessage(output_fields=self.output_fields,
+        return ModelProfileMessage(modeloutput_fields=self.output_fields,
                                    metrics=self.metrics.to_protobuf(),
-                                   )
+                                   modelType=self.model_type)
 
     @classmethod
     def from_protobuf(cls, message: ModelProfileMessage):
@@ -105,13 +105,19 @@ class ModelProfile:
         for f in message.output_fields:
             output_fields.append(f)
 
-        return ModelProfile(output_fields=output_fields,
+        return ModelProfile(output_fields=output_fields,model_type=message.modelType,
                             metrics=ModelMetrics.from_protobuf(message.metrics))
 
     def merge(self, model_profile):
         if model_profile is None:
             return self
+        if model_profile.model_type != self.model_type:
+            model_type= Model.UNKNOWN
+        else:
+            model_type=self.model_type
+
         output_fields = list(
             set(self.output_fields + model_profile.output_fields))
         metrics = self.metrics.merge(model_profile.metrics)
-        return ModelProfile(output_fields=output_fields, metrics=metrics)
+
+        return ModelProfile(output_fields=output_fields, metrics=metrics,model_type=model_type)
