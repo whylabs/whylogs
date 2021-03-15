@@ -46,4 +46,29 @@ def test_empty_protobuf_should_return_none():
     assert RegressionMetrics.from_protobuf(empty_message) is None
 
 
+def test_merging():
+    regmet_sum=RegressionMetrics()
+
+    regmet=RegressionMetrics()
+    df= pd.read_parquet(os.path.join(os.path.join(TEST_DATA_PATH,"metrics","2021-02-12.parquet")))
+    regmet.add(df["predictions"].to_list(),df["targets"].to_list())
+    regmet_sum.add(df["predictions"].to_list(),df["targets"].to_list())
+    
+
+    regmet_2=RegressionMetrics()
+    df_2= pd.read_parquet(os.path.join(os.path.join(TEST_DATA_PATH,"metrics","2021-02-13.parquet")))
+    regmet_2.add(df_2["predictions"].to_list(),df_2["targets"].to_list())
+    regmet_sum.add(df_2["predictions"].to_list(),df_2["targets"].to_list())
+
+    
+    merged_reg_metr= regmet.merge(regmet_2)
+
+    assert merged_reg_metr.count == regmet_sum.count
+    assert merged_reg_metr.mean_squared_error() == regmet_sum.mean_squared_error()
+    assert merged_reg_metr.root_mean_squared_error() == regmet_sum.root_mean_squared_error()
+    assert merged_reg_metr.mean_absolute_error() == pytest.approx(regmet_sum.mean_absolute_error(),0.001)
+
+
+
+
 

@@ -40,14 +40,6 @@ class RegressionMetrics:
         if tgt_type not in ("continuous"):
             raise NotImplementedError(f"target type: {tgt_type} not supported for these metrics")
 
-        if not isinstance(targets, list):
-            targets = [targets]
-        if not isinstance(predictions, list):
-            predictions = [predictions]
-
-        if len(targets) != len(predictions):
-            raise ValueError(
-                "both targets and predictions need to have the same length")
         # need to vectorize this
         for idx, target in enumerate(targets):
 
