@@ -39,6 +39,7 @@ def test_merge_profile():
     mod_prof = ModelProfile()
 
     assert mod_prof.output_fields == []
+    mod_prof.add_output_fields("predictions")
 
     mod_prof.compute_metrics(predictions_1, targets_1, scores_1)
     assert mod_prof.metrics is not None
@@ -48,7 +49,7 @@ def test_merge_profile():
 
     mod_prof_3 = mod_prof.merge(mod_prof_2)
     mod_prof_3.metrics.confusion_matrix
-
+    assert mod_prof_3.output_fields == ["predictions"]
 
 def test_roundtrip_serialization():
     original = ModelProfile(output_fields=["test"])

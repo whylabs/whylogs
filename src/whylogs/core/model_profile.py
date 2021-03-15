@@ -7,11 +7,10 @@ from whylogs.core.metrics.model_metrics import ModelMetrics
 SUPPORTED_TYPES = ("binary", "multiclass")
 
 
-
 class ModelProfile:
     """
     Model Class for sketch metrics for model outputs
-    
+
     Attributes
     ----------
     metrics : ModelMetrics
@@ -106,21 +105,21 @@ class ModelProfile:
         for f in message.output_fields:
             output_fields.append(f)
 
-        return ModelProfile(output_fields=output_fields,model_type=message.modelType,
+        return ModelProfile(output_fields=output_fields, model_type=message.modelType,
                             metrics=ModelMetrics.from_protobuf(message.metrics))
 
     def merge(self, model_profile):
         if model_profile is None:
             return self
         if self.model_type is None or model_profile.model_type is None:
-            model_type= ModelType.UNKNOWN
+            model_type = ModelType.UNKNOWN
         elif model_profile.model_type != self.model_type:
-            model_type= ModelType.UNKNOWN
+            model_type = ModelType.UNKNOWN
         else:
-            model_type=self.model_type
+            model_type = self.model_type
 
         output_fields = list(
             set(self.output_fields + model_profile.output_fields))
         metrics = self.metrics.merge(model_profile.metrics)
 
-        return ModelProfile(output_fields=output_fields, metrics=metrics,model_type=model_type)
+        return ModelProfile(output_fields=output_fields, metrics=metrics, model_type=model_type)

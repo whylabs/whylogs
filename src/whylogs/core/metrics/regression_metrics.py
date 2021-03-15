@@ -82,7 +82,7 @@ class RegressionMetrics:
         Returns:
               RegressionMetrics: merged regression metrics
         """
-     
+
         if self.count == 0:
             return other_reg_met
         if other_reg_met.count == 0:
