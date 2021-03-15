@@ -6,6 +6,8 @@ from whylogs.core.metrics.model_metrics import ModelMetrics
 
 SUPPORTED_TYPES = ("binary", "multiclass")
 
+MODEL_TYPES = ModelType
+
 
 class ModelProfile:
     """
@@ -21,7 +23,8 @@ class ModelProfile:
 
     def __init__(self,
                  output_fields=None,
-                 metrics: ModelMetrics = None):
+                 metrics: ModelMetrics = None,
+                 model_type: Mode):
         super().__init__()
 
         if output_fields is None:
@@ -30,7 +33,8 @@ class ModelProfile:
         if metrics is None:
             metrics = ModelMetrics()
         self.metrics = metrics
-
+        self.model_type= MODEL_TYPES.UNKNOWN
+        
     def add_output_field(self, field: str):
         if field not in self.output_fields:
             self.output_fields.append(field)
@@ -66,19 +70,25 @@ class ModelProfile:
         tgt_type = type_of_target(targets)
         if tgt_type not in ("binary", "multiclass"):
             raise NotImplementedError("target type not supported yet")
-        # if score are not present set them to 1.
-        if scores is None:
-            scores = np.ones(len(targets))
+            self.metrics.compute_regression_metrics(predictions=predictions,
+                                                    targets=targets,
+                                                    target_field=target_field,
+                                                    prediction_field=prediction_field)
+        else:
 
-        scores = np.array(scores)
+            # if score are not present set them to 1.
+            if scores is None:
+                scores = np.ones(len(targets))
 
-        # compute confusion_matrix
-        self.metrics.compute_confusion_matrix(predictions=predictions,
-                                              targets=targets,
-                                              scores=scores,
-                                              target_field=target_field,
-                                              prediction_field=prediction_field,
-                                              score_field=score_field)
+            scores = np.array(scores)
+
+            # compute confusion_matrix
+            self.metrics.compute_confusion_matrix(predictions=predictions,
+                                                  targets=targets,
+                                                  scores=scores,
+                                                  target_field=target_field,
+                                                  prediction_field=prediction_field,
+                                                  score_field=score_field)
 
     def to_protobuf(self):
         return ModelProfileMessage(output_fields=self.output_fields,
