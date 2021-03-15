@@ -95,7 +95,7 @@ class ModelProfile:
             raise NotImplementedError(f"target type {tgt_type} not supported yet")
 
     def to_protobuf(self):
-        return ModelProfileMessage(modeloutput_fields=self.output_fields,
+        return ModelProfileMessage(output_fields=self.output_fields,
                                    metrics=self.metrics.to_protobuf(),
                                    modelType=self.model_type)
 
