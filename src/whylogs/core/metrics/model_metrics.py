@@ -1,6 +1,7 @@
 from typing import List, Union
 
 from whylogs.core.metrics.confusion_matrix import ConfusionMatrix
+from whylogs.core.metrics.regression_metrics import RegressionMetrics
 from whylogs.proto import ModelMetricsMessage
 
 
@@ -12,17 +13,25 @@ class ModelMetrics:
         confusion_matrix (ConfusionMatrix): ConfusionMatrix which keeps it track of counts with NumberTracker
     """
 
-    def __init__(self, confusion_matrix: ConfusionMatrix = None):
-        if confusion_matrix is None:
-            confusion_matrix = ConfusionMatrix()
+    def __init__(self, confusion_matrix: ConfusionMatrix = ConfusionMatrix(),
+                 regression_metrics: RegressionMetrics = RegressionMetrics()):
+        # if confusion_matrix is None:
+        #     confusion_matrix = ConfusionMatrix()
         self.confusion_matrix = confusion_matrix
+        # if regression_metrics is None:
+        #     regression_metrics = RegressionMetrics()
+        self.regression_metrics = regression_metrics
 
     def to_protobuf(self, ) -> ModelMetricsMessage:
-        return ModelMetricsMessage(scoreMatrix=self.confusion_matrix.to_protobuf() if self.confusion_matrix else None)
+        return ModelMetricsMessage(
+            scoreMatrix=self.confusion_matrix.to_protobuf() if self.confusion_matrix else None,
+            regressionMetrics=self.regression_metrics.to_protobuf() if self.regression_metrics else None)
 
     @classmethod
     def from_protobuf(cls, message, ):
-        return ModelMetrics(confusion_matrix=ConfusionMatrix.from_protobuf(message.scoreMatrix))
+        return ModelMetrics(
+            confusion_matrix=ConfusionMatrix.from_protobuf(message.scoreMatrix),
+            regression_metrics=RegressionMetrics.from_protobuf(message.regressionMetrics))
 
     def compute_confusion_matrix(self, predictions: List[Union[str, int, bool]],
                                  targets: List[Union[str, int, bool]],
@@ -66,4 +75,6 @@ class ModelMetrics:
             return self
         if self.confusion_matrix is None:
             return other
-        return ModelMetrics(confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix))
+        return ModelMetrics(
+            confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix),
+            regression_metrics=self.regression_metrics.merge(other.regression_metrics))

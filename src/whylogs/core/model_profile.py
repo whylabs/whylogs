@@ -1,12 +1,12 @@
 from sklearn.utils.multiclass import type_of_target
 import numpy as np
 
-from whylogs.proto import ModelProfileMessage
+from whylogs.proto import ModelProfileMessage, ModelType
 from whylogs.core.metrics.model_metrics import ModelMetrics
 
 SUPPORTED_TYPES = ("binary", "multiclass")
 
-MODEL_TYPES = ModelType
+# MODEL_TYPES = ModelType
 
 
 class ModelProfile:
@@ -24,7 +24,7 @@ class ModelProfile:
     def __init__(self,
                  output_fields=None,
                  metrics: ModelMetrics = None,
-                 model_type: Mode):
+                 model_type: ModelType = ModelType.UNKNOWN):
         super().__init__()
 
         if output_fields is None:
@@ -33,8 +33,8 @@ class ModelProfile:
         if metrics is None:
             metrics = ModelMetrics()
         self.metrics = metrics
-        self.model_type= MODEL_TYPES.UNKNOWN
-        
+        self.model_type = ModelType.UNKNOWN
+
     def add_output_field(self, field: str):
         if field not in self.output_fields:
             self.output_fields.append(field)

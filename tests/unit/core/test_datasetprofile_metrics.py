@@ -1,4 +1,5 @@
 import os
+import pytest
 
 from whylogs.core import DatasetProfile
 from whylogs.core.model_profile import ModelProfile
@@ -34,3 +35,22 @@ def test_read_java_protobuf():
     assert len(confusion_M.labels) == 2
     for idx, lbl in enumerate(confusion_M.labels):
         assert lbl == labels[idx]
+
+
+
+def test_parse_from_protobuf_with_regression():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    prof= DatasetProfile.read_protobuf(os.path.join(
+        TEST_DATA_PATH, "metrics","regression_java.bin"))
+    assert prof.name == 'my-model-name'
+    assert prof.model_profile is not None
+    assert prof.model_profile.metrics is not None
+    confusion_M = prof.model_profile.metrics.confusion_matrix
+    regression_met= prof.model_profile.metrics.regression_metrics
+    assert regression_met is not None
+    assert confusion_M is None
+    # metrics
+    assert regression_met.count==89
+    assert regression_met.sum_abs_diff==pytest.approx(7649.1, 0.1)
+    assert regression_met.sum_diff==pytest.approx(522.7, 0.1)
+    assert regression_met.sum2_diff==pytest.approx(1021265.7, 0.1)

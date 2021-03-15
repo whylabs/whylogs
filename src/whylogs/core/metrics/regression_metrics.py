@@ -1,10 +1,10 @@
-from typing import List, Union
+import math
+from typing import List
 
-import numpy as np
+# import numpy as np
 from sklearn.utils.multiclass import type_of_target
 
 from whylogs.proto import RegressionMetricsMessage
-from whylogs.core.statistics import NumberTracker
 
 SUPPORTED_TYPES = ("regression")
 
@@ -39,8 +39,9 @@ class RegressionMetrics:
             ValueError: incase missing validation or predictions
         """
         tgt_type = type_of_target(targets)
-        if tgt_type not in ("regression"):
-            raise NotImplementedError("target type not supported yet")
+        print(tgt_type)
+        if tgt_type not in ("continuous"):
+            raise NotImplementedError(f"target type: {tgt_type} not supported for these metrics")
 
         if not isinstance(targets, list):
             targets = [targets]
@@ -107,27 +108,24 @@ class RegressionMetrics:
         Returns:
             TYPE: Protobuf Message
         """
-        
+
         return RegressionMetricsMessage(
             prediction_field=self.prediction_field,
             target_field=self.target_field,
             count=self.count,
             sum_abs_diff=self.sum_abs_diff,
             sum_diff=self.sum_diff,
-            sum2_diff = self.sum2_diff)
-
-          
+            sum2_diff=self.sum2_diff)
 
     @classmethod
-    def from_protobuf(cls, message: ScoreMatrixMessage, ):
+    def from_protobuf(cls, message: RegressionMetricsMessage, ):
         if message.ByteSize() == 0:
             return None
 
         reg_met = RegressionMetrics()
         reg_met.count = message.count
-        reg_met.sum_abs_diff=message.sum_abs_diff
-        reg_met.sum_diff= message.sum_diff
-        reg_met.sum2_diff =message.sum2_diff
-
+        reg_met.sum_abs_diff = message.sum_abs_diff
+        reg_met.sum_diff = message.sum_diff
+        reg_met.sum2_diff = message.sum2_diff
 
         return reg_met
