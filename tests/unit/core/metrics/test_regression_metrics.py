@@ -34,4 +34,16 @@ def test_load_parquet():
     assert regmet.mean_absolute_error() == pytest.approx(mean_absolute_error,0.01)
     assert regmet.root_mean_squared_error() == pytest.approx(root_mean_squared_error,0.01)
 
+    msg= regmet.to_protobuf()
+    new_regmet= RegressionMetrics.from_protobuf(msg)
+    assert regmet.count  ==new_regmet.count
+    assert regmet.mean_squared_error()  ==new_regmet.mean_squared_error() 
+    assert regmet.root_mean_squared_error()  ==new_regmet.root_mean_squared_error() 
+    assert regmet.mean_absolute_error()  ==new_regmet.mean_absolute_error() 
+
+def test_empty_protobuf_should_return_none():
+    empty_message = RegressionMetricsMessage()
+    assert RegressionMetrics.from_protobuf(empty_message) is None
+
+
 

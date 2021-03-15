@@ -214,8 +214,8 @@ class DatasetProfile:
         """
         if self.model_profile is None:
             self.model_profile = ModelProfile()
-        self.model_profile.compute_metrics(predictions, targets,
-                                           scores, target_field=target_field,
+        self.model_profile.compute_metrics(predictions=predictions, targets=targets,
+                                           scores=scores, target_field=target_field,
                                            prediction_field=prediction_field,
                                            score_field=score_field)
 

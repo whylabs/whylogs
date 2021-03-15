@@ -1,6 +1,8 @@
 import os
 import pytest
 
+
+
 from whylogs.core import DatasetProfile
 from whylogs.core.model_profile import ModelProfile
 
@@ -54,3 +56,22 @@ def test_parse_from_protobuf_with_regression():
     assert regression_met.sum_abs_diff==pytest.approx(7649.1, 0.1)
     assert regression_met.sum_diff==pytest.approx(522.7, 0.1)
     assert regression_met.sum2_diff==pytest.approx(1021265.7, 0.1)
+
+
+def test_track_metrics():
+    import pandas as pd
+    mean_absolute_error=85.94534216005789
+    mean_squared_error =11474.89611670205
+    root_mean_squared_error =107.12094154133472
+
+    x1 = DatasetProfile(name="test")
+    df= pd.read_parquet(os.path.join(os.path.join(TEST_DATA_PATH,"metrics","2021-02-12.parquet")))
+    x1.track_metrics(df["predictions"].to_list(),df["targets"].to_list())
+    regression_metrics=x1.model_profile.metrics.regression_metrics
+    assert regression_metrics is not None
+    assert regression_metrics.count==len(df["predictions"].to_list())
+    assert regression_metrics.mean_squared_error()==pytest.approx(mean_squared_error,0.01)
+
+    assert regression_metrics.mean_absolute_error() == pytest.approx(mean_absolute_error,0.01)
+    assert regression_metrics.root_mean_squared_error() == pytest.approx(root_mean_squared_error,0.01)
+

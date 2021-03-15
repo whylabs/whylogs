@@ -39,7 +39,6 @@ class RegressionMetrics:
             ValueError: incase missing validation or predictions
         """
         tgt_type = type_of_target(targets)
-        print(tgt_type)
         if tgt_type not in ("continuous"):
             raise NotImplementedError(f"target type: {tgt_type} not supported for these metrics")
 
@@ -86,8 +85,6 @@ class RegressionMetrics:
               ConfusionMatrix: merged confusion_matrix
         """
         # TODO: always return new objects
-        if other_reg_met is None:
-            return self
         if self.count == 0:
             return other_reg_met
         if other_reg_met.count == 0:

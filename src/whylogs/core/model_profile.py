@@ -52,14 +52,14 @@ class ModelProfile:
         Parameters
         ----------
         targets : List
-            targets (or actuals) for validation
+            targets (or actuals) for validation, if these are floats it is assumed the model is a regression type model
         predictions : List
             predictions (or inferred values)
         scores : List, optional
-            associated scores for each prediction
+            associated scores for each prediction (for binary and multiclass problems)
         target_field : str, optional
         prediction_field : str, optional
-        score_field : str, optional
+        score_field : str, optional (for binary and multiclass problems)
 
 
         Raises
@@ -68,13 +68,14 @@ class ModelProfile:
 
         """
         tgt_type = type_of_target(targets)
-        if tgt_type not in ("binary", "multiclass"):
-            raise NotImplementedError("target type not supported yet")
+        if tgt_type in ("continuous"):
+            self.model_type = ModelType.REGRESSION
             self.metrics.compute_regression_metrics(predictions=predictions,
                                                     targets=targets,
                                                     target_field=target_field,
                                                     prediction_field=prediction_field)
-        else:
+        elif tgt_type in ("binary", "multiclass"):
+            self.model_type = ModelType.CLASSIFICATION
 
             # if score are not present set them to 1.
             if scores is None:
@@ -89,6 +90,8 @@ class ModelProfile:
                                                   target_field=target_field,
                                                   prediction_field=prediction_field,
                                                   score_field=score_field)
+        else:
+            raise NotImplementedError(f"target type {tgt_type} not supported yet")
 
     def to_protobuf(self):
         return ModelProfileMessage(output_fields=self.output_fields,
