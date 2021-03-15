@@ -8,9 +8,10 @@ from whylogs.proto import ModelMetricsMessage
 class ModelMetrics:
     """
     Container class for various model-related metrics
-
+    
     Attributes:
         confusion_matrix (ConfusionMatrix): ConfusionMatrix which keeps it track of counts with NumberTracker
+        regression_metrics (RegressionMetrics): Regression Metrics keeps track of a common regression metrics in case the targets are continous. 
     """
 
     def __init__(self, confusion_matrix: ConfusionMatrix = ConfusionMatrix(),

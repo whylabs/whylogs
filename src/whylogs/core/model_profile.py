@@ -6,19 +6,20 @@ from whylogs.core.metrics.model_metrics import ModelMetrics
 
 SUPPORTED_TYPES = ("binary", "multiclass")
 
-# MODEL_TYPES = ModelType
 
 
 class ModelProfile:
     """
     Model Class for sketch metrics for model outputs
-
+    
     Attributes
     ----------
-    output_fields : list
-        list of fields that map to model outputs
     metrics : ModelMetrics
         the model metrics object
+    model_type : ModelType
+        Type of mode, CLASSIFICATION, REGRESSION, UNKNOWN, etc.
+    output_fields : list
+        list of fields that map to model outputs
     """
 
     def __init__(self,

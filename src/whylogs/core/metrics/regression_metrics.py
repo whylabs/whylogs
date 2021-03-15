@@ -1,7 +1,6 @@
 import math
 from typing import List
 
-# import numpy as np
 from sklearn.utils.multiclass import type_of_target
 
 from whylogs.proto import RegressionMetricsMessage
@@ -30,12 +29,11 @@ class RegressionMetrics:
         Function adds predictions and targets computation of regression metrics.
 
         Args:
-            predictions (List[Union[str, int, bool]]):
-            targets (List[Union[str, int, bool]]):
+            predictions (List[float]):
+            targets (List[float]):
 
         Raises:
-            NotImplementedError: in case targets do not fall into binary or
-            multiclass suport
+            NotImplementedError: in case targets do not fall into continuous support
             ValueError: incase missing validation or predictions
         """
         tgt_type = type_of_target(targets)
@@ -80,11 +78,11 @@ class RegressionMetrics:
         Merge two seperate confusion matrix which may or may not overlap in labels.
 
         Args:
-              other_cm (Optional[ConfusionMatrix]): confusion_matrix to merge with self
+              other_reg_met : regression metrics to merge with self
         Returns:
-              ConfusionMatrix: merged confusion_matrix
+              RegressionMetrics: merged regression metrics
         """
-        # TODO: always return new objects
+     
         if self.count == 0:
             return other_reg_met
         if other_reg_met.count == 0:
