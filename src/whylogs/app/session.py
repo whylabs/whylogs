@@ -10,7 +10,7 @@ import pandas as pd
 
 from whylogs.app.config import SessionConfig, WriterConfig, load_config
 from whylogs.app.logger import Logger
-from whylogs.app.writers import Writer, writer_from_config
+from whylogs.app.writers import Writer, writer_from_config, WhyLabsWriter
 from whylogs.core import DatasetProfile
 from whylogs.core.statistics.constraints import DatasetConstraints
 
@@ -39,7 +39,6 @@ class Session:
         verbose: bool = False,
         with_rotation_time: str = None,
         cache_size: int = None,
-        use_whylabs_writer: bool = False,
     ):
         if writers is None:
             writers = []
@@ -56,7 +55,16 @@ class Session:
         )
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
-        self.use_whylabs_writer = use_whylabs_writer
+
+        # enable special logic when starting/closing a Session if we're using whylabs client to save dataset profiles
+        whylabs_writer_is_present = any(isinstance(w, WhyLabsWriter) for w in self.writers)
+        global _use_whylabs_client
+        _use_whylabs_client = _use_whylabs_client or whylabs_writer_is_present
+        self.use_whylabs_writer = _use_whylabs_client
+
+        # add WhyLabs writer if it's not already present (which can happen if it's not specified in the config)
+        if _use_whylabs_client and whylabs_writer_is_present is False:
+            self.writers.append(WhyLabsWriter())
 
     def __enter__(self):
         if self.use_whylabs_writer:
@@ -334,7 +342,7 @@ def session_from_config(config: SessionConfig) -> Session:
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache_size, _use_whylabs_client)
+    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache_size)
 
 
 #: A global session
