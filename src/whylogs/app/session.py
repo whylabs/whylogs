@@ -64,7 +64,7 @@ class Session:
 
         # add WhyLabs writer if it's not already present (which can happen if it's not specified in the config)
         if _use_whylabs_client and whylabs_writer_is_present is False:
-            self.writers.append(WhyLabsWriter())
+            self.writers.append(WhyLabsWriter(output_path=None, formats=["protobuf"]))
 
     def __enter__(self):
         if self.use_whylabs_writer:
@@ -400,7 +400,7 @@ def get_or_create_session(path_to_config: Optional[str] = None):
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False
             )
-        _session = session_from_config(config, _use_whylabs_client)
+        _session = session_from_config(config)
     return _session
 
 
