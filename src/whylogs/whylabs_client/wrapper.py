@@ -3,24 +3,27 @@ import os
 import requests
 import tempfile
 import datetime
-from logging import getLogger
+import sys
 from google.protobuf.message import Message
+from logging import getLogger, DEBUG, basicConfig
+from typing import Optional
 from whylogs.core import DatasetProfile
 from whylabs_client.api import sessions_api
+from whylabs_client.apis import SessionsApi
 from time import time
 
-whylabs_api_endpoint = os.environ['WHYLABS_API_ENDPOINT'] or "https://api.whylabsapp.com"
-whylabs_observatory_endpoint = os.environ['WHYLABS_OBSERVATORY_ENDPOINT'] or "https://hub.whylabsapp.com"
+whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
+whylabs_observatory_endpoint = os.environ.get("WHYLABS_OBSERVATORY_ENDPOINT") or "https://hub.whylabsapp.com"
 configuration = whylabs_client.Configuration(host = whylabs_api_endpoint)
 
 _session_token = None
-_logger = getLogger(__name__)
+_logger = getLogger("whylogs")
 
-def _get_whylabs_client():
+def _get_whylabs_client() -> SessionsApi:
     with whylabs_client.ApiClient(configuration) as api_client:
         return sessions_api.SessionsApi(api_client)
 
-def start_session():
+def start_session() -> None:
     try:
         client = _get_whylabs_client()
 
@@ -33,7 +36,7 @@ def start_session():
         _logger.exception("Failed to create a WhyLabs session")
         _session_token = None
 
-def upload_profile(dataset_profile: DatasetProfile):
+def upload_profile(dataset_profile: DatasetProfile) -> None:
     try:
         client = _get_whylabs_client()
 
@@ -42,8 +45,10 @@ def upload_profile(dataset_profile: DatasetProfile):
         dataset_profile.write_protobuf(profile_path)
 
         dataset_timestamp = dataset_profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
+        dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
 
-        upload_response = client.create_dataset_profile_upload(_session_token, dataset_timestamp=dataset_profile.dataset_timestamp)
+        # TODO: stop shifting dataset timestamps once we update the merger
+        upload_response = client.create_dataset_profile_upload(_session_token, dataset_timestamp = dataset_timestamp - 24 * 60 * 60 * 1000)
         upload_url = upload_response.get("upload_url")
 
         with open(profile_path, 'rb') as f:
@@ -54,7 +59,7 @@ def upload_profile(dataset_profile: DatasetProfile):
     except Exception:
         _logger.exception(f"Failed to upload profile for timestamp {dataset_timestamp}")
 
-def end_session():
+def end_session() -> str:
     try:
         global _session_token
         client = _get_whylabs_client()
