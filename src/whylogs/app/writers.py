@@ -431,6 +431,8 @@ def writer_from_config(config: WriterConfig):
             config.filename_template,
         )
     elif config.type == "whylabs":
-        raise ValueError(f"Writer of type {config.type} is currently only accessible when starting a logging session via 'start_whylabs_session'")
+        if config.data_collection_consent is not True:
+            raise ValueError(f"Writer of type {config.type} requires data_collection_consent parameter to be set to True")
+        return WhyLabsWriter()
     else:
         raise ValueError(f"Unknown writer type: {config.type}")
