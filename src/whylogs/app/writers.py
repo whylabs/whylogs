@@ -386,35 +386,21 @@ class S3Writer(Writer):
             f.write(protobuf.SerializeToString())
 
 
-class SongbirdWriter(Writer):
+class WhyLabsWriter(Writer):
     def write(self, profile: DatasetProfile, rotation_suffix: str = None):
         """
-        Write a dataset profile to Songbird
+        Write a dataset profile to WhyLabs
         """
         self.rotation_suffix = rotation_suffix
-
-        for fmt in self.formats:
-            if fmt == OutputFormat.json:
-                pass
-            elif fmt == OutputFormat.flat:
-                pass
-            elif fmt == OutputFormat.protobuf:
-                self._write_protobuf(profile)
-                pass
-            else:
-                raise ValueError(f"Unsupported format: {fmt}")
+        self._write_protobuf(profile)
         self.rotation_suffix = None
 
     def _write_protobuf(self, profile: DatasetProfile):
         """
-        Write a protobuf profile to Songbird
+        Write a protobuf profile to WhyLabs
         """
-        from whylogs.songbird.wrapper import upload_profile
-        output_file = os.path.join(
-            self.output_path, self.path_suffix(profile), "protobuf", self.file_name(profile, ".bin"))
-
-        protobuf: Message = profile.to_protobuf()
-        upload_profile(protobuf)
+        from whylogs.whylabs_client.wrapper import upload_profile
+        upload_profile(profile)
 
 
 def writer_from_config(config: WriterConfig):
@@ -444,11 +430,7 @@ def writer_from_config(config: WriterConfig):
             config.path_template,
             config.filename_template,
         )
-    elif config.type == "songbird":
-        return SongbirdWriter(
-            config.output_path,
-            config.formats,
-            config.path_template,
-            config.filename_template)
+    elif config.type == "whylabs":
+        raise ValueError(f"Writer of type {config.type} is currently only accessible when starting a logging session via 'start_whylabs_session'")
     else:
         raise ValueError(f"Unknown writer type: {config.type}")
