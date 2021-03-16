@@ -61,12 +61,14 @@ class WriterConfig:
             output_path: str,
             path_template: Optional[str] = None,
             filename_template: Optional[str] = None,
+            data_collection_consent: Optional[bool] = False,
     ):
         self.type = type
         self.formats = formats
         self.output_path = output_path
         self.path_template = path_template
         self.filename_template = filename_template
+        self.data_collection_consent = data_collection_consent
 
     def to_yaml(self, stream=None):
         """
@@ -188,6 +190,7 @@ class WriterConfigSchema(Schema):
     output_path = fields.Str(required=True)
     path_template = fields.Str(required=False, allow_none=True)
     filename_template = fields.Str(required=False, allow_none=True)
+    data_collection_consent = fields.Bool(required=False, allow_none=True)
 
     @post_load
     def make_writer(self, data, **kwargs):
