@@ -39,7 +39,7 @@ class Session:
         verbose: bool = False,
         with_rotation_time: str = None,
         cache_size: int = None,
-        useSongbird: bool = False,
+        use_whylabs_writer: bool = False,
     ):
         if writers is None:
             writers = []
@@ -56,12 +56,11 @@ class Session:
         )
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
-        self.useSongbird = useSongbird
+        self.use_whylabs_writer = use_whylabs_writer
 
     def __enter__(self):
-        # TODO: configure other aspects
-        if self.useSongbird:
-            from whylogs.songbird.wrapper import start_session
+        if self.use_whylabs_writer:
+            from whylogs.whylabs_client.wrapper import start_session
             start_session()
         return self
 
@@ -301,8 +300,8 @@ class Session:
                 logger.close()
             self.remove_logger(name)
 
-        if self.useSongbird:
-            from whylogs.songbird.wrapper import end_session
+        if self.use_whylabs_writer:
+            from whylogs.whylabs_client.wrapper import end_session
             url = end_session()
             print(f"You can explore your data in Observatory here: {url}")
 
@@ -327,13 +326,15 @@ class Session:
 
         self._loggers.pop(dataset_name)
 
+#: Global flag for whether whylabs client should be used
+_use_whylabs_client = False
 
-def session_from_config(config: SessionConfig, use_songbird: Optional[bool] = None) -> Session:
+def session_from_config(config: SessionConfig) -> Session:
     """
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache_size, use_songbird)
+    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache_size, _use_whylabs_client)
 
 
 #: A global session
@@ -355,17 +356,16 @@ def reset_default_session():
         )
     _session = session_from_config(config)
 
-def start_observatory_session(path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None):
+def start_whylabs_session(path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None):
     if not data_collection_consent:
-        raise PermissionError("When creating a session that will send data to Observatory, data_collection_consent must be set to True")
+        raise PermissionError("When creating a session that will send data to WhyLabs, data_collection_consent must be set to True")
 
-    # TODO: this is pointless if use can pass use_songbird to get_or_create_session
-    return get_or_create_session(path_to_config, True)
+    global _use_whylabs_client
+    _use_whylabs_client = True
+    return get_or_create_session(path_to_config)
 
 
-def get_or_create_session(
-        path_to_config: Optional[str] = None,
-        use_songbird: Optional[bool] = None):
+def get_or_create_session(path_to_config: Optional[str] = None):
     """
     Retrieve the current active global session.
 
@@ -392,7 +392,7 @@ def get_or_create_session(
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False
             )
-        _session = session_from_config(config, use_songbird)
+        _session = session_from_config(config, _use_whylabs_client)
     return _session
 
 
