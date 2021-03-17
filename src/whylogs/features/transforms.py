@@ -157,8 +157,7 @@ class SimpleBlur:
         img = img.convert("RGB")
         img = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
                                                      -1, -1, -1, -1), 1, 0))
-        value = np.var(np.array(img).flatten()).reshape((-1, 1))
-        return value
+        return np.var(np.array(img).flatten()).reshape((-1, 1))
 
     def __repr__(self):
         return self.__class__.__name__

@@ -23,10 +23,7 @@ class ThetaSketch:
     def __init__(self, theta_sketch=None, union=None, compact_theta=None):
         if theta_sketch is None:
             theta_sketch = datasketches.update_theta_sketch()
-        if union is None:
-            union = datasketches.theta_union()
-        else:
-            union = _copy_union(union)
+        union = datasketches.theta_union() if union is None else _copy_union(union)
         if compact_theta is not None:
             union.update(compact_theta)
 

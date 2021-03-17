@@ -131,9 +131,9 @@ class DatasetProfile:
         if columns is None:
             columns = {}
         if tags is None:
-            tags = dict()
+            tags = {}
         if metadata is None:
-            metadata = dict()
+            metadata = {}
         if session_id is None:
             session_id = uuid4().hex
 
@@ -826,10 +826,8 @@ def flatten_dataset_frequent_strings(dataset_summary: DatasetSummary):
         try:
             item_summary = getter(
                 getter(col, "string_summary"), "frequent").items
-            items = {}
-            for item in item_summary:
-                items[item.value] = int(item.estimate)
-            if len(items) > 0:
+            items = {item.value: int(item.estimate) for item in item_summary}
+            if items:
                 frequent_strings[col_name] = items
         except KeyError:
             continue

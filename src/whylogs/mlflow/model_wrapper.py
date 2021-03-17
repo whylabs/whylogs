@@ -35,7 +35,7 @@ class ModelWrapper(object):
         self.ylog.log_dataframe(data)
         output = self.model.predict(data)
 
-        if isinstance(output, np.ndarray) or isinstance(output, pd.Series):
+        if isinstance(output, (np.ndarray, pd.Series)):
             data = pd.DataFrame(data=output, columns=['prediction'])
             self.ylog.log_dataframe(data)
         elif isinstance(output, pd.DataFrame):

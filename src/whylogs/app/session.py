@@ -267,19 +267,17 @@ class Session:
             session_timestamp = self._session_time
 
         if tags is None:
-            tags = dict()
+            tags = {}
         if self.pipeline:
             tags["Pipeline"] = self.pipeline
 
-        profile = DatasetProfile(
+        return DatasetProfile(
             dataset_name,
             dataset_timestamp=dataset_timestamp,
             session_timestamp=session_timestamp,
             tags=tags,
             metadata=metadata,
         )
-
-        return profile
 
     def close(self):
         """

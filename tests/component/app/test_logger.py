@@ -117,7 +117,7 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
     session = session_from_config(session_config)
 
     now = datetime.datetime.now()
-    for i in range(0, 5):
+    for i in range(5):
         with session.logger(dataset_timestamp=now + datetime.timedelta(days=i)) as logger:
             logger.log_dataframe(df_lending_club)
 

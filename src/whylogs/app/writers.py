@@ -97,8 +97,7 @@ class Writer(ABC):
         applying the path templating defined in `self.path_template`
         """
         kwargs = self.template_params(profile)
-        path = self.path_template.substitute(**kwargs)
-        return path
+        return self.path_template.substitute(**kwargs)
 
     def file_name(self, profile: DatasetProfile, file_extension: str):
         """

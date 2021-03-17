@@ -34,16 +34,14 @@ def profile_lending_club():
 
 @pytest.fixture(scope="session")
 def s3_config_path():
-    config_path = os.path.join(
+    return os.path.join(
         _MY_DIR, os.pardir, "testdata", ".whylogs_s3.yaml")
-    return config_path
 
 
 @pytest.fixture(scope="session")
 def s3_all_config_path():
-    config_path = os.path.join(
+    return os.path.join(
         _MY_DIR, os.pardir, "testdata", ".whylogs_s3_all.yaml")
-    return config_path
 
 
 @pytest.fixture(scope="session")
@@ -57,9 +55,8 @@ def df_lending_club():
 @pytest.fixture(scope="session")
 def test_data_path():
 
-    imag_path = os.path.join(
+    return os.path.join(
         _MY_DIR, os.pardir, "testdata")
-    return imag_path
 
 
 @pytest.fixture(scope="session")

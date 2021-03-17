@@ -73,8 +73,9 @@ class SchemaTracker:
 
         # Integral is considered a subset of fractional here
         fractional_count = sum(
-            [type_counts.get(k, 0) for k in (Type.INTEGRAL, Type.FRACTIONAL)]
+            type_counts.get(k, 0) for k in (Type.INTEGRAL, Type.FRACTIONAL)
         )
+
 
         if (
                 candidate.type == Type.STRING
@@ -82,11 +83,15 @@ class SchemaTracker:
         ):
             # treat everything else as "String" except UNKNOWN
             coerced_count = sum(
-                [
-                    type_counts.get(k, 0)
-                    for k in (Type.INTEGRAL, Type.FRACTIONAL, Type.STRING, Type.BOOLEAN)
-                ]
+                type_counts.get(k, 0)
+                for k in (
+                    Type.INTEGRAL,
+                    Type.FRACTIONAL,
+                    Type.STRING,
+                    Type.BOOLEAN,
+                )
             )
+
             actual_ratio = float(coerced_count) / total_count
             return InferredType(type=Type.STRING, ratio=actual_ratio)
 

@@ -73,8 +73,7 @@ def csv_reader(f, date_format: str = None, dropna=False, infer_dtypes=False, **k
 
     for batch in pd.read_csv(f, **opts):
         records = df_to_records(batch, dropna=dropna)
-        for record in records:
-            yield record
+        yield from records
 
 
 def run(

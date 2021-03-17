@@ -256,7 +256,6 @@ def load_config(path_to_config: str = None):
                     return session_config
             except IOError as e:
                 logger.warning("Failed to load YAML config", e)
-                pass
     else:
         try:
             with open(path_to_config, "rt") as f:
@@ -264,5 +263,4 @@ def load_config(path_to_config: str = None):
                 return session_config
         except IOError as e:
             logger.warning("Failed to load YAML config", e)
-            pass
     return None

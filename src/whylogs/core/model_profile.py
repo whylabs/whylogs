@@ -88,10 +88,7 @@ class ModelProfile:
     @classmethod
     def from_protobuf(cls, message: ModelProfileMessage):
         # convert google.protobuf.pyext._message.RepeatedScalarContainer to a list
-        output_fields = []
-        for f in message.output_fields:
-            output_fields.append(f)
-
+        output_fields = [f for f in message.output_fields]
         return ModelProfile(output_fields=output_fields,
                             metrics=ModelMetrics.from_protobuf(message.metrics))
 

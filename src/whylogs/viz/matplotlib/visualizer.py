@@ -315,8 +315,8 @@ plot_uniqueness()
             "Text": "type_string_count",
         }
 
-        for metric in type_metrics.keys():
-            if chart_data.loc[:, type_metrics[metric]].sum() > 0:
+        for metric, value in type_metrics.items():
+            if chart_data.loc[chart_data, value].sum() > 0:
                 ax.plot(
                     chart_data.loc[:, "date"],
                     chart_data.loc[:, type_metrics[metric]],

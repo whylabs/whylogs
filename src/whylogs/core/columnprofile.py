@@ -159,7 +159,7 @@ class ColumnProfile:
             if summ.min > 0:
                 items = [SummaryConstraint(op=Op.GT, first_field='min', value=0)]
             # generate additional constraints here
-            if len(items) > 0:
+            if items:
                 return SummaryConstraints(items)
 
         return None

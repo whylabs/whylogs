@@ -14,18 +14,18 @@ def test_log_metrics(tmpdir):
         "project", "pipeline", writers=[writer_config])
 
     session = session_from_config(session_config)
-    targets = ["class_name1", "class_name2", "class_name3"]
-
-    predictions = ["class_name1", "class_name2", "class_name2"]
-    scores = [0.2, 0.5, 0.6]
-    num_labels = 3
     with session.logger("metrics_test") as logger:
 
+        targets = ["class_name1", "class_name2", "class_name3"]
+
+        predictions = ["class_name1", "class_name2", "class_name2"]
+        scores = [0.2, 0.5, 0.6]
         logger.log_metrics(targets, predictions, scores)
 
         profile = logger.profile
         metrics_profile = profile.model_profile
 
         assert metrics_profile is not None
+        num_labels = 3
         assert len(metrics_profile.metrics.confusion_matrix.labels) == num_labels
     shutil.rmtree(output_path)
