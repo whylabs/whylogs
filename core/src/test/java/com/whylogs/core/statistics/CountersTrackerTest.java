@@ -25,6 +25,11 @@ public class CountersTrackerTest {
 
     original.incrementTrue();
     assertThat(original.getTrueCount(), is(1L));
+
+    val roundtrip = CountersTracker.fromProtobuf(original.toProtobuf().build());
+    assertThat(roundtrip.getNullCount(), is(1L));
+    assertThat(roundtrip.getTrueCount(), is(1L));
+    assertThat(roundtrip.getCount(), is(2L));
   }
 
   @Test

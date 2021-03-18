@@ -52,7 +52,7 @@ public class CountersTracker {
     }
 
     if (nullCount > 0) {
-      countersBuilder.setTrueCount(Int64Value.of(nullCount));
+      countersBuilder.setNullCount(Int64Value.of(nullCount));
     }
 
     return countersBuilder;
