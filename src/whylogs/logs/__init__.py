@@ -27,7 +27,7 @@ def display_logging(level="DEBUG", root_logger=False):
     logger.setLevel(level)
     handlers = getattr(logger, "handlers", [])
 
-            # We already have setup a handler
+    # We already have setup a handler
     handler_exists = any(h.name == HANDLER_NAME for h in handlers)
 
     if not handler_exists:
