@@ -125,7 +125,7 @@ case class DatasetProfileAggregator(datasetName: String,
       reduction.getColumns,
       reduction.getTags,
       reduction.getMetadata,
-      reduction.getModelProfile,
+      reduction.getModelProfile
     )
     val msg = finalProfile.toProtobuf.build()
     val bos = new ByteArrayOutputStream(msg.getSerializedSize)

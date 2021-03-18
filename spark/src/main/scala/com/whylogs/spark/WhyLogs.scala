@@ -32,7 +32,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
                              private val timeColumn: String = null,
                              private val groupByColumns: Seq[String] = List(),
                              // model metrics
-                             private val modelProfile: ModelProfileSession = null,
+                             private val modelProfile: ModelProfileSession = null
                             ) {
   private val logger = LoggerFactory.getLogger(getClass)
   private val columnNames = dataFrame.schema.fieldNames.toSet
