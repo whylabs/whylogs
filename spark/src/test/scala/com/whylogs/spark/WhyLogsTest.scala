@@ -5,10 +5,11 @@ import java.nio.file.{Files, StandardCopyOption}
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-
 import com.whylogs.core.DatasetProfile
+import com.whylogs.spark.WhyLogs.ProfiledDataFrame
 import org.apache.commons.lang3.RandomUtils
-import org.apache.spark.sql.SaveMode
+import org.apache.spark.sql.{Row, SaveMode}
+import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.whylogs.SharedSparkContext
 import org.scalatest.funsuite.AnyFunSuite
 
@@ -102,4 +103,28 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     assert(dp.getModelProfile.getMetrics.getRegressionMetrics != null)
   }
 
+  test("profile null value") {
+    val schema = List(
+      StructField("name", StringType, nullable = false),
+      StructField("age", IntegerType, nullable = true)
+    )
+
+    val data = Seq(
+      Row("miguel", null),
+      Row("luisa", 21)
+    )
+
+    val df = spark.createDataFrame(
+      spark.sparkContext.parallelize(data),
+      StructType(schema)
+    )
+
+    val res = df.newProfilingSession("model")
+      .aggProfiles(Instant.now())
+    res.count()
+    val bytes = res.collect()(0).getAs[Array[Byte]](0)
+    val dp = DatasetProfile.parse(new ByteArrayInputStream(bytes))
+
+    assert(dp.getColumns.get("age").getCounters.getNullCount == 1)
+  }
 }
