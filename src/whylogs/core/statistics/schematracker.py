@@ -76,7 +76,6 @@ class SchemaTracker:
             type_counts.get(k, 0) for k in (Type.INTEGRAL, Type.FRACTIONAL)
         )
 
-
         if (
                 candidate.type == Type.STRING
                 and type_counts.get(Type.STRING, 0) > fractional_count
