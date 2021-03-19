@@ -16,5 +16,5 @@ with start_whylabs_session(data_collection_consent=True) as session:
     # Log statistics for the dataset
     # Resulting dataset profile(s) will be sent to WhyLabs,
     # and you will receive a link to view the pretty charts!
-    with session.logger() as ylog:
-        ylog.log_dataframe(df)
+    with session.logger() as logger:
+        logger.log_dataframe(df)
