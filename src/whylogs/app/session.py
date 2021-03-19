@@ -58,9 +58,7 @@ class Session:
 
         # enable special logic when starting/closing a Session if we're using whylabs client to save dataset profiles
         whylabs_writer_is_present = any(isinstance(w, WhyLabsWriter) for w in self.writers)
-        global _use_whylabs_client
-        _use_whylabs_client = _use_whylabs_client or whylabs_writer_is_present
-        self.use_whylabs_writer = _use_whylabs_client
+        self.use_whylabs_writer = _use_whylabs_client or whylabs_writer_is_present
 
         # add WhyLabs writer if it's not already present (which can happen if it's not specified in the config)
         if _use_whylabs_client and whylabs_writer_is_present is False:
