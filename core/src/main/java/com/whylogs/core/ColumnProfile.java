@@ -63,12 +63,18 @@ public class ColumnProfile {
 
       switch (typedData.getType()) {
         case FRACTIONAL:
-          trackText(String.valueOf(typedData.getFractional()));
-          numberTracker.track(typedData.getFractional());
+          final double fractional = typedData.getFractional();
+          trackText(String.valueOf(fractional));
+          if (Double.isNaN(fractional) || Double.isInfinite(fractional)) {
+            counters.incrementNull();
+          } else {
+            numberTracker.track(fractional);
+          }
           break;
         case INTEGRAL:
-          trackText(String.valueOf(typedData.getIntegralValue()));
-          numberTracker.track(typedData.getIntegralValue());
+          final long integralValue = typedData.getIntegralValue();
+          trackText(String.valueOf(integralValue));
+          numberTracker.track(integralValue);
           break;
         case BOOLEAN:
           // TODO: handle boolean across languages? Python booleans are "True" vs Java "true"

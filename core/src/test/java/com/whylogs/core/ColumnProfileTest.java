@@ -29,6 +29,18 @@ public class ColumnProfileTest {
   }
 
   @Test
+  public void column_track_NaN() {
+    val col = new ColumnProfile("test");
+    col.track(Double.NaN);
+
+    assertThat(col.getCounters().getCount(), is(1L));
+    assertThat(col.getCounters().getNullCount(), is(1L));
+    assertThat(col.getCounters().getTrueCount(), is(0L));
+    assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
+    assertThat(col.getNumberTracker().getDoubles().getCount(), is(0L));
+  }
+
+  @Test
   public void column_Merge_Success() {
     val col = new ColumnProfile("test");
     col.track(1L);
