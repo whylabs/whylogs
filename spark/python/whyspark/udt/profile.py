@@ -94,14 +94,22 @@ class WhyProfileSession:
         df = self.aggProfiles(datetime_ts=datetime_ts, timestamp_ms=timestamp_ms)
         df.write.parquet(path)
 
-    def log(self, org_id: str = None, model_id: str = None, api_key: str = None):
+    def log(self, dt: Optional[datetime] = None, org_id: str = None, model_id: str = None, api_key: str = None):
         """
         Run profiling and send results to WhyLabs using the WhyProfileSession's configurations.
 
         Users must specify the organization ID, the model ID and the API key.
 
         You can specify via WHYLABS_ORG_ID, WHYLABS_MODEL_ID and WHYLABS_API_KEY environment variables as well.
+        :param dt: the datetime of the dataset. Default to the current time
+        :param org_id: the WhyLabs organization ID. Defaults to WHYLABS_ORG_ID environment variable
+        :param model_id: the model or dataset ID. Defaults to WHYLABS_MODEL_ID environment variable
+        :param api_key: the whylabs API key. Defaults to WHYLABS_API_KEY environment variable
         """
+        if dt is not None:
+            timestamp_ms = int(dt.timestamp() * 1000)
+        else:
+            timestamp_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
         if org_id is None:
             org_id = os.environ.get('WHYLABS_ORG_ID')
             if org_id is None:
@@ -116,7 +124,7 @@ class WhyProfileSession:
                 raise RuntimeError('Please specify the API key')
 
         j_session = self._create_j_session()
-        j_session.log(org_id, model_id, api_key)
+        j_session.log(timestamp_ms, org_id, model_id, api_key)
 
 
 def new_profiling_session(df: DataFrame, name: str, time_column: Optional[str] = None):

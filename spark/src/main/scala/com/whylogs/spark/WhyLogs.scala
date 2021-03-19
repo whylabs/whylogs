@@ -148,8 +148,8 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     whyStructDataFrame
   }
 
-  def log(orgId: String, modelId: String, apiKey: String): Unit = {
-    val df = aggProfiles()
+  def log(timestampInMs: Long = Instant.now().toEpochMilli, orgId: String, modelId: String, apiKey: String): Unit = {
+    val df = aggProfiles(timestamp=timestampInMs)
 
     df.foreachPartition((rows: Iterator[Row]) => {
       doUpload(orgId, modelId, apiKey, rows)
