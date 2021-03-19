@@ -14,7 +14,8 @@ plugins {
 }
 
 val scalaVersion = project.properties.getOrDefault("scalaVersion", "2.12")
-val artifactBaseName = "whylogs-spark-bundle_$scalaVersion"
+val sparkVersion = project.properties.getOrDefault("sparkVersion", "3.1.1") as String
+val artifactBaseName = "whylogs-spark_${sparkVersion}-scala_$scalaVersion"
 val versionString = rootProject.version
 
 group = "com.whylabs"
@@ -35,6 +36,7 @@ tasks.compileJava {
 }
 
 val shadowJar: ShadowJar by tasks
+shadowJar.dependsOn(":spark:build")
 shadowJar.apply {
     exclude("*.properties")
     exclude("META-INF/*")
