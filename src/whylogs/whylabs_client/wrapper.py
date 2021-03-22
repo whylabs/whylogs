@@ -13,7 +13,6 @@ from whylabs_client.apis import SessionsApi
 from time import time
 
 whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
-whylabs_observatory_endpoint = os.environ.get("WHYLABS_OBSERVATORY_ENDPOINT") or "https://hub.whylabsapp.com"
 configuration = whylabs_client.Configuration(host = whylabs_api_endpoint)
 
 _session_token = None
@@ -63,10 +62,9 @@ def end_session() -> str:
     try:
         global _session_token
         client = _get_whylabs_client()
-        client.close_session(_session_token)
+        res = client.close_session(_session_token)
         _logger.debug(f"Closed session {_session_token}, returning the URL")
-        url = f"{whylabs_observatory_endpoint}/models/model-1/profiles?sessionToken={_session_token}"
-        return url
+        return res.get('whylabs_url')
 
     except Exception:
         _logger.exception(f"Failed to close session {_session_token}")
