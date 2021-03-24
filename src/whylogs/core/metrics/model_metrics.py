@@ -17,13 +17,23 @@ class ModelMetrics:
     def __init__(self, confusion_matrix: ConfusionMatrix = None,
                  regression_metrics: RegressionMetrics = None,
                  model_type: ModelType = ModelType.UNKNOWN):
-        if confusion_matrix is None:
-            confusion_matrix = ConfusionMatrix()
+
+        self.model_type = model_type
+        if confusion_matrix is not None and regression_metrics is not None:
+            raise NotImplementedError("Regression Metrics together with  Confusion Matrix not implemented yet")
+
+        if confusion_matrix is not None:
+            if (self.model_type == ModelType.REGRESSION):
+                raise NotImplementedError("Incorrent model type")
+            self.model_type = ModelType.CLASSIFICATION
+
         self.confusion_matrix = confusion_matrix
-        if regression_metrics is None:
-            regression_metrics = RegressionMetrics()
+
+        if regression_metrics is not None:
+            if (self.model_type == ModelType.CLASSIFICATION):
+                raise NotImplementedError("Incorrent model type")
+            self.model_type = ModelType.REGRESSION
         self.regression_metrics = regression_metrics
-        self.model_type = ModelType.UNKNOWN
 
     def to_protobuf(self, ) -> ModelMetricsMessage:
         return ModelMetricsMessage(
@@ -68,7 +78,7 @@ class ModelMetrics:
             self.confusion_matrix = self.confusion_matrix.merge(
                 confusion_matrix)
 
-    def compute_regression_metrics(self, predictions: List[float],
+    def compute_regression_metrics(self, predictions: List[Union[float, int]],
                                    targets: List[float],
                                    target_field: str = None,
                                    prediction_field: str = None):
