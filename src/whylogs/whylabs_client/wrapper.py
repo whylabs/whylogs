@@ -3,24 +3,22 @@ import os
 import requests
 import tempfile
 import datetime
-import sys
-from google.protobuf.message import Message
-from logging import getLogger, DEBUG, basicConfig
-from typing import Optional
+from logging import getLogger
 from whylogs.core import DatasetProfile
 from whylabs_client.api import sessions_api
 from whylabs_client.apis import SessionsApi
-from time import time
 
 whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
-configuration = whylabs_client.Configuration(host = whylabs_api_endpoint)
+configuration = whylabs_client.Configuration(host=whylabs_api_endpoint)
 
 _session_token = None
 _logger = getLogger("whylogs")
 
+
 def _get_whylabs_client() -> SessionsApi:
     with whylabs_client.ApiClient(configuration) as api_client:
         return sessions_api.SessionsApi(api_client)
+
 
 def start_session() -> None:
     try:
@@ -35,6 +33,7 @@ def start_session() -> None:
         _logger.exception("Failed to create a WhyLabs session")
         _session_token = None
 
+
 def upload_profile(dataset_profile: DatasetProfile) -> None:
     try:
         client = _get_whylabs_client()
@@ -47,11 +46,11 @@ def upload_profile(dataset_profile: DatasetProfile) -> None:
         dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
 
         # TODO: stop shifting dataset timestamps once we update the merger
-        upload_response = client.create_dataset_profile_upload(_session_token, dataset_timestamp = dataset_timestamp - 24 * 60 * 60 * 1000)
+        upload_response = client.create_dataset_profile_upload(_session_token, dataset_timestamp=dataset_timestamp - 24 * 60 * 60 * 1000)
         upload_url = upload_response.get("upload_url")
 
         with open(profile_path, 'rb') as f:
-            s3_response = requests.put(upload_url, f.read())
+            requests.put(upload_url, f.read())
 
         _logger.debug(f"Uploaded a profile for timestamp {dataset_timestamp} to WhyLabs session {_session_token}")
 
