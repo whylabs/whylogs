@@ -40,6 +40,7 @@ dependencies {
     api("org.apache.datasketches:datasketches-java:1.3.0-incubating")
     api("com.google.guava:guava:19.0")
     api("com.google.protobuf:protobuf-java:3.13.0")
+    api("com.google.code.findbugs:jsr305:3.0.2")
 
     // lombok support
     compileOnly("org.projectlombok:lombok:1.18.12")
