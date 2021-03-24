@@ -5,11 +5,9 @@ import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.hamcrest.Matchers.is;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 import com.whylogs.core.DatasetProfile;
 import java.time.Instant;
 import lombok.val;
-import org.apache.commons.lang3.tuple.Pair;
 import org.testng.annotations.Test;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -19,8 +17,9 @@ public class ScoreMatrixTest {
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(0);
     val targets = ImmutableList.of(0);
-    Streams.zip(predictions.stream(), targets.stream(), Pair::of)
-        .forEach(pair -> metrics.update(pair.getLeft(), pair.getRight(), 0));
+    for (int i = 0; i < predictions.size(); i++) {
+      metrics.update(predictions.get(i), targets.get(i), 0);
+    }
     val matrix = metrics.getConfusionMatrix();
     assertThat(metrics.getLabels(), is(ImmutableList.of("0")));
     // Result matrix
@@ -35,8 +34,9 @@ public class ScoreMatrixTest {
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(0, 1, 1, 0, 0, 1, 1);
     val targets = ImmutableList.of(1, 0, 1, 1, 0, 1, 1);
-    Streams.zip(predictions.stream(), targets.stream(), Pair::of)
-        .forEach(pair -> metrics.update(pair.getLeft(), pair.getRight(), 0));
+    for (int i = 0; i < predictions.size(); i++) {
+      metrics.update(predictions.get(i), targets.get(i), 0);
+    }
     val matrix = metrics.getConfusionMatrix();
     assertThat(matrix.length, is(2));
     assertThat(matrix[0].length, is(2));
@@ -57,8 +57,9 @@ public class ScoreMatrixTest {
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(false, true, true, false, false, true, true);
     val targets = ImmutableList.of(true, false, true, true, false, true, true);
-    Streams.zip(predictions.stream(), targets.stream(), Pair::of)
-        .forEach(pair -> metrics.update(pair.getLeft(), pair.getRight(), 0));
+    for (int i = 0; i < predictions.size(); i++) {
+      metrics.update(predictions.get(i), targets.get(i), 0);
+    }
     val matrix = metrics.getConfusionMatrix();
     assertThat(matrix.length, is(2));
     assertThat(matrix[0].length, is(2));
@@ -80,15 +81,17 @@ public class ScoreMatrixTest {
     val binaryMatrix = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(0, 1, 1, 0, 0, 1, 1);
     val targets = ImmutableList.of(1, 0, 1, 1, 0, 1, 1);
-    Streams.zip(predictions.stream(), targets.stream(), Pair::of)
-        .forEach(pair -> binaryMatrix.update(pair.getLeft(), pair.getRight(), 0));
+    for (int i = 0; i < predictions.size(); i++) {
+      binaryMatrix.update(predictions.get(i), targets.get(i), 0);
+    }
 
     // created a merged confusion matrix by merging the original with itself
     val merged = binaryMatrix.merge(binaryMatrix);
 
     // now run the same data through the existing matrix
-    Streams.zip(predictions.stream(), targets.stream(), Pair::of)
-        .forEach(pair -> binaryMatrix.update(pair.getLeft(), pair.getRight(), 0));
+    for (int i = 0; i < predictions.size(); i++) {
+      binaryMatrix.update(predictions.get(i), targets.get(i), 0);
+    }
     val matrix = binaryMatrix.getConfusionMatrix();
     val mergedResult = merged.getConfusionMatrix();
     assertThat(matrix.length, is(2));
@@ -112,8 +115,9 @@ public class ScoreMatrixTest {
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of("cat", "ant", "cat", "cat", "ant", "bird");
     val targets = ImmutableList.of("ant", "ant", "cat", "cat", "ant", "cat");
-    Streams.zip(predictions.stream(), targets.stream(), Pair::of)
-        .forEach(pair -> metrics.update(pair.getLeft(), pair.getRight(), 0));
+    for (int i = 0; i < predictions.size(); i++) {
+      metrics.update(predictions.get(i), targets.get(i), 0);
+    }
     val matrix = metrics.getConfusionMatrix();
     assertThat(matrix.length, is(3));
     assertThat(matrix[0].length, is(3));
@@ -141,8 +145,9 @@ public class ScoreMatrixTest {
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(2, 0, 2, 2, 0, 1);
     val targets = ImmutableList.of(0, 0, 2, 2, 0, 2);
-    Streams.zip(predictions.stream(), targets.stream(), Pair::of)
-        .forEach(pair -> metrics.update(pair.getLeft(), pair.getRight(), 0));
+    for (int i = 0; i < predictions.size(); i++) {
+      metrics.update(predictions.get(i), targets.get(i), 0);
+    }
     val matrix = metrics.getConfusionMatrix();
     assertThat(matrix.length, is(3));
     assertThat(matrix[0].length, is(3));
@@ -169,8 +174,9 @@ public class ScoreMatrixTest {
     val metrics = new ScoreMatrix("prediction", "target", "score");
     val predictions = ImmutableList.of(2, 0, 2, 2, 0, 1);
     val targets = ImmutableList.of(0, 0, 2, 2, 0, 2);
-    Streams.zip(predictions.stream(), targets.stream(), Pair::of)
-        .forEach(pair -> metrics.update(pair.getLeft(), pair.getRight(), 0));
+    for (int i = 0; i < predictions.size(); i++) {
+      metrics.update(predictions.get(i), targets.get(i), 0);
+    }
 
     val matrix = metrics.getConfusionMatrix();
 
