@@ -212,25 +212,23 @@ public class DatasetProfile implements Serializable {
   public DatasetProfile mergeStrict(@NonNull DatasetProfile other) {
     Preconditions.checkArgument(
         Objects.equals(this.sessionId, other.sessionId),
-        String.format("Mismatched name. Current name [%s] is merged with [%s]",
-            this.sessionId,
-            other.sessionId));
+        String.format(
+            "Mismatched name. Current name [%s] is merged with [%s]",
+            this.sessionId, other.sessionId));
     Preconditions.checkArgument(
         Objects.equals(this.sessionTimestamp, other.sessionTimestamp),
-        String.format("Mismatched session timestamp. Current ts [%s] is merged with [%s]",
-            this.sessionTimestamp,
-            other.sessionTimestamp));
+        String.format(
+            "Mismatched session timestamp. Current ts [%s] is merged with [%s]",
+            this.sessionTimestamp, other.sessionTimestamp));
 
     Preconditions.checkArgument(
         Objects.equals(this.dataTimestamp, other.dataTimestamp),
-        String.format("Mismatched data timestamp. Current ts [%s] is merged with [%s]",
-            this.dataTimestamp,
-            other.dataTimestamp));
+        String.format(
+            "Mismatched data timestamp. Current ts [%s] is merged with [%s]",
+            this.dataTimestamp, other.dataTimestamp));
     Preconditions.checkArgument(
         Objects.equals(this.tags, other.tags),
-        String.format("Mismatched tags. Current %s being merged with %s",
-            this.tags,
-            other.tags));
+        String.format("Mismatched tags. Current %s being merged with %s", this.tags, other.tags));
 
     return doMerge(other, this.tags);
   }
