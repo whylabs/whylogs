@@ -1,0 +1,22 @@
+loaders:
+  - type: python
+    search_path: [./src]
+processors:
+  - type: filter
+    skip_empty_modules: true
+    exclude_private: true
+    document_only: false
+  - type: smart
+  - type: google
+  - type: crossref
+renderer:
+  type: docusaurus
+  docs_base_path: docusaurus
+  relative_output_path: whylogs-api
+  relative_sidebar_path: sidebar.json
+  sidebar_top_level_label: 'Reference'
+  signature_in_header: true
+  markdown:
+    render_toc: true
+    escape_html_in_docstring: true
+
