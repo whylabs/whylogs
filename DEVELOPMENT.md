@@ -56,13 +56,26 @@ make clean
     pip install -r requirements-dev.txt
     ```
 
-8. Install whylogs in editable mode to the current python environment
+8. Install protobuf compiler
+    
+    - On Mac OS
+    ```
+    brew install protobuf
+    ```
+
+    - On Ubuntu 
+    ```
+    apt install protobuf
+    ```
+
+
+9. Install whylogs in editable mode to the current python environment
 
     ```
     make develop
     ```
    
-9. (optional) Build and serve documentation
+10. (optional) Build and serve documentation
 
     ```
     make docs
@@ -79,14 +92,6 @@ To run tests using the current Python environment:
 make test
 ```
 
-
-### Coverage 
-
-Coverage can be checked with 
-
-```
-make coverage
-```
 
 ### Testing CI locally
 
@@ -143,7 +148,7 @@ make test-all
 ```
 You can keep bumping the local version if you need to (you can't republish a version twice so this is needed).
 
-### 2. Pushing to master branch
+### 2. Pushing to mainline branch
 
 * If you are planning to push to `master` branch, please first create a dev version (see the above guide). 
 **You'll have to bump it to a `beta` version or the build will fail**. You'll need to do this before creating the merge request:
@@ -182,7 +187,7 @@ make test-all
 ## Examples
 See the `scripts/` directory for some example scripts for interacting with `whylogs-python`
 
-See the `notebooks/` directory for some example notebooks.
+See the `examples/notebooks/` directory for some example notebooks.
 
 
 ## Documentation
