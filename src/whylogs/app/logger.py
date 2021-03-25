@@ -169,13 +169,13 @@ class Logger:
             interval = 1 if m.group(1) == '' else int(m.group(1))
             if m.group(2) == 's':
                 self.suffix = "%Y-%m-%d_%H-%M-%S"
-            elif m.group(2)  == 'm':
+            elif m.group(2) == 'm':
                 interval *= 60  # one minute
                 self.suffix = "%Y-%m-%d_%H-%M"
-            elif m.group(2)  == 'h':
+            elif m.group(2) == 'h':
                 interval *= 60 * 60  # one hour
                 self.suffix = "%Y-%m-%d_%H"
-            elif m.group(2)  == 'd':
+            elif m.group(2) == 'd':
                 interval *= 60 * 60 * 24  # one day
                 self.suffix = "%Y-%m-%d"
             else:
