@@ -17,7 +17,7 @@ from whylogs.app.writers import Writer
 from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
 from whylogs.core.statistics.constraints import DatasetConstraints
 from whylogs.io import LocalDataset
-
+from whylogs.proto import ModelType
 
 # TODO upgrade to Classes
 SegmentTag = Dict[str, any]
@@ -124,9 +124,8 @@ class Logger:
 
     def get_segment(self, segment: Segment) -> Optional[DatasetProfile]:
         hashed_seg = hash_segment(segment)
-        segment_profile = self._profiles[-1]["segmented_profiles"].get(
+        return self._profiles[-1]["segmented_profiles"].get(
             hashed_seg, None)
-        return segment_profile
 
     def set_segments(self, segments: Union[List[Segment], List[str]]) -> None:
         if segments:
@@ -159,35 +158,36 @@ class Logger:
             {"full_profile": full_profile, "segmented_profiles": {}})
 
     def _set_rotation(self, with_rotation_time: str = None):
-        if with_rotation_time is not None:
-            self.with_rotation_time = with_rotation_time.lower()
+        if with_rotation_time is None:
+            return
 
-            m = re.match(r'^(\d*)([smhd])$', with_rotation_time.lower())
-            if m is None:
-                raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
+        self.with_rotation_time = with_rotation_time.lower()
 
-            interval = 1 if m.group(1) == '' else int(m.group(1))
-            if m.group(2) == 's':
-                self.suffix = "%Y-%m-%d_%H-%M-%S"
-            elif m.group(2) == 'm':
-                interval *= 60  # one minute
-                self.suffix = "%Y-%m-%d_%H-%M"
-            elif m.group(2) == 'h':
-                interval *= 60 * 60  # one hour
-                self.suffix = "%Y-%m-%d_%H"
-            elif m.group(2) == 'd':
-                interval *= 60 * 60 * 24  # one day
-                self.suffix = "%Y-%m-%d"
-            else:
-                raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
-            # time in seconds
-            current_time = int(datetime.datetime.utcnow().timestamp())
-            self.interval = interval * self.interval_multiplier
-            self.rotate_at = self.rotate_when(current_time)
+        m = re.match(r'^(\d*)([smhd])$', with_rotation_time.lower())
+        if m is None:
+            raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
+
+        interval = 1 if m.group(1) == '' else int(m.group(1))
+        if m.group(2) == 's':
+            self.suffix = "%Y-%m-%d_%H-%M-%S"
+        elif m.group(2) == 'm':
+            interval *= 60  # one minute
+            self.suffix = "%Y-%m-%d_%H-%M"
+        elif m.group(2) == 'h':
+            interval *= 60 * 60  # one hour
+            self.suffix = "%Y-%m-%d_%H"
+        elif m.group(2) == 'd':
+            interval *= 60 * 60 * 24  # one day
+            self.suffix = "%Y-%m-%d"
+        else:
+            raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
+        # time in seconds
+        current_time = int(datetime.datetime.utcnow().timestamp())
+        self.interval = interval * self.interval_multiplier
+        self.rotate_at = self.rotate_when(current_time)
 
     def rotate_when(self, time):
-        result = time + self.interval
-        return result
+        return time + self.interval
 
     def should_rotate(self, ):
 
@@ -195,9 +195,7 @@ class Logger:
             return False
 
         current_time = int(datetime.datetime.utcnow().timestamp())
-        if current_time >= self.rotate_at:
-            return True
-        return False
+        return current_time >= self.rotate_at
 
     def _rotate_time(self):
         """
@@ -212,7 +210,7 @@ class Logger:
             time_tuple.strftime(self.suffix), self.suffix)
 
         # modify the segment datetime stamps
-        if (self.segments is None) or ((self.segments is not None) and self.profile_full_dataset):
+        if self.segments is None or self.profile_full_dataset:
             self._profiles[-1]["full_profile"].dataset_timestamp = log_datetime
         if self.segments is not None:
             for _, each_prof in self._profiles[-1]["segmented_profiles"].items():
@@ -255,11 +253,10 @@ class Logger:
                 for hashseg, each_seg_prof in self._profiles[-1]["segmented_profiles"].items():
                     seg_suffix = hashseg
                     full_suffix = "_" + seg_suffix
-                    if rotation_suffix is None:
-                        writer.write(each_seg_prof, full_suffix)
-                    else:
+                    if rotation_suffix is not None:
                         full_suffix += rotation_suffix
-                        writer.write(each_seg_prof, full_suffix)
+
+                    writer.write(each_seg_prof, full_suffix)
 
     def full_profile_check(self, ) -> bool:
         """
@@ -342,13 +339,19 @@ class Logger:
 
     def log_metrics(self,
                     targets, predictions,
-                    scores=None, target_field=None, prediction_field=None,
+                    scores=None,
+                    model_type: ModelType = None,
+                    target_field=None,
+                    prediction_field=None,
                     score_field=None):
 
         self._profiles[-1]["full_profile"].track_metrics(
-            targets, predictions, scores, target_field=target_field,
+            targets, predictions, scores,
+            model_type=model_type,
+            target_field=target_field,
             prediction_field=prediction_field,
-            score_field=score_field)
+            score_field=score_field,
+        )
 
     def log_image(self,
                   image,
@@ -413,7 +416,7 @@ class Logger:
             if isinstance(data, pd.DataFrame):
                 self.log_dataframe(data)
 
-            elif isinstance(data, Dict) or isinstance(data, list):
+            elif isinstance(data, (Dict, list)):
                 self.log_annotation(annotation_data=data)
             elif isinstance(data, ImageType):
                 if image_feature_transforms:
@@ -508,10 +511,11 @@ class Logger:
         for each_segment in segments:
             try:
                 segment_df = grouped_data.get_group(each_segment)
-                segment_tags = []
-                for i in range(len(self.segments)):
-                    segment_tags.append(
-                        {"key": self.segments[i], "value": each_segment[i]})
+                segment_tags = [
+                    {"key": self.segments[i], "value": each_segment[i]}
+                    for i in range(len(self.segments))
+                ]
+
                 self.log_df_segment(segment_df, segment_tags)
             except KeyError:
                 continue
@@ -522,7 +526,7 @@ class Logger:
         for segment_tag in self.segments:
             # create keys
             segment_keys = [feature["key"] for feature in segment_tag]
-            seg = tuple([feature["value"] for feature in segment_tag])
+            seg = tuple(feature["value"] for feature in segment_tag)
 
             grouped_data = data.groupby(segment_keys)
 
