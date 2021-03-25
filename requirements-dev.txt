@@ -82,7 +82,7 @@ pytest-runner==5.3
 python-dateutil==2.8.1
 python-editor==1.0.4
 pytz==2020.4
-PyYAML==5.3.1
+PyYAML==5.4
 pyzmq==20.0.0
 querystring-parser==1.2.4
 readme-renderer==28.0
