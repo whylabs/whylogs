@@ -158,31 +158,33 @@ class Logger:
             {"full_profile": full_profile, "segmented_profiles": {}})
 
     def _set_rotation(self, with_rotation_time: str = None):
-        if with_rotation_time is not None:
-            self.with_rotation_time = with_rotation_time.lower()
+        if with_rotation_time is None:
+            return
 
-            m = re.match(r'^(\d*)([smhd])$', with_rotation_time.lower())
-            if m is None:
-                raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
+        self.with_rotation_time = with_rotation_time.lower()
 
-            interval = 1 if m.group(1) == '' else int(m.group(1))
-            if m.group(2) == 's':
-                self.suffix = "%Y-%m-%d_%H-%M-%S"
-            elif m.group(2) == 'm':
-                interval *= 60  # one minute
-                self.suffix = "%Y-%m-%d_%H-%M"
-            elif m.group(2) == 'h':
-                interval *= 60 * 60  # one hour
-                self.suffix = "%Y-%m-%d_%H"
-            elif m.group(2) == 'd':
-                interval *= 60 * 60 * 24  # one day
-                self.suffix = "%Y-%m-%d"
-            else:
-                raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
-            # time in seconds
-            current_time = int(datetime.datetime.utcnow().timestamp())
-            self.interval = interval * self.interval_multiplier
-            self.rotate_at = self.rotate_when(current_time)
+        m = re.match(r'^(\d*)([smhd])$', with_rotation_time.lower())
+        if m is None:
+            raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
+
+        interval = 1 if m.group(1) == '' else int(m.group(1))
+        if m.group(2) == 's':
+            self.suffix = "%Y-%m-%d_%H-%M-%S"
+        elif m.group(2) == 'm':
+            interval *= 60  # one minute
+            self.suffix = "%Y-%m-%d_%H-%M"
+        elif m.group(2) == 'h':
+            interval *= 60 * 60  # one hour
+            self.suffix = "%Y-%m-%d_%H"
+        elif m.group(2) == 'd':
+            interval *= 60 * 60 * 24  # one day
+            self.suffix = "%Y-%m-%d"
+        else:
+            raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
+        # time in seconds
+        current_time = int(datetime.datetime.utcnow().timestamp())
+        self.interval = interval * self.interval_multiplier
+        self.rotate_at = self.rotate_when(current_time)
 
     def rotate_when(self, time):
         return time + self.interval
