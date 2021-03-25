@@ -62,7 +62,7 @@ parso==0.7.1
 pathspec==0.8.1
 pexpect==4.8.0
 pickleshare==0.7.5
-Pillow==8.1.0
+Pillow==8.1.1
 pkginfo==1.6.1
 pluggy==0.13.1
 pre-commit==2.9.2
@@ -105,7 +105,7 @@ traitlets==5.0.5
 twine==3.2.0
 typed-ast==1.4.1
 typing-extensions==3.7.4.3
-urllib3==1.26.2
+urllib3==1.26.3
 virtualenv==20.2.1
 wcwidth==0.2.5
 webencodings==0.5.1
