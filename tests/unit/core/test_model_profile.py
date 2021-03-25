@@ -6,7 +6,7 @@ def test_model_profile():
     mod_prof = ModelProfile()
     assert mod_prof.output_fields == []
     assert mod_prof.metrics is not None
-    assert mod_prof.metrics.confusion_matrix is not None
+    assert mod_prof.metrics.confusion_matrix is None
     message = mod_prof.to_protobuf()
     ModelProfile.from_protobuf(message)
 

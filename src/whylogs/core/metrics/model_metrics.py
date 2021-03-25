@@ -72,19 +72,22 @@ class ModelMetrics:
                                            score_field=score_field)
         confusion_matrix.add(predictions, targets, scores)
 
-        if self.confusion_matrix.labels is None or self.confusion_matrix.labels == []:
+        if self.confusion_matrix is None or self.confusion_matrix.labels is None or self.confusion_matrix.labels == []:
             self.confusion_matrix = confusion_matrix
         else:
             self.confusion_matrix = self.confusion_matrix.merge(
                 confusion_matrix)
 
     def compute_regression_metrics(self, predictions: List[Union[float, int]],
-                                   targets: List[float],
+                                   targets: List[Union[float, int]],
                                    target_field: str = None,
                                    prediction_field: str = None):
         regression_metrics = RegressionMetrics(target_field=target_field, prediction_field=prediction_field)
         regression_metrics.add(predictions, targets)
-        self.regression_metrics = self.regression_metrics.merge(regression_metrics)
+        if self.regression_metrics:
+            self.regression_metrics = self.regression_metrics.merge(regression_metrics)
+        else:
+            self.regression_metrics = regression_metrics
 
     def merge(self, other):
         """

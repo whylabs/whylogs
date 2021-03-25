@@ -48,7 +48,6 @@ def test_parse_from_protobuf_with_regression():
     confusion_M = prof.model_profile.metrics.confusion_matrix
     regression_met = prof.model_profile.metrics.regression_metrics
     assert regression_met is not None
-    assert confusion_M is not None
     # metrics
     assert regression_met.count == 89
     assert regression_met.sum_abs_diff == pytest.approx(7649.1, 0.1)

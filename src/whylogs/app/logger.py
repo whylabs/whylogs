@@ -16,7 +16,7 @@ from whylogs.app.writers import Writer
 from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
 from whylogs.core.statistics.constraints import DatasetConstraints
 from whylogs.io import LocalDataset
-
+from whylogs.proto import ModelType
 
 TIME_ROTATION_VALUES = ["s", "m", "h", "d"]
 
@@ -346,13 +346,19 @@ class Logger:
 
     def log_metrics(self,
                     targets, predictions,
-                    scores=None, target_field=None, prediction_field=None,
+                    scores=None,
+                    model_type: ModelType = None,
+                    target_field=None,
+                    prediction_field=None,
                     score_field=None):
 
         self._profiles[-1]["full_profile"].track_metrics(
-            targets, predictions, scores, target_field=target_field,
+            targets, predictions, scores,
+            model_type=model_type,
+            target_field=target_field,
             prediction_field=prediction_field,
-            score_field=score_field)
+            score_field=score_field,
+        )
 
     def log_image(self,
                   image,

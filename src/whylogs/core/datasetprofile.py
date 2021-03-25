@@ -24,6 +24,7 @@ from whylogs.proto import (
     DatasetProperties,
     DatasetSummary,
     MessageSegment,
+    ModelType
 )
 from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
 from whylogs.util import time
@@ -189,9 +190,14 @@ class DatasetProfile:
         else:
             self.model_profile.add_output_field(field)
 
-    def track_metrics(self, targets: List[Union[str, bool, float, int]], predictions: List[Union[str, bool, float, int]], scores: List[float] = None,
-                      target_field: str = None, prediction_field: str = None,
-                      score_field: str = None):
+    def track_metrics(self,
+                      targets: List[Union[str, bool, float, int]],
+                      predictions: List[Union[str, bool, float, int]],
+                      scores: List[float] = None,
+                      model_type: ModelType = None,
+                      target_field: str = None,
+                      prediction_field: str = None,
+                      score_field: str = None, ):
         """
         Function to track metrics based on validation data.
 
@@ -207,6 +213,14 @@ class DatasetProfile:
         scores : List[float], optional
             assocaited scores for each inferred, all values set to 1 if not passed
         target_field : str, optional
+            Description
+        prediction_field : str, optional
+            Description
+        score_field : str, optional
+            Description
+        model_type : ModelType, optional
+            Defaul is Classification type.
+        target_field : str, optional
         prediction_field : str, optional
         score_field : str, optional
         score_field : str, optional
@@ -215,7 +229,7 @@ class DatasetProfile:
         if self.model_profile is None:
             self.model_profile = ModelProfile()
         self.model_profile.compute_metrics(predictions=predictions, targets=targets,
-                                           scores=scores, target_field=target_field,
+                                           scores=scores, model_type=model_type, target_field=target_field,
                                            prediction_field=prediction_field,
                                            score_field=score_field)
 
@@ -350,7 +364,8 @@ class DatasetProfile:
             Protobuf constraints message.
         """
         self.validate()
-        constraints = [(name, col.generate_constraints()) for name, col in self.columns.items()]
+        constraints = [(name, col.generate_constraints())
+                       for name, col in self.columns.items()]
         # filter empty constraints
         constraints = [(n, c) for n, c in constraints if c is not None]
         return DatasetConstraints(self.to_properties(), None, dict(constraints))
