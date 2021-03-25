@@ -5,6 +5,7 @@ import datetime
 import hashlib
 import json
 import logging
+import re
 from typing import List, Optional, Dict, Union, Callable, AnyStr
 from typing.io import IO
 from pathlib import Path
@@ -17,8 +18,6 @@ from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES
 from whylogs.core.statistics.constraints import DatasetConstraints
 from whylogs.io import LocalDataset
 
-
-TIME_ROTATION_VALUES = ["s", "m", "h", "d"]
 
 # TODO upgrade to Classes
 SegmentTag = Dict[str, any]
@@ -37,16 +36,15 @@ class Logger:
     :param session_timestamp: Optional. The time the session was created
     :param tags: Optional. Dictionary of key, value for aggregating data upstream
     :param metadata: Optional. Dictionary of key, value. Useful for debugging (associated with every single dataset profile)
-    :param writers: List of Writer objects used to write out the data
-    :param with_rotation_time. Whether to rotate with time, takes values of overall rotation interval,
-            "s" for seconds
-            "m" for minutes
-            "h" for hours
-            "d" for days
-    :param interval. Additinal time rotation multipler.
-    :param verbose: enable debug logging or not
-    :param cache_size: set how many dataprofiles to cache
-    :param segments: define either a list of egment keys or a list of segments tags: [  {"key":<featurename>,"value": <featurevalue>},... ]
+    :param writers: Optional. List of Writer objects used to write out the data
+    :param with_rotation_time: Optional. Log rotation interval, \
+            consisting of digits with unit specification, e.g. 30s, 2h, d.\
+            units are seconds ("s"), minutes ("m"), hours, ("h"), or days ("d") \
+            Output filenames will have a suffix reflecting the rotation interval.
+    :param interval: Deprecated: Interval multiplier for `with_rotation_time`, defaults to 1.
+    :param verbose: enable debug logging
+    :param cache_size: dataprofiles to cache
+    :param segments: define either a list of segment keys or a list of segments tags: [  {"key":<featurename>,"value": <featurevalue>},... ]
     :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
     :param constraints: static assertions to be applied to streams and summaries.
     """
@@ -89,9 +87,8 @@ class Logger:
 
         self._profiles = []
         self._intialize_profiles(dataset_timestamp)
-        # intialize to seconds in the day
-        self.interval = interval
-        self.with_rotation_time = with_rotation_time
+        self.interval_multiplier = interval                     # deprecated, rotation interval multiplier
+        self.with_rotation_time = with_rotation_time            # rotation interval specification
         self._set_rotation(with_rotation_time)
 
     def __enter__(self):
@@ -164,28 +161,27 @@ class Logger:
         if with_rotation_time is not None:
             self.with_rotation_time = with_rotation_time.lower()
 
-            if self.with_rotation_time == 's':
-                interval = 1  # one second
+            m = re.match(r'^(\d*)([smhd])$', with_rotation_time.lower())
+            if m is None:
+                raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
+
+            interval = 1 if m.group(1) == '' else int(m.group(1))
+            if m.group(2) == 's':
                 self.suffix = "%Y-%m-%d_%H-%M-%S"
-                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(\.\w+)?$"
-            elif self.with_rotation_time == 'm':
-                interval = 60  # one minute
+            elif m.group(2) == 'm':
+                interval *= 60  # one minute
                 self.suffix = "%Y-%m-%d_%H-%M"
-                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}(\.\w+)?$"
-            elif self.with_rotation_time == 'h':
-                interval = 60 * 60  # one hour
+            elif m.group(2) == 'h':
+                interval *= 60 * 60  # one hour
                 self.suffix = "%Y-%m-%d_%H"
-                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}(\.\w+)?$"
-            elif self.with_rotation_time == 'd':
-                interval = 60 * 60 * 24  # one day
+            elif m.group(2) == 'd':
+                interval *= 60 * 60 * 24  # one day
                 self.suffix = "%Y-%m-%d"
-                self.extMatch = r"^\d{4}-\d{2}-\d{2}(\.\w+)?$"
             else:
-                raise TypeError("Invalid choice of rotation time, valid choices are {}".format(
-                    TIME_ROTATION_VALUES))
+                raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
             # time in seconds
             current_time = int(datetime.datetime.utcnow().timestamp())
-            self.interval = interval * self.interval
+            self.interval = interval * self.interval_multiplier
             self.rotate_at = self.rotate_when(current_time)
 
     def rotate_when(self, time):
