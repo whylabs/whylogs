@@ -1,7 +1,7 @@
 from sklearn.utils.multiclass import type_of_target
 import numpy as np
 
-from whylogs.proto import ModelProfileMessage
+from whylogs.proto import ModelProfileMessage, ModelType
 from whylogs.core.metrics.model_metrics import ModelMetrics
 
 SUPPORTED_TYPES = ("binary", "multiclass")
@@ -13,10 +13,12 @@ class ModelProfile:
 
     Attributes
     ----------
-    output_fields : list
-        list of fields that map to model outputs
     metrics : ModelMetrics
         the model metrics object
+    model_type : ModelType
+        Type of mode, CLASSIFICATION, REGRESSION, UNKNOWN, etc.
+    output_fields : list
+        list of fields that map to model outputs
     """
 
     def __init__(self,
@@ -38,6 +40,7 @@ class ModelProfile:
     def compute_metrics(self, targets,
                         predictions,
                         scores=None,
+                        model_type: ModelType = None,
                         target_field=None,
                         prediction_field=None,
                         score_field=None
@@ -48,14 +51,14 @@ class ModelProfile:
         Parameters
         ----------
         targets : List
-            targets (or actuals) for validation
+            targets (or actuals) for validation, if these are floats it is assumed the model is a regression type model
         predictions : List
             predictions (or inferred values)
         scores : List, optional
-            associated scores for each prediction
+            associated scores for each prediction (for binary and multiclass problems)
         target_field : str, optional
         prediction_field : str, optional
-        score_field : str, optional
+        score_field : str, optional (for binary and multiclass problems)
 
 
         Raises
@@ -64,41 +67,50 @@ class ModelProfile:
 
         """
         tgt_type = type_of_target(targets)
-        if tgt_type not in ("binary", "multiclass"):
-            raise NotImplementedError("target type not supported yet")
-        # if score are not present set them to 1.
-        if scores is None:
-            scores = np.ones(len(targets))
+        if tgt_type in ("continuous") or model_type == ModelType.REGRESSION:
 
-        scores = np.array(scores)
+            self.metrics.compute_regression_metrics(predictions=predictions,
+                                                    targets=targets,
+                                                    target_field=target_field,
+                                                    prediction_field=prediction_field)
+            self.metrics.model_type = ModelType.REGRESSION
 
-        # compute confusion_matrix
-        self.metrics.compute_confusion_matrix(predictions=predictions,
-                                              targets=targets,
-                                              scores=scores,
-                                              target_field=target_field,
-                                              prediction_field=prediction_field,
-                                              score_field=score_field)
+        elif tgt_type in ("binary", "multiclass") or model_type == ModelType.CLASSIFICATION:
+            self.metrics.model_type = ModelType.CLASSIFICATION
+
+            # if score are not present set them to 1.
+            if scores is None:
+                scores = np.ones(len(targets))
+
+            scores = np.array(scores)
+
+            # compute confusion_matrix
+            self.metrics.compute_confusion_matrix(predictions=predictions,
+                                                  targets=targets,
+                                                  scores=scores,
+                                                  target_field=target_field,
+                                                  prediction_field=prediction_field,
+                                                  score_field=score_field)
+        else:
+            raise NotImplementedError(f"target type {tgt_type} not supported yet")
 
     def to_protobuf(self):
         return ModelProfileMessage(output_fields=self.output_fields,
-                                   metrics=self.metrics.to_protobuf(),
-                                   )
+                                   metrics=self.metrics.to_protobuf())
 
     @classmethod
     def from_protobuf(cls, message: ModelProfileMessage):
         # convert google.protobuf.pyext._message.RepeatedScalarContainer to a list
-        output_fields = []
-        for f in message.output_fields:
-            output_fields.append(f)
-
+        output_fields = [f for f in message.output_fields]
         return ModelProfile(output_fields=output_fields,
                             metrics=ModelMetrics.from_protobuf(message.metrics))
 
     def merge(self, model_profile):
         if model_profile is None:
             return self
+
         output_fields = list(
             set(self.output_fields + model_profile.output_fields))
         metrics = self.metrics.merge(model_profile.metrics)
+
         return ModelProfile(output_fields=output_fields, metrics=metrics)

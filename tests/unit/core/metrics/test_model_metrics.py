@@ -1,8 +1,13 @@
+import pytest
+
+from whylogs.proto import ModelType
 from whylogs.core.metrics.model_metrics import ModelMetrics
+from whylogs.core.metrics.confusion_matrix import ConfusionMatrix
+from whylogs.core.metrics.regression_metrics import RegressionMetrics
 
 
 def tests_model_metrics():
-    mod_met = ModelMetrics()
+    mod_met = ModelMetrics(model_type=ModelType.CLASSIFICATION)
 
     targets_1 = ["cat", "dog", "pig"]
     predictions_1 = ["cat", "dog", "dog"]
@@ -12,7 +17,8 @@ def tests_model_metrics():
 
     mod_met.compute_confusion_matrix(predictions_1, targets_1, scores_1)
 
-    print(mod_met.confusion_matrix.labels)
+    assert mod_met.model_type == ModelType.CLASSIFICATION
+
     for idx, value in enumerate(mod_met.confusion_matrix.labels):
         for jdx, value_2 in enumerate(mod_met.confusion_matrix.labels):
             print(idx, jdx)
@@ -21,7 +27,7 @@ def tests_model_metrics():
 
 
 def tests_model_metrics_to_protobuf():
-    mod_met = ModelMetrics()
+    mod_met = ModelMetrics(model_type=ModelType.CLASSIFICATION)
 
     targets_1 = ["cat", "dog", "pig"]
     predictions_1 = ["cat", "dog", "dog"]
@@ -46,3 +52,12 @@ def test_merge_metrics_with_none_confusion_matrix():
     other = ModelMetrics()
     other.confusion_matrix = None
     metrics.merge(other)
+
+
+
+def test_model_metrics_init():
+    reg_met = RegressionMetrics()
+    conf_ma= ConfusionMatrix()
+    with pytest.raises(NotImplementedError):
+        metrics = ModelMetrics(confusion_matrix=conf_ma, regression_metrics=reg_met)
+    
