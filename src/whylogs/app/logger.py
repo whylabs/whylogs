@@ -125,9 +125,8 @@ class Logger:
 
     def get_segment(self, segment: Segment) -> Optional[DatasetProfile]:
         hashed_seg = hash_segment(segment)
-        segment_profile = self._profiles[-1]["segmented_profiles"].get(
+        return self._profiles[-1]["segmented_profiles"].get(
             hashed_seg, None)
-        return segment_profile
 
     def set_segments(self, segments: Union[List[Segment], List[str]]) -> None:
         if segments:
@@ -184,8 +183,7 @@ class Logger:
             self.rotate_at = self.rotate_when(current_time)
 
     def rotate_when(self, time):
-        result = time + self.interval
-        return result
+        return time + self.interval
 
     def should_rotate(self, ):
 
@@ -193,9 +191,7 @@ class Logger:
             return False
 
         current_time = int(datetime.datetime.utcnow().timestamp())
-        if current_time >= self.rotate_at:
-            return True
-        return False
+        return current_time >= self.rotate_at
 
     def _rotate_time(self):
         """
@@ -210,7 +206,7 @@ class Logger:
             time_tuple.strftime(self.suffix), self.suffix)
 
         # modify the segment datetime stamps
-        if (self.segments is None) or ((self.segments is not None) and self.profile_full_dataset):
+        if self.segments is None or self.profile_full_dataset:
             self._profiles[-1]["full_profile"].dataset_timestamp = log_datetime
         if self.segments is not None:
             for _, each_prof in self._profiles[-1]["segmented_profiles"].items():
@@ -253,11 +249,10 @@ class Logger:
                 for hashseg, each_seg_prof in self._profiles[-1]["segmented_profiles"].items():
                     seg_suffix = hashseg
                     full_suffix = "_" + seg_suffix
-                    if rotation_suffix is None:
-                        writer.write(each_seg_prof, full_suffix)
-                    else:
+                    if rotation_suffix is not None:
                         full_suffix += rotation_suffix
-                        writer.write(each_seg_prof, full_suffix)
+
+                    writer.write(each_seg_prof, full_suffix)
 
     def full_profile_check(self, ) -> bool:
         """
@@ -417,7 +412,7 @@ class Logger:
             if isinstance(data, pd.DataFrame):
                 self.log_dataframe(data)
 
-            elif isinstance(data, Dict) or isinstance(data, list):
+            elif isinstance(data, (Dict, list)):
                 self.log_annotation(annotation_data=data)
             elif isinstance(data, ImageType):
                 if image_feature_transforms:
@@ -512,10 +507,11 @@ class Logger:
         for each_segment in segments:
             try:
                 segment_df = grouped_data.get_group(each_segment)
-                segment_tags = []
-                for i in range(len(self.segments)):
-                    segment_tags.append(
-                        {"key": self.segments[i], "value": each_segment[i]})
+                segment_tags = [
+                    {"key": self.segments[i], "value": each_segment[i]}
+                    for i in range(len(self.segments))
+                ]
+
                 self.log_df_segment(segment_df, segment_tags)
             except KeyError:
                 continue
@@ -526,7 +522,7 @@ class Logger:
         for segment_tag in self.segments:
             # create keys
             segment_keys = [feature["key"] for feature in segment_tag]
-            seg = tuple([feature["value"] for feature in segment_tag])
+            seg = tuple(feature["value"] for feature in segment_tag)
 
             grouped_data = data.groupby(segment_keys)
 
