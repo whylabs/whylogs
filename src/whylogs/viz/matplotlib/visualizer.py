@@ -316,10 +316,10 @@ plot_uniqueness()
         }
 
         for metric, value in type_metrics.items():
-            if chart_data.loc[chart_data, value].sum() > 0:
+            if chart_data.loc[:, value].sum() > 0:
                 ax.plot(
                     chart_data.loc[:, "date"],
-                    chart_data.loc[:, type_metrics[metric]],
+                    chart_data.loc[:, value],
                     linewidth=1.5,
                     label=metric,
                 )
