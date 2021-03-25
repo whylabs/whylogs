@@ -37,16 +37,14 @@ class Logger:
     :param session_timestamp: Optional. The time the session was created
     :param tags: Optional. Dictionary of key, value for aggregating data upstream
     :param metadata: Optional. Dictionary of key, value. Useful for debugging (associated with every single dataset profile)
-    :param writers: List of Writer objects used to write out the data
-    :param with_rotation_time. Whether to rotate with time, takes values of overall rotation interval,
-            "s" for seconds
-            "m" for minutes
-            "h" for hours
-            "d" for days
-    :param interval. Additinal time rotation multipler.
-    :param verbose: enable debug logging or not
-    :param cache_size: set how many dataprofiles to cache
-    :param segments: define either a list of egment keys or a list of segments tags: [  {"key":<featurename>,"value": <featurevalue>},... ]
+    :param writers: Optional. List of Writer objects used to write out the data
+    :param with_rotation_time: Optional. Combined with `interval` to create new output logs at regular intervals, \
+            "s" for seconds, "m" for minutes, "h" for hours, "d" for days \
+            Output filenames will have a suffix reflecting the rotation interval.
+    :param interval: Rotation interval multiplier, defaults to 1.
+    :param verbose: enable debug logging
+    :param cache_size: dataprofiles to cache
+    :param segments: define either a list of segment keys or a list of segments tags: [  {"key":<featurename>,"value": <featurevalue>},... ]
     :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
     :param constraints: static assertions to be applied to streams and summaries.
     """
@@ -168,19 +166,15 @@ class Logger:
             if self.with_rotation_time == 's':
                 interval = 1  # one second
                 self.suffix = "%Y-%m-%d_%H-%M-%S"
-                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}(\.\w+)?$"
             elif self.with_rotation_time == 'm':
                 interval = 60  # one minute
                 self.suffix = "%Y-%m-%d_%H-%M"
-                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}(\.\w+)?$"
             elif self.with_rotation_time == 'h':
                 interval = 60 * 60  # one hour
                 self.suffix = "%Y-%m-%d_%H"
-                self.extMatch = r"^\d{4}-\d{2}-\d{2}_\d{2}(\.\w+)?$"
             elif self.with_rotation_time == 'd':
                 interval = 60 * 60 * 24  # one day
                 self.suffix = "%Y-%m-%d"
-                self.extMatch = r"^\d{4}-\d{2}-\d{2}(\.\w+)?$"
             else:
                 raise TypeError("Invalid choice of rotation time, valid choices are {}".format(
                     TIME_ROTATION_VALUES))
