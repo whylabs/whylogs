@@ -65,44 +65,26 @@ except Exception as e:
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
+    "autoapi.extension",
     "sphinx.ext.autodoc",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.todo",
-    "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx_autodoc_typehints",
     "sphinx.ext.coverage",
     "sphinx.ext.doctest",
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
-    "sphinx.ext.napoleon",
-    "sphinx_rtd_theme",
-    "recommonmark",
 ]
 
+autoapi_type = 'python'
+autoapi_dirs = ['../src']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
-
-# To configure AutoStructify
-def setup(app):
-    from recommonmark.transform import AutoStructify
-
-    app.add_config_value(
-        "recommonmark_config",
-        {
-            "auto_toc_tree_section": "Contents",
-            "enable_eval_rst": True,
-            "enable_math": True,
-            "enable_inline_math": True,
-        },
-        True,
-    )
-    app.add_transform(AutoStructify)
-
-
 # The suffix of source filenames.
-source_suffix = [".rst", ".md"]
+source_suffix = [".rst"]
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
@@ -119,7 +101,7 @@ copyright = "2020, WhyLabs, Inc"
 # built documents.
 #
 # The short X.Y version.
-version = "0.3.3-dev3"
+version = "0.3.3-dev5"
 # The full version, including alpha/beta/rc tags.
 release = ""  # Is set by calling `setup.py docs`
 
@@ -246,7 +228,6 @@ html_show_sphinx = False
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = "whylogs_python-doc"
-
 
 # -- Options for LaTeX output --------------------------------------------------
 
