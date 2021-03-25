@@ -19,6 +19,7 @@ colorama==0.4.4
 coverage==5.3
 cryptography==3.3.2
 cycler==0.10.0
+scikit-learn==0.24.1
 databricks-cli==0.14.1
 decorator==4.4.2
 distlib==0.3.1
