@@ -65,7 +65,7 @@ make clean
 
     - On Ubuntu 
     ```
-    apt install protobuf
+    apt install protobuf-compiler
     ```
 
 
