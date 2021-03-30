@@ -74,7 +74,7 @@ ptyprocess==0.6.0
 py==1.10.0
 pyarrow==2.0.0
 pycparser==2.20
-Pygments==2.7.2
+Pygments==2.7.4
 pyparsing==2.4.7
 pytest==6.1.2
 pytest-cov==2.10.1
