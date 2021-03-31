@@ -1,15 +1,5 @@
 package com.whylogs.core;
 
-import com.google.common.collect.ImmutableMap;
-import lombok.val;
-import org.apache.commons.lang3.SerializationUtils;
-import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
@@ -18,6 +8,15 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+
+import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import lombok.val;
+import org.apache.commons.lang3.SerializationUtils;
+import org.testng.annotations.Test;
 
 public class DatasetProfileTest {
   @Test
