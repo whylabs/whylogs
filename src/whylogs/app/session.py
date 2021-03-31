@@ -105,7 +105,7 @@ class Session:
         self.use_whylabs_writer = _use_whylabs_client or whylabs_writer_is_present
 
         # add WhyLabs writer if it's not already present (which can happen if it's not specified in the config)
-        if _use_whylabs_client and whylabs_writer_is_present is False:
+        if _use_whylabs_client and not whylabs_writer_is_present:
             self.writers.append(WhyLabsWriter(output_path=None, formats=["protobuf"]))
 
     def __enter__(self):
@@ -275,19 +275,17 @@ class Session:
             session_timestamp = self._session_time
 
         if tags is None:
-            tags = dict()
+            tags = {}
         if self.pipeline:
             tags["Pipeline"] = self.pipeline
 
-        profile = DatasetProfile(
+        return DatasetProfile(
             dataset_name,
             dataset_timestamp=dataset_timestamp,
             session_timestamp=session_timestamp,
             tags=tags,
             metadata=metadata,
         )
-
-        return profile
 
     def close(self):
         """
