@@ -5,6 +5,8 @@ import static com.whylogs.core.statistics.datatypes.StringTracker.ARRAY_OF_STRIN
 import static com.whylogs.core.types.TypedDataConverter.NUMERIC_TYPES;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.protobuf.ByteString;
 import com.whylogs.core.message.ColumnMessage;
 import com.whylogs.core.message.ColumnSummary;
@@ -31,6 +33,7 @@ import org.apache.datasketches.memory.Memory;
 public class ColumnProfile {
   public static final int FREQUENT_MAX_LG_K = 7;
   private static final int CARDINALITY_LG_K = 12;
+  private static volatile ImmutableSet<String> NULL_STR_ENVS;
 
   @NonNull private final String columnName;
   @NonNull private final CountersTracker counters;
@@ -38,21 +41,36 @@ public class ColumnProfile {
   @NonNull private final NumberTracker numberTracker;
   @NonNull private final ItemsSketch<String> frequentItems;
   @NonNull private final HllSketch cardinalityTracker;
+  @NonNull private final ImmutableSet<String> nullStrs;
+
+  static ImmutableSet<String> nullStrsFromEnv() {
+    if (ColumnProfile.NULL_STR_ENVS == null) {
+      val nullSpec = System.getenv("NULL_STRINGS");
+      ColumnProfile.NULL_STR_ENVS =
+          nullSpec == null ? ImmutableSet.of() : ImmutableSet.copyOf(nullSpec.split(","));
+    }
+    return ColumnProfile.NULL_STR_ENVS;
+  }
 
   public ColumnProfile(String columnName) {
+    this(columnName, nullStrsFromEnv());
+  }
+
+  public ColumnProfile(String columnName, ImmutableSet<String> nullStrs) {
     this.columnName = columnName;
     this.counters = new CountersTracker();
     this.schemaTracker = new SchemaTracker();
     this.numberTracker = new NumberTracker();
     this.frequentItems = FrequentStringsSketch.create();
     this.cardinalityTracker = new HllSketch(CARDINALITY_LG_K);
+    this.nullStrs = nullStrs;
   }
 
   public void track(Object value) {
     synchronized (this) {
       counters.incrementCount();
 
-      if (value == null) {
+      if (value == null || (!this.nullStrs.isEmpty() && this.nullStrs.contains(value.toString()))) {
         counters.incrementNull();
         return;
       }
@@ -131,6 +149,7 @@ public class ColumnProfile {
         .setSchemaTracker(this.schemaTracker.merge(other.schemaTracker))
         .setCardinalityTracker(HllSketch.heapify(mergedSketch.toCompactByteArray()))
         .setFrequentItems(copyFreqItems)
+        .setNullStrs(Sets.union(this.getNullStrs(), other.getNullStrs()).immutableCopy())
         .build();
   }
 
@@ -158,6 +177,7 @@ public class ColumnProfile {
         .setCardinalityTracker(
             HllSketch.heapify(message.getCardinalityTracker().getSketch().toByteArray()))
         .setFrequentItems(FrequentStringsSketch.deserialize(message.getFrequentItems().getSketch()))
+        .setNullStrs(ColumnProfile.nullStrsFromEnv())
         .build();
   }
 }

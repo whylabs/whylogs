@@ -196,5 +196,11 @@ val profiles = df.newProfilingSession("PprofilingSession") // start a new WhyLog
 For further analysis, dataframes can be stored in a Parquet file, or collected to the driver if the number of entries is small enough.
 
 ## Building and Testing
+
+Before building, update the `proto` submodule,
+```
+git submodule update --init --recursive
+```
+
 * To build, run `./gradlew build`
 * To test, run `./gradlew test`

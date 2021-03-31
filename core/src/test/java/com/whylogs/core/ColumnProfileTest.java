@@ -3,6 +3,7 @@ package com.whylogs.core;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.google.common.collect.ImmutableSet;
 import lombok.val;
 import org.testng.annotations.Test;
 
@@ -20,6 +21,28 @@ public class ColumnProfileTest {
 
     assertThat(col.getCounters().getCount(), is(6L));
     assertThat(col.getCounters().getNullCount(), is(1L));
+    assertThat(col.getCounters().getTrueCount(), is(1L));
+    assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
+    assertThat(col.getNumberTracker().getDoubles().getCount(), is(2L));
+  }
+
+  /** Check that custom null specification detects nulls and has no false positives. */
+  @Test
+  public void column_NullTest_ShouldWork() {
+    val col = new ColumnProfile("test", ImmutableSet.of("nil", "NaN", "nan", "null"));
+    col.track(1L);
+    col.track(1.0);
+    col.track("string");
+    col.track(true);
+    col.track(false);
+    col.track(null);
+    col.track("nil");
+    col.track("NaN");
+    col.track("nan");
+    col.track("null");
+
+    assertThat(col.getCounters().getCount(), is(10L));
+    assertThat(col.getCounters().getNullCount(), is(5L));
     assertThat(col.getCounters().getTrueCount(), is(1L));
     assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
     assertThat(col.getNumberTracker().getDoubles().getCount(), is(2L));
