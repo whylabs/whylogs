@@ -25,6 +25,28 @@ public class ColumnProfileTest {
     assertThat(col.getNumberTracker().getDoubles().getCount(), is(2L));
   }
 
+  /** Check that custom null specification detects nulls and has no false positives. */
+  @Test
+  public void column_NullTest_ShouldWork() {
+    ColumnProfile.initNullCheck("nil.NaN,nan,null");
+    val col = new ColumnProfile("test");
+    col.track(1L);
+    col.track(1.0);
+    col.track("string");
+    col.track(true);
+    col.track(false);
+    col.track(null);
+    col.track("nil.NaN");
+    col.track("nan");
+    col.track("null");
+
+    assertThat(col.getCounters().getCount(), is(9L));
+    assertThat(col.getCounters().getNullCount(), is(4L));
+    assertThat(col.getCounters().getTrueCount(), is(1L));
+    assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
+    assertThat(col.getNumberTracker().getDoubles().getCount(), is(2L));
+  }
+
   @Test
   public void column_Merge_Success() {
     val col = new ColumnProfile("test");

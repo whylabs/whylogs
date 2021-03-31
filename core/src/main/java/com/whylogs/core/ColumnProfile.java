@@ -14,6 +14,8 @@ import com.whylogs.core.statistics.NumberTracker;
 import com.whylogs.core.statistics.SchemaTracker;
 import com.whylogs.core.types.TypedDataConverter;
 import com.whylogs.core.utils.sketches.FrequentStringsSketch;
+import java.util.Arrays;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +33,7 @@ import org.apache.datasketches.memory.Memory;
 public class ColumnProfile {
   public static final int FREQUENT_MAX_LG_K = 7;
   private static final int CARDINALITY_LG_K = 12;
+  private static List<String> nullStrs;
 
   @NonNull private final String columnName;
   @NonNull private final CountersTracker counters;
@@ -39,6 +42,27 @@ public class ColumnProfile {
   @NonNull private final ItemsSketch<String> frequentItems;
   @NonNull private final HllSketch cardinalityTracker;
 
+  static void initNullCheck() {
+    //  "NULL_STRINGS" env var specifies custom values interpreted as null, e.g. "nil.NaN,nan,null"
+    //  Missing value (actual null object) is always included.
+    if (ColumnProfile.nullStrs == null) {
+      ColumnProfile.initNullCheck(System.getenv("NULL_STRINGS"));
+    }
+  }
+
+  static void initNullCheck(String nullSpec) {
+    //  Customize null values, e.g. "nil.NaN,nan,null"; Missing value (actual null object) is always
+    // included.
+    ColumnProfile.nullStrs = nullSpec == null ? null : Arrays.asList(nullSpec.split(","));
+  }
+
+  static boolean nullCheck(Object v) {
+    return v == null
+        || (ColumnProfile.nullStrs != null
+            && ((v instanceof String && ColumnProfile.nullStrs.contains(v))
+                || ColumnProfile.nullStrs.contains(v.toString())));
+  }
+
   public ColumnProfile(String columnName) {
     this.columnName = columnName;
     this.counters = new CountersTracker();
@@ -46,13 +70,14 @@ public class ColumnProfile {
     this.numberTracker = new NumberTracker();
     this.frequentItems = FrequentStringsSketch.create();
     this.cardinalityTracker = new HllSketch(CARDINALITY_LG_K);
+    ColumnProfile.initNullCheck();
   }
 
   public void track(Object value) {
     synchronized (this) {
       counters.incrementCount();
 
-      if (value == null) {
+      if (ColumnProfile.nullCheck(value)) {
         counters.incrementNull();
         return;
       }
