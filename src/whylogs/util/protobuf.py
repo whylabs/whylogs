@@ -44,11 +44,9 @@ def _varint_delim_iterator(f):
     """
     if isinstance(f, str):
         with open(f, "rb") as fp:
-            for msg in _varint_delim_reader(fp):
-                yield msg
+            yield from _varint_delim_reader(fp)
     else:
-        for msg in _varint_delim_reader(f):
-            yield msg
+        yield from _varint_delim_reader(f)
 
 
 def multi_msg_reader(f, msg_class):

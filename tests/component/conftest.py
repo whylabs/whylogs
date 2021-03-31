@@ -16,5 +16,4 @@ import whylogs
 def df_lending_club():
     import pandas as pd
 
-    df = pd.read_csv(os.path.join(_MY_DIR, "lending_club_1000.csv"))
-    return df
+    return pd.read_csv(os.path.join(_MY_DIR, "lending_club_1000.csv"))

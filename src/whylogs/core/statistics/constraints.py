@@ -182,7 +182,7 @@ class SummaryConstraint:
 
     def to_protobuf(self) -> SummaryConstraintMsg:
         if self.second_field is None:
-            msg = SummaryConstraintMsg(
+            return SummaryConstraintMsg(
                 name=self.name,
                 first_field=self.first_field,
                 op=self.op,
@@ -190,14 +190,13 @@ class SummaryConstraint:
                 verbose=self._verbose,
             )
         else:
-            msg = SummaryConstraintMsg(
+            return SummaryConstraintMsg(
                 name=self.name,
                 first_field=self.first_field,
                 op=self.op,
                 second_field=self.second_field,
                 verbose=self._verbose,
             )
-        return msg
 
     def report(self):
         return (self.name, self.total, self.failures)
@@ -210,13 +209,13 @@ class ValueConstraints:
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsgs) -> 'ValueConstraints':
         v = [ValueConstraint.from_protobuf(c) for c in msg.constraints]
-        if len(v) > 0:
+        if v:
             return ValueConstraints(v)
         return None
 
     def to_protobuf(self) -> ValueConstraintMsgs:
         v = [c.to_protobuf() for c in self.constraints]
-        if len(v) > 0:
+        if v:
             vcmsg = ValueConstraintMsgs()
             vcmsg.constraints.extend(v)
             return vcmsg
@@ -228,7 +227,7 @@ class ValueConstraints:
 
     def report(self) -> List[tuple]:
         v = [c.report() for c in self.constraints]
-        if len(v) > 0:
+        if v:
             return v
         return None
 
@@ -240,13 +239,13 @@ class SummaryConstraints:
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsgs) -> 'SummaryConstraints':
         v = [SummaryConstraint.from_protobuf(c) for c in msg.constraints]
-        if len(v) > 0:
+        if v:
             return SummaryConstraints(v)
         return None
 
     def to_protobuf(self) -> SummaryConstraintMsgs:
         v = [c.to_protobuf() for c in self.constraints]
-        if len(v) > 0:
+        if v:
             scmsg = SummaryConstraintMsgs()
             scmsg.constraints.extend(v)
             return scmsg
@@ -258,7 +257,7 @@ class SummaryConstraints:
 
     def report(self) -> List[tuple]:
         v = [c.report() for c in self.constraints]
-        if len(v) > 0:
+        if v:
             return v
         return None
 
@@ -278,7 +277,7 @@ class DatasetConstraints:
                 value_constraints[k] = ValueConstraints(v)
         self.value_constraint_map = value_constraints
         if summary_constraints is None:
-            summary_constraints = dict()
+            summary_constraints = {}
         for k, v in summary_constraints.items():
             if isinstance(v, list):
                 summary_constraints[k] = SummaryConstraints(v)

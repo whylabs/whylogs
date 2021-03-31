@@ -41,8 +41,7 @@ _METADATA_DEFAULT_ATTRIBUTES = [
 def image_loader(path: str = None) -> ImageType:
     from PIL import Image
     with open(path, "rb") as file_p:
-        img = Image.open(file_p).copy()
-        return img
+        return Image.open(file_p).copy()
 
 
 class TrackImage:
@@ -67,11 +66,7 @@ class TrackImage:
         if filepath is None and img is None:
             raise ValueError("Need image filepath or image data")
 
-        if filepath is not None:
-            self.img = image_loader(filepath)
-        else:
-            self.img = img
-
+        self.img = image_loader(filepath) if filepath is not None else img
         self.feature_transforms = feature_transforms
 
         if feature_transforms is None:

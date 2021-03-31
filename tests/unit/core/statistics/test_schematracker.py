@@ -6,7 +6,7 @@ Type = InferredType.Type
 
 def multiple_track(tracker, counts: dict):
     for item, count in counts.items():
-        for i in range(count):
+        for _ in range(count):
             tracker.track(item)
 
 

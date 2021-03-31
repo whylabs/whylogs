@@ -144,8 +144,7 @@ class NumberTracker:
             opts["doubles"] = self.floats.to_protobuf()
         elif self.ints.count > 0:
             opts["longs"] = self.ints.to_protobuf()
-        msg = NumbersMessage(**opts)
-        return msg
+        return NumbersMessage(**opts)
 
     @staticmethod
     def from_protobuf(message: NumbersMessage):

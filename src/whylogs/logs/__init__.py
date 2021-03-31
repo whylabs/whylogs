@@ -27,11 +27,8 @@ def display_logging(level="DEBUG", root_logger=False):
     logger.setLevel(level)
     handlers = getattr(logger, "handlers", [])
 
-    handler_exists = False
-    for h in handlers:
-        if h.name == HANDLER_NAME:
             # We already have setup a handler
-            handler_exists = True
+    handler_exists = any(h.name == HANDLER_NAME for h in handlers)
 
     if not handler_exists:
         handler = logging.StreamHandler(sys.stdout)

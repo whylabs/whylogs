@@ -13,7 +13,7 @@ def test_listRuns_shouldReturn_NoRuns(tmpdir):
     set_up_mlflow(mlflow, tmpdir)
     whylogs.enable_mlflow()
 
-    for i in range(0, 10):
+    for _ in range(10):
         with mlflow.start_run():
             pass
 
@@ -29,7 +29,7 @@ def test_listRuns_shouldReturn_CorrectRunCount(tmpdir):
     set_up_mlflow(mlflow, tmpdir)
     whylogs.enable_mlflow()
 
-    for i in range(0, 10):
+    for i in range(10):
         with mlflow.start_run():
             if i % 2 == 0:
                 mlflow.whylogs.log(features={"a": 1})

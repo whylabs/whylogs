@@ -24,7 +24,7 @@ def test_all_zeros_returns_summary_with_stats():
     d1 = json.loads(message_to_json(msg))
     number_summary = d["columns"]["0"]["numberSummary"]
     missing_stats = [k for k in stats if k not in number_summary]
-    if len(missing_stats) > 0:
+    if missing_stats:
         raise RuntimeError(f"Stats missing from number summary: {missing_stats}")
 
     assert d == d1
@@ -238,7 +238,7 @@ def test_write_delimited_multiple():
     output_bytes = original.serialize_delimited()
 
     multiple_entries = output_bytes
-    for i in range(1, 5):
+    for _ in range(1, 5):
         multiple_entries += output_bytes
 
     entries = DatasetProfile.parse_delimited(multiple_entries)

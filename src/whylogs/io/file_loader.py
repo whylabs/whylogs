@@ -144,7 +144,7 @@ def file_loader(path: str, valid_file: Callable[[str], bool] = valid_file) -> An
     if ext in IMAGE_EXTENSIONS:
         data, file_format = image_loader(path)
         return (data, magic_data), file_format
-    elif ((ext == ".json") or (ext == ".jsonl")):
+    elif ext in [".json", ".jsonl"]:
         data, file_format = json_loader(path)
         return (data, magic_data), file_format
     elif (ext == ".csv"):

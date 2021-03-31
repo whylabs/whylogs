@@ -6,11 +6,7 @@ class BaseProfileVisualizer:
 
     def set_profiles(self, profiles):
         """"""
-        if len(profiles) <= 1:
-            self.profiles = [profiles]
-        else:
-            self.profiles = profiles
-
+        self.profiles = [profiles] if len(profiles) <= 1 else profiles
         self.visualizer._init_data_preprocessing(profiles)
 
     def plot_distribution(self, variable, **kwargs):

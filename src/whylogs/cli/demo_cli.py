@@ -161,10 +161,10 @@ def init(project_dir):
         )
         if should_open:
             webbrowser.open("https://try.whylabsapp.com/?utm_source=whylogs")
-        echo(DONE)
     else:
         echo("Skip initial profiling and notebook generation")
-        echo(DONE)
+
+    echo(DONE)
 
 
 def profile_csv(session_config: SessionConfig, project_dir: str) -> str:

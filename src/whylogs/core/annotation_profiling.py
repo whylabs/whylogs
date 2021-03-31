@@ -62,9 +62,7 @@ class Rectangle:
         y_bottom = min(self.y2, Rectangle_2.y2)
         if x_right < x_left or y_bottom < y_top:
             return 0.0
-        intersection_area = (x_right - x_left) * (y_bottom - y_top)
-
-        return intersection_area
+        return (x_right - x_left) * (y_bottom - y_top)
 
     def iou(self, Rectangle_2):
         intersection_area = self.intersection(Rectangle_2)

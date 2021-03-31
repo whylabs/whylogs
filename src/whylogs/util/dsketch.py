@@ -158,14 +158,14 @@ class FrequentItemsSketch:
         if err_type is None:
             err_type = self.DEFAULT_ERROR_TYPE
         items = self.sketch.get_frequent_items(err_type, threshold)
-        if decode:
-            decoded_items = []
-            for item in items:
-                x = self._decode_item(item[0])
-                decoded_items.append((x,) + item[1:])
-            return decoded_items
-        else:
+        if not decode:
             return items
+
+        decoded_items = []
+        for item in items:
+            x = self._decode_item(item[0])
+            decoded_items.append((x,) + item[1:])
+        return decoded_items
 
     def get_num_active_items(self):
         return self.sketch.get_num_active_items()
@@ -263,9 +263,7 @@ class FrequentItemsSketch:
         if len(items) < 1:
             return
 
-        values = []
-        for x in items[0:max_items]:
-            values.append({"estimate": x[1], "json_value": x[0]})
+        values = [{"estimate": x[1], "json_value": x[0]} for x in items[0:max_items]]
         return FrequentItemsSummary(items=values)
 
     def to_protobuf(self):

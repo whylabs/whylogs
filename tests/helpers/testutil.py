@@ -1,8 +1,5 @@
 def frequent_items_to_dict(x: list):
-    d = {}
-    for xi in x:
-        d[xi[0]] = xi[1:]
-    return d
+    return {xi[0]: xi[1:] for xi in x}
 
 
 def compare_frequent_items(x1, x2):

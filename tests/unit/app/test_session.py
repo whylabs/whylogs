@@ -74,9 +74,9 @@ def test_close_session():
     assert session.is_active() == False
     df = util.testing.makeDataFrame()
     log_profile = session.log_dataframe(df)
-    assert log_profile == None
+    assert log_profile is None
     profile = session.profile_dataframe(df)
-    assert profile == None
+    assert profile is None
     profile = session.new_profile(df)
     assert profile == None
 
