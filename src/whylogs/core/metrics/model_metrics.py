@@ -96,10 +96,10 @@ class ModelMetrics:
         """
         if other is None:
             return self
-        if other.confusion_matrix is None:
+        if other.confusion_matrix is None and other.regression_metrics is None:
             # TODO: return a copy instead
             return self
-        if self.confusion_matrix is None:
+        if self.confusion_matrix is None and self.regression_metrics is None:
             return other
 
         if self.model_type is None or other.model_type is None:
