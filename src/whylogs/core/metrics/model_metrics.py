@@ -110,6 +110,6 @@ class ModelMetrics:
             model_type = self.model_type
 
         return ModelMetrics(
-            confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix),
-            regression_metrics=self.regression_metrics.merge(other.regression_metrics),
+            confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix) if self.confusion_matrix else None,
+            regression_metrics=self.regression_metrics.merge(other.regression_metrics)if self.regression_metrics else None,
             model_type=model_type)
