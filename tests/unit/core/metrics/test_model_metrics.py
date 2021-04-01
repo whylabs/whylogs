@@ -51,9 +51,22 @@ def test_merge_metrics_with_none_confusion_matrix():
     metrics = ModelMetrics()
     other = ModelMetrics()
     other.confusion_matrix = None
-    metrics.merge(other)
+    new_metrics = metrics.merge(other)
 
 
+def test_merge_metrics_with_none_regression_matrix():
+    metrics = ModelMetrics()
+    other = ModelMetrics()
+    other.regression_metrics = None
+    new_metrics= metrics.merge(other)
+
+def test_merge_metrics_with_none_confusion_matrix():
+    metrics = ModelMetrics()
+    other = ModelMetrics()
+    other.confusion_matrix = None
+    other.regression_metrics = None
+
+    new_metrics = metrics.merge(other)
 
 def test_model_metrics_init():
     reg_met = RegressionMetrics()
