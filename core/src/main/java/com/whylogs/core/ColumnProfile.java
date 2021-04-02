@@ -170,6 +170,7 @@ public class ColumnProfile {
         .setCardinalityTracker(
             HllSketch.heapify(message.getCardinalityTracker().getSketch().toByteArray()))
         .setFrequentItems(FrequentStringsSketch.deserialize(message.getFrequentItems().getSketch()))
+        .setNullStrs(ImmutableSet.of())
         .build();
   }
 }

@@ -36,12 +36,13 @@ public class ColumnProfileTest {
     col.track(true);
     col.track(false);
     col.track(null);
-    col.track("nil.NaN");
+    col.track("nil");
+    col.track("NaN");
     col.track("nan");
     col.track("null");
 
-    assertThat(col.getCounters().getCount(), is(9L));
-    assertThat(col.getCounters().getNullCount(), is(4L));
+    assertThat(col.getCounters().getCount(), is(10L));
+    assertThat(col.getCounters().getNullCount(), is(5L));
     assertThat(col.getCounters().getTrueCount(), is(1L));
     assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
     assertThat(col.getNumberTracker().getDoubles().getCount(), is(2L));
