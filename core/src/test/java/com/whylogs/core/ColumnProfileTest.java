@@ -3,6 +3,7 @@ package com.whylogs.core;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.google.common.collect.ImmutableList;
 import lombok.val;
 import org.testng.annotations.Test;
 
@@ -28,8 +29,7 @@ public class ColumnProfileTest {
   /** Check that custom null specification detects nulls and has no false positives. */
   @Test
   public void column_NullTest_ShouldWork() {
-    ColumnProfile.initNullCheck("nil.NaN,nan,null");
-    val col = new ColumnProfile("test");
+    val col = new ColumnProfile("test", ImmutableList.copyOf("nil.NaN,nan,null".split(",")));
     col.track(1L);
     col.track(1.0);
     col.track("string");

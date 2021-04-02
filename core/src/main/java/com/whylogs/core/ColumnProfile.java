@@ -5,6 +5,7 @@ import static com.whylogs.core.statistics.datatypes.StringTracker.ARRAY_OF_STRIN
 import static com.whylogs.core.types.TypedDataConverter.NUMERIC_TYPES;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
 import com.whylogs.core.message.ColumnMessage;
 import com.whylogs.core.message.ColumnSummary;
@@ -14,8 +15,7 @@ import com.whylogs.core.statistics.NumberTracker;
 import com.whylogs.core.statistics.SchemaTracker;
 import com.whylogs.core.types.TypedDataConverter;
 import com.whylogs.core.utils.sketches.FrequentStringsSketch;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,7 +33,8 @@ import org.apache.datasketches.memory.Memory;
 public class ColumnProfile {
   public static final int FREQUENT_MAX_LG_K = 7;
   private static final int CARDINALITY_LG_K = 12;
-  private static List<String> nullStrs;
+  private static Map<String, String> ENV;
+  private static ImmutableList<String> nullEnvStrs;
 
   @NonNull private final String columnName;
   @NonNull private final CountersTracker counters;
@@ -41,43 +42,43 @@ public class ColumnProfile {
   @NonNull private final NumberTracker numberTracker;
   @NonNull private final ItemsSketch<String> frequentItems;
   @NonNull private final HllSketch cardinalityTracker;
+  private final ImmutableList<String> nullStrs;
 
-  static void initNullCheck() {
-    //  "NULL_STRINGS" env var specifies custom values interpreted as null, e.g. "nil.NaN,nan,null"
-    //  Missing value (actual null object) is always included.
-    if (ColumnProfile.nullStrs == null) {
-      ColumnProfile.initNullCheck(System.getenv("NULL_STRINGS"));
+  static synchronized ImmutableList<String> nullStrsFromEnv() {
+    if (ColumnProfile.ENV == null) {
+      ColumnProfile.ENV = System.getenv();
+      String nullSpec = ColumnProfile.ENV.get("NULL_STRINGS");
+      ColumnProfile.nullEnvStrs =
+          nullSpec == null ? null : ImmutableList.copyOf(nullSpec.split(","));
     }
-  }
-
-  static void initNullCheck(String nullSpec) {
-    //  Customize null values, e.g. "nil.NaN,nan,null"; Missing value (actual null object) is always
-    // included.
-    ColumnProfile.nullStrs = nullSpec == null ? null : Arrays.asList(nullSpec.split(","));
-  }
-
-  static boolean nullCheck(Object v) {
-    return v == null
-        || (ColumnProfile.nullStrs != null
-            && ((v instanceof String && ColumnProfile.nullStrs.contains(v))
-                || ColumnProfile.nullStrs.contains(v.toString())));
+    return ColumnProfile.nullEnvStrs;
   }
 
   public ColumnProfile(String columnName) {
+    this(columnName, nullStrsFromEnv());
+  }
+
+  public ColumnProfile(String columnName, ImmutableList<String> nullStrs) {
     this.columnName = columnName;
     this.counters = new CountersTracker();
     this.schemaTracker = new SchemaTracker();
     this.numberTracker = new NumberTracker();
     this.frequentItems = FrequentStringsSketch.create();
     this.cardinalityTracker = new HllSketch(CARDINALITY_LG_K);
-    ColumnProfile.initNullCheck();
+    this.nullStrs = nullStrs;
+  }
+
+  private boolean checkNullStrs(Object v) {
+    return this.nullStrs != null
+        && ((v instanceof String && this.nullStrs.contains(v))
+            || this.nullStrs.contains(v.toString()));
   }
 
   public void track(Object value) {
     synchronized (this) {
       counters.incrementCount();
 
-      if (ColumnProfile.nullCheck(value)) {
+      if (value == null || this.checkNullStrs(value)) {
         counters.incrementNull();
         return;
       }
