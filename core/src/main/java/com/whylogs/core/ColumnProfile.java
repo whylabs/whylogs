@@ -5,7 +5,7 @@ import static com.whylogs.core.statistics.datatypes.StringTracker.ARRAY_OF_STRIN
 import static com.whylogs.core.types.TypedDataConverter.NUMERIC_TYPES;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import com.google.protobuf.ByteString;
 import com.whylogs.core.message.ColumnMessage;
 import com.whylogs.core.message.ColumnSummary;
@@ -15,7 +15,8 @@ import com.whylogs.core.statistics.NumberTracker;
 import com.whylogs.core.statistics.SchemaTracker;
 import com.whylogs.core.types.TypedDataConverter;
 import com.whylogs.core.utils.sketches.FrequentStringsSketch;
-import java.util.Map;
+import java.util.Collections;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,8 +34,7 @@ import org.apache.datasketches.memory.Memory;
 public class ColumnProfile {
   public static final int FREQUENT_MAX_LG_K = 7;
   private static final int CARDINALITY_LG_K = 12;
-  private static Map<String, String> ENV;
-  private static ImmutableList<String> nullEnvStrs;
+  private static volatile Set<String> NULL_STR_ENVS;
 
   @NonNull private final String columnName;
   @NonNull private final CountersTracker counters;
@@ -42,23 +42,22 @@ public class ColumnProfile {
   @NonNull private final NumberTracker numberTracker;
   @NonNull private final ItemsSketch<String> frequentItems;
   @NonNull private final HllSketch cardinalityTracker;
-  private final ImmutableList<String> nullStrs;
+  @NonNull private final Set<String> nullStrs;
 
-  static synchronized ImmutableList<String> nullStrsFromEnv() {
-    if (ColumnProfile.ENV == null) {
-      ColumnProfile.ENV = System.getenv();
-      String nullSpec = ColumnProfile.ENV.get("NULL_STRINGS");
-      ColumnProfile.nullEnvStrs =
-          nullSpec == null ? null : ImmutableList.copyOf(nullSpec.split(","));
+  static Set<String> nullStrsFromEnv() {
+    if (ColumnProfile.NULL_STR_ENVS == null) {
+      val nullSpec = System.getenv("NULL_STRINGS");
+      ColumnProfile.NULL_STR_ENVS =
+          nullSpec == null ? Collections.emptySet() : Sets.newHashSet(nullSpec.split(","));
     }
-    return ColumnProfile.nullEnvStrs;
+    return ColumnProfile.NULL_STR_ENVS;
   }
 
   public ColumnProfile(String columnName) {
     this(columnName, nullStrsFromEnv());
   }
 
-  public ColumnProfile(String columnName, ImmutableList<String> nullStrs) {
+  public ColumnProfile(String columnName, Set<String> nullStrs) {
     this.columnName = columnName;
     this.counters = new CountersTracker();
     this.schemaTracker = new SchemaTracker();
@@ -68,17 +67,11 @@ public class ColumnProfile {
     this.nullStrs = nullStrs;
   }
 
-  private boolean checkNullStrs(Object v) {
-    return this.nullStrs != null
-        && ((v instanceof String && this.nullStrs.contains(v))
-            || this.nullStrs.contains(v.toString()));
-  }
-
   public void track(Object value) {
     synchronized (this) {
       counters.incrementCount();
 
-      if (value == null || this.checkNullStrs(value)) {
+      if (value == null || this.nullStrs.contains(value.toString())) {
         counters.incrementNull();
         return;
       }
