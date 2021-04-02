@@ -71,7 +71,7 @@ public class ColumnProfile {
     synchronized (this) {
       counters.incrementCount();
 
-      if (value == null || this.nullStrs.contains(value.toString())) {
+      if (value == null || (!this.nullStrs.isEmpty() && this.nullStrs.contains(value.toString()))) {
         counters.incrementNull();
         return;
       }
@@ -144,6 +144,7 @@ public class ColumnProfile {
         .setSchemaTracker(this.schemaTracker.merge(other.schemaTracker))
         .setCardinalityTracker(HllSketch.heapify(mergedSketch.toCompactByteArray()))
         .setFrequentItems(copyFreqItems)
+        .setNullStrs(other.getNullStrs())
         .build();
   }
 
