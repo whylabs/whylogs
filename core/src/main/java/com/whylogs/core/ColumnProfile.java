@@ -6,6 +6,7 @@ import static com.whylogs.core.types.TypedDataConverter.NUMERIC_TYPES;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.google.protobuf.ByteString;
 import com.whylogs.core.message.ColumnMessage;
 import com.whylogs.core.message.ColumnSummary;
@@ -142,7 +143,7 @@ public class ColumnProfile {
         .setSchemaTracker(this.schemaTracker.merge(other.schemaTracker))
         .setCardinalityTracker(HllSketch.heapify(mergedSketch.toCompactByteArray()))
         .setFrequentItems(copyFreqItems)
-        .setNullStrs(other.getNullStrs())
+        .setNullStrs(Sets.union(this.getNullStrs(), other.getNullStrs()).immutableCopy())
         .build();
   }
 
@@ -170,7 +171,7 @@ public class ColumnProfile {
         .setCardinalityTracker(
             HllSketch.heapify(message.getCardinalityTracker().getSketch().toByteArray()))
         .setFrequentItems(FrequentStringsSketch.deserialize(message.getFrequentItems().getSketch()))
-        .setNullStrs(ImmutableSet.of())
+        .setNullStrs(ColumnProfile.nullStrsFromEnv())
         .build();
   }
 }
