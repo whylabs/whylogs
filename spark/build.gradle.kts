@@ -69,7 +69,6 @@ artifacts {
     add("archives", javadocJar)
 }
 
-
 dependencies {
     api("org.slf4j:slf4j-api:1.7.27")
     implementation(scalaPackage("org.apache.spark", "spark-core", sparkVersion))
@@ -77,6 +76,10 @@ dependencies {
 
     // project dependencies
     implementation(project(":core"))
+
+    // Songbird
+    implementation("ai.whylabs:songbird-client:0.1-SNAPSHOT")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
 
     // lombok support
     compileOnly("org.projectlombok:lombok:1.18.12")

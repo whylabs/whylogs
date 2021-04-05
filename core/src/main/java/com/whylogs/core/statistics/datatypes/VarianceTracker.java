@@ -34,8 +34,12 @@ public class VarianceTracker {
 
   /** @return the sample variance */
   public double variance() {
-    if (count < 2) {
+    if (count == 0) {
       return Double.NaN;
+    }
+
+    if (count == 1) {
+      return 0;
     }
 
     return sum / (count - 1.0);
