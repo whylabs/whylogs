@@ -5,8 +5,8 @@ plugins {
 }
 
 group = "ai.whylabs"
-version = "0.1.2-b1"
-//version = "0.1.2-b1-${project.properties.getOrDefault("versionType", "SNAPSHOT")}"
+version = "0.1.2-b5"
+//version = "0.1.2-b5-${project.properties.getOrDefault("versionType", "SNAPSHOT")}"
 extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
 
 allprojects {
@@ -15,8 +15,26 @@ allprojects {
 
     apply(plugin = "idea")
     apply(plugin = "java")
+    val gitlabMavenToken = System.getenv("MAVEN_TOKEN")
+
     repositories {
         mavenCentral()
+        maven {
+            // https://gitlab.com/whylabs/core/songbird-java-client/-/packages
+            url = uri("https://gitlab.com/api/v4/projects/22420498/packages/maven")
+            name = "Gitlab"
+
+
+            val headerName = if (System.getenv("CI_JOB_STAGE").isNullOrEmpty()) "Private-Token" else "Job-Token"
+            credentials(HttpHeaderCredentials::class) {
+                name = headerName
+                value = gitlabMavenToken
+            }
+
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
+        }
     }
 
     java {
