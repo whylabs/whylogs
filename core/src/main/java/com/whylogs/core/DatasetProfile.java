@@ -13,7 +13,6 @@ import com.whylogs.core.message.DatasetProfileMessage;
 import com.whylogs.core.message.DatasetProperties;
 import com.whylogs.core.message.DatasetSummary;
 import com.whylogs.core.message.MessageSegment;
-import com.whylogs.core.metrics.ClassificationMetrics;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +50,7 @@ public class DatasetProfile implements Serializable {
   @Getter Map<String, String> tags;
   @Getter Map<String, String> metadata;
 
-  @Nullable ClassificationMetrics classificationMetrics;
+  @Nullable ModelProfile modelProfile;
 
   /**
    * DEVELOPER API. DO NOT USE DIRECTLY
@@ -101,12 +100,8 @@ public class DatasetProfile implements Serializable {
     return Collections.unmodifiableMap(columns);
   }
 
-  public ClassificationMetrics getClassificationMetrics() {
-    if (classificationMetrics != null) {
-      return classificationMetrics.copy();
-    } else {
-      return null;
-    }
+  public ModelProfile getModelProfile() {
+    return modelProfile;
   }
 
   public DatasetProfile withMetadata(String key, String value) {
@@ -138,11 +133,8 @@ public class DatasetProfile implements Serializable {
 
   public void track(Map<String, ?> columns) {
     columns.forEach(this::track);
-  }
-
-  public <T> void trackClassificationMetrics(T prediction, T target, double score) {
-    if (classificationMetrics != null) {
-      classificationMetrics.update(this, prediction, target, score);
+    if (modelProfile != null) {
+      modelProfile.track(columns);
     }
   }
 
@@ -152,10 +144,26 @@ public class DatasetProfile implements Serializable {
    *
    * @return a new DatasetProfile object
    */
-  public DatasetProfile withClassificationMetrics() {
-    val metrics = ClassificationMetrics.of();
+  public DatasetProfile withModelProfile(
+      String prediction, String target, String score, Iterable<String> additionalOutputFields) {
+    val model = new ModelProfile(prediction, target, score, additionalOutputFields);
     return new DatasetProfile(
-        sessionId, sessionTimestamp, dataTimestamp, columns, tags, metadata, metrics);
+        sessionId, sessionTimestamp, dataTimestamp, columns, tags, metadata, model);
+  }
+
+  public DatasetProfile withModelProfile(String prediction, String target, String score) {
+    return this.withModelProfile(prediction, target, score, Collections.emptyList());
+  }
+
+  public DatasetProfile withModelProfile(String prediction, String target) {
+    return this.withModelProfile(prediction, target, Collections.emptyList());
+  }
+
+  public DatasetProfile withModelProfile(
+      String prediction, String target, Iterable<String> additionalOutputFields) {
+    val model = new ModelProfile(prediction, target, additionalOutputFields);
+    return new DatasetProfile(
+        sessionId, sessionTimestamp, dataTimestamp, columns, tags, metadata, model);
   }
 
   public DatasetSummary toSummary() {
@@ -204,25 +212,23 @@ public class DatasetProfile implements Serializable {
   public DatasetProfile mergeStrict(@NonNull DatasetProfile other) {
     Preconditions.checkArgument(
         Objects.equals(this.sessionId, other.sessionId),
-        "Mismatched name. Current name [%s] is merged with [%s]",
-        this.sessionId,
-        other.sessionId);
+        String.format(
+            "Mismatched name. Current name [%s] is merged with [%s]",
+            this.sessionId, other.sessionId));
     Preconditions.checkArgument(
         Objects.equals(this.sessionTimestamp, other.sessionTimestamp),
-        "Mismatched session timestamp. Current ts [%s] is merged with [%s]",
-        this.sessionTimestamp,
-        other.sessionTimestamp);
+        String.format(
+            "Mismatched session timestamp. Current ts [%s] is merged with [%s]",
+            this.sessionTimestamp, other.sessionTimestamp));
 
     Preconditions.checkArgument(
         Objects.equals(this.dataTimestamp, other.dataTimestamp),
-        "Mismatched data timestamp. Current ts [%s] is merged with [%s]",
-        this.dataTimestamp,
-        other.dataTimestamp);
+        String.format(
+            "Mismatched data timestamp. Current ts [%s] is merged with [%s]",
+            this.dataTimestamp, other.dataTimestamp));
     Preconditions.checkArgument(
         Objects.equals(this.tags, other.tags),
-        "Mismatched tags. Current %s being merged with %s",
-        this.tags,
-        other.tags);
+        String.format("Mismatched tags. Current %s being merged with %s", this.tags, other.tags));
 
     return doMerge(other, this.tags);
   }
@@ -279,10 +285,10 @@ public class DatasetProfile implements Serializable {
       result.columns.put(column, thisColumn.merge(otherColumn));
     }
 
-    if (this.classificationMetrics != null) {
-      result.classificationMetrics = this.classificationMetrics.merge(other.classificationMetrics);
-    } else if (other.classificationMetrics != null) {
-      result.classificationMetrics = other.classificationMetrics.copy();
+    if (this.modelProfile != null) {
+      result.modelProfile = this.modelProfile.merge(other.modelProfile);
+    } else if (other.modelProfile != null) {
+      result.modelProfile = other.modelProfile.copy();
     }
 
     return result;
@@ -295,9 +301,10 @@ public class DatasetProfile implements Serializable {
     val builder = DatasetProfileMessage.newBuilder().setProperties(properties);
 
     columns.forEach((k, v) -> builder.putColumns(k, v.toProtobuf().build()));
-    if (classificationMetrics != null) {
-      builder.setClassificationMetrics(classificationMetrics.toProtobuf());
+    if (modelProfile != null) {
+      builder.setModeProfile(modelProfile.toProtobuf());
     }
+
     return builder;
   }
 
@@ -321,7 +328,7 @@ public class DatasetProfile implements Serializable {
         .putAllTags(tags)
         .putAllMetadata(metadata)
         .setSchemaMajorVersion(SchemaInformation.SCHEMA_MAJOR_VERSION)
-        .setSchemaMinorVersion(SchemaInformation.SCHEMA_MAJOR_VERSION);
+        .setSchemaMinorVersion(SchemaInformation.SCHEMA_MINOR_VERSION);
   }
 
   public static DatasetProfile fromProtobuf(DatasetProfileMessage message) {
@@ -338,10 +345,7 @@ public class DatasetProfile implements Serializable {
     ds.withAllMetadata(props.getMetadataMap());
     message.getColumnsMap().forEach((k, v) -> ds.columns.put(k, ColumnProfile.fromProtobuf(v)));
 
-    if (message.hasClassificationMetrics()) {
-      ds.classificationMetrics =
-          ClassificationMetrics.fromProtobuf(message.getClassificationMetrics());
-    }
+    ds.modelProfile = ModelProfile.fromProtobuf(message.getModeProfile());
 
     ds.validate();
 
@@ -368,6 +372,7 @@ public class DatasetProfile implements Serializable {
     this.metadata = copy.metadata;
     this.tags = copy.tags;
     this.columns = copy.columns;
+    this.modelProfile = copy.modelProfile;
 
     this.validate();
   }

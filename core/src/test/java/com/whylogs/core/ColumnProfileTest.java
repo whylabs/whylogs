@@ -2,9 +2,12 @@ package com.whylogs.core;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
 
 import com.google.common.collect.ImmutableSet;
 import lombok.val;
+import org.apache.datasketches.frequencies.ErrorType;
+import org.apache.datasketches.frequencies.ItemsSketch;
 import org.testng.annotations.Test;
 
 public class ColumnProfileTest {
@@ -49,6 +52,18 @@ public class ColumnProfileTest {
   }
 
   @Test
+  public void column_track_NaN() {
+    val col = new ColumnProfile("test");
+    col.track(Double.NaN);
+
+    assertThat(col.getCounters().getCount(), is(1L));
+    assertThat(col.getCounters().getNullCount(), is(1L));
+    assertThat(col.getCounters().getTrueCount(), is(0L));
+    assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
+    assertThat(col.getNumberTracker().getDoubles().getCount(), is(0L));
+  }
+
+  @Test
   public void column_Merge_Success() {
     val col = new ColumnProfile("test");
     col.track(1L);
@@ -88,6 +103,38 @@ public class ColumnProfileTest {
 
     // verify that the merged profile is updatable
     merged.track("value");
+  }
+
+  @Test
+  public void profile_numeric_strings() {
+    val col = new ColumnProfile("test");
+
+    for (int i = 0; i < 1000; i++) {
+      col.track(String.valueOf(i));
+    }
+    assertThat(col.getFrequentItems().getNumActiveItems(), is(lessThan(40)));
+    for (ItemsSketch.Row<String> item :
+        col.getFrequentItems().getFrequentItems(ErrorType.NO_FALSE_NEGATIVES)) {
+      // attempt to parse all the values
+      //noinspection ResultOfMethodCallIgnored
+      Integer.parseInt(item.getItem());
+    }
+  }
+
+  @Test
+  public void profile_numeric_values() {
+    val col = new ColumnProfile("test");
+
+    for (int i = 0; i < 1000; i++) {
+      col.track(i);
+    }
+    assertThat(col.getFrequentItems().getNumActiveItems(), is(lessThan(40)));
+    for (ItemsSketch.Row<String> item :
+        col.getFrequentItems().getFrequentItems(ErrorType.NO_FALSE_NEGATIVES)) {
+      // attempt to parse all the values
+      //noinspection ResultOfMethodCallIgnored
+      Integer.parseInt(item.getItem());
+    }
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -1,18 +1,21 @@
 package com.whylogs.spark
 
-import java.time.Instant
-
-import org.apache.spark.sql.types.DataTypes
+import ai.whylabs.songbird.api.LogApi
+import ai.whylabs.songbird.invoker.ApiClient
+import ai.whylabs.songbird.model.SegmentTag
+import org.apache.spark.sql.types.{DataTypes, NumericType, StructField}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.whylogs.DatasetProfileAggregator
 import org.slf4j.LoggerFactory
 
+import java.nio.file.{Files, StandardOpenOption}
+import java.time.Instant
 import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 
-case class ClassificationMetricsSession(predictionField: String, targetField: String, scoreField: String) {
+case class ModelProfileSession(predictionField: String, targetField: String, scoreField: String = null) {
   def shouldExclude(field: String): Boolean = {
-    predictionField == field || targetField == field || scoreField == field;
+    predictionField == field || targetField == field || scoreField == field
   }
 }
 
@@ -29,10 +32,12 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
                              private val timeColumn: String = null,
                              private val groupByColumns: Seq[String] = List(),
                              // model metrics
-                             private val classificationMetrics: ClassificationMetricsSession = null,
+                             private val modelProfile: ModelProfileSession = null
                             ) {
   private val logger = LoggerFactory.getLogger(getClass)
   private val columnNames = dataFrame.schema.fieldNames.toSet
+  // we use an intermediate name so we can extract the "value" after
+  val PROFILE_FIELD = "why_profile"
 
   /**
    * Set the column for grouping by time. This column must be of Timestamp type in Spark SQL.
@@ -73,9 +78,27 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     this.copy(groupByColumns = columns.asScala)
   }
 
-  def withClassificationMetrics(predictionField: String, targetField: String, scoreField: String): WhyProfileSession = {
-    val classificationMetricsSession = ClassificationMetricsSession(predictionField, targetField, scoreField);
-    this.copy(classificationMetrics = classificationMetricsSession)
+  def withModelProfile(predictionField: String, targetField: String, scoreField: String): WhyProfileSession = {
+    checkIfColumnExists(predictionField)
+    checkIfColumnExists(targetField)
+
+    this.copy(modelProfile = ModelProfileSession(predictionField, targetField, scoreField))
+  }
+
+  def withModelProfile(predictionField: String, targetField: String): WhyProfileSession = {
+    checkIfColumnExists(predictionField)
+    checkIfColumnExists(targetField)
+
+    val predFieldSchema: StructField = dataFrame.schema.apply(predictionField)
+    if (!predFieldSchema.dataType.isInstanceOf[NumericType]) {
+      throw new IllegalStateException(s"Prediction field MUST be of numeric type. Got: ${predFieldSchema.dataType}")
+    }
+    val targetFieldSchema: StructField = dataFrame.schema.apply(targetField)
+    if (!predFieldSchema.dataType.isInstanceOf[NumericType]) {
+      throw new IllegalStateException(s"Target field MUST be of numeric type. Got: ${targetFieldSchema.dataType}")
+    }
+
+    this.copy(modelProfile = ModelProfileSession(predictionField, targetField))
   }
 
   /**
@@ -102,24 +125,22 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     logger.debug(s"Group by columns: $debugGroupByStr")
     logger.debug(s"All columns: $columnNames")
 
-    // we use an intermediate name so we can extract the "value" after
-    val whyStruct = "why_profile"
-
     val timeInMillis = timestamp.toEpochMilli
     val whyStructDataFrame =
       if (timeColumn != null) { // if timeColumn is specified
         logger.info(s"Run profiling with: [$name, $timestamp] with time column [$timeColumn], group by: $debugGroupByStr")
-        val profileAgg = DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns, classificationMetrics)
+        val profileAgg = DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns, modelProfile)
           .toColumn
-          .alias(whyStruct)
-        dataFrame.groupBy(timeColumn, groupByColumns: _*)
+          .alias(PROFILE_FIELD)
+        val df = dataFrame.groupBy(timeColumn, groupByColumns: _*)
           .agg(profileAgg)
+        df
       } else {
         logger.info(s"Run profiling with: [$name, $timestamp] without time column, group by: $debugGroupByStr")
         val profileAgg = DatasetProfileAggregator(name, timeInMillis, groupByColumns = groupByColumns,
-          classificationMetrics = classificationMetrics)
+          model = modelProfile)
           .toColumn
-          .alias(whyStruct)
+          .alias(PROFILE_FIELD)
         dataFrame.groupBy(groupByColumns.map(dataFrame.col): _*)
           .agg(profileAgg)
       }
@@ -127,11 +148,85 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     whyStructDataFrame
   }
 
+  def log(timestampInMs: Long = Instant.now().toEpochMilli, orgId: String, modelId: String, apiKey: String): Unit = {
+    val df = aggProfiles(timestamp=timestampInMs)
+
+    df.foreachPartition((rows: Iterator[Row]) => {
+      doUpload(orgId, modelId, apiKey, rows)
+    })
+  }
+
+  private def doUpload(orgId: String, modelId: String, apiKey: String, rows: Iterator[Row]): Unit = {
+    val client: ApiClient = new ApiClient()
+    client.setBasePath("https://api.whylabsapp.com")
+    client.setApiKey(apiKey)
+
+    val logApi = new LogApi(client)
+
+    rows.foreach(row => {
+      uploadRow(logApi, orgId, modelId, row)
+    })
+  }
+
+  private def uploadRow(logApi: LogApi, orgId: String, modelId: String, row: Row) = {
+    import RowHelper._
+
+    val timestamp: Long = if (timeColumn != null) {
+      row.getTimestampInMs(timeColumn)
+    } else {
+      Instant.now().toEpochMilli
+    }
+
+    val segmentTags = groupByColumns
+      .toSet
+      .map((f: String) => f -> Option(row.getAsText(f)))
+      .filter(_._2.nonEmpty)
+      .map(e => e._1 -> e._2.get)
+      .map(e => new SegmentTag().key(e._1).value(e._2))
+      .toList
+      .asJava
+
+    val profileData = row.getByteArray(PROFILE_FIELD)
+
+    val tmp = Files.createTempFile("profile", ".bin")
+    try {
+      Files.write(tmp, profileData, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)
+      logApi.log(orgId, modelId, timestamp, segmentTags, null, tmp.toFile)
+    } finally {
+      Files.delete(tmp)
+    }
+  }
+
   private def checkIfColumnExists(col: String): Unit = {
     if (!columnNames.contains(col)) {
       throw new IllegalArgumentException(s"Column $col does not exist. Available columns: $columnNames")
     }
   }
+}
+
+object RowHelper {
+
+  implicit class BetterRow(row: Row) {
+    private val schema = row.schema
+
+    def getByteArray(fieldName: String): Array[Byte] = {
+      row.getAs[Array[Byte]](schema.fieldIndex(fieldName))
+    }
+
+    def getTimestampInMs(fieldName: String): Long = {
+      row.getTimestamp(schema.fieldIndex(fieldName)).getTime
+    }
+
+    def getAsText(fieldName: String): String = {
+      val value = row.get(schema.fieldIndex(fieldName))
+      if (value == null) {
+        null
+      } else {
+        value.toString
+      }
+    }
+  }
+
 }
 
 /**
