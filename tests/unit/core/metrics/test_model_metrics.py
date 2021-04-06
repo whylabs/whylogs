@@ -79,7 +79,7 @@ def tests_model_metrics_to_protobuf_regression():
 
 def test_merge_none():
     metrics = ModelMetrics()
-    metrics.merge(None)
+    assert metrics.merge(None) == metrics
 
 
 def test_merge_metrics_with_none_confusion_matrix():
@@ -95,7 +95,15 @@ def test_merge_metrics_model():
     other.regression_metrics = None
     new_metrics = metrics.merge(other)
     assert new_metrics.model_type==ModelType.REGRESSION
+    assert new_metrics.confusion_matrix is None
 
+    # keep initial model type during merge
+    metrics = ModelMetrics(model_type=ModelType.REGRESSION)
+    other = ModelMetrics(model_type=ModelType.CLASSIFICATION)
+    other.regression_metrics = None
+    new_metrics = metrics.merge(other)
+    assert new_metrics.model_type==ModelType.REGRESSION
+    assert new_metrics.confusion_matrix is None
 
 def test_merge_metrics_with_none_regression_matrix():
     metrics = ModelMetrics()
@@ -111,6 +119,7 @@ def test_merge_metrics_with_none_confusion_matrix():
     other.regression_metrics = None
 
     new_metrics = metrics.merge(other)
+    assert new_metrics.model_type == ModelType.UNKNOWN
 
 
 def test_model_metrics_init():
