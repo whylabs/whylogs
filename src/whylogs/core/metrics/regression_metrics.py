@@ -74,6 +74,8 @@ class RegressionMetrics:
         Returns:
               RegressionMetrics: merged regression metrics
         """
+        if other is None:
+            return self
 
         if self.count == 0:
             return other
