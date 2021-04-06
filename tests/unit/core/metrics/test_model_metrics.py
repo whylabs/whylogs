@@ -47,13 +47,13 @@ def tests_model_metrics_to_protobuf_classification():
 def tests_no_metrics_to_protobuf_classification():
     mod_met = ModelMetrics(model_type=ModelType.CLASSIFICATION)
 
-
+    assert mod_met.model_type == ModelType.CLASSIFICATION
     message = mod_met.to_protobuf()
 
     model_metrics = ModelMetrics.from_protobuf(message)
     assert model_metrics.model_type == ModelType.CLASSIFICATION
 
-def tests_no_metrics_to_protobuf_regression():\
+def tests_no_metrics_to_protobuf_regression():
 
     mod_met = ModelMetrics(model_type=ModelType.REGRESSION)
     assert mod_met.model_type == ModelType.REGRESSION
@@ -68,16 +68,12 @@ def tests_model_metrics_to_protobuf_regression():
 
     regression_model = ModelMetrics(model_type=ModelType.REGRESSION)
 
-
     targets_1 = [0.1, 0.3, 0.4]
     predictions_1 = [0.5, 0.5, 0.5]
     regression_model.compute_regression_metrics(predictions_1, targets_1)
     regression_message = regression_model.to_protobuf()
     model_metrics_from_message = ModelMetrics.from_protobuf(regression_message)
     assert model_metrics_from_message.model_type == ModelType.REGRESSION
-
-
-
 
 
 
@@ -95,17 +91,18 @@ def test_merge_metrics_with_none_confusion_matrix():
 
 def test_merge_metrics_model():
     metrics = ModelMetrics()
-    other = ModelMetrics()
+    other = ModelMetrics(model_type=ModelType.REGRESSION)
     other.regression_metrics = None
     new_metrics = metrics.merge(other)
+    assert new_metrics.model_type==ModelType.REGRESSION
 
 
 def test_merge_metrics_with_none_regression_matrix():
     metrics = ModelMetrics()
-    other = ModelMetrics()
+    other = ModelMetrics(model_type=ModelType.REGRESSION)
     other.regression_metrics = None
     new_metrics = metrics.merge(other)
-
+    assert new_metrics.model_type==ModelType.REGRESSION
 
 def test_merge_metrics_with_none_confusion_matrix():
     metrics = ModelMetrics()
