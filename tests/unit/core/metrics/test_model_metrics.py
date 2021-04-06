@@ -64,7 +64,6 @@ def tests_no_metrics_to_protobuf_regression():
     assert model_metrics.model_type == ModelType.REGRESSION
 
 def tests_model_metrics_to_protobuf_regression():
-
     regression_model = ModelMetrics(model_type=ModelType.REGRESSION)
 
     targets_1 = [0.1, 0.3, 0.4]
