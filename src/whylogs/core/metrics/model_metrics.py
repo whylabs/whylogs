@@ -96,13 +96,8 @@ class ModelMetrics:
         """
         if other is None:
             return self
-        if other.confusion_matrix is None and other.regression_metrics is None:
-            # TODO: return a copy instead
-            return self
-
-        if self.confusion_matrix is None and self.regression_metrics is None:
-            return other
-
+       
+        model_type =ModelType.UNKNOWN
         if (self.model_type not in (ModelType.REGRESSION, ModelType.CLASSIFICATION)):
             if other.model_type in (ModelType.REGRESSION, ModelType.CLASSIFICATION):
                 model_type = other.model_type
@@ -112,6 +107,7 @@ class ModelMetrics:
                 model_type = self.model_type
         else:
             model_type = self.model_type
+
 
         return ModelMetrics(
             confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix) if self.confusion_matrix else None,
