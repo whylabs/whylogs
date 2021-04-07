@@ -10,14 +10,14 @@ from uuid import uuid4
 import pandas as pd
 
 from whylogs.app.config import SessionConfig, WriterConfig, load_config
-from whylogs.app.logger import Logger
+from whylogs.app.logger import Logger, Segment, SegmentTag
 from whylogs.app.writers import Writer, writer_from_config, WhyLabsWriter
 from whylogs.core import DatasetProfile
 from whylogs.core.statistics.constraints import DatasetConstraints
 
 
 @dataclass
-class LoggerArguments:
+class LoggerKey:
     """
     Create a new logger or return an existing one for a given dataset name.
     If no dataset_name is specified, we default to project name
@@ -56,7 +56,7 @@ class LoggerArguments:
     constraints: DatasetConstraints = None
 
 
-defaultLoggerArgs = LoggerArguments()
+defaultLoggerArgs = LoggerKey()
 
 
 class Session:
@@ -126,14 +126,26 @@ class Session:
     def is_active(self):
         return self._active
 
-    def logger(self, args: LoggerArguments = defaultLoggerArgs) -> Logger:
+    def logger(
+            self,
+            dataset_name: Optional[str] = None,
+            dataset_timestamp: Optional[datetime.datetime] = None,
+            session_timestamp: Optional[datetime.datetime] = None,
+            tags: Dict[str, str] = None,
+            metadata: Dict[str, str] = None,
+            segments: Optional[List[Segment]] = None,
+            profile_full_dataset: bool = False,
+            with_rotation_time: str = None,
+            cache_size: int = 1,
+            constraints: DatasetConstraints = None,
+    ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
         If no dataset_name is specified, we default to project name
 
         Parameters
         ----------
-        args: LoggerArguments
+        args: LoggerKey
             The properties of the logger if they're anything but the defaults.
         Returns
         -------
@@ -144,24 +156,35 @@ class Session:
             raise RuntimeError(
                 "Session is already closed. Cannot create more loggers")
 
-        logger_key = str(args)
+        logger_key = str(LoggerKey(
+            dataset_name=dataset_name,
+            dataset_timestamp=dataset_timestamp,
+            session_timestamp=session_timestamp,
+            tags=tags,
+            metadata=metadata,
+            segments=segments,
+            profile_full_dataset=profile_full_dataset,
+            with_rotation_time=with_rotation_time,
+            cache_size=cache_size,
+            constraints=constraints
+        ))
         logger = self._loggers.get(logger_key)
 
         if logger is None:
             logger = Logger(
                 session_id=self._session_id,
-                dataset_name=args.dataset_name or self.project,
-                dataset_timestamp=args.dataset_timestamp,
-                session_timestamp=args.session_timestamp,
+                dataset_name=dataset_name or self.project,
+                dataset_timestamp=dataset_timestamp,
+                session_timestamp=session_timestamp or self._session_time,
                 writers=self.writers,
-                tags=args.tags,
-                metadata=args.metadata,
+                tags=tags or {},
+                metadata=metadata,
                 verbose=self.verbose,
-                with_rotation_time=args.with_rotation_time or self.with_rotation_time,
-                segments=args.segments,
-                profile_full_dataset=args.profile_full_dataset,
-                cache_size=args.cache_size,
-                constraints=args.constraints,
+                with_rotation_time=with_rotation_time or self.with_rotation_time,
+                segments=segments,
+                profile_full_dataset=profile_full_dataset,
+                cache_size=cache_size,
+                constraints=constraints,
             )
             self._loggers[logger_key] = logger
 
