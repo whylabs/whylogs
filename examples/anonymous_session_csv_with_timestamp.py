@@ -7,7 +7,7 @@ the dataset up by each day using the Calendar_Week column and log each of the da
 """
 import pandas as pd
 from datetime import datetime
-from whylogs.app.session import start_whylabs_session, LoggerArguments
+from whylogs.app.session import start_whylabs_session, LoggerKey
 
 csv_file = "data/sample_media_spend.csv"
 
@@ -26,7 +26,7 @@ with start_whylabs_session(data_collection_consent=True) as session:
 
         # whylabs loggers are specific to the dataset's timestamp so we'll be using a different one for each
         # date in our dataset.
-        logger = session.logger(args=LoggerArguments(dataset_timestamp=dt))
+        logger = session.logger(args=LoggerKey(dataset_timestamp=dt))
 
         # log the data to the logger. The logger will write this data out in binary form when it closes, which
         # at the end of the with block in the session's internal logic.
