@@ -149,16 +149,20 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
   }
 
   def log(timestampInMs: Long = Instant.now().toEpochMilli, orgId: String, modelId: String, apiKey: String): Unit = {
-    val df = aggProfiles(timestamp=timestampInMs)
+    this.log(timestampInMs, orgId, modelId, apiKey, "https://api.whylabsapp.com")
+  }
+
+  def log(timestampInMs: Long = Instant.now().toEpochMilli, orgId: String, modelId: String, apiKey: String, endpoint: String): Unit = {
+    val df = aggProfiles(timestamp = timestampInMs)
 
     df.foreachPartition((rows: Iterator[Row]) => {
-      doUpload(orgId, modelId, apiKey, rows)
+      doUpload(orgId, modelId, apiKey, rows, endpoint)
     })
   }
 
-  private def doUpload(orgId: String, modelId: String, apiKey: String, rows: Iterator[Row]): Unit = {
+  private def doUpload(orgId: String, modelId: String, apiKey: String, rows: Iterator[Row], endpoint: String): Unit = {
     val client: ApiClient = new ApiClient()
-    client.setBasePath("https://api.whylabsapp.com")
+    client.setBasePath(endpoint)
     client.setApiKey(apiKey)
 
     val logApi = new LogApi(client)
@@ -167,6 +171,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
       uploadRow(logApi, orgId, modelId, row)
     })
   }
+
 
   private def uploadRow(logApi: LogApi, orgId: String, modelId: String, row: Row) = {
     import RowHelper._
