@@ -79,6 +79,7 @@ dependencies {
 
     // Songbird
     implementation("ai.whylabs:whylabs-api-client:0.1.2")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
 
     // lombok support
     compileOnly("org.projectlombok:lombok:1.18.12")
