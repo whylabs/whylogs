@@ -27,7 +27,7 @@ dependencies {
     // we only depends on the output of the whylogs-spark components
     // we don't want to pull in Spark dependencies here
     implementation(project(":spark", "jar"))
-    implementation("ai.whylabs:songbird-client:0.1-SNAPSHOT")
+    implementation("ai.whylabs:whylabs-api-client:0.1.2")
 }
 
 // Do not build the jar for this package

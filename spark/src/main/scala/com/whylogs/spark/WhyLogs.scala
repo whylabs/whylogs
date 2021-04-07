@@ -1,8 +1,8 @@
 package com.whylogs.spark
 
-import ai.whylabs.songbird.api.LogApi
-import ai.whylabs.songbird.invoker.ApiClient
-import ai.whylabs.songbird.model.SegmentTag
+import ai.whylabs.service.api.LogApi
+import ai.whylabs.service.invoker.ApiClient
+import ai.whylabs.service.model.SegmentTag
 import org.apache.spark.sql.types.{DataTypes, NumericType, StructField}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.whylogs.DatasetProfileAggregator
