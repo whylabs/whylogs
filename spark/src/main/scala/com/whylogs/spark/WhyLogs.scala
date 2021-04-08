@@ -148,11 +148,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     whyStructDataFrame
   }
 
-  def log(timestampInMs: Long = Instant.now().toEpochMilli, orgId: String, modelId: String, apiKey: String): Unit = {
-    this.log(timestampInMs, orgId, modelId, apiKey, "https://api.whylabsapp.com")
-  }
-
-  def log(timestampInMs: Long = Instant.now().toEpochMilli, orgId: String, modelId: String, apiKey: String, endpoint: String): Unit = {
+  def log(timestampInMs: Long = Instant.now().toEpochMilli, orgId: String, modelId: String, apiKey: String, endpoint: String = "https://api.whylabsapp.com"): Unit = {
     val df = aggProfiles(timestamp = timestampInMs)
 
     df.foreachPartition((rows: Iterator[Row]) => {
