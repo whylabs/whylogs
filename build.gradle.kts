@@ -5,8 +5,8 @@ plugins {
 }
 
 group = "ai.whylabs"
-version = "0.1.2-b0"
-//version = "0.1.2-b0-${project.properties.getOrDefault("versionType", "SNAPSHOT")}"
+version = "0.1.2-b7"
+//version = "0.1.2-b7-${project.properties.getOrDefault("versionType", "SNAPSHOT")}"
 extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
 
 allprojects {
@@ -15,6 +15,7 @@ allprojects {
 
     apply(plugin = "idea")
     apply(plugin = "java")
+
     repositories {
         mavenCentral()
     }

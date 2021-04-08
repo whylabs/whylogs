@@ -75,34 +75,41 @@ public class ColumnProfile {
         return;
       }
 
-      // always track text information
       // TODO: ignore this if we already know the data type
-      if (value instanceof String) {
-        val stringValue = (String) value;
-        this.frequentItems.update(stringValue);
-      }
-
       val typedData = TypedDataConverter.convert(value);
       schemaTracker.track(typedData.getType());
 
       switch (typedData.getType()) {
         case FRACTIONAL:
-          frequentItems.update(typedData.toString());
-          numberTracker.track(typedData.getFractional());
+          final double fractional = typedData.getFractional();
+          trackText(String.valueOf(fractional));
+          if (Double.isNaN(fractional) || Double.isInfinite(fractional)) {
+            counters.incrementNull();
+          } else {
+            numberTracker.track(fractional);
+          }
           break;
         case INTEGRAL:
-          frequentItems.update(typedData.toString());
-          numberTracker.track(typedData.getIntegralValue());
+          final long integralValue = typedData.getIntegralValue();
+          trackText(String.valueOf(integralValue));
+          numberTracker.track(integralValue);
           break;
         case BOOLEAN:
           // TODO: handle boolean across languages? Python booleans are "True" vs Java "true"
-          frequentItems.update(typedData.toString());
+          trackText(String.valueOf(typedData.isBooleanValue()));
           if (typedData.isBooleanValue()) {
             counters.incrementTrue();
           }
           break;
+        case STRING:
+          trackText(typedData.getStringValue());
       }
     }
+  }
+
+  private void trackText(String text) {
+    frequentItems.update(text);
+    cardinalityTracker.update(text);
   }
 
   public ColumnSummary toColumnSummary() {
@@ -123,11 +130,17 @@ public class ColumnProfile {
   }
 
   public ColumnProfile merge(ColumnProfile other) {
-    Preconditions.checkArgument(
-        this.columnName.equals(other.columnName),
-        "Mismatched column name. Expected [%s], got [%s]",
-        this.columnName,
-        other.columnName);
+    return this.merge(other, true);
+  }
+
+  public ColumnProfile merge(ColumnProfile other, boolean checkName) {
+    if (checkName) {
+      Preconditions.checkArgument(
+          this.columnName.equals(other.columnName),
+          String.format(
+              "Mismatched column name. Expected [%s], got [%s]",
+              this.columnName, other.columnName));
+    }
 
     val mergedSketch = Union.heapify(this.cardinalityTracker.toCompactByteArray());
     mergedSketch.update(other.cardinalityTracker);
