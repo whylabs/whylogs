@@ -49,25 +49,3 @@ def test_empty_imagefolder(tmpdir):
     assert len(dataset) == 0
 
 
-def test_imagefolder(test_data_path):
-
-    folder_dataset = os.path.join(test_data_path, "fake_dataset")
-
-    folder_segmented_features = sorted(["A_target", "B_target"])
-
-    segment_A_target_files = [
-        os.path.join(folder_dataset, "A_target", file)
-        for file in (
-            "flower2.jpg",
-            "grace_hopper_517x606.jpg",
-            "yolo_bounding_box.jsonl",
-        )
-    ]
-    dataset = LocalDataset(folder_dataset, loader=lambda x: x)
-
-    # test if all classes are present
-    assert folder_segmented_features == sorted(dataset.folder_segmented_feature)
-
-    # test if combination of classesp and class_to_index functions correctly
-    for seg in folder_segmented_features:
-        assert seg == dataset.folder_segmented_feature[dataset.folder_feature_dict[seg]]

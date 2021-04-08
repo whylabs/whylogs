@@ -1,4 +1,5 @@
 import json
+from typing import List, Sequence, Union, Any
 
 import datasketches
 import numpy as np
@@ -8,11 +9,11 @@ from whylogs.util import dsketch
 
 decode_item = dsketch.FrequentItemsSketch._decode_item
 
-NUMBERS = [1, 1, 1, 2, 3, 4, 4, 5.0, 5.0, 4.0, 1e90]
-STRINGS = ["a", "b", "hello world", "hello World", "a", "a", "b"]
-BOOLS = [True, False, True]
+NUMBERS: Any = [1, 1, 1, 2, 3, 4, 4, 5.0, 5.0, 4.0, 1e90]
+STRINGS: Any = ["a", "b", "hello world", "hello World", "a", "a", "b"]
+BOOLS: Any = [True, False, True]
 
-ALL_VALS = NUMBERS + STRINGS + BOOLS
+ALL_VALS: Any = NUMBERS + STRINGS + BOOLS
 LG_K = 32
 
 
@@ -52,7 +53,7 @@ def test_number_summary_returns_correct_estimates():
     track_and_validate_summary_estimates(NUMBERS, expected)
 
 
-def test_bool_summary_returns_correct_estimates():
+def test_bool_returns_correct_estimates():
     expected = {
         (True, 2),
         (False, 1),

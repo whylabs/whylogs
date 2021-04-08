@@ -10,7 +10,7 @@ def test_rect():
     assert rect.iou(test) == 25 / 100.0
 
 
-def test_rect():
+def test_rect_zero():
 
     rect = Rectangle([[0, 0], [0, 0]])
     test = Rectangle([[0, 0], [5, 5]])
