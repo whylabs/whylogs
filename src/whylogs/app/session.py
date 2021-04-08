@@ -10,7 +10,7 @@ from uuid import uuid4
 import pandas as pd
 
 from whylogs.app.config import SessionConfig, WriterConfig, load_config
-from whylogs.app.logger import Logger, Segment, SegmentTag
+from whylogs.app.logger import Logger, Segment
 from whylogs.app.writers import Writer, writer_from_config, WhyLabsWriter
 from whylogs.core import DatasetProfile
 from whylogs.core.statistics.constraints import DatasetConstraints
