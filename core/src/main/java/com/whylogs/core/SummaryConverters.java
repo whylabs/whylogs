@@ -4,6 +4,7 @@ import com.whylogs.core.message.FrequentNumbersSummary;
 import com.whylogs.core.message.FrequentStringsSummary;
 import com.whylogs.core.message.HistogramSummary;
 import com.whylogs.core.message.NumberSummary;
+import com.whylogs.core.message.QuantileSummary;
 import com.whylogs.core.message.SchemaSummary;
 import com.whylogs.core.message.StringsSummary;
 import com.whylogs.core.message.UniqueCountSummary;
@@ -11,6 +12,7 @@ import com.whylogs.core.statistics.NumberTracker;
 import com.whylogs.core.statistics.SchemaTracker;
 import com.whylogs.core.statistics.datatypes.StringTracker;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,6 +22,8 @@ import org.apache.datasketches.frequencies.ItemsSketch;
 import org.apache.datasketches.frequencies.ItemsSketch.Row;
 import org.apache.datasketches.kll.KllFloatsSketch;
 import org.apache.datasketches.theta.Union;
+import static org.apache.commons.lang3.ArrayUtils.toObject;
+
 
 public class SummaryConverters {
 
@@ -124,6 +128,22 @@ public class SummaryConverters {
             .setLower(result.getLowerBound(1))
             .setUpper(result.getUpperBound(1));
 
+    // some unfortunate type mismatches requires conversions.
+    val QUANTILES = new double[] {0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0};
+    val boxedQuantiles = toObject(QUANTILES);
+
+    // unfortunately ArrayUtils does not have a static utility for converting float[] -> double[].
+    val qvals = numberTracker.getHistogram().getQuantiles(QUANTILES);
+    val len = qvals.length;
+    val boxedQvals = new Double[len];
+    for (int index = 0; index < qvals.length; index++)
+      boxedQvals[index] = (double) (qvals[index]);
+
+    val quantileSummary =
+        QuantileSummary.newBuilder()
+            .addAllQuantiles(Arrays.asList(boxedQuantiles))
+            .addAllQuantileValues(Arrays.asList(boxedQvals));
+
     return NumberSummary.newBuilder()
         .setCount(count)
         .setStddev(stddev)
@@ -133,6 +153,7 @@ public class SummaryConverters {
         .setHistogram(histogram)
         .setFrequentNumbers(frequentNumbers)
         .setUniqueCount(uniqueCountSummary)
+        .setQuantiles(quantileSummary)
         .setIsDiscrete(false) // TODO: migrate Python code over
         .build();
   }

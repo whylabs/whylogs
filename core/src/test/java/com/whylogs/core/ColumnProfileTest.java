@@ -11,7 +11,6 @@ import org.apache.datasketches.frequencies.ItemsSketch;
 import org.testng.annotations.Test;
 
 public class ColumnProfileTest {
-
   @Test
   public void column_BasicTracking_ShouldWork() {
     val col = new ColumnProfile("test");
@@ -156,4 +155,18 @@ public class ColumnProfileTest {
     assertThat(roundTrip.getColumnName(), is("test"));
     assertThat(roundTrip.getCounters().getCount(), is(2L));
   }
+
+  /**
+   *  Assert summary quantiles are not empty.
+   */
+  @Test
+  public void colums_Summary_Success() {
+    val col = new ColumnProfile("test");
+    col.track(1L);
+    col.track(1.0);
+
+    val quantiles = col.toColumnSummary().getNumberSummary().getQuantiles();
+    assertThat(quantiles.getQuantilesCount(), is(9));
+  }
+
 }
