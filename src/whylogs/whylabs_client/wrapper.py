@@ -57,6 +57,7 @@ def upload_profile(dataset_profile: DatasetProfile) -> None:
     except Exception:
         _logger.exception(f"Failed to upload profile for timestamp {dataset_timestamp}")
 
+
 def end_session() -> str:
     try:
         global _session_token
