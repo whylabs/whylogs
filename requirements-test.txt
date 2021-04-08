@@ -16,7 +16,7 @@ PyYAML==5.4
 s3fs==0.4.2
 s3transfer==0.3.4
 six==1.15.0
-urllib3==1.26.3
+urllib3==1.26.4
 coverage==5.4
 whylabs-datasketches==2.2.0b1
 freezegun==1.1.0
