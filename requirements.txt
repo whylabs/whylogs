@@ -14,6 +14,7 @@ PyYAML==5.4
 s3transfer==0.3.3
 six==1.15.0
 urllib3==1.26.4
+whylabs-client==0.1
 whylabs-datasketches==2.2.0b1
 xlrd==2.0.1
 scikit-learn==0.24.1
