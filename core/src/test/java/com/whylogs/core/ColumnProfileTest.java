@@ -156,9 +156,7 @@ public class ColumnProfileTest {
     assertThat(roundTrip.getCounters().getCount(), is(2L));
   }
 
-  /**
-   *  Assert summary quantiles are not empty.
-   */
+  /** Assert summary quantiles are not empty. */
   @Test
   public void colums_Summary_Success() {
     val col = new ColumnProfile("test");
@@ -168,5 +166,4 @@ public class ColumnProfileTest {
     val quantiles = col.toColumnSummary().getNumberSummary().getQuantiles();
     assertThat(quantiles.getQuantilesCount(), is(9));
   }
-
 }

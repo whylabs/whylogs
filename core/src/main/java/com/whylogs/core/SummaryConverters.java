@@ -1,5 +1,7 @@
 package com.whylogs.core;
 
+import static org.apache.commons.lang3.ArrayUtils.toObject;
+
 import com.whylogs.core.message.FrequentNumbersSummary;
 import com.whylogs.core.message.FrequentStringsSummary;
 import com.whylogs.core.message.HistogramSummary;
@@ -22,8 +24,6 @@ import org.apache.datasketches.frequencies.ItemsSketch;
 import org.apache.datasketches.frequencies.ItemsSketch.Row;
 import org.apache.datasketches.kll.KllFloatsSketch;
 import org.apache.datasketches.theta.Union;
-import static org.apache.commons.lang3.ArrayUtils.toObject;
-
 
 public class SummaryConverters {
 
@@ -136,8 +136,7 @@ public class SummaryConverters {
     val qvals = numberTracker.getHistogram().getQuantiles(QUANTILES);
     val len = qvals.length;
     val boxedQvals = new Double[len];
-    for (int index = 0; index < qvals.length; index++)
-      boxedQvals[index] = (double) (qvals[index]);
+    for (int index = 0; index < qvals.length; index++) boxedQvals[index] = (double) (qvals[index]);
 
     val quantileSummary =
         QuantileSummary.newBuilder()
