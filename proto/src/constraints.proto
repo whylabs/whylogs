@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+import "messages.proto";
+
+option java_package = "com.whylogs.core.constraint";
+option java_outer_classname = "Constraints";
+option java_multiple_files = true;
+
+/* constraints specify one of the following binary boolean relationships. */
+enum Op {
+    unused = 0;
+    LT = 1;
+    LE = 2;
+    EQ = 3;
+    NE = 4;
+    GE = 5;
+    GT = 6;
+  }
+
+/* Summary constraints specify a relationship between a summary field and a literal value,
+   or between two summary fields.
+   e.g.     'min' < 6
+            'std_dev' < 2.17
+            'min' > 'avg'
+   */
+message SummaryConstraintMsg {
+  string name = 1;
+  string first_field = 2;
+  oneof second {
+     string second_field = 3;
+     double value = 4;
+  }
+  Op op = 5;
+  bool verbose = 6;
+}
+
+/* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal.
+   These are applied to every incoming value that is processed by whylogs.  */
+message ValueConstraintMsg {
+  string name = 1;
+  double value = 2;
+  Op op = 3;
+  bool verbose = 4;
+}
+
+message ValueConstraintMsgs {
+  repeated ValueConstraintMsg constraints = 1;
+}
+
+message SummaryConstraintMsgs {
+  repeated SummaryConstraintMsg constraints = 1;
+}
+
+message DatasetConstraintMsg {
+  DatasetProperties properties = 1;
+  map<string, ValueConstraintMsgs> value_constraints = 2;
+  map<string, SummaryConstraintMsgs> summary_constraints = 3;
+}
+

@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+import "messages.proto";
+
+option java_package = "com.whylogs.core.message";
+option java_outer_classname = "Summaries";
+option java_multiple_files = true;
+
+message UniqueCountSummary {
+  double estimate = 1;
+  double upper = 2;
+  double lower = 3;
+}
+
+message FrequentStringsSummary {
+  message FrequentItem {
+    string value = 1;
+    double estimate = 2;
+  }
+  repeated FrequentItem items = 1;
+}
+
+message FrequentNumbersSummary {
+  message FrequentDoubleItem {
+    int64 estimate = 1;
+    double value = 2;
+    int32 rank = 3;
+  }
+  message FrequentLongItem {
+    int64 estimate = 1;
+    int64 value = 2;
+    int32 rank = 3;
+  }
+  repeated FrequentDoubleItem doubles = 1;
+  repeated FrequentLongItem longs = 2;
+}
+
+message FrequentItemsSummary {
+  message FrequentItem {
+    int64 estimate = 1;
+    string json_value = 2;
+  }
+  repeated FrequentItem items = 1;
+}
+
+message StringsSummary {
+  UniqueCountSummary unique_count = 1;
+  FrequentStringsSummary frequent = 2;
+}
+
+message SchemaSummary {
+  InferredType inferred_type = 1;
+  map<string, int64> type_counts = 2;
+}
+
+message HistogramSummary {
+  double start = 1;
+  double end = 2;
+  double width = 3;
+  repeated int64 counts = 4;
+
+  double max = 5;
+  double min = 6;
+  repeated double bins = 7;
+  int64 n = 8;
+
+}
+
+message QuantileSummary {
+  repeated double quantiles = 1;
+  repeated double quantile_values = 2;
+}
+
+message NumberSummary {
+  uint64 count = 1;
+  double min = 2;
+  double max = 3;
+  double mean = 4;
+  double stddev = 5;
+
+  HistogramSummary histogram = 6;
+  UniqueCountSummary unique_count = 7;
+  QuantileSummary quantiles = 8;
+  FrequentNumbersSummary frequent_numbers = 9;
+
+  bool is_discrete = 10;
+}
+
+message ColumnSummary {
+  Counters counters = 1;
+  SchemaSummary schema = 2;
+  NumberSummary number_summary = 3;
+  StringsSummary string_summary = 4;
+  FrequentItemsSummary frequent_items = 5;
+  UniqueCountSummary unique_count = 6;
+}
+
+message DatasetSummary {
+  DatasetProperties properties = 1;
+  map<string, ColumnSummary> columns = 2;
+}
+
+message DatasetSummaries {
+  map<string, DatasetSummary> profiles = 1;
+}
