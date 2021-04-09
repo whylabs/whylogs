@@ -136,7 +136,9 @@ public class SummaryConverters {
     val qvals = numberTracker.getHistogram().getQuantiles(QUANTILES);
     val len = qvals.length;
     val boxedQvals = new Double[len];
-    for (int index = 0; index < qvals.length; index++) boxedQvals[index] = (double) (qvals[index]);
+    for (int index = 0; index < qvals.length; index++) {
+      boxedQvals[index] = (double) (qvals[index]);
+    }
 
     val quantileSummary =
         QuantileSummary.newBuilder()
