@@ -2,6 +2,7 @@
 whylogs logging session
 """
 import datetime
+from dataclasses import dataclass
 from logging import getLogger as _getLogger
 from typing import Dict, List, Optional, Union
 from uuid import uuid4
@@ -9,10 +10,53 @@ from uuid import uuid4
 import pandas as pd
 
 from whylogs.app.config import SessionConfig, WriterConfig, load_config
-from whylogs.app.logger import Logger
-from whylogs.app.writers import Writer, writer_from_config
+from whylogs.app.logger import Logger, Segment
+from whylogs.app.writers import Writer, writer_from_config, WhyLabsWriter
 from whylogs.core import DatasetProfile
 from whylogs.core.statistics.constraints import DatasetConstraints
+
+
+@dataclass
+class LoggerKey:
+    """
+    Create a new logger or return an existing one for a given dataset name.
+    If no dataset_name is specified, we default to project name
+
+    Args:
+        metadata
+        dataset_name : str
+            Name of the dataset. Default is the project name
+        dataset_timestamp: datetime.datetime, optional
+            The timestamp associated with the dataset. Could be the timestamp
+            for the batch, or the timestamp
+            for the window that you are tracking
+        tags: dict
+            Tag the data with groupable information. For example, you might want to tag your data
+            with the stage information (development, testing, production etc...)
+        metadata: dict
+            Useful to debug the data source. You can associate non-groupable information in this field
+            such as hostname,
+        session_timestamp: datetime.datetime, optional
+            Override the timestamp associated with the session. Normally you
+            shouldn't need to override this value
+        segments:
+            Can be either:
+            - List of tag key value pairs for tracking datasetments
+            - List of tag keys for whylogs to split up the data in the backend
+    """
+    dataset_name: Optional[str] = None
+    dataset_timestamp: Optional[datetime.datetime] = None
+    session_timestamp: Optional[datetime.datetime] = None
+    tags: Dict[str, str] = None
+    metadata: Dict[str, str] = None
+    segments: Optional[Union[List[Dict], List[str]]] = None
+    profile_full_dataset: bool = False
+    with_rotation_time: str = None
+    cache_size: int = 1
+    constraints: DatasetConstraints = None
+
+
+defaultLoggerArgs = LoggerKey()
 
 
 class Session:
@@ -38,7 +82,7 @@ class Session:
         writers: List[Writer],
         verbose: bool = False,
         with_rotation_time: str = None,
-        cache_size: int = None
+        cache_size: int = None,
     ):
         if writers is None:
             writers = []
@@ -56,8 +100,18 @@ class Session:
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
 
+        # enable special logic when starting/closing a Session if we're using whylabs client to save dataset profiles
+        whylabs_writer_is_present = any(isinstance(w, WhyLabsWriter) for w in self.writers)
+        self.use_whylabs_writer = _use_whylabs_client or whylabs_writer_is_present
+
+        # add WhyLabs writer if it's not already present (which can happen if it's not specified in the config)
+        if _use_whylabs_client and whylabs_writer_is_present is False:
+            self.writers.append(WhyLabsWriter(output_path=None, formats=["protobuf"]))
+
     def __enter__(self):
-        # TODO: configure other aspects
+        if self.use_whylabs_writer:
+            from whylogs.whylabs_client.wrapper import start_session
+            start_session()
         return self
 
     def __exit__(self, tpe, value, traceback):
@@ -66,24 +120,24 @@ class Session:
     def __repr__(self):
         return self._config.to_yaml()
 
-    def get_config(self,):
+    def get_config(self, ):
         return self._config
 
     def is_active(self):
         return self._active
 
     def logger(
-        self,
-        dataset_name: Optional[str] = None,
-        dataset_timestamp: Optional[datetime.datetime] = None,
-        session_timestamp: Optional[datetime.datetime] = None,
-        tags: Dict[str, str] = None,
-        metadata: Dict[str, str] = None,
-        segments: Optional[Union[List[Dict], List[str]]] = None,
-        profile_full_dataset: bool = False,
-        with_rotation_time: str = None,
-        cache_size: int = 1,
-        constraints: DatasetConstraints = None,
+            self,
+            dataset_name: Optional[str] = None,
+            dataset_timestamp: Optional[datetime.datetime] = None,
+            session_timestamp: Optional[datetime.datetime] = None,
+            tags: Dict[str, str] = None,
+            metadata: Dict[str, str] = None,
+            segments: Optional[List[Segment]] = None,
+            profile_full_dataset: bool = False,
+            with_rotation_time: str = None,
+            cache_size: int = 1,
+            constraints: DatasetConstraints = None,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -91,71 +145,48 @@ class Session:
 
         Parameters
         ----------
-        metadata
-        dataset_name : str
-            Name of the dataset. Default is the project name
-        dataset_timestamp: datetime.datetime, optional
-            The timestamp associated with the dataset. Could be the timestamp
-            for the batch, or the timestamp
-            for the window that you are tracking
-        tags: dict
-            Tag the data with groupable information. For example, you might want to tag your data
-            with the stage information (development, testing, production etc...)
-        metadata: dict
-            Useful to debug the data source. You can associate non-groupable information in this field
-            such as hostname,
-        session_timestamp: datetime.datetime, optional
-            Override the timestamp associated with the session. Normally you
-            shouldn't need to override this value
-        segments:
-            Can be either:
-            - List of tag key value pairs for tracking datasetments
-            - List of tag keys for whylogs to split up the data in the backend
+        args: LoggerKey
+            The properties of the logger if they're anything but the defaults.
         Returns
         -------
         ylog : whylogs.app.logger.Logger
             whylogs logger
         """
-        if tags is None:
-            tags = {}
-
         if not self._active:
             raise RuntimeError(
                 "Session is already closed. Cannot create more loggers")
 
-        if dataset_name is None:
-            # using the project name for the datasetname
-            dataset_name = self.project
-
-        if session_timestamp is None:
-            session_timestamp = self._session_time
-        if with_rotation_time is None:
-            with_rotation_time = self.with_rotation_time
-
-        # remove inactive loggers first
-        for name, logger in list(self._loggers.items()):
-            if not logger.is_active():
-                self._loggers.pop(name)
-
-        logger = self._loggers.get(dataset_name)
+        logger_key = str(LoggerKey(
+            dataset_name=dataset_name,
+            dataset_timestamp=dataset_timestamp,
+            session_timestamp=session_timestamp,
+            tags=tags,
+            metadata=metadata,
+            segments=segments,
+            profile_full_dataset=profile_full_dataset,
+            with_rotation_time=with_rotation_time,
+            cache_size=cache_size,
+            constraints=constraints
+        ))
+        logger = self._loggers.get(logger_key)
 
         if logger is None:
             logger = Logger(
                 session_id=self._session_id,
-                dataset_name=dataset_name,
+                dataset_name=dataset_name or self.project,
                 dataset_timestamp=dataset_timestamp,
-                session_timestamp=session_timestamp,
+                session_timestamp=session_timestamp or self._session_time,
                 writers=self.writers,
-                tags=tags,
+                tags=tags or {},
                 metadata=metadata,
                 verbose=self.verbose,
-                with_rotation_time=with_rotation_time,
+                with_rotation_time=with_rotation_time or self.with_rotation_time,
                 segments=segments,
                 profile_full_dataset=profile_full_dataset,
                 cache_size=cache_size,
                 constraints=constraints,
             )
-            self._loggers[dataset_name] = logger
+            self._loggers[logger_key] = logger
 
         return logger
 
@@ -296,6 +327,11 @@ class Session:
                 logger.close()
             self.remove_logger(name)
 
+        if self.use_whylabs_writer:
+            from whylogs.whylabs_client.wrapper import end_session
+            url = end_session()
+            print(f"You can explore your data in Observatory here: {url}")
+
     def remove_logger(self, dataset_name: str):
         """
         Remove a logger from the dataset. This is called by the logger when it's being closed
@@ -318,12 +354,17 @@ class Session:
         self._loggers.pop(dataset_name)
 
 
+#: Global flag for whether whylabs client should be used
+_use_whylabs_client = False
+
+
 def session_from_config(config: SessionConfig) -> Session:
     """
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time, config.cache_size)
+    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time,
+                   config.cache_size)
 
 
 #: A global session
@@ -344,6 +385,16 @@ def reset_default_session():
                 type="local", output_path="output", formats=["all"])], False
         )
     _session = session_from_config(config)
+
+
+def start_whylabs_session(path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None):
+    if not data_collection_consent:
+        raise PermissionError(
+            "When creating a session that will send data to WhyLabs, data_collection_consent must be set to True")
+
+    global _use_whylabs_client
+    _use_whylabs_client = True
+    return get_or_create_session(path_to_config)
 
 
 def get_or_create_session(path_to_config: Optional[str] = None):
