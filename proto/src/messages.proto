@@ -1,0 +1,187 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option java_package = "com.whylogs.core.message";
+option java_outer_classname = "Messages";
+option java_multiple_files = true;
+
+message Counters {
+  int64 count = 1;
+
+  google.protobuf.Int64Value true_count = 2;
+  google.protobuf.Int64Value null_count = 3;
+}
+
+message InferredType {
+  enum Type {
+    UNKNOWN = 0;
+    NULL = 1;
+    FRACTIONAL = 2;
+    INTEGRAL = 3;
+    BOOLEAN = 4;
+    STRING = 5;
+  }
+
+  Type type = 1;
+  double ratio = 2;
+}
+
+message DoublesMessage {
+  int64 count = 1;
+  double min = 2;
+  double max = 3;
+  double sum = 4;
+}
+
+message LongsMessage {
+  int64 count = 1;
+  int64 min = 2;
+  int64 max = 3;
+  int64 sum = 4;
+}
+
+message VarianceMessage {
+  int64 count = 1;
+  double sum = 2; // sample variance * (n-1)
+  double mean = 3;
+}
+
+message FrequentNumbersSketchMessage {
+  bytes sketch = 1;
+  int32 lg_max_k = 2;
+}
+
+message FrequentItemsSketchMessage {
+  bytes sketch = 1;
+  int32 lg_max_k = 2;
+}
+
+message NumbersMessage {
+  VarianceMessage variance = 1;
+  oneof numbers {
+    DoublesMessage doubles = 2;
+    LongsMessage longs = 3;
+  }
+
+  // sketches
+  bytes histogram = 4;
+  bytes theta = 5;
+  bytes compact_theta = 6;
+  FrequentNumbersSketchMessage frequent_numbers = 7;
+}
+
+message StringsMessage {
+  int64 count = 1;
+
+  // sketches
+  bytes theta = 2;
+  bytes items = 3;
+  bytes compact_theta = 4;
+}
+
+
+message SchemaMessage {
+  map<int32, int64> typeCounts = 1;
+  InferredType inferred_type = 2;
+}
+
+message ColumnMessage {
+  string name = 1;
+  Counters counters = 2;
+  SchemaMessage schema = 3;
+  NumbersMessage numbers = 4;
+  StringsMessage strings = 5;
+  InferredType inferred_type = 6;
+  FrequentItemsSketchMessage frequent_items = 7;
+  HllSketchMessage cardinality_tracker = 8;
+}
+
+message DatasetProperties {
+  uint32 schema_major_version = 1;
+  uint32 schema_minor_version = 2;
+
+  string session_id = 3;
+  int64 session_timestamp = 4;
+  int64 data_timestamp = 5;
+  map<string, string> tags = 6;
+  map<string, string> metadata = 7;
+  // TODO: store other configuration here
+}
+
+message ScoreMatrixMessage {
+  repeated string labels = 1;
+  string prediction_field = 2;
+  string target_field = 3;
+  string score_field = 4;
+
+  // a flattened NxN matrix (N = len(labels))
+  repeated NumbersMessage scores = 10;
+}
+
+message RegressionMetricsMessage{
+  string prediction_field = 1;
+  string target_field = 2;
+  uint64 count = 3;
+  double sum_abs_diff = 4;
+  double sum_diff = 5;
+  double sum2_diff = 6;
+}
+
+enum ModelType {
+  UNKNOWN = 0;
+  CLASSIFICATION = 1;
+  REGRESSION = 2;
+  EMBEDDINGS = 3;
+}
+
+message ModelMetricsMessage {
+  ScoreMatrixMessage scoreMatrix = 1;
+  ModelType modelType = 2;
+  RegressionMetricsMessage regressionMetrics = 3;
+}
+
+message ModelProfileMessage {
+  repeated string output_fields = 1;
+  // Reserving fields for ModelMessage
+
+  ModelMetricsMessage metrics = 10;
+}
+
+message DatasetProfileMessage {
+  DatasetProperties properties = 1;
+  map<string, ColumnMessage> columns = 2;
+  // reserve other fields for dataset level data
+  ModelProfileMessage modeProfile = 10;
+}
+
+/**
+ * The follow section is for transmission and reconstruction of the dataset
+ * in WhyLogs backend
+ */
+message ColumnsChunkSegment {
+  // UUID is required to aggregate to the original message
+  // This should map back to the original dataset
+  string marker = 1;
+  repeated ColumnMessage columns = 2;
+}
+
+message DatasetMetadataSegment {
+  string marker = 1;
+  DatasetProperties properties = 2;
+}
+
+// A segment of a dataset profile. This can be used to composed the
+// original object back
+message MessageSegment {
+  string marker = 1;
+  oneof item {
+    DatasetMetadataSegment metadata = 2;
+    ColumnsChunkSegment columns = 3;
+  }
+}
+
+message HllSketchMessage {
+  bytes sketch = 1;
+  int32 lg_k = 2;
+}
