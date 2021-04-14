@@ -1,5 +1,79 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help
-.DEFAULT_GOAL := help
+src.python := $(shell find ./src -type f -name "*.py")
+tst.python := $(shell find ./tests -type f -name "*.py")
+src.python.pyc := $(shell find ./src -type f -name "*.pyc")
+src.proto.dir := ./proto/src
+src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
+
+dist.dir := dist
+egg.dir := .eggs
+build.dir := build
+build.wheel := $(dist.dir)/whylogs-0.4.5.dev1.tar.gz
+build.proto.dir := src/whylogs/proto
+build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$(src.proto))
+
+default: dist
+
+.PHONY: dist clean clean-test help format lint test test-all install coverage docs default proto
+
+help:
+	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+
+clean: clean-test ## Remove all build artifacts
+	rm -rf $(dist.dir)
+	rm -rf $(build.dir)
+	rm -f $(src.python.pyc)
+	rm -rf $(egg.dir)
+	rm -rf $(build.proto)
+	rm -f $(build.proto)
+
+clean-test: ## Remove test and coverage artifacts
+	rm -fr .tox/
+	rm -f .coverage
+	rm -fr htmlcov/
+	rm -fr .pytest_cache
+
+dist: $(build.wheel) ## Create distribution tarballs and wheels
+
+$(build.wheel): $(src.python)
+	@$(call i, Generating distribution files)
+	python setup.py sdist
+	python setup.py bdist_wheel
+	@$(call i, Distribution files created)
+	@find dist -type f
+
+proto:$(build.proto)
+
+$(build.proto):$(src.proto)
+	@$(call i, Generating python source for protobuf)
+	python setup.py proto
+
+lint: ## check style with flake8
+	tox -e flake8
+
+format: ## format source code with black
+	black .
+
+test: dist ## run tests with pytest
+	pytest
+
+test-all: dist ## run tests on every Python version with tox
+	tox
+
+install: ## install all dependencies with poetry
+	poetry install
+
+coverage: ## generate test coverage reports
+	pytest --cov='src/.' tests/
+	python -m coverage report
+
+docs: build-proto ## generate Sphinx HTML documentation, including API docs
+	rm -f docs/whylogs.rst
+	rm -f docs/modules.rst
+	cd docs
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs html
+	$(BROWSER) build/sphinx/html/index.html
+
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
@@ -9,6 +83,7 @@ from urllib.request import pathname2url
 webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
 endef
 export BROWSER_PYSCRIPT
+BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
 define PRINT_HELP_PYSCRIPT
 import re, sys
@@ -21,74 +96,14 @@ for line in sys.stdin:
 endef
 export PRINT_HELP_PYSCRIPT
 
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+define i
+python ./scripts/color.py info "$1"
+endef
 
-help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+define w
+python ./scripts/color.py warn "$1"
+endef
 
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
-
-clean-build: ## remove build artifacts
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	rm -fr src/whylogs/proto/*pb2.py
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
-
-clean-pyc: ## remove Python file artifacts
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
-
-clean-test: ## remove test and coverage artifacts
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
-	rm -fr .pytest_cache
-
-lint: ## check style with flake8
-	tox -e flake8
-
-test: build-proto ## run tests quickly with the default Python
-	pytest
-
-test-all: build-proto ## run tests on every Python version with tox
-	tox
-
-coverage: ## check code coverage quickly with the default Python
-	pytest --cov='src/.' tests/
-	python -m coverage report
-
-docs: build-proto ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/whylogs.rst
-	rm -f docs/modules.rst
-	cd docs
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	$(BROWSER) build/sphinx/html/index.html
-
-servedocs: docs ## compile the docs watching for changes
-	watchmedo shell-command -p '*.rst' -recursive -c '$(MAKE) -C docs' -D .
-
-release: dist ## package and upload a release
-	twine upload dist/*
-
-dist: clean-build build-proto ## builds source and wheel package
-	python setup.py build
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
-
-install: build-proto clean ## install the package to the active Python's site-packages
-	python setup.py install
-
-build-proto:
-	python setup.py proto
-
-build: build-proto lint
-	python setup.py build
-
-develop: build-proto
-	python setup.py develop
+define e
+python ./scripts/color.py error "$1"
+endef
