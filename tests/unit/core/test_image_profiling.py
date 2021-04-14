@@ -42,6 +42,7 @@ def test_track_image():
     trackImage(profile_1)
     columns = profile_1.columns
     assert len(columns) == total_default_features+11
+    # TODO leo, why is this failing with 26 !== 30
     assert columns["Saturation"].number_tracker.count == 2*67500
 
 

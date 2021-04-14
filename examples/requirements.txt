@@ -1,6 +1,0 @@
-boto3
-certifi
-chardet
-matplotlib
-numpy
-whylogs==0.1.10
