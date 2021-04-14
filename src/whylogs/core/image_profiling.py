@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Callable, List, Dict
+from typing import Optional, Callable, List, Dict, Union
 
 from whylogs.features.transforms import Hue, Saturation, Brightness
 
@@ -61,7 +61,7 @@ class TrackImage:
                  img: ImageType = None,
                  feature_transforms: List[Callable] = DEFAULT_IMAGE_FEATURES,
                  feature_name: str = "",
-                 metadata_attributes: Optional[List[str]] = _METADATA_DEFAULT_ATTRIBUTES,
+                 metadata_attributes: Union[str, List[str]] = _METADATA_DEFAULT_ATTRIBUTES,
                  ):
 
         if filepath is None and img is None:
