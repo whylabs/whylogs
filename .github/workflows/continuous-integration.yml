@@ -42,9 +42,8 @@ jobs:
           ${{ runner.os }}-pip-
     - name: Install dependencies
       run: make install
-    - name: Test with tox
-      run: |
-        make test-all
+    - name: Run tests
+      run: make test-system-python
     - name: Coveralls Parallel
       if: ${{matrix.os == 'ubuntu-latest'}}
       env:
