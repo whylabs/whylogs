@@ -13,7 +13,7 @@ build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$
 
 default: dist
 
-.PHONY: dist clean clean-test help format lint test test-all install coverage docs default proto
+.PHONY: dist clean clean-test help format lint test test-all install coverage docs default proto test-notebooks
 
 ifeq (, $(shell which poetry))
 	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
@@ -59,6 +59,9 @@ format: ## format source code with black
 
 test: dist ## run tests with pytest
 	poetry run pytest
+
+test-notebooks: ## Run tests for the notebooks
+	poetry run pytest --no-cov test_notebooks/notebook_tests.py
 
 test-all: dist ## run tests on every Python version with tox
 	poetry run tox
