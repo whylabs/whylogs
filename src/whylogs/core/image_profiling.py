@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Callable, List, Dict, Union
+from typing import Callable, List, Dict, Union
 
 from whylogs.features.transforms import Hue, Saturation, Brightness
 
