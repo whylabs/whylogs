@@ -48,7 +48,7 @@ clean-test: ## Remove test and coverage artifacts
 
 dist: $(build.wheel) ## Create distribution tarballs and wheels
 
-$(build.wheel): $(src.python) $(build.proto) requirements.txt
+$(build.wheel): $(src.python) $(build.proto)
 	@$(call i, Generating distribution files)
 	poetry build
 	@$(call i, Distribution files created)
@@ -57,12 +57,13 @@ $(build.wheel): $(src.python) $(build.proto) requirements.txt
 proto: $(build.proto)
 
 requirements.txt:
+	@$(call i, Generating a requirements.txt file from poetry)
 	poetry export -f requirements.txt --output requirements.txt --dev
 
 $(build.proto): $(src.proto)
 	@$(call i, Generating python source for protobuf)
 	protoc -I $(src.proto.dir) --python_out=$(build.proto.dir) $(src.proto)
-	poetry run 2to3 ./src/whylogs/proto/
+	poetry run 2to3 --nobackups --write ./src/whylogs/proto/
 
 lint: ## check style with flake8
 	@$(call i, Running the linter)
