@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       fail-fast: false
       max-parallel: 6
@@ -41,7 +41,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Install dependencies
-      run: poetry install
+      run: make install
     - name: Run notebook test
       run: make test-notebooks
 
