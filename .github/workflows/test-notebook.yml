@@ -43,6 +43,5 @@ jobs:
     - name: Install dependencies
       run: poetry install
     - name: Run notebook test
-      run: |
-        pytest --no-cov test_notebooks/notebook_tests.py
+      run: make test-notebooks
     
