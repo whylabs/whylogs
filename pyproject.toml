@@ -43,6 +43,11 @@ nbconvert = "^6.0.7"
 ipykernel = "^5.5.3"
 setuptools = "^56.0.0"
 2to3 = "^1.0"
+sphinx-rtd-theme = "^0.5.2"
+autoapi = "^2.0.1"
+sphinx-autoapi = "^1.8.0"
+sphinx-autodoc-typehints = "^1.12.0"
+watchdog = {extras = ["watchmedo"], version = "^2.0.2"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
