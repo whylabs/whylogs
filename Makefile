@@ -52,28 +52,36 @@ $(build.proto):$(src.proto)
 	poetry run python setup.py proto
 
 lint: ## check style with flake8
+	@$(call i, Running the linter)
 	poetry run tox -e flake8
 
 format: ## format source code with black
+	@$(call i, Running the formatter)
 	poetry run black .
 
 test: dist ## run tests with pytest
+	@$(call i, Running tests)
 	poetry run pytest
 
 test-notebooks: ## Run tests for the notebooks
+	@$(call i, Running notebook tests)
 	poetry run pytest --no-cov test_notebooks/notebook_tests.py
 
 test-all: dist ## run tests on every Python version with tox
+	@$(call i, Running tox tests)
 	poetry run tox
 
 install: ## install all dependencies with poetry
+	@$(call i, Installing dependencies)
 	poetry install
 
 coverage: ## generate test coverage reports
+	@$(call i, Generating test coverage)
 	poetry run pytest --cov='src/.' tests/
 	poetry run python -m coverage report
 
 docs: build-proto ## generate Sphinx HTML documentation, including API docs
+	@$(call i, Generating docs)
 	rm -f docs/whylogs.rst
 	rm -f docs/modules.rst
 	cd docs
