@@ -29,6 +29,7 @@ clean: clean-test ## Remove all build artifacts
 	rm -rf $(egg.dir)
 	rm -rf $(build.proto)
 	rm -f $(build.proto)
+	rm -f requirements.txt
 
 clean-test: ## Remove test and coverage artifacts
 	rm -fr .tox/
@@ -38,16 +39,19 @@ clean-test: ## Remove test and coverage artifacts
 
 dist: $(build.wheel) ## Create distribution tarballs and wheels
 
-$(build.wheel): $(src.python)
+$(build.wheel): $(src.python) $(build.proto) requirements.txt
 	@$(call i, Generating distribution files)
 	poetry run python setup.py sdist
 	poetry run python setup.py bdist_wheel
 	@$(call i, Distribution files created)
 	@find dist -type f
 
-proto:$(build.proto)
+proto: $(build.proto)
 
-$(build.proto):$(src.proto)
+requirements.txt:
+	poetry export -f requirements.txt --output requirements.txt --dev
+
+$(build.proto): $(src.proto)
 	@$(call i, Generating python source for protobuf)
 	poetry run python setup.py proto
 
