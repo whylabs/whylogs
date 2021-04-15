@@ -33,6 +33,7 @@ import org.apache.datasketches.memory.Memory;
 public class ColumnProfile {
   public static final int FREQUENT_MAX_LG_K = 7;
   private static final int CARDINALITY_LG_K = 12;
+  public static final int STRING_LENGTH_MAX = 256;
   private static volatile ImmutableSet<String> NULL_STR_ENVS;
 
   @NonNull private final String columnName;
@@ -108,6 +109,9 @@ public class ColumnProfile {
   }
 
   private void trackText(String text) {
+    if (text != null && text.length() > STRING_LENGTH_MAX) {
+      text = text.substring(0, STRING_LENGTH_MAX);
+    }
     frequentItems.update(text);
     cardinalityTracker.update(text);
   }
