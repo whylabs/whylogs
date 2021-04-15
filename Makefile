@@ -7,13 +7,22 @@ src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 dist.dir := dist
 egg.dir := .eggs
 build.dir := build
+# This isn't exactly true but its the only thing that we easily know the name of at this point. Its a good proxy for
+# the wheel since its created along with it.
 build.wheel := $(dist.dir)/whylogs-0.4.5.dev1.tar.gz
 build.proto.dir := src/whylogs/proto
 build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$(src.proto))
 
 default: dist
 
-.PHONY: dist clean clean-test help format lint test test-all install coverage docs default proto test-notebooks
+release:
+	# Run format checker
+	# Run dist
+
+github:
+	# TODO
+
+.PHONY: dist clean clean-test help format lint test install coverage docs default proto test-notebooks github release test-system-python
 
 ifeq (, $(shell which poetry))
 	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
@@ -41,8 +50,7 @@ dist: $(build.wheel) ## Create distribution tarballs and wheels
 
 $(build.wheel): $(src.python) $(build.proto) requirements.txt
 	@$(call i, Generating distribution files)
-	poetry run python setup.py sdist
-	poetry run python setup.py bdist_wheel
+	poetry build
 	@$(call i, Distribution files created)
 	@find dist -type f
 
@@ -53,7 +61,8 @@ requirements.txt:
 
 $(build.proto): $(src.proto)
 	@$(call i, Generating python source for protobuf)
-	poetry run python setup.py proto
+	protoc -I $(src.proto.dir) --python_out=$(build.proto.dir) $(src.proto)
+	poetry run 2to3 ./src/whylogs/proto/
 
 lint: ## check style with flake8
 	@$(call i, Running the linter)
@@ -67,13 +76,14 @@ test: dist ## run tests with pytest
 	@$(call i, Running tests)
 	poetry run pytest
 
+test-system-python: ## Run tests using the system `python` instead of the locally declared poetry python
+	@$(call i, Running tests using the globally installed python)
+	python -m poetry run python --version
+	python -m poetry run pytest
+
 test-notebooks: ## Run tests for the notebooks
 	@$(call i, Running notebook tests)
 	poetry run pytest --no-cov test_notebooks/notebook_tests.py
-
-test-all: dist ## run tests on every Python version with tox
-	@$(call i, Running tox tests)
-	poetry run tox
 
 install: ## install all dependencies with poetry
 	@$(call i, Installing dependencies)
@@ -84,7 +94,7 @@ coverage: ## generate test coverage reports
 	poetry run pytest --cov='src/.' tests/
 	poetry run python -m coverage report
 
-docs: build-proto ## generate Sphinx HTML documentation, including API docs
+docs: proto ## generate Sphinx HTML documentation, including API docs
 	@$(call i, Generating docs)
 	rm -f docs/whylogs.rst
 	rm -f docs/modules.rst
