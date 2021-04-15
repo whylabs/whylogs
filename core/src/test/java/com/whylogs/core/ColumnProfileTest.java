@@ -104,15 +104,17 @@ public class ColumnProfileTest {
     merged.track("value");
   }
 
-
   @Test
   public void maxStringTruncation() {
     val col = new ColumnProfile("test");
-    col.track("superlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstring");
+    col.track(
+        "superlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstringsuperlongstring");
 
     val merged = col.merge(col);
     val r = merged.getFrequentItems().getFrequentItems(1, ErrorType.NO_FALSE_POSITIVES);
-    assertThat("String should not exceed the limit", r[0].getItem().length() <= ColumnProfile.STRING_LENGTH_MAX);
+    assertThat(
+        "String should not exceed the limit",
+        r[0].getItem().length() <= ColumnProfile.STRING_LENGTH_MAX);
 
     // verify that the merged profile is updatable
     merged.track("value");

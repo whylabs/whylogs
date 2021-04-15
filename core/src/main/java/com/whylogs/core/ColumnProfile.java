@@ -109,7 +109,7 @@ public class ColumnProfile {
   }
 
   private void trackText(String text) {
-    if(text != null && text.length() > STRING_LENGTH_MAX) {
+    if (text != null && text.length() > STRING_LENGTH_MAX) {
       text = text.substring(0, STRING_LENGTH_MAX);
     }
     frequentItems.update(text);
