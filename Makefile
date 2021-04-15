@@ -77,7 +77,7 @@ test: dist ## run tests with pytest
 	@$(call i, Running tests)
 	poetry run pytest
 
-test-system-python: ## Run tests using the system `python` instead of the locally declared poetry python
+test-system-python: dist ## Run tests using the system `python` instead of the locally declared poetry python
 	@$(call i, Running tests using the globally installed python)
 	python -m poetry run python --version
 	python -m poetry run pytest
