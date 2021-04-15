@@ -15,6 +15,10 @@ default: dist
 
 .PHONY: dist clean clean-test help format lint test test-all install coverage docs default proto
 
+ifeq (, $(shell which poetry))
+	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
+endif
+
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
@@ -36,8 +40,8 @@ dist: $(build.wheel) ## Create distribution tarballs and wheels
 
 $(build.wheel): $(src.python)
 	@$(call i, Generating distribution files)
-	python setup.py sdist
-	python setup.py bdist_wheel
+	poetry run python setup.py sdist
+	poetry run python setup.py bdist_wheel
 	@$(call i, Distribution files created)
 	@find dist -type f
 
@@ -45,26 +49,26 @@ proto:$(build.proto)
 
 $(build.proto):$(src.proto)
 	@$(call i, Generating python source for protobuf)
-	python setup.py proto
+	poetry run python setup.py proto
 
 lint: ## check style with flake8
-	tox -e flake8
+	poetry run tox -e flake8
 
 format: ## format source code with black
-	black .
+	poetry run black .
 
 test: dist ## run tests with pytest
-	pytest
+	poetry run pytest
 
 test-all: dist ## run tests on every Python version with tox
-	tox
+	poetry run tox
 
 install: ## install all dependencies with poetry
 	poetry install
 
 coverage: ## generate test coverage reports
-	pytest --cov='src/.' tests/
-	python -m coverage report
+	poetry run pytest --cov='src/.' tests/
+	poetry run python -m coverage report
 
 docs: build-proto ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/whylogs.rst
