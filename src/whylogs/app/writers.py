@@ -386,6 +386,23 @@ class S3Writer(Writer):
             f.write(protobuf.SerializeToString())
 
 
+class WhyLabsWriter(Writer):
+    def write(self, profile: DatasetProfile, rotation_suffix: str = None):
+        """
+        Write a dataset profile to WhyLabs
+        """
+        self.rotation_suffix = rotation_suffix
+        self._write_protobuf(profile)
+        self.rotation_suffix = None
+
+    def _write_protobuf(self, profile: DatasetProfile):
+        """
+        Write a protobuf profile to WhyLabs
+        """
+        from whylogs.whylabs_client.wrapper import upload_profile
+        upload_profile(profile)
+
+
 def writer_from_config(config: WriterConfig):
     """
     Construct a whylogs `Writer` from a `WriterConfig`
@@ -413,5 +430,9 @@ def writer_from_config(config: WriterConfig):
             config.path_template,
             config.filename_template,
         )
+    elif config.type == "whylabs":
+        if config.data_collection_consent is not True:
+            raise ValueError(f"Writer of type {config.type} requires data_collection_consent parameter to be set to True")
+        return WhyLabsWriter()
     else:
         raise ValueError(f"Unknown writer type: {config.type}")
