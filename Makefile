@@ -101,13 +101,19 @@ endef
 export PRINT_HELP_PYSCRIPT
 
 define i
-python ./scripts/color.py info "$1"
+echo
+echo "[INFO] $1"
+echo
 endef
 
 define w
-python ./scripts/color.py warn "$1"
+echo
+echo "[WARN] $1"
+echo
 endef
 
 define e
-python ./scripts/color.py error "$1"
+echo
+echo "[ERROR] $1"
+echo
 endef
