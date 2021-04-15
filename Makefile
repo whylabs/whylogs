@@ -15,14 +15,9 @@ build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$
 
 default: dist
 
-release:
-	# Run format checker
-	# Run dist
+release: format lint test dist ## Compile distribution files and run all tests and checks.
 
-github:
-	# TODO
-
-.PHONY: dist clean clean-test help format lint test install coverage docs default proto test-notebooks github release test-system-python
+.PHONY: dist clean clean-test help format lint test install coverage docs default proto test-notebooks github release test-system-python format-fix
 
 ifeq (, $(shell which poetry))
 	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
@@ -32,6 +27,8 @@ help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 clean: clean-test ## Remove all build artifacts
+	rm -f docs/whylogs.rst
+	rm -f docs/modules.rst
 	rm -rf $(dist.dir)
 	rm -rf $(build.dir)
 	rm -f $(src.python.pyc)
@@ -69,8 +66,12 @@ lint: ## check style with flake8
 	@$(call i, Running the linter)
 	poetry run tox -e flake8
 
-format: ## format source code with black
-	@$(call i, Running the formatter)
+format: ## Check formatting with black
+	@$(call i, Checking formatting)
+	poetry run black --check .
+
+format-fix: ## Fix formatting with black. This updates files.
+	@$(call i, Formatting code)
 	poetry run black .
 
 test: dist ## run tests with pytest
@@ -97,8 +98,6 @@ coverage: ## generate test coverage reports
 
 docs: proto ## generate Sphinx HTML documentation, including API docs
 	@$(call i, Generating docs)
-	rm -f docs/whylogs.rst
-	rm -f docs/modules.rst
 	cd docs
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
@@ -107,13 +106,12 @@ docs: proto ## generate Sphinx HTML documentation, including API docs
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
-
 from urllib.request import pathname2url
 
 webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
 endef
 export BROWSER_PYSCRIPT
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+BROWSER := poetry run python -c "$$BROWSER_PYSCRIPT"
 
 define PRINT_HELP_PYSCRIPT
 import re, sys
