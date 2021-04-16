@@ -28,6 +28,7 @@ sklearn = "^0.0"
 pyarrow = "^3.0.0"
 llvmlite = "^0.36.0"
 fastparquet = "^0.5.0"
+pytest-mypy = "^0.8.1"
 
 [tool.poetry.dev-dependencies]
 sklearn = "^0.0"
