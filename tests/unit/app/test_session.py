@@ -32,9 +32,7 @@ def test_reset():
 def test_session_log_dataframe():
     _session = None
 
-    session = session_from_config(
-        SessionConfig("default-project", "default-pipeline", [], False)
-    )
+    session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
     df = util.testing.makeDataFrame()
     profile = session.log_dataframe(df)
 
@@ -45,9 +43,7 @@ def test_session_log_dataframe():
 
 def test_session_profile():
 
-    session = session_from_config(
-        SessionConfig("default-project", "default-pipeline", [], False)
-    )
+    session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
     df = util.testing.makeDataFrame()
     profile = session.log_dataframe(df)
     assert profile is not None

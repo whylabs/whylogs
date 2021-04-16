@@ -43,12 +43,8 @@ class WhyLogsRun(object):
             self._close()
             self._active_run_id = run_info.run_id
 
-        session_timestamp = datetime.datetime.utcfromtimestamp(
-            run_info.start_time / 1000.0
-        )
-        experiment: _mlflow.entities.Experiment = (
-            _mlflow.tracking.MlflowClient().get_experiment(run_info.experiment_id)
-        )
+        session_timestamp = datetime.datetime.utcfromtimestamp(run_info.start_time / 1000.0)
+        experiment: _mlflow.entities.Experiment = _mlflow.tracking.MlflowClient().get_experiment(run_info.experiment_id)
         logger_dataset_name = dataset_name or experiment.name
         tags = dict(active_run.data.tags)
         tags["mflow.experiment_id"] = active_run.info.experiment_id
@@ -81,9 +77,7 @@ class WhyLogsRun(object):
         ylogs = self._get_or_create_logger(dataset_name)
 
         if ylogs is None:
-            logger.warning(
-                "Unable to get an active logger. Are you in an active MLFlow run?"
-            )
+            logger.warning("Unable to get an active logger. Are you in an active MLFlow run?")
 
         ylogs.log_dataframe(df)
 
@@ -105,9 +99,7 @@ class WhyLogsRun(object):
         """
         ylogs = self._get_or_create_logger(dataset_name)
         if ylogs is None:
-            logger.warning(
-                "Unable to get an active logger. Are you in an active MLFlow run?"
-            )
+            logger.warning("Unable to get an active logger. Are you in an active MLFlow run?")
             return
 
         ylogs.log(features, feature_name, value)
@@ -155,9 +147,7 @@ def _new_mlflow_conda_env(
     global _original_mlflow_conda_env
     pip_deps = additional_pip_deps or []
     pip_deps.append(f"whylogs=={whylogs_version}")
-    return _original_mlflow_conda_env(
-        path, additional_conda_deps, pip_deps, additional_conda_channels, install_mlflow
-    )
+    return _original_mlflow_conda_env(path, additional_conda_deps, pip_deps, additional_conda_channels, install_mlflow)
 
 
 def _new_add_to_model(model, loader_module, data=None, code=None, env=None, **kwargs):
@@ -201,10 +191,7 @@ def new_model_log(**kwargs):
     global _original_model_log
 
     if not os.path.isfile(WHYLOG_YAML):
-        logger.warning(
-            "Unable to detect .whylogs.yaml file under current directory. whylogs will write to local disk in the "
-            "container"
-        )
+        logger.warning("Unable to detect .whylogs.yaml file under current directory. whylogs will write to local disk in the " "container")
         _original_model_log(**kwargs)
         return
     if _original_model_log is None:
@@ -263,9 +250,7 @@ def enable_mlflow() -> bool:
 
         _mlflow = mlflow
     except ImportError:
-        logger.warning(
-            "Failed to import MLFlow. Please make sure MLFlow is installed in your runtime"
-        )
+        logger.warning("Failed to import MLFlow. Please make sure MLFlow is installed in your runtime")
         return False
     _original_mlflow_conda_env = _mlflow.utils.environment._mlflow_conda_env
     _original_add_to_model = _mlflow.pyfunc.add_to_model
@@ -282,9 +267,7 @@ def enable_mlflow() -> bool:
 
     # Store the original end_run
     def end_run(
-        status=_mlflow.entities.RunStatus.to_string(
-            _mlflow.entities.RunStatus.FINISHED
-        ),
+        status=_mlflow.entities.RunStatus.to_string(_mlflow.entities.RunStatus.FINISHED),
     ):
         logger.debug("Closing whylogs before ending the MLFlow run")
         _mlflow.whylogs._close()

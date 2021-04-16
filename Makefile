@@ -62,9 +62,13 @@ $(build.proto): $(src.proto)
 	protoc -I $(src.proto.dir) --python_out=$(build.proto.dir) $(src.proto)
 	poetry run 2to3 --nobackups --write ./src/whylogs/proto/
 
-lint: ## check style with flake8
+lint: ## check code with flake8
 	@$(call i, Running the linter)
 	poetry run flake8
+
+lint-fix: ## automatically fix linting issues
+	@$(call i, Running the linter)
+	poetry run autopep8 -r --in-place .
 
 format: ## Check formatting with black
 	@$(call i, Checking formatting)

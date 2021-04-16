@@ -34,9 +34,7 @@ class RegressionMetrics:
         """
         tgt_type = type_of_target(targets)
         if tgt_type not in ("continuous"):
-            raise NotImplementedError(
-                f"target type: {tgt_type} not supported for these metrics"
-            )
+            raise NotImplementedError(f"target type: {tgt_type} not supported for these metrics")
 
         # need to vectorize this
         for idx, target in enumerate(targets):
@@ -85,9 +83,7 @@ class RegressionMetrics:
         if self.target_field != other.target_field:
             raise ValueError("target  fields differ")
 
-        new_reg = RegressionMetrics(
-            prediction_field=self.prediction_field, target_field=self.target_field
-        )
+        new_reg = RegressionMetrics(prediction_field=self.prediction_field, target_field=self.target_field)
         new_reg.count = self.count + other.count
         new_reg.sum_abs_diff = self.sum_abs_diff + other.sum_abs_diff
         new_reg.sum_diff = self.sum_diff + other.sum_diff

@@ -97,9 +97,7 @@ class TrackImage:
             transformed_image = each_transform(self.img)
             for each_profile in profiles:
 
-                each_profile.track_array(
-                    columns=[self.feature_name + transform_name], x=transformed_image
-                )
+                each_profile.track_array(columns=[self.feature_name + transform_name], x=transformed_image)
 
                 if self.metadata_attributes == "all":
                     each_profile.track(metadata)
@@ -107,9 +105,7 @@ class TrackImage:
                 else:
                     for each_attr in self.metadata_attributes:
                         attribute_value = metadata.get(each_attr, None)
-                        each_profile.track(
-                            self.feature_name + each_attr, attribute_value
-                        )
+                        each_profile.track(self.feature_name + each_attr, attribute_value)
 
 
 def get_pil_image_metadata(img: ImageType) -> Dict:
@@ -122,10 +118,7 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
     Returns:
         Dict: of metadata
     """
-    metadata = {
-        TAGS[k]: "{}".format(v) if (isinstance(v, IFDRational)) else v
-        for k, v in dict(img.getexif()).items()
-    }
+    metadata = {TAGS[k]: "{}".format(v) if (isinstance(v, IFDRational)) else v for k, v in dict(img.getexif()).items()}
 
     metadata.update({"ImageFormat": img.format})
 

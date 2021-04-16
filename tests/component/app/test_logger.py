@@ -18,9 +18,7 @@ def test_write_template_path():
     data_time = time.from_utc_ms(9999)
     session_time = time.from_utc_ms(88888)
     path_template = "$name-$session_timestamp-$dataset_timestamp-$session_id"
-    writer_config = WriterConfig(
-        "local", ["protobuf", "flat"], "output", path_template, "dataset-profile-$name"
-    )
+    writer_config = WriterConfig("local", ["protobuf", "flat"], "output", path_template, "dataset-profile-$name")
     writer = writer_from_config(writer_config)
     dp = DatasetProfile("name", data_time, session_time, session_id="session")
     assert writer.path_suffix(dp) == "name-88888-9999-session"
@@ -120,9 +118,7 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
 
     now = datetime.datetime.now()
     for i in range(0, 5):
-        with session.logger(
-            dataset_timestamp=now + datetime.timedelta(days=i)
-        ) as logger:
+        with session.logger(dataset_timestamp=now + datetime.timedelta(days=i)) as logger:
             logger.log_dataframe(df_lending_club)
 
     output_files = []

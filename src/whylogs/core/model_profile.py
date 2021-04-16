@@ -77,10 +77,7 @@ class ModelProfile:
             )
             self.metrics.model_type = ModelType.REGRESSION
 
-        elif (
-            tgt_type in ("binary", "multiclass")
-            or model_type == ModelType.CLASSIFICATION
-        ):
+        elif tgt_type in ("binary", "multiclass") or model_type == ModelType.CLASSIFICATION:
             self.metrics.model_type = ModelType.CLASSIFICATION
 
             # if score are not present set them to 1.
@@ -102,9 +99,7 @@ class ModelProfile:
             raise NotImplementedError(f"target type {tgt_type} not supported yet")
 
     def to_protobuf(self):
-        return ModelProfileMessage(
-            output_fields=self.output_fields, metrics=self.metrics.to_protobuf()
-        )
+        return ModelProfileMessage(output_fields=self.output_fields, metrics=self.metrics.to_protobuf())
 
     @classmethod
     def from_protobuf(cls, message: ModelProfileMessage):

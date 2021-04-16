@@ -26,9 +26,7 @@ class IntTracker:
         "count": 0,
     }
 
-    def __init__(
-        self, min: int = None, max: int = None, sum: int = None, count: int = None
-    ):
+    def __init__(self, min: int = None, max: int = None, sum: int = None, count: int = None):
         kwargs = locals()
         kwargs.pop("self")
         opts = {}
@@ -111,6 +109,4 @@ class IntTracker:
         -------
         number_tracker : IntTracker
         """
-        return IntTracker(
-            min=message.min, max=message.max, sum=message.sum, count=message.count
-        )
+        return IntTracker(min=message.min, max=message.max, sum=message.sum, count=message.count)
