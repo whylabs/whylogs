@@ -33,11 +33,11 @@ class Rectangle:
         self._y2 = boundingBox[1][0]
         self.confidence = confidence
         self.labels = labels
-        self.area = abs(self.x2 - self.x1)*abs(self.y2-self.y1)
+        self.area = abs(self.x2 - self.x1) * abs(self.y2 - self.y1)
         self.width = abs(self.x2 - self.x1)
         self.height = abs(self.y2 - self.y1)
         self.aspect_ratio = self.width / self.height if self.height > 0 else 0.0
-        self.centroid = [self.x1 + self.width/2, self.y1 + self.height/2]
+        self.centroid = [self.x1 + self.width / 2, self.y1 + self.height / 2]
 
     @property
     def x1(self):
@@ -70,23 +70,30 @@ class Rectangle:
         intersection_area = self.intersection(Rectangle_2)
         if Rectangle_2.area <= 0 or self.area <= 0:
             return 0.0
-        return intersection_area / \
-            (self.area+Rectangle_2.area - intersection_area)
+        return intersection_area / (self.area + Rectangle_2.area - intersection_area)
 
 
-BB_ATTRIBUTES = ("annotation_count", "annotation_density",
-                 "area_coverage", "bb_width", "bb_height",
-                 "bb_area", "bb_aspect_ratio", "confidence", "dist_to_center"
-                 )
+BB_ATTRIBUTES = (
+    "annotation_count",
+    "annotation_density",
+    "area_coverage",
+    "bb_width",
+    "bb_height",
+    "bb_area",
+    "bb_aspect_ratio",
+    "confidence",
+    "dist_to_center",
+)
 
 
 class TrackBB:
-
-    def __init__(self, filepath: str = None,
-                 obj: Dict = None,
-                 feature_transforms: Optional[List[Callable]] = None,
-                 feature_names: str = ""
-                 ):
+    def __init__(
+        self,
+        filepath: str = None,
+        obj: Dict = None,
+        feature_transforms: Optional[List[Callable]] = None,
+        feature_names: str = "",
+    ):
 
         if filepath is None and obj is None:
             raise ValueError("Need  filepath or object data")
@@ -99,7 +106,9 @@ class TrackBB:
         self.all_bboxes = []
         self.calculate_metrics()
 
-    def calculate_metrics(self,):
+    def calculate_metrics(
+        self,
+    ):
 
         for obj in self.obj:
 
@@ -110,20 +119,24 @@ class TrackBB:
             img_height_pixel = annotations["size"]["height"]
             img_width_pixel = annotations["size"]["width"]
             img_rect = Rectangle([[0, 0], [img_width_pixel, img_height_pixel]])
-            annotation_metrics["annotation_count"] = len(
-                annotations["object"])
-            annotation_metrics["annotation_density"] = annotation_metrics["annotation_count"]/img_rect.area
+            annotation_metrics["annotation_count"] = len(annotations["object"])
+            annotation_metrics["annotation_density"] = (
+                annotation_metrics["annotation_count"] / img_rect.area
+            )
 
             # Get individual bbox metrics
             annotation_metrics["area_coverage"] = 0
 
-            for bb_obj in filter(lambda x: "bndbox" in x,
-                                 annotations["object"]):
+            for bb_obj in filter(lambda x: "bndbox" in x, annotations["object"]):
                 bounding_box_metric = {}
 
-                rect1 = Rectangle([[bb_obj["bndbox"]["xmin"], bb_obj["bndbox"]["ymin"]],
-                                   [bb_obj["bndbox"]["xmax"], bb_obj["bndbox"]["ymax"]]],
-                                  confidence=bb_obj["confidence"])
+                rect1 = Rectangle(
+                    [
+                        [bb_obj["bndbox"]["xmin"], bb_obj["bndbox"]["ymin"]],
+                        [bb_obj["bndbox"]["xmax"], bb_obj["bndbox"]["ymax"]],
+                    ],
+                    confidence=bb_obj["confidence"],
+                )
 
                 bounding_box_metric["confidence"] = rect1.confidence
 
@@ -133,12 +146,17 @@ class TrackBB:
 
                 bounding_box_metric["bb_aspect_ratio"] = rect1.aspect_ratio
 
-                bounding_box_metric["dist_to_center"] = np.linalg.norm([
-                    rect1.centroid[0] - (img_width_pixel / 2.0),
-                    rect1.centroid[1] - (img_height_pixel / 2.0)], ord=2)
+                bounding_box_metric["dist_to_center"] = np.linalg.norm(
+                    [
+                        rect1.centroid[0] - (img_width_pixel / 2.0),
+                        rect1.centroid[1] - (img_height_pixel / 2.0),
+                    ],
+                    ord=2,
+                )
 
-                annotation_metrics["area_coverage"] += rect1.intersection(
-                    img_rect) / (img_rect.area*annotation_metrics["annotation_count"])
+                annotation_metrics["area_coverage"] += rect1.intersection(img_rect) / (
+                    img_rect.area * annotation_metrics["annotation_count"]
+                )
 
                 self.all_bboxes.append(bounding_box_metric)
 

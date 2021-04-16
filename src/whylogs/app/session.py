@@ -44,6 +44,7 @@ class LoggerKey:
             - List of tag key value pairs for tracking datasetments
             - List of tag keys for whylogs to split up the data in the backend
     """
+
     dataset_name: Optional[str] = None
     dataset_timestamp: Optional[datetime.datetime] = None
     session_timestamp: Optional[datetime.datetime] = None
@@ -94,14 +95,14 @@ class Session:
         self._loggers = {}
         self._session_time = datetime.datetime.now()
         self._session_id = str(uuid4())
-        self._config = SessionConfig(
-            project, pipeline, writers, verbose
-        )
+        self._config = SessionConfig(project, pipeline, writers, verbose)
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
 
         # enable special logic when starting/closing a Session if we're using whylabs client to save dataset profiles
-        whylabs_writer_is_present = any(isinstance(w, WhyLabsWriter) for w in self.writers)
+        whylabs_writer_is_present = any(
+            isinstance(w, WhyLabsWriter) for w in self.writers
+        )
         self.use_whylabs_writer = _use_whylabs_client or whylabs_writer_is_present
 
         # add WhyLabs writer if it's not already present (which can happen if it's not specified in the config)
@@ -111,6 +112,7 @@ class Session:
     def __enter__(self):
         if self.use_whylabs_writer:
             from whylogs.whylabs_client.wrapper import start_session
+
             start_session()
         return self
 
@@ -120,24 +122,26 @@ class Session:
     def __repr__(self):
         return self._config.to_yaml()
 
-    def get_config(self, ):
+    def get_config(
+        self,
+    ):
         return self._config
 
     def is_active(self):
         return self._active
 
     def logger(
-            self,
-            dataset_name: Optional[str] = None,
-            dataset_timestamp: Optional[datetime.datetime] = None,
-            session_timestamp: Optional[datetime.datetime] = None,
-            tags: Dict[str, str] = None,
-            metadata: Dict[str, str] = None,
-            segments: Optional[List[Segment]] = None,
-            profile_full_dataset: bool = False,
-            with_rotation_time: str = None,
-            cache_size: int = 1,
-            constraints: DatasetConstraints = None,
+        self,
+        dataset_name: Optional[str] = None,
+        dataset_timestamp: Optional[datetime.datetime] = None,
+        session_timestamp: Optional[datetime.datetime] = None,
+        tags: Dict[str, str] = None,
+        metadata: Dict[str, str] = None,
+        segments: Optional[List[Segment]] = None,
+        profile_full_dataset: bool = False,
+        with_rotation_time: str = None,
+        cache_size: int = 1,
+        constraints: DatasetConstraints = None,
     ) -> Logger:
         """
         Create a new logger or return an existing one for a given dataset name.
@@ -153,21 +157,22 @@ class Session:
             whylogs logger
         """
         if not self._active:
-            raise RuntimeError(
-                "Session is already closed. Cannot create more loggers")
+            raise RuntimeError("Session is already closed. Cannot create more loggers")
 
-        logger_key = str(LoggerKey(
-            dataset_name=dataset_name,
-            dataset_timestamp=dataset_timestamp,
-            session_timestamp=session_timestamp,
-            tags=tags,
-            metadata=metadata,
-            segments=segments,
-            profile_full_dataset=profile_full_dataset,
-            with_rotation_time=with_rotation_time,
-            cache_size=cache_size,
-            constraints=constraints
-        ))
+        logger_key = str(
+            LoggerKey(
+                dataset_name=dataset_name,
+                dataset_timestamp=dataset_timestamp,
+                session_timestamp=session_timestamp,
+                tags=tags,
+                metadata=metadata,
+                segments=segments,
+                profile_full_dataset=profile_full_dataset,
+                with_rotation_time=with_rotation_time,
+                cache_size=cache_size,
+                constraints=constraints,
+            )
+        )
         logger = self._loggers.get(logger_key)
 
         if logger is None:
@@ -228,7 +233,11 @@ class Session:
             dataset_name = self.project
 
         ylog = self.logger(
-            dataset_name, dataset_timestamp, session_timestamp, tags, metadata,
+            dataset_name,
+            dataset_timestamp,
+            session_timestamp,
+            tags,
+            metadata,
             segments=segments,
             profile_full_dataset=profile_full_dataset,
             constraints=constraints,
@@ -329,6 +338,7 @@ class Session:
 
         if self.use_whylabs_writer:
             from whylogs.whylabs_client.wrapper import end_session
+
             url = end_session()
             print(f"You can explore your data in Observatory here: {url}")
 
@@ -363,8 +373,14 @@ def session_from_config(config: SessionConfig) -> Session:
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    return Session(config.project, config.pipeline, writers, config.verbose, config.with_rotation_time,
-                   config.cache_size)
+    return Session(
+        config.project,
+        config.pipeline,
+        writers,
+        config.verbose,
+        config.with_rotation_time,
+        config.cache_size,
+    )
 
 
 #: A global session
@@ -381,16 +397,21 @@ def reset_default_session():
     config: SessionConfig = load_config()
     if config is None:
         config = SessionConfig(
-            "default-project", "default-pipeline", [WriterConfig(
-                type="local", output_path="output", formats=["all"])], False
+            "default-project",
+            "default-pipeline",
+            [WriterConfig(type="local", output_path="output", formats=["all"])],
+            False,
         )
     _session = session_from_config(config)
 
 
-def start_whylabs_session(path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None):
+def start_whylabs_session(
+    path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None
+):
     if not data_collection_consent:
         raise PermissionError(
-            "When creating a session that will send data to WhyLabs, data_collection_consent must be set to True")
+            "When creating a session that will send data to WhyLabs, data_collection_consent must be set to True"
+        )
 
     global _use_whylabs_client
     _use_whylabs_client = True
@@ -413,14 +434,12 @@ def get_or_create_session(path_to_config: Optional[str] = None):
     """
     global _session
     if _session is not None and _session.is_active():
-        _getLogger(__name__).debug(
-            "Active session found, ignoring session kwargs")
+        _getLogger(__name__).debug("Active session found, ignoring session kwargs")
     else:
         config = load_config(path_to_config)
         if config is None:
             print("WARN: Missing config")
-            writer = WriterConfig(
-                type="local", output_path="output", formats=["all"])
+            writer = WriterConfig(type="local", output_path="output", formats=["all"])
             config = SessionConfig(
                 "default-project", "default-pipeline", [writer], False
             )

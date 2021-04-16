@@ -33,10 +33,20 @@ def test_all_zeros_returns_summary_with_stats():
 def test_empty_valid_datasetprofiles_empty():
     now = datetime.datetime.utcnow()
     shared_session_id = uuid4().hex
-    x1 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
-    x2 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    x1 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
+    x2 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
 
     merged = x1.merge(x2)
     assert merged.name == "test"
@@ -48,11 +58,21 @@ def test_empty_valid_datasetprofiles_empty():
 def test_merge_different_columns():
     now = datetime.datetime.utcnow()
     shared_session_id = uuid4().hex
-    x1 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "x1"}, )
+    x1 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "x1"},
+    )
     x1.track("col1", "value")
-    x2 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "x2"}, )
+    x2 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "x2"},
+    )
     x2.track("col2", "value")
 
     merged = x1.merge(x2)
@@ -70,10 +90,21 @@ def test_merge_different_columns():
 def test_merge_lhs_no_profile():
     now = datetime.datetime.utcnow()
     shared_session_id = uuid4().hex
-    x1 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
-    x2 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, model_profile=ModelProfile())
+    x1 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
+    x2 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+        model_profile=ModelProfile(),
+    )
 
     merged = x1.merge(x2)
     assert merged.name == "test"
@@ -86,10 +117,21 @@ def test_merge_lhs_no_profile():
 def test_merge_rhs_no_profile():
     now = datetime.datetime.utcnow()
     shared_session_id = uuid4().hex
-    x1 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, model_profile=ModelProfile())
-    x2 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    x1 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+        model_profile=ModelProfile(),
+    )
+    x2 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
 
     merged = x1.merge(x2)
     assert merged.name == "test"
@@ -102,11 +144,21 @@ def test_merge_rhs_no_profile():
 def test_merge_same_columns():
     now = datetime.datetime.utcnow()
     shared_session_id = uuid4().hex
-    x1 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    x1 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     x1.track("col1", "value1")
-    x2 = DatasetProfile(name="test", session_id=shared_session_id, session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    x2 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     x2.track("col1", "value1")
     x2.track("col2", "value")
 
@@ -122,7 +174,11 @@ def test_merge_same_columns():
 def test_protobuf_round_trip():
     now = datetime.datetime.utcnow()
     tags = {"k1": "rock", "k2": "scissors", "k3": "paper"}
-    original = DatasetProfile(name="test", dataset_timestamp=now, tags=tags, )
+    original = DatasetProfile(
+        name="test",
+        dataset_timestamp=now,
+        tags=tags,
+    )
     original.track("col1", "value")
     original.track("col2", "value")
 
@@ -132,7 +188,8 @@ def test_protobuf_round_trip():
     assert roundtrip.name == "test"
     assert roundtrip.session_id == original.session_id
     assert to_utc_ms(roundtrip.session_timestamp) == to_utc_ms(
-        original.session_timestamp)
+        original.session_timestamp
+    )
     assert set(list(roundtrip.columns.keys())) == {"col1", "col2"}
     assert roundtrip.columns["col1"].counters.count == 1
     assert roundtrip.columns["col2"].counters.count == 1
@@ -196,8 +253,9 @@ def test_parse_delimited_from_java_single():
 
 def test_parse_from_protobuf():
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    DatasetProfile.read_protobuf(os.path.join(
-        dir_path, "output_from_java_08242020.bin"))
+    DatasetProfile.read_protobuf(
+        os.path.join(dir_path, "output_from_java_08242020.bin")
+    )
 
 
 def test_parse_delimited_from_java_multiple():
@@ -213,8 +271,13 @@ def test_parse_delimited_from_java_multiple():
 def test_write_delimited_single():
     now = datetime.datetime.utcnow()
 
-    original = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    original = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     original.track("col1", "value")
 
     output_bytes = original.serialize_delimited()
@@ -223,7 +286,8 @@ def test_write_delimited_single():
     assert roundtrip.session_id == original.session_id
     # Python time precision includes nanoseconds
     assert time.to_utc_ms(roundtrip.session_timestamp) == time.to_utc_ms(
-        original.session_timestamp)
+        original.session_timestamp
+    )
     assert roundtrip.tags == original.tags
     assert roundtrip.metadata == original.metadata
 
@@ -231,8 +295,13 @@ def test_write_delimited_single():
 def test_write_delimited_multiple():
     now = datetime.datetime.utcnow()
 
-    original = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    original = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     original.track("col1", "value")
 
     output_bytes = original.serialize_delimited()
@@ -248,14 +317,20 @@ def test_write_delimited_multiple():
         assert entry.session_id == original.session_id
         # Python time precisions are different
         assert time.to_utc_ms(entry.session_timestamp) == time.to_utc_ms(
-            original.session_timestamp)
+            original.session_timestamp
+        )
         assert entry.tags == original.tags
         assert entry.metadata == original.metadata
 
 
 def test_verify_schema_version():
-    dp = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=datetime.datetime.now(
-    ), tags={"key": "value"}, metadata={"key": "value"}, )
+    dp = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=datetime.datetime.now(),
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     props = dp.to_properties()
     assert props.schema_major_version == 1
     assert props.schema_minor_version == 1
@@ -263,11 +338,17 @@ def test_verify_schema_version():
 
 def tests_timestamp():
     time = datetime.datetime.now()
-    dp = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=datetime.datetime.now(
-    ), tags={"key": "value"}, metadata={"key": "value"}, )
+    dp = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=datetime.datetime.now(),
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     time_2 = dp.session_timestamp_ms
-    assert time_2 == int(time.replace(
-        tzinfo=datetime.timezone.utc).timestamp() * 1000.0)
+    assert time_2 == int(
+        time.replace(tzinfo=datetime.timezone.utc).timestamp() * 1000.0
+    )
 
 
 def test_dataframe_profile():
@@ -279,23 +360,34 @@ def test_dataframe_profile():
 
     profile_factory = dataframe_profile(df, name="test", timestamp=time)
 
-    assert profile_factory.columns["A"].number_tracker.variance.mean == profile.columns[
-        "A"].number_tracker.variance.mean
+    assert (
+        profile_factory.columns["A"].number_tracker.variance.mean
+        == profile.columns["A"].number_tracker.variance.mean
+    )
 
     profile_factory_2 = dataframe_profile(df)
-    assert profile_factory_2.columns["A"].number_tracker.variance.mean == profile.columns[
-        "A"].number_tracker.variance.mean
+    assert (
+        profile_factory_2.columns["A"].number_tracker.variance.mean
+        == profile.columns["A"].number_tracker.variance.mean
+    )
     profile_factory_3 = dataframe_profile(df, timestamp=103433)
 
-    assert profile_factory_3.columns["A"].number_tracker.variance.mean == profile.columns[
-        "A"].number_tracker.variance.mean
+    assert (
+        profile_factory_3.columns["A"].number_tracker.variance.mean
+        == profile.columns["A"].number_tracker.variance.mean
+    )
 
 
 def test_track():
     now = datetime.datetime.utcnow()
 
-    original = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    original = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
 
     data = {
         "rows": 1,
@@ -307,8 +399,13 @@ def test_track():
 def test_errors():
     now = datetime.datetime.utcnow()
 
-    original = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    original = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     with pytest.raises(TypeError):
         original.track(columns=1, data=34)
 
@@ -316,8 +413,13 @@ def test_errors():
 def test_flat_summary():
     now = datetime.datetime.utcnow()
 
-    original = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    original = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     flat_summary = original.flat_summary()
     assert flat_summary is not None
     assert len(original.flat_summary()) == 4
@@ -326,8 +428,13 @@ def test_flat_summary():
 def test_chunk_iterator():
     now = datetime.datetime.utcnow()
 
-    original = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    original = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     data = {
         "rows": 1,
         "names": "roger roger",
@@ -341,7 +448,12 @@ def test_chunk_iterator():
 def test_array():
     now = datetime.datetime.utcnow()
 
-    original = DatasetProfile(name="test", session_id="test.session.id", session_timestamp=now, tags={
-        "key": "value"}, metadata={"key": "value"}, )
+    original = DatasetProfile(
+        name="test",
+        session_id="test.session.id",
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     with pytest.raises(ValueError):
         original.track_array(np.random.rand(3))

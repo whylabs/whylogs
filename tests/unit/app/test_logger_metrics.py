@@ -10,8 +10,7 @@ def test_log_metrics(tmpdir):
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
 
-    session_config = SessionConfig(
-        "project", "pipeline", writers=[writer_config])
+    session_config = SessionConfig("project", "pipeline", writers=[writer_config])
 
     session = session_from_config(session_config)
     targets = ["class_name1", "class_name2", "class_name3"]
