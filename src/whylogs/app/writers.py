@@ -213,32 +213,22 @@ class LocalWriter(Writer):
         # _write_json() as well
         summary = profile.to_summary()
 
-        flat_table_path = self.ensure_path(
-            os.path.join(self.path_suffix(profile), "flat_table")
-        )
+        flat_table_path = self.ensure_path(os.path.join(self.path_suffix(profile), "flat_table"))
         summary_df = get_dataset_frame(summary)
-        summary_df.to_csv(
-            os.path.join(flat_table_path, self.file_name(profile, ".csv")), index=False
-        )
+        summary_df.to_csv(os.path.join(flat_table_path, self.file_name(profile, ".csv")), index=False)
 
-        frequent_numbers_path = self.ensure_path(
-            os.path.join(self.path_suffix(profile), "freq_numbers")
-        )
+        frequent_numbers_path = self.ensure_path(os.path.join(self.path_suffix(profile), "freq_numbers"))
         json_flat_file = self.file_name(profile, ".json")
         with open(os.path.join(frequent_numbers_path, json_flat_file), "wt") as f:
             hist = flatten_dataset_frequent_numbers(summary)
             json.dump(hist, f, indent=indent)
 
-        frequent_strings_path = self.ensure_path(
-            os.path.join(self.path_suffix(profile), "frequent_strings")
-        )
+        frequent_strings_path = self.ensure_path(os.path.join(self.path_suffix(profile), "frequent_strings"))
         with open(os.path.join(frequent_strings_path, json_flat_file), "wt") as f:
             frequent_strings = flatten_dataset_frequent_strings(summary)
             json.dump(frequent_strings, f, indent=indent)
 
-        histogram_path = self.ensure_path(
-            os.path.join(self.path_suffix(profile), "histogram")
-        )
+        histogram_path = self.ensure_path(os.path.join(self.path_suffix(profile), "histogram"))
         with open(os.path.join(histogram_path, json_flat_file), "wt") as f:
             histogram = flatten_dataset_histograms(summary)
             json.dump(histogram, f, indent=indent)
@@ -254,9 +244,7 @@ class LocalWriter(Writer):
         with open(os.path.join(path, self.file_name(profile, ".bin")), "wb") as f:
             f.write(protobuf.SerializeToString())
 
-    def ensure_path(
-        self, suffix: str, addition_part: typing.Optional[str] = None
-    ) -> str:
+    def ensure_path(self, suffix: str, addition_part: typing.Optional[str] = None) -> str:
         """
         Ensure that a path exists, creating it if not
         """
@@ -329,34 +317,24 @@ class S3Writer(Writer):
         """
         summary = profile.to_summary()
 
-        flat_table_path = os.path.join(
-            self.output_path, self.path_suffix(profile), "flat_table"
-        )
+        flat_table_path = os.path.join(self.output_path, self.path_suffix(profile), "flat_table")
         summary_df = get_dataset_frame(summary)
-        with open(
-            os.path.join(flat_table_path, self.file_name(profile, ".csv")), "wt"
-        ) as f:
+        with open(os.path.join(flat_table_path, self.file_name(profile, ".csv")), "wt") as f:
             summary_df.to_csv(f, index=False)
 
         json_flat_file = self.file_name(profile, ".json")
 
-        frequent_numbers_path = os.path.join(
-            self.output_path, self.path_suffix(profile), "freq_numbers"
-        )
+        frequent_numbers_path = os.path.join(self.output_path, self.path_suffix(profile), "freq_numbers")
         with open(os.path.join(frequent_numbers_path, json_flat_file), "wt") as f:
             hist = flatten_dataset_histograms(summary)
             json.dump(hist, f, indent=indent)
 
-        frequent_strings_path = os.path.join(
-            self.output_path, self.path_suffix(profile), "frequent_strings"
-        )
+        frequent_strings_path = os.path.join(self.output_path, self.path_suffix(profile), "frequent_strings")
         with open(os.path.join(frequent_strings_path, json_flat_file), "wt") as f:
             frequent_strings = flatten_dataset_frequent_strings(summary)
             json.dump(frequent_strings, f, indent=indent)
 
-        histogram_path = os.path.join(
-            self.output_path, self.path_suffix(profile), "histogram"
-        )
+        histogram_path = os.path.join(self.output_path, self.path_suffix(profile), "histogram")
 
         with open(os.path.join(histogram_path, json_flat_file), "wt") as f:
             histogram = flatten_dataset_histograms(summary)
@@ -421,9 +399,7 @@ def writer_from_config(config: WriterConfig):
         )
     elif config.type == "whylabs":
         if config.data_collection_consent is not True:
-            raise ValueError(
-                f"Writer of type {config.type} requires data_collection_consent parameter to be set to True"
-            )
+            raise ValueError(f"Writer of type {config.type} requires data_collection_consent parameter to be set to True")
         return WhyLabsWriter()
     else:
         raise ValueError(f"Unknown writer type: {config.type}")

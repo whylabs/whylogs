@@ -181,9 +181,7 @@ class WriterConfigSchema(Schema):
     Marshmallow schema for :class:`WriterConfig` class.
     """
 
-    type = fields.Str(
-        validate=validate.OneOf(["local", "s3", "whylabs"]), required=True
-    )
+    type = fields.Str(validate=validate.OneOf(["local", "s3", "whylabs"]), required=True)
     formats = fields.List(
         fields.Str(validate=validate.OneOf(ALL_SUPPORTED_FORMATS)),
         required=True,
@@ -206,9 +204,7 @@ class SessionConfigSchema(Schema):
 
     project = fields.Str(required=True)
     pipeline = fields.Str(required=True)
-    with_rotation_time = fields.Str(
-        required=False, validate=validate.OneOf(["s", "m", "h", "d"])
-    )
+    with_rotation_time = fields.Str(required=False, validate=validate.OneOf(["s", "m", "h", "d"]))
     cache = fields.Int(required=False)
     verbose = fields.Bool(missing=False)
     writers = fields.List(

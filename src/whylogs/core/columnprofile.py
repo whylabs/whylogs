@@ -123,9 +123,7 @@ class ColumnProfile:
         self.constraints.update(typed_data)
 
     def _unique_count_summary(self) -> UniqueCountSummary:
-        cardinality_summary = self.cardinality_tracker.to_summary(
-            _UNIQUE_COUNT_BOUNDS_STD
-        )
+        cardinality_summary = self.cardinality_tracker.to_summary(_UNIQUE_COUNT_BOUNDS_STD)
         if cardinality_summary:
             return cardinality_summary
 
@@ -197,9 +195,7 @@ class ColumnProfile:
             schema_tracker=self.schema_tracker.merge(other.schema_tracker),
             counters=self.counters.merge(other.counters),
             frequent_items=self.frequent_items.merge(other.frequent_items),
-            cardinality_tracker=self.cardinality_tracker.merge(
-                other.cardinality_tracker
-            ),
+            cardinality_tracker=self.cardinality_tracker.merge(other.cardinality_tracker),
         )
 
     def to_protobuf(self):

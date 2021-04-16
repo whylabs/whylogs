@@ -87,9 +87,7 @@ class VarianceTracker:
         other_ratio = 1.0 - this_ratio
         # Create new tracker
         this_copy = self.copy()
-        this_copy.sum += (
-            other.sum + (delta ** 2) * this_copy.count * other.count / total_count
-        )
+        this_copy.sum += other.sum + (delta ** 2) * this_copy.count * other.count / total_count
         this_copy.mean = this_copy.mean * this_ratio + other.mean * other_ratio
         this_copy.count += other.count
         return this_copy

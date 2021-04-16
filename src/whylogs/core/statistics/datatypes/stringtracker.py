@@ -105,9 +105,7 @@ class StringTracker:
         if message.compact_theta is not None and len(message.compact_theta) > 0:
             theta = ThetaSketch.deserialize(message.compact_theta)
         elif message.theta is not None and len(message.theta) > 0:
-            logger.warning(
-                "Possible missing data. Non-compact theta sketches are no longer supported"
-            )
+            logger.warning("Possible missing data. Non-compact theta sketches are no longer supported")
 
         return StringTracker(
             count=message.count,

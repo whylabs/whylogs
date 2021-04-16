@@ -25,14 +25,12 @@ This is just a form of currying, and I chose to bind the boolean comparison oper
 """
 _value_funcs = {
     # functions that compare an incoming feature value to a literal value.
-    Op.LT: lambda x: lambda v: v
-    < x,  # assert incoming value 'v' is less than some fixed value 'x'
+    Op.LT: lambda x: lambda v: v < x,  # assert incoming value 'v' is less than some fixed value 'x'
     Op.LE: lambda x: lambda v: v <= x,
     Op.EQ: lambda x: lambda v: v == x,
     Op.NE: lambda x: lambda v: v != x,
     Op.GE: lambda x: lambda v: v >= x,
-    Op.GT: lambda x: lambda v: v
-    > x,  # assert incoming value 'v' is greater than some fixed value 'x'
+    Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
 }
 
 _summary_funcs1 = {
@@ -87,11 +85,7 @@ class ValueConstraint:
 
     @property
     def name(self):
-        return (
-            self._name
-            if self._name is not None
-            else f"value {Op.Name(self.op)} {self.value}"
-        )
+        return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.value}"
 
     def update(self, v) -> bool:
         self.total += 1
@@ -171,17 +165,11 @@ class SummaryConstraint:
             self.second_field = second_field
             self.func = _summary_funcs2[op](first_field, second_field)
         else:
-            raise ValueError(
-                "Summary constraint must specify a second value or field name, but not both"
-            )
+            raise ValueError("Summary constraint must specify a second value or field name, but not both")
 
     @property
     def name(self):
-        return (
-            self._name
-            if self._name is not None
-            else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
-        )
+        return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
     def update(self, summ: NumberSummary) -> bool:
         self.total += 1
@@ -209,9 +197,7 @@ class SummaryConstraint:
                 verbose=msg.verbose,
             )
         else:
-            raise ValueError(
-                "SummaryConstraintMsg must specify a value or second field name, but not both"
-            )
+            raise ValueError("SummaryConstraintMsg must specify a value or second field name, but not both")
 
     def to_protobuf(self) -> SummaryConstraintMsg:
         if self.second_field is None:
@@ -325,18 +311,8 @@ class DatasetConstraints:
 
     @staticmethod
     def from_protobuf(msg: DatasetConstraintMsg) -> "DatasetConstraints":
-        vm = dict(
-            [
-                (k, ValueConstraints.from_protobuf(v))
-                for k, v in msg.value_constraints.items()
-            ]
-        )
-        sm = dict(
-            [
-                (k, SummaryConstraints.from_protobuf(v))
-                for k, v in msg.summary_constraints.items()
-            ]
-        )
+        vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
+        sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
         return DatasetConstraints(msg.properties, vm, sm)
 
     @staticmethod
@@ -348,9 +324,7 @@ class DatasetConstraints:
         # construct tuple for each column, (name, [constraints,...])
         # turn that into a map indexed by column name
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
-        sm = dict(
-            [(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()]
-        )
+        sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,

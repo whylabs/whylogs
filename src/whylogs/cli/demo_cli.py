@@ -57,9 +57,7 @@ NAME_FORMAT = re.compile(r"^(\w|-|_)+$")
 class NameParamType(click.ParamType):
     def convert(self, value, param, ctx):
         if NAME_FORMAT.fullmatch(value) is None:
-            raise click.BadParameter(
-                "must contain only alphanumeric, underscore and dash characters"
-            )
+            raise click.BadParameter("must contain only alphanumeric, underscore and dash characters")
         return value
 
 
@@ -104,24 +102,16 @@ def init(project_dir):
         default="default-pipeline",
     )
     echo(f"Using pipeline name: {pipeline_name}", fg="green")
-    output_path = click.prompt(
-        "Specify the whylogs output path", default="output", show_default=True
-    )
+    output_path = click.prompt("Specify the whylogs output path", default="output", show_default=True)
     echo(f"Using output path: {output_path}", fg="green")
     writer = WriterConfig("local", ["all"], output_path)
-    session_config = SessionConfig(
-        project_name, pipeline_name, writers=[writer], verbose=False
-    )
+    session_config = SessionConfig(project_name, pipeline_name, writers=[writer], verbose=False)
 
     echo("Adding example notebooks to your workspace")
     git = shutil.which("git")
     if git is None:
-        echo(
-            "We can't seem to find git utility on your system. We'll have kip this step"
-        )
-        echo(
-            "You can check out our repo on: https://github.com/whylabs/whylogs-examples"
-        )
+        echo("We can't seem to find git utility on your system. We'll have kip this step")
+        echo("You can check out our repo on: https://github.com/whylabs/whylogs-examples")
     else:
         # do git checkout here
         tmp_path = tempfile.mkdtemp("profiler")
@@ -160,9 +150,7 @@ def init(project_dir):
         echo(GENERATE_NOTEBOOKS)
         # Hack: Takes first all numeric directory as generated datetime for now
         output_full_path = os.path.join(project_dir, output_path)
-        generated_datetime = list(
-            filter(lambda x: re.match("[0-9]*", x), os.listdir(output_full_path))
-        )[0]
+        generated_datetime = list(filter(lambda x: re.match("[0-9]*", x), os.listdir(output_full_path)))[0]
         full_output_path = os.path.join(output_path, generated_datetime)
         echo(f"You should find the output under: {full_output_path}")
 

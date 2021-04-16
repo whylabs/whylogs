@@ -89,9 +89,7 @@ class FrequentItemsSketch:
     DEFAULT_MAX_ITEMS_SIZE = 128
     DEFAULT_ERROR_TYPE = datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES
 
-    def __init__(
-        self, lg_max_k: int = None, sketch: datasketches.frequent_strings_sketch = None
-    ):
+    def __init__(self, lg_max_k: int = None, sketch: datasketches.frequent_strings_sketch = None):
         self.lg_max_k = lg_max_k
         if sketch is None:
             if lg_max_k is None:

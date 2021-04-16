@@ -22,10 +22,7 @@ def tests_model_metrics():
     for idx, value in enumerate(mod_met.confusion_matrix.labels):
         for jdx, value_2 in enumerate(mod_met.confusion_matrix.labels):
             print(idx, jdx)
-            assert (
-                mod_met.confusion_matrix.confusion_matrix[idx, jdx].floats.count
-                == expected_1[idx][jdx]
-            )
+            assert mod_met.confusion_matrix.confusion_matrix[idx, jdx].floats.count == expected_1[idx][jdx]
 
 
 def tests_model_metrics_to_protobuf_classification():

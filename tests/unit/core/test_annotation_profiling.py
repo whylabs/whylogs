@@ -22,9 +22,7 @@ def test_track_bb_annotation():
     now = datetime.datetime.utcnow()
     shared_session_id = uuid4().hex
 
-    test_annotation_path = os.path.join(
-        TEST_DATA_PATH, "files", "yolo_bounding_box.jsonl"
-    )
+    test_annotation_path = os.path.join(TEST_DATA_PATH, "files", "yolo_bounding_box.jsonl")
 
     # total_default_features = num_image_features + num_metadata_features
     profile_1 = DatasetProfile(
@@ -57,9 +55,7 @@ def test_track_json_annotation():
     shared_session_id = uuid4().hex
     num_bb_features = len(BB_ATTRIBUTES)
 
-    test_annotation_path = os.path.join(
-        TEST_DATA_PATH, "files", "yolo_bounding_box.jsonl"
-    )
+    test_annotation_path = os.path.join(TEST_DATA_PATH, "files", "yolo_bounding_box.jsonl")
 
     profile_1 = DatasetProfile(
         name="test",
