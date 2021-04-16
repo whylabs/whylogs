@@ -35,7 +35,7 @@ def test_imagefolder(test_data_path):
     files_A_target = [(file, segment_A_idx) for file in segment_A_target_files]
     files_B_target = [(file, segment_B_idx) for file in segment_B_target_files]
     files = sorted(files_A_target + files_B_target)
-    assert files == dataset.items
+    assert sorted(files) == sorted(dataset.items)
     output_A_target = [(file, "A_target") for file in segment_A_target_files]
     output_B_target = [(file, "B_target") for file in segment_B_target_files]
     outputs_expected = sorted(output_A_target + output_B_target)

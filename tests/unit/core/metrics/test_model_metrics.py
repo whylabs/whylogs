@@ -77,13 +77,6 @@ def test_merge_none():
 
 
 def test_merge_metrics_model():
-    metrics = ModelMetrics()
-    other = ModelMetrics(model_type=ModelType.REGRESSION)
-    other.regression_metrics = None
-    new_metrics = metrics.merge(other)
-    assert new_metrics.model_type == ModelType.REGRESSION
-    assert new_metrics.confusion_matrix is None
-
     # keep initial model type during merge
     metrics = ModelMetrics(model_type=ModelType.REGRESSION)
     other = ModelMetrics(model_type=ModelType.CLASSIFICATION)
@@ -98,7 +91,7 @@ def test_merge_metrics_with_none_regression_matrix():
     other = ModelMetrics(model_type=ModelType.REGRESSION)
     other.regression_metrics = None
     new_metrics = metrics.merge(other)
-    assert new_metrics.model_type == ModelType.REGRESSION
+    assert new_metrics.model_type == 0
 
 
 def test_merge_metrics_with_none_confusion_matrix():
@@ -115,4 +108,4 @@ def test_model_metrics_init():
     reg_met = RegressionMetrics()
     conf_ma = ConfusionMatrix()
     with pytest.raises(NotImplementedError):
-        metrics = ModelMetrics(confusion_matrix=conf_ma, regression_metrics=reg_met)
+        ModelMetrics(confusion_matrix=conf_ma, regression_metrics=reg_met)
