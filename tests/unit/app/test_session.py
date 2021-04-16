@@ -13,7 +13,6 @@ from whylogs.app.session import (
 
 
 def test_get_global_session():
-    _session = None
     session = get_or_create_session()
 
     global_session = get_session()
@@ -23,18 +22,18 @@ def test_get_global_session():
 
 def test_reset():
 
-    session = get_or_create_session()
+    get_or_create_session()
     reset_default_session()
     global_session = get_session()
     assert global_session.project is not None
 
 
 def test_session_log_dataframe():
-    _session = None
+    pass
 
     session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
     df = util.testing.makeDataFrame()
-    profile = session.log_dataframe(df)
+    session.log_dataframe(df)
 
     assert session.logger() is not None
 
@@ -86,7 +85,6 @@ def test_close_session():
 
 
 def test_logger_cache():
-    _session = None
     session = get_or_create_session()
     with session.logger("cache-test", with_rotation_time="s") as logger:
         logger.log({"name": 1})

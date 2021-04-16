@@ -1,5 +1,4 @@
 import sys
-from typing import Dict, List
 
 import pandas as pd
 import pytest

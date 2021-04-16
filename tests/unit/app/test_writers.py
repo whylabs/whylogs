@@ -77,4 +77,4 @@ def test_non_valid_type(tmpdir):
 
     config = WriterConfig(type="blob", formats=["json"], output_path=tmpdir)
     with pytest.raises(ValueError):
-        writer = writer_from_config(config)
+        writer_from_config(config)

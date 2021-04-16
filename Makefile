@@ -1,5 +1,6 @@
 src.python := $(shell find ./src -type f -name "*.py")
 tst.python := $(shell find ./tests -type f -name "*.py")
+tst.notebooks.python := $(shell find ./test_notebooks -type f -name "*.py")
 src.python.pyc := $(shell find ./src -type f -name "*.pyc")
 src.proto.dir := ./proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
@@ -68,7 +69,7 @@ lint: ## check code with flake8
 
 lint-fix: ## automatically fix linting issues
 	@$(call i, Running the linter)
-	poetry run autopep8 -r --in-place .
+	poetry run autoflake --in-place --remove-unused-variables $(src.python) $(tst.python) $(tst.notebooks.python)
 
 format: ## Check formatting with black
 	@$(call i, Checking formatting)
