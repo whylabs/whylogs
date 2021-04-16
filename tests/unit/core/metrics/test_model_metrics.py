@@ -22,8 +22,10 @@ def tests_model_metrics():
     for idx, value in enumerate(mod_met.confusion_matrix.labels):
         for jdx, value_2 in enumerate(mod_met.confusion_matrix.labels):
             print(idx, jdx)
-            assert mod_met.confusion_matrix.confusion_matrix[idx,
-                                                             jdx].floats.count == expected_1[idx][jdx]
+            assert (
+                mod_met.confusion_matrix.confusion_matrix[idx, jdx].floats.count
+                == expected_1[idx][jdx]
+            )
 
 
 def tests_model_metrics_to_protobuf_classification():
@@ -42,7 +44,7 @@ def tests_model_metrics_to_protobuf_classification():
     model_metrics = ModelMetrics.from_protobuf(message)
     assert model_metrics.model_type == ModelType.CLASSIFICATION
     assert model_metrics.confusion_matrix.labels == ["cat", "dog", "pig"]
-   
+
 
 def tests_no_metrics_to_protobuf_classification():
     mod_met = ModelMetrics(model_type=ModelType.CLASSIFICATION)
@@ -53,15 +55,16 @@ def tests_no_metrics_to_protobuf_classification():
     model_metrics = ModelMetrics.from_protobuf(message)
     assert model_metrics.model_type == ModelType.CLASSIFICATION
 
+
 def tests_no_metrics_to_protobuf_regression():
 
     mod_met = ModelMetrics(model_type=ModelType.REGRESSION)
     assert mod_met.model_type == ModelType.REGRESSION
     message = mod_met.to_protobuf()
 
-
     model_metrics = ModelMetrics.from_protobuf(message)
     assert model_metrics.model_type == ModelType.REGRESSION
+
 
 def tests_model_metrics_to_protobuf_regression():
     regression_model = ModelMetrics(model_type=ModelType.REGRESSION)
@@ -72,7 +75,6 @@ def tests_model_metrics_to_protobuf_regression():
     regression_message = regression_model.to_protobuf()
     model_metrics_from_message = ModelMetrics.from_protobuf(regression_message)
     assert model_metrics_from_message.model_type == ModelType.REGRESSION
-
 
 
 def test_merge_none():
@@ -92,7 +94,7 @@ def test_merge_metrics_model():
     other = ModelMetrics(model_type=ModelType.REGRESSION)
     other.regression_metrics = None
     new_metrics = metrics.merge(other)
-    assert new_metrics.model_type==ModelType.REGRESSION
+    assert new_metrics.model_type == ModelType.REGRESSION
     assert new_metrics.confusion_matrix is None
 
     # keep initial model type during merge
@@ -100,15 +102,17 @@ def test_merge_metrics_model():
     other = ModelMetrics(model_type=ModelType.CLASSIFICATION)
     other.regression_metrics = None
     new_metrics = metrics.merge(other)
-    assert new_metrics.model_type==ModelType.REGRESSION
+    assert new_metrics.model_type == ModelType.REGRESSION
     assert new_metrics.confusion_matrix is None
+
 
 def test_merge_metrics_with_none_regression_matrix():
     metrics = ModelMetrics()
     other = ModelMetrics(model_type=ModelType.REGRESSION)
     other.regression_metrics = None
     new_metrics = metrics.merge(other)
-    assert new_metrics.model_type==ModelType.REGRESSION
+    assert new_metrics.model_type == ModelType.REGRESSION
+
 
 def test_merge_metrics_with_none_confusion_matrix():
     metrics = ModelMetrics()

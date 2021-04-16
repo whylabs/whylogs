@@ -95,8 +95,7 @@ def test_sklearn_model_log(tmpdir):
 
         with mlflow.start_run():
             model = ElasticNet(alpha=0.5, l1_ratio=0.5, random_state=42)
-            mlflow.sklearn.log_model(
-                model, "model", registered_model_name="TestModel")
+            mlflow.sklearn.log_model(model, "model", registered_model_name="TestModel")
 
         assert new_log_func.call_count == 1
     whylogs.mlflow.disable_mlflow()

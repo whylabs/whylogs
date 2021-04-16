@@ -33,7 +33,13 @@ def test_all_notebooks(remove_fail_test=True):
     """
 
     # Get all files included in the git repository
-    git_files = subprocess.check_output("git ls-tree --full-tree --name-only -r HEAD", shell=True).decode("utf-8").splitlines()
+    git_files = (
+        subprocess.check_output(
+            "git ls-tree --full-tree --name-only -r HEAD", shell=True
+        )
+        .decode("utf-8")
+        .splitlines()
+    )
 
     # Get just the notebooks from the git files
     notebooks = [fn for fn in git_files if fn.endswith(".ipynb")]

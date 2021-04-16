@@ -17,7 +17,7 @@ except ImportError as e:
 
 class ComposeTransforms:
     """
-     Outputs the composition of each transformation passed in transforms
+    Outputs the composition of each transformation passed in transforms
     """
 
     def __init__(self, transforms: List, name=None):
@@ -35,18 +35,18 @@ class ComposeTransforms:
             format_string = self.name
         else:
             for t in self.transforms[::-1]:
-                format_string += '{0}'.format(t)
+                format_string += "{0}".format(t)
                 format_string += "("
             format_string += "IMG"
             for _ in range(len(self.transforms)):
-                format_string += ')'
+                format_string += ")"
 
         return format_string
 
 
 class Brightness:
     """
-     Outputs the Brightness of each pixel in the image
+    Outputs the Brightness of each pixel in the image
     """
 
     def __call__(self, img: Union[ImageType, np.ndarray]) -> np.ndarray:
@@ -120,7 +120,6 @@ class Resize:
 
 
 class Hue:
-
     def __call__(self, img: Union[ImageType, np.ndarray]) -> np.ndarray:
         """
         Args:
@@ -155,8 +154,9 @@ class SimpleBlur:
             img = Image.fromarray(img)
         # compute laplacian
         img = img.convert("RGB")
-        img = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8,
-                                                     -1, -1, -1, -1), 1, 0))
+        img = img.filter(
+            ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8, -1, -1, -1, -1), 1, 0)
+        )
         value = np.var(np.array(img).flatten()).reshape((-1, 1))
         return value
 
