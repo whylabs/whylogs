@@ -1,4 +1,4 @@
-from whylogs.util.varint import encode, decode_bytes
+from whylogs.util.varint import decode_bytes, encode
 
 
 def test_encode_decode():

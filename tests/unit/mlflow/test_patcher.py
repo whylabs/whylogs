@@ -10,8 +10,9 @@ def test_import_error():
 
 
 def test_mlflow_patched():
-    import whylogs
     import mlflow
+
+    import whylogs
 
     assert whylogs.enable_mlflow()
 
@@ -34,8 +35,9 @@ def test_patch_multiple_times():
 
 
 def test_assert_whylogsrun_close_is_called(tmpdir):
-    import whylogs
     import mlflow
+
+    import whylogs
 
     set_up_mlflow(mlflow, tmpdir)
     with mock.patch.object(whylogs.mlflow.patcher.WhyLogsRun, "_close") as mock_close:
@@ -53,8 +55,9 @@ def set_up_mlflow(mlflow, tmpdir):
 
 
 def test_assert_log_artifact_is_called(tmpdir):
-    import whylogs
     import mlflow
+
+    import whylogs
 
     set_up_mlflow(mlflow, tmpdir)
     with mock.patch.object(mlflow, "log_artifact") as log_artifact:
@@ -68,8 +71,9 @@ def test_assert_log_artifact_is_called(tmpdir):
 
 
 def test_assert_log_artifact_is_called_twice(tmpdir):
-    import whylogs
     import mlflow
+
+    import whylogs
 
     set_up_mlflow(mlflow, tmpdir)
     with mock.patch.object(mlflow, "log_artifact") as log_artifact:
@@ -84,9 +88,10 @@ def test_assert_log_artifact_is_called_twice(tmpdir):
 
 
 def test_sklearn_model_log(tmpdir):
-    import whylogs
     import mlflow
     from sklearn.linear_model import ElasticNet
+
+    import whylogs
     from whylogs.mlflow import patcher as whylogs_patcher
 
     set_up_mlflow(mlflow, tmpdir)

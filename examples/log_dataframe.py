@@ -11,8 +11,9 @@ Example logging a dataframe.  In this example the config is handled by the
 Script
 ^^^^^^
 """
-from whylogs.app.session import get_or_create_session
 import pandas as pd
+
+from whylogs.app.session import get_or_create_session
 
 # Load some example data
 df = pd.read_csv("data/lending_club_1000.csv")

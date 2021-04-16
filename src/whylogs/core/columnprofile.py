@@ -1,14 +1,16 @@
 """
 Defines the ColumnProfile class for tracking per-column statistics
 """
+import pandas as pd
+
 from whylogs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
+from whylogs.core.statistics.constraints import (
+    SummaryConstraint,
+    SummaryConstraints,
+    ValueConstraints,
+)
 from whylogs.core.statistics.datatypes import StringTracker
 from whylogs.core.statistics.hllsketch import HllSketch
-from whylogs.core.statistics.constraints import (
-    ValueConstraints,
-    SummaryConstraints,
-    SummaryConstraint,
-)
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
     ColumnMessage,
@@ -18,8 +20,6 @@ from whylogs.proto import (
     UniqueCountSummary,
 )
 from whylogs.util.dsketch import FrequentItemsSketch
-
-import pandas as pd
 
 _TYPES = InferredType.Type
 _NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}

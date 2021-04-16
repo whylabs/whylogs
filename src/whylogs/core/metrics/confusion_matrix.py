@@ -3,8 +3,8 @@ from typing import List, Union
 import numpy as np
 from sklearn.utils.multiclass import type_of_target
 
-from whylogs.proto import ScoreMatrixMessage
 from whylogs.core.statistics import NumberTracker
+from whylogs.proto import ScoreMatrixMessage
 
 SUPPORTED_TYPES = ("binary", "multiclass")
 

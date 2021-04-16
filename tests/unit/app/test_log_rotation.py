@@ -1,17 +1,16 @@
-import pytest
+import datetime
+import os
+import shutil
+import time
 import unittest
+
+import pytest
+from freezegun import freeze_time
 from pandas import util
 
-import time
-import os
-import datetime
-import shutil
-import datetime
-from freezegun import freeze_time
-
-from whylogs.app.session import session_from_config, get_or_create_session
-from whylogs.app.logger import Logger
 from whylogs.app.config import SessionConfig, WriterConfig
+from whylogs.app.logger import Logger
+from whylogs.app.session import get_or_create_session, session_from_config
 
 
 def test_log_rotation_parsing():

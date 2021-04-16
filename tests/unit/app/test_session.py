@@ -1,14 +1,15 @@
 import pytest
+from pandas import util
+
+from whylogs.app.config import SessionConfig
 from whylogs.app.session import (
+    Session,
+    get_logger,
     get_or_create_session,
     get_session,
-    get_logger,
     reset_default_session,
     session_from_config,
 )
-from whylogs.app.config import SessionConfig
-from whylogs.app.session import Session
-from pandas import util
 
 
 def test_get_global_session():

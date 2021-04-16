@@ -1,8 +1,8 @@
-from sklearn.utils.multiclass import type_of_target
 import numpy as np
+from sklearn.utils.multiclass import type_of_target
 
-from whylogs.proto import ModelProfileMessage, ModelType
 from whylogs.core.metrics.model_metrics import ModelMetrics
+from whylogs.proto import ModelProfileMessage, ModelType
 
 SUPPORTED_TYPES = ("binary", "multiclass")
 
