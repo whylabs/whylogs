@@ -5,12 +5,14 @@ src.python.pyc := $(shell find ./src -type f -name "*.pyc")
 src.proto.dir := ./proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 
+version := 0.4.6-dev0
+
 dist.dir := dist
 egg.dir := .eggs
 build.dir := build
 # This isn't exactly true but its the only thing that we easily know the name of at this point. Its a good proxy for
 # the wheel since its created along with it.
-build.wheel := $(dist.dir)/whylogs-0.4.5.dev1.tar.gz
+build.wheel := $(dist.dir)/whylogs-$(version).tar.gz
 build.proto.dir := src/whylogs/proto
 build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$(src.proto))
 
@@ -18,7 +20,8 @@ default: dist
 
 release: format lint test dist ## Compile distribution files and run all tests and checks.
 
-.PHONY: dist clean clean-test help format lint test install coverage docs default proto test-notebooks github release test-system-python format-fix
+.PHONY: dist clean clean-test help format lint test install coverage docs default proto test-notebooks github release
+.PHONY: test-system-python format-fix bump-patch bump-minor bump-major publish
 
 ifeq (, $(shell which poetry))
 	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
@@ -26,6 +29,22 @@ endif
 
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+
+bump-patch: ## Bump the patch version everyone it appears in the project
+	@$(call i, Bumping the patch number)
+	bumpversion patch --allow-dirty
+
+bump-minor: ## Bump the minor version everyone it appears in the project
+	@$(call i, Bumping the minor number)
+	bumpversion patch --allow-dirty
+
+bump-major: ## Bump the major version everyone it appears in the project
+	@$(call i, Bumping the major number)
+	bumpversion patch --allow-dirty
+
+publish: clean dist ## Clean the project, generate new distribution files and publish them to pypi
+	@$(call i, Publishing the currently built dist to pypi)
+	poetry publish
 
 clean: clean-test ## Remove all build artifacts
 	rm -f docs/whylogs.rst
