@@ -1,13 +1,12 @@
 import logging
-import numpy as np
+from typing import List, Union
 
-from typing import Union, List
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
 try:
-    from PIL import Image
-    from PIL import ImageFilter
+    from PIL import Image, ImageFilter
     from PIL.Image import Image as ImageType
 except ImportError as e:
     ImageType = None

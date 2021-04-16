@@ -1,13 +1,13 @@
 import os
 
-import pytest
 import boto3
-from moto.s3.responses import DEFAULT_REGION_NAME
+import pytest
 from moto import mock_s3
+from moto.s3.responses import DEFAULT_REGION_NAME
 
 from whylogs.app import WriterConfig
-from whylogs.app.session import session_from_config
 from whylogs.app.config import load_config
+from whylogs.app.session import session_from_config
 from whylogs.app.writers import writer_from_config
 
 BUCKET = "mocked_bucket"

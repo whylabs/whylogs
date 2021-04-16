@@ -1,11 +1,12 @@
-from uuid import uuid4
 import datetime
+import os
+from uuid import uuid4
+
+from PIL import Image
 
 from whylogs.core.datasetprofile import DatasetProfile, array_profile, dataframe_profile
-from whylogs.core.image_profiling import TrackImage, _METADATA_DEFAULT_ATTRIBUTES
+from whylogs.core.image_profiling import _METADATA_DEFAULT_ATTRIBUTES, TrackImage
 from whylogs.features import _IMAGE_FEATURES
-import os
-from PIL import Image
 
 TEST_DATA_PATH = os.path.abspath(
     os.path.join(

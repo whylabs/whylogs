@@ -4,8 +4,8 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
-from typing import Dict, Mapping, Optional, List, Union
 from collections import OrderedDict
+from typing import Dict, List, Mapping, Optional, Union
 from uuid import uuid4
 
 import numpy as np
@@ -15,7 +15,7 @@ from google.protobuf.internal.encoder import _VarintBytes
 
 from whylogs.core import ColumnProfile
 from whylogs.core.model_profile import ModelProfile
-
+from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
 from whylogs.core.types.typeddataconverter import TYPES
 from whylogs.proto import (
     ColumnsChunkSegment,
@@ -26,7 +26,6 @@ from whylogs.proto import (
     MessageSegment,
     ModelType,
 )
-from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
 from whylogs.util import time
 from whylogs.util.data import getter, remap
 from whylogs.util.dsketch import FrequentNumbersSketch

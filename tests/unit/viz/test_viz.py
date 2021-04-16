@@ -1,11 +1,9 @@
-import os
-
 import datetime
+import os
 from uuid import uuid4
 
-
-from whylogs.viz import ProfileVisualizer
 from whylogs.core.datasetprofile import DatasetProfile
+from whylogs.viz import ProfileVisualizer
 
 
 def test_viz():

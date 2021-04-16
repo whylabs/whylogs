@@ -1,12 +1,14 @@
-import whylabs_client
-import os
-import requests
-import tempfile
 import datetime
+import os
+import tempfile
 from logging import getLogger
-from whylogs.core import DatasetProfile
+
+import requests
+import whylabs_client
 from whylabs_client.api import sessions_api
 from whylabs_client.apis import SessionsApi
+
+from whylogs.core import DatasetProfile
 
 whylabs_api_endpoint = (
     os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"

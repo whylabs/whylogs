@@ -4,7 +4,7 @@ Classes/functions for configuring the whylogs app
 .. autodata:: ALL_SUPPORTED_FORMATS
 """
 from logging import getLogger
-from typing import List, Dict, Optional
+from typing import Dict, List, Optional
 
 # import typing
 import yaml as yaml

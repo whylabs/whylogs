@@ -1,4 +1,5 @@
 import math
+
 from whylogs.core.annotation_profiling import Rectangle
 
 

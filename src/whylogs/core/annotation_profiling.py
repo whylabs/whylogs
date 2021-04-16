@@ -1,7 +1,7 @@
-from typing import Callable, Optional, Dict, List
+from typing import Callable, Dict, List, Optional
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from whylogs.io.file_loader import file_loader
 

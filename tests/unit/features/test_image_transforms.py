@@ -1,16 +1,17 @@
+import os
+
+import numpy as np
+import pytest
+from PIL import Image
+
+from whylogs.core.image_profiling import image_loader
 from whylogs.features.transforms import (
-    Hue,
     Brightness,
-    Saturation,
     ComposeTransforms,
+    Hue,
+    Saturation,
     SimpleBlur,
 )
-from whylogs.core.image_profiling import image_loader
-import os
-import numpy as np
-from PIL import Image
-import pytest
-
 
 TEST_DATA_PATH = os.path.abspath(
     os.path.join(

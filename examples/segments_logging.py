@@ -1,5 +1,7 @@
-import pandas as pd
 import time
+
+import pandas as pd
+
 from whylogs import get_or_create_session
 
 if __name__ == "__main__":
