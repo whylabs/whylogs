@@ -1,5 +1,4 @@
 import os
-import shutil
 
 from click.testing import CliRunner
 

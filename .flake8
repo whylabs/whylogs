@@ -1,0 +1,13 @@
+[flake8]
+exclude =
+    .tox
+    build
+    dist
+    .eggs
+    docs
+    src/whylogs/proto
+    tests
+max-line-length = 160
+extend-ignore = E203, W503
+max-complexity = 20
+
