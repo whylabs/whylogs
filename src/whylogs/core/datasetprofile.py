@@ -42,9 +42,7 @@ except ImportError as e:
     cudfDataFrame = None
 
 
-COLUMN_CHUNK_MAX_LEN_IN_BYTES = (
-    int(1e6) - 10
-)  #: Used for chunking serialized dataset profile messages
+COLUMN_CHUNK_MAX_LEN_IN_BYTES = int(1e6) - 10  #: Used for chunking serialized dataset profile messages
 TYPENUM_COLUMN_NAMES = OrderedDict()
 for k in TYPES.keys():
     TYPENUM_COLUMN_NAMES[k] = "type_" + k.lower() + "_count"
@@ -262,19 +260,13 @@ class DatasetProfile:
             elif isinstance(columns, str):
                 self.track_datum(columns, None)
             else:
-                raise TypeError(
-                    "Data type of: {} not supported for tracking".format(
-                        columns.__class__.__name__
-                    )
-                )
+                raise TypeError("Data type of: {} not supported for tracking".format(columns.__class__.__name__))
 
     def track_datum(self, column_name, data):
         try:
             prof = self.columns[column_name]
         except KeyError:
-            constraints = (
-                None if self.constraints is None else self.constraints[column_name]
-            )
+            constraints = None if self.constraints is None else self.constraints[column_name]
             prof = ColumnProfile(column_name, constraints=constraints)
             self.columns[column_name] = prof
 
@@ -355,9 +347,7 @@ class DatasetProfile:
             Protobuf summary message.
         """
         self.validate()
-        column_summaries = {
-            name: colprof.to_summary() for name, colprof in self.columns.items()
-        }
+        column_summaries = {name: colprof.to_summary() for name, colprof in self.columns.items()}
 
         return DatasetSummary(
             properties=self.to_properties(),
@@ -374,9 +364,7 @@ class DatasetProfile:
             Protobuf constraints message.
         """
         self.validate()
-        constraints = [
-            (name, col.generate_constraints()) for name, col in self.columns.items()
-        ]
+        constraints = [(name, col.generate_constraints()) for name, col in self.columns.items()]
         # filter empty constraints
         constraints = [(n, c) for n, c in constraints if c is not None]
         return DatasetConstraints(self.to_properties(), None, dict(constraints))
@@ -460,9 +448,7 @@ class DatasetProfile:
 
         columns = {}
         for col_name in columns_set:
-            constraints = (
-                None if self.constraints is None else self.constraints[col_name]
-            )
+            constraints = None if self.constraints is None else self.constraints[col_name]
             empty_column = ColumnProfile(col_name, constraints=constraints)
             this_column = self.columns.get(col_name, empty_column)
             other_column = other.columns.get(col_name, empty_column)
@@ -599,20 +585,14 @@ class DatasetProfile:
         dataset_profile : DatasetProfile
         """
         properties: DatasetProperties = message.properties
-        name = (
-            (properties.tags or {}).get("name", None)
-            or (properties.tags or {}).get("Name", None)
-            or ""
-        )
+        name = (properties.tags or {}).get("name", None) or (properties.tags or {}).get("Name", None) or ""
 
         return DatasetProfile(
             name=name,
             session_id=properties.session_id,
             session_timestamp=from_utc_ms(properties.session_timestamp),
             dataset_timestamp=from_utc_ms(properties.data_timestamp),
-            columns={
-                k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
-            },
+            columns={k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()},
             tags=dict(properties.tags or {}),
             metadata=dict(properties.metadata or {}),
             model_profile=ModelProfile.from_protobuf(message.modeProfile),
@@ -691,9 +671,7 @@ class DatasetProfile:
         """
         return list(DatasetProfile._parse_delimited_generator(data))
 
-    def apply_summary_constraints(
-        self, summary_constraints: Optional[Mapping[str, SummaryConstraints]] = None
-    ):
+    def apply_summary_constraints(self, summary_constraints: Optional[Mapping[str, SummaryConstraints]] = None):
         if summary_constraints is None:
             summary_constraints = self.constraints.summary_constraint_map
         for k, v in summary_constraints.items():
@@ -803,9 +781,7 @@ def flatten_dataset_quantiles(dataset_summary: DatasetSummary):
         try:
             quant = getter(getter(col, "number_summary"), "quantiles")
             x = OrderedDict()
-            for q, qval in zip(
-                _quantile_strings(quant.quantiles), quant.quantile_values
-            ):
+            for q, qval in zip(_quantile_strings(quant.quantiles), quant.quantile_values):
                 x[q] = qval
             quants[col_name] = x
         except KeyError:
@@ -895,9 +871,7 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
     return scalar_summary.reset_index()
 
 
-def dataframe_profile(
-    df: pd.DataFrame, name: str = None, timestamp: datetime.datetime = None
-):
+def dataframe_profile(df: pd.DataFrame, name: str = None, timestamp: datetime.datetime = None):
     """
     Generate a dataset profile for a dataframe
 

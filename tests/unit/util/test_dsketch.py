@@ -28,9 +28,7 @@ def test_deserialize_full_strings_returns_sketch():
     x = dsketch.deserialize_frequent_strings_sketch(FULL_STRING_SKETCH)
     assert isinstance(x, datasketches.frequent_strings_sketch)
     assert x.get_num_active_items() == 6
-    freq_strings = x.get_frequent_items(
-        datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES, 7
-    )
+    freq_strings = x.get_frequent_items(datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES, 7)
     assert freq_strings == [
         ("C", 36, 36, 36),
         ("B", 22, 22, 22),

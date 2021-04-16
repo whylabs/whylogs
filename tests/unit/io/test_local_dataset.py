@@ -20,10 +20,7 @@ def test_imagefolder(test_data_path):
             "yolo_bounding_box.jsonl",
         )
     ]
-    segment_B_target_files = [
-        os.path.join(folder_dataset, "B_target", file)
-        for file in ("16bit.cropped.tif", "lending_club-accepted-10.csv")
-    ]
+    segment_B_target_files = [os.path.join(folder_dataset, "B_target", file) for file in ("16bit.cropped.tif", "lending_club-accepted-10.csv")]
     dataset = LocalDataset(folder_dataset, loader=lambda x: x)
 
     # test if all classes are present
@@ -67,10 +64,7 @@ def test_imagefolder(test_data_path):
             "yolo_bounding_box.jsonl",
         )
     ]
-    segment_B_target_files = [
-        os.path.join(folder_dataset, "B_target", file)
-        for file in ("16bit.cropped.tif", "lending_club_1000.csv")
-    ]
+    segment_B_target_files = [os.path.join(folder_dataset, "B_target", file) for file in ("16bit.cropped.tif", "lending_club_1000.csv")]
     dataset = LocalDataset(folder_dataset, loader=lambda x: x)
 
     # test if all classes are present

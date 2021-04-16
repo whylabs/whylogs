@@ -27,9 +27,7 @@ NAME_FORMAT = re.compile(r"^(\w|-|_)+$")
 class NameParamType(click.ParamType):
     def convert(self, value, param, ctx):
         if NAME_FORMAT.fullmatch(value) is None:
-            raise click.BadParameter(
-                "must contain only alphanumeric, underscore and dash characters"
-            )
+            raise click.BadParameter("must contain only alphanumeric, underscore and dash characters")
         return value
 
 
@@ -74,14 +72,10 @@ def init(project_dir):
         default="default-pipeline",
     )
     echo(f"Using pipeline name: {pipeline_name}", fg="green")
-    output_path = click.prompt(
-        "Specify the whylogs output path", default="output", show_default=True
-    )
+    output_path = click.prompt("Specify the whylogs output path", default="output", show_default=True)
     echo(f"Using output path: {output_path}", fg="green")
     writer = WriterConfig("local", ["all"], output_path)
-    session_config = SessionConfig(
-        project_name, pipeline_name, writers=[writer], verbose=False
-    )
+    session_config = SessionConfig(project_name, pipeline_name, writers=[writer], verbose=False)
     config_yml = os.path.join(project_dir, WHYLOGS_YML)
     with open(file=config_yml, mode="wt") as f:
         session_config.to_yaml(f)

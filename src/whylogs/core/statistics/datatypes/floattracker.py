@@ -108,9 +108,7 @@ class FloatTracker:
         -------
         message : DoublesMessage
         """
-        return DoublesMessage(
-            count=self.count, max=self.max, min=self.min, sum=self.sum
-        )
+        return DoublesMessage(count=self.count, max=self.max, min=self.min, sum=self.sum)
 
     @staticmethod
     def from_protobuf(message):
@@ -121,6 +119,4 @@ class FloatTracker:
         -------
         number_tracker : FloatTracker
         """
-        return FloatTracker(
-            min=message.min, max=message.max, sum=message.sum, count=message.count
-        )
+        return FloatTracker(min=message.min, max=message.max, sum=message.sum, count=message.count)

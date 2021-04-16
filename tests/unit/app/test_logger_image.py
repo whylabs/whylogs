@@ -39,9 +39,7 @@ def test_log_pil_image(tmpdir, image_files):
 
     session = session_from_config(session_config)
 
-    with session.logger(
-        "image_pil_test", with_rotation_time="s", cache_size=1
-    ) as logger:
+    with session.logger("image_pil_test", with_rotation_time="s", cache_size=1) as logger:
 
         for image_file_path in image_files:
             img = Image.open(image_file_path)

@@ -36,12 +36,8 @@ def display_logging(level="DEBUG", root_logger=False):
     if not handler_exists:
         handler = logging.StreamHandler(sys.stdout)
         handler.name = HANDLER_NAME
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     # Verify
-    logging.getLogger("whylogs.logs").debug(
-        f"whylogs.logs logging -> stdout at level {level}"
-    )
+    logging.getLogger("whylogs.logs").debug(f"whylogs.logs logging -> stdout at level {level}")

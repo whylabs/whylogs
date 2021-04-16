@@ -57,9 +57,7 @@ def from_string_sketch(sketch: frequent_strings_sketch):
     -------
     summary : FrequentStringsSummary
     """
-    frequent_items = sketch.get_frequent_items(
-        frequent_items_error_type.NO_FALSE_NEGATIVES
-    )
+    frequent_items = sketch.get_frequent_items(frequent_items_error_type.NO_FALSE_NEGATIVES)
     # Note: frequent items is a list of tuples containing info about the
     # most frequent strings and their count:
     # [(string, est_count, lower bound, upper bound)]
@@ -91,9 +89,7 @@ def quantiles_from_sketch(sketch: kll_floats_sketch, quantiles=None):
     )
 
 
-def histogram_from_sketch(
-    sketch: kll_floats_sketch, max_buckets: int = None, avg_per_bucket: int = None
-):
+def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int = None, avg_per_bucket: int = None):
     """
     Generate a summary of a kll_floats_sketch, including a histogram
 

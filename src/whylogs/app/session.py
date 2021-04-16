@@ -100,9 +100,7 @@ class Session:
         self.cache_size = cache_size
 
         # enable special logic when starting/closing a Session if we're using whylabs client to save dataset profiles
-        whylabs_writer_is_present = any(
-            isinstance(w, WhyLabsWriter) for w in self.writers
-        )
+        whylabs_writer_is_present = any(isinstance(w, WhyLabsWriter) for w in self.writers)
         self.use_whylabs_writer = _use_whylabs_client or whylabs_writer_is_present
 
         # add WhyLabs writer if it's not already present (which can happen if it's not specified in the config)
@@ -268,9 +266,7 @@ class Session:
         :param metadata: information about this current profile. Can be discarded when merging
         :return: a dataset profile if the session is active
         """
-        dataset_profile = self.new_profile(
-            dataset_name, dataset_timestamp, session_timestamp, tags, metadata
-        )
+        dataset_profile = self.new_profile(dataset_name, dataset_timestamp, session_timestamp, tags, metadata)
 
         if dataset_profile is None:
             return None
@@ -355,11 +351,7 @@ class Session:
 
         """
         if self._loggers.get(dataset_name) is None:
-            raise KeyError(
-                "WARNING: logger {} is not present in the current Session".format(
-                    dataset_name
-                )
-            )
+            raise KeyError("WARNING: logger {} is not present in the current Session".format(dataset_name))
 
         self._loggers.pop(dataset_name)
 
@@ -405,13 +397,9 @@ def reset_default_session():
     _session = session_from_config(config)
 
 
-def start_whylabs_session(
-    path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None
-):
+def start_whylabs_session(path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None):
     if not data_collection_consent:
-        raise PermissionError(
-            "When creating a session that will send data to WhyLabs, data_collection_consent must be set to True"
-        )
+        raise PermissionError("When creating a session that will send data to WhyLabs, data_collection_consent must be set to True")
 
     global _use_whylabs_client
     _use_whylabs_client = True
@@ -440,9 +428,7 @@ def get_or_create_session(path_to_config: Optional[str] = None):
         if config is None:
             print("WARN: Missing config")
             writer = WriterConfig(type="local", output_path="output", formats=["all"])
-            config = SessionConfig(
-                "default-project", "default-pipeline", [writer], False
-            )
+            config = SessionConfig("default-project", "default-pipeline", [writer], False)
         _session = session_from_config(config)
     return _session
 
