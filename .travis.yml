@@ -14,7 +14,7 @@ matrix:
     - env: DISTRIB="conda" PYTHON_VERSION="3.7" COVERAGE="false"
 install:
   - source tests/travis_install.sh
-  - pip install -r requirements.txt
+  - make install
   # ^  DEPRECATION WARNING:
   # The automatic creation of a `requirements.txt` file is deprecated.
   # See `Dependency Management` in the docs for other options.

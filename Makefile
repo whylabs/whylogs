@@ -1,14 +1,117 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help
-.DEFAULT_GOAL := help
+src.python := $(shell find ./src -type f -name "*.py")
+tst.python := $(shell find ./tests -type f -name "*.py")
+src.python.pyc := $(shell find ./src -type f -name "*.pyc")
+src.proto.dir := ./proto/src
+src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
+
+dist.dir := dist
+egg.dir := .eggs
+build.dir := build
+# This isn't exactly true but its the only thing that we easily know the name of at this point. Its a good proxy for
+# the wheel since its created along with it.
+build.wheel := $(dist.dir)/whylogs-0.4.5.dev1.tar.gz
+build.proto.dir := src/whylogs/proto
+build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$(src.proto))
+
+default: dist
+
+release: format lint test dist ## Compile distribution files and run all tests and checks.
+
+.PHONY: dist clean clean-test help format lint test install coverage docs default proto test-notebooks github release test-system-python format-fix
+
+ifeq (, $(shell which poetry))
+	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
+endif
+
+help:
+	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+
+clean: clean-test ## Remove all build artifacts
+	rm -f docs/whylogs.rst
+	rm -f docs/modules.rst
+	rm -rf $(dist.dir)
+	rm -rf $(build.dir)
+	rm -f $(src.python.pyc)
+	rm -rf $(egg.dir)
+	rm -rf $(build.proto)
+	rm -f $(build.proto)
+	rm -f requirements.txt
+
+clean-test: ## Remove test and coverage artifacts
+	rm -fr .tox/
+	rm -f .coverage
+	rm -fr htmlcov/
+	rm -fr .pytest_cache
+
+dist: $(build.wheel) ## Create distribution tarballs and wheels
+
+$(build.wheel): $(src.python) $(build.proto)
+	@$(call i, Generating distribution files)
+	poetry build
+	@$(call i, Distribution files created)
+	@find dist -type f
+
+proto: $(build.proto)
+
+requirements.txt:
+	@$(call i, Generating a requirements.txt file from poetry)
+	poetry export -f requirements.txt --output requirements.txt --dev
+
+$(build.proto): $(src.proto)
+	@$(call i, Generating python source for protobuf)
+	protoc -I $(src.proto.dir) --python_out=$(build.proto.dir) $(src.proto)
+	poetry run 2to3 --nobackups --write ./src/whylogs/proto/
+
+lint: ## check style with flake8
+	@$(call i, Running the linter)
+	poetry run tox -e flake8
+
+format: ## Check formatting with black
+	@$(call i, Checking formatting)
+	poetry run black --check .
+
+format-fix: ## Fix formatting with black. This updates files.
+	@$(call i, Formatting code)
+	poetry run black .
+
+test: dist ## run tests with pytest
+	@$(call i, Running tests)
+	poetry run pytest
+
+test-system-python: dist ## Run tests using the system `python` instead of the locally declared poetry python
+	@$(call i, Running tests using the globally installed python)
+	python -m poetry run python --version
+	python -m poetry run pytest
+
+test-notebooks: ## Run tests for the notebooks
+	@$(call i, Running notebook tests)
+	poetry run pytest --no-cov test_notebooks/notebook_tests.py
+
+install: ## install all dependencies with poetry
+	@$(call i, Installing dependencies)
+	poetry install
+
+coverage: ## generate test coverage reports
+	@$(call i, Generating test coverage)
+	poetry run pytest --cov='src/.' tests/
+	poetry run python -m coverage report
+
+docs: proto ## generate Sphinx HTML documentation, including API docs
+	@$(call i, Generating docs)
+	cd docs
+	$(MAKE) -C docs clean
+	$(MAKE) -C docs html
+	$(BROWSER) build/sphinx/html/index.html
+
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
-
 from urllib.request import pathname2url
 
 webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
 endef
 export BROWSER_PYSCRIPT
+BROWSER := poetry run python -c "$$BROWSER_PYSCRIPT"
 
 define PRINT_HELP_PYSCRIPT
 import re, sys
@@ -21,74 +124,20 @@ for line in sys.stdin:
 endef
 export PRINT_HELP_PYSCRIPT
 
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+define i
+echo
+echo "[INFO] $1"
+echo
+endef
 
-help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+define w
+echo
+echo "[WARN] $1"
+echo
+endef
 
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
-
-clean-build: ## remove build artifacts
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	rm -fr src/whylogs/proto/*pb2.py
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
-
-clean-pyc: ## remove Python file artifacts
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
-
-clean-test: ## remove test and coverage artifacts
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
-	rm -fr .pytest_cache
-
-lint: ## check style with flake8
-	tox -e flake8
-
-test: build-proto ## run tests quickly with the default Python
-	pytest
-
-test-all: build-proto ## run tests on every Python version with tox
-	tox
-
-coverage: ## check code coverage quickly with the default Python
-	pytest --cov='src/.' tests/
-	python -m coverage report
-
-docs: build-proto ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/whylogs.rst
-	rm -f docs/modules.rst
-	cd docs
-	$(MAKE) -C docs clean
-	$(MAKE) -C docs html
-	$(BROWSER) build/sphinx/html/index.html
-
-servedocs: docs ## compile the docs watching for changes
-	watchmedo shell-command -p '*.rst' -recursive -c '$(MAKE) -C docs' -D .
-
-release: dist ## package and upload a release
-	twine upload dist/*
-
-dist: clean-build build-proto ## builds source and wheel package
-	python setup.py build
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
-
-install: build-proto clean ## install the package to the active Python's site-packages
-	python setup.py install
-
-build-proto:
-	python setup.py proto
-
-build: build-proto lint
-	python setup.py build
-
-develop: build-proto
-	python setup.py develop
+define e
+echo
+echo "[ERROR] $1"
+echo
+endef

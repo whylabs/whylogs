@@ -4,81 +4,47 @@ Please take a look at this doc before contributing to whylogs python.
 
 ## Code format
 
-We use `flake8` for linting. To run flake8 lint verification:
-```
-make lint
+The following run the linter (flake8) and formatter (black). It fails if it finds issues but they won't be automatically resolved.
+
+```bash
+make lint format
 ```
 
-We use [black](https://pypi.org/project/black/) to format all our code.  Before submitting a PR you'll need to format the code by running (from the repo root dir):
-(note: this is currently disabled). Black is configured by `pyproject.toml`
+To automatically resolve issues, run
 
-```
-black .
+```bash
+make format-fix
 ```
 
 ## Development Environment
 
-1. It's recommended that you use [miniconda](https://docs.conda.io/en/latest/miniconda.html) to develop.
-
-2. Install [tox](https://tox.readthedocs.io/en/latest/) and [https://flake8.pycqa.org/en/latest/](flake8) and [black](https://black.readthedocs.io/en/stable/)
-    ```
-    # note that we are install these tools globally
-    pip install tox --user
-    pip install flake8 --user
-    pip install black --user
-    ```
-3. Clone the repo
-
-4. Clean potential previous 
+You'll need to install poetry in order to install dependencies using the lock file in this project. Follow [their docs](https://python-poetry.org/docs/) to get it set up.
 
 ```
-make clean
+git clone https://github.com/whylabs/whylogs-java.git
+git submodule update --init --recursive
+
+# Use poetry to install dependencies
+make install
+
+# Build the protobuf source and the distribution tar and wheel
+make
+
+# For building and viewing the docs if you're working on those
+make docs
 ```
 
-5. Update all the submodules (to get the protobuf definitions): 
-    
-    ```
-    git submodule update --init --recursive
-    ```
+## Managing Dependencies
 
-6. Create a new conda environment for whylogs development. We need Python 3.7
- (though whylogs target multiple Python versions via `tox`):
- 
-    ```
-    conda create --name=whylogs-dev python=3.7
-    conda activate whylogs-dev
-    ```
-
-7. Install dependencies
-
-    ```
-    conda install pip
-    pip install -r requirements-dev.txt
-    ```
-
-8. Install whylogs in editable mode to the current python environment
-
-    ```
-    make develop
-    ```
-   
-9. (optional) Build and serve documentation
-
-    ```
-    make docs
-    make servedocs
-    ```
-
-
+TODO
 
 
 ## Testing
-
 To run tests using the current Python environment:
+
 ```
 make test
 ```
-
 
 ### Coverage 
 
@@ -90,7 +56,9 @@ make coverage
 
 ### Testing CI locally
 
-you can run local github actions on the ubuntu using https://github.com/nektos/act. Currently you need to build a latest docker image for ubuntu using the following dockerfile
+TODO make this a real docker file then
+
+you can run local github actions on ubuntu using [act](https://github.com/nektos/act). Currently, you need to build the latest docker image for ubuntu using the following dockerfile
 
 ```dockerfile
 FROM ubuntu:20.04

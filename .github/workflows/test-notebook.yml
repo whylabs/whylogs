@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       fail-fast: false
       max-parallel: 6
@@ -25,6 +25,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install Poetry
+      uses: abatilo/actions-poetry@v2.0.0
+      with:
+        poetry-version: 1.1.5
     - name: Install Protoc
       uses: arduino/setup-protoc@master
       with:
@@ -37,10 +41,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-test.txt
+      run: make install
     - name: Run notebook test
-      run: |
-        pytest --no-cov test_notebooks/notebook_tests.py
-    
+      run: make test-notebooks
+

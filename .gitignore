@@ -144,3 +144,8 @@ cython_debug/
 
 #MacOS
 .DS_Store
+
+# Misc
+/output # default location of the whylogs binary output
+
+requirements.txt
