@@ -6,8 +6,16 @@ import click
 
 from whylogs.app import SessionConfig, WriterConfig
 from whylogs.app.config import WHYLOGS_YML
-from .cli_text import INTRO_MESSAGE, EMPTY_PATH_WARNING, OVERRIDE_CONFIRM, DOING_NOTHING_ABORTING, \
-    BEGIN_WORKFLOW, PROJECT_DESCRIPTION, PROJECT_NAME_PROMPT, PIPELINE_DESCRIPTION
+from .cli_text import (
+    INTRO_MESSAGE,
+    EMPTY_PATH_WARNING,
+    OVERRIDE_CONFIRM,
+    DOING_NOTHING_ABORTING,
+    BEGIN_WORKFLOW,
+    PROJECT_DESCRIPTION,
+    PROJECT_NAME_PROMPT,
+    PIPELINE_DESCRIPTION,
+)
 from whylogs.cli.utils import echo
 
 LENDING_CLUB_CSV = "lending_club_1000.csv"

@@ -23,8 +23,7 @@ _METADATA_DEFAULT_ATTRIBUTES = [
     "BitsPerSample",
     "Compression",
     "Quality",
-    "PhotometricInterpretation"
-    "SamplesPerPixel",
+    "PhotometricInterpretation" "SamplesPerPixel",
     "Model",
     "Software",
     "ResolutionUnit",
@@ -40,6 +39,7 @@ _METADATA_DEFAULT_ATTRIBUTES = [
 
 def image_loader(path: str = None) -> ImageType:
     from PIL import Image
+
     with open(path, "rb") as file_p:
         img = Image.open(file_p).copy()
         return img
@@ -56,13 +56,14 @@ class TrackImage:
         metadata_attributes (TYPE): metadata attributes to track
     """
 
-    def __init__(self,
-                 filepath: str = None,
-                 img: ImageType = None,
-                 feature_transforms: List[Callable] = DEFAULT_IMAGE_FEATURES,
-                 feature_name: str = "",
-                 metadata_attributes: Union[str, List[str]] = _METADATA_DEFAULT_ATTRIBUTES,
-                 ):
+    def __init__(
+        self,
+        filepath: str = None,
+        img: ImageType = None,
+        feature_transforms: List[Callable] = DEFAULT_IMAGE_FEATURES,
+        feature_name: str = "",
+        metadata_attributes: Union[str, List[str]] = _METADATA_DEFAULT_ATTRIBUTES,
+    ):
 
         if filepath is None and img is None:
             raise ValueError("Need image filepath or image data")
@@ -98,7 +99,8 @@ class TrackImage:
             for each_profile in profiles:
 
                 each_profile.track_array(
-                    columns=[self.feature_name + transform_name], x=transformed_image)
+                    columns=[self.feature_name + transform_name], x=transformed_image
+                )
 
                 if self.metadata_attributes == "all":
                     each_profile.track(metadata)
@@ -107,7 +109,8 @@ class TrackImage:
                     for each_attr in self.metadata_attributes:
                         attribute_value = metadata.get(each_attr, None)
                         each_profile.track(
-                            self.feature_name + each_attr, attribute_value)
+                            self.feature_name + each_attr, attribute_value
+                        )
 
 
 def get_pil_image_metadata(img: ImageType) -> Dict:
@@ -120,9 +123,10 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
     Returns:
         Dict: of metadata
     """
-    metadata = {TAGS[k]: "{}".format(v) if (isinstance(v, IFDRational)) else v
-                for k, v in dict(img.getexif()).items()
-                }
+    metadata = {
+        TAGS[k]: "{}".format(v) if (isinstance(v, IFDRational)) else v
+        for k, v in dict(img.getexif()).items()
+    }
 
     metadata.update({"ImageFormat": img.format})
 
@@ -130,8 +134,9 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
 
 
 def image_based_metadata(img):
-    return {"ImagePixelWidth": img.width,
-            "ImagePixelHeight": img.height,
-            "Colorspace": img.mode,
-            "ImageFormat": img.format
-            }
+    return {
+        "ImagePixelWidth": img.width,
+        "ImagePixelHeight": img.height,
+        "Colorspace": img.mode,
+        "ImageFormat": img.format,
+    }

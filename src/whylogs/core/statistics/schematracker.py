@@ -77,8 +77,8 @@ class SchemaTracker:
         )
 
         if (
-                candidate.type == Type.STRING
-                and type_counts.get(Type.STRING, 0) > fractional_count
+            candidate.type == Type.STRING
+            and type_counts.get(Type.STRING, 0) > fractional_count
         ):
             # treat everything else as "String" except UNKNOWN
             coerced_count = sum(
@@ -182,5 +182,6 @@ class SchemaTracker:
         # Convert the integer keys to their corresponding string names
         type_counts_with_names = {Type.Name(k): v for k, v in type_counts.items()}
         return SchemaSummary(
-            inferred_type=self.infer_type(), type_counts=type_counts_with_names,
+            inferred_type=self.infer_type(),
+            type_counts=type_counts_with_names,
         )

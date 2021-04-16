@@ -6,12 +6,40 @@ from typing import Callable, Any, Dict, Union
 import pandas as pd
 import json
 
-EXTENSIONS = ('.csv', '.jpg', '.jpeg', '.png', '.ppm', '.bmp', ".jsonl",
-              ".json", '.pgm', '.tif', '.tiff', '.webp', ".xls", ".xlsx",
-              ".xlsm", ".xlsb", ".odf", ".ods", ".odt")
+EXTENSIONS = (
+    ".csv",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".ppm",
+    ".bmp",
+    ".jsonl",
+    ".json",
+    ".pgm",
+    ".tif",
+    ".tiff",
+    ".webp",
+    ".xls",
+    ".xlsx",
+    ".xlsm",
+    ".xlsb",
+    ".odf",
+    ".ods",
+    ".odt",
+)
 
-IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.ppm', '.bmp',
-                    '.pgm', '.tif', '.tiff', '.webp', '.gif')
+IMAGE_EXTENSIONS = (
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".ppm",
+    ".bmp",
+    ".pgm",
+    ".tif",
+    ".tiff",
+    ".webp",
+    ".gif",
+)
 
 PD_EXCEL_FORMATS = (".xls", ".xlsx", ".xlsm", ".xlsb", ".odf", ".ods", ".odt")
 
@@ -90,10 +118,11 @@ def image_loader(path: str):
     """
     try:
         from PIL import Image
-        img = Image.open(open(path, 'rb'))
+
+        img = Image.open(open(path, "rb"))
         return img, img.format
     except Exception as e:
-        raise(e)
+        raise (e)
 
 
 def json_loader(path: str = None) -> Union[Dict, list]:
@@ -144,19 +173,18 @@ def file_loader(path: str, valid_file: Callable[[str], bool] = valid_file) -> An
     if ext in IMAGE_EXTENSIONS:
         data, file_format = image_loader(path)
         return (data, magic_data), file_format
-    elif ((ext == ".json") or (ext == ".jsonl")):
+    elif (ext == ".json") or (ext == ".jsonl"):
         data, file_format = json_loader(path)
         return (data, magic_data), file_format
-    elif (ext == ".csv"):
+    elif ext == ".csv":
         data = pd.read_csv(path)
         return (data, magic_data), "csv"
-    elif (ext in PD_EXCEL_FORMATS):
+    elif ext in PD_EXCEL_FORMATS:
         # default to 1st sheet
         try:
             data = pd.read_excel(path)
             return (data, magic_data), "excel"
         except Exception as e:
-            raise NotImplementedError(
-                "File not supported: {}".format(e))
+            raise NotImplementedError("File not supported: {}".format(e))
     else:
         IOError("File format, {} not supported yet : {} ".format(ext, magic_data))

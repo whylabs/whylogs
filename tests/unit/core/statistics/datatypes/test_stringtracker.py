@@ -16,7 +16,9 @@ def test_tracking():
 
     assert x.items.get_num_active_items() == n_unique
     assert x.items.get_total_weight() == count
-    assert [("one", 3, 3, 3)] == x.items.get_frequent_items(datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES, 2)
+    assert [("one", 3, 3, 3)] == x.items.get_frequent_items(
+        datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES, 2
+    )
 
     assert x.theta_sketch.get_result().get_estimate() == float(n_unique)
     assert x.count == count
@@ -30,7 +32,10 @@ def test_protobuf():
     x2 = StringTracker.from_protobuf(x.to_protobuf())
     assert x.count == x2.count
     assert x.items.get_total_weight() == x2.items.get_total_weight()
-    assert x.theta_sketch.get_result().get_estimate() == x2.theta_sketch.get_result().get_estimate()
+    assert (
+        x.theta_sketch.get_result().get_estimate()
+        == x2.theta_sketch.get_result().get_estimate()
+    )
 
 
 def test_summary():
@@ -54,14 +59,19 @@ def test_summary():
             ]
         },
     }
-    expected_items = pd.DataFrame(expected["frequent"]["items"]).sort_values(["value", "estimate"])
+    expected_items = pd.DataFrame(expected["frequent"]["items"]).sort_values(
+        ["value", "estimate"]
+    )
     expected["frequent"].pop("items")
 
     actual = message_to_dict(x.to_summary())
-    actual_items = pd.DataFrame(actual["frequent"]["items"]).sort_values(["value", "estimate"])
+    actual_items = pd.DataFrame(actual["frequent"]["items"]).sort_values(
+        ["value", "estimate"]
+    )
     actual["frequent"].pop("items")
 
     assert expected == actual
     pd.testing.assert_frame_equal(
-        actual_items.reset_index(drop=True).sort_index(axis=1), expected_items.reset_index(drop=True).sort_index(axis=1),
+        actual_items.reset_index(drop=True).sort_index(axis=1),
+        expected_items.reset_index(drop=True).sort_index(axis=1),
     )

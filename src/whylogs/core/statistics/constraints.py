@@ -26,12 +26,14 @@ This is just a form of currying, and I chose to bind the boolean comparison oper
 """
 _value_funcs = {
     # functions that compare an incoming feature value to a literal value.
-    Op.LT: lambda x: lambda v: v < x,  # assert incoming value 'v' is less than some fixed value 'x'
+    Op.LT: lambda x: lambda v: v
+    < x,  # assert incoming value 'v' is less than some fixed value 'x'
     Op.LE: lambda x: lambda v: v <= x,
     Op.EQ: lambda x: lambda v: v == x,
     Op.NE: lambda x: lambda v: v != x,
     Op.GE: lambda x: lambda v: v >= x,
-    Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
+    Op.GT: lambda x: lambda v: v
+    > x,  # assert incoming value 'v' is greater than some fixed value 'x'
 }
 
 _summary_funcs1 = {
@@ -86,17 +88,21 @@ class ValueConstraint:
 
     @property
     def name(self):
-        return self._name if self._name is not None else f'value {Op.Name(self.op)} {self.value}'
+        return (
+            self._name
+            if self._name is not None
+            else f"value {Op.Name(self.op)} {self.value}"
+        )
 
     def update(self, v) -> bool:
         self.total += 1
         if not self.func(v):
             self.failures += 1
             if self._verbose:
-                logger.info(f'value constraint {self.name} failed on value {v}')
+                logger.info(f"value constraint {self.name} failed on value {v}")
 
     @staticmethod
-    def from_protobuf(msg: ValueConstraintMsg) -> 'ValueConstraint':
+    def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
         return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
@@ -141,7 +147,15 @@ class SummaryConstraint:
 
     """
 
-    def __init__(self, first_field: str, op: Op, value=None, second_field: str = None, name: str = None, verbose=False):
+    def __init__(
+        self,
+        first_field: str,
+        op: Op,
+        value=None,
+        second_field: str = None,
+        name: str = None,
+        verbose=False,
+    ):
         self._verbose = verbose
         self._name = name
         self.op = op
@@ -158,27 +172,47 @@ class SummaryConstraint:
             self.second_field = second_field
             self.func = _summary_funcs2[op](first_field, second_field)
         else:
-            raise ValueError("Summary constraint must specify a second value or field name, but not both")
+            raise ValueError(
+                "Summary constraint must specify a second value or field name, but not both"
+            )
 
     @property
     def name(self):
-        return self._name if self._name is not None else f'summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}'
+        return (
+            self._name
+            if self._name is not None
+            else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
+        )
 
     def update(self, summ: NumberSummary) -> bool:
         self.total += 1
         if not self.func(summ):
             self.failures += 1
             if self._verbose:
-                logger.info(f'summary constraint {self.name} failed')
+                logger.info(f"summary constraint {self.name} failed")
 
     @staticmethod
-    def from_protobuf(msg: SummaryConstraintMsg) -> 'SummaryConstraint':
-        if msg.HasField('value') and not msg.HasField('second_field'):
-            return SummaryConstraint(msg.first_field, msg.op, value=msg.value, name=msg.name, verbose=msg.verbose)
-        elif msg.HasField('second_field') and not msg.HasField('value'):
-            return SummaryConstraint(msg.first_field, msg.op, second_field=msg.second_field, name=msg.name, verbose=msg.verbose)
+    def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
+        if msg.HasField("value") and not msg.HasField("second_field"):
+            return SummaryConstraint(
+                msg.first_field,
+                msg.op,
+                value=msg.value,
+                name=msg.name,
+                verbose=msg.verbose,
+            )
+        elif msg.HasField("second_field") and not msg.HasField("value"):
+            return SummaryConstraint(
+                msg.first_field,
+                msg.op,
+                second_field=msg.second_field,
+                name=msg.name,
+                verbose=msg.verbose,
+            )
         else:
-            raise ValueError("SummaryConstraintMsg must specify a value or second field name, but not both")
+            raise ValueError(
+                "SummaryConstraintMsg must specify a value or second field name, but not both"
+            )
 
     def to_protobuf(self) -> SummaryConstraintMsg:
         if self.second_field is None:
@@ -208,7 +242,7 @@ class ValueConstraints:
         self.constraints = constraints
 
     @staticmethod
-    def from_protobuf(msg: ValueConstraintMsgs) -> 'ValueConstraints':
+    def from_protobuf(msg: ValueConstraintMsgs) -> "ValueConstraints":
         v = [ValueConstraint.from_protobuf(c) for c in msg.constraints]
         if len(v) > 0:
             return ValueConstraints(v)
@@ -238,7 +272,7 @@ class SummaryConstraints:
         self.constraints = constraints
 
     @staticmethod
-    def from_protobuf(msg: SummaryConstraintMsgs) -> 'SummaryConstraints':
+    def from_protobuf(msg: SummaryConstraintMsgs) -> "SummaryConstraints":
         v = [SummaryConstraint.from_protobuf(c) for c in msg.constraints]
         if len(v) > 0:
             return SummaryConstraints(v)
@@ -264,11 +298,12 @@ class SummaryConstraints:
 
 
 class DatasetConstraints:
-    def __init__(self,
-                 props: DatasetProperties,
-                 value_constraints: Optional[Mapping[str, ValueConstraints]] = None,
-                 summary_constraints: Optional[Mapping[str, SummaryConstraints]] = None,
-                 ):
+    def __init__(
+        self,
+        props: DatasetProperties,
+        value_constraints: Optional[Mapping[str, ValueConstraints]] = None,
+        summary_constraints: Optional[Mapping[str, SummaryConstraints]] = None,
+    ):
         self.dataset_properties = props
         # repackage lists of constraints if necessary
         if value_constraints is None:
@@ -290,13 +325,23 @@ class DatasetConstraints:
         return None
 
     @staticmethod
-    def from_protobuf(msg: DatasetConstraintMsg) -> 'DatasetConstraints':
-        vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
-        sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
+    def from_protobuf(msg: DatasetConstraintMsg) -> "DatasetConstraints":
+        vm = dict(
+            [
+                (k, ValueConstraints.from_protobuf(v))
+                for k, v in msg.value_constraints.items()
+            ]
+        )
+        sm = dict(
+            [
+                (k, SummaryConstraints.from_protobuf(v))
+                for k, v in msg.summary_constraints.items()
+            ]
+        )
         return DatasetConstraints(msg.properties, vm, sm)
 
     @staticmethod
-    def from_json(data: str) -> 'DatasetConstraints':
+    def from_json(data: str) -> "DatasetConstraints":
         msg = Parse(data, DatasetConstraintMsg())
         return DatasetConstraints.from_protobuf(msg)
 
@@ -304,7 +349,9 @@ class DatasetConstraints:
         # construct tuple for each column, (name, [constraints,...])
         # turn that into a map indexed by column name
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
-        sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
+        sm = dict(
+            [(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()]
+        )
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,

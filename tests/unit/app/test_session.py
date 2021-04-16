@@ -1,7 +1,11 @@
-
-
 import pytest
-from whylogs.app.session import get_or_create_session, get_session, get_logger, reset_default_session, session_from_config
+from whylogs.app.session import (
+    get_or_create_session,
+    get_session,
+    get_logger,
+    reset_default_session,
+    session_from_config,
+)
 from whylogs.app.config import SessionConfig
 from whylogs.app.session import Session
 from pandas import util
@@ -27,9 +31,9 @@ def test_reset():
 def test_session_log_dataframe():
     _session = None
 
-    session = session_from_config(SessionConfig(
-        "default-project", "default-pipeline", [], False
-    ))
+    session = session_from_config(
+        SessionConfig("default-project", "default-pipeline", [], False)
+    )
     df = util.testing.makeDataFrame()
     profile = session.log_dataframe(df)
 
@@ -40,16 +44,16 @@ def test_session_log_dataframe():
 
 def test_session_profile():
 
-    session = session_from_config(SessionConfig(
-        "default-project", "default-pipeline", [], False
-    ))
+    session = session_from_config(
+        SessionConfig("default-project", "default-pipeline", [], False)
+    )
     df = util.testing.makeDataFrame()
     profile = session.log_dataframe(df)
     assert profile is not None
 
     summary = profile.flat_summary()
 
-    flat_summary = summary['summary']
+    flat_summary = summary["summary"]
     assert len(flat_summary) == 4
 
 

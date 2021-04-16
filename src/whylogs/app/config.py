@@ -55,13 +55,13 @@ class WriterConfig:
     """
 
     def __init__(
-            self,
-            type: str,
-            formats: List[str],
-            output_path: str,
-            path_template: Optional[str] = None,
-            filename_template: Optional[str] = None,
-            data_collection_consent: Optional[bool] = False,
+        self,
+        type: str,
+        formats: List[str],
+        output_path: str,
+        path_template: Optional[str] = None,
+        filename_template: Optional[str] = None,
+        data_collection_consent: Optional[bool] = False,
     ):
         self.type = type
         self.formats = formats
@@ -131,13 +131,13 @@ class SessionConfig:
     """
 
     def __init__(
-            self,
-            project: str,
-            pipeline: str,
-            writers: List[WriterConfig],
-            verbose: bool = False,
-            with_rotation_time: str = None,
-            cache_size: int = 1,
+        self,
+        project: str,
+        pipeline: str,
+        writers: List[WriterConfig],
+        verbose: bool = False,
+        with_rotation_time: str = None,
+        cache_size: int = 1,
     ):
         self.project = project
         self.pipeline = pipeline
@@ -181,7 +181,9 @@ class WriterConfigSchema(Schema):
     Marshmallow schema for :class:`WriterConfig` class.
     """
 
-    type = fields.Str(validate=validate.OneOf(["local", "s3", "whylabs"]), required=True)
+    type = fields.Str(
+        validate=validate.OneOf(["local", "s3", "whylabs"]), required=True
+    )
     formats = fields.List(
         fields.Str(validate=validate.OneOf(ALL_SUPPORTED_FORMATS)),
         required=True,
@@ -205,7 +207,8 @@ class SessionConfigSchema(Schema):
     project = fields.Str(required=True)
     pipeline = fields.Str(required=True)
     with_rotation_time = fields.Str(
-        required=False, validate=validate.OneOf(["s", "m", "h", "d"]))
+        required=False, validate=validate.OneOf(["s", "m", "h", "d"])
+    )
     cache = fields.Int(required=False)
     verbose = fields.Bool(missing=False)
     writers = fields.List(

@@ -19,7 +19,8 @@ def test_write_template_path():
     session_time = time.from_utc_ms(88888)
     path_template = "$name-$session_timestamp-$dataset_timestamp-$session_id"
     writer_config = WriterConfig(
-        "local", ["protobuf", "flat"], "output", path_template, "dataset-profile-$name")
+        "local", ["protobuf", "flat"], "output", path_template, "dataset-profile-$name"
+    )
     writer = writer_from_config(writer_config)
     dp = DatasetProfile("name", data_time, session_time, session_id="session")
     assert writer.path_suffix(dp) == "name-88888-9999-session"
@@ -33,8 +34,7 @@ def test_config_api(tmpdir):
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
 
-    session_config = SessionConfig(
-        "project", "pipeline", writers=[writer_config])
+    session_config = SessionConfig("project", "pipeline", writers=[writer_config])
 
     session = session_from_config(session_config)
 
@@ -68,8 +68,7 @@ def test_log_dataframe(tmpdir, df_lending_club):
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
 
-    session_config = SessionConfig(
-        "project", "pipeline", writers=[writer_config])
+    session_config = SessionConfig("project", "pipeline", writers=[writer_config])
     session = session_from_config(session_config)
 
     with session.logger("lendingclub") as logger:
@@ -80,7 +79,7 @@ def test_log_dataframe(tmpdir, df_lending_club):
 
         summary = profile.flat_summary()
 
-        flat_summary = summary['summary']
+        flat_summary = summary["summary"]
 
         assert len(flat_summary) == 151
 
@@ -96,7 +95,7 @@ def test_log_csv(tmpdir):
     with session.logger("csvtest") as logger:
         logger.log_csv(csv_path)
         summary = logger.profile.flat_summary()
-        flat_summary = summary['summary']
+        flat_summary = summary["summary"]
 
         assert len(flat_summary) == 151
 
@@ -107,18 +106,23 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
 
     p = tmpdir.mkdir("whylogs")
 
-    writer_config = WriterConfig("local", ["protobuf", "flat"], p.realpath(
-    ), filename_template="dataset_summary-$dataset_timestamp")
+    writer_config = WriterConfig(
+        "local",
+        ["protobuf", "flat"],
+        p.realpath(),
+        filename_template="dataset_summary-$dataset_timestamp",
+    )
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
 
-    session_config = SessionConfig(
-        "project", "pipeline", writers=[writer_config])
+    session_config = SessionConfig("project", "pipeline", writers=[writer_config])
     session = session_from_config(session_config)
 
     now = datetime.datetime.now()
     for i in range(0, 5):
-        with session.logger(dataset_timestamp=now + datetime.timedelta(days=i)) as logger:
+        with session.logger(
+            dataset_timestamp=now + datetime.timedelta(days=i)
+        ) as logger:
             logger.log_dataframe(df_lending_club)
 
     output_files = []
@@ -132,5 +136,6 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
 def test_logger_cache(tmpdir):
     from uuid import uuid4
     from whylogs.app import Logger
+
     logger = Logger(session_id=uuid4(), dataset_name=uuid4())
     logger.log({"name": 1})
