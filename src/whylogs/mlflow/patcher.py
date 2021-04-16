@@ -132,7 +132,6 @@ class WhyLogsRun(object):
                     name,
                     self._active_run_id,
                 )
-                pass
             logger.debug("Finished uploading all the loggers")
             self._active_run_id = None
 

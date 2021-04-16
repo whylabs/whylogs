@@ -2,6 +2,8 @@
 
 Please take a look at this doc before contributing to whylogs python.
 
+
+
 ## Code format
 
 The following run the linter (flake8) and formatter (black). It fails if it finds issues but they won't be automatically resolved.
@@ -123,12 +125,6 @@ cd whylogs-python/
 bump2version dev --verbose --dry-run [--allow-dirty]
 bump2version dev --verbose
 ```
-
-To run tests against different Python, we use tox:
-```
-make test-all
-```
-You can keep bumping the local version if you need to (you can't republish a version twice so this is needed).
 
 ### 2. Pushing to master branch
 
