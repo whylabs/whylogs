@@ -83,12 +83,12 @@ format-fix: ## Fix formatting with black. This updates files.
 
 test: dist ## run tests with pytest
 	@$(call i, Running tests)
-	poetry run pytest
+	poetry run pytest --mypy
 
 test-system-python: dist ## Run tests using the system `python` instead of the locally declared poetry python
 	@$(call i, Running tests using the globally installed python)
 	python -m poetry run python --version
-	python -m poetry run pytest
+	python -m poetry run pytest --mypy
 
 test-notebooks: ## Run tests for the notebooks
 	@$(call i, Running notebook tests)
