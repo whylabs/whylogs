@@ -1,5 +1,4 @@
-from .patcher import enable_mlflow
-from .patcher import disable_mlflow
+from .patcher import disable_mlflow, enable_mlflow
 
 _WHYLOGS_PATH = "whylogs"
 
@@ -42,9 +41,11 @@ def get_run_profiles(run_id: str, dataset_name: str = "default", client=None):
     :param dataset_name: the dataset name within a run. If not set, use the default value "default"
     """
 
-    import mlflow
-    import tempfile
     import shutil
+    import tempfile
+
+    import mlflow
+
     from whylogs import DatasetProfile
 
     if client is None:

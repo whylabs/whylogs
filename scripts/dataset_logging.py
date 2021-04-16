@@ -1,6 +1,6 @@
 import pandas as pd
-from whylogs import get_or_create_session
 
+from whylogs import get_or_create_session
 
 if __name__ == "__main__":
     df = pd.read_csv("data/lending-club-accepted-10.csv")

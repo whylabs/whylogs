@@ -135,6 +135,7 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
 
 def test_logger_cache(tmpdir):
     from uuid import uuid4
+
     from whylogs.app import Logger
 
     logger = Logger(session_id=uuid4(), dataset_name=uuid4())

@@ -1,10 +1,11 @@
-from whylogs.core.datasetprofile import DatasetProfile
-import whylogs
 import os
 import sys
-import pandas as pd
 
+import pandas as pd
 import pytest
+
+import whylogs
+from whylogs.core.datasetprofile import DatasetProfile
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 # Allow import of the test utilities packages

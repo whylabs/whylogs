@@ -1,7 +1,7 @@
 import json
 import os
 
-from whylogs.proto import DoublesMessage, DatasetProperties, NumbersMessage
+from whylogs.proto import DatasetProperties, DoublesMessage, NumbersMessage
 from whylogs.util import protobuf
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))

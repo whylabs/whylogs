@@ -1,6 +1,6 @@
 import os
-import pytest
 
+import pytest
 
 from whylogs.core import DatasetProfile
 from whylogs.core.model_profile import ModelProfile

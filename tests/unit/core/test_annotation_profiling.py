@@ -1,11 +1,10 @@
-import json
-from uuid import uuid4
 import datetime
-
-from whylogs.core.datasetprofile import DatasetProfile, array_profile, dataframe_profile
-from whylogs.core.annotation_profiling import TrackBB, BB_ATTRIBUTES
-
+import json
 import os
+from uuid import uuid4
+
+from whylogs.core.annotation_profiling import BB_ATTRIBUTES, TrackBB
+from whylogs.core.datasetprofile import DatasetProfile, array_profile, dataframe_profile
 
 TEST_DATA_PATH = os.path.abspath(
     os.path.join(

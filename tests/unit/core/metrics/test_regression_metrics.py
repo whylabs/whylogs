@@ -6,7 +6,6 @@ import pytest
 from whylogs.core.metrics.regression_metrics import RegressionMetrics
 from whylogs.proto import RegressionMetricsMessage
 
-
 TEST_DATA_PATH = os.path.abspath(
     os.path.join(
         os.path.realpath(os.path.dirname(__file__)),

@@ -1,9 +1,9 @@
-from nbconvert.preprocessors import CellExecutionError
-from nbconvert.preprocessors import ExecutePreprocessor
-import nbformat
-import subprocess
 import os
+import subprocess
+
+import nbformat
 import pytest
+from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir)

@@ -1,10 +1,10 @@
-from sklearn.utils.multiclass import type_of_target
-import pytest
 import numpy as np
+import pytest
+from sklearn.utils.multiclass import type_of_target
 
 from whylogs.core.metrics.confusion_matrix import (
-    ConfusionMatrix,
     SUPPORTED_TYPES,
+    ConfusionMatrix,
     encode_to_integers,
 )
 from whylogs.proto import ScoreMatrixMessage

@@ -5,6 +5,7 @@ Log a dataframe and send the profile to WhyLabs for visualization
 Example for logging a dataframe and sending the results to WhyLabs, where the data can be explored further
 """
 import pandas as pd
+
 from whylogs.app.session import start_whylabs_session
 
 # Load some sample data

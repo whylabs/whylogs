@@ -1,9 +1,10 @@
-from click.testing import CliRunner
-import whylogs.cli as client
-from whylogs.cli.demo_cli import cli as democli
-
 import os
 import shutil
+
+from click.testing import CliRunner
+
+import whylogs.cli as client
+from whylogs.cli.demo_cli import cli as democli
 
 
 def test_init_empty_dir(tmp_path):
