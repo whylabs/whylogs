@@ -88,11 +88,11 @@ class WhyLogsRun(object):
         ylogs.log_dataframe(df)
 
     def log(
-            self,
-            features: Dict[str, any] = None,
-            feature_name: str = None,
-            value: any = None,
-            dataset_name: Optional[str] = None,
+        self,
+        features: Dict[str, any] = None,
+        feature_name: str = None,
+        value: any = None,
+        dataset_name: Optional[str] = None,
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
@@ -146,11 +146,11 @@ class WhyLogsRun(object):
 
 
 def _new_mlflow_conda_env(
-        path=None,
-        additional_conda_deps=None,
-        additional_pip_deps=None,
-        additional_conda_channels=None,
-        install_mlflow=True,
+    path=None,
+    additional_conda_deps=None,
+    additional_pip_deps=None,
+    additional_conda_channels=None,
+    install_mlflow=True,
 ):
     global _original_mlflow_conda_env
     pip_deps = additional_pip_deps or []
@@ -188,7 +188,7 @@ def _new_add_to_model(model, loader_module, data=None, code=None, env=None, **kw
     _original_add_to_model(model, patched_loader_module, data, code, env, **kwargs)
 
 
-WHYLOG_YAML = '.whylogs.yaml'
+WHYLOG_YAML = ".whylogs.yaml"
 
 
 def new_model_log(**kwargs):
@@ -202,13 +202,14 @@ def new_model_log(**kwargs):
 
     if not os.path.isfile(WHYLOG_YAML):
         logger.warning(
-            'Unable to detect .whylogs.yaml file under current directory. whylogs will write to local disk in the '
-            'container')
+            "Unable to detect .whylogs.yaml file under current directory. whylogs will write to local disk in the "
+            "container"
+        )
         _original_model_log(**kwargs)
         return
     if _original_model_log is None:
-        raise RuntimeError('MlFlow is not patched. Please call whylogs.enable_mlflow()')
-    mlflow.log_artifact(WHYLOG_YAML, kwargs['artifact_path'])
+        raise RuntimeError("MlFlow is not patched. Please call whylogs.enable_mlflow()")
+    mlflow.log_artifact(WHYLOG_YAML, kwargs["artifact_path"])
     _original_model_log(**kwargs)
 
 
@@ -281,9 +282,9 @@ def enable_mlflow() -> bool:
 
     # Store the original end_run
     def end_run(
-            status=_mlflow.entities.RunStatus.to_string(
-                _mlflow.entities.RunStatus.FINISHED
-            ),
+        status=_mlflow.entities.RunStatus.to_string(
+            _mlflow.entities.RunStatus.FINISHED
+        ),
     ):
         logger.debug("Closing whylogs before ending the MLFlow run")
         _mlflow.whylogs._close()

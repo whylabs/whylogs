@@ -140,8 +140,7 @@ class Writer(ABC):
         """
         dataset_timestamp = "batch"
         if profile.dataset_timestamp is not None:
-            dataset_timestamp = time.to_utc_ms(
-                profile.dataset_timestamp).__str__()
+            dataset_timestamp = time.to_utc_ms(profile.dataset_timestamp).__str__()
         return {
             "name": profile.name,
             "session_timestamp": str(time.to_utc_ms(profile.session_timestamp)),
@@ -188,8 +187,7 @@ class LocalWriter(Writer):
         """
         Write a JSON summary of the dataset profile to disk
         """
-        path = self.ensure_path(os.path.join(
-            self.path_suffix(profile), "json"))
+        path = self.ensure_path(os.path.join(self.path_suffix(profile), "json"))
 
         output_file = os.path.join(path, self.file_name(profile, ".json"))
 
@@ -250,8 +248,7 @@ class LocalWriter(Writer):
         """
         Write a protobuf serialization of the DatasetProfile to disk
         """
-        path = self.ensure_path(os.path.join(
-            self.path_suffix(profile), "protobuf"))
+        path = self.ensure_path(os.path.join(self.path_suffix(profile), "protobuf"))
 
         protobuf: Message = profile.to_protobuf()
 
@@ -338,8 +335,7 @@ class S3Writer(Writer):
         )
         summary_df = get_dataset_frame(summary)
         with open(
-            os.path.join(flat_table_path, self.file_name(
-                profile, ".csv")), "wt"
+            os.path.join(flat_table_path, self.file_name(profile, ".csv")), "wt"
         ) as f:
             summary_df.to_csv(f, index=False)
 
@@ -348,18 +344,14 @@ class S3Writer(Writer):
         frequent_numbers_path = os.path.join(
             self.output_path, self.path_suffix(profile), "freq_numbers"
         )
-        with open(
-            os.path.join(frequent_numbers_path, json_flat_file), "wt"
-        ) as f:
+        with open(os.path.join(frequent_numbers_path, json_flat_file), "wt") as f:
             hist = flatten_dataset_histograms(summary)
             json.dump(hist, f, indent=indent)
 
         frequent_strings_path = os.path.join(
             self.output_path, self.path_suffix(profile), "frequent_strings"
         )
-        with open(
-            os.path.join(frequent_strings_path, json_flat_file), "wt"
-        ) as f:
+        with open(os.path.join(frequent_strings_path, json_flat_file), "wt") as f:
             frequent_strings = flatten_dataset_frequent_strings(summary)
             json.dump(frequent_strings, f, indent=indent)
 
@@ -375,14 +367,11 @@ class S3Writer(Writer):
         """
         Write a datasetprofile protobuf serialization to S3
         """
-        path = os.path.join(
-            self.output_path, self.path_suffix(profile), "protobuf")
+        path = os.path.join(self.output_path, self.path_suffix(profile), "protobuf")
 
         protobuf: Message = profile.to_protobuf()
 
-        with open(
-            os.path.join(path, self.file_name(profile, ".bin")), "wb"
-        ) as f:
+        with open(os.path.join(path, self.file_name(profile, ".bin")), "wb") as f:
             f.write(protobuf.SerializeToString())
 
 
@@ -400,6 +389,7 @@ class WhyLabsWriter(Writer):
         Write a protobuf profile to WhyLabs
         """
         from whylogs.whylabs_client.wrapper import upload_profile
+
         upload_profile(profile)
 
 
@@ -432,7 +422,9 @@ def writer_from_config(config: WriterConfig):
         )
     elif config.type == "whylabs":
         if config.data_collection_consent is not True:
-            raise ValueError(f"Writer of type {config.type} requires data_collection_consent parameter to be set to True")
+            raise ValueError(
+                f"Writer of type {config.type} requires data_collection_consent parameter to be set to True"
+            )
         return WhyLabsWriter()
     else:
         raise ValueError(f"Unknown writer type: {config.type}")

@@ -95,7 +95,12 @@ class IntTracker:
         -------
         message : LongsMessage
         """
-        return LongsMessage(count=self.count, max=self.max, min=self.min, sum=self.sum,)
+        return LongsMessage(
+            count=self.count,
+            max=self.max,
+            min=self.min,
+            sum=self.sum,
+        )
 
     @staticmethod
     def from_protobuf(message):

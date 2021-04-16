@@ -1,4 +1,3 @@
-
 from uuid import uuid4
 import datetime
 
@@ -8,8 +7,15 @@ from whylogs.features import _IMAGE_FEATURES
 import os
 from PIL import Image
 
-TEST_DATA_PATH = os.path.abspath(os.path.join(os.path.realpath(
-    os.path.dirname(__file__)), os.pardir, os.pardir, os.pardir, "testdata"))
+TEST_DATA_PATH = os.path.abspath(
+    os.path.join(
+        os.path.realpath(os.path.dirname(__file__)),
+        os.pardir,
+        os.pardir,
+        os.pardir,
+        "testdata",
+    )
+)
 
 
 def test_track_image():
@@ -20,11 +26,13 @@ def test_track_image():
     test_image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
 
     total_default_features = num_image_features + num_metadata_features
-    profile_1 = DatasetProfile(name="test",
-                               session_id=shared_session_id,
-                               session_timestamp=now,
-                               tags={"key": "value"},
-                               metadata={"key": "x1"},)
+    profile_1 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "x1"},
+    )
     trackImage = TrackImage(test_image_path)
 
     pixels_per_image = 67500
@@ -46,15 +54,16 @@ def test_track_PIL_img():
     num_image_features = len(_IMAGE_FEATURES)
     num_metadata_features = len(_METADATA_DEFAULT_ATTRIBUTES)
 
-    test_image_path = os.path.join(
-        TEST_DATA_PATH, "images", "flower2.jpg")
+    test_image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
 
     total_default_features = num_image_features + num_metadata_features
-    profile_1 = DatasetProfile(name="test",
-                               session_id=shared_session_id,
-                               session_timestamp=now,
-                               tags={"key": "value"},
-                               metadata={"key": "x1"},)
+    profile_1 = DatasetProfile(
+        name="test",
+        session_id=shared_session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "x1"},
+    )
     img = Image.open(open(test_image_path, "rb"))
     trackImage = TrackImage(img=img)
 

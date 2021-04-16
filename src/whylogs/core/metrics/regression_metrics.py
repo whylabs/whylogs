@@ -5,14 +5,11 @@ from sklearn.utils.multiclass import type_of_target
 
 from whylogs.proto import RegressionMetricsMessage
 
-SUPPORTED_TYPES = ("regression")
+SUPPORTED_TYPES = "regression"
 
 
 class RegressionMetrics:
-
-    def __init__(self,
-                 prediction_field: str = None,
-                 target_field: str = None):
+    def __init__(self, prediction_field: str = None, target_field: str = None):
         self.prediction_field = prediction_field
         self.target_field = target_field
 
@@ -23,8 +20,7 @@ class RegressionMetrics:
         # to add later
         # self.nt_diff = whylogs.core.statistics.NumberTracker()
 
-    def add(self, predictions: List[float],
-            targets: List[float]):
+    def add(self, predictions: List[float], targets: List[float]):
         """
         Function adds predictions and targets computation of regression metrics.
 
@@ -38,14 +34,16 @@ class RegressionMetrics:
         """
         tgt_type = type_of_target(targets)
         if tgt_type not in ("continuous"):
-            raise NotImplementedError(f"target type: {tgt_type} not supported for these metrics")
+            raise NotImplementedError(
+                f"target type: {tgt_type} not supported for these metrics"
+            )
 
         # need to vectorize this
         for idx, target in enumerate(targets):
 
             self.sum_abs_diff += abs(predictions[idx] - target)
             self.sum_diff += predictions[idx] - target
-            self.sum2_diff += (predictions[idx] - target)**2
+            self.sum2_diff += (predictions[idx] - target) ** 2
             # To add later
             # self.nt_diff.track(predictions[idx] - target)
             self.count += 1
@@ -87,8 +85,9 @@ class RegressionMetrics:
         if self.target_field != other.target_field:
             raise ValueError("target  fields differ")
 
-        new_reg = RegressionMetrics(prediction_field=self.prediction_field,
-                                    target_field=self.target_field)
+        new_reg = RegressionMetrics(
+            prediction_field=self.prediction_field, target_field=self.target_field
+        )
         new_reg.count = self.count + other.count
         new_reg.sum_abs_diff = self.sum_abs_diff + other.sum_abs_diff
         new_reg.sum_diff = self.sum_diff + other.sum_diff
@@ -96,7 +95,9 @@ class RegressionMetrics:
 
         return new_reg
 
-    def to_protobuf(self, ):
+    def to_protobuf(
+        self,
+    ):
         """
         Convert to protobuf
 
@@ -110,10 +111,14 @@ class RegressionMetrics:
             count=self.count,
             sum_abs_diff=self.sum_abs_diff,
             sum_diff=self.sum_diff,
-            sum2_diff=self.sum2_diff)
+            sum2_diff=self.sum2_diff,
+        )
 
     @classmethod
-    def from_protobuf(cls, message: RegressionMetricsMessage, ):
+    def from_protobuf(
+        cls,
+        message: RegressionMetricsMessage,
+    ):
         if message.ByteSize() == 0:
             return None
 
