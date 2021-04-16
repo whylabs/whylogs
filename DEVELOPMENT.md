@@ -46,7 +46,6 @@ To run tests using the current Python environment:
 make test
 ```
 
-
 ### Coverage 
 
 Coverage can be checked with 

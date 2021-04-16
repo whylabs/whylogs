@@ -24,8 +24,9 @@ def test_file_loader(file_list):
     # Our version of pandas doesn't support excel. If we upgrade to
     # pandas >= 1.2 then we can support excel
     # filefmts.append((pd.DataFrame, "excel"))
+    supported_files = list(filter(lambda file: "xlsx" not in file, file_list))
 
-    for idx, file_path in enumerate(file_list):
+    for idx, file_path in enumerate(supported_files):
         (data, magic_data), filefmt = file_loader(file_path)
         assert isinstance(data, filefmts[idx][0])
         assert isinstance(filefmt, str)
