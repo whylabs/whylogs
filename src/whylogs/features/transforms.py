@@ -153,9 +153,7 @@ class SimpleBlur:
             img = Image.fromarray(img)
         # compute laplacian
         img = img.convert("RGB")
-        img = img.filter(
-            ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8, -1, -1, -1, -1), 1, 0)
-        )
+        img = img.filter(ImageFilter.Kernel((3, 3), (-1, -1, -1, -1, 8, -1, -1, -1, -1), 1, 0))
         value = np.var(np.array(img).flatten()).reshape((-1, 1))
         return value
 

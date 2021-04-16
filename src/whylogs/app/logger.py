@@ -148,9 +148,7 @@ class Logger:
 
     def _intialize_profiles(
         self,
-        dataset_timestamp: Optional[datetime.datetime] = datetime.datetime.now(
-            datetime.timezone.utc
-        ),
+        dataset_timestamp: Optional[datetime.datetime] = datetime.datetime.now(datetime.timezone.utc),
     ) -> None:
 
         full_profile = None
@@ -174,9 +172,7 @@ class Logger:
 
         m = re.match(r"^(\d*)([smhd])$", with_rotation_time.lower())
         if m is None:
-            raise TypeError(
-                "Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'"
-            )
+            raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
 
         interval = 1 if m.group(1) == "" else int(m.group(1))
         if m.group(2) == "s":
@@ -191,9 +187,7 @@ class Logger:
             interval *= 60 * 60 * 24  # one day
             self.suffix = "%Y-%m-%d"
         else:
-            raise TypeError(
-                "Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'"
-            )
+            raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
         # time in seconds
         current_time = int(datetime.datetime.utcnow().timestamp())
         self.interval = interval * self.interval_multiplier
@@ -221,9 +215,7 @@ class Logger:
         sequence_start = self.rotate_at - self.interval
         time_tuple = datetime.datetime.fromtimestamp(sequence_start)
         rotation_suffix = "." + time_tuple.strftime(self.suffix)
-        log_datetime = datetime.datetime.strptime(
-            time_tuple.strftime(self.suffix), self.suffix
-        )
+        log_datetime = datetime.datetime.strptime(time_tuple.strftime(self.suffix), self.suffix)
 
         # modify the segment datetime stamps
         if self.segments is None or self.profile_full_dataset:
@@ -265,9 +257,7 @@ class Logger:
 
             if self.segments is not None:
 
-                for hashseg, each_seg_prof in self._profiles[-1][
-                    "segmented_profiles"
-                ].items():
+                for hashseg, each_seg_prof in self._profiles[-1]["segmented_profiles"].items():
                     seg_suffix = hashseg
                     full_suffix = "_" + seg_suffix
                     if rotation_suffix is not None:
@@ -281,9 +271,7 @@ class Logger:
         """
         returns a bool to determine if unsegmented dataset should be profiled.
         """
-        return (self.segments is None) or (
-            (self.segments is not None) and self.profile_full_dataset
-        )
+        return (self.segments is None) or ((self.segments is not None) and self.profile_full_dataset)
 
     def close(self) -> Optional[DatasetProfile]:
         """
@@ -468,9 +456,7 @@ class Logger:
                 else:
                     self.log_image(data, metadata_attributes=[])
             else:
-                raise NotImplementedError(
-                    "File format not supported {}, format:{}".format(type(data), fmt)
-                )
+                raise NotImplementedError("File format not supported {}, format:{}".format(type(data), fmt))
 
     def log_annotation(self, annotation_data):
         """
@@ -560,10 +546,7 @@ class Logger:
         for each_segment in segments:
             try:
                 segment_df = grouped_data.get_group(each_segment)
-                segment_tags = [
-                    {"key": self.segments[i], "value": each_segment[i]}
-                    for i in range(len(self.segments))
-                ]
+                segment_tags = [{"key": self.segments[i], "value": each_segment[i]} for i in range(len(self.segments))]
 
                 self.log_df_segment(segment_df, segment_tags)
             except KeyError:

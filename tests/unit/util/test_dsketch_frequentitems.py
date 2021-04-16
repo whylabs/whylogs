@@ -108,18 +108,14 @@ def test_apriori_error_equal_datasketches_error():
     sketch = dsketch.FrequentItemsSketch(LG_K)
     strings_sketch = datasketches.frequent_strings_sketch(LG_K)
     for map_size, w in zip(map_sizes, weights):
-        assert sketch.get_apriori_error(
-            map_size, w
-        ) == strings_sketch.get_apriori_error(map_size, w)
+        assert sketch.get_apriori_error(map_size, w) == strings_sketch.get_apriori_error(map_size, w)
 
 
 def test_string_epsilon_equals_datasketches():
     sketch = dsketch.FrequentItemsSketch(LG_K)
     strings_sketch = datasketches.frequent_strings_sketch(LG_K)
     for lg in [1, 3, 32, 120]:
-        assert sketch.get_epsilon_for_lg_size(
-            lg
-        ) == strings_sketch.get_epsilon_for_lg_size(lg)
+        assert sketch.get_epsilon_for_lg_size(lg) == strings_sketch.get_epsilon_for_lg_size(lg)
 
 
 def test_estimates_equal_datasketches():

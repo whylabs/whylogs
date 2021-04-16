@@ -3,13 +3,14 @@ import sys
 
 import pytest
 
+import whylogs
+
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 # Allow import of the test utilities packages
 sys.path.insert(0, os.path.join(_MY_DIR, os.pardir, "helpers"))
 # Test the parent package
 sys.path.insert(0, os.path.join(_MY_DIR, os.pardir))
 # Verify whylogs is importable
-import whylogs
 
 
 @pytest.fixture(scope="session")

@@ -23,9 +23,7 @@ class ModelMetrics:
 
         self.model_type = model_type
         if confusion_matrix is not None and regression_metrics is not None:
-            raise NotImplementedError(
-                "Regression Metrics together with  Confusion Matrix not implemented yet"
-            )
+            raise NotImplementedError("Regression Metrics together with  Confusion Matrix not implemented yet")
 
         if confusion_matrix is not None:
             if self.model_type == ModelType.REGRESSION:
@@ -44,12 +42,8 @@ class ModelMetrics:
         self,
     ) -> ModelMetricsMessage:
         return ModelMetricsMessage(
-            scoreMatrix=self.confusion_matrix.to_protobuf()
-            if self.confusion_matrix
-            else None,
-            regressionMetrics=self.regression_metrics.to_protobuf()
-            if self.regression_metrics
-            else None,
+            scoreMatrix=self.confusion_matrix.to_protobuf() if self.confusion_matrix else None,
+            regressionMetrics=self.regression_metrics.to_protobuf() if self.regression_metrics else None,
             modelType=self.model_type,
         )
 
@@ -60,9 +54,7 @@ class ModelMetrics:
     ):
         return ModelMetrics(
             confusion_matrix=ConfusionMatrix.from_protobuf(message.scoreMatrix),
-            regression_metrics=RegressionMetrics.from_protobuf(
-                message.regressionMetrics
-            ),
+            regression_metrics=RegressionMetrics.from_protobuf(message.regressionMetrics),
             model_type=message.modelType,
         )
 
@@ -95,11 +87,7 @@ class ModelMetrics:
         )
         confusion_matrix.add(predictions, targets, scores)
 
-        if (
-            self.confusion_matrix is None
-            or self.confusion_matrix.labels is None
-            or self.confusion_matrix.labels == []
-        ):
+        if self.confusion_matrix is None or self.confusion_matrix.labels is None or self.confusion_matrix.labels == []:
             self.confusion_matrix = confusion_matrix
         else:
             self.confusion_matrix = self.confusion_matrix.merge(confusion_matrix)
@@ -111,9 +99,7 @@ class ModelMetrics:
         target_field: str = None,
         prediction_field: str = None,
     ):
-        regression_metrics = RegressionMetrics(
-            target_field=target_field, prediction_field=prediction_field
-        )
+        regression_metrics = RegressionMetrics(target_field=target_field, prediction_field=prediction_field)
         regression_metrics.add(predictions, targets)
         if self.regression_metrics:
             self.regression_metrics = self.regression_metrics.merge(regression_metrics)
@@ -135,11 +121,7 @@ class ModelMetrics:
                 model_type = ModelType.UNKNOWN
 
         return ModelMetrics(
-            confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix)
-            if self.confusion_matrix
-            else None,
-            regression_metrics=self.regression_metrics.merge(other.regression_metrics)
-            if self.regression_metrics
-            else None,
+            confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix) if self.confusion_matrix else None,
+            regression_metrics=self.regression_metrics.merge(other.regression_metrics) if self.regression_metrics else None,
             model_type=model_type,
         )

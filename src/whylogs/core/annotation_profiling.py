@@ -120,9 +120,7 @@ class TrackBB:
             img_width_pixel = annotations["size"]["width"]
             img_rect = Rectangle([[0, 0], [img_width_pixel, img_height_pixel]])
             annotation_metrics["annotation_count"] = len(annotations["object"])
-            annotation_metrics["annotation_density"] = (
-                annotation_metrics["annotation_count"] / img_rect.area
-            )
+            annotation_metrics["annotation_density"] = annotation_metrics["annotation_count"] / img_rect.area
 
             # Get individual bbox metrics
             annotation_metrics["area_coverage"] = 0
@@ -154,9 +152,7 @@ class TrackBB:
                     ord=2,
                 )
 
-                annotation_metrics["area_coverage"] += rect1.intersection(img_rect) / (
-                    img_rect.area * annotation_metrics["annotation_count"]
-                )
+                annotation_metrics["area_coverage"] += rect1.intersection(img_rect) / (img_rect.area * annotation_metrics["annotation_count"])
 
                 self.all_bboxes.append(bounding_box_metric)
 

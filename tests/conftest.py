@@ -23,9 +23,7 @@ def profile_lending_club():
 
     now = datetime.datetime.utcnow()
     session_id = uuid4().hex
-    df = pd.read_csv(
-        os.path.join(_MY_DIR, os.pardir, "testdata", "lending_club_1000.csv")
-    )
+    df = pd.read_csv(os.path.join(_MY_DIR, os.pardir, "testdata", "lending_club_1000.csv"))
     profile = DatasetProfile(name="test", session_id=session_id, session_timestamp=now)
 
     profile.track_dataframe(df)
@@ -48,9 +46,7 @@ def s3_all_config_path():
 @pytest.fixture(scope="session")
 def df_lending_club():
 
-    df = pd.read_csv(
-        os.path.join(_MY_DIR, os.pardir, "testdata", "lending_club_1000.csv")
-    )
+    df = pd.read_csv(os.path.join(_MY_DIR, os.pardir, "testdata", "lending_club_1000.csv"))
     return df.head(50)
 
 
@@ -67,11 +63,7 @@ def image_files():
     from os.path import isfile, join
 
     image_dir = os.path.join(_MY_DIR, os.pardir, "testdata", "images")
-    image_files = [
-        os.path.join(image_dir, f)
-        for f in listdir(image_dir)
-        if isfile(join(image_dir, f))
-    ]
+    image_files = [os.path.join(image_dir, f) for f in listdir(image_dir) if isfile(join(image_dir, f))]
     return sorted(image_files)
 
 
@@ -81,9 +73,5 @@ def file_list():
     from os.path import isfile, join
 
     file_dir = os.path.join(_MY_DIR, os.pardir, "testdata", "files")
-    file_list = [
-        os.path.join(file_dir, f)
-        for f in listdir(file_dir)
-        if isfile(join(file_dir, f))
-    ]
+    file_list = [os.path.join(file_dir, f) for f in listdir(file_dir) if isfile(join(file_dir, f))]
     return sorted(file_list)

@@ -187,9 +187,7 @@ def test_protobuf_round_trip():
 
     assert roundtrip.name == "test"
     assert roundtrip.session_id == original.session_id
-    assert to_utc_ms(roundtrip.session_timestamp) == to_utc_ms(
-        original.session_timestamp
-    )
+    assert to_utc_ms(roundtrip.session_timestamp) == to_utc_ms(original.session_timestamp)
     assert set(list(roundtrip.columns.keys())) == {"col1", "col2"}
     assert roundtrip.columns["col1"].counters.count == 1
     assert roundtrip.columns["col2"].counters.count == 1
@@ -253,9 +251,7 @@ def test_parse_delimited_from_java_single():
 
 def test_parse_from_protobuf():
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    DatasetProfile.read_protobuf(
-        os.path.join(dir_path, "output_from_java_08242020.bin")
-    )
+    DatasetProfile.read_protobuf(os.path.join(dir_path, "output_from_java_08242020.bin"))
 
 
 def test_parse_delimited_from_java_multiple():
@@ -285,9 +281,7 @@ def test_write_delimited_single():
 
     assert roundtrip.session_id == original.session_id
     # Python time precision includes nanoseconds
-    assert time.to_utc_ms(roundtrip.session_timestamp) == time.to_utc_ms(
-        original.session_timestamp
-    )
+    assert time.to_utc_ms(roundtrip.session_timestamp) == time.to_utc_ms(original.session_timestamp)
     assert roundtrip.tags == original.tags
     assert roundtrip.metadata == original.metadata
 
@@ -316,9 +310,7 @@ def test_write_delimited_multiple():
     for entry in entries:
         assert entry.session_id == original.session_id
         # Python time precisions are different
-        assert time.to_utc_ms(entry.session_timestamp) == time.to_utc_ms(
-            original.session_timestamp
-        )
+        assert time.to_utc_ms(entry.session_timestamp) == time.to_utc_ms(original.session_timestamp)
         assert entry.tags == original.tags
         assert entry.metadata == original.metadata
 
@@ -346,9 +338,7 @@ def tests_timestamp():
         metadata={"key": "value"},
     )
     time_2 = dp.session_timestamp_ms
-    assert time_2 == int(
-        time.replace(tzinfo=datetime.timezone.utc).timestamp() * 1000.0
-    )
+    assert time_2 == int(time.replace(tzinfo=datetime.timezone.utc).timestamp() * 1000.0)
 
 
 def test_dataframe_profile():
@@ -360,22 +350,13 @@ def test_dataframe_profile():
 
     profile_factory = dataframe_profile(df, name="test", timestamp=time)
 
-    assert (
-        profile_factory.columns["A"].number_tracker.variance.mean
-        == profile.columns["A"].number_tracker.variance.mean
-    )
+    assert profile_factory.columns["A"].number_tracker.variance.mean == profile.columns["A"].number_tracker.variance.mean
 
     profile_factory_2 = dataframe_profile(df)
-    assert (
-        profile_factory_2.columns["A"].number_tracker.variance.mean
-        == profile.columns["A"].number_tracker.variance.mean
-    )
+    assert profile_factory_2.columns["A"].number_tracker.variance.mean == profile.columns["A"].number_tracker.variance.mean
     profile_factory_3 = dataframe_profile(df, timestamp=103433)
 
-    assert (
-        profile_factory_3.columns["A"].number_tracker.variance.mean
-        == profile.columns["A"].number_tracker.variance.mean
-    )
+    assert profile_factory_3.columns["A"].number_tracker.variance.mean == profile.columns["A"].number_tracker.variance.mean
 
 
 def test_track():

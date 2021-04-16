@@ -49,6 +49,7 @@ sphinx-autoapi = "^1.8.0"
 sphinx-autodoc-typehints = "^1.12.0"
 watchdog = {extras = ["watchmedo"], version = "^2.0.2"}
 isort = "^5.8.0"
+autopep8 = "^1.5.6"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -57,3 +58,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.isort]
 profile = "black"
 multi_line_output = 3
+
+[tool.black]
+line-length = 160
+target-version = "py39"

@@ -49,16 +49,12 @@ def test_number_and_string_apriori_error_equal(string_sketch, number_sketch):
     map_sizes = [1, 2, 32, 120]
     weights = [0, 10, 50, 100]
     for map_size, w in zip(map_sizes, weights):
-        assert string_sketch.get_apriori_error(
-            map_size, w
-        ) == number_sketch.get_apriori_error(map_size, w)
+        assert string_sketch.get_apriori_error(map_size, w) == number_sketch.get_apriori_error(map_size, w)
 
 
 def test_number_and_string_epsilon_equal(string_sketch, number_sketch):
     for lg in [1, 3, 32, 120]:
-        assert string_sketch.get_epsilon_for_lg_size(
-            lg
-        ) == number_sketch.get_epsilon_for_lg_size(lg)
+        assert string_sketch.get_epsilon_for_lg_size(lg) == number_sketch.get_epsilon_for_lg_size(lg)
 
 
 def test_number_and_string_estimates_equal(string_sketch, number_sketch):

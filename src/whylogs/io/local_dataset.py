@@ -51,13 +51,9 @@ class LocalDataset(Dataset):
     def _find_folder_feature(
         self,
     ) -> None:
-        self.folder_segmented_feature = [
-            d.name for d in os.scandir(self.root_folder) if d.is_dir()
-        ]
+        self.folder_segmented_feature = [d.name for d in os.scandir(self.root_folder) if d.is_dir()]
         self.folder_segmented_feature.sort()
-        self.folder_feature_dict = {
-            seg_value: i for i, seg_value in enumerate(self.folder_segmented_feature)
-        }
+        self.folder_feature_dict = {seg_value: i for i, seg_value in enumerate(self.folder_segmented_feature)}
 
     def _init_dataset(
         self,
@@ -71,9 +67,7 @@ class LocalDataset(Dataset):
             folder_feature_value = os.path.join(self.root_folder, folder_feature_value)
             if not os.path.isdir(folder_feature_value):
                 continue
-            for root, _, fnames in sorted(
-                os.walk(folder_feature_value, followlinks=True)
-            ):
+            for root, _, fnames in sorted(os.walk(folder_feature_value, followlinks=True)):
                 for fname in sorted(fnames):
                     file_path = os.path.join(root, fname)
                     if valid_file(file_path):
