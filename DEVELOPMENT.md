@@ -57,7 +57,9 @@ make coverage
 
 ### Testing CI locally
 
-you can run local github actions on the ubuntu using https://github.com/nektos/act. Currently you need to build a latest docker image for ubuntu using the following dockerfile
+TODO make this a real docker file then
+
+you can run local github actions on ubuntu using [act](https://github.com/nektos/act). Currently, you need to build the latest docker image for ubuntu using the following dockerfile
 
 ```dockerfile
 FROM ubuntu:20.04
