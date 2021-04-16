@@ -1,4 +1,4 @@
-from .visualizer import ProfileVisualizer, BaseProfileVisualizer
+from .visualizer import BaseProfileVisualizer, ProfileVisualizer
 
 __ALL__ = [
     ProfileVisualizer,

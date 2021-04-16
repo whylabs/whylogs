@@ -1,9 +1,11 @@
 from ._version import __version__
 from .app.config import SessionConfig, WriterConfig
+from .app.session import (
+    get_or_create_session,
+    reset_default_session,
+    start_whylabs_session,
+)
 from .core import ColumnProfile, DatasetProfile
-from .app.session import get_or_create_session
-from .app.session import reset_default_session
-from .app.session import start_whylabs_session
 from .mlflow import enable_mlflow
 
 __all__ = [

@@ -1,7 +1,9 @@
-import unittest
-from PIL.Image import Image as ImageType
-from whylogs.io.local_dataset import LocalDataset
 import os
+import unittest
+
+from PIL.Image import Image as ImageType
+
+from whylogs.io.local_dataset import LocalDataset
 
 
 def test_imagefolder(test_data_path):

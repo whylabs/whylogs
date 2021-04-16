@@ -1,20 +1,19 @@
 import logging
 from typing import List, Mapping, Optional
 
+from google.protobuf.json_format import Parse
+
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
+    NumberSummary,
     Op,
     SummaryConstraintMsg,
     SummaryConstraintMsgs,
     ValueConstraintMsg,
     ValueConstraintMsgs,
-    NumberSummary,
 )
-
-from google.protobuf.json_format import Parse
 from whylogs.util.protobuf import message_to_json
-
 
 logger = logging.getLogger(__name__)
 

@@ -1,13 +1,13 @@
 import json
 
+import numpy as np
+import pandas as pd
 import pytest
 from testutil import compare_frequent_items
 
 from whylogs.core import ColumnProfile
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.util.protobuf import message_to_dict
-import numpy as np
-import pandas as pd
 
 
 def test_all_numeric_types_get_tracked_by_number_tracker():
@@ -29,6 +29,7 @@ def test_all_numeric_types_get_tracked_by_number_tracker():
 
 def test_all_nulls_inferred_type_null():
     import numpy as np
+
     from whylogs.proto import InferredType
 
     Type = InferredType.Type
@@ -42,6 +43,7 @@ def test_all_nulls_inferred_type_null():
 
 def test_mostly_nulls_inferred_type_not_null():
     import numpy as np
+
     from whylogs.proto import InferredType
 
     Type = InferredType.Type

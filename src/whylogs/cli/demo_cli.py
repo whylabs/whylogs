@@ -11,27 +11,28 @@ import webbrowser
 import click
 import pandas as pd
 
+from whylogs import __version__ as whylogs_version
 from whylogs.app import SessionConfig, WriterConfig
 from whylogs.app.config import WHYLOGS_YML
 from whylogs.app.session import session_from_config
+from whylogs.cli.utils import echo
+
 from .cli_text import (
-    INITIAL_PROFILING_CONFIRM,
-    DATA_SOURCE_MESSAGE,
-    GENERATE_NOTEBOOKS,
-    OBSERVATORY_EXPLANATION,
-    DONE,
-    INTRO_MESSAGE,
-    EMPTY_PATH_WARNING,
-    OVERRIDE_CONFIRM,
-    DOING_NOTHING_ABORTING,
     BEGIN_WORKFLOW,
+    DATA_SOURCE_MESSAGE,
+    DOING_NOTHING_ABORTING,
+    DONE,
+    EMPTY_PATH_WARNING,
+    GENERATE_NOTEBOOKS,
+    INITIAL_PROFILING_CONFIRM,
+    INTRO_MESSAGE,
+    OBSERVATORY_EXPLANATION,
+    OVERRIDE_CONFIRM,
+    PIPELINE_DESCRIPTION,
     PROJECT_DESCRIPTION,
     PROJECT_NAME_PROMPT,
-    PIPELINE_DESCRIPTION,
     RUN_PROFILING,
 )
-from whylogs.cli.utils import echo
-from whylogs import __version__ as whylogs_version
 
 _LENDING_CLUB_CSV = "lending_club_1000.csv"
 _EXAMPLE_REPO = "https://github.com/whylabs/whylogs-examples.git"

@@ -1,6 +1,7 @@
 import shutil
-from whylogs.app.session import session_from_config
+
 from whylogs.app.config import SessionConfig, WriterConfig
+from whylogs.app.session import session_from_config
 
 
 def test_log_metrics(tmpdir):

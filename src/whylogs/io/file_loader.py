@@ -1,10 +1,10 @@
 # import smart_open as open
-import os
-
-import puremagic
-from typing import Callable, Any, Dict, Union
-import pandas as pd
 import json
+import os
+from typing import Any, Callable, Dict, Union
+
+import pandas as pd
+import puremagic
 
 EXTENSIONS = (
     ".csv",

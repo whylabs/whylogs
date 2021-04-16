@@ -5,9 +5,11 @@ Log a series of dataframes grouped by date and send to WhyLabs for visualization
 Using data from a Kaggle dataset (https://www.kaggle.com/yugagrawal95/sample-media-spends-data), split
 the dataset up by each day using the Calendar_Week column and log each of the data for that day using whylogs.
 """
-import pandas as pd
 from datetime import datetime
-from whylogs.app.session import start_whylabs_session, LoggerKey
+
+import pandas as pd
+
+from whylogs.app.session import LoggerKey, start_whylabs_session
 
 csv_file = "data/sample_media_spend.csv"
 

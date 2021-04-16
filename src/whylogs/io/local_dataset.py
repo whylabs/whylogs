@@ -1,7 +1,8 @@
+import abc
 import os
 from typing import Any, Callable, List, Optional, Tuple
-import abc
-from .file_loader import file_loader, EXTENSIONS, valid_file
+
+from .file_loader import EXTENSIONS, file_loader, valid_file
 
 
 class Dataset(abc.ABC):

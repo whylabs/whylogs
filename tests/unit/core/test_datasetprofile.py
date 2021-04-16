@@ -3,8 +3,8 @@ import json
 import os
 from uuid import uuid4
 
-import pytest
 import numpy as np
+import pytest
 from pandas import util
 
 from whylogs.core.datasetprofile import DatasetProfile, array_profile, dataframe_profile

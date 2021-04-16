@@ -64,14 +64,16 @@ $(build.proto): $(src.proto)
 
 lint: ## check style with flake8
 	@$(call i, Running the linter)
-	poetry run tox -e flake8
+	poetry run flake8
 
 format: ## Check formatting with black
 	@$(call i, Checking formatting)
+	poetry run isort --check-only .
 	poetry run black --check .
 
 format-fix: ## Fix formatting with black. This updates files.
 	@$(call i, Formatting code)
+	poetry run isort .
 	poetry run black .
 
 test: dist ## run tests with pytest
