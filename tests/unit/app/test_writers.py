@@ -51,10 +51,7 @@ def test_s3_writer_bug(df_lending_club, moto_boto, s3_config_path):
     objects = client.list_objects(Bucket="mocked_bucket")
 
     assert len([each_obj["Key"] for each_obj in objects["Contents"]]) == 1
-    assert (
-        objects["Contents"][0]["Key"]
-        == "dataset_test_s3/dataset_summary/protobuf/dataset_summary.bin"
-    )
+    assert objects["Contents"][0]["Key"] == "dataset_test_s3/dataset_summary/protobuf/dataset_summary.bin"
     assert "s3:" not in [d.name for d in os.scandir(os.getcwd()) if d.is_dir()]
 
 

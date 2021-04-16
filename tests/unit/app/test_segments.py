@@ -33,15 +33,9 @@ def test_segments(df_lending_club, tmpdir):
         assert profile is None
         profiles = logger.segmented_profiles
         assert len(profiles) == 2
-        assert profiles[list(profiles.keys())[0]].tags["segment"] == json.dumps(
-            [{"key": "home_ownership", "value": "RENT"}]
-        )
-        assert profiles[list(profiles.keys())[1]].tags["segment"] == json.dumps(
-            [{"key": "home_ownership", "value": "MORTGAGE"}]
-        )
-        mortage_segment = logger.get_segment(
-            [{"key": "home_ownership", "value": "MORTGAGE"}]
-        )
+        assert profiles[list(profiles.keys())[0]].tags["segment"] == json.dumps([{"key": "home_ownership", "value": "RENT"}])
+        assert profiles[list(profiles.keys())[1]].tags["segment"] == json.dumps([{"key": "home_ownership", "value": "MORTGAGE"}])
+        mortage_segment = logger.get_segment([{"key": "home_ownership", "value": "MORTGAGE"}])
         check_segment = profiles[list(profiles.keys())[1]]
         assert mortage_segment == check_segment
     shutil.rmtree(output_path)
@@ -56,9 +50,7 @@ def test_segments_keys(df_lending_club, tmpdir):
 
     session_config = SessionConfig("project", "pipeline", writers=[writer_config])
     session = session_from_config(session_config)
-    with session.logger(
-        "test", segments=["emp_title", "home_ownership"], cache_size=1
-    ) as logger:
+    with session.logger("test", segments=["emp_title", "home_ownership"], cache_size=1) as logger:
         logger.log_dataframe(df_lending_club)
         profiles = logger.segmented_profiles
         assert len(profiles) == 47

@@ -87,11 +87,7 @@ class NumberTracker:
         number : int, float
             A numeric value
         """
-        if (
-            pd.isnull(number)
-            or (not isinstance(number, numbers.Real))
-            or isinstance(number, bool)
-        ):
+        if pd.isnull(number) or (not isinstance(number, numbers.Real)) or isinstance(number, bool):
             # XXX: this type checking may still be fragile in python.
             return
         self.variance.update(number)
@@ -114,9 +110,7 @@ class NumberTracker:
 
     def merge(self, other):
         # Make a copy of the histogram
-        hist_copy = datasketches.kll_floats_sketch.deserialize(
-            self.histogram.serialize()
-        )
+        hist_copy = datasketches.kll_floats_sketch.deserialize(self.histogram.serialize())
         hist_copy.merge(other.histogram)
 
         theta_sketch = self.theta_sketch.merge(other.theta_sketch)
@@ -160,17 +154,13 @@ class NumberTracker:
         if message.compact_theta is not None and len(message.compact_theta) > 0:
             theta = ThetaSketch.deserialize(message.compact_theta)
         elif message.theta is not None and len(message.theta) > 0:
-            logger.warning(
-                "Possible missing data. Non-compact theta sketches are no longer supported"
-            )
+            logger.warning("Possible missing data. Non-compact theta sketches are no longer supported")
 
         opts = dict(
             theta_sketch=theta,
             variance=VarianceTracker.from_protobuf(message.variance),
             histogram=dsketch.deserialize_kll_floats_sketch(message.histogram),
-            frequent_numbers=dsketch.FrequentNumbersSketch.from_protobuf(
-                message.frequent_numbers
-            ),
+            frequent_numbers=dsketch.FrequentNumbersSketch.from_protobuf(message.frequent_numbers),
         )
         if message.HasField("doubles"):
             opts["floats"] = FloatTracker.from_protobuf(message.doubles)

@@ -76,17 +76,13 @@ class ConfusionMatrix:
             scores = [1.0 for _ in range(len(targets))]
 
         if len(targets) != len(predictions):
-            raise ValueError(
-                "both targets and predictions need to have the same length"
-            )
+            raise ValueError("both targets and predictions need to have the same length")
 
         targets_indx = encode_to_integers(targets, self.labels)
         prediction_indx = encode_to_integers(predictions, self.labels)
 
         for ind in range(len(predictions)):
-            self.confusion_matrix[prediction_indx[ind], targets_indx[ind]].track(
-                scores[ind]
-            )
+            self.confusion_matrix[prediction_indx[ind], targets_indx[ind]].track(scores[ind])
 
     def merge(self, other_cm):
         """
@@ -128,10 +124,7 @@ class ConfusionMatrix:
             prediction_field=self.prediction_field,
             target_field=self.target_field,
             score_field=self.score_field,
-            scores=[
-                nt.to_protobuf() if nt else NumberTracker.to_protobuf(NumberTracker())
-                for nt in np.ravel(self.confusion_matrix)
-            ],
+            scores=[nt.to_protobuf() if nt else NumberTracker.to_protobuf(NumberTracker()) for nt in np.ravel(self.confusion_matrix)],
         )
 
     @classmethod
@@ -143,13 +136,7 @@ class ConfusionMatrix:
             return None
         labels = message.labels
         num_labels = len(labels)
-        matrix = (
-            np.array(
-                [NumberTracker.from_protobuf(score) for score in message.scores]
-            ).reshape((num_labels, num_labels))
-            if num_labels > 0
-            else None
-        )
+        matrix = np.array([NumberTracker.from_protobuf(score) for score in message.scores]).reshape((num_labels, num_labels)) if num_labels > 0 else None
 
         cm_instance = ConfusionMatrix(
             labels=labels,
@@ -179,12 +166,8 @@ def _merge_CM(old_conf_matrix: ConfusionMatrix, new_conf_matrix: ConfusionMatrix
 
     for old_row_idx, each_row_indx in enumerate(new_indxes):
         for old_column_idx, each_column_inx in enumerate(new_indxes):
-            res_conf_matrix.confusion_matrix[
-                each_row_indx, each_column_inx
-            ] = new_conf_matrix.confusion_matrix[each_row_indx, each_column_inx].merge(
-                old_conf_matrix.confusion_matrix[
-                    old_indxes[old_row_idx], old_indxes[old_column_idx]
-                ]
+            res_conf_matrix.confusion_matrix[each_row_indx, each_column_inx] = new_conf_matrix.confusion_matrix[each_row_indx, each_column_inx].merge(
+                old_conf_matrix.confusion_matrix[old_indxes[old_row_idx], old_indxes[old_column_idx]]
             )
 
     return res_conf_matrix

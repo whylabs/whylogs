@@ -61,7 +61,10 @@ def csv_reader(f, date_format: str = None, dropna=False, infer_dtypes=False, **k
 
     date_parser = None
     if date_format is not None:
-        date_parser = lambda x: pd.datetime.strptime(x, date_format)  # noqa pep8
+
+        def date_parser(x):
+            return pd.datetime.strptime(x, date_format)  # noqa pep8
+
     opts = {
         "chunksize": CSV_READER_BATCH_SIZE,
         "date_parser": date_parser,
@@ -197,9 +200,7 @@ def run(
     logger.info("Finished collecting statistics")
 
     # Build summaries for the JSON output
-    summaries = DatasetSummaries(
-        profiles={k: v.to_summary() for k, v in profiles.items()}
-    )
+    summaries = DatasetSummaries(profiles={k: v.to_summary() for k, v in profiles.items()})
     with open(json_output_path, "wt") as fp:
         logger.info("Writing JSON summaries to: {}".format(json_output_path))
         fp.write(message_to_json(summaries))

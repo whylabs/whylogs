@@ -30,13 +30,10 @@ We'll need a few details from you before we can proceed
 """
 
 PIPELINE_DESCRIPTION = (
-    '"Pipeline" is a series of one or multiple datasets to build a single model or application. A '
-    "project might contain multiple pipelines "
+    '"Pipeline" is a series of one or multiple datasets to build a single model or application. A ' "project might contain multiple pipelines "
 )
 
-PROJECT_NAME_PROMPT = (
-    "Project name (alphanumeric, dash, and underscore characters only)"
-)
+PROJECT_NAME_PROMPT = "Project name (alphanumeric, dash, and underscore characters only)"
 
 PROJECT_DESCRIPTION = '"Project" is a collection of related datasets that are used for multiple models or applications.'
 
@@ -45,23 +42,17 @@ whylogs can break down the data by time for you
 This will enable users to run time-based analysis
 """
 
-DATETIME_COLUMN_PROMPT = (
-    "What is the name of the datetime feature (leave blank to skip)?"
-)
+DATETIME_COLUMN_PROMPT = "What is the name of the datetime feature (leave blank to skip)?"
 
 SKIP_DATETIME = "Skip grouping by datetime"
 
-DATETIME_FORMAT_PROMPT = (
-    "What is the format of the column? Leave blank to use datetimeutil to parse"
-)
+DATETIME_FORMAT_PROMPT = "What is the format of the column? Leave blank to use datetimeutil to parse"
 
 INITIAL_PROFILING_CONFIRM = "Would you like to run an initial profiling job?"
 
 DATA_SOURCE_MESSAGE = "Select data source:"
 
-PROFILE_OVERRIDE_CONFIRM = (
-    "Profile path already exists. This will override existing data"
-)
+PROFILE_OVERRIDE_CONFIRM = "Profile path already exists. This will override existing data"
 
 DATA_WILL_BE_OVERRIDDEN = "Previous profile data will be overridden"
 

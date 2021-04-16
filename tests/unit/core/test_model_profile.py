@@ -28,10 +28,7 @@ def test_model_profile_2():
     assert model_profile.metrics is not None
     assert mod_prof.metrics.confusion_matrix is not None
     assert mod_prof.metrics.confusion_matrix.labels is not None
-    assert (
-        model_profile.metrics.confusion_matrix.labels
-        == mod_prof.metrics.confusion_matrix.labels
-    )
+    assert model_profile.metrics.confusion_matrix.labels == mod_prof.metrics.confusion_matrix.labels
 
 
 def test_merge_profile():
@@ -58,9 +55,7 @@ def test_merge_profile():
 def test_roundtrip_serialization():
     original = ModelProfile(output_fields=["test"])
     serialized_bytes = original.to_protobuf().SerializeToString()
-    roundtrip = ModelProfile.from_protobuf(
-        ModelProfileMessage.FromString(serialized_bytes)
-    )
+    roundtrip = ModelProfile.from_protobuf(ModelProfileMessage.FromString(serialized_bytes))
     roundtrip.to_protobuf()
     assert roundtrip.output_fields == ["test"]
     assert isinstance(roundtrip.output_fields, list)

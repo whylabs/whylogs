@@ -86,10 +86,7 @@ plot_uniqueness()
         if self.summary_data is not None and len(self.summary_data) > 0:
             return True
 
-        print(
-            "Profiles have not been set for visualizer. "
-            "Try ProfileVisualizer.set_profiles(...)."
-        )
+        print("Profiles have not been set for visualizer. " "Try ProfileVisualizer.set_profiles(...).")
         return False
 
     def plot_distribution(self, variable, ts_format="%d-%b-%y", **kwargs):
@@ -170,9 +167,7 @@ plot_uniqueness()
             ncol=3,
         )
         ax.xaxis.set_major_formatter(_dates.DateFormatter(ts_format))
-        ax.yaxis.set_major_formatter(
-            _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
-        )
+        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None))
 
         return fig
 
@@ -182,9 +177,7 @@ plot_uniqueness()
             return
 
         chart_data = self._summary_data_preprocessing(variable)
-        chart_data.loc[:, "mv_ratio"] = (
-            chart_data.loc[:, "type_null_count"] / chart_data.loc[:, "count"]
-        )
+        chart_data.loc[:, "mv_ratio"] = chart_data.loc[:, "type_null_count"] / chart_data.loc[:, "count"]
 
         fig, ax = MatplotlibProfileVisualizer._chart_theming()
 
@@ -197,9 +190,7 @@ plot_uniqueness()
             label="Missing Value Ratio",
         )
 
-        ax.yaxis.set_label_text(
-            "Missing Value to\nTotal Count Ratio", fontweight="bold"
-        )
+        ax.yaxis.set_label_text("Missing Value to\nTotal Count Ratio", fontweight="bold")
         ax.set_title(f"Missing Values ({variable})", loc="left", fontweight="bold")
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(
@@ -211,9 +202,7 @@ plot_uniqueness()
             ncol=3,
         )
         ax.xaxis.set_major_formatter(_dates.DateFormatter(ts_format))
-        ax.yaxis.set_major_formatter(
-            _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
-        )
+        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None))
 
         return fig
 
@@ -224,16 +213,10 @@ plot_uniqueness()
 
         chart_data = self._summary_data_preprocessing(variable)
 
-        if (
-            chart_data.loc[:, "nunique_numbers"].sum() == 0
-            and chart_data.loc[:, "nunique_str"].sum() == 0
-        ):
+        if chart_data.loc[:, "nunique_numbers"].sum() == 0 and chart_data.loc[:, "nunique_str"].sum() == 0:
             print("No data appropriate for uniqueness plot.")
             return
-        elif (
-            chart_data.loc[:, "nunique_numbers"].sum()
-            > chart_data.loc[:, "nunique_str"].sum()
-        ):
+        elif chart_data.loc[:, "nunique_numbers"].sum() > chart_data.loc[:, "nunique_str"].sum():
             metrics = [
                 "nunique_numbers",
                 "nunique_numbers_lower",
@@ -278,9 +261,7 @@ plot_uniqueness()
         )
 
         ax.yaxis.set_label_text("Unique Value Count", fontweight="bold")
-        ax.set_title(
-            f"Estimated Unique Values ({variable})", loc="left", fontweight="bold"
-        )
+        ax.set_title(f"Estimated Unique Values ({variable})", loc="left", fontweight="bold")
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(
             handles,
@@ -291,9 +272,7 @@ plot_uniqueness()
             ncol=3,
         )
         ax.xaxis.set_major_formatter(_dates.DateFormatter(ts_format))
-        ax.yaxis.set_major_formatter(
-            _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
-        )
+        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None))
 
         return fig
 
@@ -336,8 +315,6 @@ plot_uniqueness()
             ncol=3,
         )
         ax.xaxis.set_major_formatter(_dates.DateFormatter(ts_format))
-        ax.yaxis.set_major_formatter(
-            _ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None)
-        )
+        ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None))
 
         return fig
