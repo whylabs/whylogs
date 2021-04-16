@@ -29,10 +29,10 @@ class StringTracker:
     """
 
     def __init__(
-            self,
-            count: int = None,
-            items: frequent_strings_sketch = None,
-            theta_sketch: ThetaSketch = None,
+        self,
+        count: int = None,
+        items: frequent_strings_sketch = None,
+        theta_sketch: ThetaSketch = None,
     ):
         if count is None:
             count = 0
@@ -105,7 +105,9 @@ class StringTracker:
         if message.compact_theta is not None and len(message.compact_theta) > 0:
             theta = ThetaSketch.deserialize(message.compact_theta)
         elif message.theta is not None and len(message.theta) > 0:
-            logger.warning('Possible missing data. Non-compact theta sketches are no longer supported')
+            logger.warning(
+                "Possible missing data. Non-compact theta sketches are no longer supported"
+            )
 
         return StringTracker(
             count=message.count,
@@ -125,7 +127,9 @@ class StringTracker:
         if self.count == 0:
             return None
         unique_count = self.theta_sketch.to_summary()
-        opts = dict(unique_count=unique_count, )
+        opts = dict(
+            unique_count=unique_count,
+        )
         if unique_count.estimate < MAX_SUMMARY_ITEMS:
             frequent_strings = from_string_sketch(self.items)
             if frequent_strings is not None:

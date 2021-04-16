@@ -24,7 +24,7 @@ from whylogs.proto import (
     DatasetProperties,
     DatasetSummary,
     MessageSegment,
-    ModelType
+    ModelType,
 )
 from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
 from whylogs.util import time
@@ -39,8 +39,7 @@ try:
     from cudf.core.dataframe import DataFrame as cudfDataFrame
 except ImportError as e:
     logger.debug(str(e))
-    logger.debug(
-        'Failed to import CudaDataFrame. Install cudf for CUDA support')
+    logger.debug("Failed to import CudaDataFrame. Install cudf for CUDA support")
     cudfDataFrame = None
 
 
@@ -73,8 +72,7 @@ SCALAR_NAME_MAPPING = OrderedDict(
         ),
     ),
     schema=OrderedDict(
-        inferred_type=OrderedDict(
-            type="inferred_dtype", ratio="dtype_fraction"),
+        inferred_type=OrderedDict(type="inferred_dtype", ratio="dtype_fraction"),
         type_counts=TYPENUM_COLUMN_NAMES,
     ),
     string_summary=OrderedDict(
@@ -190,14 +188,16 @@ class DatasetProfile:
         else:
             self.model_profile.add_output_field(field)
 
-    def track_metrics(self,
-                      targets: List[Union[str, bool, float, int]],
-                      predictions: List[Union[str, bool, float, int]],
-                      scores: List[float] = None,
-                      model_type: ModelType = None,
-                      target_field: str = None,
-                      prediction_field: str = None,
-                      score_field: str = None, ):
+    def track_metrics(
+        self,
+        targets: List[Union[str, bool, float, int]],
+        predictions: List[Union[str, bool, float, int]],
+        scores: List[float] = None,
+        model_type: ModelType = None,
+        target_field: str = None,
+        prediction_field: str = None,
+        score_field: str = None,
+    ):
         """
         Function to track metrics based on validation data.
 
@@ -228,10 +228,15 @@ class DatasetProfile:
         """
         if self.model_profile is None:
             self.model_profile = ModelProfile()
-        self.model_profile.compute_metrics(predictions=predictions, targets=targets,
-                                           scores=scores, model_type=model_type, target_field=target_field,
-                                           prediction_field=prediction_field,
-                                           score_field=score_field)
+        self.model_profile.compute_metrics(
+            predictions=predictions,
+            targets=targets,
+            scores=scores,
+            model_type=model_type,
+            target_field=target_field,
+            prediction_field=prediction_field,
+            score_field=score_field,
+        )
 
     def track(self, columns, data=None):
         """
@@ -258,14 +263,19 @@ class DatasetProfile:
             elif isinstance(columns, str):
                 self.track_datum(columns, None)
             else:
-                raise TypeError("Data type of: {} not supported for tracking".format(
-                    columns.__class__.__name__))
+                raise TypeError(
+                    "Data type of: {} not supported for tracking".format(
+                        columns.__class__.__name__
+                    )
+                )
 
     def track_datum(self, column_name, data):
         try:
             prof = self.columns[column_name]
         except KeyError:
-            constraints = None if self.constraints is None else self.constraints[column_name]
+            constraints = (
+                None if self.constraints is None else self.constraints[column_name]
+            )
             prof = ColumnProfile(column_name, constraints=constraints)
             self.columns[column_name] = prof
 
@@ -351,7 +361,8 @@ class DatasetProfile:
         }
 
         return DatasetSummary(
-            properties=self.to_properties(), columns=column_summaries,
+            properties=self.to_properties(),
+            columns=column_summaries,
         )
 
     def generate_constraints(self) -> DatasetConstraints:
@@ -364,8 +375,9 @@ class DatasetProfile:
             Protobuf constraints message.
         """
         self.validate()
-        constraints = [(name, col.generate_constraints())
-                       for name, col in self.columns.items()]
+        constraints = [
+            (name, col.generate_constraints()) for name, col in self.columns.items()
+        ]
         # filter empty constraints
         constraints = [(n, c) for n, c in constraints if c is not None]
         return DatasetConstraints(self.to_properties(), None, dict(constraints))
@@ -397,8 +409,10 @@ class DatasetProfile:
         properties = self.to_properties()
 
         yield MessageSegment(
-            marker=marker, metadata=DatasetMetadataSegment(
-                properties=properties,)
+            marker=marker,
+            metadata=DatasetMetadataSegment(
+                properties=properties,
+            ),
         )
 
         chunked_columns = self._column_message_iterator()
@@ -443,12 +457,13 @@ class DatasetProfile:
         return self._do_merge(other)
 
     def _do_merge(self, other):
-        columns_set = set(list(self.columns.keys()) +
-                          list(other.columns.keys()))
+        columns_set = set(list(self.columns.keys()) + list(other.columns.keys()))
 
         columns = {}
         for col_name in columns_set:
-            constraints = None if self.constraints is None else self.constraints[col_name]
+            constraints = (
+                None if self.constraints is None else self.constraints[col_name]
+            )
             empty_column = ColumnProfile(col_name, constraints=constraints)
             this_column = self.columns.get(col_name, empty_column)
             other_column = other.columns.get(col_name, empty_column)
@@ -566,7 +581,7 @@ class DatasetProfile:
             else:
                 msg_len = len(data)
                 new_pos = 0
-            msg_buf = data[new_pos: new_pos + msg_len]
+            msg_buf = data[new_pos : new_pos + msg_len]
             return DatasetProfile.from_protobuf_string(msg_buf)
 
     @staticmethod
@@ -585,8 +600,11 @@ class DatasetProfile:
         dataset_profile : DatasetProfile
         """
         properties: DatasetProperties = message.properties
-        name = (properties.tags or {}).get("name", None) or (
-            properties.tags or {}).get("Name", None) or ""
+        name = (
+            (properties.tags or {}).get("name", None)
+            or (properties.tags or {}).get("Name", None)
+            or ""
+        )
 
         return DatasetProfile(
             name=name,
@@ -596,10 +614,9 @@ class DatasetProfile:
             columns={
                 k: ColumnProfile.from_protobuf(v) for k, v in message.columns.items()
             },
-
             tags=dict(properties.tags or {}),
             metadata=dict(properties.metadata or {}),
-            model_profile=ModelProfile.from_protobuf(message.modeProfile)
+            model_profile=ModelProfile.from_protobuf(message.modeProfile),
         )
 
     @staticmethod
@@ -648,7 +665,7 @@ class DatasetProfile:
         """
         msg_len, new_pos = _DecodeVarint32(data, pos)
         pos = new_pos
-        msg_buf = data[pos: pos + msg_len]
+        msg_buf = data[pos : pos + msg_len]
         pos += msg_len
         profile = DatasetProfile.from_protobuf_string(msg_buf)
         return pos, profile
@@ -675,7 +692,9 @@ class DatasetProfile:
         """
         return list(DatasetProfile._parse_delimited_generator(data))
 
-    def apply_summary_constraints(self, summary_constraints: Optional[Mapping[str, SummaryConstraints]] = None):
+    def apply_summary_constraints(
+        self, summary_constraints: Optional[Mapping[str, SummaryConstraints]] = None
+    ):
         if summary_constraints is None:
             summary_constraints = self.constraints.summary_constraint_map
         for k, v in summary_constraints.items():
@@ -687,7 +706,7 @@ class DatasetProfile:
                 summ = colprof.to_summary()
                 constraints.update(summ.number_summary)
             else:
-                logger.debug(f'unkown feature \'{feature_name}\' in summary constraints')
+                logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
         return [(k, s.report()) for k, s in summary_constraints.items()]
 
@@ -839,8 +858,7 @@ def flatten_dataset_frequent_strings(dataset_summary: DatasetSummary):
 
     for col_name, col in dataset_summary.columns.items():
         try:
-            item_summary = getter(
-                getter(col, "string_summary"), "frequent").items
+            item_summary = getter(getter(col, "string_summary"), "frequent").items
             items = {item.value: int(item.estimate) for item in item_summary}
             if items:
                 frequent_strings[col_name] = items

@@ -1,5 +1,10 @@
-
-from whylogs.features.transforms import Hue, Brightness, Saturation, ComposeTransforms, SimpleBlur
+from whylogs.features.transforms import (
+    Hue,
+    Brightness,
+    Saturation,
+    ComposeTransforms,
+    SimpleBlur,
+)
 from whylogs.core.image_profiling import image_loader
 import os
 import numpy as np
@@ -7,8 +12,15 @@ from PIL import Image
 import pytest
 
 
-TEST_DATA_PATH = os.path.abspath(os.path.join(os.path.realpath(
-    os.path.dirname(__file__)), os.pardir, os.pardir, os.pardir, "testdata"))
+TEST_DATA_PATH = os.path.abspath(
+    os.path.join(
+        os.path.realpath(os.path.dirname(__file__)),
+        os.pardir,
+        os.pardir,
+        os.pardir,
+        "testdata",
+    )
+)
 
 
 def test_hue():
@@ -40,29 +52,30 @@ def test_zero_brightness():
     zero_images = np.zeros((3, 3, 3))
     transform = Brightness()
 
-    im = Image.fromarray(zero_images.astype('uint8')).convert('RGBA')
+    im = Image.fromarray(zero_images.astype("uint8")).convert("RGBA")
     res_img = transform(im)
 
     for each_va in res_img:
         assert each_va[0] == 0
-    res_img = transform(zero_images.astype('uint8'))
+    res_img = transform(zero_images.astype("uint8"))
     for each_va in res_img:
         assert each_va[0] == 0
+
 
 # Compute brightness of a white image
 
 
 def test_one_brightness():
 
-    ones_images = np.ones((3, 3, 3))*255
+    ones_images = np.ones((3, 3, 3)) * 255
     transform = Brightness()
 
-    im = Image.fromarray(ones_images.astype('uint8')).convert('RGBA')
+    im = Image.fromarray(ones_images.astype("uint8")).convert("RGBA")
     res_img = transform(im)
 
     for each_va in res_img:
         assert each_va[0] == 255
-    res_img = transform(ones_images.astype('uint8'))
+    res_img = transform(ones_images.astype("uint8"))
     for each_va in res_img:
         assert each_va[0] == 255
 
@@ -82,7 +95,11 @@ def test_Brightness():
 
 
 def test_simple_blur(image_files):
-    expected_results = [3754.4, 1392.5, 13544.2, ]
+    expected_results = [
+        3754.4,
+        1392.5,
+        13544.2,
+    ]
     transform = SimpleBlur()
     for idx, eachimg in enumerate(image_files):
         img = image_loader(eachimg)

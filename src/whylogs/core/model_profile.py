@@ -21,9 +21,7 @@ class ModelProfile:
         list of fields that map to model outputs
     """
 
-    def __init__(self,
-                 output_fields=None,
-                 metrics: ModelMetrics = None):
+    def __init__(self, output_fields=None, metrics: ModelMetrics = None):
         super().__init__()
 
         if output_fields is None:
@@ -37,14 +35,16 @@ class ModelProfile:
         if field not in self.output_fields:
             self.output_fields.append(field)
 
-    def compute_metrics(self, targets,
-                        predictions,
-                        scores=None,
-                        model_type: ModelType = None,
-                        target_field=None,
-                        prediction_field=None,
-                        score_field=None
-                        ):
+    def compute_metrics(
+        self,
+        targets,
+        predictions,
+        scores=None,
+        model_type: ModelType = None,
+        target_field=None,
+        prediction_field=None,
+        score_field=None,
+    ):
         """
         Compute and track metrics for confusion_matrix
 
@@ -69,13 +69,18 @@ class ModelProfile:
         tgt_type = type_of_target(targets)
         if tgt_type in ("continuous") or model_type == ModelType.REGRESSION:
 
-            self.metrics.compute_regression_metrics(predictions=predictions,
-                                                    targets=targets,
-                                                    target_field=target_field,
-                                                    prediction_field=prediction_field)
+            self.metrics.compute_regression_metrics(
+                predictions=predictions,
+                targets=targets,
+                target_field=target_field,
+                prediction_field=prediction_field,
+            )
             self.metrics.model_type = ModelType.REGRESSION
 
-        elif tgt_type in ("binary", "multiclass") or model_type == ModelType.CLASSIFICATION:
+        elif (
+            tgt_type in ("binary", "multiclass")
+            or model_type == ModelType.CLASSIFICATION
+        ):
             self.metrics.model_type = ModelType.CLASSIFICATION
 
             # if score are not present set them to 1.
@@ -85,32 +90,36 @@ class ModelProfile:
             scores = np.array(scores)
 
             # compute confusion_matrix
-            self.metrics.compute_confusion_matrix(predictions=predictions,
-                                                  targets=targets,
-                                                  scores=scores,
-                                                  target_field=target_field,
-                                                  prediction_field=prediction_field,
-                                                  score_field=score_field)
+            self.metrics.compute_confusion_matrix(
+                predictions=predictions,
+                targets=targets,
+                scores=scores,
+                target_field=target_field,
+                prediction_field=prediction_field,
+                score_field=score_field,
+            )
         else:
             raise NotImplementedError(f"target type {tgt_type} not supported yet")
 
     def to_protobuf(self):
-        return ModelProfileMessage(output_fields=self.output_fields,
-                                   metrics=self.metrics.to_protobuf())
+        return ModelProfileMessage(
+            output_fields=self.output_fields, metrics=self.metrics.to_protobuf()
+        )
 
     @classmethod
     def from_protobuf(cls, message: ModelProfileMessage):
         # convert google.protobuf.pyext._message.RepeatedScalarContainer to a list
         output_fields = [f for f in message.output_fields]
-        return ModelProfile(output_fields=output_fields,
-                            metrics=ModelMetrics.from_protobuf(message.metrics))
+        return ModelProfile(
+            output_fields=output_fields,
+            metrics=ModelMetrics.from_protobuf(message.metrics),
+        )
 
     def merge(self, model_profile):
         if model_profile is None:
             return self
 
-        output_fields = list(
-            set(self.output_fields + model_profile.output_fields))
+        output_fields = list(set(self.output_fields + model_profile.output_fields))
         metrics = self.metrics.merge(model_profile.metrics)
 
         return ModelProfile(output_fields=output_fields, metrics=metrics)

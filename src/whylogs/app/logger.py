@@ -14,7 +14,12 @@ from tqdm import tqdm
 import pandas as pd
 
 from whylogs.app.writers import Writer
-from whylogs.core import DatasetProfile, TrackImage, METADATA_DEFAULT_ATTRIBUTES, TrackBB
+from whylogs.core import (
+    DatasetProfile,
+    TrackImage,
+    METADATA_DEFAULT_ATTRIBUTES,
+    TrackBB,
+)
 from whylogs.core.statistics.constraints import DatasetConstraints
 from whylogs.io import LocalDataset
 from whylogs.proto import ModelType
@@ -49,29 +54,28 @@ class Logger:
     :param constraints: static assertions to be applied to streams and summaries.
     """
 
-    def __init__(self,
-                 session_id: str,
-                 dataset_name: str,
-                 dataset_timestamp: Optional[datetime.datetime] = None,
-                 session_timestamp: Optional[datetime.datetime] = None,
-                 tags: Dict[str, str] = {},
-                 metadata: Dict[str, str] = None,
-                 writers=List[Writer],
-                 verbose: bool = False,
-                 with_rotation_time: Optional[str] = None,
-                 interval: int = 1,
-                 cache_size: int = 1,
-                 segments: Optional[Union[List[Segment], List[str]]] = None,
-                 profile_full_dataset: bool = False,
-                 constraints: DatasetConstraints = None,
-                 ):
-        """
-        """
+    def __init__(
+        self,
+        session_id: str,
+        dataset_name: str,
+        dataset_timestamp: Optional[datetime.datetime] = None,
+        session_timestamp: Optional[datetime.datetime] = None,
+        tags: Dict[str, str] = {},
+        metadata: Dict[str, str] = None,
+        writers=List[Writer],
+        verbose: bool = False,
+        with_rotation_time: Optional[str] = None,
+        interval: int = 1,
+        cache_size: int = 1,
+        segments: Optional[Union[List[Segment], List[str]]] = None,
+        profile_full_dataset: bool = False,
+        constraints: DatasetConstraints = None,
+    ):
+        """"""
         self._active = True
 
         if session_timestamp is None:
-            self.session_timestamp = datetime.datetime.now(
-                datetime.timezone.utc)
+            self.session_timestamp = datetime.datetime.now(datetime.timezone.utc)
         else:
             self.session_timestamp = session_timestamp
         self.dataset_name = dataset_name
@@ -87,8 +91,8 @@ class Logger:
 
         self._profiles = []
         self._intialize_profiles(dataset_timestamp)
-        self.interval_multiplier = interval                     # deprecated, rotation interval multiplier
-        self.with_rotation_time = with_rotation_time            # rotation interval specification
+        self.interval_multiplier = interval  # deprecated, rotation interval multiplier
+        self.with_rotation_time = with_rotation_time  # rotation interval specification
         self._set_rotation(with_rotation_time)
 
     def __enter__(self):
@@ -98,7 +102,9 @@ class Logger:
         self.close()
 
     @property
-    def profile(self, ) -> DatasetProfile:
+    def profile(
+        self,
+    ) -> DatasetProfile:
         """
         :return: the last backing dataset profile
         :rtype: DatasetProfile
@@ -115,7 +121,9 @@ class Logger:
         return True
 
     @property
-    def segmented_profiles(self, ) -> Dict[str, DatasetProfile]:
+    def segmented_profiles(
+        self,
+    ) -> Dict[str, DatasetProfile]:
         """
         :return: the last backing dataset profile
         :rtype: Dict[str, DatasetProfile]
@@ -124,8 +132,7 @@ class Logger:
 
     def get_segment(self, segment: Segment) -> Optional[DatasetProfile]:
         hashed_seg = hash_segment(segment)
-        return self._profiles[-1]["segmented_profiles"].get(
-            hashed_seg, None)
+        return self._profiles[-1]["segmented_profiles"].get(hashed_seg, None)
 
     def set_segments(self, segments: Union[List[Segment], List[str]]) -> None:
         if segments:
@@ -139,9 +146,12 @@ class Logger:
             self.segments = None
             self.segment_type = None
 
-    def _intialize_profiles(self,
-                            dataset_timestamp: Optional[datetime.datetime] = datetime.datetime.now(
-                                datetime.timezone.utc)) -> None:
+    def _intialize_profiles(
+        self,
+        dataset_timestamp: Optional[datetime.datetime] = datetime.datetime.now(
+            datetime.timezone.utc
+        ),
+    ) -> None:
 
         full_profile = None
         if self.full_profile_check():
@@ -154,8 +164,7 @@ class Logger:
                 session_id=self.session_id,
                 constraints=self.constraints,
             )
-        self._profiles.append(
-            {"full_profile": full_profile, "segmented_profiles": {}})
+        self._profiles.append({"full_profile": full_profile, "segmented_profiles": {}})
 
     def _set_rotation(self, with_rotation_time: str = None):
         if with_rotation_time is None:
@@ -163,24 +172,28 @@ class Logger:
 
         self.with_rotation_time = with_rotation_time.lower()
 
-        m = re.match(r'^(\d*)([smhd])$', with_rotation_time.lower())
+        m = re.match(r"^(\d*)([smhd])$", with_rotation_time.lower())
         if m is None:
-            raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
+            raise TypeError(
+                "Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'"
+            )
 
-        interval = 1 if m.group(1) == '' else int(m.group(1))
-        if m.group(2) == 's':
+        interval = 1 if m.group(1) == "" else int(m.group(1))
+        if m.group(2) == "s":
             self.suffix = "%Y-%m-%d_%H-%M-%S"
-        elif m.group(2) == 'm':
+        elif m.group(2) == "m":
             interval *= 60  # one minute
             self.suffix = "%Y-%m-%d_%H-%M"
-        elif m.group(2) == 'h':
+        elif m.group(2) == "h":
             interval *= 60 * 60  # one hour
             self.suffix = "%Y-%m-%d_%H"
-        elif m.group(2) == 'd':
+        elif m.group(2) == "d":
             interval *= 60 * 60 * 24  # one day
             self.suffix = "%Y-%m-%d"
         else:
-            raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
+            raise TypeError(
+                "Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'"
+            )
         # time in seconds
         current_time = int(datetime.datetime.utcnow().timestamp())
         self.interval = interval * self.interval_multiplier
@@ -189,7 +202,9 @@ class Logger:
     def rotate_when(self, time):
         return time + self.interval
 
-    def should_rotate(self, ):
+    def should_rotate(
+        self,
+    ):
 
         if self.with_rotation_time is None:
             return False
@@ -207,7 +222,8 @@ class Logger:
         time_tuple = datetime.datetime.fromtimestamp(sequence_start)
         rotation_suffix = "." + time_tuple.strftime(self.suffix)
         log_datetime = datetime.datetime.strptime(
-            time_tuple.strftime(self.suffix), self.suffix)
+            time_tuple.strftime(self.suffix), self.suffix
+        )
 
         # modify the segment datetime stamps
         if self.segments is None or self.profile_full_dataset:
@@ -245,12 +261,13 @@ class Logger:
                 if rotation_suffix is None:
                     writer.write(self._profiles[-1]["full_profile"])
                 else:
-                    writer.write(
-                        self._profiles[-1]["full_profile"], rotation_suffix)
+                    writer.write(self._profiles[-1]["full_profile"], rotation_suffix)
 
             if self.segments is not None:
 
-                for hashseg, each_seg_prof in self._profiles[-1]["segmented_profiles"].items():
+                for hashseg, each_seg_prof in self._profiles[-1][
+                    "segmented_profiles"
+                ].items():
                     seg_suffix = hashseg
                     full_suffix = "_" + seg_suffix
                     if rotation_suffix is not None:
@@ -258,11 +275,15 @@ class Logger:
 
                     writer.write(each_seg_prof, full_suffix)
 
-    def full_profile_check(self, ) -> bool:
+    def full_profile_check(
+        self,
+    ) -> bool:
         """
         returns a bool to determine if unsegmented dataset should be profiled.
         """
-        return (self.segments is None) or ((self.segments is not None) and self.profile_full_dataset)
+        return (self.segments is None) or (
+            (self.segments is not None) and self.profile_full_dataset
+        )
 
     def close(self) -> Optional[DatasetProfile]:
         """
@@ -285,10 +306,10 @@ class Logger:
         return profile
 
     def log(
-            self,
-            features: Optional[Dict[str, any]] = None,
-            feature_name: str = None,
-            value: any = None,
+        self,
+        features: Optional[Dict[str, any]] = None,
+        feature_name: str = None,
+        value: any = None,
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
@@ -313,8 +334,7 @@ class Logger:
             self.log_dataframe(pd.DataFrame([features]))
         else:
             if self.full_profile_check():
-                self._profiles[-1]["full_profile"].track_datum(
-                    feature_name, value)
+                self._profiles[-1]["full_profile"].track_datum(feature_name, value)
 
             if self.segments:
                 self.log_segment_datum(feature_name, value)
@@ -337,27 +357,34 @@ class Logger:
             else:
                 segment_profile.track_datum(feature_name, value)
 
-    def log_metrics(self,
-                    targets, predictions,
-                    scores=None,
-                    model_type: ModelType = None,
-                    target_field=None,
-                    prediction_field=None,
-                    score_field=None):
+    def log_metrics(
+        self,
+        targets,
+        predictions,
+        scores=None,
+        model_type: ModelType = None,
+        target_field=None,
+        prediction_field=None,
+        score_field=None,
+    ):
 
         self._profiles[-1]["full_profile"].track_metrics(
-            targets, predictions, scores,
+            targets,
+            predictions,
+            scores,
             model_type=model_type,
             target_field=target_field,
             prediction_field=prediction_field,
             score_field=score_field,
         )
 
-    def log_image(self,
-                  image,
-                  feature_transforms: Optional[List[Callable]] = None,
-                  metadata_attributes: Optional[List[str]] = METADATA_DEFAULT_ATTRIBUTES,
-                  feature_name: str = ""):
+    def log_image(
+        self,
+        image,
+        feature_transforms: Optional[List[Callable]] = None,
+        metadata_attributes: Optional[List[str]] = METADATA_DEFAULT_ATTRIBUTES,
+        feature_name: str = "",
+    ):
         """
         API to track an image, either in PIL format or as an input path
 
@@ -370,15 +397,29 @@ class Logger:
             return None
 
         if isinstance(image, str):
-            track_image = TrackImage(image, feature_transforms=feature_transforms,
-                                     metadata_attributes=metadata_attributes, feature_name=feature_name)
+            track_image = TrackImage(
+                image,
+                feature_transforms=feature_transforms,
+                metadata_attributes=metadata_attributes,
+                feature_name=feature_name,
+            )
         else:
-            track_image = TrackImage(img=image, feature_transforms=feature_transforms,
-                                     metadata_attributes=metadata_attributes, feature_name=feature_name)
+            track_image = TrackImage(
+                img=image,
+                feature_transforms=feature_transforms,
+                metadata_attributes=metadata_attributes,
+                feature_name=feature_name,
+            )
 
         track_image(self._profiles[-1]["full_profile"])
 
-    def log_local_dataset(self, root_dir, folder_feature_name="folder_feature", image_feature_transforms=None, show_progress=False):
+    def log_local_dataset(
+        self,
+        root_dir,
+        folder_feature_name="folder_feature",
+        image_feature_transforms=None,
+        show_progress=False,
+    ):
         """
         Log a local folder dataset
         It will log data from the files, along with structure file data like
@@ -398,8 +439,7 @@ class Logger:
         except ImportError as e:
             ImageType = None
             logger.debug(str(e))
-            logger.debug(
-                "Unable to load PIL; install Pillow for image support")
+            logger.debug("Unable to load PIL; install Pillow for image support")
 
         dst = LocalDataset(root_dir)
         for idx in tqdm(range(len(dst)), disable=(not show_progress)):
@@ -421,13 +461,16 @@ class Logger:
             elif isinstance(data, ImageType):
                 if image_feature_transforms:
                     self.log_image(
-                        data, feature_transforms=image_feature_transforms, metadata_attributes=[])
+                        data,
+                        feature_transforms=image_feature_transforms,
+                        metadata_attributes=[],
+                    )
                 else:
-                    self.log_image(
-                        data, metadata_attributes=[])
+                    self.log_image(data, metadata_attributes=[])
             else:
                 raise NotImplementedError(
-                    "File format not supported {}, format:{}".format(type(data), fmt))
+                    "File format not supported {}, format:{}".format(type(data), fmt)
+                )
 
     def log_annotation(self, annotation_data):
         """
@@ -445,10 +488,13 @@ class Logger:
         track_bounding_box = TrackBB(obj=annotation_data)
         track_bounding_box(self._profiles[-1]["full_profile"])
 
-    def log_csv(self,
-                filepath_or_buffer: Union[str, Path, IO[AnyStr]],
-                segments: Optional[Union[List[Segment], List[str]]] = None,
-                profile_full_dataset: bool = False, **kwargs, ):
+    def log_csv(
+        self,
+        filepath_or_buffer: Union[str, Path, IO[AnyStr]],
+        segments: Optional[Union[List[Segment], List[str]]] = None,
+        profile_full_dataset: bool = False,
+        **kwargs,
+    ):
         """
         Log a CSV file. This supports the same parameters as :func`pandas.red_csv<pandas.read_csv>` function.
 
@@ -467,9 +513,12 @@ class Logger:
         df = pd.read_csv(filepath_or_buffer, **kwargs)
         self.log_dataframe(df)
 
-    def log_dataframe(self, df,
-                      segments: Optional[Union[List[Segment], List[str]]] = None,
-                      profile_full_dataset: bool = False, ):
+    def log_dataframe(
+        self,
+        df,
+        segments: Optional[Union[List[Segment], List[str]]] = None,
+        profile_full_dataset: bool = False,
+    ):
         """
         Generate and log a whylogs DatasetProfile from a pandas dataframe
         :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the
@@ -568,4 +617,4 @@ class Logger:
 
 
 def hash_segment(seg: List[Dict]) -> str:
-    return hashlib.sha256(json.dumps(seg).encode('utf-8')).hexdigest()
+    return hashlib.sha256(json.dumps(seg).encode("utf-8")).hexdigest()

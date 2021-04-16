@@ -2,7 +2,11 @@ from sklearn.utils.multiclass import type_of_target
 import pytest
 import numpy as np
 
-from whylogs.core.metrics.confusion_matrix import ConfusionMatrix, SUPPORTED_TYPES, encode_to_integers
+from whylogs.core.metrics.confusion_matrix import (
+    ConfusionMatrix,
+    SUPPORTED_TYPES,
+    encode_to_integers,
+)
 from whylogs.proto import ScoreMatrixMessage
 
 
@@ -10,77 +14,60 @@ def test_positive_count():
     """
     check the tp and fp totals from the confusion matrix
     """
-    targets = [["cat", "dog", "pig"],
-               ["cat", "dog"],
-               [0.1, 0.4],
-               [0, 1, 3],
-               [True, False, True]
-               ]
-    predictions = [["cat", "dog", "dog"],
-                   ["cat", "cat"],
-                   [0.3, 0.5],
-                   [0, 2, 3],
-                   [False, False, True],
-                   ]
+    targets = [
+        ["cat", "dog", "pig"],
+        ["cat", "dog"],
+        [0.1, 0.4],
+        [0, 1, 3],
+        [True, False, True],
+    ]
+    predictions = [
+        ["cat", "dog", "dog"],
+        ["cat", "cat"],
+        [0.3, 0.5],
+        [0, 2, 3],
+        [False, False, True],
+    ]
 
-    scores = [[0.1, 0.2, 0.4],
-              None,
-              [0.4, 0.3],
-              [0.3, 0.1, 0.9],
-              [0.2, 0.1, 0.2]]
+    scores = [[0.1, 0.2, 0.4], None, [0.4, 0.3], [0.3, 0.1, 0.9], [0.2, 0.1, 0.2]]
 
-    expectd_tp_counts = [{
-        "cat": 1,
-        "dog": 1,
-        "pig": 0
-    }, {
-        "cat": 1,
-        "dog": 0},
+    expectd_tp_counts = [
+        {"cat": 1, "dog": 1, "pig": 0},
+        {"cat": 1, "dog": 0},
         None,
         {
             0: 1,
             1: 0,
             2: 0,
             3: 1,
-        }, {
-            True: 1,
-            False: 1
-        }]
+        },
+        {True: 1, False: 1},
+    ]
 
-    expectd_fp_counts = [{
-        "cat": 0,
-        "dog": 1,
-        "pig": 0
-    }, {
-        "cat": 1,
-        "dog": 0},
+    expectd_fp_counts = [
+        {"cat": 0, "dog": 1, "pig": 0},
+        {"cat": 1, "dog": 0},
         None,
         {
             0: 0,
             1: 0,
             2: 1,
             3: 0,
-        }, {
-            True: 0,
-            False: 1
-        }]
-    expectd_tn_counts = [{
-        "cat": 1,
-        "dog": 0,
-        "pig": 0
-    }, {
-        "cat": 1,
-        "dog": 0},
+        },
+        {True: 0, False: 1},
+    ]
+    expectd_tn_counts = [
+        {"cat": 1, "dog": 0, "pig": 0},
+        {"cat": 1, "dog": 0},
         None,
         {
             0: 1,
             1: 0,
             2: 0,
             3: 1,
-        }, {
-            True: 1,
-            False: 1
-        }]
+        },
+        {True: 1, False: 1},
+    ]
 
     for indx, each_targets in enumerate(targets):
 
@@ -92,13 +79,17 @@ def test_positive_count():
         conf_M.add(predictions[indx], each_targets, scores[indx])
         for each_ind, label in enumerate(conf_M.labels):
             # check the number of TP is correct
-            assert conf_M.confusion_matrix[each_ind,
-                                           each_ind].floats.count == expectd_tp_counts[indx][label]
+            assert (
+                conf_M.confusion_matrix[each_ind, each_ind].floats.count
+                == expectd_tp_counts[indx][label]
+            )
             # check the number of FP
             sum_fp = np.sum(
-                [nt.floats.count for nt in conf_M.confusion_matrix[each_ind, :]])
-            assert (sum_fp - expectd_tp_counts[indx]
-                    [label]) == expectd_fp_counts[indx][label]
+                [nt.floats.count for nt in conf_M.confusion_matrix[each_ind, :]]
+            )
+            assert (sum_fp - expectd_tp_counts[indx][label]) == expectd_fp_counts[indx][
+                label
+            ]
 
 
 def test_enconde_to_integer():
@@ -134,16 +125,18 @@ def test_merge_conf_matrix():
 
     for idx, value in enumerate(conf_M_1.labels):
         for jdx, value_2 in enumerate(conf_M_1.labels):
-            assert conf_M_1.confusion_matrix[idx,
-                                             jdx].floats.count == expected_1[idx][jdx]
+            assert (
+                conf_M_1.confusion_matrix[idx, jdx].floats.count == expected_1[idx][jdx]
+            )
     labels_2 = ["cat", "dog"]
     conf_M_2 = ConfusionMatrix(labels_2)
     conf_M_2.add(predictions_2, targets_2, scores_2)
 
     for idx, value in enumerate(conf_M_2.labels):
         for jdx, value_2 in enumerate(conf_M_2.labels):
-            assert conf_M_2.confusion_matrix[idx, jdx].floats.count == \
-                   expected_2[idx][jdx]
+            assert (
+                conf_M_2.confusion_matrix[idx, jdx].floats.count == expected_2[idx][jdx]
+            )
 
     new_conf = conf_M_1.merge(conf_M_2)
 
@@ -151,8 +144,10 @@ def test_merge_conf_matrix():
     for idx, value in enumerate(new_conf.labels):
         for jdx, value_2 in enumerate(new_conf.labels):
             print(idx, jdx)
-            assert new_conf.confusion_matrix[idx,
-                                             jdx].floats.count == expected_merge[idx][jdx]
+            assert (
+                new_conf.confusion_matrix[idx, jdx].floats.count
+                == expected_merge[idx][jdx]
+            )
 
 
 def test_confusion_matrix_to_protobuf():
@@ -173,8 +168,9 @@ def test_confusion_matrix_to_protobuf():
 
     for idx, value in enumerate(new_conf.labels):
         for jdx, value_2 in enumerate(new_conf.labels):
-            assert new_conf.confusion_matrix[idx,
-                                             jdx].floats.count == expected_1[idx][jdx]
+            assert (
+                new_conf.confusion_matrix[idx, jdx].floats.count == expected_1[idx][jdx]
+            )
 
 
 def test_parse_empty_protobuf_should_return_none():

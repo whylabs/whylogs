@@ -4,9 +4,19 @@ Defines the ColumnProfile class for tracking per-column statistics
 from whylogs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
 from whylogs.core.statistics.datatypes import StringTracker
 from whylogs.core.statistics.hllsketch import HllSketch
-from whylogs.core.statistics.constraints import ValueConstraints, SummaryConstraints, SummaryConstraint
+from whylogs.core.statistics.constraints import (
+    ValueConstraints,
+    SummaryConstraints,
+    SummaryConstraint,
+)
 from whylogs.core.types import TypedDataConverter
-from whylogs.proto import ColumnMessage, ColumnSummary, InferredType, Op, UniqueCountSummary
+from whylogs.proto import (
+    ColumnMessage,
+    ColumnSummary,
+    InferredType,
+    Op,
+    UniqueCountSummary,
+)
 from whylogs.util.dsketch import FrequentItemsSketch
 
 import pandas as pd
@@ -47,15 +57,15 @@ class ColumnProfile:
     """
 
     def __init__(
-            self,
-            name: str,
-            number_tracker: NumberTracker = None,
-            string_tracker: StringTracker = None,
-            schema_tracker: SchemaTracker = None,
-            counters: CountersTracker = None,
-            frequent_items: FrequentItemsSketch = None,
-            cardinality_tracker: HllSketch = None,
-            constraints: ValueConstraints = None,
+        self,
+        name: str,
+        number_tracker: NumberTracker = None,
+        string_tracker: StringTracker = None,
+        schema_tracker: SchemaTracker = None,
+        counters: CountersTracker = None,
+        frequent_items: FrequentItemsSketch = None,
+        cardinality_tracker: HllSketch = None,
+        constraints: ValueConstraints = None,
     ):
         # Handle default values
         if counters is None:
@@ -113,7 +123,9 @@ class ColumnProfile:
         self.constraints.update(typed_data)
 
     def _unique_count_summary(self) -> UniqueCountSummary:
-        cardinality_summary = self.cardinality_tracker.to_summary(_UNIQUE_COUNT_BOUNDS_STD)
+        cardinality_summary = self.cardinality_tracker.to_summary(
+            _UNIQUE_COUNT_BOUNDS_STD
+        )
         if cardinality_summary:
             return cardinality_summary
 
@@ -157,7 +169,7 @@ class ColumnProfile:
         if self.number_tracker is not None and self.number_tracker.count > 0:
             summ = self.number_tracker.to_summary()
             if summ.min > 0:
-                items = [SummaryConstraint(op=Op.GT, first_field='min', value=0)]
+                items = [SummaryConstraint(op=Op.GT, first_field="min", value=0)]
             # generate additional constraints here
             if len(items) > 0:
                 return SummaryConstraints(items)
@@ -223,8 +235,6 @@ class ColumnProfile:
             schema_tracker=SchemaTracker.from_protobuf(message.schema),
             number_tracker=NumberTracker.from_protobuf(message.numbers),
             string_tracker=StringTracker.from_protobuf(message.strings),
-            frequent_items=FrequentItemsSketch.from_protobuf(
-                message.frequent_items),
-            cardinality_tracker=HllSketch.from_protobuf(
-                message.cardinality_tracker),
+            frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),
+            cardinality_tracker=HllSketch.from_protobuf(message.cardinality_tracker),
         )

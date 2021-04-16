@@ -19,9 +19,9 @@ csv_dataframe = pd.read_csv(csv_file)
 # Note: data collection consent must be explicitly provided since we'll be uploading profiles to WhyLabs.
 with start_whylabs_session(data_collection_consent=True) as session:
     # Group each of the rows by the day they occur on using the date string in the Calendar_Week col
-    for day_string, dataframe_for_day in csv_dataframe.groupby(['Calendar_Week']):
+    for day_string, dataframe_for_day in csv_dataframe.groupby(["Calendar_Week"]):
         # This dataset has dates of the form 9/5/2020
-        dt = datetime.strptime(day_string, '%m/%d/%Y')
+        dt = datetime.strptime(day_string, "%m/%d/%Y")
         print(f"Logging data for {day_string}")
 
         # whylabs loggers are specific to the dataset's timestamp so we'll be using a different one for each

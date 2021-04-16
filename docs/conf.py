@@ -15,7 +15,9 @@ import shutil
 
 import sphinx_rtd_theme
 
-__location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
+__location__ = os.path.join(
+    os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe()))
+)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -77,8 +79,8 @@ extensions = [
     "sphinx.ext.mathjax",
 ]
 
-autoapi_type = 'python'
-autoapi_dirs = ['../src']
+autoapi_type = "python"
+autoapi_dirs = ["../src"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -154,7 +156,9 @@ html_theme = "sphinx_rtd_theme"
 # documentation.
 html_theme_options = {"sidebar_width": "300px", "page_width": "1200px"}
 
-html_theme_path = ["_themes", ]
+html_theme_path = [
+    "_themes",
+]
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []

@@ -1,6 +1,6 @@
 import os
 
-import datetime 
+import datetime
 from uuid import uuid4
 
 
@@ -11,7 +11,13 @@ from whylogs.core.datasetprofile import DatasetProfile
 def test_viz():
     now = datetime.datetime.utcnow()
     session_id = uuid4().hex
-    x1 = DatasetProfile(name="test", session_id=session_id, session_timestamp=now, tags={"key": "value"}, metadata={"key": "value"},)
+    x1 = DatasetProfile(
+        name="test",
+        session_id=session_id,
+        session_timestamp=now,
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     x1.track("col1", "value")
     viz = ProfileVisualizer()
     viz.available_plots()
@@ -21,7 +27,6 @@ def test_viz():
 
 def test_viz_distribution(profile_lending_club):
 
-    
     viz = ProfileVisualizer()
     viz.set_profiles([profile_lending_club])
     viz.plot_distribution("loan_amnt")
@@ -36,12 +41,12 @@ def test_viz_datatype(profile_lending_club):
 
 
 def test_viz_uniqueness(profile_lending_club):
-    
-    
+
     viz = ProfileVisualizer()
     viz.set_profiles([profile_lending_club])
 
     viz.plot_uniqueness("max_bal_bc")
+
 
 def test_viz_missing_values(profile_lending_club):
 

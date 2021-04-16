@@ -78,16 +78,16 @@ def csv_reader(f, date_format: str = None, dropna=False, infer_dtypes=False, **k
 
 
 def run(
-        input_path,
-        datetime: str = None,
-        delivery_stream=None,
-        fmt=None,
-        limit=-1,
-        output_prefix=None,
-        region=None,
-        separator=None,
-        dropna=False,
-        infer_dtypes=False,
+    input_path,
+    datetime: str = None,
+    delivery_stream=None,
+    fmt=None,
+    limit=-1,
+    output_prefix=None,
+    region=None,
+    separator=None,
+    dropna=False,
+    infer_dtypes=False,
 ):
     """
     Run the profiler on CSV data
@@ -197,7 +197,9 @@ def run(
     logger.info("Finished collecting statistics")
 
     # Build summaries for the JSON output
-    summaries = DatasetSummaries(profiles={k: v.to_summary() for k, v in profiles.items()})
+    summaries = DatasetSummaries(
+        profiles={k: v.to_summary() for k, v in profiles.items()}
+    )
     with open(json_output_path, "wt") as fp:
         logger.info("Writing JSON summaries to: {}".format(json_output_path))
         fp.write(message_to_json(summaries))
