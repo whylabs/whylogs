@@ -7,8 +7,9 @@ def set_up_mlflow(mlflow, tmpdir):
 
 
 def test_listRuns_shouldReturn_NoRuns(tmpdir):
-    import whylogs
     import mlflow
+
+    import whylogs
 
     set_up_mlflow(mlflow, tmpdir)
     whylogs.enable_mlflow()
@@ -23,8 +24,9 @@ def test_listRuns_shouldReturn_NoRuns(tmpdir):
 
 
 def test_listRuns_shouldReturn_CorrectRunCount(tmpdir):
-    import whylogs
     import mlflow
+
+    import whylogs
 
     set_up_mlflow(mlflow, tmpdir)
     whylogs.enable_mlflow()
@@ -41,8 +43,9 @@ def test_listRuns_shouldReturn_CorrectRunCount(tmpdir):
 
 
 def test_get_run_profiles_shouldReturn_multipleProfiles(tmpdir):
-    import whylogs
     import mlflow
+
+    import whylogs
 
     set_up_mlflow(mlflow, tmpdir)
     whylogs.enable_mlflow()

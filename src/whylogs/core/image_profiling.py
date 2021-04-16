@@ -1,15 +1,14 @@
 import logging
-from typing import Callable, List, Dict, Union
+from typing import Callable, Dict, List, Union
 
-from whylogs.features.transforms import Hue, Saturation, Brightness
+from whylogs.features.transforms import Brightness, Hue, Saturation
 
 logger = logging.getLogger(__name__)
 
 try:
     from PIL.Image import Image as ImageType
-
-    from PIL.TiffTags import TAGS
     from PIL.TiffImagePlugin import IFDRational
+    from PIL.TiffTags import TAGS
 except ImportError as e:
     ImageType = None
     logger.debug(str(e))

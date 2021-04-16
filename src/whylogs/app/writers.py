@@ -8,9 +8,8 @@ from abc import ABC, abstractmethod
 from string import Template
 from typing import List
 
-from smart_open import open
-
 from google.protobuf.message import Message
+from smart_open import open
 
 from whylogs.app.output_formats import OutputFormat
 from whylogs.core import DatasetProfile

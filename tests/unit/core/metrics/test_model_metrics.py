@@ -1,9 +1,9 @@
 import pytest
 
-from whylogs.proto import ModelType
-from whylogs.core.metrics.model_metrics import ModelMetrics
 from whylogs.core.metrics.confusion_matrix import ConfusionMatrix
+from whylogs.core.metrics.model_metrics import ModelMetrics
 from whylogs.core.metrics.regression_metrics import RegressionMetrics
+from whylogs.proto import ModelType
 
 
 def tests_model_metrics():

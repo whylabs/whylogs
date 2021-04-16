@@ -3,10 +3,10 @@ TODO:
     * Implement histograms
 """
 import logging
+import numbers
 
 import datasketches
 import pandas as pd
-import numbers
 
 from whylogs.core.statistics.datatypes import FloatTracker, IntTracker, VarianceTracker
 from whylogs.core.statistics.thetasketch import ThetaSketch

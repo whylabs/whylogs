@@ -2,12 +2,12 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 import pandas as pd
 
-from whylogs.app.logger import Logger
 from whylogs import __version__ as whylogs_version
+from whylogs.app.logger import Logger
 
 logger = logging.getLogger(__name__)
 

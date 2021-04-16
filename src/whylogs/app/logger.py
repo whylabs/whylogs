@@ -6,19 +6,19 @@ import hashlib
 import json
 import logging
 import re
-from typing import List, Optional, Dict, Union, Callable, AnyStr
-from typing.io import IO
 from pathlib import Path
+from typing import AnyStr, Callable, Dict, List, Optional, Union
+from typing.io import IO
 
-from tqdm import tqdm
 import pandas as pd
+from tqdm import tqdm
 
 from whylogs.app.writers import Writer
 from whylogs.core import (
-    DatasetProfile,
-    TrackImage,
     METADATA_DEFAULT_ATTRIBUTES,
+    DatasetProfile,
     TrackBB,
+    TrackImage,
 )
 from whylogs.core.statistics.constraints import DatasetConstraints
 from whylogs.io import LocalDataset

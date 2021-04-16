@@ -1,8 +1,8 @@
 import sys
 from typing import Dict, List
 
-import pytest
 import pandas as pd
+import pytest
 from PIL.Image import Image as ImageType
 
 from whylogs.io.file_loader import file_loader

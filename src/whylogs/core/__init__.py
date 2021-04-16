@@ -1,10 +1,8 @@
+from .annotation_profiling import BB_ATTRIBUTES, TrackBB
 from .columnprofile import ColumnProfile
 from .datasetprofile import DatasetProfile
-from .image_profiling import (
-    TrackImage,
-    _METADATA_DEFAULT_ATTRIBUTES as METADATA_DEFAULT_ATTRIBUTES,
-)
-from .annotation_profiling import TrackBB, BB_ATTRIBUTES
+from .image_profiling import _METADATA_DEFAULT_ATTRIBUTES as METADATA_DEFAULT_ATTRIBUTES
+from .image_profiling import TrackImage
 
 __ALL__ = [
     ColumnProfile,

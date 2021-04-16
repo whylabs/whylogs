@@ -1,13 +1,12 @@
 import atexit
+import datetime
+from logging import getLogger
 from typing import Union
 
 import numpy as np
 import pandas as pd
 
 import whylogs
-import datetime
-
-from logging import getLogger
 from whylogs.app.config import WHYLOGS_YML
 
 logger = getLogger(__name__)

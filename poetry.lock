@@ -698,6 +698,19 @@ python-versions = "*"
 six = "*"
 
 [[package]]
+name = "isort"
+version = "5.8.0"
+description = "A Python utility / library to sort Python imports."
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.extras]
+pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
+requirements_deprecated_finder = ["pipreqs", "pip-api"]
+colors = ["colorama (>=0.4.3,<0.5.0)"]
+
+[[package]]
 name = "itsdangerous"
 version = "1.1.0"
 description = "Various helpers to pass data to untrusted environments and back."
@@ -2187,7 +2200,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.1,<3.10"
-content-hash = "2fa5300d662abdd1cd7832d693b5fd60780b90ee3f251bfb054d8dbbba995a27"
+content-hash = "57edc002ff42da027d900c80b7887b0061a87f620134ee58bc91246231a49eb3"
 
 [metadata.files]
 2to3 = [
@@ -2560,6 +2573,10 @@ ipython-genutils = [
 isodate = [
     {file = "isodate-0.6.0-py2.py3-none-any.whl", hash = "sha256:aa4d33c06640f5352aca96e4b81afd8ab3b47337cc12089822d6f322ac772c81"},
     {file = "isodate-0.6.0.tar.gz", hash = "sha256:2e364a3d5759479cdb2d37cce6b9376ea504db2ff90252a2e5b7cc89cc9ff2d8"},
+]
+isort = [
+    {file = "isort-5.8.0-py3-none-any.whl", hash = "sha256:2bb1680aad211e3c9944dbce1d4ba09a989f04e238296c87fe2139faa26d655d"},
+    {file = "isort-5.8.0.tar.gz", hash = "sha256:0a943902919f65c5684ac4e0154b1ad4fac6dcaa5d9f3426b732f1c8b5419be6"},
 ]
 itsdangerous = [
     {file = "itsdangerous-1.1.0-py2.py3-none-any.whl", hash = "sha256:b12271b2047cb23eeb98c8b5622e2e5c5e9abd9784a153e9d8ef9cb4dd09d749"},
