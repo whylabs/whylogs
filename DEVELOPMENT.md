@@ -34,9 +34,28 @@ make
 make docs
 ```
 
+Poetry manages virtualenvs as well. Typically, on a project that uses virtualenv directly you would activate the virtualenv to get all of the binaries that you install with pip onto the path. Poetry works in a similar way but with different comands.
+
+```
+# Activate the poetry virtualenv
+poetry shell
+```
+
+You shouldn't have to actually do that unless you want to run some of the things that are pip installed directly. One use case would be manually running `pytest` on a single test file rather than running them all with `make test`.
+
 ## Managing Dependencies
 
-TODO
+Poetry manages all of the dependencies. If you need to add something then you should run the following.
+
+```
+poetry add new-dependency
+
+# Or for dev/test only dependencies
+poetry add --dev new-dependency
+
+# Update the lock file after
+poetry lock
+```
 
 
 ## Testing
@@ -133,25 +152,6 @@ will contain only 'nice-looking' version string (i.e. `1.0.1`). Doing otherwise 
 bump2version release --verbose --dry-run
 bump2version release --verbose
 ```
-
-## Tests
-Testing is handled with the `pytest` framework.
-
-To run test using the current Python environment (assuming you have all the dependencies):
-```
-make test
-```
-
-To run tests using tox, which will create test environments for you, run:
-```
-make test-all
-```
-
-## Examples
-See the `scripts/` directory for some example scripts for interacting with `whylogs-python`
-
-See the `notebooks/` directory for some example notebooks.
-
 
 ## Documentation
 Auto-generated documentation is handled with [sphinx](https://www.sphinx-doc.org/en/master/).  
