@@ -23,8 +23,6 @@ def test_dataset_profile_metrics():
     predictions_1 = ["cat", "dog", "dog"]
     scores_1 = [0.1, 0.2, 0.4]
 
-    expected_1 = [[1, 0, 0], [0, 1, 1], [0, 0, 0]]
-
     x1.track_metrics(predictions_1, targets_1, scores_1)
 
     assert x1.model_profile.metrics.confusion_matrix.labels is not None
@@ -46,12 +44,12 @@ def test_read_java_protobuf():
 
 
 def test_parse_from_protobuf_with_regression():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
+    os.path.dirname(os.path.realpath(__file__))
     prof = DatasetProfile.read_protobuf(os.path.join(TEST_DATA_PATH, "metrics", "regression_java.bin"))
     assert prof.name == "my-model-name"
     assert prof.model_profile is not None
     assert prof.model_profile.metrics is not None
-    confusion_M = prof.model_profile.metrics.confusion_matrix
+    prof.model_profile.metrics.confusion_matrix
     regression_met = prof.model_profile.metrics.regression_metrics
     assert regression_met is not None
     # metrics

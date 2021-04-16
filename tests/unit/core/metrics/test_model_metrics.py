@@ -32,8 +32,6 @@ def tests_model_metrics_to_protobuf_classification():
     predictions_1 = ["cat", "dog", "dog"]
     scores_1 = [0.1, 0.2, 0.4]
 
-    expected_1 = [[1, 0, 0], [0, 1, 1], [0, 0, 0]]
-
     mod_met.compute_confusion_matrix(predictions_1, targets_1, scores_1)
 
     message = mod_met.to_protobuf()
@@ -83,7 +81,7 @@ def test_merge_metrics_with_none_confusion_matrix():
     metrics = ModelMetrics()
     other = ModelMetrics()
     other.confusion_matrix = None
-    new_metrics = metrics.merge(other)
+    metrics.merge(other)
 
 
 def test_merge_metrics_model():

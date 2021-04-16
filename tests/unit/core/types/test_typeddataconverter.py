@@ -9,7 +9,7 @@ def test_invalid_yaml_returns_string():
     import yaml
 
     try:
-        y = yaml.safe_load(x)
+        yaml.safe_load(x)
         raise RuntimeError("Should raise exception")
     except yaml.scanner.ScannerError:
         pass

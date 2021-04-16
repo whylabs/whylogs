@@ -64,7 +64,6 @@ def test_serialize_then_merge_does_not_fail():
 
 def test_protobuf_then_merge():
     hll = hllsketch.HllSketch()
-    vals = [1, 2, 3]
     hll2 = hllsketch.HllSketch.from_protobuf(hll.to_protobuf())
     hll2.merge(hll2)
 

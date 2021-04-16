@@ -1,5 +1,4 @@
 import datetime
-import os
 from uuid import uuid4
 
 from whylogs.core.datasetprofile import DatasetProfile

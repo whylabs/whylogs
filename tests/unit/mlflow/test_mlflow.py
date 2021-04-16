@@ -1,6 +1,3 @@
-from unittest import mock
-
-
 def set_up_mlflow(mlflow, tmpdir):
     mlflow.set_tracking_uri(f"file:{str(tmpdir)}")
     mlflow.create_experiment("default")
