@@ -6,7 +6,6 @@ from whylogs.io.local_dataset import LocalDataset
 
 
 def test_imagefolder(test_data_path):
-
     folder_dataset = os.path.join(test_data_path, "fake_dataset")
 
     folder_segmented_features = sorted(["A_target", "B_target"])
@@ -50,7 +49,6 @@ def test_empty_imagefolder(tmpdir):
 
 
 def test_imagefolder(test_data_path):
-
     folder_dataset = os.path.join(test_data_path, "fake_dataset")
 
     folder_segmented_features = sorted(["A_target", "B_target"])
