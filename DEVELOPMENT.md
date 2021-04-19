@@ -1,25 +1,5 @@
-# Developing whylogs Python
 
-Please take a look at this doc before contributing to whylogs python.
-
-
-
-## Code format
-
-The following run the linter (flake8) and formatter (black). It fails if it finds issues but they won't be automatically resolved.
-
-```bash
-make lint format
-```
-
-To automatically resolve issues, run
-
-```bash
-make format-fix
-```
-
-## Development Environment
-
+# Environment Setup
 You'll need to install poetry in order to install dependencies using the lock file in this project. Follow [their docs](https://python-poetry.org/docs/) to get it set up.
 
 ```
@@ -43,43 +23,70 @@ Poetry manages virtualenvs as well. Typically, on a project that uses virtualenv
 poetry shell
 ```
 
-You shouldn't have to actually do that unless you want to run some of the things that are pip installed directly. One use case would be manually running `pytest` on a single test file rather than running them all with `make test`.
+You shouldn't have to actually do that unless you want to run some of the executables things that are installed from pypi directly. One use case would be manually running `pytest` on a single test file rather than running them all with `make test`.
 
-## Managing Dependencies
+## Manging Dependencies
+This is done through poetry. There needs be a good reason to add dependencies that should be included in the commit message.
 
-Poetry manages all of the dependencies. If you need to add something then you should run the following.
+```bash
+# Add a dependency
+poetry add package-name
 
-```
-poetry add new-dependency
+# Add a dev only dependency that gets installed locally during dev
+poetry add --dev package-name
 
-# Or for dev/test only dependencies
-poetry add --dev new-dependency
-
-# Update the lock file after
+# Update the lock file. Run this after adding or removing things. It doesn't appear to always  happen automatically.
 poetry lock
 ```
 
 
-## Testing
-To run tests using the current Python environment:
+# Development Details
+You can run `make help` for a full list of targets that you can run. These are the ones that you'll need most often.
 
-```
+
+```bash
+# Build everything, producing a source tar and wheel in ./dist
+make
+
+# For running tests locally
 make test
+
+# For running notebook tests
+make test-notebooks
+
+# For formatting and linting
+make lint
+make lint-fix
+make format
+make format-fix
+
+# Remove all generated artifacts
+make clean
 ```
 
-### Coverage 
+## IDE Setup
+There are a few useful plugins that are probably available for most IDEs. Using Pyrcharm, you'll want to install the Poetry and black plugins.
 
-Coverage can be checked with 
+- [blackconnect](https://plugins.jetbrains.com/plugin/14321-blackconnect) can be configured to auto format files on save. Just run `make blackd` from a shell to set up the server and the plugin will do its thing. You need to configure it to format on save, it's off by default.
+- [poetry](https://plugins.jetbrains.com/plugin/14307-poetry) plugin will make the dependencies installed by poetry available in pycharm.
 
-```
-make coverage
-```
+# Publishing
+Running `make publish` will upload a new version to pypi using poetry's publish logic. Follow the Push Process to bump the version appropriately.
 
-### Testing CI locally
+# Push Process
+Before pushing you should run `make release`. That will run all of the formatting, linting, testing, and building that will happen in CI. If that fails then you'll know before pushing it off to a branch. You can also reproduce what happens on CI servers using the `act` tool. See the details in the section below. The process in general is
 
-TODO make this a real docker file then
+- `make release` to make sure it builds.
+- bump the version using `make bump-patch`, `make bump-minor`, `make bump-major`, `make bump-release`, or `make bump-dev`, depending on the magnitude of the change. This will update all files that mention the version number. Commit those changes if they look right or reach out of you're not sure what to do.
+    - Patch is for small bug fixes.
+    - Minor is for new features.
+    - Major is for breaking changes.
+- If this is a new feature then add some examples to `examples/`
+- Push to a branch on Github.
+- Submit a pull request to the main repo.
 
-you can run local github actions on ubuntu using [act](https://github.com/nektos/act). Currently, you need to build the latest docker image for ubuntu using the following dockerfile
+## Run CI locally with `act`
+You can run local github actions on ubuntu using [act](https://github.com/nektos/act). Currently, you need to build the latest docker image for ubuntu using the following dockerfile
 
 ```dockerfile
 FROM ubuntu:20.04
@@ -101,65 +108,5 @@ act -P ubuntu-latest=ubuntu-builder
 ```
 It will run all the tests in ubuntu, currently act does not support matrix.os runs on mac-os or windows
 
-## Release process
 
- * If you are doing development locally, use the following command to create a local dev version. 
- 
- Some basic guideline for choosing whether it's `patch|minor|major`:
- * Patch is for small bug fixes
- * Minor is for new features
- * Major is for breaking changes / API
- 
-The flow looks like this:
-```
- check out master -> create branch -> make changes -> bump dev -> publish dev
- -> bump beta -> create merge request ->  merge in to master 
- -> check out master -> bump release -> merge request to release -> merge into release
-```
-
-### 1. Local development
-Start with a `dev` version locally (and you can publish them as well if needed).
-
-```
-cd whylogs-python/
-bump2version dev --verbose --dry-run [--allow-dirty]
-bump2version dev --verbose
-```
-
-### 2. Pushing to master branch
-
-* If you are planning to push to `master` branch, please first create a dev version (see the above guide). 
-**You'll have to bump it to a `beta` version or the build will fail**. You'll need to do this before creating the merge request:
-```
-bump2version beta --verbose --dry-run
-bump2version beta --verbose
-```
-
-### Updating notebooks
-Before committing any changes to the example notebooks, you should clear all cell outputs.
-We don't want to version control the notebook cell outputs.
-
-
-### 3. Full release
-
-For full release, you'll have to bump it to a release version and push to `release` branch. This branch
-will contain only 'nice-looking' version string (i.e. `1.0.1`). Doing otherwise will fail the build when merging into `release` branch.
-```
-bump2version release --verbose --dry-run
-bump2version release --verbose
-```
-
-## Documentation
-Auto-generated documentation is handled with [sphinx](https://www.sphinx-doc.org/en/master/).  
-See the `docs/` folder for more and refer to [docs/README.md](docs/README.md)
-
-### Examples
-
-Example scripts which help demonstrate the use of whylogs can be placed under the `examples/` folder.
-Refer to [examples/README.md](examples/README.md) for more info
-
-
-### Doc string format
-We use the [numpydocs docstring standard](https://numpydoc.readthedocs.io/en/latest/format.html), which is human-readable
- and works with [sphinx](https://www.sphinx-doc.org/en/master/) api documentation generator.
 
