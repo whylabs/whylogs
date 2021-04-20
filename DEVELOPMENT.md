@@ -16,14 +16,14 @@ make
 make docs
 ```
 
-Poetry manages virtualenvs as well. Typically, on a project that uses virtualenv directly you would activate the virtualenv to get all of the binaries that you install with pip onto the path. Poetry works in a similar way but with different comands.
+Poetry manages virtualenvs as well. Typically, on a project that uses virtualenv directly you would activate the virtualenv to get all of the binaries that you install with pip onto the path. Poetry works in a similar way but with different commands.
 
 ```
 # Activate the poetry virtualenv
 poetry shell
 ```
 
-You shouldn't have to actually do that unless you want to run some of the executables things that are installed from pypi directly. One use case would be manually running `pytest` on a single test file rather than running them all with `make test`.
+You shouldn't have to actually do that unless you want to run some of the executables that are installed from pypi directly. One use case would be manually running `pytest` on a single test file rather than running them all with `make test`.
 
 ## Manging Dependencies
 This is done through poetry. There needs be a good reason to add dependencies that should be included in the commit message.
@@ -39,10 +39,8 @@ poetry add --dev package-name
 poetry lock
 ```
 
-
 # Development Details
 You can run `make help` for a full list of targets that you can run. These are the ones that you'll need most often.
-
 
 ```bash
 # Build everything, producing a source tar and wheel in ./dist

@@ -98,15 +98,15 @@ $(build.proto): $(src.proto)
 	protoc -I $(src.proto.dir) --python_out=$(build.proto.dir) $(src.proto)
 	poetry run 2to3 --nobackups --write ./src/whylogs/proto/
 
-lint: ## check code with flake8
+lint: ## Check code for lint errors.
 	@$(call i, Running the linter)
 	poetry run flake8
 
-lint-fix: ## automatically fix linting issues
+lint-fix: ## Automatically fix linting issues.
 	@$(call i, Running the linter)
 	poetry run autoflake --in-place --remove-unused-variables $(src.python) $(tst.python) $(tst.notebooks.python)
 
-format: ## Check formatting with black
+format: ## Check style formatting.
 	@$(call i, Checking import formatting)
 	poetry run isort --check-only .
 	@$(call i, Checking code formatting)
@@ -118,7 +118,7 @@ format-fix: ## Fix formatting with black. This updates files.
 	@$(call i, Formatting code)
 	poetry run black .
 
-test: dist ## run tests with pytest
+test: dist ## Run unit tests.
 	@$(call i, Running tests)
 	poetry run pytest
 
@@ -131,16 +131,16 @@ test-notebooks: ## Run tests for the notebooks
 	@$(call i, Running notebook tests)
 	poetry run pytest --no-cov test_notebooks/notebook_tests.py
 
-install: ## install all dependencies with poetry
+install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
 	poetry install
 
-coverage: ## generate test coverage reports
+coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)
 	poetry run pytest --cov='src/.' tests/
 	poetry run python -m coverage report
 
-docs: proto ## generate Sphinx HTML documentation, including API docs
+docs: proto ## Generate Sphinx HTML documentation, including API docs.
 	@$(call i, Generating docs)
 	cd docs
 	$(MAKE) -C docs clean
