@@ -42,6 +42,8 @@ jobs:
           ${{ runner.os }}-pip-
     - name: Install dependencies
       run: make install
+    - name: Run build, style, and lint checks
+      run: make release
     - name: Run tests
       run: make test-system-python
     - name: Coveralls Parallel
