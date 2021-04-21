@@ -26,15 +26,15 @@ boto3 = ">=1.14.1"
 botocore = ">=1.17.44"
 smart-open = ">=4.1.2"
 xlrd = "^2.0.1"
-openpyxl = "==3.0.6"
 puremagic = "@1.10"
-tqdm = "==4.54.0"
 matplotlib = "3.3.3"
 mlflow = "1.13.1"
 sklearn = "^0.0"
 pyarrow = "^3.0.0"
 llvmlite = "^0.36.0"
 fastparquet = "^0.5.0"
+tqdm = "^4.60.0"
+openpyxl = "^3.0.7"
 
 [tool.poetry.dev-dependencies]
 sklearn = "^0.0"
@@ -60,6 +60,7 @@ autoflake = "^1.4"
 flake8 = "^3.9.1"
 aiohttp = "^3.7.4"
 aiohttp_cors = "^0.7.0"
+ipywidgets = "^7.6.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

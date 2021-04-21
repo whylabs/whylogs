@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Union
 from uuid import uuid4
 
 import pandas as pd
+from tqdm.auto import tqdm
 
 from whylogs.app.config import SessionConfig, WriterConfig, load_config
 from whylogs.app.logger import Logger, Segment
@@ -17,7 +18,7 @@ from whylogs.core.statistics.constraints import DatasetConstraints
 
 
 @dataclass
-class LoggerKey:
+class _LoggerKey:
     """
     Create a new logger or return an existing one for a given dataset name.
     If no dataset_name is specified, we default to project name
@@ -57,7 +58,7 @@ class LoggerKey:
     constraints: DatasetConstraints = None
 
 
-defaultLoggerArgs = LoggerKey()
+defaultLoggerArgs = _LoggerKey()
 
 
 class Session:
@@ -84,6 +85,7 @@ class Session:
         verbose: bool = False,
         with_rotation_time: str = None,
         cache_size: int = None,
+        report_progress: bool = False,
     ):
         if writers is None:
             writers = []
@@ -98,6 +100,7 @@ class Session:
         self._config = SessionConfig(project, pipeline, writers, verbose)
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
+        self.report_progress = report_progress
 
         # enable special logic when starting/closing a Session if we're using whylabs client to save dataset profiles
         whylabs_writer_is_present = any(isinstance(w, WhyLabsWriter) for w in self.writers)
@@ -147,7 +150,7 @@ class Session:
 
         Parameters
         ----------
-        args: LoggerKey
+        args: _LoggerKey
             The properties of the logger if they're anything but the defaults.
         Returns
         -------
@@ -158,7 +161,7 @@ class Session:
             raise RuntimeError("Session is already closed. Cannot create more loggers")
 
         logger_key = str(
-            LoggerKey(
+            _LoggerKey(
                 dataset_name=dataset_name,
                 dataset_timestamp=dataset_timestamp,
                 session_timestamp=session_timestamp,
@@ -327,10 +330,12 @@ class Session:
 
         self._active = False
         loggers = list(self._loggers.items())
-        for name, logger in loggers:
-            if logger.is_active():
-                logger.close()
-            self.remove_logger(name)
+        with tqdm(loggers, disable=self.report_progress is False) as t:
+            for key, logger in t:
+                t.set_description("Closing session")
+                if logger.is_active():
+                    logger.close()
+                self.remove_logger(key)
 
         if self.use_whylabs_writer:
             from whylogs.whylabs_client.wrapper import end_session
@@ -372,6 +377,7 @@ def session_from_config(config: SessionConfig) -> Session:
         config.verbose,
         config.with_rotation_time,
         config.cache_size,
+        report_progress=config.report_progress,
     )
 
 
@@ -397,16 +403,20 @@ def reset_default_session():
     _session = session_from_config(config)
 
 
-def start_whylabs_session(path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None):
+def start_whylabs_session(
+    path_to_config: Optional[str] = None,
+    data_collection_consent: Optional[bool] = None,
+    report_progress: Optional[bool] = False,
+):
     if not data_collection_consent:
         raise PermissionError("When creating a session that will send data to WhyLabs, data_collection_consent must be set to True")
 
     global _use_whylabs_client
     _use_whylabs_client = True
-    return get_or_create_session(path_to_config)
+    return get_or_create_session(path_to_config, report_progress)
 
 
-def get_or_create_session(path_to_config: Optional[str] = None):
+def get_or_create_session(path_to_config: Optional[str] = None, report_progress: Optional[bool] = False):
     """
     Retrieve the current active global session.
 
@@ -429,6 +439,8 @@ def get_or_create_session(path_to_config: Optional[str] = None):
             print("WARN: Missing config")
             writer = WriterConfig(type="local", output_path="output", formats=["all"])
             config = SessionConfig("default-project", "default-pipeline", [writer], False)
+        if report_progress is not None:
+            config.report_progress = report_progress
         _session = session_from_config(config)
     return _session
 
