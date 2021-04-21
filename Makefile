@@ -22,6 +22,7 @@ release: format lint test dist ## Compile distribution files and run all tests a
 
 .PHONY: dist clean clean-test help format lint test install coverage docs default proto test-notebooks github release
 .PHONY: test-system-python format-fix bump-patch bump-minor bump-major publish bump-dev bump-build bump-release blackd
+.PHONY: jupyter-kernel
 
 ifeq ($(shell which poetry), )
 	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
@@ -147,6 +148,9 @@ docs: proto ## Generate Sphinx HTML documentation, including API docs.
 	$(MAKE) -C docs html
 	$(BROWSER) build/sphinx/html/index.html
 
+jupyter-kernel: ## Install a kernel for this workspace in Jupyter. You should have jupyterlab installed on your system.
+	@$(call i, Installing a kernel for this workspace for Jupyter)
+	poetry run python -m ipykernel install --user --name=whylogs-dev
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
