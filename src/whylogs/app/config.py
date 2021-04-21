@@ -138,6 +138,7 @@ class SessionConfig:
         verbose: bool = False,
         with_rotation_time: str = None,
         cache_size: int = 1,
+        report_progress: bool = False,
     ):
         self.project = project
         self.pipeline = pipeline
@@ -145,6 +146,7 @@ class SessionConfig:
         self.writers = writers
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
+        self.report_progress = report_progress
 
     def to_yaml(self, stream=None):
         """
