@@ -85,6 +85,7 @@ class Session:
         verbose: bool = False,
         with_rotation_time: str = None,
         cache_size: int = None,
+        report_progress: bool = False,
     ):
         if writers is None:
             writers = []
@@ -99,6 +100,7 @@ class Session:
         self._config = SessionConfig(project, pipeline, writers, verbose)
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
+        self.report_progress = report_progress
 
         # enable special logic when starting/closing a Session if we're using whylabs client to save dataset profiles
         whylabs_writer_is_present = any(isinstance(w, WhyLabsWriter) for w in self.writers)
@@ -328,7 +330,7 @@ class Session:
 
         self._active = False
         loggers = list(self._loggers.items())
-        with tqdm(loggers) as t:
+        with tqdm(loggers, disable=self.report_progress is False) as t:
             for key, logger in t:
                 t.set_description("Closing session")
                 if logger.is_active():
@@ -375,6 +377,7 @@ def session_from_config(config: SessionConfig) -> Session:
         config.verbose,
         config.with_rotation_time,
         config.cache_size,
+        report_progress=config.report_progress,
     )
 
 
@@ -400,16 +403,20 @@ def reset_default_session():
     _session = session_from_config(config)
 
 
-def start_whylabs_session(path_to_config: Optional[str] = None, data_collection_consent: Optional[bool] = None):
+def start_whylabs_session(
+    path_to_config: Optional[str] = None,
+    data_collection_consent: Optional[bool] = None,
+    report_progress: Optional[bool] = False,
+):
     if not data_collection_consent:
         raise PermissionError("When creating a session that will send data to WhyLabs, data_collection_consent must be set to True")
 
     global _use_whylabs_client
     _use_whylabs_client = True
-    return get_or_create_session(path_to_config)
+    return get_or_create_session(path_to_config, report_progress)
 
 
-def get_or_create_session(path_to_config: Optional[str] = None):
+def get_or_create_session(path_to_config: Optional[str] = None, report_progress: Optional[bool] = False):
     """
     Retrieve the current active global session.
 
@@ -432,6 +439,8 @@ def get_or_create_session(path_to_config: Optional[str] = None):
             print("WARN: Missing config")
             writer = WriterConfig(type="local", output_path="output", formats=["all"])
             config = SessionConfig("default-project", "default-pipeline", [writer], False)
+        if report_progress is not None:
+            config.report_progress = report_progress
         _session = session_from_config(config)
     return _session
 
