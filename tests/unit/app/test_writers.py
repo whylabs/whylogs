@@ -46,6 +46,7 @@ def test_s3_writer_bug(df_lending_club, moto_boto, s3_config_path):
 
     with session.logger("dataset_test_s3") as logger:
         logger.log_dataframe(df_lending_club)
+    session.close()
 
     client = boto3.client("s3")
     objects = client.list_objects(Bucket="mocked_bucket")
@@ -65,6 +66,7 @@ def test_s3_writer(df_lending_club, moto_boto, s3_all_config_path):
 
     with session.logger("dataset_test_s3") as logger:
         logger.log_dataframe(df_lending_club)
+    session.close()
 
     client = boto3.client("s3")
     objects = client.list_objects(Bucket="mocked_bucket")

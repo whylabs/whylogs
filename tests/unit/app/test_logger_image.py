@@ -8,7 +8,7 @@ from whylogs.app.session import session_from_config
 
 def test_log_image(tmpdir, image_files):
     output_path = tmpdir.mkdir("whylogs")
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
@@ -25,12 +25,12 @@ def test_log_image(tmpdir, image_files):
         profile = logger.profile
         columns = profile.columns
         assert len(columns) == 19
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
 
 
 def test_log_pil_image(tmpdir, image_files):
     output_path = tmpdir.mkdir("whylogs")
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
@@ -48,4 +48,4 @@ def test_log_pil_image(tmpdir, image_files):
         profile = logger.profile
         columns = profile.columns
         assert len(columns) == 19
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)

@@ -60,7 +60,7 @@ class Logger:
         dataset_name: str,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
-        tags: Dict[str, str] = {},
+        tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         writers=List[Writer],
         verbose: bool = False,
@@ -72,6 +72,8 @@ class Logger:
         constraints: DatasetConstraints = None,
     ):
         """"""
+        if tags is None:
+            tags = {}
         self._active = True
 
         if session_timestamp is None:
@@ -247,16 +249,13 @@ class Logger:
 
         for writer in self.writers:
             # write full profile
-
             if self.full_profile_check():
-
                 if rotation_suffix is None:
                     writer.write(self._profiles[-1]["full_profile"])
                 else:
                     writer.write(self._profiles[-1]["full_profile"], rotation_suffix)
 
             if self.segments is not None:
-
                 for hashseg, each_seg_prof in self._profiles[-1]["segmented_profiles"].items():
                     seg_suffix = hashseg
                     full_suffix = "_" + seg_suffix
