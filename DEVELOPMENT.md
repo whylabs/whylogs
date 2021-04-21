@@ -60,6 +60,9 @@ make format-fix
 
 # Remove all generated artifacts
 make clean
+
+# Run all pre-push checks: linter, style checker, testing, etc.
+make release
 ```
 
 ## IDE Setup
