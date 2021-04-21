@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Union
 from uuid import uuid4
 
 import pandas as pd
+from tqdm.auto import tqdm
 
 from whylogs.app.config import SessionConfig, WriterConfig, load_config
 from whylogs.app.logger import Logger, Segment
@@ -17,7 +18,7 @@ from whylogs.core.statistics.constraints import DatasetConstraints
 
 
 @dataclass
-class LoggerKey:
+class _LoggerKey:
     """
     Create a new logger or return an existing one for a given dataset name.
     If no dataset_name is specified, we default to project name
@@ -57,7 +58,7 @@ class LoggerKey:
     constraints: DatasetConstraints = None
 
 
-defaultLoggerArgs = LoggerKey()
+defaultLoggerArgs = _LoggerKey()
 
 
 class Session:
@@ -147,7 +148,7 @@ class Session:
 
         Parameters
         ----------
-        args: LoggerKey
+        args: _LoggerKey
             The properties of the logger if they're anything but the defaults.
         Returns
         -------
@@ -158,7 +159,7 @@ class Session:
             raise RuntimeError("Session is already closed. Cannot create more loggers")
 
         logger_key = str(
-            LoggerKey(
+            _LoggerKey(
                 dataset_name=dataset_name,
                 dataset_timestamp=dataset_timestamp,
                 session_timestamp=session_timestamp,
@@ -327,10 +328,12 @@ class Session:
 
         self._active = False
         loggers = list(self._loggers.items())
-        for name, logger in loggers:
-            if logger.is_active():
-                logger.close()
-            self.remove_logger(name)
+        with tqdm(loggers) as t:
+            for key, logger in t:
+                t.set_description("Closing session")
+                if logger.is_active():
+                    logger.close()
+                self.remove_logger(key)
 
         if self.use_whylabs_writer:
             from whylogs.whylabs_client.wrapper import end_session
