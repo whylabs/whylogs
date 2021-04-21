@@ -67,19 +67,18 @@ def test_log_dataframe(tmpdir, df_lending_club):
     WriterConfig.from_yaml(yaml_data)
 
     session_config = SessionConfig("project", "pipeline", writers=[writer_config])
-    session = session_from_config(session_config)
+    with session_from_config(session_config) as session:
+        with session.logger("lendingclub") as logger:
+            assert logger is not None
+            logger.log_dataframe(df_lending_club)
+            profile = logger.profile
+            assert profile is not None
 
-    with session.logger("lendingclub") as logger:
-        assert logger is not None
-        logger.log_dataframe(df_lending_club)
-        profile = logger.profile
-        assert profile is not None
+            summary = profile.flat_summary()
 
-        summary = profile.flat_summary()
+            flat_summary = summary["summary"]
 
-        flat_summary = summary["summary"]
-
-        assert len(flat_summary) == 151
+            assert len(flat_summary) == 151
 
     output_files = []
     for root, subdirs, files in os.walk(p):
@@ -89,11 +88,11 @@ def test_log_dataframe(tmpdir, df_lending_club):
 
 def test_log_csv(tmpdir):
     csv_path = os.path.join(script_dir, os.pardir, "lending_club_1000.csv")
-    session = get_or_create_session()
-    with session.logger("csvtest") as logger:
-        logger.log_csv(csv_path)
-        summary = logger.profile.flat_summary()
-        flat_summary = summary["summary"]
+    with get_or_create_session() as session:
+        with session.logger("csvtest") as logger:
+            logger.log_csv(csv_path)
+            summary = logger.profile.flat_summary()
+            flat_summary = summary["summary"]
 
         assert len(flat_summary) == 151
 
@@ -120,6 +119,7 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
     for i in range(0, 5):
         with session.logger(dataset_timestamp=now + datetime.timedelta(days=i)) as logger:
             logger.log_dataframe(df_lending_club)
+    session.close()
 
     output_files = []
     for root, subdirs, files in os.walk(p):

@@ -13,37 +13,39 @@ from whylogs.app.session import session_from_config
 
 def test_segments(df_lending_club, tmpdir):
     output_path = tmpdir.mkdir("whylogs")
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
 
     session_config = SessionConfig("project", "pipeline", writers=[writer_config])
-    session = session_from_config(session_config)
-    with session.logger(
-        "test",
-        segments=[
-            [{"key": "home_ownership", "value": "RENT"}],
-            [{"key": "home_ownership", "value": "MORTGAGE"}],
-        ],
-        cache_size=1,
-    ) as logger:
-        logger.log_dataframe(df_lending_club)
-        profile = logger.profile
-        assert profile is None
-        profiles = logger.segmented_profiles
-        assert len(profiles) == 2
-        assert profiles[list(profiles.keys())[0]].tags["segment"] == json.dumps([{"key": "home_ownership", "value": "RENT"}])
-        assert profiles[list(profiles.keys())[1]].tags["segment"] == json.dumps([{"key": "home_ownership", "value": "MORTGAGE"}])
-        mortage_segment = logger.get_segment([{"key": "home_ownership", "value": "MORTGAGE"}])
-        check_segment = profiles[list(profiles.keys())[1]]
-        assert mortage_segment == check_segment
-    shutil.rmtree(output_path)
+    with session_from_config(session_config) as session:
+        with session.logger(
+            "test",
+            segments=[
+                [{"key": "home_ownership", "value": "RENT"}],
+                [{"key": "home_ownership", "value": "MORTGAGE"}],
+            ],
+            cache_size=1,
+        ) as logger:
+            logger.log_dataframe(df_lending_club)
+            profile = logger.profile
+            profiles = logger.segmented_profiles
+            mortage_segment = logger.get_segment([{"key": "home_ownership", "value": "MORTGAGE"}])
+
+    assert profile is None
+    assert len(profiles) == 2
+    assert profiles[list(profiles.keys())[0]].tags["segment"] == json.dumps([{"key": "home_ownership", "value": "RENT"}])
+    assert profiles[list(profiles.keys())[1]].tags["segment"] == json.dumps([{"key": "home_ownership", "value": "MORTGAGE"}])
+    check_segment = profiles[list(profiles.keys())[1]]
+    assert mortage_segment == check_segment
+
+    shutil.rmtree(output_path, ignore_errors=True)
 
 
 def test_segments_keys(df_lending_club, tmpdir):
     output_path = tmpdir.mkdir("whylogs")
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
@@ -54,12 +56,12 @@ def test_segments_keys(df_lending_club, tmpdir):
         logger.log_dataframe(df_lending_club)
         profiles = logger.segmented_profiles
         assert len(profiles) == 47
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
 
 
 def test_segments_single_key(df_lending_club, tmpdir):
     output_path = tmpdir.mkdir("whylogs")
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
@@ -75,12 +77,12 @@ def test_segments_single_key(df_lending_club, tmpdir):
         logger.log_dataframe(df_lending_club, segments=["home_ownership"])
         profiles = logger.segmented_profiles
         assert len(profiles) == 4
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
 
 
 def test_segments_with_rotation(df_lending_club, tmpdir):
     output_path = tmpdir.mkdir("whylogs")
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
@@ -107,4 +109,4 @@ def test_segments_with_rotation(df_lending_club, tmpdir):
     for root, subdirs, files in os.walk(output_path):
         output_files += files
     assert len(output_files) == 8
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
