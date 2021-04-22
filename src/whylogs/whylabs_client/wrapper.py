@@ -48,9 +48,7 @@ def upload_profile(dataset_profile: DatasetProfile) -> None:
         dataset_timestamp = dataset_profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
         dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
 
-        # TODO: stop shifting dataset timestamps once we update the merger
-        shifted_timestamp = dataset_timestamp - 24 * 60 * 60 * 1000
-        upload_response = client.create_dataset_profile_upload(_session_token, dataset_timestamp=shifted_timestamp)
+        upload_response = client.create_dataset_profile_upload(_session_token, dataset_timestamp=dataset_timestamp)
         upload_url = upload_response.get("upload_url")
 
         with open(profile_path, "rb") as f:
