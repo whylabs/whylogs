@@ -13,7 +13,8 @@ df = pd.read_csv("data/lending_club_1000.csv")
 
 # Create a WhyLabs logging session
 # Note: data collection consent must be explicitly provided
-with start_whylabs_session(data_collection_consent=True) as session:
+# report_progress prints progress bars while uploading profiles. You may want to set it to False in hosted environments
+with start_whylabs_session(data_collection_consent=True, report_progress=True) as session:
     # Log statistics for the dataset
     # Resulting dataset profile(s) will be sent to WhyLabs,
     # and you will receive a link to view the pretty charts!
