@@ -337,6 +337,9 @@ class Session:
                     logger.close()
                 self.remove_logger(key)
 
+        for w in self.writers:
+            w.close()
+
         if self.use_whylabs_writer:
             from whylogs.whylabs_client.wrapper import end_session
 
