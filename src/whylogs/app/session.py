@@ -344,7 +344,7 @@ class Session:
             from whylogs.whylabs_client.wrapper import end_session
 
             url = end_session()
-            print(f"You can explore your data in WhyLabs here: {url}")
+            print(f"You can explore your data in the WhyLabs Platform here: {url}")
 
     def remove_logger(self, dataset_name: str):
         """
