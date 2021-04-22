@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "whylogs"
-version = "0.4.5-dev1"
+version = "0.4.5-dev3"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
+include = ["src/whylogs/proto/*.py"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apple Public Source License",
