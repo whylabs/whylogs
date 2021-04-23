@@ -70,13 +70,14 @@ def test_segments_single_key(df_lending_club, tmpdir):
     session = session_from_config(session_config)
     with session.logger("test", segments=["home_ownership"], cache_size=1) as logger:
         logger.log_dataframe(df_lending_club)
-        profiles = logger.segmented_profiles
-        assert len(profiles) == 4
+        profiles1 = logger.segmented_profiles
 
     with session.logger("test2") as logger:
         logger.log_dataframe(df_lending_club, segments=["home_ownership"])
-        profiles = logger.segmented_profiles
-        assert len(profiles) == 4
+        profiles2 = logger.segmented_profiles
+    session.close()
+    assert len(profiles1) == 4
+    assert len(profiles2) == 4
     shutil.rmtree(output_path, ignore_errors=True)
 
 
@@ -105,6 +106,7 @@ def test_segments_with_rotation(df_lending_club, tmpdir):
             df = util.testing.makeDataFrame()
             with pytest.raises(KeyError):
                 logger.log_dataframe(df)
+        session.close()
     output_files = []
     for root, subdirs, files in os.walk(output_path):
         output_files += files
