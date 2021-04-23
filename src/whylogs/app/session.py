@@ -87,6 +87,7 @@ class Session:
         cache_size: int = None,
         report_progress: bool = False,
     ):
+        self._py_logger = _getLogger(__name__)
         if writers is None:
             writers = []
         self.project = project
@@ -176,7 +177,7 @@ class Session:
         )
         logger = self._loggers.get(logger_key)
 
-        if logger is None:
+        if logger is None or not logger.is_active():
             logger = Logger(
                 session_id=self._session_id,
                 dataset_name=dataset_name or self.project,
@@ -325,7 +326,7 @@ class Session:
         Deactivate this session and flush all associated loggers
         """
         if not self._active:
-            print("WARNING: attempting to close an inactive session")
+            self._py_logger.warning("attempting to close an inactive session")
             return
 
         self._active = False
