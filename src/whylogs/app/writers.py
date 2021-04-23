@@ -371,7 +371,7 @@ class WhyLabsWriter(Writer):
         """
         Write a dataset profile to WhyLabs
         """
-        t = async_wrap(self._write_protobuf, profile, rotation_suffix)
+        t = async_wrap(self._write_protobuf, profile)
         self._pending_threads.append(t)
 
     @staticmethod
