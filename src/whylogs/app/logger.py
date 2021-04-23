@@ -7,8 +7,7 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import AnyStr, Callable, Dict, List, Optional, Union
-from typing.io import IO
+from typing import IO, AnyStr, Callable, Dict, List, Optional, Union
 
 import pandas as pd
 from tqdm import tqdm
@@ -62,7 +61,7 @@ class Logger:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
-        writers=List[Writer],
+        writers: List[Writer] = None,
         verbose: bool = False,
         with_rotation_time: Optional[str] = None,
         interval: int = 1,
@@ -72,8 +71,11 @@ class Logger:
         constraints: DatasetConstraints = None,
     ):
         """"""
+        self._py_logger = logging.getLogger(__name__)
         if tags is None:
             tags = {}
+        if writers is None:
+            writers = []
         self._active = True
 
         if session_timestamp is None:
@@ -279,7 +281,7 @@ class Logger:
         :return: the result dataset profile. None if the logger is closed
         """
         if not self._active:
-            print("WARNING: attempting to close a closed logger")
+            self._py_logger.warning("attempting to close a closed logger")
             return None
         if self.with_rotation_time is None:
             self.flush()
@@ -414,19 +416,17 @@ class Logger:
         folders, this will pick up folder names as a segmented feature
 
         Args:
+            show_progress: showing the progress bar
+            image_feature_transforms: image transform that you would like to use with the image log
             root_dir (str): directory where dataset is located.
             folder_feature_name (str, optional): Name for the subfolder features, i.e. class, store etc.
-            v (None, optional): image transform that you would like to use with the image log
-
-        Raises:
-            NotImplementedError: Description
         """
         try:
             from PIL.Image import Image as ImageType
         except ImportError as e:
             ImageType = None
             logger.debug(str(e))
-            logger.debug("Unable to load PIL; install Pillow for image support")
+            logger.warning("Unable to load PIL; install Pillow for image support")
 
         dst = LocalDataset(root_dir)
         for idx in tqdm(range(len(dst)), disable=(not show_progress)):
@@ -464,9 +464,6 @@ class Logger:
 
         Args:
             annotation_data (Dict or List): Description
-
-        Returns:
-            TYPE: Description
         """
         if not self.tracking_checks():
             return None
@@ -483,14 +480,12 @@ class Logger:
         """
         Log a CSV file. This supports the same parameters as :func`pandas.red_csv<pandas.read_csv>` function.
 
-        :param filepath_or_buffer: the path to the CSV or a CSV buffer
-        :type filepath_or_buffer: FilePathOrBuffer
-        :param kwargs: from pandas:read_csv
-        :param segments: define either a list of segment keys or a list of segments tags: `[  {"key":<featurename>,"value": <featurevalue>},... ]`
-        :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the
-        dataset.
+        Args:
+            filepath_or_buffer: the path to the CSV or a CSV buffer
+            segments: define either a list of segment keys or a list of segments tags: `[  {"key":<featurename>,"value": <featurevalue>},... ]`
+            profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
+            **kwargs: from pandas:read_csv
         """
-
         self.profile_full_dataset = profile_full_dataset
         if segments is not None:
             self.set_segments(segments)
