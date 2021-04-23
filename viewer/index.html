@@ -67,8 +67,8 @@
           <strong>Total features</strong>
           <h1 class="feature-count mb-3 wl__feature-count">37</h1>
           <div class="mb-4">
-            <label for="featureSearch" class="form-label"><strong>Find feature</strong></label>
-            <input type="email" class="form-control" id="featureSearch" placeholder="Quick search..." />
+            <label for="wl__feature-search" class="form-label"><strong>Find feature</strong></label>
+            <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
           </div>
           <strong>Filter features by type</strong>
           <div class="form-check mb-1 mt-2">
@@ -86,7 +86,7 @@
           <div class="form-check mb-4">
             <input class="form-check-input" type="checkbox" value="" id="inferredUndefined" checked />
             <label class="form-check-label" for="inferredUndefined">
-              Undefined (<span class="wl__feature-count--undefined"></span>)
+              Unknown (<span class="wl__feature-count--undefined"></span>)
             </label>
           </div>
           <div class="mb-4">
@@ -123,7 +123,7 @@
                   <div class="wl-table-head text-end">Max</div>
                 </div>
               </div>
-              <div class="wl-table-body wl__table-body"></div>
+              <ul class="wl-table-body wl__table-body"></ul>
             </div>
           </div>
         </div>
@@ -139,16 +139,6 @@
       integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
       crossorigin="anonymous"
     ></script>
-    <!-- <script id="__bs_script__">
-      //<![CDATA[
-      document.write(
-        "<script async src='http://HOST:3000/browser-sync/browser-sync-client.js?v=2.26.14'><\/script>".replace(
-          "HOST",
-          location.hostname,
-        ),
-      );
-      //]]>
-    </script> -->
 
     <script src="./whylogs-script.js"></script>
   </body>
