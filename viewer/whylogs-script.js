@@ -11,10 +11,11 @@
   var $featureCountDiscrete = $(".wl__feature-count--discrete");
   var $featureCountNonDiscrete = $(".wl__feature-count--non-discrete");
   var $featureCountUndefined = $(".wl__feature-count--undefined");
-  // var $tableData = $(".wl__table-data");
   var $tableBody = $(".wl__table-body");
+  var $featureSearch = $("#wl__feature-search");
 
   // Constants and variables
+  var batchArray = [];
   var featureList = [];
   var inferredFeatureType = {
     discrete: [],
@@ -25,13 +26,48 @@
   // Load data from JSON file
   $.getJSON(JSON_URL, updateHtmlElementValues);
 
+  // Util functions
+  function debounce(func, wait, immediate) {
+    var timeout;
+    return function () {
+      var context = this,
+        args = arguments;
+      var later = function () {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  }
+
+  function handleSearch(event) {
+    var searchText = event.target.value.toUpperCase();
+    var tableBodyChildrens = $tableBody.children();
+
+    for (var i = 0; i < tableBodyChildrens.length; i++) {
+      var filterName = tableBodyChildrens[i].dataset.featureName.toUpperCase();
+      if (filterName.toUpperCase().indexOf(searchText) > -1) {
+        tableBodyChildrens[i].style.display = "";
+      } else {
+        tableBodyChildrens[i].style.display = "none";
+      }
+    }
+  }
+
+  function fixNumberTo(number, decimals = 3) {
+    return parseFloat(number).toFixed(decimals);
+  }
+
   function getQuantileValues(data) {
     return {
-      min: data[0],
-      firstQuartile: data[3],
-      median: data[4],
-      thirdQuartile: data[5],
-      max: data[8],
+      min: fixNumberTo(data[0]),
+      firstQuartile: fixNumberTo(data[3]),
+      median: fixNumberTo(data[4]),
+      thirdQuartile: fixNumberTo(data[5]),
+      max: fixNumberTo(data[8]),
     };
   }
 
@@ -39,8 +75,8 @@
   function updateHtmlElementValues(data) {
     var properties = data.properties;
     var columns = data.columns;
-    var batchArray = Object.entries(columns);
-    console.log(columns);
+    batchArray = Object.entries(columns);
+    // console.log(columns);
 
     var totalCount = "";
     var inferredType = "";
@@ -79,8 +115,8 @@
         // Update other values
         totalCount = featureNameValues.numberSummary.count;
         quantiles = getQuantileValues(featureNameValues.numberSummary.quantiles.quantileValues);
-        mean = featureNameValues.numberSummary.mean;
-        stddev = featureNameValues.numberSummary.stddev;
+        mean = fixNumberTo(featureNameValues.numberSummary.mean);
+        stddev = fixNumberTo(featureNameValues.numberSummary.stddev);
       } else {
         inferredFeatureType.undefined.push(featureNameValues);
         inferredType = "-";
@@ -103,7 +139,11 @@
       dataTypeCount = featureNameValues.schema.typeCounts[dataType];
 
       // Collect frequent items
-      if (featureNameValues.frequentItems && featureNameValues.frequentItems.items.length) {
+      if (
+        featureNameValues.frequentItems &&
+        featureNameValues.frequentItems.items.length &&
+        inferredType === "Discrete"
+      ) {
         var frequentItems = featureNameValues.frequentItems.items.slice(0, 5);
         for (var fi = 0; fi < frequentItems.length; fi++) {
           frequentItemsElemString +=
@@ -111,17 +151,27 @@
             '<span class="wl-table-cell__bedge">' + frequentItems[fi].jsonValue + "</span>";
         }
       } else {
-        frequentItemsElemString = "-";
+        if (inferredType === "Non-discrete") {
+          frequentItemsElemString = "No data available";
+        } else {
+          frequentItemsElemString = "-";
+        }
       }
 
       // Update sidebar HTML feature name list
       $sidebarFeatureNameList.append(
-        '<li class="list-group-item"><a href="#' + featureName + '">' + featureName + "</a></li>",
+        '<li class="list-group-item js-list-group-item" data-feature-name-id="' +
+          featureName +
+          '"><a href="#' +
+          featureName +
+          '">' +
+          featureName +
+          "</a></li>",
       );
 
       // Update data table rows/columns
       $tableBody.append(`
-        <div class="wl-table-row">
+        <li class="wl-table-row" data-feature-name="${featureName}">
           <div class="wl-table-cell">
             <h4 class="wl-table-cell__title">${featureName}</h4>
             <img src="images/placement-chart.png" alt="For placement only" width="265px" />
@@ -142,7 +192,7 @@
           <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.min}</div>
           <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.median}</div>
           <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.max}</div>
-        </div>
+        </li>
       `);
     }
 
@@ -152,4 +202,7 @@
     $selectedProfile.html(properties.dataTimestamp);
     $featureCount.html(featureList.length);
   }
+
+  // Bind event listeners
+  $featureSearch.on("input", debounce(handleSearch, 300));
 })();
