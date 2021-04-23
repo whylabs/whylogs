@@ -10,9 +10,10 @@
   var $sidebarFeatureNameList = $(".wl__sidebar-feature-name-list");
   var $featureCountDiscrete = $(".wl__feature-count--discrete");
   var $featureCountNonDiscrete = $(".wl__feature-count--non-discrete");
-  var $featureCountUndefined = $(".wl__feature-count--undefined");
+  var $featureCountUnknown = $(".wl__feature-count--unknown");
   var $tableBody = $(".wl__table-body");
   var $featureSearch = $("#wl__feature-search");
+  var $featureFilterInput = $(".wl__feature-filter-input");
 
   // Constants and variables
   var batchArray = [];
@@ -20,11 +21,10 @@
   var inferredFeatureType = {
     discrete: [],
     nonDiscrete: [],
-    undefined: [],
+    unknown: [],
   };
-
-  // Load data from JSON file
-  $.getJSON(JSON_URL, updateHtmlElementValues);
+  var featureSearchValue = "";
+  var isActiveInferredType = {};
 
   // Util functions
   function debounce(func, wait, immediate) {
@@ -43,13 +43,14 @@
     };
   }
 
-  function handleSearch(event) {
-    var searchText = event.target.value.toUpperCase();
+  function handleSearch() {
     var tableBodyChildrens = $tableBody.children();
 
     for (var i = 0; i < tableBodyChildrens.length; i++) {
-      var filterName = tableBodyChildrens[i].dataset.featureName.toUpperCase();
-      if (filterName.toUpperCase().indexOf(searchText) > -1) {
+      var name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
+      var type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
+
+      if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
         tableBodyChildrens[i].style.display = "";
       } else {
         tableBodyChildrens[i].style.display = "none";
@@ -76,7 +77,6 @@
     var properties = data.properties;
     var columns = data.columns;
     batchArray = Object.entries(columns);
-    // console.log(columns);
 
     var totalCount = "";
     var inferredType = "";
@@ -118,8 +118,8 @@
         mean = fixNumberTo(featureNameValues.numberSummary.mean);
         stddev = fixNumberTo(featureNameValues.numberSummary.stddev);
       } else {
-        inferredFeatureType.undefined.push(featureNameValues);
-        inferredType = "-";
+        inferredFeatureType.unknown.push(featureNameValues);
+        inferredType = "Unknown";
         totalCount = "-";
         quantiles = {
           min: "-",
@@ -171,7 +171,7 @@
 
       // Update data table rows/columns
       $tableBody.append(`
-        <li class="wl-table-row" data-feature-name="${featureName}">
+        <li class="wl-table-row" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none;">
           <div class="wl-table-cell">
             <h4 class="wl-table-cell__title">${featureName}</h4>
             <img src="images/placement-chart.png" alt="For placement only" width="265px" />
@@ -198,11 +198,45 @@
 
     $featureCountDiscrete.html(inferredFeatureType.discrete.length);
     $featureCountNonDiscrete.html(inferredFeatureType.nonDiscrete.length);
-    $featureCountUndefined.html(inferredFeatureType.undefined.length);
+    $featureCountUnknown.html(inferredFeatureType.unknown.length);
     $selectedProfile.html(properties.dataTimestamp);
     $featureCount.html(featureList.length);
   }
 
+  function renderList() {
+    var tableBodyChildrens = $tableBody.children();
+
+    $.each($featureFilterInput, function (_, filterInput) {
+      isActiveInferredType[filterInput.value.toLowerCase()] = filterInput.checked;
+    });
+
+    for (var i = 0; i < tableBodyChildrens.length; i++) {
+      var type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
+
+      if (isActiveInferredType[type]) {
+        tableBodyChildrens[i].style.display = "";
+      }
+    }
+  }
+
+  // Load data from JSON file
+  $.getJSON(JSON_URL, updateHtmlElementValues).then(function () {
+    renderList();
+  });
+
   // Bind event listeners
-  $featureSearch.on("input", debounce(handleSearch, 300));
+  $featureSearch.on(
+    "input",
+    debounce(function (event) {
+      featureSearchValue = event.target.value.toLowerCase();
+      handleSearch();
+    }, 300),
+  );
+  $featureFilterInput.on("change", function (event) {
+    var filterType = event.target.value.toLowerCase();
+    var isChecked = event.target.checked;
+
+    isActiveInferredType[filterType] = isChecked;
+    handleSearch();
+  });
 })();
