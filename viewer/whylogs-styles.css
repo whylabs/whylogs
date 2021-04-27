@@ -174,28 +174,7 @@ ul.nav li.list-group-item a {
 .accordion-header {
   background-color: var(--brandSecondary100);
 }
-/* 
-table tr th,
-table tr td {
-  font-size: 14px;
-}
-table tr td.feature-name {
-  font-size: 16px;
-  font-weight: bold;
-}
-.table > :not(caption) > * > * {
-  border-bottom-width: 0;
-}
-.table thead tr,
-.table tbody tr.feature-metrics:last-of-type {
-  border-bottom-width: 1px;
-  border-bottom-color: var(--brandSecondary200);
-}
-th,
-td {
-  border-right: solid 1px var(--brandSecondary200);
-  border-left: solid 1px var(--brandSecondary200);
-} */
+
 .feature-count {
   font-weight: 700;
   color: var(--brandPrimary900);
@@ -317,6 +296,14 @@ td {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+/* .wl-table-cell__graph-wrap {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+} */
 
 .wl-table-cell__bedge-wrap {
   display: flex;
