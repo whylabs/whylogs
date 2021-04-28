@@ -5,8 +5,9 @@ import json
 import os
 import typing
 from abc import ABC, abstractmethod
+from logging import getLogger
 from string import Template
-from typing import List
+from typing import List, Optional
 
 from google.protobuf.message import Message
 from smart_open import open
@@ -23,9 +24,12 @@ from ..core.datasetprofile import (
 from ..util import time
 from ..util.protobuf import message_to_json
 from .config import WriterConfig
+from .utils import async_wrap
 
 DEFAULT_PATH_TEMPLATE = "$name/$session_id"
 DEFAULT_FILENAME_TEMPLATE = "dataset_profile"
+
+logger = getLogger(__name__)
 
 
 class Writer(ABC):
@@ -66,6 +70,7 @@ class Writer(ABC):
         self.path_template = Template(path_template)
         self.filename_template = Template(filename_template)
 
+        self._pending_threads = []
         self.formats = []
         if "all" in formats:
             for fmt in OutputFormat.__members__.values():
@@ -79,7 +84,11 @@ class Writer(ABC):
                     self.formats.append(fmt_)
 
         self.output_path = output_path
-        self.rotation_suffix = None
+
+    def close(self):
+        for t in self._pending_threads:
+            t.join()
+        self._pending_threads.clear()
 
     @abstractmethod
     def write(self, profile: DatasetProfile, rotation_suffix: str = None):
@@ -99,15 +108,15 @@ class Writer(ABC):
         path = self.path_template.substitute(**kwargs)
         return path
 
-    def file_name(self, profile: DatasetProfile, file_extension: str):
+    def file_name(self, profile: DatasetProfile, file_extension: str, rotation_suffix: Optional[str] = None):
         """
         For a given DatasetProfile, generate an output filename based on the
         templating defined in `self.filename_template`
         """
         kwargs = self.template_params(profile)
         file_name = self.filename_template.substitute(**kwargs)
-        if self.rotation_suffix is not None:
-            return file_name + self.rotation_suffix + file_extension
+        if rotation_suffix is not None:
+            return file_name + rotation_suffix + file_extension
         else:
             return file_name + file_extension
 
@@ -166,29 +175,31 @@ class LocalWriter(Writer):
             raise FileNotFoundError(f"Path does not exist: {output_path}")
         super().__init__(output_path, formats, path_template, filename_template)
 
-    def write(self, profile: DatasetProfile, rotation_suffix: str = None):
+    def write(self, profile: DatasetProfile, rotation_suffix: Optional[str] = None):
         """
         Write a dataset profile to disk
         """
-        self.rotation_suffix = rotation_suffix
+        t = async_wrap(self._do_write, profile, rotation_suffix)
+        self._pending_threads.append(t)
+
+    def _do_write(self, profile, rotation_suffix: Optional[str] = None):
         for fmt in self.formats:
             if fmt == OutputFormat.json:
-                self._write_json(profile)
+                self._write_json(profile, rotation_suffix)
             elif fmt == OutputFormat.flat:
-                self._write_flat(profile)
+                self._write_flat(profile, rotation_suffix=rotation_suffix)
             elif fmt == OutputFormat.protobuf:
-                self._write_protobuf(profile)
+                self._write_protobuf(profile, rotation_suffix)
             else:
                 raise ValueError(f"Unsupported format: {fmt}")
-        self.rotation_suffix = None
 
-    def _write_json(self, profile: DatasetProfile):
+    def _write_json(self, profile: DatasetProfile, rotation_suffix: Optional[str] = None):
         """
         Write a JSON summary of the dataset profile to disk
         """
         path = self.ensure_path(os.path.join(self.path_suffix(profile), "json"))
 
-        output_file = os.path.join(path, self.file_name(profile, ".json"))
+        output_file = os.path.join(path, self.file_name(profile, ".json", rotation_suffix))
 
         path = os.path.join(self.output_path, self.path_suffix(profile))
         os.makedirs(path, exist_ok=True)
@@ -198,7 +209,7 @@ class LocalWriter(Writer):
         with open(output_file, "wt") as f:
             f.write(message_to_json(summary))
 
-    def _write_flat(self, profile: DatasetProfile, indent: int = 4):
+    def _write_flat(self, profile: DatasetProfile, indent: int = 4, rotation_suffix: Optional[str] = None):
         """
         Write output data for flat format
 
@@ -215,25 +226,26 @@ class LocalWriter(Writer):
 
         flat_table_path = self.ensure_path(os.path.join(self.path_suffix(profile), "flat_table"))
         summary_df = get_dataset_frame(summary)
-        summary_df.to_csv(os.path.join(flat_table_path, self.file_name(profile, ".csv")), index=False)
+        summary_df.to_csv(os.path.join(flat_table_path, self.file_name(profile, ".csv", rotation_suffix)), index=False)
 
-        frequent_numbers_path = self.ensure_path(os.path.join(self.path_suffix(profile), "freq_numbers"))
+        _suffix = rotation_suffix or ""
+        frequent_numbers_path = self.ensure_path(os.path.join(self.path_suffix(profile), f"freq_numbers{_suffix}"))
         json_flat_file = self.file_name(profile, ".json")
         with open(os.path.join(frequent_numbers_path, json_flat_file), "wt") as f:
             hist = flatten_dataset_frequent_numbers(summary)
             json.dump(hist, f, indent=indent)
 
-        frequent_strings_path = self.ensure_path(os.path.join(self.path_suffix(profile), "frequent_strings"))
+        frequent_strings_path = self.ensure_path(os.path.join(self.path_suffix(profile), f"frequent_strings{_suffix}"))
         with open(os.path.join(frequent_strings_path, json_flat_file), "wt") as f:
             frequent_strings = flatten_dataset_frequent_strings(summary)
             json.dump(frequent_strings, f, indent=indent)
 
-        histogram_path = self.ensure_path(os.path.join(self.path_suffix(profile), "histogram"))
+        histogram_path = self.ensure_path(os.path.join(self.path_suffix(profile), f"histogram{_suffix}"))
         with open(os.path.join(histogram_path, json_flat_file), "wt") as f:
             histogram = flatten_dataset_histograms(summary)
             json.dump(histogram, f, indent=indent)
 
-    def _write_protobuf(self, profile: DatasetProfile):
+    def _write_protobuf(self, profile: DatasetProfile, rotation_suffix: Optional[str] = None):
         """
         Write a protobuf serialization of the DatasetProfile to disk
         """
@@ -241,7 +253,7 @@ class LocalWriter(Writer):
 
         protobuf: Message = profile.to_protobuf()
 
-        with open(os.path.join(path, self.file_name(profile, ".bin")), "wb") as f:
+        with open(os.path.join(path, self.file_name(profile, ".bin", rotation_suffix)), "wb") as f:
             f.write(protobuf.SerializeToString())
 
     def ensure_path(self, suffix: str, addition_part: typing.Optional[str] = None) -> str:
@@ -276,20 +288,21 @@ class S3Writer(Writer):
         """
         Write a dataset profile to S3
         """
-        self.rotation_suffix = rotation_suffix
+        t = async_wrap(self._do_write, profile, rotation_suffix)
+        self._pending_threads.append(t)
 
+    def _do_write(self, profile, rotation_suffix: str = None):
         for fmt in self.formats:
             if fmt == OutputFormat.json:
-                self._write_json(profile)
+                self._write_json(profile, rotation_suffix)
             elif fmt == OutputFormat.flat:
-                self._write_flat(profile)
+                self._write_flat(profile, rotation_suffix=rotation_suffix)
             elif fmt == OutputFormat.protobuf:
-                self._write_protobuf(profile)
+                self._write_protobuf(profile, rotation_suffix)
             else:
                 raise ValueError(f"Unsupported format: {fmt}")
-        self.rotation_suffix = None
 
-    def _write_json(self, profile: DatasetProfile):
+    def _write_json(self, profile: DatasetProfile, rotation_suffix: Optional[str] = None):
         """
         Write a dataset profile JSON summary to disk
         """
@@ -297,14 +310,14 @@ class S3Writer(Writer):
             self.output_path,
             self.path_suffix(profile),
             "json",
-            self.file_name(profile, ".json"),
+            self.file_name(profile, ".json", rotation_suffix),
         )
 
         summary = profile.to_summary()
         with open(output_file, "wt") as f:
             f.write(message_to_json(summary))
 
-    def _write_flat(self, profile: DatasetProfile, indent: int = 4):
+    def _write_flat(self, profile: DatasetProfile, indent: int = 4, rotation_suffix: Optional[str] = None):
         """
         Write output data for flat format
 
@@ -319,28 +332,29 @@ class S3Writer(Writer):
 
         flat_table_path = os.path.join(self.output_path, self.path_suffix(profile), "flat_table")
         summary_df = get_dataset_frame(summary)
-        with open(os.path.join(flat_table_path, self.file_name(profile, ".csv")), "wt") as f:
+        with open(os.path.join(flat_table_path, self.file_name(profile, ".csv", rotation_suffix)), "wt") as f:
             summary_df.to_csv(f, index=False)
 
         json_flat_file = self.file_name(profile, ".json")
+        _suffix = rotation_suffix or ""
 
-        frequent_numbers_path = os.path.join(self.output_path, self.path_suffix(profile), "freq_numbers")
+        frequent_numbers_path = os.path.join(self.output_path, self.path_suffix(profile), f"freq_numbers{_suffix}")
         with open(os.path.join(frequent_numbers_path, json_flat_file), "wt") as f:
             hist = flatten_dataset_histograms(summary)
             json.dump(hist, f, indent=indent)
 
-        frequent_strings_path = os.path.join(self.output_path, self.path_suffix(profile), "frequent_strings")
+        frequent_strings_path = os.path.join(self.output_path, self.path_suffix(profile), f"frequent_strings{_suffix}")
         with open(os.path.join(frequent_strings_path, json_flat_file), "wt") as f:
             frequent_strings = flatten_dataset_frequent_strings(summary)
             json.dump(frequent_strings, f, indent=indent)
 
-        histogram_path = os.path.join(self.output_path, self.path_suffix(profile), "histogram")
+        histogram_path = os.path.join(self.output_path, self.path_suffix(profile), f"histogram{_suffix}")
 
         with open(os.path.join(histogram_path, json_flat_file), "wt") as f:
             histogram = flatten_dataset_histograms(summary)
             json.dump(histogram, f, indent=indent)
 
-    def _write_protobuf(self, profile: DatasetProfile):
+    def _write_protobuf(self, profile: DatasetProfile, rotation_suffix: Optional[str] = None):
         """
         Write a datasetprofile protobuf serialization to S3
         """
@@ -348,7 +362,7 @@ class S3Writer(Writer):
 
         protobuf: Message = profile.to_protobuf()
 
-        with open(os.path.join(path, self.file_name(profile, ".bin")), "wb") as f:
+        with open(os.path.join(path, self.file_name(profile, ".bin", rotation_suffix)), "wb") as f:
             f.write(protobuf.SerializeToString())
 
 
@@ -357,11 +371,11 @@ class WhyLabsWriter(Writer):
         """
         Write a dataset profile to WhyLabs
         """
-        self.rotation_suffix = rotation_suffix
-        self._write_protobuf(profile)
-        self.rotation_suffix = None
+        t = async_wrap(self._write_protobuf, profile)
+        self._pending_threads.append(t)
 
-    def _write_protobuf(self, profile: DatasetProfile):
+    @staticmethod
+    def _write_protobuf(profile: DatasetProfile):
         """
         Write a protobuf profile to WhyLabs
         """

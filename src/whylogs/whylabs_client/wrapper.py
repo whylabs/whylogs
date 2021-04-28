@@ -37,6 +37,7 @@ def start_session() -> None:
 
 
 def upload_profile(dataset_profile: DatasetProfile) -> None:
+    dataset_timestamp = None
     try:
         client = _get_whylabs_client()
 
@@ -47,29 +48,25 @@ def upload_profile(dataset_profile: DatasetProfile) -> None:
         dataset_timestamp = dataset_profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
         dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
 
-        # TODO: stop shifting dataset timestamps once we update the merger
-        upload_response = client.create_dataset_profile_upload(_session_token, dataset_timestamp=dataset_timestamp - 24 * 60 * 60 * 1000)
+        upload_response = client.create_dataset_profile_upload(_session_token, dataset_timestamp=dataset_timestamp)
         upload_url = upload_response.get("upload_url")
 
         with open(profile_path, "rb") as f:
             requests.put(upload_url, f.read())
 
         _logger.debug(f"Uploaded a profile for timestamp {dataset_timestamp} to WhyLabs session {_session_token}")
-
-    except Exception:
+    except:  # noqa
         _logger.exception(f"Failed to upload profile for timestamp {dataset_timestamp}")
 
 
 def end_session() -> str:
+    global _session_token
     try:
-        global _session_token
         client = _get_whylabs_client()
         res = client.close_session(_session_token)
         _logger.debug(f"Closed session {_session_token}, returning the URL")
         return res.get("whylabs_url")
-
-    except Exception:
+    except:  # noqa
         _logger.exception(f"Failed to close session {_session_token}")
-
     finally:
         _session_token = None
