@@ -89,7 +89,7 @@ def test_merge_metrics_model():
     other = ModelMetrics(model_type=ModelType.REGRESSION)
     other.regression_metrics = None
     new_metrics = metrics.merge(other)
-    assert new_metrics.model_type == ModelType.REGRESSION
+    assert new_metrics.model_type == ModelType.UNKNOWN
     assert new_metrics.confusion_matrix is None
 
     # keep initial model type during merge
@@ -106,7 +106,7 @@ def test_merge_metrics_with_none_regression_matrix():
     other = ModelMetrics(model_type=ModelType.REGRESSION)
     other.regression_metrics = None
     new_metrics = metrics.merge(other)
-    assert new_metrics.model_type == ModelType.REGRESSION
+    assert new_metrics.model_type == ModelType.UNKNOWN
 
 
 def test_merge_metrics_with_none_confusion_matrix():
