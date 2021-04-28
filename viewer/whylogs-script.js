@@ -256,6 +256,7 @@
           .style("stroke-width", BORDER_WIDTH);
 
         var maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+        var minYValue = d3.min(data, (d) => Math.abs(d.axisY));
 
         var xScale = d3
           .scaleBand()
@@ -276,7 +277,7 @@
         svgEl
           .append("g")
           .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
-          .call(d3.axisLeft(yScale));
+          .call(d3.axisLeft(yScale).ticks(5));
 
         var gChart = svgEl.append("g");
         gChart
