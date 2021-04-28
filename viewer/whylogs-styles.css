@@ -1,5 +1,8 @@
-/* COLOR VARIABLES */
 :root {
+  /* CONSTANTS */
+  --SIDE-PANEL-WIDTH: 320px;
+  --PROPERTY-PANEL-WIDTH: 320px;
+  /* COLOR VARIABLES */
   /** Standard colors */
   --red: #d11010;
   --orange: #f07028;
@@ -85,7 +88,7 @@
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
     background-color: var(--brandSecondary100);
     border-right: 1px solid var(--brandSecondary200);
-    width: 320px;
+    width: var(--SIDE-PANEL-WIDTH);
   }
 }
 
@@ -116,7 +119,7 @@
 @media (min-width: 768px) {
   .main {
     padding-right: 0;
-    padding-left: 320px;
+    padding-left: var(--SIDE-PANEL-WIDTH);
   }
 }
 .main .page-header {
@@ -201,9 +204,15 @@ ul.nav li.list-group-item a {
   width: 100vw;
   overflow: auto;
 }
+.wl-table-wrap--narrow {
+  width: calc(100vw - var(--PROPERTY-PANEL-WIDTH));
+}
 @media (min-width: 768px) {
   .wl-table-wrap {
-    width: calc(100vw - 320px);
+    width: calc(100vw - var(--SIDE-PANEL-WIDTH));
+  }
+  .wl-table-wrap--narrow {
+    width: calc(100vw - var(--SIDE-PANEL-WIDTH) - var(--PROPERTY-PANEL-WIDTH));
   }
 }
 
@@ -320,4 +329,49 @@ ul.nav li.list-group-item a {
   border: 1px solid var(--brandSecondary400);
   border-radius: 20px;
   white-space: nowrap;
+}
+
+/* Property side panel */
+.wl-property-panel {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 5;
+  width: var(--PROPERTY-PANEL-WIDTH);
+  height: calc(100vh - 48px);
+  padding: 15px 25px;
+  background: var(--white);
+  border-left: 1px solid var(--brandPrimary700);
+  transform: translateX(100%);
+}
+
+.wl-property-panel--open {
+  transform: translateX(0);
+}
+
+.wl-property-panel__title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.wl-property-panel__frequent-items {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.wl-property-panel__frequent-items span {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 2px 5px 0;
+}
+
+.wl-property-panel__button {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  padding: 5px;
+  border: 1px solid var(--brandSecondary700);
+  font-size: 14;
+  color: var(--brandSecondary900);
 }
