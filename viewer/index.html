@@ -28,7 +28,6 @@
     />
     <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
     <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/sticky-header/bootstrap-table-sticky-header.min.js"></script>
-    <script src="https://d3js.org/d3.v6.min.js"></script>
     <link rel="stylesheet" href="whylogs-styles.css" />
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -145,6 +144,12 @@
               <ul class="wl-table-body wl__table-body"></ul>
             </div>
           </div>
+
+          <div class="wl-property-panel">
+            <button type="button" class="wl-property-panel__button btn-close" aria-label="Close"></button>
+            <h5 class="wl-property-panel__title">Frequent items:</h5>
+            <div class="wl-property-panel__frequent-items"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -153,6 +158,7 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
     <script
       src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
       integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"

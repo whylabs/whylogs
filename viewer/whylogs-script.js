@@ -25,6 +25,7 @@
   };
   var featureSearchValue = "";
   var isActiveInferredType = {};
+  var frequentItems = [];
 
   // Util functions
   function debounce(func, wait, immediate) {
@@ -70,6 +71,33 @@
       thirdQuartile: fixNumberTo(data[5]),
       max: fixNumberTo(data[8]),
     };
+  }
+
+  function formatLabelDate(timestamp) {
+    const date = new Date(timestamp);
+    const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
+    return format(date);
+  }
+
+  function openPropertyPanel(event) {
+    var chips = event.currentTarget.dataset.frequentItems;
+    if (chips && chips !== "undefined") {
+      var splitChips = chips.split(",");
+      var chipString = "";
+
+      splitChips.forEach((item) => {
+        chipString += '<span class="wl-table-cell__bedge">' + item + "</span>";
+      });
+      $(".wl-property-panel__frequent-items").html(chipString);
+      $(".wl-property-panel").addClass("wl-property-panel--open");
+      $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
+    }
+  }
+
+  function handleClosePropertyPanel() {
+    $(".wl-property-panel").removeClass("wl-property-panel--open");
+    $(".wl-table-wrap").removeClass("wl-table-wrap--narrow");
+    $(".wl-property-panel__frequent-items").html("");
   }
 
   // Override and populate HTML element values
@@ -154,14 +182,20 @@
         });
 
         // Frequent item chips / bedge
-        var frequentItems = featureNameValues.frequentItems.items.slice(0, 5);
-        for (var fi = 0; fi < frequentItems.length; fi++) {
-          frequentItemsElemString += '<span class="wl-table-cell__bedge">' + frequentItems[fi].jsonValue + "</span>";
+        frequentItems = featureNameValues.frequentItems.items.reduce((acc, item) => {
+          acc.push(item.jsonValue);
+          return acc;
+        }, []);
+
+        var slicedFrequentItems = featureNameValues.frequentItems.items.slice(0, 5);
+        for (var fi = 0; fi < slicedFrequentItems.length; fi++) {
+          frequentItemsElemString +=
+            '<span class="wl-table-cell__bedge">' + slicedFrequentItems[fi].jsonValue + "</span>";
         }
       } else {
         if (inferredType === "Non-discrete") {
           // Chart
-          if (featureSearchValue.numberSummary) {
+          if (featureNameValues.numberSummary) {
             featureNameValues.numberSummary.histogram.counts.slice(0, 30).forEach(function (count, index) {
               chartData.push({
                 axisY: count,
@@ -172,9 +206,11 @@
 
           // Frequent item chips / bedge
           frequentItemsElemString = "No data shown";
+          frequentItems = [];
         } else {
           frequentItemsElemString = "-";
           chartData = [];
+          frequentItems = [];
         }
       }
 
@@ -192,29 +228,19 @@
       function getGraphHtml(data) {
         if (!data.length) return "";
 
-        // var axis = data.reduce(
-        //   function (acc, item) {
-        //     acc.x.push(parseFloat(item.axisX));
-        //     acc.y.push(parseFloat(item.axisY));
-
-        //     return acc;
-        //   },
-        //   { y: [], x: [] },
-        // );
-
         var MARGIN = {
-          TOP: 0,
-          RIGHT: 0,
-          BOTTOM: 20,
-          LEFT: 40,
+          TOP: 5,
+          RIGHT: 5,
+          BOTTOM: 5,
+          LEFT: 55,
         };
         var SVG_WIDTH = 250;
         var SVG_HEIGHT = 140;
         var CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
         var CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
-        var BORDER_WIDTH = 3;
         var PRIMARY_COLOR_HEX = "#0e7384";
         var SECONDARY_COLOR_HEX = "#ebf2f3";
+        var BORDER_WIDTH = 3;
 
         var svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
 
@@ -228,17 +254,8 @@
           .style("stroke", SECONDARY_COLOR_HEX)
           .style("fill", "none")
           .style("stroke-width", BORDER_WIDTH);
-        // CHART FRAME
-        svgEl
-          .append("rect")
-          .attr("x", 0)
-          .attr("y", 0)
-          .attr("height", CHART_HEIGHT)
-          .attr("width", CHART_WIDTH)
-          .attr("transform", "translate(" + MARGIN.LEFT + ", 0)")
-          .style("stroke", "red")
-          .style("fill", "none")
-          .style("stroke-width", 3);
+
+        var maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
 
         var xScale = d3
           .scaleBand()
@@ -246,19 +263,19 @@
           .range([MARGIN.LEFT, MARGIN.LEFT + CHART_WIDTH]);
         var yScale = d3
           .scaleLinear()
-          .domain([0, d3.max(data, (d) => d.axisY)])
+          .domain([0, maxYValue * 1.02]) // so that chart's height has 102% height of the maximum value
           .range([CHART_HEIGHT, 0]);
 
         // Add the x Axis
-        svgEl
-          .append("g")
-          .attr("transform", "translate(" + 0 + ", " + CHART_HEIGHT + ")")
-          .call(d3.axisBottom(xScale));
+        // svgEl
+        //   .append("g")
+        //   .attr("transform", "translate(" + 0 + ", " + (CHART_HEIGHT + MARGIN.TOP) + ")")
+        //   .call(d3.axisBottom(xScale));
 
         // Add the y Axis
         svgEl
           .append("g")
-          .attr("transform", "translate(" + MARGIN.LEFT + ", 0)")
+          .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
           .call(d3.axisLeft(yScale));
 
         var gChart = svgEl.append("g");
@@ -267,86 +284,19 @@
           .data(data)
           .enter()
           .append("rect")
-          .attr("class", "bar")
-          .attr("fill", PRIMARY_COLOR_HEX)
-          .attr("x", (d) => xScale(d.axisX))
-          .attr("y", CHART_HEIGHT)
-          .attr("transform", (d) => `rotate(180, ${xScale(d.axisX) + (xScale.bandwidth() - 1) / 2}, ${CHART_HEIGHT})`)
+          .classed("bar", true)
           .attr("width", xScale.bandwidth() - 1)
-          .attr("height", (d) => {
-            // NEGATIVE VALUE err
-            return Math.abs(yScale(d.axisY));
-          });
+          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("x", (d) => xScale(d.axisX))
+          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+          .attr("fill", PRIMARY_COLOR_HEX);
 
         return svgEl._groups[0][0].outerHTML;
-
-        // var leftMargin = 40; // Space to the left of first bar; accomodates y-axis labels
-        // var rightMargin = 0; // Space to the right of last bar
-        // var margin = { left: leftMargin, right: rightMargin, top: 10, bottom: 10 };
-        // var barWidth = 20; // Width of the bars
-        // var chartHeight = 80; // Height of chart, from x-axis (ie. y=0)
-        // var chartWidth = margin.left + newData.length * barWidth + margin.right;
-
-        // /* This scale produces negative output for negatve input */
-        // var yScale = d3
-        //   .scaleLinear()
-        //   .domain([0, d3.max(newData)])
-        //   .range([0, chartHeight]);
-
-        // /*
-        //  * We need a different scale for drawing the y-axis. It needs
-        //  * a reversed range, and a larger domain to accomodate negaive values.
-        //  */
-        // var yAxisScale = d3
-        //   .scaleLinear()
-        //   .domain([d3.min(newData), d3.max(newData)])
-        //   .range([chartHeight - yScale(d3.min(newData)), 0]);
-
-        // var svg = d3.create("svg");
-        // // var svg = d3.select("svg");
-        // svg
-        //   .attr("height", chartHeight + 100)
-        //   .attr("width", chartWidth)
-        //   .style("border", "1px solid");
-
-        // svg
-        //   .selectAll("rect")
-        //   .data(newData)
-        //   .enter()
-        //   .append("rect")
-        //   .attr("x", function (d, i) {
-        //     return margin.left + i * barWidth;
-        //   })
-        //   .attr("y", function (d, i) {
-        //     return chartHeight - Math.max(0, yScale(d));
-        //   })
-        //   .attr("height", function (d) {
-        //     return Math.abs(yScale(d));
-        //   })
-        //   .attr("width", barWidth)
-        //   .style("fill", "grey")
-        //   .style("stroke", "black")
-        //   .style("stroke-width", "1px")
-        //   .style("opacity", function (d, i) {
-        //     return 1; /*- (i * (1/data.length)); */
-        //   });
-
-        // var yAxis = d3.axisLeft(yAxisScale);
-
-        // svg
-        //   .append("g")
-        //   .attr("transform", function (d) {
-        //     return "translate(" + margin.left + ", 0)";
-        //   })
-        //   .call(yAxis);
-
-        // return svg._groups[0][0].outerHTML;
       }
 
       // Update data table rows/columns
-      // if (chartData.length) {
       $tableBody.append(`
-          <li class="wl-table-row" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none;">
+          <li class="wl-table-row" data-feature-name="${featureName}" data-inferred-type="${inferredType}" data-frequent-items="${frequentItems}" style="display: none;">
             <div class="wl-table-cell">
               <h4 class="wl-table-cell__title">${featureName}</h4>
               <div class="wl-table-cell__graph-wrap">${getGraphHtml(chartData)}</div>
@@ -369,13 +319,12 @@
             <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.max}</div>
           </li>
         `);
-      // }
     }
 
     $featureCountDiscrete.html(inferredFeatureType.discrete.length);
     $featureCountNonDiscrete.html(inferredFeatureType.nonDiscrete.length);
     $featureCountUnknown.html(inferredFeatureType.unknown.length);
-    $selectedProfile.html(properties.dataTimestamp);
+    $selectedProfile.html(formatLabelDate(+properties.dataTimestamp));
     $featureCount.html(featureList.length);
   }
 
@@ -401,6 +350,7 @@
   });
 
   // Bind event listeners
+  $(document).on("click", ".wl-table-row", openPropertyPanel);
   $featureSearch.on(
     "input",
     debounce(function (event) {
@@ -415,4 +365,5 @@
     isActiveInferredType[filterType] = isChecked;
     handleSearch();
   });
+  $(".wl-property-panel__button").on("click", handleClosePropertyPanel);
 })();
