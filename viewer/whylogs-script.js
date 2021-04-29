@@ -96,13 +96,12 @@
     );
   }
 
-  function openPropertyPanel(event) {
-    var chips = event.currentTarget.dataset.frequentItems;
-    if (chips && chips !== "undefined") {
-      var splitChips = chips.split(",");
+  function openPropertyPanel(chips) {
+    console.log(chips);
+    if (chips.length && chips !== "undefined") {
       var chipString = "";
 
-      splitChips.forEach((item) => {
+      chips.forEach((item) => {
         chipString += '<span class="wl-table-cell__bedge">' + item + "</span>";
       });
       $(".wl-property-panel__frequent-items").html(chipString);
@@ -318,31 +317,34 @@
         return svgEl._groups[0][0].outerHTML;
       }
 
+      var $tableRow = $(`
+      <li class="wl-table-row" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none;">
+        <div class="wl-table-cell">
+          <h4 class="wl-table-cell__title">${featureName}</h4>
+          <div class="wl-table-cell__graph-wrap">${getGraphHtml(chartData)}</div>
+        </div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle" style="max-width: 270px">
+          <div class="wl-table-cell__bedge-wrap">
+            ${frequentItemsElemString}
+          </div>
+        </div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle">${inferredType}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${totalCount}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${nullRatio}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${estUniqueVal}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle">${dataType}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${dataTypeCount}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${mean}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${stddev}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.min}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.median}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.max}</div>
+      </li>
+    `);
+
+      $tableRow.on("click", openPropertyPanel.bind(this, frequentItems));
       // Update data table rows/columns
-      $tableBody.append(`
-          <li class="wl-table-row" data-feature-name="${featureName}" data-inferred-type="${inferredType}" data-frequent-items="${frequentItems}" style="display: none;">
-            <div class="wl-table-cell">
-              <h4 class="wl-table-cell__title">${featureName}</h4>
-              <div class="wl-table-cell__graph-wrap">${getGraphHtml(chartData)}</div>
-            </div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle" style="max-width: 270px">
-              <div class="wl-table-cell__bedge-wrap">
-                ${frequentItemsElemString}
-              </div>
-            </div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle">${inferredType}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${totalCount}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${nullRatio}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${estUniqueVal}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle">${dataType}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${dataTypeCount}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${mean}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${stddev}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.min}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.median}</div>
-            <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.max}</div>
-          </li>
-        `);
+      $tableBody.append($tableRow);
     }
 
     $featureCountDiscrete.html(inferredFeatureType.discrete.length);
@@ -427,7 +429,7 @@
   // Bind event listeners
   $jsonForm.on("submit", loadFile);
   $fileInput.on("change", handleFileInputChange);
-  $(document).on("click", ".wl-table-row", openPropertyPanel);
+  // $(document).on("click", ".wl-table-row", openPropertyPanel);
   $(document).on("click", ".js-list-group-item span", scrollToFeatureName);
   $featureSearch.on(
     "input",
