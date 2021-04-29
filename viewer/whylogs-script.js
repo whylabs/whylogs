@@ -97,7 +97,6 @@
   }
 
   function openPropertyPanel(chips) {
-    console.log(chips);
     if (chips.length && chips !== "undefined") {
       var chipString = "";
 
