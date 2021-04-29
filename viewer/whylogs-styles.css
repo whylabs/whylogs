@@ -197,6 +197,18 @@ ul.nav li.list-group-item a {
   border-color: var(--brandPrimary900);
 }
 
+.cta-button--outline {
+  background-color: transparent;
+  color: var(--brandPrimary900);
+}
+
+.cta-button:focus,
+.cta-button:active,
+.cta-button:hover {
+  background-color: var(--brandPrimary800);
+  border-color: var(--brandPrimary800);
+}
+
 /* CSS DIV TABLE BASIC STYLE */
 .wl-table-wrap {
   position: relative;
@@ -214,6 +226,21 @@ ul.nav li.list-group-item a {
   .wl-table-wrap--narrow {
     width: calc(100vw - var(--SIDE-PANEL-WIDTH) - var(--PROPERTY-PANEL-WIDTH));
   }
+}
+
+.wl-table__text-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 48px);
+  max-width: 400px;
+  text-align: center;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+.wl-table__text-message p {
+  color: var(--brandPrimary900);
 }
 
 .wl-table {
@@ -374,4 +401,26 @@ ul.nav li.list-group-item a {
   border: 1px solid var(--brandSecondary700);
   font-size: 14;
   color: var(--brandSecondary900);
+}
+
+/* Load JSON file form */
+.wl__json-form-input {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.wl__josn-form-text {
+  position: relative;
+  margin: 15px 0 0;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.wl__josn-form-text-default {
+  font-size: 12px;
+  color: var(--brandPrimary900);
 }
