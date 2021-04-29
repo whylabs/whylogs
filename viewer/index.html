@@ -62,67 +62,85 @@
     <div class="container-fluid">
       <div class="row">
         <div class="sidebar">
-          <strong>Profile</strong>
-          <h5 class="mb-4 mt-1 wl__selected-profile">2020-02-26 12:23:32 PM PST</h5>
-          <strong>Total features</strong>
-          <h1 class="feature-count mb-3 wl__feature-count">37</h1>
-          <div class="mb-4">
-            <label for="wl__feature-search" class="form-label"><strong>Find feature</strong></label>
-            <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
-          </div>
-          <strong>Filter features by type</strong>
-          <div class="form-check mb-1 mt-2">
-            <input
-              class="form-check-input wl__feature-filter-input"
-              type="checkbox"
-              value="Discrete"
-              id="inferredDiscrete"
-              checked
-            />
-            <label class="form-check-label" for="inferredDiscrete">
-              Inferred discrete (<span class="wl__feature-count--discrete"></span>)
-            </label>
-          </div>
-          <div class="form-check mb-1">
-            <input
-              class="form-check-input wl__feature-filter-input"
-              type="checkbox"
-              value="Non-discrete"
-              id="inferredNonDiscrete"
-              checked
-            />
-            <label class="form-check-label" for="inferredNonDiscrete">
-              Inferred non-discrete (<span class="wl__feature-count--non-discrete"></span>)
-            </label>
-          </div>
-          <div class="form-check mb-4">
-            <input
-              class="form-check-input wl__feature-filter-input"
-              type="checkbox"
-              value="Unknown"
-              id="inferredUnknown"
-              checked
-            />
-            <label class="form-check-label" for="inferredUnknown">
-              Unknown (<span class="wl__feature-count--unknown"></span>)
-            </label>
-          </div>
-          <div class="mb-4">
-            <strong>Try for free</strong>
-            <button type="button" class="btn btn-primary mt-2 mb-2 cta-button">Open in WhyLabs</button>
-            <p class="mt-1 gray600 fst-italic">
-              Compare profiles, run unit tests, and access more features in the WhyLabs Platform.
-            </p>
-          </div>
-          <strong>Feature list</strong>
-          <p class="small mt-1">Click on features to scroll into view</p>
-          <div class="mt-3">
-            <ul class="nav list-group list-group-flush wl__sidebar-feature-name-list"></ul>
+          <form class="mb-4" id="json-form" name="json-form" enctype="multipart/form-data" method="post">
+            <fieldset>
+              <p class="d-none wl__josn-form-text" id="file-input-name" data-file-title="Selected file name:">
+                <span class="wl__josn-form-text-default">Selected file:</span>
+                <span class="wl__josn-form-text-name"></span>
+              </p>
+              <div class="file-input">
+                <input type="file" id="file-input" class="wl__json-form-input" accept=".json" />
+                <label for="file-input" class="btn btn-primary cta-button cta-button--outline">Select file</label>
+              </div>
+              <!-- <input type="file" id="file-input" class="wl__json-form-input" /> -->
+              <button type="submit" id="file-input-load" class="btn btn-primary mt-2 mb-0 cta-button d-none">
+                Load file
+              </button>
+            </fieldset>
+          </form>
+          <div class="d-none" id="sidebar-content">
+            <strong>Profile</strong>
+            <h5 class="mb-4 mt-1 wl__selected-profile">2020-02-26 12:23:32 PM PST</h5>
+            <strong>Total features</strong>
+            <h1 class="feature-count mb-3 wl__feature-count">37</h1>
+            <div class="mb-4">
+              <label for="wl__feature-search" class="form-label"><strong>Find feature</strong></label>
+              <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
+            </div>
+            <strong>Filter features by type</strong>
+            <div class="form-check mb-1 mt-2">
+              <input
+                class="form-check-input wl__feature-filter-input"
+                type="checkbox"
+                value="Discrete"
+                id="inferredDiscrete"
+                checked
+              />
+              <label class="form-check-label" for="inferredDiscrete">
+                Inferred discrete (<span class="wl__feature-count--discrete"></span>)
+              </label>
+            </div>
+            <div class="form-check mb-1">
+              <input
+                class="form-check-input wl__feature-filter-input"
+                type="checkbox"
+                value="Non-discrete"
+                id="inferredNonDiscrete"
+                checked
+              />
+              <label class="form-check-label" for="inferredNonDiscrete">
+                Inferred non-discrete (<span class="wl__feature-count--non-discrete"></span>)
+              </label>
+            </div>
+            <div class="form-check mb-4">
+              <input
+                class="form-check-input wl__feature-filter-input"
+                type="checkbox"
+                value="Unknown"
+                id="inferredUnknown"
+                checked
+              />
+              <label class="form-check-label" for="inferredUnknown">
+                Unknown (<span class="wl__feature-count--unknown"></span>)
+              </label>
+            </div>
+            <div class="mb-4">
+              <strong>Try for free</strong>
+              <button type="button" class="btn btn-primary mt-2 mb-2 cta-button">Open in WhyLabs</button>
+              <p class="mt-1 gray600 fst-italic">
+                Compare profiles, run unit tests, and access more features in the WhyLabs Platform.
+              </p>
+            </div>
+            <strong>Feature list</strong>
+            <p class="small mt-1">Click on features to scroll into view</p>
+            <div class="mt-3">
+              <ul class="nav list-group list-group-flush wl__sidebar-feature-name-list"></ul>
+            </div>
           </div>
         </div>
 
         <div class="main">
-          <div class="wl-table-wrap">
+          <div class="wl-table-wrap d-none" id="table-content">
             <div class="wl-table">
               <div class="wl-table-heading">
                 <div class="wl-table-row wl-table-row--bottom-shadow">
@@ -143,6 +161,10 @@
               </div>
               <ul class="wl-table-body wl__table-body"></ul>
             </div>
+          </div>
+
+          <div class="wl-table__text-message" id="table-message">
+            <p>Please click the button in the sidebar and select a JSON file from your local machine.</p>
           </div>
 
           <div class="wl-property-panel">

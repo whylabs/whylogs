@@ -14,15 +14,16 @@
   var $tableBody = $(".wl__table-body");
   var $featureSearch = $("#wl__feature-search");
   var $featureFilterInput = $(".wl__feature-filter-input");
+  var $filesName = $("#file-input-name");
+  var $loadFileBtn = $("#file-input-load");
+  var $jsonForm = $("#json-form");
+  var $fileInput = $("#file-input");
+  var $tableContent = $("#table-content");
+  var $tableMessage = $("#table-message");
+  var $sidebarContent = $("#sidebar-content");
 
   // Constants and variables
   var batchArray = [];
-  var featureList = [];
-  var inferredFeatureType = {
-    discrete: [],
-    nonDiscrete: [],
-    unknown: [],
-  };
   var featureSearchValue = "";
   var isActiveInferredType = {};
   var frequentItems = [];
@@ -105,7 +106,15 @@
     var properties = data.properties;
     var columns = data.columns;
     batchArray = Object.entries(columns);
+    $tableBody.html("");
+    $sidebarFeatureNameList.html("");
 
+    var featureList = [];
+    var inferredFeatureType = {
+      discrete: [],
+      nonDiscrete: [],
+      unknown: [],
+    };
     var totalCount = "";
     var inferredType = "";
     var nullRatio = "";
@@ -264,7 +273,7 @@
           .range([MARGIN.LEFT, MARGIN.LEFT + CHART_WIDTH]);
         var yScale = d3
           .scaleLinear()
-          .domain([0, maxYValue * 1.02]) // so that chart's height has 102% height of the maximum value
+          .domain([0, maxYValue * 1.02]) // so that chart's height has 10§2% height of the maximum value
           .range([CHART_HEIGHT, 0]);
 
         // Add the x Axis
@@ -337,20 +346,73 @@
     });
 
     for (var i = 0; i < tableBodyChildrens.length; i++) {
+      var name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
       var type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
 
-      if (isActiveInferredType[type]) {
+      if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
         tableBodyChildrens[i].style.display = "";
       }
     }
   }
 
-  // Load data from JSON file
-  $.getJSON(JSON_URL, updateHtmlElementValues).then(function () {
+  function loadFile(e) {
+    e.preventDefault();
+
+    var input, file, fr;
+
+    if (typeof window.FileReader !== "function") {
+      alert("The file API isn't supported on this browser yet.");
+      return;
+    }
+
+    input = document.getElementById("file-input");
+    if (!input) {
+      alert("Um, couldn't find the file input element.");
+    } else if (!input.files) {
+      alert("This browser doesn't seem to support the `files` property of file inputs.");
+    } else if (!input.files[0]) {
+      alert("Please select a file before clicking the 'Load file' button.");
+    } else {
+      file = input.files[0];
+      fr = new FileReader();
+      fr.onload = receivedText;
+      fr.readAsText(file);
+    }
+  }
+
+  function receivedText(e) {
+    var lines = e.target.result;
+    var newArr = JSON.parse(lines);
+
+    updateHtmlElementValues(newArr);
+    $tableMessage.addClass("d-none");
+    $sidebarContent.removeClass("d-none");
+    $tableContent.removeClass("d-none");
     renderList();
-  });
+    $jsonForm.trigger("reset");
+    $filesName.addClass("d-none").find(".wl__josn-form-text-name").html("");
+    $loadFileBtn.addClass("d-none");
+  }
+
+  function handleFileInputChange(e) {
+    var files = e.target.files;
+
+    if (files.length) {
+      $filesName.removeClass("d-none").find(".wl__josn-form-text-name").html(files[0].name);
+      $loadFileBtn.removeClass("d-none");
+    } else {
+      $filesName.addClass("d-none").find(".wl__josn-form-text-name").html("");
+      $loadFileBtn.addClass("d-none");
+    }
+  }
+  // Load data from JSON file
+  // $.getJSON(JSON_URL, updateHtmlElementValues).then(function () {
+  //   renderList();
+  // });
 
   // Bind event listeners
+  $jsonForm.on("submit", loadFile);
+  $fileInput.on("change", handleFileInputChange);
   $(document).on("click", ".wl-table-row", openPropertyPanel);
   $featureSearch.on(
     "input",
