@@ -80,6 +80,22 @@
     return format(date);
   }
 
+  function scrollToFeatureName(event) {
+    var TABLE_HEADER_OFFSET = 90;
+    var $tableWrap = $(".wl-table-wrap");
+    var featureNameId = event.currentTarget.dataset.featureNameId;
+    var currentOffsetTop = $tableWrap.scrollTop();
+    var offsetTop = $('[data-feature-name="' + featureNameId + '"]').offset().top;
+
+    // $tableWrap.scrollTop(currentOffsetTop + offsetTop - TABLE_HEADER_OFFSET);
+    $tableWrap.animate(
+      {
+        scrollTop: currentOffsetTop + offsetTop - TABLE_HEADER_OFFSET,
+      },
+      500,
+    );
+  }
+
   function openPropertyPanel(event) {
     var chips = event.currentTarget.dataset.frequentItems;
     if (chips && chips !== "undefined") {
@@ -225,13 +241,11 @@
 
       // Update sidebar HTML feature name list
       $sidebarFeatureNameList.append(
-        '<li class="list-group-item js-list-group-item" data-feature-name-id="' +
-          featureName +
-          '"><a href="#' +
+        '<li class="list-group-item js-list-group-item"><span data-feature-name-id="' +
           featureName +
           '">' +
           featureName +
-          "</a></li>",
+          "</span></li>",
       );
 
       function getGraphHtml(data) {
@@ -252,6 +266,7 @@
         var BORDER_WIDTH = 3;
 
         var svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
+        var tooltip = d3.select("body").append("div").attr("class", "wl-tooltip");
 
         // SVG FRAME
         svgEl
@@ -265,7 +280,6 @@
           .style("stroke-width", BORDER_WIDTH);
 
         var maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
-        var minYValue = d3.min(data, (d) => Math.abs(d.axisY));
 
         var xScale = d3
           .scaleBand()
@@ -414,6 +428,7 @@
   $jsonForm.on("submit", loadFile);
   $fileInput.on("change", handleFileInputChange);
   $(document).on("click", ".wl-table-row", openPropertyPanel);
+  $(document).on("click", ".js-list-group-item span", scrollToFeatureName);
   $featureSearch.on(
     "input",
     debounce(function (event) {

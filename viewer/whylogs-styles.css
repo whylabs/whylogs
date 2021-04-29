@@ -168,6 +168,33 @@ ul.nav li.list-group-item {
   padding: 5px 0;
   font-size: 14px;
 }
+ul.nav li.list-group-item span {
+  position: relative;
+  color: var(--brandPrimary900);
+  cursor: pointer;
+  transition: color 150ms linear;
+}
+
+ul.nav li.list-group-item span::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  height: 1px;
+  width: 100%;
+  background-color: var(--brandPrimary700);
+  transform: translateX(-50%) scaleX(0);
+  transition: transform 150ms linear;
+}
+
+ul.nav li.list-group-item span:hover {
+  color: var(--brandPrimary700);
+}
+
+ul.nav li.list-group-item span:hover::before {
+  transform: translateX(-50%) scaleX(1);
+}
+
 ul.nav li.list-group-item a {
   color: var(--brandPrimary900);
 }
