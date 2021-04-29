@@ -7,7 +7,6 @@
 ![CI](https://github.com/whylabs/whylogs-python/workflows/whylogs%20CI/badge.svg)
 [![Maintainability](https://api.codeclimate.com/v1/badges/442f6ca3dca1e583a488/maintainability)](https://codeclimate.com/github/whylabs/whylogs-python/maintainability)
 
-This is a Python implementation of whylogs. The Java implementation can be found [here](https://github.com/whylabs/whylogs-java).
 
 
 whylogs is an open source standard for data and ML logging, monitoring, and troubleshooting
@@ -20,7 +19,11 @@ Whylogs is designed by data scientists, ML engineers and distributed systems eng
 
 whylogs is released under the Apache 2.0 open source license. It supports many languages and is easy to extend. This repo contains the whylogs CLI, language SDKs, and individual libraries are in their own repos.
 
+
+This is a Python implementation of whylogs. The Java implementation can be found [here](https://github.com/whylabs/whylogs-java).
+
 If you have any questions, comments, or just want to hang out with us, please join [our Slack channel](http://join.slack.whylabs.ai/).
+
 
 _____________
 Latest release: 0.4.5
@@ -39,7 +42,7 @@ _____________
 
 
 
-## Getting started
+## Getting started<a name="getting-started" />
 
 
 ### Using pip
@@ -65,7 +68,7 @@ make
 
 ### Documentation 
 
-[Docs](https://docs.whylabs.ai/docs/)
+The [documentation](https://docs.whylabs.ai/docs/) of this package is generated automatically. 
 
 ### Features
 
@@ -77,36 +80,34 @@ make
 -Unlimited metrics: whylogs collects all possible statistical metrics about structured or unstructured data
 
 
-## Data Types
+## Data Types<a name="data-types" />
 Whylogs supports both structured and unstructured data, specifically: 
 
 | Data type  | Features | Notebook Example |
 | --- | --- | ---|
 |Structured data | Distribution, cardinality, schema, counts, missing values | [Getting started with structure data](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb) | 
 | Images | exif metadata, derived pixels features,  bounding boxes | [Getting started with images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb) |
-|Video  | In development  | [Issue]https://github.com/whylabs/whylogs/issues/214 | 
-| Tensors | derived 1d features (more in developement) |  |
+|Video  | In development  | [Github Issue #214](https://github.com/whylabs/whylogs/issues/214) | 
+| Tensors | derived 1d features (more in developement) |  [Github Issue #216](https://github.com/whylabs/whylogs/issues/216) |
 | Embeddings | derived 1d features (more in developement) |  |
-| Text | top k values, counts, cardinality (more in developement) | ([Issue]https://github.com/whylabs/whylogs/issues/213)|
-| Audio | In developement | [Issue](https://github.com/whylabs/whylogs/issues/212) | 
+| Text | top k values, counts, cardinality (more in developement) | [Github Issue #213](https://github.com/whylabs/whylogs/issues/213)|
+| Audio | In developement | [Github Issue #212](https://github.com/whylabs/whylogs/issues/212) | 
 
 
 ## Integrations
 
 | Integration | Features | Notebook | Blog Post |
 | --- | --- | ---  | --- | 
-| Spark | Log and monitor any Spark dataframe:  Example |
-| Pandas | Log and monitor any pandas dataframe:  Jupyter notebook example |
-| Kafka | Log and monitor Kafka topics with whylogs: Jupyter notebook example |
-| MLflow | Enhance MLflow metrics with whylogs:  Jupyter notebook example | Blog post |
-| Github actions | Unit test data with whylogs and github actions:
-Example | Blog post 
-| RAPIDS Use whylogs in RAPIDS environment: 
-Jupyter notebook example | Blog post
-| Java | Run whylogs in Java environment: Example  
-| Scala | Run whylogs in Scala environment: Example 
-| Docker | Run whylogs as in Docker: Example
-| AWS S3 |  Store whylogs profiles in S3: Jupyter notebook example
+| Spark | Log and monitor any Spark dataframe | | | 
+| Pandas | Log and monitor any pandas dataframe | [Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb) | [whylogs: Embrace Data Logging](https://whylabs.ai/blog/posts/whylogs-embrace-data-logging) |
+| Kafka | Log and monitor Kafka topics with whylogs| [Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Kafka.ipynb) | [Integrating whylogs into your Kafka ML Pipeline](https://whylabs.ai/blog/posts/integrating-whylogs-into-your-kafka-ml-pipeline) |
+| MLflow | Enhance MLflow metrics with whylogs:  | [Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb) | [Streamlining data monitoring with whylogs and MLflow](https://whylabs.ai/blog/posts/on-model-lifecycle-and-monitoring) |
+| Github actions | Unit test data with whylogs and github actions| [Notebook Example](https://github.com/whylabs/whylogs-examples/tree/mainline/github-actions) | |
+| RAPIDS |  Use whylogs in RAPIDS environment | [Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/RAPIDS%20GPU%20Integration%20Example.ipynb)| [Monitoring High-Performance Machine Learning Models with RAPIDS and whylogs](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs) |
+| Java | Run whylogs in Java environment| [Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/java/demo1/src/main/java/com/whylogs/examples/WhyLogsDemo.java) | |
+| Scala | Run whylogs in Scala environment|  [Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/scala/src/main/scala/WhyLogsDemo.scala) | |
+| Docker | Run whylogs as in Docker |  | |
+| AWS S3 |  Store whylogs profiles in S3 | [S3 example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/S3%20example.ipynb)
 
  
 ## Roadmap
