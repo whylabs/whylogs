@@ -1,3 +1,5 @@
+# whylog: A Data and Machine Learning Logging Standard
+
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE)
 [![PyPI version](https://badge.fury.io/py/whylogs.svg)](https://badge.fury.io/py/whylogs)
 [![Coverage Status](https://coveralls.io/repos/github/whylabs/whylogs-python/badge.svg?branch=mainline&service=github)](https://coveralls.io/github/whylabs/whylogs-python?branch=mainline)
@@ -6,7 +8,6 @@
 [![PyPi Downloads](https://pepy.tech/badge/whylogs)](https://pepy.tech/project/whylogs)
 ![CI](https://github.com/whylabs/whylogs-python/workflows/whylogs%20CI/badge.svg)
 [![Maintainability](https://api.codeclimate.com/v1/badges/442f6ca3dca1e583a488/maintainability)](https://codeclimate.com/github/whylabs/whylogs-python/maintainability)
-
 
 
 whylogs is an open source standard for data and ML logging, monitoring, and troubleshooting
@@ -92,6 +93,9 @@ Whylogs supports both structured and unstructured data, specifically:
 | Embeddings | derived 1d features (more in developement) |  |
 | Text | top k values, counts, cardinality (more in developement) | [Github Issue #213](https://github.com/whylabs/whylogs/issues/213)|
 | Audio | In developement | [Github Issue #212](https://github.com/whylabs/whylogs/issues/212) | 
+
+
+
 
 
 ## Integrations
