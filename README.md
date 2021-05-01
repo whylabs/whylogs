@@ -35,11 +35,13 @@ If you have any questions, comments, or just want to hang out with us, please jo
 - [Features](#features)
 - [Data Types](#data-types)
 - [Integrations](#integrations)
+- [Examples](#examples)
 - [Community](#community)
 - [Roadmap](#roadmap)
 - [Contribute](#contribute)
 
 <img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
+
 ## Getting started<a name="getting-started" />
 
 
@@ -65,6 +67,7 @@ make
 ```
 
 <img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
+
 ## Quickly Logging Data
 
 whylogs is easy to get up and runnings
@@ -125,7 +128,7 @@ Whylogs supports both structured and unstructured data, specifically:
 ![current integration](images/integrations.001.png)
 | Integration | Features | Resources |
 | --- | --- | ---  | 
-| Spark | Log and monitor any Spark dataframe | |
+| Spark | Log and monitor any Spark dataframe | <ul><li>[Notebook Example|(https://docs.whylabs.ai/docs/integrations-rest-container/)</li></ul>
 | Pandas | Log and monitor any pandas dataframe |  <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb)</li><li>[whylogs: Embrace Data Logging](https://whylabs.ai/blog/posts/whylogs-embrace-data-logging)</li></ul>  |
 | Kafka | Log and monitor Kafka topics with whylogs| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Kafka.ipynb)</li><li> [Integrating whylogs into your Kafka ML Pipeline](https://whylabs.ai/blog/posts/integrating-whylogs-into-your-kafka-ml-pipeline) </li></ul>|
 | MLflow | Enhance MLflow metrics with whylogs:  | <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb)</li><li>[Streamlining data monitoring with whylogs and MLflow](https://whylabs.ai/blog/posts/on-model-lifecycle-and-monitoring)</li></ul> |
@@ -133,10 +136,21 @@ Whylogs supports both structured and unstructured data, specifically:
 | RAPIDS |  Use whylogs in RAPIDS environment | <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/RAPIDS%20GPU%20Integration%20Example.ipynb)</li><li>[Monitoring High-Performance Machine Learning Models with RAPIDS and whylogs](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs)</li></ul> |
 | Java | Run whylogs in Java environment| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/java/demo1/src/main/java/com/whylogs/examples/WhyLogsDemo.java)</li></ul>  |
 | Scala | Run whylogs in Scala environment|  <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/scala/src/main/scala/WhyLogsDemo.scala)</li></ul> | 
-| Docker | Run whylogs as in Docker |  |
+| Docker | Run whylogs as in Docker |  [</li></ul>[Rest Container](https://docs.whylabs.ai/docs/integrations-rest-container)</li></ul>| 
 | AWS S3 |  Store whylogs profiles in S3 | <ul><li>[S3 example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/S3%20example.ipynb)</li></ul>
 
 <img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
+
+## Examples
+For a full set of our examples, please check out [whylogs-examples](https://github.com/whylabs/whylogs-examples).
+
+Check out our example notebooks with Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/whylabs/whylogs-examples/HEAD)
+- [Getting Started notebook](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb)
+- [Logging Example notebook](https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb)
+- [Logging Images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb)
+- [MLflow Integration](https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb)
+
+
 ## Roadmap
 
 whylogs is maintained by [WhyLabs](https://whylabs.ai).
