@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "0.4.5"
+version = "0.4.7-dev0"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -11,7 +11,10 @@ include = [
   "CODE_OF_CONDUCT.md",
   "DEVELOPMENT.md"
 ]
-
+readme = "README.md"
+repository = "https://github.com/whylabs/whylogs"
+homepage = "https://docs.whylabs.ai"
+keywords = ["machine learning", "data profiling", "data quality", "data logging"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apple Public Source License",
