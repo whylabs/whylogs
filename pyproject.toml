@@ -11,7 +11,10 @@ include = [
   "CODE_OF_CONDUCT.md",
   "DEVELOPMENT.md"
 ]
-
+readme = "README.md"
+repository = "https://github.com/whylabs/whylogs"
+homepage = "https://docs.whylabs.ai"
+keywords = ["machine learning", "data profiling", "data quality", "data logging"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apple Public Source License",
