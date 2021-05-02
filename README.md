@@ -122,7 +122,7 @@ Whylogs supports both structured and unstructured data, specifically:
 
 | Data type  | Features | Notebook Example |
 | --- | --- | ---|
-|Structured data | Distribution, cardinality, schema, counts, missing values | [Getting started with structure data](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb) | 
+|Structured Data | Distribution, cardinality, schema, counts, missing values | [Getting started with structure data](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb) | 
 | Images | exif metadata, derived pixels features,  bounding boxes | [Getting started with images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb) |
 | Video  | In development  | [Github Issue #214](https://github.com/whylabs/whylogs/issues/214) |
 | Tensors | derived 1d features (more in developement) | [Github Issue #216](https://github.com/whylabs/whylogs/issues/216) |
@@ -135,16 +135,16 @@ Whylogs supports both structured and unstructured data, specifically:
 ![current integration](images/integrations.001.png)
 | Integration | Features | Resources |
 | --- | --- | ---  | 
-| Spark | Log and monitor any Spark dataframe | <ul><li>[Notebook Example|(https://docs.whylabs.ai/docs/integrations-rest-container/)</li></ul>
+| Spark | Run whylogs in Apache Spark environment|  <ul><li>[Code Example](https://github.com/whylabs/whylogs-examples/blob/mainline/scala/src/main/scala/WhyLogsDemo.scala)</li></ul> | 
 | Pandas | Log and monitor any pandas dataframe |  <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb)</li><li>[whylogs: Embrace Data Logging](https://whylabs.ai/blog/posts/whylogs-embrace-data-logging)</li></ul>  |
 | Kafka | Log and monitor Kafka topics with whylogs| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Kafka.ipynb)</li><li> [Integrating whylogs into your Kafka ML Pipeline](https://whylabs.ai/blog/posts/integrating-whylogs-into-your-kafka-ml-pipeline) </li></ul>|
 | MLflow | Enhance MLflow metrics with whylogs:  | <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb)</li><li>[Streamlining data monitoring with whylogs and MLflow](https://whylabs.ai/blog/posts/on-model-lifecycle-and-monitoring)</li></ul> |
 | Github actions | Unit test data with whylogs and github actions| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/tree/mainline/github-actions)</li></ul> |
 | RAPIDS |  Use whylogs in RAPIDS environment | <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/RAPIDS%20GPU%20Integration%20Example.ipynb)</li><li>[Monitoring High-Performance Machine Learning Models with RAPIDS and whylogs](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs)</li></ul> |
 | Java | Run whylogs in Java environment| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/java/demo1/src/main/java/com/whylogs/examples/WhyLogsDemo.java)</li></ul>  |
-| Scala | Run whylogs in Scala environment|  <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/scala/src/main/scala/WhyLogsDemo.scala)</li></ul> | 
-| Docker | Run whylogs as in Docker |  [</li></ul>[Rest Container](https://docs.whylabs.ai/docs/integrations-rest-container)</li></ul>| 
+| Docker | Run whylogs as in Docker |  <li><ul>[Rest Container](https://docs.whylabs.ai/docs/integrations-rest-container)</li></ul>| 
 | AWS S3 |  Store whylogs profiles in S3 | <ul><li>[S3 example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/S3%20example.ipynb)</li></ul>
+| REST API | Log and monitor with REST API | <ul><li>[Integration Details](https://docs.whylabs.ai/docs/integrations-rest-container/)</li></ul> |
 
 <img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 
@@ -171,9 +171,3 @@ If you have any questions, comments, or just want to hang out with us, please jo
 ## Contribute
 
 We welcome contributions to whylogs. Please see our [developement guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
-
-
- 
-
-
-
