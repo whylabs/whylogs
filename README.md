@@ -12,7 +12,7 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/442f6ca3dca1e583a488/maintainability)](https://codeclimate.com/github/whylabs/whylogs-python/maintainability)
 
 
-whylogs is an open source standard for data and ML logging, monitoring, and troubleshooting
+whylogs is an open source standard for data and ML logging
 
 whylogs logging agent is the easiest way to enable logging, testing, and monitoring in an ML/AI application. The lightweight agent profiles data in real time, collecting thousands of metrics from structured data, unstructured data, and ML model predictions with zero configuration. 
 
@@ -21,7 +21,6 @@ whylogs can be installed in any Python, Java or Spark environment; it can be dep
 whylogs is designed by data scientists, ML engineers and distributed systems engineers to log data in the most cost-effective, scalable and accurate manner. No sampling. No post-processing. No manual configurations.
 
 whylogs is released under the Apache 2.0 open source license. It supports many languages and is easy to extend. This repo contains the whylogs CLI, language SDKs, and individual libraries are in their own repos.
-
 
 This is a Python implementation of whylogs. The Java implementation can be found [here](https://github.com/whylabs/whylogs-java).
 
@@ -112,9 +111,9 @@ The [documentation](https://docs.whylabs.ai/docs/) of this package is generated 
 - Accurate data profiling: whylogs calculates statistics from 100% of the data, never requiring sampling, ensuring an accurate representation of data distributions
 - Lightweight runtime: whylogs utilizes approximate statistical methods to achieve minimal memory footprint that scales with the number of features in the data
 - Any architecture: whylogs scales with your system, from local development mode to live production systems in multi-node clusters, and works well with batch and streaming architectures
--Configuration-free: whylogs infers the schema of the data, requiring zero manual configuration to get started
--Tiny storage footprint: whylogs turns data batches and streams into statistical fingerprints, 10-100MB uncompressed
--Unlimited metrics: whylogs collects all possible statistical metrics about structured or unstructured data
+- Configuration-free: whylogs infers the schema of the data, requiring zero manual configuration to get started
+- Tiny storage footprint: whylogs turns data batches and streams into statistical fingerprints, 10-100MB uncompressed
+- Unlimited metrics: whylogs collects all possible statistical metrics about structured or unstructured data
 
 <img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 ## Data Types<a name="data-types" />
@@ -122,7 +121,7 @@ Whylogs supports both structured and unstructured data, specifically:
 
 | Data type  | Features | Notebook Example |
 | --- | --- | ---|
-|Structured Data | Distribution, cardinality, schema, counts, missing values | [Getting started with structure data](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb) | 
+|Structured Data | Distribution, cardinality, schema, counts, missing values | [Getting started with structured data](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb) | 
 | Images | exif metadata, derived pixels features,  bounding boxes | [Getting started with images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb) |
 | Video  | In development  | [Github Issue #214](https://github.com/whylabs/whylogs/issues/214) |
 | Tensors | derived 1d features (more in developement) | [Github Issue #216](https://github.com/whylabs/whylogs/issues/216) |
