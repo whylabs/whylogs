@@ -166,6 +166,7 @@ whylogs is maintained by [WhyLabs](https://whylabs.ai).
 If you have any questions, comments, or just want to hang out with us, please join [our Slack channel](http://join.slack.whylabs.ai/).
 
 <img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
+
 ## Contribute
 
-We welcome contributions to whylogs. Please see our [developement guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
+We welcome contributions to whylogs. Please see our [contribution guide](https://github.com/whylabs/whylogs/blob/mainline/CONTRIBUTING.md) and our [developement guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
