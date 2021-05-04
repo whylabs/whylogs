@@ -414,6 +414,6 @@ def writer_from_config(config: WriterConfig):
     elif config.type == "whylabs":
         if config.data_collection_consent is not True:
             raise ValueError(f"Writer of type {config.type} requires data_collection_consent parameter to be set to True")
-        return WhyLabsWriter()
+        return WhyLabsWriter(config.output_path, config.formats)
     else:
         raise ValueError(f"Unknown writer type: {config.type}")
