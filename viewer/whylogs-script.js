@@ -1,8 +1,16 @@
 "use strict";
 
 (function () {
-  // NOTE: Update file path with you JSON data path
-  var JSON_URL = "./example/example-profile.json";
+  var MESSAGES = {
+    error: {
+      noInputElementFound: "It seems we could not find the file input element.",
+      noBrowserSupport: "This browser does not seem to support the `files` property of file inputs.",
+      noFileSelected: "Please select a file.",
+      fileAPINotSupported: "The file API is not supported on this browser yet.",
+      invalidJSONFile:
+        "It seems the JSON file you are trying to load is not valid due because it does not match whylogs format. Please check the file validity and try again.",
+    },
+  };
 
   // HTML Elements
   var $selectedProfile = $(".wl__selected-profile");
@@ -183,8 +191,8 @@
       }
 
       // Update other values
-      nullRatio = featureNameValues.nullRatio;
-      estUniqueVal = featureNameValues.nullRatio;
+      estUniqueVal = featureNameValues.uniqueCount ? fixNumberTo(featureNameValues.uniqueCount.estimate) : "-";
+      nullRatio = featureNameValues.schema.typeCounts.NULL ? featureNameValues.schema.typeCounts.NULL : "0";
       dataType = featureNameValues.schema.inferredType.type;
       dataTypeCount = featureNameValues.schema.typeCounts[dataType];
 
@@ -262,7 +270,6 @@
         var BORDER_WIDTH = 3;
 
         var svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
-        var tooltip = d3.select("body").append("div").attr("class", "wl-tooltip");
 
         // SVG FRAME
         svgEl
@@ -370,21 +377,21 @@
     }
   }
 
-  function loadFile(e) {
+  function loadFile() {
     var input, file, fr;
 
     if (typeof window.FileReader !== "function") {
-      alert("The file API isn't supported on this browser yet.");
+      $tableMessage.find("p").html(MESSAGES.error.fileAPINotSupported);
       return;
     }
 
     input = document.getElementById("file-input");
     if (!input) {
-      alert("Um, couldn't find the file input element.");
+      $tableMessage.find("p").html(MESSAGES.error.noInputElementFound);
     } else if (!input.files) {
-      alert("This browser doesn't seem to support the `files` property of file inputs.");
+      $tableMessage.find("p").html(MESSAGES.error.noBrowserSupport);
     } else if (!input.files[0]) {
-      alert("Please select a file before clicking the 'Load file' button.");
+      $tableMessage.find("p").html(MESSAGES.error.noFileSelected);
     } else {
       file = input.files[0];
       fr = new FileReader();
