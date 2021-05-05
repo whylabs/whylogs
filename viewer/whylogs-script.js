@@ -14,8 +14,6 @@
   var $tableBody = $(".wl__table-body");
   var $featureSearch = $("#wl__feature-search");
   var $featureFilterInput = $(".wl__feature-filter-input");
-  var $filesName = $("#file-input-name");
-  var $loadFileBtn = $("#file-input-load");
   var $jsonForm = $("#json-form");
   var $fileInput = $("#file-input");
   var $tableContent = $("#table-content");
@@ -371,8 +369,6 @@
   }
 
   function loadFile(e) {
-    e.preventDefault();
-
     var input, file, fr;
 
     if (typeof window.FileReader !== "function") {
@@ -405,20 +401,6 @@
     $tableContent.removeClass("d-none");
     renderList();
     $jsonForm.trigger("reset");
-    $filesName.addClass("d-none").find(".wl__josn-form-text-name").html("");
-    $loadFileBtn.addClass("d-none");
-  }
-
-  function handleFileInputChange(e) {
-    var files = e.target.files;
-
-    if (files.length) {
-      $filesName.removeClass("d-none").find(".wl__josn-form-text-name").html(files[0].name);
-      $loadFileBtn.removeClass("d-none");
-    } else {
-      $filesName.addClass("d-none").find(".wl__josn-form-text-name").html("");
-      $loadFileBtn.addClass("d-none");
-    }
   }
   // Load data from JSON file
   // $.getJSON(JSON_URL, updateHtmlElementValues).then(function () {
@@ -426,8 +408,7 @@
   // });
 
   // Bind event listeners
-  $jsonForm.on("submit", loadFile);
-  $fileInput.on("change", handleFileInputChange);
+  $fileInput.on("change", loadFile);
   // $(document).on("click", ".wl-table-row", openPropertyPanel);
   $(document).on("click", ".js-list-group-item span", scrollToFeatureName);
   $featureSearch.on(
