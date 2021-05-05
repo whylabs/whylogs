@@ -438,16 +438,3 @@ ul.nav li.list-group-item a {
   opacity: 0;
   visibility: hidden;
 }
-
-.wl__josn-form-text {
-  position: relative;
-  margin: 15px 0 0;
-  padding: 5px;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.wl__josn-form-text-default {
-  font-size: 12px;
-  color: var(--brandPrimary900);
-}
