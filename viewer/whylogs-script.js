@@ -65,9 +65,9 @@
   function getQuantileValues(data) {
     return {
       min: fixNumberTo(data[0]),
-      firstQuartile: fixNumberTo(data[3]),
+      firstQuantile: fixNumberTo(data[3]),
       median: fixNumberTo(data[4]),
-      thirdQuartile: fixNumberTo(data[5]),
+      thirdQuantile: fixNumberTo(data[5]),
       max: fixNumberTo(data[8]),
     };
   }
@@ -135,9 +135,9 @@
     var dataTypeCount = "";
     var quantiles = {
       min: "",
-      firstQuartile: "",
+      firstQuantile: "",
       median: "",
-      thirdQuartile: "",
+      thirdQuantile: "",
       max: "",
     };
     var mean = "";
@@ -173,9 +173,9 @@
         totalCount = "-";
         quantiles = {
           min: "-",
-          firstQuartile: "-",
+          firstQuantile: "-",
           median: "-",
-          thirdQuartile: "-",
+          thirdQuantile: "-",
           max: "-",
         };
         mean = "-";
@@ -334,7 +334,9 @@
         <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${mean}</div>
         <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${stddev}</div>
         <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.min}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.firstQuantile}</div>
         <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.median}</div>
+        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.thirdQuantile}</div>
         <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.max}</div>
       </li>
     `);
