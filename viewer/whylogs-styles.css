@@ -298,6 +298,7 @@ ul.nav li.list-group-item a {
 .wl-table-cell,
 .wl-table-head {
   border-right: 1px solid var(--brandSecondary200);
+  border-bottom: 1px solid var(--brandSecondary200);
   display: table-cell;
   padding: 10px 18px;
 }
