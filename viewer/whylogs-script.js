@@ -27,6 +27,9 @@
   var $tableContent = $("#table-content");
   var $tableMessage = $("#table-message");
   var $sidebarContent = $("#sidebar-content");
+  var $singleProfileWrap = $("#sidebar-content-single-profile");
+  var $multiProfileWrap = $("#sidebar-content-multi-profile");
+  var $profileDropdown = $("#sidebar-content-multi-profile-dropdown");
 
   // Constants and variables
   var batchArray = [];
@@ -34,6 +37,7 @@
   var isActiveInferredType = {};
   var frequentItems = [];
   var profiles = [];
+  var jsonData = {};
 
   // Util functions
   function debounce(func, wait, immediate) {
@@ -378,6 +382,22 @@
     }
   }
 
+  function renderProfileDropdown() {
+    $profileDropdown.html("");
+
+    for (var i = 0; i < profiles.length; i++) {
+      var option = `<option value="${profiles[i].value}"${i === 0 ? "selected" : ""}>${profiles[i].label}</option>`;
+      $profileDropdown.append(option);
+    }
+  }
+
+  function handleProfileChange(event) {
+    var value = event.target.value;
+
+    updateHtmlElementValues(jsonData[value]);
+    renderList();
+  }
+
   function updateTableMessage(message) {
     $tableMessage.find("p").html(message);
   }
@@ -465,13 +485,18 @@
 
   function receivedText(e) {
     var lines = e.target.result;
-    var newArr = JSON.parse(lines);
+    jsonData = JSON.parse(lines);
 
-    if (checkJSONValidityForMultiProfile(newArr)) {
-      profiles = collectProfilesFromJSON(newArr);
-      updateHtmlElementValues(Object.values(newArr)[0]);
-    } else if (checkJSONValidityForSingleProfile(newArr)) {
-      updateHtmlElementValues(newArr);
+    if (checkJSONValidityForMultiProfile(jsonData)) {
+      profiles = collectProfilesFromJSON(jsonData);
+      renderProfileDropdown();
+      updateHtmlElementValues(Object.values(jsonData)[0]);
+      $multiProfileWrap.removeClass("d-none");
+      $singleProfileWrap.addClass("d-none");
+    } else if (checkJSONValidityForSingleProfile(jsonData)) {
+      $multiProfileWrap.addClass("d-none");
+      $singleProfileWrap.removeClass("d-none");
+      updateHtmlElementValues(jsonData);
     } else {
       updateTableMessage(MESSAGES.error.invalidJSONFile);
       hideDataVisibility();
@@ -485,7 +510,7 @@
 
   // Bind event listeners
   $fileInput.on("change", loadFile);
-  // $(document).on("click", ".wl-table-row", openPropertyPanel);
+  $profileDropdown.on("change", handleProfileChange);
   $(document).on("click", ".js-list-group-item span", scrollToFeatureName);
   $featureSearch.on(
     "input",
