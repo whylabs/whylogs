@@ -373,6 +373,7 @@ ul.nav li.list-group-item a {
   display: flex;
   flex-flow: row nowrap;
   overflow: hidden;
+  flex-wrap: wrap;
 }
 .wl-table-cell__bedge {
   display: flex;
