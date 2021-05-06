@@ -33,6 +33,7 @@
   var featureSearchValue = "";
   var isActiveInferredType = {};
   var frequentItems = [];
+  var profiles = [];
 
   // Util functions
   function debounce(func, wait, immediate) {
@@ -377,21 +378,83 @@
     }
   }
 
+  function updateTableMessage(message) {
+    $tableMessage.find("p").html(message);
+  }
+
+  function collectProfilesFromJSON(data) {
+    return Object.keys(data).map(function (profile) {
+      return {
+        label: profile,
+        value: profile,
+      };
+    });
+  }
+
+  function compareArrays(array, target) {
+    if (array.length !== target.length) return false;
+
+    array.sort();
+    target.sort();
+
+    for (var i = 0; i < array.length; i++) {
+      if (array[i] !== target[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  function checkJSONValidityForSingleProfile(data) {
+    var VALID_KEY_NAMES = ["properties", "columns"];
+    var keys = Object.keys(data);
+
+    return keys.length === 2 && compareArrays(VALID_KEY_NAMES, keys);
+  }
+
+  function hasFalseValue(array) {
+    return array.some(function (obj) {
+      return checkJSONValidityForSingleProfile(obj) === false;
+    });
+  }
+
+  function checkJSONValidityForMultiProfile(data) {
+    var values = Object.values(data);
+
+    if (!values && !values.length) return false;
+    if (hasFalseValue(values)) return false;
+
+    return true;
+  }
+
+  function showDataVisibility() {
+    $tableMessage.addClass("d-none");
+    $sidebarContent.removeClass("d-none");
+    $tableContent.removeClass("d-none");
+  }
+
+  function hideDataVisibility() {
+    $tableMessage.removeClass("d-none");
+    $sidebarContent.addClass("d-none");
+    $tableContent.addClass("d-none");
+  }
+
   function loadFile() {
     var input, file, fr;
 
     if (typeof window.FileReader !== "function") {
-      $tableMessage.find("p").html(MESSAGES.error.fileAPINotSupported);
+      updateTableMessage(MESSAGES.error.fileAPINotSupported);
       return;
     }
 
     input = document.getElementById("file-input");
     if (!input) {
-      $tableMessage.find("p").html(MESSAGES.error.noInputElementFound);
+      updateTableMessage(MESSAGES.error.noInputElementFound);
     } else if (!input.files) {
-      $tableMessage.find("p").html(MESSAGES.error.noBrowserSupport);
+      updateTableMessage(MESSAGES.error.noBrowserSupport);
     } else if (!input.files[0]) {
-      $tableMessage.find("p").html(MESSAGES.error.noFileSelected);
+      updateTableMessage(MESSAGES.error.noFileSelected);
     } else {
       file = input.files[0];
       fr = new FileReader();
@@ -404,17 +467,21 @@
     var lines = e.target.result;
     var newArr = JSON.parse(lines);
 
-    updateHtmlElementValues(newArr);
-    $tableMessage.addClass("d-none");
-    $sidebarContent.removeClass("d-none");
-    $tableContent.removeClass("d-none");
+    if (checkJSONValidityForMultiProfile(newArr)) {
+      profiles = collectProfilesFromJSON(newArr);
+      updateHtmlElementValues(Object.values(newArr)[0]);
+    } else if (checkJSONValidityForSingleProfile(newArr)) {
+      updateHtmlElementValues(newArr);
+    } else {
+      updateTableMessage(MESSAGES.error.invalidJSONFile);
+      hideDataVisibility();
+      return;
+    }
+
     renderList();
+    showDataVisibility();
     $jsonForm.trigger("reset");
   }
-  // Load data from JSON file
-  // $.getJSON(JSON_URL, updateHtmlElementValues).then(function () {
-  //   renderList();
-  // });
 
   // Bind event listeners
   $fileInput.on("change", loadFile);
