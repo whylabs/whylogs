@@ -407,13 +407,9 @@ ul.nav li.list-group-item a {
 
 .wl-property-panel__title {
   font-size: 14px;
-  font-weight: 700;
-}
-
-.wl-property-panel__frequent-items {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  font-weight: bold;
+  font-family: "Asap", Arial, Helvetica, sans-serif;
+  line-height: 1.5;
 }
 
 .wl-property-panel__frequent-items span {
@@ -423,9 +419,8 @@ ul.nav li.list-group-item a {
 }
 
 .wl-property-panel__button {
-  position: absolute;
-  right: 15px;
-  top: 15px;
+  display: block;
+  margin-left: auto;
   padding: 5px;
   border: 1px solid var(--brandSecondary700);
   font-size: 14;
@@ -444,6 +439,29 @@ ul.nav li.list-group-item a {
   background-clip: padding-box;
   border: 1px solid #ced4da;
   border-radius: 0.25rem;
+}
+
+.wl-property-panel__table {
+  width: 100%;
+}
+
+.wl-property-panel__table-th {
+  border-top: 2px solid var(--brandSecondary400);
+  font-size: 13px;
+  font-family: "Asap", Arial, Helvetica, sans-serif;
+  font-weight: bold;
+}
+.wl-property-panel__table-th-profile {
+  text-align: right;
+}
+
+.wl-property-panel__table-td {
+  font-size: 13px;
+  font-family: "Asap", Arial, Helvetica, sans-serif;
+}
+
+.wl-property-panel__table-td-profile {
+  text-align: right;
 }
 
 /* Load JSON file form */
