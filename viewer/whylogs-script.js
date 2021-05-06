@@ -110,9 +110,17 @@
   function openPropertyPanel(chips) {
     if (chips.length && chips !== "undefined") {
       var chipString = "";
+      var chipElement = (item) => `<span class="wl-table-cell__bedge">${item}</span>`
+      var chipElementTableData = (item) => `<td class="wl-property-panel__table-td" >${chipElement(item)}</td>`
+      var chipElementEstimation = (num) => `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${num}</td>`
 
       chips.forEach((item) => {
-        chipString += '<span class="wl-table-cell__bedge">' + item + "</span>";
+        chipString += `
+        <tr>
+          ${chipElementTableData(item)}
+          ${chipElementEstimation(11)}
+        </tr>
+        `
       });
       $(".wl-property-panel__frequent-items").html(chipString);
       $(".wl-property-panel").addClass("wl-property-panel--open");
