@@ -110,9 +110,10 @@
   function openPropertyPanel(chips) {
     if (chips.length && chips !== "undefined") {
       var chipString = "";
-      var chipElement = (item) => `<span class="wl-table-cell__bedge">${item}</span>`
-      var chipElementTableData = (item) => `<td class="wl-property-panel__table-td" >${chipElement(item)}</td>`
-      var chipElementEstimation = (num) => `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${num}</td>`
+      var chipElement = (item) => `<span class="wl-table-cell__bedge">${item}</span>`;
+      var chipElementTableData = (item) => `<td class="wl-property-panel__table-td" >${chipElement(item)}</td>`;
+      var chipElementEstimation = (num) =>
+        `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${num}</td>`;
 
       chips.forEach((item) => {
         chipString += `
@@ -120,7 +121,7 @@
           ${chipElementTableData(item)}
           ${chipElementEstimation(11)}
         </tr>
-        `
+        `;
       });
       $(".wl-property-panel__frequent-items").html(chipString);
       $(".wl-property-panel").addClass("wl-property-panel--open");
@@ -274,7 +275,7 @@
           BOTTOM: 5,
           LEFT: 55,
         };
-        var SVG_WIDTH = 250;
+        var SVG_WIDTH = 350;
         var SVG_HEIGHT = 140;
         var CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
         var CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
@@ -335,9 +336,13 @@
       }
 
       var $tableRow = $(`
-      <li class="wl-table-row" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none;">
+      <li class="wl-table-row${
+        inferredType.toLowerCase() === "discrete" ? " wl-table-row--clickable" : ""
+      }" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none;">
         <div class="wl-table-cell">
-          <h4 class="wl-table-cell__title">${featureName}</h4>
+          <div class="wl-table-cell__title-wrap">
+            <h4 class="wl-table-cell__title">${featureName}</h4>
+          </div>
           <div class="wl-table-cell__graph-wrap">${getGraphHtml(chartData)}</div>
         </div>
         <div class="wl-table-cell wl-table-cell--top-spacing align-middle" style="max-width: 270px">
@@ -361,7 +366,12 @@
       </li>
     `);
 
-      $tableRow.on("click", openPropertyPanel.bind(this, frequentItems));
+      if (inferredType.toLowerCase() === "discrete") {
+        var $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
+
+        $tableRowButton.on("click", openPropertyPanel.bind(this, frequentItems));
+        $tableRow.find(".wl-table-cell__title-wrap").append($tableRowButton);
+      }
       // Update data table rows/columns
       $tableBody.append($tableRow);
     }
