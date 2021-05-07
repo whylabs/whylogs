@@ -107,19 +107,19 @@
     );
   }
 
-  function openPropertyPanel(chips) {
-    if (chips.length && chips !== "undefined") {
+  function openPropertyPanel(items) {
+    if (items.length > 0 && items !== "undefined") {
       var chipString = "";
-      var chipElement = (item) => `<span class="wl-table-cell__bedge">${item}</span>`;
-      var chipElementTableData = (item) => `<td class="wl-property-panel__table-td" >${chipElement(item)}</td>`;
-      var chipElementEstimation = (num) =>
-        `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${num}</td>`;
+      var chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
+      var chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
+      var chipElementEstimation = (count) =>
+        `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
 
-      chips.forEach((item) => {
+      items.forEach((item) => {
         chipString += `
-        <tr>
-          ${chipElementTableData(item)}
-          ${chipElementEstimation(11)}
+        <tr class="wl-property-panel__table-tr">
+          ${chipElementTableData(item.jsonValue)}
+          ${chipElementEstimation(item.estimate)}
         </tr>
         `;
       });
@@ -225,10 +225,7 @@
         });
 
         // Frequent item chips / bedge
-        frequentItems = featureNameValues.frequentItems.items.reduce((acc, item) => {
-          acc.push(item.jsonValue);
-          return acc;
-        }, []);
+        frequentItems = featureNameValues.frequentItems.items;
 
         var slicedFrequentItems = featureNameValues.frequentItems.items.slice(0, 5);
         for (var fi = 0; fi < slicedFrequentItems.length; fi++) {
