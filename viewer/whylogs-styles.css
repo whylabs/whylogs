@@ -441,13 +441,6 @@ a .wl-table-row--bottom-shadow {
 .sidebar-content__profile-dropdown {
   display: block;
   width: 100%;
-  padding: 5px;
-  font-size: 13px;
-  color: var(--secondaryLight1000);
-  background-color: var(--white);
-  border: 1px solid rgba(var(--black), 0.3);
-  border-radius: 0.3px;
-
   /* for Firefox */
   -moz-appearance: none;
   /* for Chrome */
@@ -474,8 +467,8 @@ a .wl-table-row--bottom-shadow {
 
 .sidebar-content__profile-dropdown-chevron {
   position: absolute;
-  bottom: 2px;
-  right: 0;
+  bottom: 7px;
+  right: 5px;
 }
 
 .wl-property-panel__table {
