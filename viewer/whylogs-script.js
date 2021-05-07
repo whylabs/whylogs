@@ -285,17 +285,6 @@
 
         var svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
 
-        // SVG FRAME
-        svgEl
-          .append("rect")
-          .attr("x", 0)
-          .attr("y", 0)
-          .attr("height", SVG_HEIGHT)
-          .attr("width", SVG_WIDTH)
-          .style("stroke", SECONDARY_COLOR_HEX)
-          .style("fill", "none")
-          .style("stroke-width", BORDER_WIDTH);
-
         var maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
 
         var xScale = d3
@@ -306,12 +295,6 @@
           .scaleLinear()
           .domain([0, maxYValue * 1.02]) // so that chart's height has 10§2% height of the maximum value
           .range([CHART_HEIGHT, 0]);
-
-        // Add the x Axis
-        // svgEl
-        //   .append("g")
-        //   .attr("transform", "translate(" + 0 + ", " + (CHART_HEIGHT + MARGIN.TOP) + ")")
-        //   .call(d3.axisBottom(xScale));
 
         // Add the y Axis
         svgEl
