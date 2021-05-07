@@ -30,12 +30,14 @@
   var $singleProfileWrap = $("#sidebar-content-single-profile");
   var $multiProfileWrap = $("#sidebar-content-multi-profile");
   var $profileDropdown = $("#sidebar-content-multi-profile-dropdown");
+  var $propertyPanelTitle = $(".wl-property-panel__title");
+  var $propertyPanelProfileName = $(".wl-property-panel__table-th-profile");
 
   // Constants and variables
   var batchArray = [];
   var featureSearchValue = "";
   var isActiveInferredType = {};
-  var frequentItems = [];
+  var propertyPanelData = [];
   var profiles = [];
   var jsonData = {};
 
@@ -107,7 +109,7 @@
     );
   }
 
-  function openPropertyPanel(items) {
+  function openPropertyPanel(items, infType) {
     if (items.length > 0 && items !== "undefined") {
       var chipString = "";
       var chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
@@ -118,12 +120,20 @@
       items.forEach((item) => {
         chipString += `
         <tr class="wl-property-panel__table-tr">
-          ${chipElementTableData(item.jsonValue)}
-          ${chipElementEstimation(item.estimate)}
+          ${chipElementTableData(item.value)}
+          ${chipElementEstimation(item.count)}
         </tr>
         `;
       });
       $(".wl-property-panel__frequent-items").html(chipString);
+      if (infType === "non-discrete") {
+        $propertyPanelTitle.html("Histogram data:");
+        $propertyPanelProfileName.html("Bin values");
+      } else if (infType === "discrete") {
+        $propertyPanelTitle.html("Frequent items:");
+        $propertyPanelProfileName.html("Counts");
+      }
+
       $(".wl-property-panel").addClass("wl-property-panel--open");
       $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
     }
@@ -212,9 +222,9 @@
 
       // Collect frequent items
       if (
+        inferredType === "Discrete" &&
         featureNameValues.frequentItems &&
-        featureNameValues.frequentItems.items.length &&
-        inferredType === "Discrete"
+        featureNameValues.frequentItems.items.length
       ) {
         // Chart
         featureNameValues.frequentItems.items.forEach(function (item, index) {
@@ -225,7 +235,13 @@
         });
 
         // Frequent item chips / bedge
-        frequentItems = featureNameValues.frequentItems.items;
+        propertyPanelData = featureNameValues.frequentItems.items.reduce((acc, item) => {
+          acc.push({
+            value: item.jsonValue,
+            count: item.estimate,
+          });
+          return acc;
+        }, []);
 
         var slicedFrequentItems = featureNameValues.frequentItems.items.slice(0, 5);
         for (var fi = 0; fi < slicedFrequentItems.length; fi++) {
@@ -236,6 +252,15 @@
         if (inferredType === "Non-discrete") {
           // Chart
           if (featureNameValues.numberSummary) {
+            // Histogram chips / bedge
+            propertyPanelData = featureNameValues.numberSummary.histogram.counts.reduce((acc, value, index) => {
+              acc.push({
+                value: value,
+                count: featureNameValues.numberSummary.histogram.bins[index],
+              });
+              return acc;
+            }, []);
+
             featureNameValues.numberSummary.histogram.counts.slice(0, 30).forEach(function (count, index) {
               chartData.push({
                 axisY: count,
@@ -245,12 +270,11 @@
           }
 
           // Frequent item chips / bedge
-          frequentItemsElemString = "No data shown";
-          frequentItems = [];
+          frequentItemsElemString = "No data to show";
         } else {
           frequentItemsElemString = "-";
           chartData = [];
-          frequentItems = [];
+          propertyPanelData = [];
         }
       }
 
@@ -277,8 +301,6 @@
         var CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
         var CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
         var PRIMARY_COLOR_HEX = "#0e7384";
-        var SECONDARY_COLOR_HEX = "#ebf2f3";
-        var BORDER_WIDTH = 3;
 
         var svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
 
@@ -317,7 +339,7 @@
 
       var $tableRow = $(`
       <li class="wl-table-row${
-        inferredType.toLowerCase() === "discrete" ? " wl-table-row--clickable" : ""
+        inferredType.toLowerCase() !== "unknown" ? " wl-table-row--clickable" : ""
       }" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none;">
         <div class="wl-table-cell">
           <div class="wl-table-cell__title-wrap">
@@ -346,12 +368,9 @@
       </li>
     `);
 
-      if (inferredType.toLowerCase() === "discrete") {
-        var $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
-
-        $tableRowButton.on("click", openPropertyPanel.bind(this, frequentItems));
-        $tableRow.find(".wl-table-cell__title-wrap").append($tableRowButton);
-      }
+      var $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
+      $tableRowButton.on("click", openPropertyPanel.bind(this, propertyPanelData, inferredType.toLowerCase()));
+      $tableRow.find(".wl-table-cell__title-wrap").append($tableRowButton);
       // Update data table rows/columns
       $tableBody.append($tableRow);
     }

@@ -68,10 +68,6 @@
   color: var(--secondaryLight1000);
 }
 
-/* body {
-  padding-top: 48px;
-} */
-
 /* Hide for mobile, show later */
 .sidebar {
   display: none;
@@ -379,15 +375,16 @@ a .wl-table-row--bottom-shadow {
   flex-flow: row nowrap;
   overflow: hidden;
   flex-wrap: wrap;
+  font-style: italic;
+  color: var(--brandSecondary400);
 }
 .wl-table-cell__bedge {
-  /* display: flex;
-  align-items: center;
-  justify-content: center; */
   height: 24px;
   margin: 1px;
   padding: 2px 8px;
   border: 1px solid var(--brandSecondary400);
+  font-style: normal;
+  color: var(--brandSecondary900);
   border-radius: 20px;
   white-space: nowrap;
 }
