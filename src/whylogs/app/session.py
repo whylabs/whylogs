@@ -87,6 +87,7 @@ class Session:
         cache_size: int = None,
         report_progress: bool = False,
     ):
+        self._py_logger = _getLogger(__name__)
         if writers is None:
             writers = []
         self.project = project
@@ -148,14 +149,17 @@ class Session:
         Create a new logger or return an existing one for a given dataset name.
         If no dataset_name is specified, we default to project name
 
-        Parameters
-        ----------
-        args: _LoggerKey
-            The properties of the logger if they're anything but the defaults.
-        Returns
-        -------
-        ylog : whylogs.app.logger.Logger
-            whylogs logger
+        Args:
+            dataset_name: name of the dataset
+            dataset_timestamp: timestamp of the dataset. Default to now
+            session_timestamp: timestamp of the session. Inherits from the session
+            tags: metadata associated with the profile
+            metadata: same as tags. Will be deprecated
+            segments: slice of data that the profile belongs to
+            profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
+            with_rotation_time: rotation time in minutes our hours ("1m", "1h")
+            cache_size: size of the segment cache
+            constraints: whylogs contrainst to monitor against
         """
         if not self._active:
             raise RuntimeError("Session is already closed. Cannot create more loggers")
@@ -176,7 +180,7 @@ class Session:
         )
         logger = self._loggers.get(logger_key)
 
-        if logger is None:
+        if logger is None or not logger.is_active():
             logger = Logger(
                 session_id=self._session_id,
                 dataset_name=dataset_name or self.project,
@@ -325,7 +329,7 @@ class Session:
         Deactivate this session and flush all associated loggers
         """
         if not self._active:
-            print("WARNING: attempting to close an inactive session")
+            self._py_logger.warning("attempting to close an inactive session")
             return
 
         self._active = False
@@ -337,11 +341,15 @@ class Session:
                     logger.close()
                 self.remove_logger(key)
 
+        for w in self.writers:
+            w.close()
+
         if self.use_whylabs_writer:
             from whylogs.whylabs_client.wrapper import end_session
 
             url = end_session()
-            print(f"You can explore your data in Observatory here: {url}")
+            if url:
+                print(f"You can explore your data in the WhyLabs Platform here: {url}")
 
     def remove_logger(self, dataset_name: str):
         """

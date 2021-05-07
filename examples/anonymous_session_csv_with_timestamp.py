@@ -21,7 +21,8 @@ grouped_data = csv_dataframe.groupby(["Calendar_Week"])
 
 # Create a WhyLabs logging session
 # Note: data collection consent must be explicitly provided since we'll be uploading profiles to WhyLabs.
-with start_whylabs_session(data_collection_consent=True) as session, tqdm(grouped_data) as t:
+# report_progress prints progress bars while uploading profiles. You may want to set it to False in hosted environments
+with start_whylabs_session(data_collection_consent=True, report_progress=True) as session, tqdm(grouped_data) as t:
     # Group each of the rows by the day they occur on using the date string in the Calendar_Week col
     for day_string, dataframe_for_day in t:
         # This dataset has dates of the form 9/5/2020

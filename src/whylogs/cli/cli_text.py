@@ -57,7 +57,7 @@ PROFILE_OVERRIDE_CONFIRM = "Profile path already exists. This will override exis
 DATA_WILL_BE_OVERRIDDEN = "Previous profile data will be overridden"
 
 OBSERVATORY_EXPLANATION = (
-    "WhyLabs Observatory can visualize your statistics. This will require the CLI to upload \n"
+    "WhyLabs Platform can visualize your statistics. This will require the CLI to upload \n"
     "your statistics to WhyLabs endpoint. Your original data (CSV file) will remain locally."
 )
 

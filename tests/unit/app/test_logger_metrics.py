@@ -6,7 +6,7 @@ from whylogs.app.session import session_from_config
 
 def test_log_metrics(tmpdir):
     output_path = tmpdir.mkdir("whylogs")
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
@@ -20,7 +20,6 @@ def test_log_metrics(tmpdir):
     scores = [0.2, 0.5, 0.6]
     num_labels = 3
     with session.logger("metrics_test") as logger:
-
         logger.log_metrics(targets, predictions, scores)
 
         profile = logger.profile
@@ -28,4 +27,4 @@ def test_log_metrics(tmpdir):
 
         assert metrics_profile is not None
         assert len(metrics_profile.metrics.confusion_matrix.labels) == num_labels
-    shutil.rmtree(output_path)
+    shutil.rmtree(output_path, ignore_errors=True)
