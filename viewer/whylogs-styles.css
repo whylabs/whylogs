@@ -2,6 +2,7 @@
   /* CONSTANTS */
   --SIDE-PANEL-WIDTH: 320px;
   --PROPERTY-PANEL-WIDTH: 420px;
+
   /* COLOR VARIABLES */
   /** Standard colors */
   --red: #d11010;
@@ -303,7 +304,7 @@ a .wl-table-row--bottom-shadow {
   border-right: 1px solid var(--brandSecondary200);
   border-bottom: 1px solid var(--brandSecondary200);
   display: table-cell;
-  padding: 12px 18px;
+  padding: 12px 4px 12px 18px;
 }
 
 .wl-table-cell {
@@ -324,18 +325,6 @@ a .wl-table-row--bottom-shadow {
   line-height: 1.67;
   white-space: nowrap;
 }
-
-/* Hide table-head box-shadow */
-/* .wl-table-head::before {
-  content: "";
-  position: absolute;
-  z-index: 100;
-  top: 0;
-  left: -20px;
-  width: 18px;
-  height: 40px;
-  background-color: var(--white);
-} */
 
 .wl-table-body {
   display: table-row-group;
@@ -384,15 +373,6 @@ a .wl-table-row--bottom-shadow {
 .wl-table-cell__title-button:hover {
   background-color: var(--brandSecondary100);
 }
-
-/* .wl-table-cell__graph-wrap {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 700;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-} */
 
 .wl-table-cell__bedge-wrap {
   display: flex;
