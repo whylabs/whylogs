@@ -8,7 +8,7 @@
       noFileSelected: "Please select a file.",
       fileAPINotSupported: "The file API is not supported on this browser yet.",
       invalidJSONFile:
-        "It seems the JSON file you are trying to load is not valid due because it does not match whylogs format. Please check the file validity and try again.",
+        "The JSON file you are trying to load does not match the expected whylogs format. Please check the file and try again.",
     },
   };
 
@@ -100,7 +100,6 @@
     var currentOffsetTop = $tableWrap.scrollTop();
     var offsetTop = $('[data-feature-name="' + featureNameId + '"]').offset().top;
 
-    // $tableWrap.scrollTop(currentOffsetTop + offsetTop - TABLE_HEADER_OFFSET);
     $tableWrap.animate(
       {
         scrollTop: currentOffsetTop + offsetTop - TABLE_HEADER_OFFSET,
