@@ -530,6 +530,10 @@ a .wl-table-row--bottom-shadow {
   display: none;
 }
 
+.sidebar-content__profile-dropdown:read-only {
+  background-color: var(--white);
+}
+
 .sidebar-content__profile-dropdown-bar {
   width: 5px;
   margin-right: 5px;
