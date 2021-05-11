@@ -1,7 +1,7 @@
 "use strict";
 
 (function () {
-  var MESSAGES = {
+  const MESSAGES = {
     error: {
       noInputElementFound: "It seems we could not find the file input element.",
       noBrowserSupport: "This browser does not seem to support the `files` property of file inputs.",
@@ -13,45 +13,47 @@
   };
 
   // HTML Elements
-  var $selectedProfile = $(".wl__selected-profile");
-  var $featureCount = $(".wl__feature-count");
-  var $sidebarFeatureNameList = $(".wl__sidebar-feature-name-list");
-  var $featureCountDiscrete = $(".wl__feature-count--discrete");
-  var $featureCountNonDiscrete = $(".wl__feature-count--non-discrete");
-  var $featureCountUnknown = $(".wl__feature-count--unknown");
-  var $tableBody = $(".wl__table-body");
-  var $featureSearch = $("#wl__feature-search");
-  var $featureFilterInput = $(".wl__feature-filter-input");
-  var $jsonForm = $("#json-form");
-  var $fileInput = $("#file-input");
-  var $tableContent = $("#table-content");
-  var $tableMessage = $("#table-message");
-  var $sidebarContent = $("#sidebar-content");
-  var $singleProfileWrap = $("#sidebar-content-single-profile");
-  var $multiProfileWrap = $("#sidebar-content-multi-profile");
-  var $profileDropdown = $("#sidebar-content-multi-profile-dropdown");
-  var $propertyPanelTitle = $(".wl-property-panel__title");
-  var $propertyPanelProfileName = $(".wl-property-panel__table-th-profile");
+  const $selectedProfile = $(".wl__selected-profile");
+  const $featureCount = $(".wl__feature-count");
+  const $sidebarFeatureNameList = $(".wl__sidebar-feature-name-list");
+  const $featureCountDiscrete = $(".wl__feature-count--discrete");
+  const $featureCountNonDiscrete = $(".wl__feature-count--non-discrete");
+  const $featureCountUnknown = $(".wl__feature-count--unknown");
+  const $tableBody = $(".wl__table-body");
+  const $featureSearch = $("#wl__feature-search");
+  const $featureFilterInput = $(".wl__feature-filter-input");
+  const $jsonForm = $("#json-form");
+  const $fileInput = $("#file-input");
+  const $tableContent = $("#table-content");
+  const $tableMessage = $("#table-message");
+  const $sidebarContent = $("#sidebar-content");
+  const $singleProfileWrap = $("#sidebar-content-single-profile");
+  const $multiProfileWrap = $("#sidebar-content-multi-profile");
+  const $profileDropdown = $("#sidebar-content-multi-profile-dropdown");
+  const $propertyPanelTitle = $(".wl-property-panel__title");
+  const $propertyPanelProfileName = $(".wl-property-panel__table-th-profile");
 
   // Constants and variables
-  var batchArray = [];
-  var featureSearchValue = "";
-  var isActiveInferredType = {};
-  var propertyPanelData = [];
-  var profiles = [];
-  var jsonData = {};
+  let batchArray = [];
+  let featureSearchValue = "";
+  const isActiveInferredType = {};
+  let propertyPanelData = [];
+  let profiles = [];
+  let jsonData = {};
 
   // Util functions
   function debounce(func, wait, immediate) {
-    var timeout;
+    let timeout;
+
     return function () {
-      var context = this,
-        args = arguments;
-      var later = function () {
+      const context = this;
+      const args = arguments;
+      const later = function () {
         timeout = null;
         if (!immediate) func.apply(context, args);
       };
-      var callNow = immediate && !timeout;
+
+      const callNow = immediate && !timeout;
       clearTimeout(timeout);
       timeout = setTimeout(later, wait);
       if (callNow) func.apply(context, args);
@@ -59,11 +61,11 @@
   }
 
   function handleSearch() {
-    var tableBodyChildrens = $tableBody.children();
+    const tableBodyChildrens = $tableBody.children();
 
-    for (var i = 0; i < tableBodyChildrens.length; i++) {
-      var name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
-      var type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
+    for (let i = 0; i < tableBodyChildrens.length; i++) {
+      const name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
+      const type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
 
       if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
         tableBodyChildrens[i].style.display = "";
@@ -94,11 +96,11 @@
   }
 
   function scrollToFeatureName(event) {
-    var TABLE_HEADER_OFFSET = 90;
-    var $tableWrap = $(".wl-table-wrap");
-    var featureNameId = event.currentTarget.dataset.featureNameId;
-    var currentOffsetTop = $tableWrap.scrollTop();
-    var offsetTop = $('[data-feature-name="' + featureNameId + '"]').offset().top;
+    const TABLE_HEADER_OFFSET = 90;
+    const $tableWrap = $(".wl-table-wrap");
+    const featureNameId = event.currentTarget.dataset.featureNameId;
+    const currentOffsetTop = $tableWrap.scrollTop();
+    const offsetTop = $('[data-feature-name="' + featureNameId + '"]').offset().top;
 
     $tableWrap.animate(
       {
@@ -110,10 +112,10 @@
 
   function openPropertyPanel(items, infType) {
     if (items.length > 0 && items !== "undefined") {
-      var chipString = "";
-      var chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
-      var chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
-      var chipElementEstimation = (count) =>
+      let chipString = "";
+      const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
+      const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
+      const chipElementEstimation = (count) =>
         `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
 
       items.forEach((item) => {
@@ -146,39 +148,39 @@
 
   // Override and populate HTML element values
   function updateHtmlElementValues(data) {
-    var properties = data.properties;
-    var columns = data.columns;
+    const properties = data.properties;
+    const columns = data.columns;
     batchArray = Object.entries(columns);
     $tableBody.html("");
     $sidebarFeatureNameList.html("");
 
-    var featureList = [];
-    var inferredFeatureType = {
+    const featureList = [];
+    const inferredFeatureType = {
       discrete: [],
       nonDiscrete: [],
       unknown: [],
     };
-    var totalCount = "";
-    var inferredType = "";
-    var nullRatio = "";
-    var estUniqueVal = "";
-    var dataType = "";
-    var dataTypeCount = "";
-    var quantiles = {
+    let totalCount = "";
+    let inferredType = "";
+    let nullRatio = "";
+    let estUniqueVal = "";
+    let dataType = "";
+    let dataTypeCount = "";
+    let quantiles = {
       min: "",
       firstQuantile: "",
       median: "",
       thirdQuantile: "",
       max: "",
     };
-    var mean = "";
-    var stddev = "";
+    let mean = "";
+    let stddev = "";
 
-    for (var i = 0; i < batchArray.length; i++) {
-      var featureName = batchArray[i][0];
-      var featureNameValues = batchArray[i][1];
-      var frequentItemsElemString = "";
-      var chartData = [];
+    for (let i = 0; i < batchArray.length; i++) {
+      const featureName = batchArray[i][0];
+      const featureNameValues = batchArray[i][1];
+      let frequentItemsElemString = "";
+      let chartData = [];
 
       // Collect all feature names into one array
       featureList.push(featureName);
@@ -226,7 +228,7 @@
         featureNameValues.frequentItems.items.length
       ) {
         // Chart
-        featureNameValues.frequentItems.items.forEach(function (item, index) {
+        featureNameValues.frequentItems.items.forEach((item, index) => {
           chartData.push({
             axisY: item.estimate,
             axisX: index,
@@ -242,8 +244,8 @@
           return acc;
         }, []);
 
-        var slicedFrequentItems = featureNameValues.frequentItems.items.slice(0, 5);
-        for (var fi = 0; fi < slicedFrequentItems.length; fi++) {
+        const slicedFrequentItems = featureNameValues.frequentItems.items.slice(0, 5);
+        for (let fi = 0; fi < slicedFrequentItems.length; fi++) {
           frequentItemsElemString +=
             '<span class="wl-table-cell__bedge">' + slicedFrequentItems[fi].jsonValue + "</span>";
         }
@@ -260,7 +262,7 @@
               return acc;
             }, []);
 
-            featureNameValues.numberSummary.histogram.counts.slice(0, 30).forEach(function (count, index) {
+            featureNameValues.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
               chartData.push({
                 axisY: count,
                 axisX: index,
@@ -279,37 +281,33 @@
 
       // Update sidebar HTML feature name list
       $sidebarFeatureNameList.append(
-        '<li class="list-group-item js-list-group-item"><span data-feature-name-id="' +
-          featureName +
-          '">' +
-          featureName +
-          "</span></li>",
+        `<li class="list-group-item js-list-group-item"><span data-feature-name-id="${featureName}">${featureName}</span></li>`,
       );
 
       function getGraphHtml(data) {
         if (!data.length) return "";
 
-        var MARGIN = {
+        const MARGIN = {
           TOP: 5,
           RIGHT: 5,
           BOTTOM: 5,
           LEFT: 55,
         };
-        var SVG_WIDTH = 350;
-        var SVG_HEIGHT = 140;
-        var CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
-        var CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
-        var PRIMARY_COLOR_HEX = "#0e7384";
+        const SVG_WIDTH = 350;
+        const SVG_HEIGHT = 140;
+        const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
+        const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
+        const PRIMARY_COLOR_HEX = "#0e7384";
 
-        var svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
+        const svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
 
-        var maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+        const maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
 
-        var xScale = d3
+        const xScale = d3
           .scaleBand()
           .domain(data.map((d) => d.axisX))
           .range([MARGIN.LEFT, MARGIN.LEFT + CHART_WIDTH]);
-        var yScale = d3
+        const yScale = d3
           .scaleLinear()
           .domain([0, maxYValue * 1.02]) // so that chart's height has 10§2% height of the maximum value
           .range([CHART_HEIGHT, 0]);
@@ -320,7 +318,7 @@
           .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
           .call(d3.axisLeft(yScale).ticks(5));
 
-        var gChart = svgEl.append("g");
+        const gChart = svgEl.append("g");
         gChart
           .selectAll(".bar")
           .data(data)
@@ -336,7 +334,7 @@
         return svgEl._groups[0][0].outerHTML;
       }
 
-      var $tableRow = $(`
+      const $tableRow = $(`
       <li class="wl-table-row${
         inferredType.toLowerCase() !== "unknown" ? " wl-table-row--clickable" : ""
       }" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none;">
@@ -367,7 +365,7 @@
       </li>
     `);
 
-      var $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
+      const $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
       $tableRowButton.on("click", openPropertyPanel.bind(this, propertyPanelData, inferredType.toLowerCase()));
       $tableRow.find(".wl-table-cell__title-wrap").append($tableRowButton);
       // Update data table rows/columns
@@ -382,15 +380,15 @@
   }
 
   function renderList() {
-    var tableBodyChildrens = $tableBody.children();
+    const tableBodyChildrens = $tableBody.children();
 
-    $.each($featureFilterInput, function (_, filterInput) {
+    $.each($featureFilterInput, (_, filterInput) => {
       isActiveInferredType[filterInput.value.toLowerCase()] = filterInput.checked;
     });
 
-    for (var i = 0; i < tableBodyChildrens.length; i++) {
-      var name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
-      var type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
+    for (let i = 0; i < tableBodyChildrens.length; i++) {
+      const name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
+      const type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
 
       if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
         tableBodyChildrens[i].style.display = "";
@@ -401,14 +399,14 @@
   function renderProfileDropdown() {
     $profileDropdown.html("");
 
-    for (var i = 0; i < profiles.length; i++) {
-      var option = `<option value="${profiles[i].value}"${i === 0 ? "selected" : ""}>${profiles[i].label}</option>`;
+    for (let i = 0; i < profiles.length; i++) {
+      const option = `<option value="${profiles[i].value}"${i === 0 ? "selected" : ""}>${profiles[i].label}</option>`;
       $profileDropdown.append(option);
     }
   }
 
   function handleProfileChange(event) {
-    var value = event.target.value;
+    const value = event.target.value;
 
     updateHtmlElementValues(jsonData[value]);
     renderList();
@@ -419,12 +417,10 @@
   }
 
   function collectProfilesFromJSON(data) {
-    return Object.keys(data).map(function (profile) {
-      return {
-        label: profile,
-        value: profile,
-      };
-    });
+    return Object.keys(data).map((profile) => ({
+      label: profile,
+      value: profile,
+    }));
   }
 
   function compareArrays(array, target) {
@@ -433,7 +429,7 @@
     array.sort();
     target.sort();
 
-    for (var i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) {
       if (array[i] !== target[i]) {
         return false;
       }
@@ -443,20 +439,18 @@
   }
 
   function checkJSONValidityForSingleProfile(data) {
-    var VALID_KEY_NAMES = ["properties", "columns"];
-    var keys = Object.keys(data);
+    const VALID_KEY_NAMES = ["properties", "columns"];
+    const keys = Object.keys(data);
 
     return keys.length === 2 && compareArrays(VALID_KEY_NAMES, keys);
   }
 
   function hasFalseValue(array) {
-    return array.some(function (obj) {
-      return checkJSONValidityForSingleProfile(obj) === false;
-    });
+    return array.some((obj) => checkJSONValidityForSingleProfile(obj) === false);
   }
 
   function checkJSONValidityForMultiProfile(data) {
-    var values = Object.values(data);
+    const values = Object.values(data);
 
     if (!values && !values.length) return false;
     if (hasFalseValue(values)) return false;
@@ -477,14 +471,12 @@
   }
 
   function loadFile() {
-    var input, file, fr;
-
     if (typeof window.FileReader !== "function") {
       updateTableMessage(MESSAGES.error.fileAPINotSupported);
       return;
     }
 
-    input = document.getElementById("file-input");
+    const input = document.getElementById("file-input");
     if (!input) {
       updateTableMessage(MESSAGES.error.noInputElementFound);
     } else if (!input.files) {
@@ -492,15 +484,15 @@
     } else if (!input.files[0]) {
       updateTableMessage(MESSAGES.error.noFileSelected);
     } else {
-      file = input.files[0];
-      fr = new FileReader();
+      const file = input.files[0];
+      const fr = new FileReader();
       fr.onload = receivedText;
       fr.readAsText(file);
     }
   }
 
   function receivedText(e) {
-    var lines = e.target.result;
+    const lines = e.target.result;
     jsonData = JSON.parse(lines);
 
     if (checkJSONValidityForMultiProfile(jsonData)) {
@@ -530,14 +522,14 @@
   $(document).on("click", ".js-list-group-item span", scrollToFeatureName);
   $featureSearch.on(
     "input",
-    debounce(function (event) {
+    debounce((event) => {
       featureSearchValue = event.target.value.toLowerCase();
       handleSearch();
     }, 300),
   );
-  $featureFilterInput.on("change", function (event) {
-    var filterType = event.target.value.toLowerCase();
-    var isChecked = event.target.checked;
+  $featureFilterInput.on("change", (event) => {
+    const filterType = event.target.value.toLowerCase();
+    const isChecked = event.target.checked;
 
     isActiveInferredType[filterType] = isChecked;
     handleSearch();
