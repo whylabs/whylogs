@@ -90,6 +90,34 @@ with session.logger(dataset_name="my_dataset") as logger:
     #images
     logger.log_images("path/to/image.png")
 ```
+
+To view your logger profiles you can use, methods within `whylogs.viz` or open a profile viewer using the following command
+
+```python
+test_profile = logger.profile()
+
+vizualization = ProfileVisualizer()
+vizualization.set_profiles([test_profile])
+figure= my_ viz.plot_distribution("<feature_name>")
+figure.savefig("/my/image/path.png")
+```
+
+You can also load a local html viewer, where you upload the `json` summary file. The default path for the json files is located at `output/{dataset_name}/{session_id}/json/dataset_profile.json`. 
+
+```python
+from whylogs.viz import profile_viewer
+profile_viewer()
+```
+This will load the profile viewer loader, using the `Select JSON profile`
+![viewer_preload](images/html_viewer.png)
+
+Once the json is selected you can view your profile feature name and statistics.
+
+![viewer_loaded](images/html_viewer_loaded.png)
+
+
+This will open a viewer on your default browser where you can load a profile json summary
+
 whyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
 
 - Simple counters: boolean, null values, data types.
@@ -99,6 +127,7 @@ whyLogs collects approximate statistics and sketches of data on a column-basis i
 - Top frequent items (default is 128). Note that this configuration affects the memory footprint, especially for text features.
 
 Check the examples below for visualization and other use cases
+
 
 <img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 ## Documentation 
