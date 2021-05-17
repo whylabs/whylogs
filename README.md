@@ -94,12 +94,17 @@ with session.logger(dataset_name="my_dataset") as logger:
 To view your logger profiles you can use, methods within `whylogs.viz` or open a profile viewer using the following command
 
 ```python
-test_profile = logger.profile()
-
 vizualization = ProfileVisualizer()
-vizualization.set_profiles([test_profile])
+vizualization.set_profiles([profile_day_1, profile_day_2])
 figure= my_ viz.plot_distribution("<feature_name>")
 figure.savefig("/my/image/path.png")
+```
+
+Individual profile are saved to disk, AWS S3, or WhyLabs API, automatically when loggers are closed, per the configuration found in the Session configuration.
+
+Current active loggers can be loaded from memory with:
+```
+test_profile = logger.profile()
 ```
 
 You can also load a local html viewer, where you upload the `json` summary file. The default path for the json files is located at `output/{dataset_name}/{session_id}/json/dataset_profile.json`. 
@@ -108,15 +113,14 @@ You can also load a local html viewer, where you upload the `json` summary file.
 from whylogs.viz import profile_viewer
 profile_viewer()
 ```
-This will load the profile viewer loader, using the `Select JSON profile`
+
+This will open a viewer on your default browser where you can load a profile json summary, using the `Select JSON profile` button:
+
 ![viewer_preload](images/html_viewer.png)
 
-Once the json is selected you can view your profile feature name and statistics.
+Once the json is selected you can view your profile's features and associated and statistics.
 
 ![viewer_loaded](images/html_viewer_loaded.png)
-
-
-This will open a viewer on your default browser where you can load a profile json summary
 
 whyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
 
