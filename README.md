@@ -1,5 +1,4 @@
 # whylogs: A Data and Machine Learning Logging Standard
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 
 
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE)
@@ -27,9 +26,6 @@ This is a Python implementation of whylogs. The Java implementation can be found
 If you have any questions, comments, or just want to hang out with us, please join [our Slack channel](http://join.slack.whylabs.ai/).
 
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
-
-
 - [Getting started](#getting-started)
 - [Features](#features)
 - [Data Types](#data-types)
@@ -39,7 +35,6 @@ If you have any questions, comments, or just want to hang out with us, please jo
 - [Roadmap](#roadmap)
 - [Contribute](#contribute)
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 
 ## Getting started<a name="getting-started" />
 
@@ -65,7 +60,6 @@ make install
 make
 ```
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 
 ## Quickly Logging Data
 
@@ -133,7 +127,6 @@ whyLogs collects approximate statistics and sketches of data on a column-basis i
 Check the examples below for visualization and other use cases
 
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 ## Documentation 
 
 The [documentation](https://docs.whylabs.ai/docs/) of this package is generated automatically. 
@@ -148,7 +141,7 @@ The [documentation](https://docs.whylabs.ai/docs/) of this package is generated 
 - Tiny storage footprint: whylogs turns data batches and streams into statistical fingerprints, 10-100MB uncompressed
 - Unlimited metrics: whylogs collects all possible statistical metrics about structured or unstructured data
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
+
 ## Data Types<a name="data-types" />
 Whylogs supports both structured and unstructured data, specifically: 
 
@@ -161,7 +154,7 @@ Whylogs supports both structured and unstructured data, specifically:
 | Text | top k values, counts, cardinality (more in developement) | [Github Issue #213](https://github.com/whylabs/whylogs/issues/213) |
 | Audio | In developement | [Github Issue #212](https://github.com/whylabs/whylogs/issues/212) | 
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
+
 ## Integrations
 
 ![current integration](images/integrations.001.png)
@@ -193,12 +186,9 @@ Check out our example notebooks with Binder: [![Binder](https://mybinder.org/bad
 
 whylogs is maintained by [WhyLabs](https://whylabs.ai).
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 ## Community
 
 If you have any questions, comments, or just want to hang out with us, please join [our Slack channel](http://join.slack.whylabs.ai/).
-
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 
 ## Contribute
 
