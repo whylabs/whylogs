@@ -117,7 +117,7 @@ This will open a viewer on your default browser where you can load a profile jso
 Once the json is selected you can view your profile's features and 
 associated and statistics.
 
-![viewer_loaded](https://www.loom.com/share/692b0540c9e94f61af0b8dceeaa6ad2a)
+<a href="https://www.loom.com/share/bc73b073bb8c42b1aecad1be3db53a49"> <p>Profile_viewer - Watch Video</p> <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/bc73b073bb8c42b1aecad1be3db53a49-with-play.gif"> </a>
 
 whylogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
 
