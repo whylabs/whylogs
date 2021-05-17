@@ -85,7 +85,10 @@ with session.logger(dataset_name="my_dataset") as logger:
     logger.log_images("path/to/image.png")
 ```
 
+### Multiple profile plots
+
 To view your logger profiles you can use, methods within `whylogs.viz` or open a profile viewer using the following command
+
 
 ```python
 vizualization = ProfileVisualizer()
@@ -94,14 +97,16 @@ figure= my_ viz.plot_distribution("<feature_name>")
 figure.savefig("/my/image/path.png")
 ```
 
-Individual profile are saved to disk, AWS S3, or WhyLabs API, automatically when loggers are closed, per the configuration found in the Session configuration.
+Individual profiles are saved to disk, AWS S3, or WhyLabs API, automatically when loggers are closed, per the configuration found in the Session configuration.
 
 Current active loggers can be loaded from memory with:
-```
-test_profile = logger.profile()
+```python
+profile = logger.profile()
 ```
 
-You can also load a local html viewer, where you upload the `json` summary file. The default path for the json files is located at `output/{dataset_name}/{session_id}/json/dataset_profile.json`. 
+### Profile Viewer
+
+You can also load a local profile viewer, where you upload the `json` summary file. The default path for the json files is set as `output/{dataset_name}/{session_id}/json/dataset_profile.json`.
 
 ```python
 from whylogs.viz import profile_viewer
@@ -109,22 +114,18 @@ profile_viewer()
 ```
 
 This will open a viewer on your default browser where you can load a profile json summary, using the `Select JSON profile` button:
+Once the json is selected you can view your profile's features and 
+associated and statistics.
 
-![viewer_preload](images/html_viewer.png)
+![viewer_loaded](https://www.loom.com/share/692b0540c9e94f61af0b8dceeaa6ad2a)
 
-Once the json is selected you can view your profile's features and associated and statistics.
-
-![viewer_loaded](images/html_viewer_loaded.png)
-
-whyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
+whylogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
 
 - Simple counters: boolean, null values, data types.
 - Summary statistics: sum, min, max, variance.
 - Unique value counter or cardinality: tracks an approximate unique value of your feature using HyperLogLog algorithm.
 - Histograms for numerical features. whyLogs binary output can be queried to with dynamic binning based on the shape of your data.
 - Top frequent items (default is 128). Note that this configuration affects the memory footprint, especially for text features.
-
-Check the examples below for visualization and other use cases
 
 
 ## Documentation 
