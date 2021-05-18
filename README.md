@@ -125,10 +125,7 @@ This will open a viewer on your default browser where you can load a profile jso
 Once the json is selected you can view your profile's features and 
 associated and statistics.
 
-<a href="https://www.loom.com/share/bc73b073bb8c42b1aecad1be3db53a49"> <p>Profile_viewer - Watch Video</p> <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/bc73b073bb8c42b1aecad1be3db53a49-with-play.gif"> </a>
-
-
-
+<img src="https://whylabs-public.s3-us-west-2.amazonaws.com/assets/whylogs-viewer.gif" title="whylogs HTML viewer demo">
 
 ## Documentation 
 
