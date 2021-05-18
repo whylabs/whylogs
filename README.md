@@ -101,7 +101,7 @@ To view your logger profiles you can use, methods within `whylogs.viz`:
 ```python
 vizualization = ProfileVisualizer()
 vizualization.set_profiles([profile_day_1, profile_day_2])
-figure= my_ viz.plot_distribution("<feature_name>")
+figure= vizualization.plot_distribution("<feature_name>")
 figure.savefig("/my/image/path.png")
 ```
 
