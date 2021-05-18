@@ -85,7 +85,7 @@ with session.logger(dataset_name="my_dataset") as logger:
     logger.log_images("path/to/image.png")
 ```
 
-### Multiple profile plots
+### Multiple Profile Plots
 
 To view your logger profiles you can use, methods within `whylogs.viz` or open a profile viewer using the following command
 
