@@ -107,7 +107,7 @@ figure.savefig("/my/image/path.png")
 
 Individual profiles are saved to disk, AWS S3, or WhyLabs API, automatically when loggers are closed, per the configuration found in the Session configuration.
 
-Current active loggers can be loaded from memory with:
+Current profiles from active loggers can be loaded from memory with:
 ```python
 profile = logger.profile()
 ```
