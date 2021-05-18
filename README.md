@@ -85,10 +85,18 @@ with session.logger(dataset_name="my_dataset") as logger:
     logger.log_images("path/to/image.png")
 ```
 
+whylogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
+
+- Simple counters: boolean, null values, data types.
+- Summary statistics: sum, min, max, variance.
+- Unique value counter or cardinality: tracks an approximate unique value of your feature using HyperLogLog algorithm.
+- Histograms for numerical features. whyLogs binary output can be queried to with dynamic binning based on the shape of your data.
+- Top frequent items (default is 128). Note that this configuration affects the memory footprint, especially for text features.
+
+
 ### Multiple Profile Plots
 
-To view your logger profiles you can use, methods within `whylogs.viz` or open a profile viewer using the following command
-
+To view your logger profiles you can use, methods within `whylogs.viz`: 
 
 ```python
 vizualization = ProfileVisualizer()
@@ -119,13 +127,7 @@ associated and statistics.
 
 <a href="https://www.loom.com/share/bc73b073bb8c42b1aecad1be3db53a49"> <p>Profile_viewer - Watch Video</p> <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/bc73b073bb8c42b1aecad1be3db53a49-with-play.gif"> </a>
 
-whylogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
 
-- Simple counters: boolean, null values, data types.
-- Summary statistics: sum, min, max, variance.
-- Unique value counter or cardinality: tracks an approximate unique value of your feature using HyperLogLog algorithm.
-- Histograms for numerical features. whyLogs binary output can be queried to with dynamic binning based on the shape of your data.
-- Top frequent items (default is 128). Note that this configuration affects the memory footprint, especially for text features.
 
 
 ## Documentation 
