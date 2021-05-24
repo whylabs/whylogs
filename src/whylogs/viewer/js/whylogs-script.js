@@ -62,6 +62,7 @@
 
   function handleSearch() {
     const tableBodyChildrens = $tableBody.children();
+    const featureListChildren = $sidebarFeatureNameList.children();
 
     for (let i = 0; i < tableBodyChildrens.length; i++) {
       const name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
@@ -71,6 +72,17 @@
         tableBodyChildrens[i].style.display = "";
       } else {
         tableBodyChildrens[i].style.display = "none";
+      }
+    }
+
+    for (let i = 0; i < featureListChildren.length; i++) {
+      const name = featureListChildren[i].dataset.featureName.toLowerCase();
+      const type = featureListChildren[i].dataset.inferredType.toLowerCase();
+
+      if (isActiveInferredType[type]) {
+        featureListChildren[i].style.display = "";
+      } else {
+        featureListChildren[i].style.display = "none";
       }
     }
   }
@@ -100,7 +112,7 @@
     const $tableWrap = $(".wl-table-wrap");
     const featureNameId = event.currentTarget.dataset.featureNameId;
     const currentOffsetTop = $tableWrap.scrollTop();
-    const offsetTop = $('[data-feature-name="' + featureNameId + '"]').offset().top;
+    const offsetTop = $('[data-scroll-to-feature-name="' + featureNameId + '"]').offset().top;
 
     $tableWrap.animate(
       {
@@ -281,7 +293,7 @@
 
       // Update sidebar HTML feature name list
       $sidebarFeatureNameList.append(
-        `<li class="list-group-item js-list-group-item"><span data-feature-name-id="${featureName}">${featureName}</span></li>`,
+        `<li class="list-group-item js-list-group-item" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none"><span data-feature-name-id="${featureName}" >${featureName}</span></li>`,
       );
 
       function getGraphHtml(data) {
@@ -337,7 +349,7 @@
       const $tableRow = $(`
       <li class="wl-table-row${
         inferredType.toLowerCase() !== "unknown" ? " wl-table-row--clickable" : ""
-      }" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none;">
+      }" data-feature-name="${featureName}" data-inferred-type="${inferredType}" data-scroll-to-feature-name="${featureName}" style="display: none;">
         <div class="wl-table-cell">
           <div class="wl-table-cell__title-wrap">
             <h4 class="wl-table-cell__title">${featureName}</h4>
@@ -381,6 +393,7 @@
 
   function renderList() {
     const tableBodyChildrens = $tableBody.children();
+    const featureListChildren = $sidebarFeatureNameList.children();
 
     $.each($featureFilterInput, (_, filterInput) => {
       isActiveInferredType[filterInput.value.toLowerCase()] = filterInput.checked;
@@ -392,6 +405,14 @@
 
       if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
         tableBodyChildrens[i].style.display = "";
+      }
+    }
+    for (let i = 0; i < featureListChildren.length; i++) {
+      const name = featureListChildren[i].dataset.featureName.toLowerCase();
+      const type = featureListChildren[i].dataset.inferredType.toLowerCase();
+
+      if (isActiveInferredType[type]) {
+        featureListChildren[i].style.display = "";
       }
     }
   }
