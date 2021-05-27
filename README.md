@@ -1,6 +1,6 @@
 # WhyLogs Java Library
 [![license](https://img.shields.io/github/license/whylabs/whylogs-java)](https://github.com/whylabs/whylogs-java/blob/mainline/LICENSE)
-[![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-core)
+[![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-java-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-java-core)
 [![openjdk](https://img.shields.io/badge/opendjk-%3E=1.8-green)](https://openjdk.java.net)
 
 This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets. The Python implementation can be found [here](https://github.com/whylabs/whylogs-python).
