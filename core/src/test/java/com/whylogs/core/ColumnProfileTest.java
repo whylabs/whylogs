@@ -5,6 +5,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.protobuf.Int64Value;
+import com.whylogs.core.message.InferredType;
 import lombok.val;
 import org.apache.datasketches.frequencies.ErrorType;
 import org.apache.datasketches.frequencies.ItemsSketch;
@@ -22,7 +24,7 @@ public class ColumnProfileTest {
     col.track(null);
 
     assertThat(col.getCounters().getCount(), is(6L));
-    assertThat(col.getCounters().getNullCount(), is(1L));
+    assertThat(col.getSchemaTracker().getTypeCounts().get(InferredType.Type.NULL), is(1L));
     assertThat(col.getCounters().getTrueCount(), is(1L));
     assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
     assertThat(col.getNumberTracker().getDoubles().getCount(), is(2L));
@@ -38,13 +40,13 @@ public class ColumnProfileTest {
     col.track(true);
     col.track(false);
     col.track(null);
-    col.track("nil");
-    col.track("NaN");
-    col.track("nan");
-    col.track("null");
+    col.track(Double.NaN);
+    col.track(Double.NEGATIVE_INFINITY);
+    col.track(Double.POSITIVE_INFINITY);
+    col.track("");
 
     assertThat(col.getCounters().getCount(), is(10L));
-    assertThat(col.getCounters().getNullCount(), is(5L));
+    assertThat(col.getSchemaTracker().getTypeCounts().get(InferredType.Type.NULL), is(4L));
     assertThat(col.getCounters().getTrueCount(), is(1L));
     assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
     assertThat(col.getNumberTracker().getDoubles().getCount(), is(2L));
@@ -56,7 +58,7 @@ public class ColumnProfileTest {
     col.track(Double.NaN);
 
     assertThat(col.getCounters().getCount(), is(1L));
-    assertThat(col.getCounters().getNullCount(), is(1L));
+    assertThat(col.getSchemaTracker().getTypeCounts().get(InferredType.Type.NULL), is(1L));
     assertThat(col.getCounters().getTrueCount(), is(0L));
     assertThat(col.getNumberTracker().getLongs().getCount(), is(0L));
     assertThat(col.getNumberTracker().getDoubles().getCount(), is(0L));
@@ -74,7 +76,7 @@ public class ColumnProfileTest {
 
     val merged = col.merge(col);
     assertThat(merged.getCounters().getCount(), is(12L));
-    assertThat(merged.getCounters().getNullCount(), is(2L));
+    assertThat(merged.getSchemaTracker().getTypeCounts().get(InferredType.Type.NULL), is(2L));
     assertThat(merged.getCounters().getTrueCount(), is(2L));
     assertThat(merged.getNumberTracker().getLongs().getCount(), is(0L));
     assertThat(merged.getNumberTracker().getDoubles().getCount(), is(4L));
@@ -95,7 +97,7 @@ public class ColumnProfileTest {
 
     val merged = col.merge(col);
     assertThat(merged.getCounters().getCount(), is(12L));
-    assertThat(merged.getCounters().getNullCount(), is(2L));
+    assertThat(merged.getSchemaTracker().getTypeCounts().get(InferredType.Type.NULL), is(2L));
     assertThat(merged.getCounters().getTrueCount(), is(2L));
     assertThat(merged.getNumberTracker().getLongs().getCount(), is(0L));
     assertThat(merged.getNumberTracker().getDoubles().getCount(), is(4L));
@@ -181,5 +183,29 @@ public class ColumnProfileTest {
 
     val quantiles = col.toColumnSummary().getNumberSummary().getQuantiles();
     assertThat(quantiles.getQuantilesCount(), is(9));
+  }
+
+  @Test
+  public void handle_legacy_null_count() {
+    val original = new ColumnProfile("test");
+    original.track(1L);
+    original.track(1.0);
+    original.track(null);
+
+    val msgBuilder = original.toProtobuf();
+    val legacyCounterWithNullCount =
+        msgBuilder
+            .getCounters()
+            .toBuilder()
+            .setNullCount(Int64Value.newBuilder().setValue(2L).build());
+    msgBuilder.setCounters(legacyCounterWithNullCount);
+    val msg = msgBuilder.build();
+
+    val roundTrip = ColumnProfile.fromProtobuf(msg);
+
+    assertThat(roundTrip.getColumnName(), is("test"));
+    assertThat(roundTrip.getCounters().getCount(), is(3L));
+    // ensure that the null count is a sum
+    assertThat(roundTrip.getSchemaTracker().getTypeCounts().get(InferredType.Type.NULL), is(3L));
   }
 }

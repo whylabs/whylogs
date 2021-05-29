@@ -17,17 +17,12 @@ public class CountersTrackerTest {
     original.incrementCount();
 
     assertThat(original.getCount(), is(2L));
-    assertThat(original.getNullCount(), is(0L));
     assertThat(original.getTrueCount(), is(0L));
-
-    original.incrementNull();
-    assertThat(original.getNullCount(), is(1L));
 
     original.incrementTrue();
     assertThat(original.getTrueCount(), is(1L));
 
     val roundtrip = CountersTracker.fromProtobuf(original.toProtobuf().build());
-    assertThat(roundtrip.getNullCount(), is(1L));
     assertThat(roundtrip.getTrueCount(), is(1L));
     assertThat(roundtrip.getCount(), is(2L));
   }
@@ -37,23 +32,17 @@ public class CountersTrackerTest {
     val first = new CountersTracker();
     first.incrementCount();
     first.incrementCount();
-    first.incrementNull();
-    first.incrementNull();
-    first.incrementNull();
     first.incrementTrue();
 
     assertThat(first.getCount(), is(2L));
-    assertThat(first.getNullCount(), is(3L));
     assertThat(first.getTrueCount(), is(1L));
 
     val second = new CountersTracker();
     second.incrementCount();
-    second.incrementNull();
 
     val merge1 = first.merge(second);
 
     assertThat(merge1.getCount(), is(3L));
-    assertThat(merge1.getNullCount(), is(4L));
     assertThat(merge1.getTrueCount(), is(1L));
 
     // should be associative

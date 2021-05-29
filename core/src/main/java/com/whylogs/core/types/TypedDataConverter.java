@@ -34,28 +34,12 @@ public class TypedDataConverter {
       return null;
     }
 
+    if (data instanceof TypedData) {
+      return (TypedData) data;
+    }
+
     if (data instanceof String) {
-      val strData = (String) data;
-
-      INTEGRAL_MATCHER.get().reset(strData);
-      if (INTEGRAL_MATCHER.get().matches()) {
-        val trimmedText = EMPTY_SPACES_REMOVER.get().reset(strData).replaceAll("");
-        return TypedData.integralValue(Long.parseLong(trimmedText));
-      }
-
-      FRACTIONAL_MATCHER.get().reset(strData);
-      if (FRACTIONAL_MATCHER.get().matches()) {
-        val trimmedText = EMPTY_SPACES_REMOVER.get().reset(strData).replaceAll("");
-        return TypedData.fractionalValue(Double.parseDouble(trimmedText));
-      }
-
-      BOOLEAN_MATCHER.get().reset(strData);
-      if (BOOLEAN_MATCHER.get().matches()) {
-        val trimmedText = EMPTY_SPACES_REMOVER.get().reset(strData).replaceAll("");
-        return TypedData.booleanValue(Boolean.parseBoolean(trimmedText));
-      }
-
-      return TypedData.stringValue(strData);
+      return getTypedStringData((String) data);
     }
 
     if (data instanceof Double || data instanceof Float) {
@@ -73,5 +57,29 @@ public class TypedDataConverter {
     }
 
     return TypedData.unknownValue();
+  }
+
+  private TypedData getTypedStringData(String data) {
+    if (System.getenv().get("WHYLOGS_ENABLE_STRING_MATCHING") != null) {
+      INTEGRAL_MATCHER.get().reset(data);
+      if (INTEGRAL_MATCHER.get().matches()) {
+        val trimmedText = EMPTY_SPACES_REMOVER.get().reset(data).replaceAll("");
+        return TypedData.integralValue(Long.parseLong(trimmedText));
+      }
+
+      FRACTIONAL_MATCHER.get().reset(data);
+      if (FRACTIONAL_MATCHER.get().matches()) {
+        val trimmedText = EMPTY_SPACES_REMOVER.get().reset(data).replaceAll("");
+        return TypedData.fractionalValue(Double.parseDouble(trimmedText));
+      }
+
+      BOOLEAN_MATCHER.get().reset(data);
+      if (BOOLEAN_MATCHER.get().matches()) {
+        val trimmedText = EMPTY_SPACES_REMOVER.get().reset(data).replaceAll("");
+        return TypedData.booleanValue(Boolean.parseBoolean(trimmedText));
+      }
+    }
+
+    return TypedData.stringValue(data);
   }
 }
