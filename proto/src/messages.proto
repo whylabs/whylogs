@@ -10,7 +10,7 @@ message Counters {
   int64 count = 1;
 
   google.protobuf.Int64Value true_count = 2;
-  google.protobuf.Int64Value null_count = 3;
+  google.protobuf.Int64Value null_count = 3 [deprecated = true];
 }
 
 message InferredType {

@@ -97,8 +97,8 @@ class ColumnProfile:
         Add `value` to tracking statistics.
         """
         self.counters.increment_count()
-        if value is None:
-            self.counters.increment_null()
+        if pd.isnull(value):
+            self.schema_tracker.track(InferredType.Type.NULL)
             return
 
         # TODO: ignore this if we already know the data type
@@ -147,8 +147,9 @@ class ColumnProfile:
         if self.schema_tracker is not None:
             schema = self.schema_tracker.to_summary()
         # TODO: implement the real schema/type checking
+        null_count = self.schema_tracker.get_count(InferredType.Type.NULL)
         opts = dict(
-            counters=self.counters.to_protobuf(),
+            counters=self.counters.to_protobuf(null_count=null_count),
             frequent_items=self.frequent_items.to_summary(),
             unique_count=self._unique_count_summary(),
         )
@@ -225,10 +226,11 @@ class ColumnProfile:
         -------
         column_profile : ColumnProfile
         """
+        schema_tracker = SchemaTracker.from_protobuf(message.schema, legacy_null_count=message.counters.null_count.value)
         return ColumnProfile(
             message.name,
-            counters=CountersTracker.from_protobuf(message.counters),
-            schema_tracker=SchemaTracker.from_protobuf(message.schema),
+            counters=(CountersTracker.from_protobuf(message.counters)),
+            schema_tracker=schema_tracker,
             number_tracker=NumberTracker.from_protobuf(message.numbers),
             string_tracker=StringTracker.from_protobuf(message.strings),
             frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),

@@ -20,13 +20,21 @@ class SchemaTracker:
     NULL_TYPE = InferredType(type=Type.NULL, ratio=1.0)
     CANDIDATE_MIN_FRAC = 0.7
 
-    def __init__(self, type_counts: dict = None):
+    def __init__(self, type_counts: dict = None, legacy_null_count=0):
         if type_counts is None:
             type_counts = {}
         if not isinstance(type_counts, dict):
             # Assume we have a protobuf object
             type_counts = {k: v for k, v in type_counts.items()}
         self.type_counts = type_counts
+
+        # This is to ensure backwards compatibility for data
+        # generated for version 0.4.8 and earlier
+        if legacy_null_count and legacy_null_count > 0:
+            if self.type_counts.get(Type.NULL) is None:
+                self.type_counts[Type.NULL] = legacy_null_count
+            else:
+                self.type_counts[Type.NULL] += legacy_null_count
 
     def _non_null_type_counts(self):
         type_counts = self.type_counts.copy()
@@ -145,7 +153,7 @@ class SchemaTracker:
         return SchemaMessage(typeCounts=self.type_counts)
 
     @staticmethod
-    def from_protobuf(message):
+    def from_protobuf(message, legacy_null_count=0):
         """
         Load from a protobuf message
 
@@ -153,7 +161,7 @@ class SchemaTracker:
         -------
         schema_tracker : SchemaTracker
         """
-        return SchemaTracker(type_counts=message.typeCounts)
+        return SchemaTracker(type_counts=message.typeCounts, legacy_null_count=legacy_null_count)
 
     def to_summary(self):
         """

@@ -7,6 +7,7 @@ from testutil import compare_frequent_items
 
 from whylogs.core import ColumnProfile
 from whylogs.core.statistics.hllsketch import HllSketch
+from whylogs.proto import ColumnMessage, ColumnSummary, InferredType
 from whylogs.util.protobuf import message_to_dict
 
 
@@ -37,7 +38,8 @@ def test_all_nulls_inferred_type_null():
     data = [None, np.nan, None] * 3
     for val in data:
         c.track(val)
-    summary = c.to_summary()
+    summary: ColumnSummary = c.to_summary()
+    assert summary.counters.null_count.value == 9
     assert summary.schema.inferred_type.type == Type.NULL
 
 
@@ -80,8 +82,8 @@ def test_track():
     assert nt.floats.max == 4.0
 
     assert c.counters.count == len(data)
-    assert c.counters.null_count == 1
     assert c.counters.true_count == 1
+    assert c.schema_tracker.get_count(InferredType.Type.NULL) == 1
 
 
 def test_protobuf():
@@ -192,7 +194,7 @@ def test_merge():
 
     merged = col.merge(col)
     assert merged.counters.count == 12
-    assert merged.counters.null_count == 2
+    assert merged.schema_tracker.get_count(InferredType.Type.NULL) == 2
     assert merged.counters.true_count == 4
     assert merged.number_tracker.ints.count == 0
     assert merged.number_tracker.floats.count == 4
@@ -230,3 +232,21 @@ def test_fallback_fallbacks_to_number_counter():
 
     summary = col.to_summary()
     assert summary.unique_count.estimate == summary.number_summary.unique_count.estimate
+
+
+def test_copy_counters_null_count_in_schema_tracker():
+    col = ColumnProfile("test")
+    vals = ["a", "b", None, "d", pd.NA, "f", 1.0, 2.0]
+    for v in vals:
+        col.track(v)
+    assert col.schema_tracker.get_count(InferredType.Type.NULL) == 2
+
+    # ensuring we can still access the value in summary mode
+    assert col.to_summary().counters.null_count.value == 2
+
+    # Mimic a legal protobuf with null_count set
+    msg: ColumnMessage = col.to_protobuf()
+    msg.counters.null_count.value = 2
+
+    roundtrip = ColumnProfile.from_protobuf(msg)
+    assert roundtrip.schema_tracker.get_count(InferredType.Type.NULL) == 4
