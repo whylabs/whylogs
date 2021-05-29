@@ -97,7 +97,10 @@ class ColumnProfile:
         Add `value` to tracking statistics.
         """
         self.counters.increment_count()
-        if value is None:
+        if value is pd.null:
+            self.counters.increment_null()
+            return
+        elif value is None:
             self.counters.increment_null()
             return
 
