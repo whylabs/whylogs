@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.EqualsAndHashCode;
@@ -112,10 +113,20 @@ public class SchemaTracker {
   }
 
   public static SchemaTracker fromProtobuf(SchemaMessage message) {
+    return fromProtobuf(message, 0L);
+  }
+
+  // Legacy handle for this bug https://github.com/whylabs/whylogs/issues/232
+  public static SchemaTracker fromProtobuf(SchemaMessage message, long legacyNullCount) {
     val schemaTracker = new SchemaTracker();
     message
         .getTypeCountsMap()
         .forEach((k, v) -> schemaTracker.typeCounts.put(InferredType.Type.forNumber(k), v));
+    if (legacyNullCount > 0L) {
+      schemaTracker.typeCounts.compute(
+          InferredType.Type.NULL,
+          (type, existingValue) -> Optional.ofNullable(existingValue).orElse(0L) + legacyNullCount);
+    }
     return schemaTracker;
   }
 

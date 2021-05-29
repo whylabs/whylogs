@@ -6,6 +6,7 @@ import java.sql.Timestamp
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import com.whylogs.core.DatasetProfile
+import com.whylogs.core.message.InferredType
 import com.whylogs.spark.WhyLogs.ProfiledDataFrame
 import org.apache.commons.lang3.RandomUtils
 import org.apache.spark.sql.{Row, SaveMode}
@@ -125,6 +126,6 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     val bytes = res.collect()(0).getAs[Array[Byte]](0)
     val dp = DatasetProfile.parse(new ByteArrayInputStream(bytes))
 
-    assert(dp.getColumns.get("age").getCounters.getNullCount == 1)
+    assert(dp.getColumns.get("age").getSchemaTracker.getTypeCounts.get(InferredType.Type.NULL) == 1)
   }
 }

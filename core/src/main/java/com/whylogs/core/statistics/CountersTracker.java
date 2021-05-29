@@ -15,7 +15,6 @@ import lombok.val;
 public class CountersTracker {
   long count;
   long trueCount;
-  long nullCount;
 
   public void incrementCount() {
     count++;
@@ -25,21 +24,15 @@ public class CountersTracker {
     trueCount++;
   }
 
-  public void incrementNull() {
-    nullCount++;
-  }
-
   public void add(CountersTracker other) {
     this.count += other.count;
     this.trueCount += other.trueCount;
-    this.nullCount += other.nullCount;
   }
 
   public CountersTracker merge(CountersTracker other) {
     val result = new CountersTracker();
     result.count = this.count + other.count;
     result.trueCount = this.trueCount + other.trueCount;
-    result.nullCount = this.nullCount + other.nullCount;
 
     return result;
   }
@@ -51,20 +44,13 @@ public class CountersTracker {
       countersBuilder.setTrueCount(Int64Value.of(trueCount));
     }
 
-    if (nullCount > 0) {
-      countersBuilder.setNullCount(Int64Value.of(nullCount));
-    }
-
     return countersBuilder;
   }
 
   public static CountersTracker fromProtobuf(Counters message) {
     val tracker = new CountersTracker();
     tracker.count = message.getCount();
-    tracker.trueCount =
-        Optional.ofNullable(message.getTrueCount()).map(Int64Value::getValue).orElse(0L);
-    tracker.nullCount =
-        Optional.ofNullable(message.getNullCount()).map(Int64Value::getValue).orElse(0L);
+    tracker.trueCount = Optional.of(message.getTrueCount()).map(Int64Value::getValue).orElse(0L);
 
     return tracker;
   }

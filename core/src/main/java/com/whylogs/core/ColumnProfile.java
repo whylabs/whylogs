@@ -11,9 +11,11 @@ import com.google.protobuf.ByteString;
 import com.whylogs.core.message.ColumnMessage;
 import com.whylogs.core.message.ColumnSummary;
 import com.whylogs.core.message.HllSketchMessage;
+import com.whylogs.core.message.InferredType;
 import com.whylogs.core.statistics.CountersTracker;
 import com.whylogs.core.statistics.NumberTracker;
 import com.whylogs.core.statistics.SchemaTracker;
+import com.whylogs.core.types.TypedData;
 import com.whylogs.core.types.TypedDataConverter;
 import com.whylogs.core.utils.sketches.FrequentStringsSketch;
 import lombok.AccessLevel;
@@ -71,24 +73,19 @@ public class ColumnProfile {
     synchronized (this) {
       counters.incrementCount();
 
-      if (value == null || (!this.nullStrs.isEmpty() && this.nullStrs.contains(value.toString()))) {
-        counters.incrementNull();
-        return;
-      }
-
       // TODO: ignore this if we already know the data type
       val typedData = TypedDataConverter.convert(value);
+      if (isNull(typedData)) {
+        schemaTracker.track(InferredType.Type.NULL);
+        return;
+      }
       schemaTracker.track(typedData.getType());
 
       switch (typedData.getType()) {
         case FRACTIONAL:
           final double fractional = typedData.getFractional();
           trackText(String.valueOf(fractional));
-          if (Double.isNaN(fractional) || Double.isInfinite(fractional)) {
-            counters.incrementNull();
-          } else {
-            numberTracker.track(fractional);
-          }
+          numberTracker.track(fractional);
           break;
         case INTEGRAL:
           final long integralValue = typedData.getIntegralValue();
@@ -106,6 +103,19 @@ public class ColumnProfile {
           trackText(typedData.getStringValue());
       }
     }
+  }
+
+  private boolean isNull(TypedData value) {
+    if (value == null) return true;
+    if (value.getType() == InferredType.Type.STRING && !this.nullStrs.isEmpty()) {
+      return this.nullStrs.contains(value.getStringValue());
+    }
+
+    if (value.getType() == InferredType.Type.FRACTIONAL) {
+      return Double.isNaN(value.getFractional()) || Double.isInfinite(value.getFractional());
+    }
+
+    return false;
   }
 
   private void trackText(String text) {
@@ -183,7 +193,9 @@ public class ColumnProfile {
     return ColumnProfile.builder()
         .setColumnName(message.getName())
         .setCounters(CountersTracker.fromProtobuf(message.getCounters()))
-        .setSchemaTracker(SchemaTracker.fromProtobuf(message.getSchema()))
+        .setSchemaTracker(
+            SchemaTracker.fromProtobuf(
+                message.getSchema(), message.getCounters().getNullCount().getValue()))
         .setNumberTracker(NumberTracker.fromProtobuf(message.getNumbers()))
         .setCardinalityTracker(
             HllSketch.heapify(message.getCardinalityTracker().getSketch().toByteArray()))
