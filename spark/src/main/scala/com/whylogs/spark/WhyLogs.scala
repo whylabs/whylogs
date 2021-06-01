@@ -8,6 +8,7 @@ import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.whylogs.DatasetProfileAggregator
 import org.slf4j.LoggerFactory
 
+import java.net.{HttpURLConnection, URL}
 import java.nio.file.{Files, StandardOpenOption}
 import java.time.Instant
 import scala.collection.JavaConverters._
@@ -190,9 +191,28 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     val profileData = row.getByteArray(PROFILE_FIELD)
 
     val tmp = Files.createTempFile("profile", ".bin")
+
     try {
       Files.write(tmp, profileData, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)
-      logApi.log(orgId, modelId, timestamp, segmentTags, null, tmp.toFile)
+
+      // Create the upload url
+      val uploadResult = logApi.logAsync(orgId, modelId, timestamp, segmentTags, null)
+
+      // Write the profile to the upload url
+      val connection = new URL(uploadResult.getUploadUrl)
+        .openConnection()
+        .asInstanceOf[HttpURLConnection]
+      connection.setDoOutput(true)
+      connection.setRequestProperty("Content-Type", "application/octet-stream")
+      connection.setRequestMethod("PUT")
+
+      val out = connection.getOutputStream
+      try {
+        Files.copy(tmp.getFileName, out)
+      } finally {
+        out.close()
+      }
+
     } finally {
       Files.delete(tmp)
     }
