@@ -208,7 +208,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
 
       val out = connection.getOutputStream
       try {
-        Files.copy(tmp.getFileName, out)
+        Files.copy(tmp.toAbsolutePath, out)
       } finally {
         out.close()
       }
