@@ -12,6 +12,8 @@ import java.net.{HttpURLConnection, URL}
 import java.nio.file.{Files, StandardOpenOption}
 import java.time.Instant
 import scala.collection.JavaConverters._
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 import scala.language.implicitConversions
 
 case class ModelProfileSession(predictionField: String, targetField: String, scoreField: String = null) {
@@ -196,23 +198,34 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
       Files.write(tmp, profileData, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING)
 
       // Create the upload url
-      val uploadResult = logApi.logAsync(orgId, modelId, timestamp, segmentTags, null)
+      val uploadResultFuture = RetryUtil.withRetries() {
+        logApi.logAsync(orgId, modelId, timestamp, segmentTags, null)
+      }
+      val uploadResult = Await.result(uploadResultFuture, Duration.create(10, "s"))
 
       // Write the profile to the upload url
-      val connection = new URL(uploadResult.getUploadUrl)
-        .openConnection()
-        .asInstanceOf[HttpURLConnection]
-      connection.setDoOutput(true)
-      connection.setRequestProperty("Content-Type", "application/octet-stream")
-      connection.setRequestMethod("PUT")
+      val profileUploadResult = RetryUtil.withRetries() {
+        val connection = new URL(uploadResult.getUploadUrl)
+          .openConnection()
+          .asInstanceOf[HttpURLConnection]
+        connection.setDoOutput(true)
+        connection.setRequestProperty("Content-Type", "application/octet-stream")
+        connection.setRequestMethod("PUT")
 
-      val out = connection.getOutputStream
-      try {
-        Files.copy(tmp.getFileName, out)
-      } finally {
-        out.close()
+        val out = connection.getOutputStream
+        try {
+          Files.copy(tmp.toAbsolutePath, out)
+        } finally {
+          out.close()
+        }
+
+        if (connection.getResponseCode != 200) {
+          throw new RuntimeException(s"Error uploading profile: ${connection.getResponseCode} ${connection.getResponseMessage}")
+        }
       }
 
+      // TODO, what is the right timeout for this? For extremely large models there could be hundreds of megabytes.
+      Await.result(profileUploadResult, Duration.Inf)
     } finally {
       Files.delete(tmp)
     }
