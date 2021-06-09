@@ -81,14 +81,14 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     this.copy(groupByColumns = columns.asScala)
   }
 
-  def withModelProfile(predictionField: String, targetField: String, scoreField: String): WhyProfileSession = {
+  def withClassificationModel(predictionField: String, targetField: String, scoreField: String): WhyProfileSession = {
     checkIfColumnExists(predictionField)
     checkIfColumnExists(targetField)
 
     this.copy(modelProfile = ModelProfileSession(predictionField, targetField, scoreField))
   }
 
-  def withModelProfile(predictionField: String, targetField: String): WhyProfileSession = {
+  def withRegressionModel(predictionField: String, targetField: String): WhyProfileSession = {
     checkIfColumnExists(predictionField)
     checkIfColumnExists(targetField)
 
@@ -151,7 +151,11 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     whyStructDataFrame
   }
 
-  def log(timestampInMs: Long = Instant.now().toEpochMilli, orgId: String, modelId: String, apiKey: String, endpoint: String = "https://api.whylabsapp.com"): Unit = {
+  def log(timestampInMs: Long = Instant.now().toEpochMilli,
+          orgId: String,
+          modelId: String,
+          apiKey: String,
+          endpoint: String = "https://api.whylabsapp.com"): Unit = {
     val df = aggProfiles(timestamp = timestampInMs)
 
     df.foreachPartition((rows: Iterator[Row]) => {
@@ -172,7 +176,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
   }
 
 
-  private def uploadRow(logApi: LogApi, orgId: String, modelId: String, row: Row) = {
+  private def uploadRow(logApi: LogApi, orgId: String, modelId: String, row: Row): Unit = {
     import RowHelper._
 
     val timestamp: Long = if (timeColumn != null) {

@@ -1,16 +1,15 @@
 package org.apache.spark.whylogs
 
-import java.io.ByteArrayOutputStream
-import java.time.format.DateTimeFormatter
-import java.time.{Instant, ZoneOffset}
-import java.util.{Collections, UUID}
-
 import com.whylogs.core.DatasetProfile
 import com.whylogs.spark.ModelProfileSession
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.expressions.Aggregator
 import org.apache.spark.sql.{Encoder, Encoders, Row}
 
+import java.io.ByteArrayOutputStream
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset}
+import java.util.{Collections, UUID}
 import scala.collection.JavaConverters._
 
 object InstantDateTimeFormatter {
@@ -83,14 +82,16 @@ case class DatasetProfileAggregator(datasetName: String,
     if (isProfileEmpty(profile) && model != null) {
       // only append model profile configuration if the profile is empty
       if (model.scoreField == null) {
-        timedProfile = timedProfile.withModelProfile(model.predictionField, model.targetField);
+        timedProfile = timedProfile.withRegressionModel(model.predictionField, model.targetField);
       } else {
-        timedProfile = timedProfile.withModelProfile(model.predictionField, model.targetField, model.scoreField)
+        timedProfile = timedProfile.withClassificationModel(model.predictionField, model.targetField, model.scoreField)
       }
     }
 
     // TODO: we have the schema here. Support schema?
-    val values = schema.fields.filter(f => !allGroupByColumns.contains(f.name))
+    val values = schema.fields //
+      .filter(f => !allGroupByColumns.contains(f.name))
+      .filter(f => f.name != timeColumn)
       .map(f => f.name -> row.get(schema.fieldIndex(f.name)))
       .toMap.asJava
     timedProfile.track(values);
@@ -106,7 +107,10 @@ case class DatasetProfileAggregator(datasetName: String,
     val schema = row.schema
     groupByColumns
       .map(col => (col, schema.fieldIndex(col)))
-      .map(idxCol => (idxCol._1, Option(row.get(idxCol._2)).map(_.toString).getOrElse("")))
+      .map(idxCol => {
+        val value = Option(row.get(idxCol._2)).map(_.toString).getOrElse("")
+        (s"${DatasetProfile.TAG_PREFIX}${idxCol._1}", value)
+      })
       .toMap
   }
 

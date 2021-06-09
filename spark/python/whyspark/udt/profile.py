@@ -40,7 +40,7 @@ class WhyProfileSession:
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=time_column,
                                  group_by_columns=self._group_by_columns)
 
-    def withModelProfile(self, prediction_field: str, target_field: str, score_field: str = None):  # noqa
+    def withClassificationModel(self, prediction_field: str, target_field: str, score_field: str):  # noqa
         """
         Track model performance. Specify the prediction field, target field and score field.
 
@@ -51,6 +51,19 @@ class WhyProfileSession:
         model_profile = ModelProfileSession(prediction_field, target_field, score_field)
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
                                  group_by_columns=self._group_by_columns, model_profile=model_profile)
+
+    def wtihRegressionModel(self, prediction_field: str, target_field: str):  # noqa
+        """
+        Track model performance. Specify the prediction field, target field and score field.
+
+        If score_field is not specified, the profiler will track regression metrics.
+        If score_field is specified, the profiler will track classification metrics.
+        :rtype: WhyLogSession
+        """
+        model_profile = ModelProfileSession(prediction_field, target_field, None)
+        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
+                                 group_by_columns=self._group_by_columns, model_profile=model_profile)
+
 
     def groupBy(self, col: str, *cols):  # noqa
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
@@ -76,12 +89,12 @@ class WhyProfileSession:
         if self._model_profile is not None:
             mp = self._model_profile
             if mp.score_field:
-                j_session = j_session.withModelProfile(mp.prediction_field,
-                                                       mp.target_field,
-                                                       mp.score_field)
+                j_session = j_session.withClassificationModel(mp.prediction_field,
+                                                              mp.target_field,
+                                                              mp.score_field)
             else:
-                j_session = j_session.withModelProfile(mp.prediction_field,
-                                                       mp.target_field)
+                j_session = j_session.withRegressionModel(mp.prediction_field,
+                                                          mp.target_field)
         return j_session
 
     def aggParquet(self, path: str, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None):  # noqa

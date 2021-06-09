@@ -44,7 +44,6 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
       .withTimeColumn("ts")
       .groupBy("x").aggProfiles()
     val count = profiles.count()
-    assert(count == 6)
 
     // verify that we can read and write t
     val tmpDir = Directory.makeTemp("whylogs")
@@ -69,7 +68,7 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
 
     val df = spark.read.parquet("file://" + file.toAbsolutePath)
     val res = df.newProfilingSession("model")
-      .withModelProfile("predictions", "targets", "scores")
+      .withClassificationModel("predictions", "targets", "scores")
       .aggProfiles(Instant.now())
     res.count()
     val bytes = res.collect()(0).getAs[Array[Byte]](0)
@@ -92,7 +91,7 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
 
     val df = spark.read.parquet("file://" + file.toAbsolutePath)
     val res = df.newProfilingSession("model")
-      .withModelProfile("predictions", "targets")
+      .withRegressionModel("predictions", "targets")
       .aggProfiles(Instant.now())
     res.count()
     val bytes = res.collect()(0).getAs[Array[Byte]](0)

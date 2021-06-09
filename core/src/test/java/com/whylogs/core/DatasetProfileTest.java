@@ -226,7 +226,8 @@ public class DatasetProfileTest {
     val tags = ImmutableMap.of("key1", "rock", "key2", "scissors", "key3", "paper");
     val original =
         new DatasetProfile("test", sessionTime, null, tags, Collections.emptyMap())
-            .withModelProfile("pred", "target", "score", ImmutableList.of("additionalOutput"));
+            .withClassificationModel(
+                "pred", "target", "score", ImmutableList.of("additionalOutput"));
 
     original.track("col1", "value");
     original.track("col1", 1);
@@ -262,7 +263,9 @@ public class DatasetProfileTest {
 
   @Test
   public void roundTripWithModelData_should_succeed() {
-    val dp = new DatasetProfile("test", Instant.now()).withModelProfile("pred", "target", "score");
+    val dp =
+        new DatasetProfile("test", Instant.now())
+            .withClassificationModel("pred", "target", "score");
     dp.track(ImmutableMap.of("pred", 1, "target", 1, "score", 0.5));
     dp.track(ImmutableMap.of("pred", 1, "target", 0, "score", 0.5));
     val msg = dp.toProtobuf().build();
