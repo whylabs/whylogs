@@ -46,15 +46,23 @@ class CharPosTracker:
         new_char_pos_tracker = CharPosTracker(character_list=new_character_list)
 
         # merge
-        encode_to_integers(self.character_list, new_character_list)
+        new_indxes= encode_to_integers(self.character_list, new_character_list)
 
         new_char_pos_tracker = new_char_pos_tracker.char_pos_map
 
-        for new_indx, old_indx in enumerate(new_indxes):
+        for old_indx, new_indx in enumerate(new_indxes):
             new_char_pos_tracker[new_indx].merge(self.char_pos_map[old_indx])
+
+
+        new_indxes= encode_to_integers(other.character_list, new_character_list)
+
+
+        for old_indx, new_indx in enumerate(new_indxes):
+            new_char_pos_tracker[new_indx].merge(other.char_pos_map[old_indx])
 
         return new_char_pos_tracker
 
+        
     def to_protobuf(self):
         """
         Return the object serialized as a protobuf message
@@ -175,9 +183,9 @@ class StringTracker:
 
         new_length = self.length.merge(other.length)
         new_token_length = self.token_length.merge(other.length)
-        new_frequency_map = self.frequency_map.merge(other.frequency_map)
+        new_char_pos_tracker = self.char_pos_tracker.merge(other.char_pos_tracker)
 
-        return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_frequency_map)
+        return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_char_pos_tracker)
 
     def to_protobuf(self):
         """
