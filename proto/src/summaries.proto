@@ -43,9 +43,18 @@ message FrequentItemsSummary {
   repeated FrequentItem items = 1;
 }
 
+
+message CharPosSummary {
+  string character_list=1;
+  repeated NumberSummary char_pos_map =2;
+}
+
 message StringsSummary {
   UniqueCountSummary unique_count = 1;
   FrequentStringsSummary frequent = 2;
+  NumberSummary length =3;
+  NumberSummary token_length=4;
+  CharPosSummary char_pos_tracker=5;
 }
 
 message SchemaSummary {

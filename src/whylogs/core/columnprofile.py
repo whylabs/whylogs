@@ -9,7 +9,7 @@ from whylogs.core.statistics.constraints import (
     SummaryConstraints,
     ValueConstraints,
 )
-from whylogs.core.statistics.datatypes import StringTracker
+from whylogs.core.statistics import StringTracker
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (

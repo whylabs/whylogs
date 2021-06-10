@@ -5,7 +5,7 @@ from sklearn.utils.multiclass import type_of_target
 
 from whylogs.core.statistics import NumberTracker
 from whylogs.proto import ScoreMatrixMessage
-
+from whylogs.util.util_functions import encode_to_integers
 SUPPORTED_TYPES = ("binary", "multiclass")
 
 
@@ -124,7 +124,8 @@ class ConfusionMatrix:
             prediction_field=self.prediction_field,
             target_field=self.target_field,
             score_field=self.score_field,
-            scores=[nt.to_protobuf() if nt else NumberTracker.to_protobuf(NumberTracker()) for nt in np.ravel(self.confusion_matrix)],
+            scores=[nt.to_protobuf() if nt else NumberTracker.to_protobuf(NumberTracker())
+                    for nt in np.ravel(self.confusion_matrix)],
         )
 
     @classmethod
@@ -136,7 +137,8 @@ class ConfusionMatrix:
             return None
         labels = message.labels
         num_labels = len(labels)
-        matrix = np.array([NumberTracker.from_protobuf(score) for score in message.scores]).reshape((num_labels, num_labels)) if num_labels > 0 else None
+        matrix = np.array([NumberTracker.from_protobuf(score) for score in message.scores]
+                          ).reshape((num_labels, num_labels)) if num_labels > 0 else None
 
         cm_instance = ConfusionMatrix(
             labels=labels,
@@ -171,11 +173,3 @@ def _merge_CM(old_conf_matrix: ConfusionMatrix, new_conf_matrix: ConfusionMatrix
             )
 
     return res_conf_matrix
-
-
-def encode_to_integers(values, uniques):
-    table = {val: i for i, val in enumerate(uniques)}
-    for v in values:
-        if v not in uniques:
-            raise ValueError("Can not encode values not in uniques")
-    return np.array([table[v] for v in values])
