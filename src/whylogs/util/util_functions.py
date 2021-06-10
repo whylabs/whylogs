@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def encode_to_integers(values, uniques):
     table = {val: i for i, val in enumerate(uniques)}
     for v in values:

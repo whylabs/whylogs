@@ -1,17 +1,16 @@
 import logging
 import math
 
-
 from datasketches import frequent_strings_sketch
 
-from .numbertracker import NumberTracker
 from whylogs.core.statistics.thetasketch import ThetaSketch
 from whylogs.core.summaryconverters import from_string_sketch
-from whylogs.proto import StringsMessage, StringsSummary
+from whylogs.proto import CharPosMessage, CharPosSummary, StringsMessage, StringsSummary
 from whylogs.util import dsketch
 from whylogs.util.util_functions import encode_to_integers
-from whylogs.proto import CharPosMessage
-from whylogs.proto import CharPosSummary
+
+from .numbertracker import NumberTracker
+
 MAX_ITEMS_SIZE = 128
 MAX_SUMMARY_ITEMS = 100
 
@@ -47,7 +46,7 @@ class CharPosTracker:
         new_char_pos_tracker = CharPosTracker(character_list=new_character_list)
 
         # merge
-        new_indxes_for_character_list = encode_to_integers(self.character_list, new_character_list)
+        encode_to_integers(self.character_list, new_character_list)
 
         new_char_pos_tracker = new_char_pos_tracker.char_pos_map
 
@@ -85,11 +84,10 @@ class CharPosTracker:
         char_pos_tracker.char_pos_map = [nt.from_protobuf for nt in CharPosMessage.char_pos_map]
         return char_pos_tracker
 
-    def to_summary(self,):
-        opts = dict(
-            character_list=self.character_list,
-            char_pos_map=[nt.to_summary()  for nt in self.char_pos_map ] 
-        )
+    def to_summary(
+        self,
+    ):
+        opts = dict(character_list=self.character_list, char_pos_map=[nt.to_summary() for nt in self.char_pos_map])
 
         return CharPosSummary(**opts)
 
@@ -106,7 +104,7 @@ class StringTracker:
         Sketch for tracking string counts
     theta_sketch : ThetaSketch
         Sketch for approximate cardinality tracking
-    length : NumberTracker 
+    length : NumberTracker
         tracks the distribution of length of strings
     token_length
     """
@@ -151,7 +149,7 @@ class StringTracker:
         self.count += 1
         self.theta_sketch.update(value)
         self.items.update(value)
-        self.char_pos_tracker .update(value)
+        self.char_pos_tracker.update(value)
         self.length.track(len(value))
         self.token_length.track(len(self.token_method(value)))
 
@@ -195,7 +193,7 @@ class StringTracker:
             compact_theta=self.theta_sketch.serialize(),
             length=self.length.to_protobuf(),
             token_length=self.token_length.to_protobuf(),
-            char_pos_tracker=self.char_pos_tracker.to_protobuf()
+            char_pos_tracker=self.char_pos_tracker.to_protobuf(),
         )
 
     @staticmethod
@@ -219,7 +217,9 @@ class StringTracker:
             theta_sketch=theta,
         )
 
-    def to_summary(self,):
+    def to_summary(
+        self,
+    ):
         """
         Generate a summary of the statistics
 
@@ -231,11 +231,7 @@ class StringTracker:
         if self.count == 0:
             return None
         unique_count = self.theta_sketch.to_summary()
-        opts = dict(
-            unique_count=unique_count,
-            length=self.length.to_summary(),
-            token_length=self.token_length.to_summary()
-        )
+        opts = dict(unique_count=unique_count, length=self.length.to_summary(), token_length=self.token_length.to_summary())
         if unique_count.estimate < MAX_SUMMARY_ITEMS:
             frequent_strings = from_string_sketch(self.items)
             if frequent_strings is not None:

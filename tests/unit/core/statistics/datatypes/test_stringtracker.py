@@ -1,5 +1,5 @@
-import pytest
 import datasketches
+import pytest
 
 from whylogs.core.statistics import StringTracker
 from whylogs.util.protobuf import message_to_dict
@@ -29,6 +29,7 @@ def test_character_pos_tracker():
 
     assert x.char_pos_tracker is not None
 
+
 def test_tracking():
     x = StringTracker()
     data = ["one", "two", "three", "one", "one", "One", "six", None, None]
@@ -41,8 +42,7 @@ def test_tracking():
 
     assert x.items.get_num_active_items() == n_unique
     assert x.items.get_total_weight() == count
-    assert [("one", 3, 3, 3)] == x.items.get_frequent_items(
-        datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES, 2)
+    assert [("one", 3, 3, 3)] == x.items.get_frequent_items(datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES, 2)
 
     assert x.theta_sketch.get_result().get_estimate() == float(n_unique)
     assert x.count == count
@@ -76,11 +76,42 @@ def test_summary():
                 {"value": "three", "estimate": 1.0},
                 {"value": "six", "estimate": 1.0},
                 {"value": "One", "estimate": 1.0},
-                {"value": "two", "estimate": 1.0}
+                {"value": "two", "estimate": 1.0},
             ]
         },
-        'length': {'count': '7', 'min': 3.0, 'max': 5.0, 'mean': 3.2857142857142856, 'stddev': 0.7559289460184544, 'histogram': {'start': 3.0, 'end': 5.0000005, 'counts': ['6', '1'], 'max': 5.0, 'min': 3.0, 'bins': [3.0, 4.000000249999999, 5.0000005], 'n': '7', 'width': 0.0}, 'uniqueCount': {'estimate': 2.0, 'upper': 2.0, 'lower': 2.0}, 'quantiles': {'quantiles': [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], 'quantileValues': [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 5.0, 5.0, 5.0]}, 'frequentNumbers': {'longs': [{'estimate': '6', 'value': '3', 'rank': 0}, {'estimate': '1', 'value': '5', 'rank': 1}], 'doubles': []}, 'isDiscrete': False},
-        'tokenLength': {'count': '7', 'min': 1.0, 'max': 1.0, 'mean': 1.0, 'histogram': {'start': 1.0, 'end': 1.0000001, 'counts': ['7'], 'max': 1.0, 'min': 1.0, 'bins': [1.0, 1.0000001], 'n': '7', 'width': 0.0}, 'uniqueCount': {'estimate': 1.0, 'upper': 1.0, 'lower': 1.0}, 'quantiles': {'quantiles': [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], 'quantileValues': [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}, 'frequentNumbers': {'longs': [{'estimate': '7', 'value': '1', 'rank': 0}], 'doubles': []}, 'stddev': 0.0, 'isDiscrete': False},
+        "length": {
+            "count": "7",
+            "min": 3.0,
+            "max": 5.0,
+            "mean": 3.2857142857142856,
+            "stddev": 0.7559289460184544,
+            "histogram": {
+                "start": 3.0,
+                "end": 5.0000005,
+                "counts": ["6", "1"],
+                "max": 5.0,
+                "min": 3.0,
+                "bins": [3.0, 4.000000249999999, 5.0000005],
+                "n": "7",
+                "width": 0.0,
+            },
+            "uniqueCount": {"estimate": 2.0, "upper": 2.0, "lower": 2.0},
+            "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 5.0, 5.0, 5.0]},
+            "frequentNumbers": {"longs": [{"estimate": "6", "value": "3", "rank": 0}, {"estimate": "1", "value": "5", "rank": 1}], "doubles": []},
+            "isDiscrete": False,
+        },
+        "tokenLength": {
+            "count": "7",
+            "min": 1.0,
+            "max": 1.0,
+            "mean": 1.0,
+            "histogram": {"start": 1.0, "end": 1.0000001, "counts": ["7"], "max": 1.0, "min": 1.0, "bins": [1.0, 1.0000001], "n": "7", "width": 0.0},
+            "uniqueCount": {"estimate": 1.0, "upper": 1.0, "lower": 1.0},
+            "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]},
+            "frequentNumbers": {"longs": [{"estimate": "7", "value": "1", "rank": 0}], "doubles": []},
+            "stddev": 0.0,
+            "isDiscrete": False,
+        },
     }
     expected_items = pd.DataFrame(expected["frequent"]["items"]).sort_values(["value", "estimate"])
     expected["frequent"].pop("items")

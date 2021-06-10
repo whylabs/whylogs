@@ -3,13 +3,17 @@ Defines the ColumnProfile class for tracking per-column statistics
 """
 import pandas as pd
 
-from whylogs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
+from whylogs.core.statistics import (
+    CountersTracker,
+    NumberTracker,
+    SchemaTracker,
+    StringTracker,
+)
 from whylogs.core.statistics.constraints import (
     SummaryConstraint,
     SummaryConstraints,
     ValueConstraints,
 )
-from whylogs.core.statistics import StringTracker
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
