@@ -46,7 +46,7 @@ message FrequentItemsSummary {
 
 message CharPosSummary {
   string character_list=1;
-  repeated NumberSummary char_pos_map =2;
+  repeated NumberSummary char_pos_map = 2;
 }
 
 message StringsSummary {
