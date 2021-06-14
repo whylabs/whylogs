@@ -11,7 +11,7 @@ import lombok.val;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModelMetrics {
-  private final ModelType modelType;
+  @Getter private final ModelType modelType;
   @Getter private final ScoreMatrix scoreMatrix;
   @Getter private final RegressionMetrics regressionMetrics;
 
@@ -85,21 +85,8 @@ public class ModelMetrics {
     if (msg == null || msg.getSerializedSize() == 0) {
       return null;
     }
-    switch (msg.getModelType()) {
-      case CLASSIFICATION:
-        val scoreMatrix = ScoreMatrix.fromProtobuf(msg.getScoreMatrix());
-        if (scoreMatrix == null) {
-          return null;
-        }
-        return new ModelMetrics(msg.getModelType(), scoreMatrix, null);
-      case REGRESSION:
-        val regressionMetrics = RegressionMetrics.fromProtobuf(msg.getRegressionMetrics());
-        if (regressionMetrics == null) {
-          return null;
-        }
-        return new ModelMetrics(msg.getModelType(), null, regressionMetrics);
-      default:
-        throw new IllegalArgumentException("Unsupported model type: " + msg.getModelType());
-    }
+    val scoreMatrix = ScoreMatrix.fromProtobuf(msg.getScoreMatrix());
+    val regressionMetrics = RegressionMetrics.fromProtobuf(msg.getRegressionMetrics());
+    return new ModelMetrics(msg.getModelType(), scoreMatrix, regressionMetrics);
   }
 }

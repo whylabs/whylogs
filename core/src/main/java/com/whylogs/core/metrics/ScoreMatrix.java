@@ -17,11 +17,12 @@ import lombok.val;
 
 @Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 public class ScoreMatrix {
   private List<String> labels;
-  @Getter private final String predictionField;
-  @Getter private final String targetField;
-  @Getter private final String scoreField;
+  private final String predictionField;
+  private final String targetField;
+  private final String scoreField;
   private NumberTracker[][] values;
 
   public ScoreMatrix(String predictionField, String targetField, String scoreField) {
