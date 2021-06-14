@@ -85,7 +85,7 @@ message StringsMessage {
   bytes compact_theta = 4;
   NumbersMessage length = 5;
   NumbersMessage token_length= 6;
-  CharPosMessage char_pos_tracker =7;
+  CharPosMessage char_pos_tracker = 7;
  
 }
 
