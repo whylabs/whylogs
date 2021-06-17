@@ -83,7 +83,7 @@ class CharPosTracker:
     def to_summary(
         self,
     ):
-        opts = dict(character_list="".join(list(self.character_list)), char_pos_map={ key : nt.to_summary() for key, nt in self.char_pos_map.items()})
+        opts = dict(character_list="".join(list(self.character_list)), char_pos_map={key: nt.to_summary() for key, nt in self.char_pos_map.items()})
 
         return CharPosSummary(**opts)
 
@@ -229,7 +229,12 @@ class StringTracker:
         if self.count == 0:
             return None
         unique_count = self.theta_sketch.to_summary()
-        opts = dict(unique_count=unique_count, length=self.length.to_summary(), token_length=self.token_length.to_summary(),char_pos_tracker=self.char_pos_tracker.to_summary())
+        opts = dict(
+            unique_count=unique_count,
+            length=self.length.to_summary(),
+            token_length=self.token_length.to_summary(),
+            char_pos_tracker=self.char_pos_tracker.to_summary(),
+        )
         if unique_count.estimate < MAX_SUMMARY_ITEMS:
             frequent_strings = from_string_sketch(self.items)
             if frequent_strings is not None:
