@@ -73,7 +73,7 @@ public class ClassificationMetrics {
       if (x < 0) {
         newLabels.add(predictionText);
       }
-      if (y < 0) {
+      if (!newLabels.contains(targetText)) {
         newLabels.add(targetText);
       }
       Collections.sort(newLabels);
