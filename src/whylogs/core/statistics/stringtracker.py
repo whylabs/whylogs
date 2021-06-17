@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class CharPosTracker:
-    def __init__(self, character_list: str = "abcdefghijklmnopqrstuvwzyz0123456789-@!#$%^&*()"):
+    def __init__(self, character_list: str = "abcdefghijklmnopqrstuvwzyz0123456789-@!#$%^&*()[]{\}"):
 
         self.character_list = set(character_list)
 
@@ -26,12 +26,19 @@ class CharPosTracker:
 
     def update(self, value):
         for indx, char in enumerate(value.lower()):
-            if char in self.character_list:
-                self.char_pos_map.setdefault(char, NumberTracker())
-                self.char_pos_map[char].track(indx)
-            else:
+
+            try: 
+                char=char.encode("ascii")
+                if char in self.character_list:
+                    self.char_pos_map.setdefault(char, NumberTracker())
+                    self.char_pos_map[char].track(indx)
+                else:
+                    self.char_pos_map.setdefault("NITL", NumberTracker())
+                    self.char_pos_map["NITL"].track(indx)
+            except UnicodeEncodeError:
                 self.char_pos_map.setdefault("NITL", NumberTracker())
                 self.char_pos_map["NITL"].track(indx)
+
 
     def merge(self, other):
         """
