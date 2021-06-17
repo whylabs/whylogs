@@ -59,7 +59,7 @@
           </div>
         </div>
       </nav>
-  
+
       <div class="container-fluid">
         <div class="row">
           <div class="sidebar">
@@ -75,14 +75,29 @@
             </form>
             <div class="d-none" id="sidebar-content">
               <div class="d-none sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
+                <strong>Unlock the power of WhyLabs:</strong>
+                <ul class="small mt-1 mb-3">
+                  <li>Generate an API token to upload and save profiles to the platform</li>
+                  <li>Analyze and compare profiles to identify data drift and other anomalies</li>
+                  <li>Turn on monitoring with a single click, no manual set up required!</li>
+                  <li>Get alerted in real time when data and model health issues arise</li>
+                </ul>
+                <a
+                  class="btn btn-warning btn-signup"
+                  target="_blank"
+                  href="http://bit.ly/whylogs-to-whylabs-free-signup"
+                  >Sign up for a free WhyLabs account</a
+                >
+              </div>
+              <div class="d-none sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
                 <strong>Profile</strong>
                 <h5 class="mt-1 wl__selected-profile">2020-02-26 12:23:32 PM PST</h5>
               </div>
-  
+
               <div class="d-none sidebar-content__profile-dropdown-wrap mb-3" id="sidebar-content-multi-profile">
                 <strong class="d-block">Profiles</strong>
                 <p class="small mt-1 mb-2">Select a profile from the dropdown below</p>
-  
+
                 <div class="sidebar-content__profile-dropdown-outer-container">
                   <div class="sidebar-content__profile-dropdown-inner-container">
                     <select
@@ -93,7 +108,7 @@
                       <option value="example-profile-2">Example profile 2</option>
                       <option value="example-profile-3">Example profile 3</option>
                     </select>
-  
+
                     <svg
                       class="sidebar-content__profile-dropdown-chevron"
                       width="24"
@@ -106,7 +121,7 @@
                   </div>
                 </div>
               </div>
-  
+
               <strong>Total features</strong>
               <h1 class="feature-count mb-3 wl__feature-count">37</h1>
               <div class="mb-4">
@@ -157,7 +172,7 @@
               </div>
             </div>
           </div>
-  
+
           <div class="main">
             <div class="wl-table-wrap d-none" id="table-content">
               <div class="wl-table">
@@ -183,11 +198,11 @@
                 <ul class="wl-table-body wl__table-body"></ul>
               </div>
             </div>
-  
+
             <div class="wl-table__text-message" id="table-message">
               <p>Please select and load a JSON profile from your local drive.</p>
             </div>
-  
+
             <div class="wl-property-panel">
               <button type="button" class="wl-property-panel__button btn-close" aria-label="Close"></button>
               <h5 class="wl-property-panel__title"></h5>
