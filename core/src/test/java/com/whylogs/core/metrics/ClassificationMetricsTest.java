@@ -134,6 +134,40 @@ public class ClassificationMetricsTest {
     assertThat(matrix[2][2], is(2L));
   }
 
+  // mockingbird test_summary_metrics()
+  @Test
+  public void multiclass_classification_python_identical() {
+    val profile = new DatasetProfile("session", Instant.now());
+
+    val metrics = ClassificationMetrics.of();
+    val predictions = ImmutableList.of("cat", "dog", "dog");
+    val targets = ImmutableList.of("cat", "dog", "pig");
+    val scores = ImmutableList.of(0.1, 0.2, 0.4);
+
+    for (int i = 0; i < predictions.size(); i++) {
+      metrics.update(profile, predictions.get(i), targets.get(i), scores.get(i));
+    }
+    val matrix = metrics.getConfusionMatrix();
+    assertThat(matrix.length, is(3));
+    assertThat(matrix[0].length, is(3));
+    assertThat(matrix[1].length, is(3));
+    assertThat(matrix[2].length, is(3));
+
+    // Result matrix
+    // array([[1, 0, 0],
+    //       [0, 1, 1],
+    //       [0, 0, 0]])
+    assertThat(matrix[0][0], is(1L));
+    assertThat(matrix[0][1], is(0L));
+    assertThat(matrix[0][2], is(0L));
+    assertThat(matrix[1][0], is(0L));
+    assertThat(matrix[1][1], is(1L));
+    assertThat(matrix[1][2], is(1L));
+    assertThat(matrix[2][0], is(0L));
+    assertThat(matrix[2][1], is(0L));
+    assertThat(matrix[2][2], is(0L));
+  }
+
   // https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
   @Test
   public void multiclass_classification_integer_labels() {
