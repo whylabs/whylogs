@@ -77,7 +77,19 @@ SCALAR_NAME_MAPPING = OrderedDict(
             estimate="nunique_str",
             lower="nunique_str_lower",
             upper="nunique_str_upper",
-        )
+        ),
+        length=OrderedDict(
+            max="max_length",
+            mean="mean_length",
+            min="min_length",
+            stddev="stddev_length",
+        ),
+        token_length=OrderedDict(
+            max="max_token_length",
+            mean="mean_token_length",
+            min="min_token_length",
+            stddev="stddev_token_length",
+        ),
     ),
 )
 
@@ -786,6 +798,25 @@ def flatten_dataset_quantiles(dataset_summary: DatasetSummary):
             quants[col_name] = x
         except KeyError:
             pass
+
+    return quants
+
+
+def flatten_dataset_string_quantiles(dataset_summary: DatasetSummary):
+    """
+    Flatten quantiles from a dataset summary
+    """
+    quants = {}
+    for col_name, col in dataset_summary.columns.items():
+        try:
+            quant = getter(getter(col, "number_summary"), "quantiles")
+            x = OrderedDict()
+            for q, qval in zip(_quantile_strings(quant.quantiles), quant.quantile_values):
+                x[q] = qval
+            quants[col_name] = x
+        except KeyError:
+            pass
+
     return quants
 
 
@@ -864,6 +895,7 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
     quantile = flatten_dataset_quantiles(dataset_summary)
     col_out = {}
     for _k, col in dataset_summary.columns.items():
+        # print(f"col::{col}")
         col_out[_k] = remap(col, mapping)
         col_out[_k].update(quantile.get(_k, {}))
     scalar_summary = pd.DataFrame(col_out).T
