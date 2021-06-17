@@ -18,18 +18,20 @@ logger = logging.getLogger(__name__)
 
 
 class CharPosTracker:
-    def __init__(self, character_list: str = "abcdefghijklmnopqrstuvwzyz0123456789-"):
+    def __init__(self, character_list: str = "abcdefghijklmnopqrstuvwzyz0123456789-@!#$%^&*()"):
 
-        self.character_list = character_list
-        self._character_list_map = {x: idx for idx, x in enumerate(character_list)}
+        self.character_list = set(character_list)
 
-        self.char_pos_map = [NumberTracker() for _ in self.character_list]
+        self.char_pos_map = {}
 
     def update(self, value):
-
-        for indx, char in enumerate(value):
+        for indx, char in enumerate(value.lower()):
             if char in self.character_list:
-                self.char_pos_map[self._character_list_map[char]].track(indx)
+                self.char_pos_map.setdefault(char, NumberTracker())
+                self.char_pos_map[char].track(indx)
+            else:
+                self.char_pos_map.setdefault("NITL", NumberTracker())
+                self.char_pos_map["NITL"].track(indx)
 
     def merge(self, other):
         """
@@ -40,23 +42,12 @@ class CharPosTracker:
             other (CharPosTracker): to be merged
 
         """
-        new_character_list = list(set(self.character_list + other.character_list))
+        new_character_list = self.character_list.union(other.character_list)
 
         # initialize merged
-        new_char_pos_tracker = CharPosTracker(character_list=new_character_list)
+        new_char_pos_tracker = CharPosTracker(character_list="".join(list(new_character_list)))
 
         # merge
-        new_indxes = encode_to_integers(self.character_list, new_character_list)
-
-        new_char_pos_tracker = new_char_pos_tracker.char_pos_map
-
-        for old_indx, new_indx in enumerate(new_indxes):
-            new_char_pos_tracker[new_indx].merge(self.char_pos_map[old_indx])
-
-        new_indxes = encode_to_integers(other.character_list, new_character_list)
-
-        for old_indx, new_indx in enumerate(new_indxes):
-            new_char_pos_tracker[new_indx].merge(other.char_pos_map[old_indx])
 
         return new_char_pos_tracker
 
@@ -65,8 +56,8 @@ class CharPosTracker:
         Return the object serialized as a protobuf message
         """
         opts = dict(
-            char_list=self.character_list,
-            char_pos_map=[nt.to_protobuf() for nt in self.char_pos_map],
+            char_list="".join(list(self.character_list)),
+            char_pos_map=[nt.to_protobuf() for key, nt in self.char_pos_map.items()],
         )
 
         msg = CharPosMessage(**opts)
@@ -92,7 +83,7 @@ class CharPosTracker:
     def to_summary(
         self,
     ):
-        opts = dict(character_list=self.character_list, char_pos_map=[nt.to_summary() for nt in self.char_pos_map])
+        opts = dict(character_list="".join(list(self.character_list)), char_pos_map={ key : nt.to_summary() for key, nt in self.char_pos_map.items()})
 
         return CharPosSummary(**opts)
 
@@ -220,6 +211,8 @@ class StringTracker:
             count=message.count,
             items=dsketch.deserialize_frequent_strings_sketch(message.items),
             theta_sketch=theta,
+            length=message.length,
+            token_length=message.token_length,
         )
 
     def to_summary(
@@ -236,7 +229,7 @@ class StringTracker:
         if self.count == 0:
             return None
         unique_count = self.theta_sketch.to_summary()
-        opts = dict(unique_count=unique_count, length=self.length.to_summary(), token_length=self.token_length.to_summary())
+        opts = dict(unique_count=unique_count, length=self.length.to_summary(), token_length=self.token_length.to_summary(),char_pos_tracker=self.char_pos_tracker.to_summary())
         if unique_count.estimate < MAX_SUMMARY_ITEMS:
             frequent_strings = from_string_sketch(self.items)
             if frequent_strings is not None:
