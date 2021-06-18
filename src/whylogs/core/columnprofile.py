@@ -86,6 +86,9 @@ class ColumnProfile:
             cardinality_tracker = HllSketch()
         if constraints is None:
             constraints = ValueConstraints()
+
+
+
         # Assign values
         self.column_name = name
         self.number_tracker = number_tracker
@@ -96,7 +99,7 @@ class ColumnProfile:
         self.cardinality_tracker = cardinality_tracker
         self.constraints = constraints
 
-    def track(self, value):
+    def track(self, value, character_list=None, token_method=None):
         """
         Add `value` to tracking statistics.
         """
@@ -107,7 +110,8 @@ class ColumnProfile:
 
         # TODO: ignore this if we already know the data type
         if isinstance(value, str):
-            self.string_tracker.update(value)
+
+            self.string_tracker.update(value, character_list=character_list, token_method=token_method)
 
         # TODO: Implement real typed data conversion
         typed_data = TypedDataConverter.convert(value)
