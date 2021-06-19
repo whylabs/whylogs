@@ -895,7 +895,6 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
     quantile = flatten_dataset_quantiles(dataset_summary)
     col_out = {}
     for _k, col in dataset_summary.columns.items():
-        # print(f"col::{col}")
         col_out[_k] = remap(col, mapping)
         col_out[_k].update(quantile.get(_k, {}))
     scalar_summary = pd.DataFrame(col_out).T
