@@ -27,7 +27,6 @@ class CharPosTracker:
 
     def update(self, value):
         for indx, char in enumerate(value.lower()):
-
             try:
                 char = char.encode("ascii")
                 if char in self.character_list:
