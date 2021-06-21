@@ -63,13 +63,14 @@
   function handleSearch() {
     const tableBodyChildrens = $tableBody.children();
     const featureListChildren = $sidebarFeatureNameList.children();
-
+    let featureCount = 0;
     for (let i = 0; i < tableBodyChildrens.length; i++) {
       const name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
       const type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
 
       if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
         tableBodyChildrens[i].style.display = "";
+        featureCount++;
       } else {
         tableBodyChildrens[i].style.display = "none";
       }
@@ -79,12 +80,13 @@
       const name = featureListChildren[i].dataset.featureName.toLowerCase();
       const type = featureListChildren[i].dataset.inferredType.toLowerCase();
 
-      if (isActiveInferredType[type]) {
+      if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
         featureListChildren[i].style.display = "";
       } else {
         featureListChildren[i].style.display = "none";
       }
     }
+    $featureCount.html(featureCount);
   }
 
   function fixNumberTo(number, decimals = 3) {
@@ -394,7 +396,7 @@
   function renderList() {
     const tableBodyChildrens = $tableBody.children();
     const featureListChildren = $sidebarFeatureNameList.children();
-
+    let featureCount = 0;
     $.each($featureFilterInput, (_, filterInput) => {
       isActiveInferredType[filterInput.value.toLowerCase()] = filterInput.checked;
     });
@@ -403,8 +405,9 @@
       const name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
       const type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
 
-      if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
+      if (isActiveInferredType[type]) {
         tableBodyChildrens[i].style.display = "";
+        featureCount++;
       }
     }
     for (let i = 0; i < featureListChildren.length; i++) {
@@ -415,6 +418,7 @@
         featureListChildren[i].style.display = "";
       }
     }
+    $featureCount.html(featureCount);
   }
 
   function renderProfileDropdown() {
