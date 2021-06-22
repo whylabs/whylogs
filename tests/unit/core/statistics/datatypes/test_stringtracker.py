@@ -28,6 +28,10 @@ def test_character_pos_tracker():
     assert x.count == count
 
     assert x.char_pos_tracker is not None
+    assert x.length.count == 3
+    assert x.char_pos_tracker.char_pos_map["a"].histogram.get_min_value() == 0
+    assert x.char_pos_tracker.char_pos_map["a"].count == 2
+    assert x.char_pos_tracker.char_pos_map["-"].histogram.get_min_value() == 5
 
 
 def test_tracking():
@@ -42,10 +46,13 @@ def test_tracking():
 
     assert x.items.get_num_active_items() == n_unique
     assert x.items.get_total_weight() == count
-    assert [("one", 3, 3, 3)] == x.items.get_frequent_items(datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES, 2)
+    assert [("one", 3, 3, 3)] == x.items.get_frequent_items(
+        datasketches.frequent_items_error_type.NO_FALSE_NEGATIVES, 2)
 
     assert x.theta_sketch.get_result().get_estimate() == float(n_unique)
     assert x.count == count
+    # check case insensitive tracking
+    assert x.char_pos_tracker.char_pos_map["o"].count == 5
 
 
 def test_protobuf():
@@ -115,41 +122,18 @@ def test_summary():
         "charPosTracker": {
             "characterList": "!#$%&()*-0123456789@[]^abcdefghijklmnopqrstuvwyz{}",
             "charPosMap": {
-                "NITL": {
-                    "count": "23",
-                    "max": 4.0,
-                    "mean": 1.2173913043478262,
-                    "stddev": 1.0852951730511942,
-                    "histogram": {
-                        "end": 4.0000004,
-                        "counts": ["7", "7", "7", "0", "1", "1"],
-                        "max": 4.0,
-                        "bins": [0.0, 0.6666667333333334, 1.3333334666666667, 2.0000002, 2.6666669333333335, 3.333333666666667, 4.0000004],
-                        "n": "23",
-                        "start": 0.0,
-                        "width": 0.0,
-                        "min": 0.0,
-                    },
-                    "uniqueCount": {"estimate": 5.0, "upper": 5.0, "lower": 5.0},
-                    "quantiles": {
-                        "quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0],
-                        "quantileValues": [0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 4.0, 4.0],
-                    },
-                    "frequentNumbers": {
-                        "longs": [
-                            {"estimate": "7", "value": "2", "rank": 0},
-                            {"estimate": "7", "value": "1", "rank": 1},
-                            {"estimate": "7", "rank": 2, "value": "0"},
-                            {"estimate": "1", "value": "4", "rank": 3},
-                            {"estimate": "1", "value": "3", "rank": 4},
-                        ],
-                        "doubles": [],
-                    },
-                    "min": 0.0,
-                    "isDiscrete": False,
-                }
+                "i": {"count": "1", "min": 1.0, "max": 1.0, "mean": 1.0, "histogram": {"start": 1.0, "end": 1.0000001, "counts": ["1"], "max": 1.0, "min": 1.0, "bins": [1.0, 1.0000001], "n": "1", "width": 0.0}, "uniqueCount": {"estimate": 1.0, "upper": 1.0, "lower": 1.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}, "frequentNumbers": {"longs": [{"estimate": "1", "value": "1", "rank": 0}], "doubles": []}, "stddev": 0.0, "isDiscrete": False},
+                "t": {"count": "2", "histogram": {"counts": ["2"], "bins": [0.0, 0.0], "n": "2", "start": 0.0, "end": 0.0, "width": 0.0, "max": 0.0, "min": 0.0}, "uniqueCount": {"estimate": 1.0, "upper": 1.0, "lower": 1.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, "frequentNumbers": {"longs": [{"estimate": "2", "value": "0", "rank": 0}], "doubles": []}, "min": 0.0, "max": 0.0, "mean": 0.0, "stddev": 0.0, "isDiscrete": False},
+                "s": {"count": "1", "histogram": {"counts": ["1"], "bins": [0.0, 0.0], "n": "1", "start": 0.0, "end": 0.0, "width": 0.0, "max": 0.0, "min": 0.0}, "uniqueCount": {"estimate": 1.0, "upper": 1.0, "lower": 1.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]}, "frequentNumbers": {"longs": [{"estimate": "1", "value": "0", "rank": 0}], "doubles": []}, "min": 0.0, "max": 0.0, "mean": 0.0, "stddev": 0.0, "isDiscrete": False},
+                "n": {"count": "4", "min": 1.0, "max": 1.0, "mean": 1.0, "histogram": {"start": 1.0, "end": 1.0000001, "counts": ["4"], "max": 1.0, "min": 1.0, "bins": [1.0, 1.0000001], "n": "4", "width": 0.0}, "uniqueCount": {"estimate": 1.0, "upper": 1.0, "lower": 1.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}, "frequentNumbers": {"longs": [{"estimate": "4", "value": "1", "rank": 0}], "doubles": []}, "stddev": 0.0, "isDiscrete": False},
+                "h": {"count": "1", "min": 1.0, "max": 1.0, "mean": 1.0, "histogram": {"start": 1.0, "end": 1.0000001, "counts": ["1"], "max": 1.0, "min": 1.0, "bins": [1.0, 1.0000001], "n": "1", "width": 0.0}, "uniqueCount": {"estimate": 1.0, "upper": 1.0, "lower": 1.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}, "frequentNumbers": {"longs": [{"estimate": "1", "value": "1", "rank": 0}], "doubles": []}, "stddev": 0.0, "isDiscrete": False},
+                "o": {"count": "5", "max": 2.0, "mean": 0.4, "stddev": 0.894427190999916, "histogram": {"end": 2.0000002, "counts": ["4", "1"], "max": 2.0, "bins": [0.0, 1.0000001, 2.0000002], "n": "5", "start": 0.0, "width": 0.0, "min": 0.0}, "uniqueCount": {"estimate": 2.0, "upper": 2.0, "lower": 2.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 2.0]}, "frequentNumbers": {"longs": [{"estimate": "4", "value": "0", "rank": 0}, {"estimate": "1", "value": "2", "rank": 1}], "doubles": []}, "min": 0.0, "isDiscrete": False},
+                "NITL": {"count": "1", "min": 2.0, "max": 2.0, "mean": 2.0, "histogram": {"start": 2.0, "end": 2.0000002, "counts": ["1"], "max": 2.0, "min": 2.0, "bins": [2.0, 2.0000002], "n": "1", "width": 0.0}, "uniqueCount": {"estimate": 1.0, "upper": 1.0, "lower": 1.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]}, "frequentNumbers": {"longs": [{"estimate": "1", "value": "2", "rank": 0}], "doubles": []}, "stddev": 0.0, "isDiscrete": False},
+                "w": {"count": "1", "min": 1.0, "max": 1.0, "mean": 1.0, "histogram": {"start": 1.0, "end": 1.0000001, "counts": ["1"], "max": 1.0, "min": 1.0, "bins": [1.0, 1.0000001], "n": "1", "width": 0.0}, "uniqueCount": {"estimate": 1.0, "upper": 1.0, "lower": 1.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]}, "frequentNumbers": {"longs": [{"estimate": "1", "value": "1", "rank": 0}], "doubles": []}, "stddev": 0.0, "isDiscrete": False},
+                "e": {"count": "6", "min": 2.0, "max": 4.0, "mean": 2.5, "stddev": 0.8366600265340756, "histogram": {"start": 2.0, "end": 4.0000004, "counts": ["5", "1"], "max": 4.0, "min": 2.0, "bins": [2.0, 3.0000002, 4.0000004], "n": "6", "width": 0.0}, "uniqueCount": {"estimate": 3.0, "upper": 3.0, "lower": 3.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [2.0, 2.0, 2.0, 2.0, 2.0, 3.0, 4.0, 4.0, 4.0]}, "frequentNumbers": {"longs": [{"estimate": "4", "value": "2", "rank": 0}, {"estimate": "1", "value": "4", "rank": 1}, {"estimate": "1", "value": "3", "rank": 2}], "doubles": []}, "isDiscrete": False},
+                "r": {"count": "1", "min": 2.0, "max": 2.0, "mean": 2.0, "histogram": {"start": 2.0, "end": 2.0000002, "counts": ["1"], "max": 2.0, "min": 2.0, "bins": [2.0, 2.0000002], "n": "1", "width": 0.0}, "uniqueCount": {"estimate": 1.0, "upper": 1.0, "lower": 1.0}, "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]}, "frequentNumbers": {"longs": [{"estimate": "1", "value": "2", "rank": 0}], "doubles": []}, "stddev": 0.0, "isDiscrete": False}
+                },
             },
-        },
     }
     expected_items = pd.DataFrame(expected["frequent"]["items"]).sort_values(["value", "estimate"])
     expected["frequent"].pop("items")
