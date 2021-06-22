@@ -661,7 +661,7 @@ class DatasetProfile:
         profile = DatasetProfile.from_protobuf_string(msg_buf)
         return pos, profile
 
-    @staticmethod
+    @staticmethod   
     def parse_delimited(data: bytes):
         """
         Parse delimited data (i.e. data prefixed with the message length).

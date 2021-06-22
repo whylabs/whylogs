@@ -1,7 +1,7 @@
 import logging
 import math
 
-from typing import List 
+from typing import List
 
 from datasketches import frequent_strings_sketch
 
@@ -20,8 +20,10 @@ logger = logging.getLogger(__name__)
 
 
 class CharPosTracker:
-    def __init__(self, character_list: str = "abcdefghijklmnopqrstuvwzyz0123456789-@!#$%^&*()[]{\}"):
+    def __init__(self, character_list: str = None):
 
+        if character_list is None:
+            character_list = "abcdefghijklmnopqrstuvwzyz0123456789-@!#$%^&*()[]{}"
         self.character_list = set(character_list)
         self.char_pos_map = {}
 
@@ -48,6 +50,10 @@ class CharPosTracker:
             other (CharPosTracker): to be merged
 
         """
+        if self.character_list != other.character_list:
+            and (not self.char_pos_map or not other.char_pos_map):
+            logger.error("Merging two non-empty Character position tracker with different character lists ")
+
         new_character_list = self.character_list.union(other.character_list)
 
         # initialize merged
@@ -55,6 +61,20 @@ class CharPosTracker:
             character_list="".join(list(new_character_list)))
 
         # merge
+        new_char_pos_map = {}
+        for character in new_character_list:
+
+            empty_number_tracker = NumberTracker()
+            pos_tracker = self.char_pos_map.get(character, None)
+            other_tracker = other.char_pos_map.get(character, None)
+            if pos_tracker and other_column:
+                new_char_pos_map[character] = pos_tracker.merge(other_tracker)
+            elif pos_tracker:
+                new_char_pos_map[character] = pos_tracker
+            elif other_tracker:
+                new_char_pos_map[character] = other_tracker
+
+        new_char_pos_tracker.char_pos_map = new_char_pos_map
 
         return new_char_pos_tracker
 
@@ -112,7 +132,12 @@ class StringTracker:
         Sketch for approximate cardinality tracking
     length : NumberTracker
         tracks the distribution of length of strings
-    token_length
+    token_length :  NumberTracker
+        counts token per sentence 
+    token_method : funtion 
+        method used to turn string into tokens
+    char_pos_tracker: CharPosTracker
+
     """
 
     def __init__(
@@ -144,7 +169,7 @@ class StringTracker:
         self.token_method = token_method if token_method else lambda x: x.split(
             " ")
 
-    def update(self, value: str):
+    def update(self, value: str, character_list=None, token_method=None):
         """
         Add a string to the tracking statistics.
 
@@ -156,7 +181,18 @@ class StringTracker:
         self.count += 1
         self.theta_sketch.update(value)
         self.items.update(value)
+
+        if character_list:
+            if (character_list != self.char_pos_tracker.character_list):
+                # check if any character were previously tracked
+                if not self.char_pos_tracker.char_pos_map:
+                    logger.warning(
+                        "changing character list, a non-empty character position tracker being reset")
+                self.char_pos_tracker.character_list = character_list
+                self.char_pos_tracker.char_pos_map = {}
+
         self.char_pos_tracker.update(value)
+
         self.length.track(len(value))
         self.token_length.track(len(self.token_method(value)))
 
