@@ -112,6 +112,44 @@ def test_summary():
             "stddev": 0.0,
             "isDiscrete": False,
         },
+        "charPosTracker": {
+            "characterList": "!#$%&()*-0123456789@[]^abcdefghijklmnopqrstuvwyz{}",
+            "charPosMap": {
+                "NITL": {
+                    "count": "23",
+                    "max": 4.0,
+                    "mean": 1.2173913043478262,
+                    "stddev": 1.0852951730511942,
+                    "histogram": {
+                        "end": 4.0000004,
+                        "counts": ["7", "7", "7", "0", "1", "1"],
+                        "max": 4.0,
+                        "bins": [0.0, 0.6666667333333334, 1.3333334666666667, 2.0000002, 2.6666669333333335, 3.333333666666667, 4.0000004],
+                        "n": "23",
+                        "start": 0.0,
+                        "width": 0.0,
+                        "min": 0.0,
+                    },
+                    "uniqueCount": {"estimate": 5.0, "upper": 5.0, "lower": 5.0},
+                    "quantiles": {
+                        "quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0],
+                        "quantileValues": [0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 4.0, 4.0],
+                    },
+                    "frequentNumbers": {
+                        "longs": [
+                            {"estimate": "7", "value": "2", "rank": 0},
+                            {"estimate": "7", "value": "1", "rank": 1},
+                            {"estimate": "7", "rank": 2, "value": "0"},
+                            {"estimate": "1", "value": "4", "rank": 3},
+                            {"estimate": "1", "value": "3", "rank": 4},
+                        ],
+                        "doubles": [],
+                    },
+                    "min": 0.0,
+                    "isDiscrete": False,
+                }
+            },
+        },
     }
     expected_items = pd.DataFrame(expected["frequent"]["items"]).sort_values(["value", "estimate"])
     expected["frequent"].pop("items")

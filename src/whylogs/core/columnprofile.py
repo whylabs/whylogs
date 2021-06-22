@@ -87,8 +87,6 @@ class ColumnProfile:
         if constraints is None:
             constraints = ValueConstraints()
 
-
-
         # Assign values
         self.column_name = name
         self.number_tracker = number_tracker

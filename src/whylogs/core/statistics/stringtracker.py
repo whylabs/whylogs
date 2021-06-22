@@ -1,8 +1,6 @@
 import logging
 import math
 
-from typing import List
-
 from datasketches import frequent_strings_sketch
 
 from whylogs.core.statistics.thetasketch import ThetaSketch
@@ -50,21 +48,18 @@ class CharPosTracker:
             other (CharPosTracker): to be merged
 
         """
-        if self.character_list != other.character_list:
-            and (not self.char_pos_map or not other.char_pos_map):
+        if (self.character_list != other.character_list) and (not self.char_pos_map or not other.char_pos_map):
             logger.error("Merging two non-empty Character position tracker with different character lists ")
 
         new_character_list = self.character_list.union(other.character_list)
 
         # initialize merged
-        new_char_pos_tracker = CharPosTracker(
-            character_list="".join(list(new_character_list)))
+        new_char_pos_tracker = CharPosTracker(character_list="".join(list(new_character_list)))
 
         # merge
         new_char_pos_map = {}
         for character in new_character_list:
-
-            empty_number_tracker = NumberTracker()
+            NumberTracker()
             pos_tracker = self.char_pos_map.get(character, None)
             other_tracker = other.char_pos_map.get(character, None)
             if pos_tracker and other_column:
@@ -84,8 +79,7 @@ class CharPosTracker:
         """
         opts = dict(
             char_list="".join(list(self.character_list)),
-            char_pos_map=[nt.to_protobuf()
-                          for key, nt in self.char_pos_map.items()],
+            char_pos_map=[nt.to_protobuf() for key, nt in self.char_pos_map.items()],
         )
 
         msg = CharPosMessage(**opts)
@@ -105,15 +99,15 @@ class CharPosTracker:
             character_list=CharPosMessage.char_list,
         )
         char_pos_tracker = CharPosTracker(**opts)
-        char_pos_tracker.char_pos_map = [
-            nt.from_protobuf for nt in CharPosMessage.char_pos_map]
+        char_pos_tracker.char_pos_map = [nt.from_protobuf for nt in CharPosMessage.char_pos_map]
         return char_pos_tracker
 
     def to_summary(
         self,
     ):
-        opts = dict(character_list="".join(list(self.character_list)), char_pos_map={
-                    key: nt.to_summary() for key, nt in self.char_pos_map.items()})
+        character_list = list(self.character_list)
+        character_list.sort()
+        opts = dict(character_list="".join(character_list), char_pos_map={key: nt.to_summary() for key, nt in self.char_pos_map.items()})
 
         return CharPosSummary(**opts)
 
@@ -133,8 +127,8 @@ class StringTracker:
     length : NumberTracker
         tracks the distribution of length of strings
     token_length :  NumberTracker
-        counts token per sentence 
-    token_method : funtion 
+        counts token per sentence
+    token_method : funtion
         method used to turn string into tokens
     char_pos_tracker: CharPosTracker
 
@@ -166,8 +160,7 @@ class StringTracker:
 
         self.token_length = token_length if token_length else NumberTracker()
 
-        self.token_method = token_method if token_method else lambda x: x.split(
-            " ")
+        self.token_method = token_method if token_method else lambda x: x.split(" ")
 
     def update(self, value: str, character_list=None, token_method=None):
         """
@@ -183,11 +176,10 @@ class StringTracker:
         self.items.update(value)
 
         if character_list:
-            if (character_list != self.char_pos_tracker.character_list):
+            if character_list != self.char_pos_tracker.character_list:
                 # check if any character were previously tracked
                 if not self.char_pos_tracker.char_pos_map:
-                    logger.warning(
-                        "changing character list, a non-empty character position tracker being reset")
+                    logger.warning("changing character list, a non-empty character position tracker is being reset")
                 self.char_pos_tracker.character_list = character_list
                 self.char_pos_tracker.char_pos_map = {}
 
@@ -210,8 +202,7 @@ class StringTracker:
         new : StringTracker
             Merged values
         """
-        items_copy = frequent_strings_sketch.deserialize(
-            self.items.serialize())
+        items_copy = frequent_strings_sketch.deserialize(self.items.serialize())
         items_copy.merge(other.items)
 
         new_theta = self.theta_sketch.merge(other.theta_sketch)
@@ -219,8 +210,7 @@ class StringTracker:
 
         new_length = self.length.merge(other.length)
         new_token_length = self.token_length.merge(other.length)
-        new_char_pos_tracker = self.char_pos_tracker.merge(
-            other.char_pos_tracker)
+        new_char_pos_tracker = self.char_pos_tracker.merge(other.char_pos_tracker)
 
         return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_char_pos_tracker)
 
@@ -236,7 +226,7 @@ class StringTracker:
             count=self.count,
             items=self.items.serialize(),
             compact_theta=self.theta_sketch.serialize(),
-            length=self.length.to_protobuf(),
+            length=self.length.to_protobuf() if self.length else None,
             token_length=self.token_length.to_protobuf(),
             char_pos_tracker=self.char_pos_tracker.to_protobuf(),
         )
@@ -254,8 +244,7 @@ class StringTracker:
         if message.compact_theta is not None and len(message.compact_theta) > 0:
             theta = ThetaSketch.deserialize(message.compact_theta)
         elif message.theta is not None and len(message.theta) > 0:
-            logger.warning(
-                "Possible missing data. Non-compact theta sketches are no longer supported")
+            logger.warning("Possible missing data. Non-compact theta sketches are no longer supported")
 
         return StringTracker(
             count=message.count,
