@@ -29,9 +29,9 @@ class BaseProfileVisualizer:
         """Plots a Inferred Data Types chart."""
         return self.visualizer.plot_data_types(variable, **kwargs)
 
-    def plot_string(self, variable, **kwargs):
-        """Plots string data ."""
-        return self.visualizer.plot_string(variable, **kwargs)
+    def plot_string(self, variable, character_list, **kwargs):
+        """Plots string related data ."""
+        return self.visualizer.plot_string(variable, character_list=character_list, **kwargs)
 
     def available_plots(self):
         """Returns available plots for selected framework."""

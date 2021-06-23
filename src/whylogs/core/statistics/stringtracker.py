@@ -8,7 +8,6 @@ from whylogs.core.statistics.thetasketch import ThetaSketch
 from whylogs.core.summaryconverters import from_string_sketch
 from whylogs.proto import CharPosMessage, CharPosSummary, StringsMessage, StringsSummary
 from whylogs.util import dsketch
-from whylogs.util.util_functions import encode_to_integers
 
 from .numbertracker import NumberTracker
 

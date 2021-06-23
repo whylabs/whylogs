@@ -1,7 +1,13 @@
+import math
+
+
 import matplotlib.dates as _dates
 import matplotlib.pyplot as _plt
 import matplotlib.ticker as _ticker
+from mpl_toolkits.axes_grid1 import ImageGrid
+
 import pandas as pd
+import numpy as np
 
 from whylogs.viz import BaseProfileVisualizer
 
@@ -197,6 +203,65 @@ plot_string_length()
 
         return fig
 
+    def plot_char_pos(self, chart_data, variable, character_list=None, ts_format="%d-%b-%y", **kwargs):
+        # fig, ax = MatplotlibProfileVisualizer._chart_theming()
+        fig = _plt.figure(figsize=(12., 4.))
+        max_length=max(chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_max_value()).tolist())
+
+        matrixes = []
+        set_character_list = set()
+        if character_list is None:
+
+            character_list= list(chart_data["profile"].loc[0].columns[variable].string_tracker.char_pos_tracker.character_list)
+        
+        bins = list(range(1, int(max_length + 1)))
+        for prof in self.profiles:
+            mycounts = prof.columns[variable].string_tracker.char_pos_tracker.char_pos_map
+
+       
+
+            max_length = max([val.histogram.get_max_value() for key, val in mycounts.items()])
+            char_histos = {key: np.array(val.histogram.get_pmf(bins[:-1])) for key, val in mycounts.items()}
+
+            _, matrx = array_creation(char_histos, bins, character_list)
+            set_character_list = set.union(set_character_list, set(character_list))
+            matrixes.append(matrx)
+        
+        # set_character_list = list(set_character_list)
+        
+
+    
+        grid = ImageGrid(
+            fig,
+            111,  # similar to subplot(111)
+            nrows_ncols=(math.ceil(len(self.profiles)/7), 7),  # creates nx7 grid of axes
+            axes_pad=0.3,  # pad between axes in inch.
+        )
+        fig.text(
+            1.0,
+            0.96,
+            "Made with whylogs",
+            horizontalalignment="right",
+            verticalalignment="center",
+            fontsize=10,
+        )
+        for idx, (ax, mat) in enumerate(zip(grid, matrixes)):
+            # Iterating over the grid returns the Axes.
+
+            ax.imshow(mat, cmap="Blues", vmin=0, vmax=1, **kwargs)
+
+            ax.set_xlabel("Position in String")
+            ax.set_ylabel("Character")
+            ax.set_xticks(range(len(bins)), bins)
+            ax.set_yticks(range(len(character_list)))
+            ax.set_yticklabels(character_list)
+
+            ax.grid(False)
+            ax.set_title(f"{self.profiles[idx].dataset_timestamp.strftime(ts_format)}")
+        fig.suptitle(f"Character Position Distribution ({variable})", fontweight="bold")
+
+       
+
     def plot_string_length(self, chart_data, variable, ts_format="%d-%b-%y", **kwargs):
         fig, ax = MatplotlibProfileVisualizer._chart_theming()
 
@@ -276,12 +341,13 @@ plot_string_length()
         ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None))
         return fig
 
-    def plot_string(self, variable, ts_format="%d-%b-%y", **kwargs):
+    def plot_string(self, variable, character_list, ts_format="%d-%b-%y", **kwargs):
 
         chart_data = self._string_plot_data(variable)
         token_length_fig = self.plot_token_length(chart_data, variable, ts_format, **kwargs)
-        length_fig = self.plot_string_length(chart_data, variable, ts_format, **kwargs)
-        return length_fig, token_length_fig
+        length_fig = self.plot_string_length(chart_data, variable, ts_format=ts_format, **kwargs)
+        char_pos_plots_fig= self.plot_char_pos(chart_data, variable, character_list=character_list, ts_format=ts_format, **kwargs)
+        return length_fig, token_length_fig,char_pos_plots_fig
 
     def plot_distribution(self, variable, ts_format="%d-%b-%y", **kwargs):
         """Plots a distribution chart."""
@@ -513,3 +579,17 @@ plot_string_length()
         ax.yaxis.set_major_formatter(_ticker.ScalarFormatter(useOffset=False, useMathText=False, useLocale=None))
 
         return fig
+
+
+
+def array_creation(char_histos, bins, char_list):
+
+    matrix=[]
+    for char in char_list:
+        histo= char_histos.get(char,None)
+        if histo is not None:
+            matrix.append(histo)
+        else:
+            matrix.append(list(np.zeros_like(bins)))
+            
+    return np.array(char_list), np.array(matrix)
