@@ -73,7 +73,7 @@ message NumbersMessage {
 
 message CharPosMessage {
   string char_list = 1;
-  repeated NumbersMessage char_pos_map = 2;
+  map<string, NumbersMessage> char_pos_map = 2;
 }
 
 message StringsMessage {

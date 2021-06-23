@@ -99,17 +99,17 @@ class CharPosTracker:
         """
         opts = dict(
             char_list="".join(list(self.character_list)),
-            char_pos_map=[nt.to_protobuf()
-                          for key, nt in self.char_pos_map.items()],
+            char_pos_map={key: nt.to_protobuf()
+                          for key, nt in self.char_pos_map.items()},
         )
 
         msg = CharPosMessage(**opts)
         return msg
 
     @staticmethod
-    def from_protobuf(self, message: CharPosMessage):
+    def from_protobuf( message: CharPosMessage):
         """
-        Load from a protobuf message
+        Load from a CharPosMessage protobuf message
 
         Returns
         -------
@@ -117,11 +117,13 @@ class CharPosTracker:
         """
 
         opts = dict(
-            character_list=CharPosMessage.char_list,
+            character_list=message.char_list,
         )
         char_pos_tracker = CharPosTracker(**opts)
-        char_pos_tracker.char_pos_map = [
-            nt.from_protobuf for nt in CharPosMessage.char_pos_map]
+       
+        for each_key, each_value in message.char_pos_map.items():
+            char_pos_tracker.char_pos_map[each_key]=NumberTracker.from_protobuf(each_value)
+
         return char_pos_tracker
 
     def to_summary(
@@ -242,12 +244,14 @@ class StringTracker:
         -------
         message : StringsMessage
         """
+   
+
         return StringsMessage(
             count=self.count,
             items=self.items.serialize(),
             compact_theta=self.theta_sketch.serialize(),
             length=self.length.to_protobuf() if self.length else None,
-            token_length=self.token_length.to_protobuf(),
+            token_length=self.token_length.to_protobuf() if self.token_length else None,
             char_pos_tracker=self.char_pos_tracker.to_protobuf() if self.char_pos_tracker else None,
         )
 
@@ -267,12 +271,14 @@ class StringTracker:
             logger.warning(
                 "Possible missing data. Non-compact theta sketches are no longer supported")
 
+
         return StringTracker(
             count=message.count,
             items=dsketch.deserialize_frequent_strings_sketch(message.items),
             theta_sketch=theta,
-            length=message.length,
-            token_length=message.token_length,
+            length=NumberTracker.from_protobuf(message.length),
+            token_length=NumberTracker.from_protobuf(message.token_length),
+            char_pos_tracker=CharPosTracker.from_protobuf(message.char_pos_tracker)
         )
 
     def to_summary(
