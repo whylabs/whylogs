@@ -33,6 +33,42 @@ def test_character_pos_tracker():
     assert x.char_pos_tracker.char_pos_map["a"].count == 2
     assert x.char_pos_tracker.char_pos_map["-"].histogram.get_min_value() == 5
 
+def test_merge():
+    x = StringTracker()
+    y = StringTracker()
+    data = ["abc abc", "93341-1", "912254", "bac tralalala"]
+    data_2 = ["geometric inference ", "93341-1", "912254", "bac tralalala", "😀 this is a sale! a ❄️ sale!", "this is a long sentence that ends in an A", None]
+    for record in data:
+        x.update(record)
+    for record in data_2:
+        y.update(record)
+
+    assert x.char_pos_tracker.char_pos_map["NITL"].count == 2
+    assert x.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() ==12
+    assert y.char_pos_tracker.char_pos_map["NITL"].count == 22
+    x=x.merge(y)
+
+    assert x.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() ==40
+
+def test_merge_character_lists():
+    x = StringTracker()
+    y = StringTracker()
+    data = ["abc abc", "93341-1", "912254", "bac tralalala"]
+    data_2 = ["geometric inference ", "93341-1", "912254", "bac tralalala", "😀 this is a sale! a ❄️ sale!", "this is a long sentence that ends in an A", None]
+    
+    for record in data:
+        x.update(record,character_list="ab")
+    for record in data_2:
+        y.update(record,character_list="a")
+
+    assert x.char_pos_tracker.char_pos_map["NITL"].count == 7
+    assert x.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() ==12
+    assert y.char_pos_tracker.char_pos_map["NITL"].count == 37
+    assert y.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() ==40
+    x=x.merge(y)
+
+    assert x.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() ==40
+
 
 def test_tracking():
     x = StringTracker()

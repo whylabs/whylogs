@@ -34,7 +34,7 @@ class CharPosTracker:
                 if not self.char_pos_map:
                     logger.warning(
                         "Changing character list, a non-empty character position tracker is being reset to remove ambiguities")
-                self.character_list = character_list
+                self.character_list = set(character_list)
                 self.char_pos_map = {}
 
         for indx, char in enumerate(value.lower()):
@@ -107,7 +107,7 @@ class CharPosTracker:
         return msg
 
     @staticmethod
-    def from_protobuf( message: CharPosMessage):
+    def from_protobuf(message: CharPosMessage):
         """
         Load from a CharPosMessage protobuf message
 
@@ -120,7 +120,7 @@ class CharPosTracker:
             character_list=message.char_list,
         )
         char_pos_tracker = CharPosTracker(**opts)
-       
+
         for each_key, each_value in message.char_pos_map.items():
             char_pos_tracker.char_pos_map[each_key]=NumberTracker.from_protobuf(each_value)
 
@@ -252,7 +252,7 @@ class StringTracker:
             compact_theta=self.theta_sketch.serialize(),
             length=self.length.to_protobuf() if self.length else None,
             token_length=self.token_length.to_protobuf() if self.token_length else None,
-            char_pos_tracker=self.char_pos_tracker.to_protobuf() if self.char_pos_tracker else None,
+            char_pos_tracker=self.char_pos_tracker.to_protobuf(),
         )
 
     @staticmethod
