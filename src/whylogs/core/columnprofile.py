@@ -213,7 +213,7 @@ class ColumnProfile:
         -------
         message : ColumnMessage
         """
-        
+
         return ColumnMessage(
             name=self.column_name,
             counters=self.counters.to_protobuf(),

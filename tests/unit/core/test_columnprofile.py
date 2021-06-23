@@ -3,12 +3,13 @@ import json
 import numpy as np
 import pandas as pd
 import pytest
-from ...helpers.testutil import compare_frequent_items
 
 from whylogs.core import ColumnProfile
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.proto import ColumnMessage, ColumnSummary, InferredType
 from whylogs.util.protobuf import message_to_dict
+
+from ...helpers.testutil import compare_frequent_items
 
 
 def test_all_numeric_types_get_tracked_by_number_tracker():
@@ -97,8 +98,8 @@ def test_protobuf():
     assert hasattr(c1, "string_tracker")
     assert c1.string_tracker.length is not None
 
-    assert c1.string_tracker.length.count ==0
-    assert len(c1.string_tracker.char_pos_tracker.character_list)==50 
+    assert c1.string_tracker.length.count == 0
+    assert len(c1.string_tracker.char_pos_tracker.character_list) == 50
     msg2 = c1.to_protobuf()
     # We cannot do a straight equality comparison for serialized frequent
     # strings objects

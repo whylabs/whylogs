@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import List, Callable
+from typing import Callable, List
 
 from datasketches import frequent_strings_sketch
 
@@ -26,24 +26,23 @@ class CharPosTracker:
         self.character_list = set(character_list)
         self.char_pos_map = {}
 
-    def update(self, value: str, character_list: str =None):
+    def update(self, value: str, character_list: str = None):
 
         if character_list:
-            if (character_list != self.character_list):
+            if character_list != self.character_list:
                 # check if any character were previously tracked
                 if not self.char_pos_map:
-                    logger.warning(
-                        "Changing character list, a non-empty character position tracker is being reset to remove ambiguities")
+                    logger.warning("Changing character list, a non-empty character position tracker is being reset to remove ambiguities")
                 self.character_list = set(character_list)
                 self.char_pos_map = {}
 
         for indx, char in enumerate(value.lower()):
-            
+
             try:
                 char = char.encode("ascii")
-                
-                char= char.decode("utf-8")
-                
+
+                char = char.decode("utf-8")
+
                 if char in self.character_list:
                     self.char_pos_map.setdefault(char, NumberTracker())
                     # print("track")
@@ -65,23 +64,21 @@ class CharPosTracker:
             other (CharPosTracker): to be merged
 
         """
-        if ((self.character_list != other.character_list)
-                and (not self.char_pos_map or not other.char_pos_map)):
+        if (self.character_list != other.character_list) and (not self.char_pos_map or not other.char_pos_map):
             logger.error("Merging two non-empty Character position tracker with different character lists")
 
         new_character_list = self.character_list.union(other.character_list)
 
         # initialize merged
-        new_char_pos_tracker = CharPosTracker(
-            character_list="".join(list(new_character_list)))
+        new_char_pos_tracker = CharPosTracker(character_list="".join(list(new_character_list)))
 
         # merge
         new_char_pos_map = {}
         for character in new_character_list:
-            empty_number_tracker = NumberTracker()
+            NumberTracker()
             pos_tracker = self.char_pos_map.get(character, None)
             other_tracker = other.char_pos_map.get(character, None)
-            
+
             if pos_tracker and other_tracker:
                 new_char_pos_map[character] = pos_tracker.merge(other_tracker)
             elif pos_tracker:
@@ -99,8 +96,7 @@ class CharPosTracker:
         """
         opts = dict(
             char_list="".join(list(self.character_list)),
-            char_pos_map={key: nt.to_protobuf()
-                          for key, nt in self.char_pos_map.items()},
+            char_pos_map={key: nt.to_protobuf() for key, nt in self.char_pos_map.items()},
         )
 
         msg = CharPosMessage(**opts)
@@ -122,7 +118,7 @@ class CharPosTracker:
         char_pos_tracker = CharPosTracker(**opts)
 
         for each_key, each_value in message.char_pos_map.items():
-            char_pos_tracker.char_pos_map[each_key]=NumberTracker.from_protobuf(each_value)
+            char_pos_tracker.char_pos_map[each_key] = NumberTracker.from_protobuf(each_value)
 
         return char_pos_tracker
 
@@ -131,8 +127,7 @@ class CharPosTracker:
     ):
         character_list = list(self.character_list)
         character_list.sort()
-        opts = dict(character_list="".join(character_list), char_pos_map={
-                    key: nt.to_summary() for key, nt in self.char_pos_map.items()})
+        opts = dict(character_list="".join(character_list), char_pos_map={key: nt.to_summary() for key, nt in self.char_pos_map.items()})
 
         return CharPosSummary(**opts)
 
@@ -152,8 +147,8 @@ class StringTracker:
     length : NumberTracker
         tracks the distribution of length of strings
     token_length :  NumberTracker
-        counts token per sentence 
-    token_method : funtion 
+        counts token per sentence
+    token_method : funtion
         method used to turn string into tokens
     char_pos_tracker: CharPosTracker
 
@@ -167,7 +162,7 @@ class StringTracker:
         length: NumberTracker = None,
         token_length: NumberTracker = None,
         char_pos_tracker: CharPosTracker = None,
-        token_method: Callable[[], List[str]]=None,
+        token_method: Callable[[], List[str]] = None,
     ):
         if count is None:
             count = 0
@@ -185,8 +180,7 @@ class StringTracker:
 
         self.token_length = token_length if token_length else NumberTracker()
 
-        self.token_method = token_method if token_method else lambda x: x.split(
-            " ")
+        self.token_method = token_method if token_method else lambda x: x.split(" ")
 
     def update(self, value: str, character_list=None, token_method=None):
         """
@@ -222,8 +216,7 @@ class StringTracker:
         new : StringTracker
             Merged values
         """
-        items_copy = frequent_strings_sketch.deserialize(
-            self.items.serialize())
+        items_copy = frequent_strings_sketch.deserialize(self.items.serialize())
         items_copy.merge(other.items)
 
         new_theta = self.theta_sketch.merge(other.theta_sketch)
@@ -231,8 +224,7 @@ class StringTracker:
 
         new_length = self.length.merge(other.length)
         new_token_length = self.token_length.merge(other.length)
-        new_char_pos_tracker = self.char_pos_tracker.merge(
-            other.char_pos_tracker)
+        new_char_pos_tracker = self.char_pos_tracker.merge(other.char_pos_tracker)
 
         return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_char_pos_tracker)
 
@@ -244,7 +236,6 @@ class StringTracker:
         -------
         message : StringsMessage
         """
-   
 
         return StringsMessage(
             count=self.count,
@@ -268,9 +259,7 @@ class StringTracker:
         if message.compact_theta is not None and len(message.compact_theta) > 0:
             theta = ThetaSketch.deserialize(message.compact_theta)
         elif message.theta is not None and len(message.theta) > 0:
-            logger.warning(
-                "Possible missing data. Non-compact theta sketches are no longer supported")
-
+            logger.warning("Possible missing data. Non-compact theta sketches are no longer supported")
 
         return StringTracker(
             count=message.count,
@@ -278,7 +267,7 @@ class StringTracker:
             theta_sketch=theta,
             length=NumberTracker.from_protobuf(message.length),
             token_length=NumberTracker.from_protobuf(message.token_length),
-            char_pos_tracker=CharPosTracker.from_protobuf(message.char_pos_tracker)
+            char_pos_tracker=CharPosTracker.from_protobuf(message.char_pos_tracker),
         )
 
     def to_summary(

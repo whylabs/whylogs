@@ -110,16 +110,21 @@ plot_string_length()
 
         fig, ax = MatplotlibProfileVisualizer._chart_theming()
 
-        chart_data["token_length_quantile_0.05"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([
-            0.05])[0])
-        chart_data["token_length_quantile_0.25"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([
-            0.25])[0])
-        chart_data["token_length_quantile_0.5"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([
-            0.5])[0])
-        chart_data["token_length_quantile_0.75"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([
-            0.75])[0])
+        chart_data["token_length_quantile_0.05"] = chart_data["profile"].apply(
+            lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([0.05])[0]
+        )
+        chart_data["token_length_quantile_0.25"] = chart_data["profile"].apply(
+            lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([0.25])[0]
+        )
+        chart_data["token_length_quantile_0.5"] = chart_data["profile"].apply(
+            lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([0.5])[0]
+        )
+        chart_data["token_length_quantile_0.75"] = chart_data["profile"].apply(
+            lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([0.75])[0]
+        )
         chart_data["token_length_quantile_0.95"] = chart_data["profile"].apply(
-            lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([0.95])[0])
+            lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([0.95])[0]
+        )
         ax.plot(
             chart_data.loc[:, "date"],
             chart_data.loc[:, "token_length_quantile_0.5"],
@@ -195,16 +200,11 @@ plot_string_length()
     def plot_string_length(self, chart_data, variable, ts_format="%d-%b-%y", **kwargs):
         fig, ax = MatplotlibProfileVisualizer._chart_theming()
 
-        chart_data["length_quantile_0.05"] = chart_data["profile"].apply(
-            lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([0.05])[0])
-        chart_data["length_quantile_0.25"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([
-            0.25])[0])
-        chart_data["length_quantile_0.5"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([
-            0.5])[0])
-        chart_data["length_quantile_0.75"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([
-            0.75])[0])
-        chart_data["length_quantile_0.95"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([
-            0.95])[0])
+        chart_data["length_quantile_0.05"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([0.05])[0])
+        chart_data["length_quantile_0.25"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([0.25])[0])
+        chart_data["length_quantile_0.5"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([0.5])[0])
+        chart_data["length_quantile_0.75"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([0.75])[0])
+        chart_data["length_quantile_0.95"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([0.95])[0])
         ax.plot(
             chart_data.loc[:, "date"],
             chart_data.loc[:, "length_quantile_0.5"],
