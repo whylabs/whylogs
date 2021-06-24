@@ -82,7 +82,7 @@ plot_string_length()
 
         return fig, ax
 
-    def _string_plot_data(self, variable):
+    def _prof_data(self, variable):
         filtered_data = []
         for prof in self.profiles:
 
@@ -92,8 +92,8 @@ plot_string_length()
 
             filtered_data.append(df)
 
-        self.prof_data = pd.concat(filtered_data).sort_values(by=["date"])
-        return self.prof_data
+        prof_data = pd.concat(filtered_data).sort_values(by=["date"])
+        return prof_data
 
     def _summary_data_preprocessing(self, variable):
         """Applies general data preprocessing for each chart."""
@@ -110,10 +110,10 @@ plot_string_length()
         print("Profiles have not been set for visualizer. " "Try ProfileVisualizer.set_profiles(...).")
         return False
 
-    def plot_token_length(self, chart_data, variable, ts_format="%d-%b-%y", **kwargs):
+    def plot_token_length(self, variable, ts_format="%d-%b-%y", **kwargs):
 
         fig, ax = MatplotlibProfileVisualizer._chart_theming()
-
+        chart_data = self._prof_data(variable)
         chart_data["token_length_quantile_0.05"] = chart_data["profile"].apply(
             lambda x: x.columns[variable].string_tracker.token_length.histogram.get_quantiles([0.05])[0]
         )
@@ -201,9 +201,13 @@ plot_string_length()
 
         return fig
 
-    def plot_char_pos(self, chart_data, variable, character_list=None, ts_format="%d-%b-%y", **kwargs):
-        # fig, ax = MatplotlibProfileVisualizer._chart_theming()
-        fig = _plt.figure(figsize=(12.0, 4.0))
+    def plot_char_pos(self, variable, character_list=None, ts_format="%d-%b-%y", **kwargs):
+
+        chart_data = self._prof_data(variable)
+
+        _plt.ioff()
+        fig = _plt.figure(figsize=(10.0, 4.0))
+
         max_length = max(chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_max_value()).tolist())
 
         matrixes = []
@@ -253,9 +257,12 @@ plot_string_length()
             ax.grid(False)
             ax.set_title(f"{self.profiles[idx].dataset_timestamp.strftime(ts_format)}")
         fig.suptitle(f"Character Position Distribution ({variable})", fontweight="bold")
+        return fig
 
-    def plot_string_length(self, chart_data, variable, ts_format="%d-%b-%y", **kwargs):
+    def plot_string_length(self, variable, ts_format="%d-%b-%y", **kwargs):
         fig, ax = MatplotlibProfileVisualizer._chart_theming()
+
+        chart_data = self._prof_data(variable)
 
         chart_data["length_quantile_0.05"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([0.05])[0])
         chart_data["length_quantile_0.25"] = chart_data["profile"].apply(lambda x: x.columns[variable].string_tracker.length.histogram.get_quantiles([0.25])[0])
@@ -335,10 +342,9 @@ plot_string_length()
 
     def plot_string(self, variable, character_list, ts_format="%d-%b-%y", **kwargs):
 
-        chart_data = self._string_plot_data(variable)
-        token_length_fig = self.plot_token_length(chart_data, variable, ts_format, **kwargs)
-        length_fig = self.plot_string_length(chart_data, variable, ts_format=ts_format, **kwargs)
-        char_pos_plots_fig = self.plot_char_pos(chart_data, variable, character_list=character_list, ts_format=ts_format, **kwargs)
+        token_length_fig = self.plot_token_length(variable, ts_format, **kwargs)
+        length_fig = self.plot_string_length(variable, ts_format=ts_format, **kwargs)
+        char_pos_plots_fig = self.plot_char_pos(variable, character_list=character_list, ts_format=ts_format, **kwargs)
         return length_fig, token_length_fig, char_pos_plots_fig
 
     def plot_distribution(self, variable, ts_format="%d-%b-%y", **kwargs):

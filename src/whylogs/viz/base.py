@@ -29,6 +29,18 @@ class BaseProfileVisualizer:
         """Plots a Inferred Data Types chart."""
         return self.visualizer.plot_data_types(variable, **kwargs)
 
+    def plot_string_length(self, variable, **kwargs):
+        """Plots string length data ."""
+        return self.visualizer.plot_string_length(variable, **kwargs)
+
+    def plot_token_length(self, variable, character_list, **kwargs):
+        """Plots token length data ."""
+        return self.visualizer.plot_string_length(variable, **kwargs)
+
+    def plot_char_pos(self, variable, character_list, **kwargs):
+        """Plots character position data ."""
+        return self.visualizer.plot_char_pos(variable, character_list=character_list, **kwargs)
+
     def plot_string(self, variable, character_list, **kwargs):
         """Plots string related data ."""
         return self.visualizer.plot_string(variable, character_list=character_list, **kwargs)
