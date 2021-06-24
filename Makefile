@@ -131,7 +131,7 @@ test: dist ## Run unit tests.
 test-system-python: dist ## Run tests using the system `python` instead of the locally declared poetry python
 	@$(call i, Running tests using the globally installed python)
 	python -m poetry run python --version
-	python -m poetry run pytest --v --cov='src/.' tests/
+	python -m poetry run pytest -vv --cov='src/.' tests/
 
 test-notebooks: ## Run tests for the notebooks
 	@$(call i, Running notebook tests)
