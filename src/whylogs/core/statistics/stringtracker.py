@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import logging
 import math
 from typing import Callable, List
@@ -66,7 +64,7 @@ class CharPosTracker:
                 self.char_pos_map.setdefault("NITL", NumberTracker())
                 self.char_pos_map["NITL"].track(indx)
 
-    def merge(self, other: CharPosTracker):
+    def merge(self, other: "CharPosTracker") -> "CharPosTracker":
         """
         Merges two Char Pos Frequency Maps
 
