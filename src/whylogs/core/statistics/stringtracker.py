@@ -92,11 +92,11 @@ class CharPosTracker:
         """
         Return the object serialized as a protobuf message
         """
-        character_list=list(self.character_list)
+        character_list = list(self.character_list)
         character_list.sort()
         opts = dict(
             char_list="".join(character_list),
-            char_pos_map={ key: nt.to_protobuf() if nt else NumberSummary().to_protobuf() for key, nt in self.char_pos_map.items()},
+            char_pos_map={key: nt.to_protobuf() if nt else NumberSummary().to_protobuf() for key, nt in self.char_pos_map.items()},
         )
         msg = CharPosMessage(**opts)
         return msg
