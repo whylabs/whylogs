@@ -18,6 +18,16 @@ logger = logging.getLogger(__name__)
 
 
 class CharPosTracker:
+    """
+    Track statistics for character positions within a string
+
+    Parameters
+    ----------
+    character_list : str
+        string containing all characters to be tracked
+
+    """
+
     def __init__(self, character_list: str = None):
 
         if character_list is None:
@@ -25,7 +35,7 @@ class CharPosTracker:
         self.character_list = set(character_list)
         self.char_pos_map = {}
 
-    def update(self, value: str, character_list: str = None):
+    def update(self, value: str, character_list: str = None) -> None:
 
         if character_list:
             if character_list != self.character_list:
@@ -54,7 +64,7 @@ class CharPosTracker:
                 self.char_pos_map.setdefault("NITL", NumberTracker())
                 self.char_pos_map["NITL"].track(indx)
 
-    def merge(self, other):
+    def merge(self, other: CharPosTracker):
         """
         Merges two Char Pos Frequency Maps
 
@@ -92,13 +102,17 @@ class CharPosTracker:
         """
         Return the object serialized as a protobuf message
         """
+        # char_pos_map={ key: print(type(nt.to_protobuf())) for key, nt in self.char_pos_map.items()}
+        # print(char_pos_map)
         character_list = list(self.character_list)
         character_list.sort()
         opts = dict(
             char_list="".join(character_list),
             char_pos_map={key: nt.to_protobuf() for key, nt in self.char_pos_map.items()},
         )
+        # print(f"opts::{opts}")
         msg = CharPosMessage(**opts)
+        # print(f"msg:: {msg}")
         return msg
 
     @staticmethod
