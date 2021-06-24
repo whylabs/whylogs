@@ -69,12 +69,11 @@ class CharPosTracker:
         new_character_list = self.character_list.union(other.character_list)
 
         # initialize merged
-        new_char_pos_tracker = CharPosTracker(character_list="".join(list(new_character_list)))
+        new_char_pos_tracker = CharPosTracker(character_list=str("".join(list(new_character_list))))
 
         # merge
         new_char_pos_map = {}
         for character in new_character_list:
-            NumberTracker()
             pos_tracker = self.char_pos_map.get(character, None)
             other_tracker = other.char_pos_map.get(character, None)
 
@@ -93,11 +92,12 @@ class CharPosTracker:
         """
         Return the object serialized as a protobuf message
         """
+        character_list=list(self.character_list)
+        character_list.sort()
         opts = dict(
-            char_list="".join(list(self.character_list)),
-            char_pos_map={key: nt.to_protobuf() for key, nt in self.char_pos_map.items()},
+            char_list="".join(character_list),
+            char_pos_map={ key: nt.to_protobuf() if nt else NumberSummary().to_protobuf() for key, nt in self.char_pos_map.items()},
         )
-
         msg = CharPosMessage(**opts)
         return msg
 
@@ -242,7 +242,7 @@ class StringTracker:
             compact_theta=self.theta_sketch.serialize(),
             length=self.length.to_protobuf() if self.length else None,
             token_length=self.token_length.to_protobuf() if self.token_length else None,
-            char_pos_tracker=self.char_pos_tracker.to_protobuf(),
+            char_pos_tracker=self.char_pos_tracker.to_protobuf() if self.char_pos_tracker else None,
         )
 
     @staticmethod

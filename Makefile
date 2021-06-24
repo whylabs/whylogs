@@ -28,6 +28,11 @@ ifeq ($(shell which poetry), )
 	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
 endif
 
+install-poetry:
+	@$(call i, Installing Poetry)
+	curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+
+
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
@@ -126,7 +131,7 @@ test: dist ## Run unit tests.
 test-system-python: dist ## Run tests using the system `python` instead of the locally declared poetry python
 	@$(call i, Running tests using the globally installed python)
 	python -m poetry run python --version
-	python -m poetry run pytest
+	python -m poetry run pytest --v --cov='src/.' tests/
 
 test-notebooks: ## Run tests for the notebooks
 	@$(call i, Running notebook tests)
