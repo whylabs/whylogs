@@ -77,7 +77,19 @@ SCALAR_NAME_MAPPING = OrderedDict(
             estimate="nunique_str",
             lower="nunique_str_lower",
             upper="nunique_str_upper",
-        )
+        ),
+        length=OrderedDict(
+            max="max_length",
+            mean="mean_length",
+            min="min_length",
+            stddev="stddev_length",
+        ),
+        token_length=OrderedDict(
+            max="max_token_length",
+            mean="mean_token_length",
+            min="min_token_length",
+            stddev="stddev_token_length",
+        ),
     ),
 )
 
@@ -235,7 +247,7 @@ class DatasetProfile:
             score_field=score_field,
         )
 
-    def track(self, columns, data=None):
+    def track(self, columns, data=None, character_list=None, token_method=None):
         """
         Add value(s) to tracking statistics for column(s).
 
@@ -256,13 +268,13 @@ class DatasetProfile:
         else:
             if isinstance(columns, dict):
                 for column_name, data in columns.items():
-                    self.track_datum(column_name, data)
+                    self.track_datum(column_name, data, character_list=None, token_method=None)
             elif isinstance(columns, str):
-                self.track_datum(columns, None)
+                self.track_datum(columns, None, character_list=None, token_method=None)
             else:
                 raise TypeError("Data type of: {} not supported for tracking".format(columns.__class__.__name__))
 
-    def track_datum(self, column_name, data):
+    def track_datum(self, column_name, data, character_list=None, token_method=None):
         try:
             prof = self.columns[column_name]
         except KeyError:
@@ -270,7 +282,7 @@ class DatasetProfile:
             prof = ColumnProfile(column_name, constraints=constraints)
             self.columns[column_name] = prof
 
-        prof.track(data)
+        prof.track(data, character_list=None, token_method=None)
 
     def track_array(self, x: np.ndarray, columns=None):
         """
@@ -291,7 +303,7 @@ class DatasetProfile:
         columns = [str(c) for c in columns]
         return self.track_dataframe(pd.DataFrame(x, columns=columns))
 
-    def track_dataframe(self, df: pd.DataFrame):
+    def track_dataframe(self, df: pd.DataFrame, character_list=None, token_method=None):
         """
         Track statistics for a dataframe
 
@@ -308,7 +320,7 @@ class DatasetProfile:
 
             x = df[col].values
             for xi in x:
-                self.track(col_str, xi)
+                self.track(col_str, xi, character_list=None, token_method=None)
 
     def to_properties(self):
         """
@@ -786,6 +798,25 @@ def flatten_dataset_quantiles(dataset_summary: DatasetSummary):
             quants[col_name] = x
         except KeyError:
             pass
+
+    return quants
+
+
+def flatten_dataset_string_quantiles(dataset_summary: DatasetSummary):
+    """
+    Flatten quantiles from a dataset summary
+    """
+    quants = {}
+    for col_name, col in dataset_summary.columns.items():
+        try:
+            quant = getter(getter(col, "number_summary"), "quantiles")
+            x = OrderedDict()
+            for q, qval in zip(_quantile_strings(quant.quantiles), quant.quantile_values):
+                x[q] = qval
+            quants[col_name] = x
+        except KeyError:
+            pass
+
     return quants
 
 

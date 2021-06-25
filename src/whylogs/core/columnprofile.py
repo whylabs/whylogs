@@ -3,13 +3,17 @@ Defines the ColumnProfile class for tracking per-column statistics
 """
 import pandas as pd
 
-from whylogs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
+from whylogs.core.statistics import (
+    CountersTracker,
+    NumberTracker,
+    SchemaTracker,
+    StringTracker,
+)
 from whylogs.core.statistics.constraints import (
     SummaryConstraint,
     SummaryConstraints,
     ValueConstraints,
 )
-from whylogs.core.statistics.datatypes import StringTracker
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
@@ -82,6 +86,7 @@ class ColumnProfile:
             cardinality_tracker = HllSketch()
         if constraints is None:
             constraints = ValueConstraints()
+
         # Assign values
         self.column_name = name
         self.number_tracker = number_tracker
@@ -92,7 +97,7 @@ class ColumnProfile:
         self.cardinality_tracker = cardinality_tracker
         self.constraints = constraints
 
-    def track(self, value):
+    def track(self, value, character_list=None, token_method=None):
         """
         Add `value` to tracking statistics.
         """
@@ -103,7 +108,8 @@ class ColumnProfile:
 
         # TODO: ignore this if we already know the data type
         if isinstance(value, str):
-            self.string_tracker.update(value)
+
+            self.string_tracker.update(value, character_list=character_list, token_method=token_method)
 
         # TODO: Implement real typed data conversion
         typed_data = TypedDataConverter.convert(value)
@@ -207,6 +213,7 @@ class ColumnProfile:
         -------
         message : ColumnMessage
         """
+
         return ColumnMessage(
             name=self.column_name,
             counters=self.counters.to_protobuf(),

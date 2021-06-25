@@ -71,6 +71,11 @@ message NumbersMessage {
   FrequentNumbersSketchMessage frequent_numbers = 7;
 }
 
+message CharPosMessage {
+  string char_list = 1;
+  map<string, NumbersMessage> char_pos_map = 2;
+}
+
 message StringsMessage {
   int64 count = 1;
 
@@ -78,6 +83,10 @@ message StringsMessage {
   bytes theta = 2;
   bytes items = 3;
   bytes compact_theta = 4;
+  NumbersMessage length = 5;
+  NumbersMessage token_length = 6;
+  CharPosMessage char_pos_tracker = 7;
+ 
 }
 
 
