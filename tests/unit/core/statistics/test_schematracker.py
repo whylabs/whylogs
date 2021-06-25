@@ -130,7 +130,6 @@ def test_serialization_roundtrip():
 
 
 def test_summary():
-    tracker = SchemaTracker()
     type_counts = {
         Type.INTEGRAL: 3,
         Type.STRING: 4,
@@ -167,3 +166,15 @@ def test_merge_total_counts_match():
 
     # Make sure we can serialize round trip
     SchemaTracker.from_protobuf(merged.to_protobuf())
+
+
+def test_round_trip_with_legacy():
+    type_counts = {
+        Type.INTEGRAL: 3,
+        Type.STRING: 4,
+        Type.FRACTIONAL: 5,
+        Type.BOOLEAN: 6,
+        Type.UNKNOWN: 1,
+    }
+    tracker = SchemaTracker(type_counts, legacy_null_count=1)
+    assert tracker.get_count(Type.NULL) == 1

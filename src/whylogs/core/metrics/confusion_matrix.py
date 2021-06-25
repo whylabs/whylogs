@@ -5,6 +5,7 @@ from sklearn.utils.multiclass import type_of_target
 
 from whylogs.core.statistics import NumberTracker
 from whylogs.proto import ScoreMatrixMessage
+from whylogs.util.util_functions import encode_to_integers
 
 SUPPORTED_TYPES = ("binary", "multiclass")
 
@@ -171,11 +172,3 @@ def _merge_CM(old_conf_matrix: ConfusionMatrix, new_conf_matrix: ConfusionMatrix
             )
 
     return res_conf_matrix
-
-
-def encode_to_integers(values, uniques):
-    table = {val: i for i, val in enumerate(uniques)}
-    for v in values:
-        if v not in uniques:
-            raise ValueError("Can not encode values not in uniques")
-    return np.array([table[v] for v in values])

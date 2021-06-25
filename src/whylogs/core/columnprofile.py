@@ -3,13 +3,17 @@ Defines the ColumnProfile class for tracking per-column statistics
 """
 import pandas as pd
 
-from whylogs.core.statistics import CountersTracker, NumberTracker, SchemaTracker
+from whylogs.core.statistics import (
+    CountersTracker,
+    NumberTracker,
+    SchemaTracker,
+    StringTracker,
+)
 from whylogs.core.statistics.constraints import (
     SummaryConstraint,
     SummaryConstraints,
     ValueConstraints,
 )
-from whylogs.core.statistics.datatypes import StringTracker
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
@@ -82,6 +86,7 @@ class ColumnProfile:
             cardinality_tracker = HllSketch()
         if constraints is None:
             constraints = ValueConstraints()
+
         # Assign values
         self.column_name = name
         self.number_tracker = number_tracker
@@ -92,18 +97,19 @@ class ColumnProfile:
         self.cardinality_tracker = cardinality_tracker
         self.constraints = constraints
 
-    def track(self, value):
+    def track(self, value, character_list=None, token_method=None):
         """
         Add `value` to tracking statistics.
         """
         self.counters.increment_count()
-        if value is None:
-            self.counters.increment_null()
+        if pd.isnull(value):
+            self.schema_tracker.track(InferredType.Type.NULL)
             return
 
         # TODO: ignore this if we already know the data type
         if isinstance(value, str):
-            self.string_tracker.update(value)
+
+            self.string_tracker.update(value, character_list=character_list, token_method=token_method)
 
         # TODO: Implement real typed data conversion
         typed_data = TypedDataConverter.convert(value)
@@ -147,8 +153,9 @@ class ColumnProfile:
         if self.schema_tracker is not None:
             schema = self.schema_tracker.to_summary()
         # TODO: implement the real schema/type checking
+        null_count = self.schema_tracker.get_count(InferredType.Type.NULL)
         opts = dict(
-            counters=self.counters.to_protobuf(),
+            counters=self.counters.to_protobuf(null_count=null_count),
             frequent_items=self.frequent_items.to_summary(),
             unique_count=self._unique_count_summary(),
         )
@@ -206,6 +213,7 @@ class ColumnProfile:
         -------
         message : ColumnMessage
         """
+
         return ColumnMessage(
             name=self.column_name,
             counters=self.counters.to_protobuf(),
@@ -225,10 +233,11 @@ class ColumnProfile:
         -------
         column_profile : ColumnProfile
         """
+        schema_tracker = SchemaTracker.from_protobuf(message.schema, legacy_null_count=message.counters.null_count.value)
         return ColumnProfile(
             message.name,
-            counters=CountersTracker.from_protobuf(message.counters),
-            schema_tracker=SchemaTracker.from_protobuf(message.schema),
+            counters=(CountersTracker.from_protobuf(message.counters)),
+            schema_tracker=schema_tracker,
             number_tracker=NumberTracker.from_protobuf(message.numbers),
             string_tracker=StringTracker.from_protobuf(message.strings),
             frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),

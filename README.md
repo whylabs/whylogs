@@ -1,5 +1,4 @@
 # whylogs: A Data and Machine Learning Logging Standard
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 
 
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE)
@@ -27,9 +26,6 @@ This is a Python implementation of whylogs. The Java implementation can be found
 If you have any questions, comments, or just want to hang out with us, please join [our Slack channel](http://join.slack.whylabs.ai/).
 
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
-
-
 - [Getting started](#getting-started)
 - [Features](#features)
 - [Data Types](#data-types)
@@ -39,7 +35,6 @@ If you have any questions, comments, or just want to hang out with us, please jo
 - [Roadmap](#roadmap)
 - [Contribute](#contribute)
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 
 ## Getting started<a name="getting-started" />
 
@@ -65,7 +60,6 @@ make install
 make
 ```
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 
 ## Quickly Logging Data
 
@@ -90,22 +84,53 @@ with session.logger(dataset_name="my_dataset") as logger:
     #images
     logger.log_images("path/to/image.png")
 ```
-whyLogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
+
+whylogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
 
 - Simple counters: boolean, null values, data types.
-- Summary statistics: sum, min, max, variance.
+- Summary statistics: sum, min, max, median, variance.
 - Unique value counter or cardinality: tracks an approximate unique value of your feature using HyperLogLog algorithm.
 - Histograms for numerical features. whyLogs binary output can be queried to with dynamic binning based on the shape of your data.
 - Top frequent items (default is 128). Note that this configuration affects the memory footprint, especially for text features.
 
-Check the examples below for visualization and other use cases
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
+### Multiple Profile Plots
+
+To view your logger profiles you can use, methods within `whylogs.viz`: 
+
+```python
+vizualization = ProfileVisualizer()
+vizualization.set_profiles([profile_day_1, profile_day_2])
+figure= vizualization.plot_distribution("<feature_name>")
+figure.savefig("/my/image/path.png")
+```
+
+Individual profiles are saved to disk, AWS S3, or WhyLabs API, automatically when loggers are closed, per the configuration found in the Session configuration.
+
+Current profiles from active loggers can be loaded from memory with:
+```python
+profile = logger.profile()
+```
+
+### Profile Viewer
+
+You can also load a local profile viewer, where you upload the `json` summary file. The default path for the json files is set as `output/{dataset_name}/{session_id}/json/dataset_profile.json`.
+
+```python
+from whylogs.viz import profile_viewer
+profile_viewer()
+```
+
+This will open a viewer on your default browser where you can load a profile json summary, using the `Select JSON profile` button:
+Once the json is selected you can view your profile's features and 
+associated and statistics.
+
+<img src="https://whylabs-public.s3-us-west-2.amazonaws.com/assets/whylogs-viewer.gif" title="whylogs HTML viewer demo">
+
 ## Documentation 
 
 The [documentation](https://docs.whylabs.ai/docs/) of this package is generated automatically. 
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 ## Features
 
 - Accurate data profiling: whylogs calculates statistics from 100% of the data, never requiring sampling, ensuring an accurate representation of data distributions
@@ -115,7 +140,7 @@ The [documentation](https://docs.whylabs.ai/docs/) of this package is generated 
 - Tiny storage footprint: whylogs turns data batches and streams into statistical fingerprints, 10-100MB uncompressed
 - Unlimited metrics: whylogs collects all possible statistical metrics about structured or unstructured data
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
+
 ## Data Types<a name="data-types" />
 Whylogs supports both structured and unstructured data, specifically: 
 
@@ -128,7 +153,7 @@ Whylogs supports both structured and unstructured data, specifically:
 | Text | top k values, counts, cardinality (more in developement) | [Github Issue #213](https://github.com/whylabs/whylogs/issues/213) |
 | Audio | In developement | [Github Issue #212](https://github.com/whylabs/whylogs/issues/212) | 
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
+
 ## Integrations
 
 ![current integration](images/integrations.001.png)
@@ -144,8 +169,6 @@ Whylogs supports both structured and unstructured data, specifically:
 | Docker | Run whylogs as in Docker |  <ul><li>[Rest Container](https://docs.whylabs.ai/docs/integrations-rest-container)</li></ul>| 
 | AWS S3 |  Store whylogs profiles in S3 | <ul><li>[S3 example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/S3%20example.ipynb)</li></ul>
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
-
 ## Examples
 For a full set of our examples, please check out [whylogs-examples](https://github.com/whylabs/whylogs-examples).
 
@@ -160,12 +183,9 @@ Check out our example notebooks with Binder: [![Binder](https://mybinder.org/bad
 
 whylogs is maintained by [WhyLabs](https://whylabs.ai).
 
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 ## Community
 
 If you have any questions, comments, or just want to hang out with us, please join [our Slack channel](http://join.slack.whylabs.ai/).
-
-<img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250"><img align="center" src="images/Whylabs-Dots-Light-Bg.png" width="250">
 
 ## Contribute
 
