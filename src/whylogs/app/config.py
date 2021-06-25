@@ -105,6 +105,76 @@ class WriterConfig:
         return WriterConfigSchema().load(data)
 
 
+class MetadataConfig:
+    """
+    Config for whylogs metadata
+
+    See also:
+
+    * :class:`MetadataConfigSchema`
+    * :class:`whylogs.app.writers.Writer`
+    * :func:`whylogs.app.writers.writer_from_config`
+
+    Parameters
+    ----------
+    type : str
+        Destination for the writer output, e.g. 'local' or 's3'
+    output_path : str
+        Prefix of where to output files.  A directory for `type = 'local'`,
+        or key prefix for `type = 's3'`
+    path_template : str, optional
+        Templatized path output using standard python string templates.
+        Variables are accessed via $identifier or ${identifier}.
+        See :func:`whylogs.app.writers.Writer.template_params` for a list of
+        available identifers.
+        Default = :data:`whylogs.app.metadata_writer.DEFAULT_PATH_TEMPLATE`
+    """
+
+    def __init__(
+            self,
+            type: str,
+            output_path: str,
+            path_template: Optional[str] = None,
+    ):
+        self.type = type
+        self.output_path = output_path
+        self.path_template = path_template
+
+    def to_yaml(self, stream=None):
+        """
+        Serialize this config to YAML
+
+        Parameters
+        ----------
+        stream
+            If None (default) return a string, else dump the yaml into this
+            stream.
+        """
+        dump = MetadataConfigSchema().dump(self)
+        return yaml.dump(dump, stream)
+
+    @staticmethod
+    def from_yaml(stream, **kwargs):
+        """
+        Load config from yaml
+
+        Parameters
+        ----------
+        stream : str, file-obj
+            String or file-like object to load yaml from
+
+        kwargs
+            ignored
+
+        Returns
+        -------
+        config : `WriterConfig`
+            Generated config
+        """
+        data = yaml.safe_load(stream)
+        return MetadataConfigSchema().load(data)
+
+
 class SessionConfig:
     """
     Config for a whylogs session.
@@ -119,6 +189,8 @@ class SessionConfig:
         Name of the associated data pipeline
     writers : list
         A list of `WriterConfig` objects defining writer outputs
+    metadata_writer : MetadataConfig
+        A MetadataConfiguration object. If none, will replace with default.
     verbose : bool, default=False
         Output verbosity
     with_rotation_time: str, default = None, to rotate profiles with time, takes values of overall rotation interval,
@@ -131,19 +203,23 @@ class SessionConfig:
     """
 
     def __init__(
-        self,
-        project: str,
-        pipeline: str,
-        writers: List[WriterConfig],
-        verbose: bool = False,
-        with_rotation_time: str = None,
-        cache_size: int = 1,
-        report_progress: bool = False,
+            self,
+            project: str,
+            pipeline: str,
+            writers: List[WriterConfig],
+            metadata_writer: Optional[MetadataConfig] = False,
+            verbose: bool = False,
+            with_rotation_time: str = None,
+            cache_size: int = 1,
+            report_progress: bool = False,
     ):
         self.project = project
         self.pipeline = pipeline
         self.verbose = verbose
         self.writers = writers
+        if not metadata_writer:
+            metadata_writer = MetadataConfig(type="local", output_path="output")
+        self.metadata_writer = metadata_writer
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
         self.report_progress = report_progress
@@ -199,6 +275,20 @@ class WriterConfigSchema(Schema):
         return WriterConfig(**data)
 
 
+class MetadataConfigSchema(Schema):
+    """
+    Marshmallow schema for :class:`MetadataConfig` class.
+    """
+
+    type = fields.Str(validate=validate.OneOf(["local", "s3"]), required=False)
+    output_path = fields.Str(required=False)
+    path_template = fields.Str(required=False, allow_none=True)
+
+    @post_load
+    def make_metadata(self, data, **kwargs):
+        return MetadataConfig(**data)
+
+
 class SessionConfigSchema(Schema):
     """
     Marshmallow schema for :class:`SessionConfig` class.
@@ -214,9 +304,11 @@ class SessionConfigSchema(Schema):
         validate=validate.Length(min=1),
         required=True,
     )
+    metadata = fields.Nested(MetadataConfigSchema, required=False)
 
     @post_load
     def make_session(self, data, **kwargs):
+        print(f"config.py, line 311, data: {data}")
         return SessionConfig(**data)
 
 
