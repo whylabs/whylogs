@@ -9,7 +9,6 @@ from logging import getLogger
 from string import Template
 from typing import List, Optional
 
-from google.protobuf.message import Message
 from smart_open import open
 
 from whylogs.app.output_formats import OutputFormat
@@ -251,10 +250,8 @@ class LocalWriter(Writer):
         """
         path = self.ensure_path(os.path.join(self.path_suffix(profile), "protobuf"))
 
-        protobuf: Message = profile.to_protobuf()
-
         with open(os.path.join(path, self.file_name(profile, ".bin", rotation_suffix)), "wb") as f:
-            f.write(protobuf.SerializeToString())
+            f.write(profile.serialize_delimited())
 
     def ensure_path(self, suffix: str, addition_part: typing.Optional[str] = None) -> str:
         """
@@ -360,10 +357,8 @@ class S3Writer(Writer):
         """
         path = os.path.join(self.output_path, self.path_suffix(profile), "protobuf")
 
-        protobuf: Message = profile.to_protobuf()
-
         with open(os.path.join(path, self.file_name(profile, ".bin", rotation_suffix)), "wb") as f:
-            f.write(protobuf.SerializeToString())
+            f.write(profile.serialize_delimited())
 
 
 class WhyLabsWriter(Writer):
