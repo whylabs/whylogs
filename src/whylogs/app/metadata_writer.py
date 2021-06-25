@@ -45,10 +45,7 @@ class MetadataWriter:
         kwargs = {"name": name}
         return self.path_template.substitute(**kwargs)
 
-    def autosegmentation_write(
-            self,
-            name: str,
-            segments: Union[List[Dict], List[str]]) -> None:
+    def autosegmentation_write(self, name: str, segments: Union[List[Dict], List[str]]) -> None:
         path = os.path.join(self.output_path, self.path_suffix(name))
         if self.writer_type == "local":
             os.makedirs(path, exist_ok=True)
@@ -72,8 +69,4 @@ def metadata_from_config(config: MetadataConfig):
         if not os.path.exists(abs_path):
             os.makedirs(abs_path, exist_ok=True)
 
-    return MetadataWriter(
-            config.output_path,
-            config.path_template,
-            config.type
-    )
+    return MetadataWriter(config.output_path, config.path_template, config.type)

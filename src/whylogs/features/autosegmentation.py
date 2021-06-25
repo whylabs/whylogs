@@ -1,27 +1,22 @@
 from typing import Dict, List, Optional, Union
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 
-def _entropy(series: pd.Series,
-             normalized: bool = True):
+def _entropy(series: pd.Series, normalized: bool = True):
     """Entropy calculation. If normalized, use log cardinality."""
     probs = series.value_counts(normalize=True, dropna=False)
     entropy = -np.sum([p_i * np.log(p_i) for p_i in probs])
     if normalized:
-        print(series.unique(), len(series.unique()), np.log(len(
-                series.unique())))
+        print(series.unique(), len(series.unique()), np.log(len(series.unique())))
         if len(series.unique()) > 1:
             entropy /= np.log(len(series.unique()))
 
     return entropy
 
 
-def _weighted_entropy(df: pd.DataFrame,
-                      split_columns: List[Optional[str]],
-                      target_column_name: str,
-                      normalized: bool = True):
+def _weighted_entropy(df: pd.DataFrame, split_columns: List[Optional[str]], target_column_name: str, normalized: bool = True):
     """Entropy calculation. If normalized, use log cardinality."""
     weight_split_entropy = 0
 
@@ -31,49 +26,33 @@ def _weighted_entropy(df: pd.DataFrame,
         col_groups = [(None, df)]
 
     for _, col_group in col_groups:
-        weight_split_entropy += _entropy(col_group.loc[:, target_column_name],
-                                         normalized) * len(col_group) / len(df)
+        weight_split_entropy += _entropy(col_group.loc[:, target_column_name], normalized) * len(col_group) / len(df)
 
     return weight_split_entropy
 
 
-def _information_gain_ratio(df: pd.DataFrame,
-                            prev_split_columns: List[Optional[str]],
-                            column_name: str,
-                            target_column_name: str,
-                            normalized: bool = True):
+def _information_gain_ratio(df: pd.DataFrame, prev_split_columns: List[Optional[str]], column_name: str, target_column_name: str, normalized: bool = True):
     """Entropy calculation. If normalized, use log cardinality."""
-    pre_split_entropy = _weighted_entropy(df, prev_split_columns,
-                                          target_column_name, normalized)
+    pre_split_entropy = _weighted_entropy(df, prev_split_columns, target_column_name, normalized)
     new_split_columns = prev_split_columns[:]
     new_split_columns.append(column_name)
-    post_split_entropy = _weighted_entropy(df, new_split_columns,
-                                           target_column_name, normalized)
+    post_split_entropy = _weighted_entropy(df, new_split_columns, target_column_name, normalized)
 
     return pre_split_entropy - post_split_entropy
 
 
-def _find_best_split(df: pd.DataFrame,
-                     prev_split_columns: List[str],
-                     valid_column_names: List[str],
-                     target_column_name: str):
+def _find_best_split(df: pd.DataFrame, prev_split_columns: List[str], valid_column_names: List[str], target_column_name: str):
 
     max_score_tuple = -np.inf, None
     for column_name in valid_column_names:
-        value = _information_gain_ratio(df, prev_split_columns,
-                                        column_name, target_column_name,
-                                        normalized=True)
+        value = _information_gain_ratio(df, prev_split_columns, column_name, target_column_name, normalized=True)
         if value > max_score_tuple[0]:
             max_score_tuple = value, column_name
 
     return max_score_tuple
 
 
-def _estimate_segments(
-    df: pd.DataFrame,
-    target_field: str = None,
-    max_segments: int = 30
-) -> Optional[Union[List[Dict], List[str]]]:
+def _estimate_segments(df: pd.DataFrame, target_field: str = None, max_segments: int = 30) -> Optional[Union[List[Dict], List[str]]]:
     """
     Estimates the most important features and values on which to segment
     data profiling using entropy-based methods.
@@ -107,26 +86,19 @@ def _estimate_segments(
             null_perc = 0.0 if True not in nulls.index else nulls[True]
             unique_perc = n_unique / len(df[col])
             print(f"unique_perc={unique_perc}")
-            if (n_unique > 1 and
-                    n_unique * segments_used <= max_segments - segments_used and
-                    col not in segments and
-                    null_perc <= 0.2 and
-                    unique_perc <= 0.8):
+            if n_unique > 1 and n_unique * segments_used <= max_segments - segments_used and col not in segments and null_perc <= 0.2 and unique_perc <= 0.8:
                 valid_column_names.append(col)
 
-        if not valid_column_names: break
+        if not valid_column_names:
+            break
 
         if target_field in valid_column_names:
             valid_column_names.remove(target_field)
 
-        _, segment_column_name = _find_best_split(
-                df,
-                current_split_columns,
-                valid_column_names,
-                target_column_name=target_field
-        )
+        _, segment_column_name = _find_best_split(df, current_split_columns, valid_column_names, target_column_name=target_field)
 
-        if not segment_column_name: break
+        if not segment_column_name:
+            break
 
         segments.append(segment_column_name)
         current_split_columns.append(segment_column_name)

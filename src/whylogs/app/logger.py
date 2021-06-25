@@ -143,8 +143,7 @@ class Logger:
         hashed_seg = hash_segment(segment)
         return self._profiles[-1]["segmented_profiles"].get(hashed_seg, None)
 
-    def set_segments(self,
-                     segments: Union[List[Segment], List[str], str]) -> None:
+    def set_segments(self, segments: Union[List[Segment], List[str], str]) -> None:
         if segments:
             if segments == "auto":
                 segments = self._retrieve_local_segments()
@@ -162,9 +161,7 @@ class Logger:
             self.segments = None
             self.segment_type = None
 
-
-    def _retrieve_local_segments(self) -> \
-            Optional[Union[List[Segment], List[str], str]]:
+    def _retrieve_local_segments(self) -> Optional[Union[List[Segment], List[str], str]]:
         """Retrieves local segments"""
         pass
 

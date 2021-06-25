@@ -10,11 +10,10 @@ from uuid import uuid4
 import pandas as pd
 from tqdm.auto import tqdm
 
-from whylogs.app.config import SessionConfig, WriterConfig, MetadataConfig, \
-    load_config
+from whylogs.app.config import MetadataConfig, SessionConfig, WriterConfig, load_config
 from whylogs.app.logger import Logger, Segment
-from whylogs.app.writers import WhyLabsWriter, Writer, writer_from_config
 from whylogs.app.metadata_writer import MetadataWriter, metadata_from_config
+from whylogs.app.writers import WhyLabsWriter, Writer, writer_from_config
 from whylogs.core import DatasetProfile
 from whylogs.core.statistics.constraints import DatasetConstraints
 from whylogs.features.autosegmentation import _estimate_segments
@@ -103,8 +102,7 @@ class Session:
         self._loggers = {}
         self._session_time = datetime.datetime.now()
         self._session_id = str(uuid4())
-        self._config = SessionConfig(project, pipeline, writers,
-                                     metadata_writer, verbose)
+        self._config = SessionConfig(project, pipeline, writers, metadata_writer, verbose)
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
         self.report_progress = report_progress
@@ -354,11 +352,7 @@ class Session:
         :param dry_run: run calculation but do not write results to metadata
         :return: a list of segmentation feature names
         """
-        segments = _estimate_segments(
-                df=df,
-                target_field=target_field,
-                max_segments=max_segments
-        )
+        segments = _estimate_segments(df=df, target_field=target_field, max_segments=max_segments)
 
         print(f"Segments:  {segments}")
 
@@ -493,12 +487,11 @@ def get_or_create_session(path_to_config: Optional[str] = None, report_progress:
             print("WARN: Missing config")
 
         config = SessionConfig(
-                "default-project",
-                "default-pipeline",
-                [WriterConfig(type="local", output_path="output",
-                              formats=["all"])],
-                MetadataConfig(type="local", output_path="output"),
-                False
+            "default-project",
+            "default-pipeline",
+            [WriterConfig(type="local", output_path="output", formats=["all"])],
+            MetadataConfig(type="local", output_path="output"),
+            False,
         )
         if report_progress is not None:
             config.report_progress = report_progress

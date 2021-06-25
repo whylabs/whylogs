@@ -131,10 +131,10 @@ class MetadataConfig:
     """
 
     def __init__(
-            self,
-            type: str,
-            output_path: str,
-            path_template: Optional[str] = None,
+        self,
+        type: str,
+        output_path: str,
+        path_template: Optional[str] = None,
     ):
         self.type = type
         self.output_path = output_path
@@ -203,15 +203,15 @@ class SessionConfig:
     """
 
     def __init__(
-            self,
-            project: str,
-            pipeline: str,
-            writers: List[WriterConfig],
-            metadata_writer: Optional[MetadataConfig] = False,
-            verbose: bool = False,
-            with_rotation_time: str = None,
-            cache_size: int = 1,
-            report_progress: bool = False,
+        self,
+        project: str,
+        pipeline: str,
+        writers: List[WriterConfig],
+        metadata_writer: Optional[MetadataConfig] = False,
+        verbose: bool = False,
+        with_rotation_time: str = None,
+        cache_size: int = 1,
+        report_progress: bool = False,
     ):
         self.project = project
         self.pipeline = pipeline
