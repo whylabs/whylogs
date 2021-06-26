@@ -12,6 +12,7 @@ from typing import IO, AnyStr, Callable, Dict, List, Optional, Union
 import pandas as pd
 from tqdm import tqdm
 
+from whylogs.app.metadata_writer import MetadataWriter
 from whylogs.app.writers import Writer
 from whylogs.core import (
     METADATA_DEFAULT_ATTRIBUTES,
@@ -41,6 +42,7 @@ class Logger:
     :param tags: Optional. Dictionary of key, value for aggregating data upstream
     :param metadata: Optional. Dictionary of key, value. Useful for debugging (associated with every single dataset profile)
     :param writers: Optional. List of Writer objects used to write out the data
+    :param metadata_writer: Optional. MetadataWriter object used to write non-profile information
     :param with_rotation_time: Optional. Log rotation interval, \
             consisting of digits with unit specification, e.g. 30s, 2h, d.\
             units are seconds ("s"), minutes ("m"), hours, ("h"), or days ("d") \
@@ -67,6 +69,7 @@ class Logger:
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         writers: List[Writer] = None,
+        metadata_writer: MetadataWriter = None,
         verbose: bool = False,
         with_rotation_time: Optional[str] = None,
         interval: int = 1,
@@ -89,6 +92,7 @@ class Logger:
             self.session_timestamp = session_timestamp
         self.dataset_name = dataset_name
         self.writers = writers
+        self.metadata_writer = metadata_writer
         self.verbose = verbose
         self.cache_size = cache_size
         self.tags = tags
@@ -145,9 +149,7 @@ class Logger:
 
     def set_segments(self, segments: Union[List[Segment], List[str], str]) -> None:
         if segments:
-            if segments == "auto":
-                segments = self._retrieve_local_segments()
-            if segments == "local":
+            if segments.startswith("auto"):
                 segments = self._retrieve_local_segments()
 
         if segments:
@@ -161,9 +163,11 @@ class Logger:
             self.segments = None
             self.segment_type = None
 
-    def _retrieve_local_segments(self) -> Optional[Union[List[Segment], List[str], str]]:
+    def _retrieve_local_segments(self) -> Union[List[Segment], List[str], str]:
         """Retrieves local segments"""
-        pass
+        segments = self.metadata_writer.autosegmentation_read()
+        self._py_logger.info("Retrieved segments from local storage: " f"{segments}")
+        return segments
 
     def _intialize_profiles(
         self,
