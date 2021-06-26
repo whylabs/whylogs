@@ -9,7 +9,6 @@ def _entropy(series: pd.Series, normalized: bool = True):
     probs = series.value_counts(normalize=True, dropna=False)
     entropy = -np.sum([p_i * np.log(p_i) for p_i in probs])
     if normalized:
-        print(series.unique(), len(series.unique()), np.log(len(series.unique())))
         if len(series.unique()) > 1:
             entropy /= np.log(len(series.unique()))
 
@@ -85,8 +84,9 @@ def _estimate_segments(df: pd.DataFrame, target_field: str = None, max_segments:
             nulls = df[col].isnull().value_counts(normalize=True)
             null_perc = 0.0 if True not in nulls.index else nulls[True]
             unique_perc = n_unique / len(df[col])
-            print(f"unique_perc={unique_perc}")
-            if n_unique > 1 and n_unique * segments_used <= max_segments - segments_used and col not in segments and null_perc <= 0.2 and unique_perc <= 0.8:
+            if (n_unique > 1 and n_unique * segments_used <= max_segments -
+                    segments_used and col not in segments and null_perc <=
+                    0.2 and unique_perc <= 0.8):
                 valid_column_names.append(col)
 
         if not valid_column_names:

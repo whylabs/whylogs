@@ -191,6 +191,7 @@ class Session:
                 dataset_timestamp=dataset_timestamp,
                 session_timestamp=session_timestamp or self._session_time,
                 writers=self.writers,
+                metadata_writer=self.metadata_writer,
                 tags=tags or {},
                 metadata=metadata,
                 verbose=self.verbose,
@@ -311,7 +312,7 @@ class Session:
             return None
 
         if dataset_name is None:
-            # using the project name for the datasetname
+            # using the project name for the dataset name
             dataset_name = self.project
         if session_timestamp is None:
             session_timestamp = self._session_time
@@ -353,8 +354,6 @@ class Session:
         :return: a list of segmentation feature names
         """
         segments = _estimate_segments(df=df, target_field=target_field, max_segments=max_segments)
-
-        print(f"Segments:  {segments}")
 
         if not dry_run:
             self.metadata_writer.autosegmentation_write(name, segments)
@@ -490,7 +489,7 @@ def get_or_create_session(path_to_config: Optional[str] = None, report_progress:
             "default-project",
             "default-pipeline",
             [WriterConfig(type="local", output_path="output", formats=["all"])],
-            MetadataConfig(type="local", output_path="output"),
+            MetadataConfig(type="local", output_path="output", input_path=""),
             False,
         )
         if report_progress is not None:

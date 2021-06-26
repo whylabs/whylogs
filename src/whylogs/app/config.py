@@ -122,6 +122,8 @@ class MetadataConfig:
     output_path : str
         Prefix of where to output files.  A directory for `type = 'local'`,
         or key prefix for `type = 's3'`
+    input_path : str
+        Path to search for pre-calculated segment files. Paths separated by ':'.
     path_template : str, optional
         Templatized path output using standard python string templates.
         Variables are accessed via $identifier or ${identifier}.
@@ -134,10 +136,12 @@ class MetadataConfig:
         self,
         type: str,
         output_path: str,
+        input_path: str,
         path_template: Optional[str] = None,
     ):
         self.type = type
         self.output_path = output_path
+        self.input_path = input_path
         self.path_template = path_template
 
     def to_yaml(self, stream=None):
@@ -218,7 +222,7 @@ class SessionConfig:
         self.verbose = verbose
         self.writers = writers
         if not metadata_writer:
-            metadata_writer = MetadataConfig(type="local", output_path="output")
+            metadata_writer = MetadataConfig(type="local", output_path="output", input_path="")
         self.metadata_writer = metadata_writer
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
@@ -282,6 +286,7 @@ class MetadataConfigSchema(Schema):
 
     type = fields.Str(validate=validate.OneOf(["local", "s3"]), required=False)
     output_path = fields.Str(required=False)
+    input_path = fields.Str(required=False, default="")
     path_template = fields.Str(required=False, allow_none=True)
 
     @post_load
@@ -308,7 +313,6 @@ class SessionConfigSchema(Schema):
 
     @post_load
     def make_session(self, data, **kwargs):
-        print(f"config.py, line 311, data: {data}")
         return SessionConfig(**data)
 
 

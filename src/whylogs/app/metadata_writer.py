@@ -1,11 +1,17 @@
 import json
 import os
+from glob import glob
+from logging import getLogger
 from string import Template
 from typing import Dict, List, Optional, Union
+
+from smart_open import open
 
 from .config import MetadataConfig
 
 DEFAULT_PATH_TEMPLATE = "$name/metadata"
+
+logger = getLogger(__name__)
 
 
 class MetadataWriter:
@@ -28,10 +34,12 @@ class MetadataWriter:
     def __init__(
         self,
         output_path: str,
+        input_path: str = "",
         path_template: Optional[str] = None,
         writer_type: Optional[str] = "local",
     ):
         self.output_path = output_path
+        self.input_path = input_path
         self.writer_type = writer_type
         if path_template is None:
             path_template = DEFAULT_PATH_TEMPLATE
@@ -54,6 +62,41 @@ class MetadataWriter:
         with open(output_file, "wt") as f:
             f.write(json.dumps(segments))
 
+    def autosegmentation_read(self):
+        valid_paths = []
+        test_paths = [""]
+        test_paths.extend(self.input_path.split(":"))
+        test_paths.append(self.output_path)
+
+        for path in test_paths:
+            valid_paths.extend(glob(os.path.join(path, "segments.json")))
+            valid_paths.extend(glob(os.path.join(path, self.path_suffix("*"), "segments.json")))
+
+        if len(valid_paths) <= 0:
+            print(
+                "No autosegmentation settings found. Update the session "
+                "configuration settings or run `session.estimate_segments`."
+                "\nLogging full profile with no segments."
+            )
+            return []
+        elif len(valid_paths) > 1:
+            print(
+                "Multiple autosegmentation settings found. Choosing first "
+                "valid path. To choose a different file, pass unique "
+                "substring during logging via parameter "
+                "segments='auto:<search>'."
+            )
+            print(f"\nAutosegmentation paths found:\n{valid_paths}")
+
+        try:
+            f = open(valid_paths[0], "rt")
+            segments = json.load(f)
+            logger.info(f"Segmenting using path: {valid_paths[0]}")
+        except ValueError:
+            segments = []
+
+        return segments
+
 
 def metadata_from_config(config: MetadataConfig):
     """
@@ -69,4 +112,4 @@ def metadata_from_config(config: MetadataConfig):
         if not os.path.exists(abs_path):
             os.makedirs(abs_path, exist_ok=True)
 
-    return MetadataWriter(config.output_path, config.path_template, config.type)
+    return MetadataWriter(config.output_path, config.input_path, config.path_template, config.type)
