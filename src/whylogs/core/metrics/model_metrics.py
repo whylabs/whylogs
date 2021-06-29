@@ -115,7 +115,7 @@ class ModelMetrics:
             return self
 
         model_type = self.model_type
-        if model_type not in (ModelType.REGRESSION, ModelType.CLASSIFICATION):
+        if model_type not in (ModelType.REGRESSION, ModelType.CLASSIFICATION, ModelType.NLP):
             model_type = other.model_type
             if model_type not in (ModelType.REGRESSION, ModelType.CLASSIFICATION):
                 model_type = ModelType.UNKNOWN
