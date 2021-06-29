@@ -1,5 +1,5 @@
 from whylogs.core.model_profile import ModelProfile
-from whylogs.proto import ModelProfileMessage
+from whylogs.proto import ModelProfileMessage, ModelType
 
 
 def test_model_profile():
@@ -59,3 +59,23 @@ def test_roundtrip_serialization():
     roundtrip.to_protobuf()
     assert roundtrip.output_fields == ["test"]
     assert isinstance(roundtrip.output_fields, list)
+
+
+def test_merge_profile_nlp():
+    targets_1 = ["cat is dog", "cat is dog", "dog is pig"]
+    predictions_1 = ["cat is dog", "dog is dog", "dog pig"]
+
+    mod_prof = ModelProfile()
+    mod_prof.model_type = ModelType.NLP
+
+    assert mod_prof.output_fields == []
+    mod_prof.add_output_field("monologue")
+
+    mod_prof.compute_metrics(predictions_1, targets_1)
+    assert mod_prof.metrics is not None
+
+    mod_prof_2 = ModelProfile()
+    assert mod_prof_2.output_fields == []
+
+    mod_prof_3 = mod_prof.merge(mod_prof_2)
+    assert mod_prof_3.output_fields == ["monologue"]
