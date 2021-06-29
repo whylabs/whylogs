@@ -66,6 +66,18 @@ class ModelProfile:
         NotImplementedError
 
         """
+        if model_type == ModelType.NLP:
+
+            self.metrics.compute_nlp_metrics(
+                predictions=predictions,
+                targets=targets,
+                scores=scores,
+                target_field=target_field,
+                prediction_field=prediction_field,
+            )
+            self.metrics.model_type = model_type
+            return None
+
         tgt_type = type_of_target(targets)
         if tgt_type in ("continuous") or model_type == ModelType.REGRESSION:
 
