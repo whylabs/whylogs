@@ -1,5 +1,6 @@
 from ._version import __version__
 from .app.config import SessionConfig, WriterConfig
+from .app.log import log
 from .app.session import (
     get_or_create_session,
     reset_default_session,
@@ -9,6 +10,7 @@ from .core import ColumnProfile, DatasetProfile
 from .mlflow import enable_mlflow
 
 __all__ = [
+    "log",
     "ColumnProfile",
     "DatasetProfile",
     "SessionConfig",
