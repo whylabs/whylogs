@@ -111,9 +111,7 @@ class ColumnProfile:
 
             self.string_tracker.update(value, character_list=character_list, token_method=token_method)
 
-        # TODO: Implement real typed data conversion
-        typed_data = TypedDataConverter.convert(value)
-
+        typed_data = value
         if not pd.isnull(typed_data):
             self.cardinality_tracker.update(typed_data)
             self.frequent_items.update(typed_data)
@@ -124,6 +122,7 @@ class ColumnProfile:
             # Note: bools are sub-classes of ints in python, so we should check
             # for bool type first
             self.counters.increment_bool()
+
         self.number_tracker.track(typed_data)
 
         self.constraints.update(typed_data)
