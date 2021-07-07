@@ -11,7 +11,7 @@ import pandas as pd
 from tqdm.auto import tqdm
 
 from whylogs.app.config import MetadataConfig, SessionConfig, WriterConfig, load_config
-from whylogs.app.logger import Logger, Segment
+from whylogs.app.logger import Logger
 from whylogs.app.metadata_writer import MetadataWriter, metadata_from_config
 from whylogs.app.writers import WhyLabsWriter, Writer, writer_from_config
 from whylogs.core import DatasetProfile
