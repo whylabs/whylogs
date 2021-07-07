@@ -35,7 +35,7 @@ class BaseProfileVisualizer:
 
     def plot_token_length(self, variable, character_list, **kwargs):
         """Plots token length data ."""
-        return self.visualizer.plot_string_length(variable, **kwargs)
+        return self.visualizer.plot_token_length(variable, **kwargs)
 
     def plot_char_pos(self, variable, character_list, **kwargs):
         """Plots character position data ."""
