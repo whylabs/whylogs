@@ -1,7 +1,10 @@
 from typing import List, Union
 
-import jiwer
-
+try:
+    import jiwer
+except ImportError as e:
+    logger.debug(str(e))
+    logger.debug("Unable to load jiwer; install jiwer for partial nlp metric support")
 from whylogs.core.statistics import NumberTracker
 from whylogs.proto import NLPMetricsMessage
 
