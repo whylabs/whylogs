@@ -149,10 +149,11 @@ class Logger:
 
     def set_segments(self, segments: Union[List[Segment], List[str], str]) -> None:
         if segments:
-            if segments.startswith("auto"):
+            if segments == "auto":
                 segments = self._retrieve_local_segments()
 
         if segments:
+
             if all(isinstance(elem, str) for elem in segments):
                 self.segment_type = "keys"
                 self.segments = segments
