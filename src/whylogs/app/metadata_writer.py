@@ -73,20 +73,20 @@ class MetadataWriter:
             valid_paths.extend(glob(os.path.join(path, self.path_suffix("*"), "segments.json")))
 
         if len(valid_paths) <= 0:
-            print(
+            logger.error(
                 "No autosegmentation settings found. Update the session "
                 "configuration settings or run `session.estimate_segments`."
                 "\nLogging full profile with no segments."
             )
-            return []
+            return None
         elif len(valid_paths) > 1:
-            print(
+            logger.warning(
                 "Multiple autosegmentation settings found. Choosing first "
                 "valid path. To choose a different file, pass unique "
                 "substring during logging via parameter "
                 "segments='auto:<search>'."
             )
-            print(f"\nAutosegmentation paths found:\n{valid_paths}")
+            logger.info(f"\nAutosegmentation paths found:\n{valid_paths}")
 
         try:
             f = open(valid_paths[0], "rt")
