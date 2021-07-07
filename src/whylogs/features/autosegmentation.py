@@ -84,9 +84,7 @@ def _estimate_segments(df: pd.DataFrame, target_field: str = None, max_segments:
             nulls = df[col].isnull().value_counts(normalize=True)
             null_perc = 0.0 if True not in nulls.index else nulls[True]
             unique_perc = n_unique / len(df[col])
-            if (n_unique > 1 and n_unique * segments_used <= max_segments -
-                    segments_used and col not in segments and null_perc <=
-                    0.2 and unique_perc <= 0.8):
+            if n_unique > 1 and n_unique * segments_used <= max_segments - segments_used and col not in segments and null_perc <= 0.2 and unique_perc <= 0.8:
                 valid_column_names.append(col)
 
         if not valid_column_names:
