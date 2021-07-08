@@ -142,6 +142,15 @@ enum ModelType {
   CLASSIFICATION = 1;
   REGRESSION = 2;
   EMBEDDINGS = 3;
+  NLP= 4;
+}
+
+message NLPMetricsMessage {
+
+  NumbersMessage mer = 1;
+  NumbersMessage wer = 2;
+  NumbersMessage wil = 3;
+  
 }
 
 message ModelMetricsMessage {
