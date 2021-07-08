@@ -13,13 +13,13 @@ from smart_open import open
 
 from whylogs.app.output_formats import OutputFormat
 from whylogs.core import DatasetProfile
-
-from ..core.datasetprofile import (
+from whylogs.core.flatten_datasetprofile import (
     flatten_dataset_frequent_numbers,
     flatten_dataset_frequent_strings,
     flatten_dataset_histograms,
     get_dataset_frame,
 )
+
 from ..util import time
 from ..util.protobuf import message_to_json
 from .config import WriterConfig

@@ -57,6 +57,8 @@ class NLPMetrics:
 
         return merged_nlp_metrics
 
+        return merged_nlp_metrics
+
     def to_protobuf(
         self,
     ) -> NLPMetricsMessage:
