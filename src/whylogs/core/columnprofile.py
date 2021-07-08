@@ -110,8 +110,9 @@ class ColumnProfile:
         if isinstance(value, str):
 
             self.string_tracker.update(value, character_list=character_list, token_method=token_method)
+        # TODO: Implement real typed data conversion
+        typed_data = TypedDataConverter.convert(value)
 
-        typed_data = value
         if not pd.isnull(typed_data):
             self.cardinality_tracker.update(typed_data)
             self.frequent_items.update(typed_data)
