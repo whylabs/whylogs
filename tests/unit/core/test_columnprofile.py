@@ -77,7 +77,7 @@ def test_track():
     for val in data:
         c.track(val)
     nt = c.number_tracker
-    assert nt.floats.count == 4
+    assert nt.floats.count == 6
     assert nt.ints.count == 0
     assert nt.floats.min == 1.0
     assert nt.floats.max == 4.0
