@@ -110,7 +110,6 @@ class ColumnProfile:
         if isinstance(value, str):
 
             self.string_tracker.update(value, character_list=character_list, token_method=token_method)
-
         # TODO: Implement real typed data conversion
         typed_data = TypedDataConverter.convert(value)
 
@@ -124,6 +123,7 @@ class ColumnProfile:
             # Note: bools are sub-classes of ints in python, so we should check
             # for bool type first
             self.counters.increment_bool()
+
         self.number_tracker.track(typed_data)
 
         self.constraints.update(typed_data)

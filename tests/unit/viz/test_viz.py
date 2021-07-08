@@ -15,11 +15,18 @@ def test_viz():
         tags={"key": "value"},
         metadata={"key": "value"},
     )
+    x2 = DatasetProfile(
+        name="test",
+        session_id=uuid4().hex,
+        session_timestamp=now + datetime.timedelta(days=1),
+        tags={"key": "value"},
+        metadata={"key": "value"},
+    )
     x1.track("col1", "value")
     viz = ProfileVisualizer()
     viz.available_plots()
 
-    viz.set_profiles([x1])
+    viz.set_profiles([x1, x2])
 
 
 def test_viz_distribution(profile_lending_club):
@@ -45,9 +52,36 @@ def test_viz_uniqueness(profile_lending_club):
     viz.plot_uniqueness("max_bal_bc")
 
 
+def test_viz_string_length(profile_lending_club):
+
+    viz = ProfileVisualizer()
+    viz.set_profiles([profile_lending_club])
+
+    viz.plot_string_length("url")
+
+
+def test_viz_token_length(profile_lending_club):
+
+    viz = ProfileVisualizer()
+    viz.set_profiles([profile_lending_club])
+
+    viz.plot_token_length("url", character_list="htp")
+
+
+def test_viz_char_pos(profile_lending_club):
+
+    now = datetime.datetime.utcnow()
+    profile_lending_club.dataset_timestamp = now
+    viz = ProfileVisualizer()
+    viz.set_profiles([profile_lending_club])
+
+    viz.plot_char_pos("url", character_list="htp")
+
+
 def test_viz_missing_values(profile_lending_club):
 
     viz = ProfileVisualizer()
+
     viz.set_profiles([profile_lending_club])
 
     viz.plot_missing_values("hardship_payoff_balance_amount")
