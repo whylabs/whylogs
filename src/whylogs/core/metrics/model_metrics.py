@@ -1,6 +1,7 @@
 from typing import List, Union
 
 from whylogs.core.metrics.confusion_matrix import ConfusionMatrix
+from whylogs.core.metrics.nlp_metrics import NLPMetrics
 from whylogs.core.metrics.regression_metrics import RegressionMetrics
 from whylogs.proto import ModelMetricsMessage, ModelType
 
@@ -18,6 +19,7 @@ class ModelMetrics:
         self,
         confusion_matrix: ConfusionMatrix = None,
         regression_metrics: RegressionMetrics = None,
+        nlp_metrics: NLPMetrics = None,
         model_type: ModelType = ModelType.UNKNOWN,
     ):
 
@@ -27,7 +29,7 @@ class ModelMetrics:
 
         if confusion_matrix is not None:
             if self.model_type == ModelType.REGRESSION:
-                raise NotImplementedError("Incorrent model type")
+                raise NotImplementedError("Incorrect model type")
             self.model_type = ModelType.CLASSIFICATION
 
         self.confusion_matrix = confusion_matrix

@@ -1,5 +1,7 @@
+import logging
 from typing import List, Union
 
+logger = logging.getLogger(__name__)
 try:
     import jiwer
 except ImportError as e:
@@ -13,6 +15,9 @@ class NLPMetrics:
     def __init__(self, prediction_field: str = None, target_field: str = None):
         self.prediction_field = prediction_field
         self.target_field = target_field
+        self.mer = NumberTracker()
+        self.wer = NumberTracker()
+        self.wil = NumberTracker()
 
     def update(self, predictions: Union[List[str], str], targets: Union[List[str]], transform=None) -> None:
         """
@@ -28,9 +33,9 @@ class NLPMetrics:
         else:
             mes = jiwer.compute_measures(truth=targets, hypothesis=predictions)
 
-        self.mer.update(mes["mer"])
-        self.wer.update(mes["wer"])
-        self.wil.update(mes["wil"])
+        self.mer.track(mes["mer"])
+        self.wer.track(mes["wer"])
+        self.wil.track(mes["wil"])
 
     def merge(self, other: "NLPMetrics") -> "NLPMetrics":
         """
@@ -45,15 +50,15 @@ class NLPMetrics:
             return self
 
         merged_nlp_metrics = NLPMetrics()
-        merged_nlp_metrics.mer.merge(other.mer)
-        merged_nlp_metrics.wer.merge(other.wer)
-        merged_nlp_metrics.wil.merge(other.wil)
+        merged_nlp_metrics.mer = self.mer.merge(other.mer)
+        merged_nlp_metrics.wer = self.wer.merge(other.wer)
+        merged_nlp_metrics.wil = self.wil.merge(other.wil)
 
         return merged_nlp_metrics
 
     def to_protobuf(
         self,
-    ):
+    ) -> NLPMetricsMessage:
         """
         Convert to protobuf
 
@@ -62,22 +67,20 @@ class NLPMetrics:
         """
 
         return NLPMetricsMessage(
-            mer=self.mer,
-            wer=self.wer,
-            wil=self.wil,
+            mer=self.mer.to_protobuf(),
+            wer=self.wer.to_protobuf(),
+            wil=self.wil.to_protobuf(),
         )
 
     @classmethod
     def from_protobuf(
-        cls,
+        cls: "NLPMetrics",
         message: NLPMetricsMessage,
     ):
-        if message.ByteSize() == 0:
-            return None
 
         nlp_met = NLPMetrics()
-        NLPMetrics.wer = NumberTracker.from_protobuf(NLPMetricsMessage.wer)
-        NLPMetrics.wil = NumberTracker.from_protobuf(NLPMetricsMessage.wil)
-        NLPMetrics.mer = NumberTracker.from_protobuf(NLPMetricsMessage.mer)
+        nlp_met.wer = NumberTracker.from_protobuf(message.wer)
+        nlp_met.wil = NumberTracker.from_protobuf(message.wil)
+        nlp_met.mer = NumberTracker.from_protobuf(message.mer)
 
         return nlp_met
