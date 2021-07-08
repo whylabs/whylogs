@@ -255,7 +255,8 @@ plot_string_length()
             ax.set_yticklabels(character_list)
 
             ax.grid(False)
-            ax.set_title(f"{self.profiles[idx].dataset_timestamp.strftime(ts_format)}")
+            if self.profiles[idx]:
+                ax.set_title(f"{self.profiles[idx].dataset_timestamp.strftime(ts_format)}")
         fig.suptitle(f"Character Position Distribution ({variable})", fontweight="bold")
         return fig
 
