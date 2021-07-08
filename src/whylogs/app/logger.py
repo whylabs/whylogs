@@ -319,6 +319,8 @@ class Logger:
         features: Optional[Dict[str, any]] = None,
         feature_name: str = None,
         value: any = None,
+        character_list: str = None,
+        token_method: Optional[Callable] = None,
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
@@ -343,12 +345,12 @@ class Logger:
             self.log_dataframe(pd.DataFrame([features]))
         else:
             if self.full_profile_check():
-                self._profiles[-1]["full_profile"].track_datum(feature_name, value)
+                self._profiles[-1]["full_profile"].track_datum(feature_name, value, character_list=character_list, token_method=token_method)
 
             if self.segments:
-                self.log_segment_datum(feature_name, value)
+                self.log_segment_datum(feature_name, value, character_list=character_list, token_method=token_method)
 
-    def log_segment_datum(self, feature_name, value):
+    def log_segment_datum(self, feature_name, value, character_list: str = None, token_method: Optional[Callable] = None):
         segment = [{"key": feature_name, "value": value}]
         segment_profile = self.get_segment(segment)
         if self.segment_type == "keys":
@@ -356,15 +358,15 @@ class Logger:
                 if segment_profile is None:
                     return
                 else:
-                    segment_profile.track_datum(feature_name, value)
+                    segment_profile.track_datum(feature_name, value, character_list=character_list, token_method=token_method)
             else:
                 for each_profile in self._profiles[-1]["segmented_profiles"]:
-                    each_profile.track_datum(feature_name, value)
+                    each_profile.track_datum(feature_name, value, character_list=character_list, token_method=token_method)
         elif self.segment_type == "set":
             if segment not in self.segments:
                 return
             else:
-                segment_profile.track_datum(feature_name, value)
+                segment_profile.track_datum(feature_name, value, character_list=character_list, token_method=token_method)
 
     def log_metrics(
         self,
