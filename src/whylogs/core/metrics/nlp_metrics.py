@@ -1,14 +1,15 @@
 import logging
 from typing import List, Union
 
+from whylogs.core.statistics import NumberTracker
+from whylogs.proto import NLPMetricsMessage
+
 logger = logging.getLogger(__name__)
 try:
     import jiwer
 except ImportError as e:
     logger.debug(str(e))
     logger.debug("Unable to load jiwer; install jiwer for partial nlp metric support")
-from whylogs.core.statistics import NumberTracker
-from whylogs.proto import NLPMetricsMessage
 
 
 class NLPMetrics:
