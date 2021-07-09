@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def _entropy(series: pd.Series, normalized: bool = True):
+def _entropy(series: pd.Series, normalized: bool = True) -> np.float64:
     """Entropy calculation. If normalized, use log cardinality."""
     probs = series.value_counts(normalize=True, dropna=False)
     entropy = -np.sum([p_i * np.log(p_i) for p_i in probs])
@@ -24,7 +24,7 @@ def _weighted_entropy(df: pd.DataFrame, split_columns: List[Optional[str]], targ
     else:
         col_groups = [(None, df)]
 
-    for _, col_group in col_groups:
+    for x, col_group in col_groups:
         weight_split_entropy += _entropy(col_group.loc[:, target_column_name], normalized) * len(col_group) / len(df)
 
     return weight_split_entropy
@@ -102,4 +102,4 @@ def _estimate_segments(df: pd.DataFrame, target_field: str = None, max_segments:
         current_split_columns.append(segment_column_name)
         segments_used *= len(df[segment_column_name].unique())
 
-    return segments
+    return segments_used, segments
