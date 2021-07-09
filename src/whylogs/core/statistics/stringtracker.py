@@ -236,7 +236,7 @@ class StringTracker:
         count = self.count + other.count
 
         new_length = self.length.merge(other.length)
-        new_token_length = self.token_length.merge(other.length)
+        new_token_length = self.token_length.merge(other.token_length)
         new_char_pos_tracker = self.char_pos_tracker.merge(other.char_pos_tracker)
 
         return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_char_pos_tracker)
