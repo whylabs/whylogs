@@ -40,13 +40,17 @@ public class SummaryConverters {
     if (tracker == null) {
       return null;
     }
-
     if (tracker.getCount() == 0) {
       return null;
     }
 
     val uniqueCount = fromSketch(tracker.getThetaSketch());
-    val builder = StringsSummary.newBuilder().setUniqueCount(uniqueCount);
+    val builder =
+        StringsSummary.newBuilder()
+            .setUniqueCount(uniqueCount)
+            .setLength(fromNumberTracker(tracker.getLength()))
+            .setTokenLength(fromNumberTracker(tracker.getTokenLength()))
+            .setCharPosTracker(tracker.getCharPosTracker().toSummary());
 
     // TODO: make this value (100) configurable
     if (uniqueCount.getEstimate() < 100) {
