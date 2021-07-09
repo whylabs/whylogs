@@ -71,6 +71,8 @@ def test_merge_character_lists():
 
     assert x.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() == 40
 
+    assert x.token_length.histogram.get_max_value() == 10
+
 
 def test_tracking():
     x = StringTracker()
@@ -358,3 +360,21 @@ def test_summary():
         actual_items.reset_index(drop=True).sort_index(axis=1),
         expected_items.reset_index(drop=True).sort_index(axis=1),
     )
+
+
+def test_string_tracker_merge():
+    x = StringTracker()
+    data = ["one", "two", "three", "one", "one", "One test", "six", None, None]
+    for record in data:
+        x.update(record)
+    assert x.token_length.histogram.get_max_value() == 2
+    assert x.token_length.histogram.get_min_value() == 1
+    x2 = StringTracker()
+    data = ["this is a long sentence that ends in an A"]
+    for record in data:
+        x2.update(record)
+    assert x2.token_length.histogram.get_max_value() == 10
+    assert x2.token_length.histogram.get_min_value() == 10
+    new_string_track = x2.merge(x)
+    assert new_string_track.token_length.histogram.get_max_value() == 10
+    assert new_string_track.token_length.histogram.get_min_value() == 1
