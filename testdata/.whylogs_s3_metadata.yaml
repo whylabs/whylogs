@@ -1,0 +1,15 @@
+project: test-project-yaml
+pipeline: test-pipeline
+verbose: false
+metadata:
+  output_path: s3://mocked_bucket/
+  path_template: metadata
+  input_path: s3://mocked_bucket/
+  type: s3
+writers:
+- formats:
+  - protobuf
+  output_path: s3://mocked_bucket/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary
+  type: s3
