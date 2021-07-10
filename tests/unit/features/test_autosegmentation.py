@@ -39,11 +39,7 @@ def test_entropy_string():
 
 def test_weighted_entropy():
 
-    df = pd.DataFrame({
-        "targets": ["hat", "jug", "hat"],
-        "confidence": [1.2, 3.4, 4.5],
-        "sentiment": ["happy", "sad", "sad"]
-        })
+    df = pd.DataFrame({"targets": ["hat", "jug", "hat"], "confidence": [1.2, 3.4, 4.5], "sentiment": ["happy", "sad", "sad"]})
     res = _weighted_entropy(df, [], "confidence")
     assert pytest.approx(res, 0.001) == 0.999
     res_norm = _weighted_entropy(df, [], "confidence", normalized=False)
