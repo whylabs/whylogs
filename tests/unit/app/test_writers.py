@@ -22,6 +22,8 @@ object_keys = [
     "dataset_test_s3/dataset_summary/protobuf/dataset_summary.bin",
 ]
 
+object_keys_meta_config = ["dataset_test/dataset_summary/protobuf/dataset_summary.bin", "metadata/segments.json"]
+
 
 @pytest.fixture
 def moto_boto():
@@ -73,6 +75,31 @@ def test_s3_writer(df_lending_club, moto_boto, s3_all_config_path):
 
     for idx, each_objc in enumerate(objects["Contents"]):
         assert each_objc["Key"] == object_keys[idx]
+
+
+@pytest.mark.usefixtures("moto_boto")
+def test_s3_writer_metadata(df_lending_club, moto_boto, s3_all_config_metadata_path):
+
+    assert os.path.exists(s3_all_config_metadata_path)
+
+    config = load_config(s3_all_config_metadata_path)
+    session = session_from_config(config)
+    session.estimate_segments(df_lending_club, name="dataset_test", target_field="funded_amnt_inv", max_segments=30)
+    client = boto3.client("s3")
+    objects = client.list_objects(Bucket="mocked_bucket")
+
+    for idx, each_objc in enumerate(objects["Contents"]):
+        assert each_objc["Key"] == "metadata/segments.json"
+
+    with session.logger("dataset_test") as logger:
+        logger.log_dataframe(df_lending_club)
+    session.close()
+
+    objects = client.list_objects(Bucket="mocked_bucket")
+    print(objects)
+    for idx, each_objc in enumerate(objects["Contents"]):
+        print(each_objc["Key"])
+        assert each_objc["Key"] == object_keys_meta_config[idx]
 
 
 def test_non_valid_type(tmpdir):

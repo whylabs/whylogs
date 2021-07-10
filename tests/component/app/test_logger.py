@@ -46,11 +46,10 @@ def test_load_config(tmpdir):
 
     os.chdir(script_dir)
     p = tmpdir.mkdir("whylogs")
-
     try:
         session = get_or_create_session()
         os.chdir(p)
-        assert session.project == "test-project-yaml"
+        assert session.project == "default-project"
 
         with session.logger("test_name") as logger:
             logger.log_dataframe(pd.DataFrame())
