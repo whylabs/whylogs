@@ -193,7 +193,7 @@ class SessionConfig:
         Name of the associated data pipeline
     writers : list
         A list of `WriterConfig` objects defining writer outputs
-    metadata_writer : MetadataConfig
+    metadata : MetadataConfig
         A MetadataConfiguration object. If none, will replace with default.
     verbose : bool, default=False
         Output verbosity
@@ -211,7 +211,7 @@ class SessionConfig:
         project: str,
         pipeline: str,
         writers: List[WriterConfig],
-        metadata_writer: Optional[MetadataConfig] = False,
+        metadata: Optional[MetadataConfig] = False,
         verbose: bool = False,
         with_rotation_time: str = None,
         cache_size: int = 1,
@@ -221,9 +221,9 @@ class SessionConfig:
         self.pipeline = pipeline
         self.verbose = verbose
         self.writers = writers
-        if not metadata_writer:
-            metadata_writer = MetadataConfig(type="local", output_path="output", input_path="")
-        self.metadata_writer = metadata_writer
+        if not metadata:
+            metadata = MetadataConfig(type="local", output_path="output", input_path="")
+        self.metadata = metadata
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
         self.report_progress = report_progress

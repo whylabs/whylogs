@@ -102,4 +102,4 @@ def _estimate_segments(df: pd.DataFrame, target_field: str = None, max_segments:
         current_split_columns.append(segment_column_name)
         segments_used *= len(df[segment_column_name].unique())
 
-    return segments_used, segments
+    return segments

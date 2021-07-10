@@ -20,7 +20,7 @@ default: dist
 
 release: format lint test dist ## Compile distribution files and run all tests and checks.
 
-pre-commit: format-fix lint-fix test
+pre-commit: format-fix lint-fix release
 
 .PHONY: dist clean clean-test help format lint test install coverage docs default proto test-notebooks github release
 .PHONY: test-system-python format-fix bump-patch bump-minor bump-major publish bump-dev bump-build bump-release blackd

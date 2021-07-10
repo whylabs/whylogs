@@ -44,6 +44,12 @@ def s3_all_config_path():
 
 
 @pytest.fixture(scope="session")
+def s3_all_config_metadata_path():
+    config_path = os.path.join(_MY_DIR, os.pardir, "testdata", ".whylogs_s3_metadata.yaml")
+    return config_path
+
+
+@pytest.fixture(scope="session")
 def df_lending_club():
 
     df = pd.read_csv(os.path.join(_MY_DIR, os.pardir, "testdata", "lending_club_1000.csv"))

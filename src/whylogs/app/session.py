@@ -414,7 +414,7 @@ def session_from_config(config: SessionConfig) -> Session:
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    metadata_writer = metadata_from_config(config.metadata_writer)
+    metadata_writer = metadata_from_config(config.metadata)
     return Session(
         config.project,
         config.pipeline,
