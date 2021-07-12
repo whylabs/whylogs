@@ -94,6 +94,17 @@ class CharPosTracker:
             elif other_tracker:
                 new_char_pos_map[character] = other_tracker
 
+        # merge not in the list
+        nitl_tracker = self.char_pos_map.get("NITL", None)
+        nitl_other_tracker = other.char_pos_map.get("NITL", None)
+
+        if nitl_tracker and nitl_other_tracker:
+            new_char_pos_map["NITL"] = nitl_tracker.merge(nitl_other_tracker)
+        elif nitl_tracker:
+            new_char_pos_map["NITL"] = nitl_tracker
+        elif nitl_other_tracker:
+            new_char_pos_map["NITL"] = nitl_other_tracker
+
         new_char_pos_tracker.char_pos_map = new_char_pos_map
 
         return new_char_pos_tracker
