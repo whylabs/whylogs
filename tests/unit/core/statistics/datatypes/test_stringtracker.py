@@ -34,7 +34,7 @@ def test_character_pos_tracker():
     assert x.char_pos_tracker.char_pos_map["-"].histogram.get_min_value() == 5
 
 
-def test_merge():
+def test_merge_character_pos():
     x = StringTracker()
     y = StringTracker()
     data = ["abc abc", "93341-1", "912254", "bac tralalala"]
@@ -45,14 +45,23 @@ def test_merge():
         y.update(record)
 
     assert x.char_pos_tracker.char_pos_map["NITL"].count == 2
+    assert x.char_pos_tracker.char_pos_map["NITL"].histogram.get_max_value() == 3
+    assert x.char_pos_tracker.char_pos_map["NITL"].histogram.get_min_value() == 3
+
     assert x.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() == 12
+    assert x.char_pos_tracker.char_pos_map["a"].histogram.get_min_value() == 0
     assert y.char_pos_tracker.char_pos_map["NITL"].count == 22
-    x = x.merge(y)
+    assert y.char_pos_tracker.char_pos_map["NITL"].histogram.get_max_value() == 39
+    new_tracker = x.merge(y)
 
-    assert x.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() == 40
+    assert new_tracker.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() == 40
+
+    assert new_tracker.char_pos_tracker.char_pos_map["NITL"].histogram.get_max_value() == 39
+    assert new_tracker.char_pos_tracker.char_pos_map["NITL"].histogram.get_min_value() == 0
+    assert new_tracker.char_pos_tracker.char_pos_map["NITL"].count == 24
 
 
-def test_merge_character_lists():
+def test_merge_mod_character_lists():
     x = StringTracker()
     y = StringTracker()
     data = ["abc abc", "93341-1", "912254", "bac tralalala"]
@@ -64,13 +73,17 @@ def test_merge_character_lists():
         y.update(record, character_list="a")
 
     assert x.char_pos_tracker.char_pos_map["NITL"].count == 7
+    assert x.char_pos_tracker.char_pos_map["NITL"].histogram.get_max_value() == 11
     assert x.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() == 12
     assert y.char_pos_tracker.char_pos_map["NITL"].count == 37
     assert y.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() == 40
+    assert y.char_pos_tracker.char_pos_map["NITL"].histogram.get_max_value() == 39
+
     x = x.merge(y)
 
     assert x.char_pos_tracker.char_pos_map["a"].histogram.get_max_value() == 40
-
+    assert x.char_pos_tracker.char_pos_map["NITL"].histogram.get_max_value() == 39
+    assert x.char_pos_tracker.char_pos_map["NITL"].count == 44
     assert x.token_length.histogram.get_max_value() == 10
 
 
