@@ -5,7 +5,7 @@ src.python.pyc := $(shell find ./src -type f -name "*.pyc")
 src.proto.dir := ./proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 
-version := 0.4.10-dev0
+version := 0.5.0
 
 dist.dir := dist
 egg.dir := .eggs
@@ -43,11 +43,11 @@ bump-patch: ## Bump the patch version (_._.X) everywhere it appears in the proje
 
 bump-minor: ## Bump the minor version (_.X._) everywhere it appears in the project
 	@$(call i, Bumping the minor number)
-	poetry run bumpversion patch --allow-dirty
+	poetry run bumpversion minor --allow-dirty
 
 bump-major: ## Bump the major version (X._._) everywhere it appears in the project
 	@$(call i, Bumping the major number)
-	poetry run bumpversion patch --allow-dirty
+	poetry run bumpversion major --allow-dirty
 
 bump-release: ## Convert the version into a release variant (_._._) everywhere it appears in the project
 	@$(call i, Bumping the major number)
