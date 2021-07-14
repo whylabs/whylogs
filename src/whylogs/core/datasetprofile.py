@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
+from smart_open import open
 
 from whylogs.core import ColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
@@ -168,7 +169,8 @@ class DatasetProfile:
         predictions : List[Union[str, bool, float, int]]
             inferred/predicted values
         scores : List[float], optional
-            assocaited scores for each inferred, all values set to 1 if not passed
+            assocaited scores for each inferred, all values set to 1 if not
+            passed
         target_field : str, optional
             Description
         prediction_field : str, optional
@@ -499,8 +501,16 @@ class DatasetProfile:
         """
         Write the dataset profile to disk in binary format
 
-        :param protobuf_path: the local path for storage. The parent directory must already exist
-        :param delimited_file: whether to prefix the data with the length of output or not. Default is True
+        Parameters
+        ----------
+        protobuf_path : str
+            local path or any path supported supported by smart_open:
+            https://github.com/RaRe-Technologies/smart_open#how.
+            The parent directory must already exist
+        delimited_file : bool, optional
+            whether to prefix the data with the length of output or not.
+            Default is True
+
         """
         with open(protobuf_path, "wb") as f:
             msg = self.to_protobuf()
@@ -510,14 +520,22 @@ class DatasetProfile:
             f.write(msg.SerializeToString())
 
     @staticmethod
-    def read_protobuf(protobuf_path: str, delimited_file: bool = True):
+    def read_protobuf(protobuf_path: str, delimited_file: bool = True) -> "DatasetProfile":
         """
         Parse a protobuf file and return a DatasetProfile object
 
-        :param protobuf_path: the path of the protobuf data
-        :param delimited_file: whether the data is delimited or not. Default is True
-        :return: a DatasetProfile object if successful
-        :rtype: whylogs.DatasetProfile
+
+        Parameters
+        ----------
+        protobuf_path : str
+            the path of the protobuf data, can be local or any other path supported by smart_open: https://github.com/RaRe-Technologies/smart_open#how
+        delimited_file : bool, optional
+            whether the data is delimited or not. Default is `True`
+
+        Returns
+        -------
+        DatasetProfile
+            whylogs.DatasetProfile object from the protobuf
         """
         with open(protobuf_path, "rb") as f:
             data = f.read()
@@ -530,7 +548,7 @@ class DatasetProfile:
             return DatasetProfile.from_protobuf_string(msg_buf)
 
     @staticmethod
-    def from_protobuf(message: DatasetProfileMessage):
+    def from_protobuf(message: DatasetProfileMessage) -> "DatasetProfile":
         """
         Load from a protobuf message
 
@@ -559,7 +577,7 @@ class DatasetProfile:
         )
 
     @staticmethod
-    def from_protobuf_string(data: bytes):
+    def from_protobuf_string(data: bytes) -> "DatasetProfile":
         """
         Deserialize a serialized `DatasetProfileMessage`
 
