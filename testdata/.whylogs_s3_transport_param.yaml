@@ -1,0 +1,15 @@
+project: test-project-yaml
+pipeline: test-pipeline
+verbose: false
+writers:
+- formats:
+  - protobuf
+  transport_params:
+    endpoint_url : http://localhost:9000 ,
+    aws_access_key_id : minioadmin,
+    aws_secret_access_key : minioadmin,
+  output_path: s3://mocked_bucket/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary
+  type: s3
+
