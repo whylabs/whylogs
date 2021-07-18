@@ -62,6 +62,7 @@ class WriterConfig:
         path_template: Optional[str] = None,
         filename_template: Optional[str] = None,
         data_collection_consent: Optional[bool] = False,
+        transformParameters: TransportParameterConfig
     ):
         self.type = type
         self.formats = formats
@@ -178,6 +179,18 @@ class MetadataConfig:
         data = yaml.safe_load(stream)
         return MetadataConfigSchema().load(data)
 
+class TransportParameterConfig():
+
+    def __init__(
+        self,
+        type: str,
+        endpoint_url: str
+        aws_access_key_id: str,
+    )
+        self.endpoint_url = endpoint_url
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key =aws_secret_access_key
+        self.region_name = region_name
 
 class SessionConfig:
     """
@@ -216,6 +229,7 @@ class SessionConfig:
         with_rotation_time: str = None,
         cache_size: int = 1,
         report_progress: bool = False,
+
     ):
         self.project = project
         self.pipeline = pipeline
@@ -271,6 +285,9 @@ class WriterConfigSchema(Schema):
     path_template = fields.Str(required=False, allow_none=True)
     filename_template = fields.Str(required=False, allow_none=True)
     data_collection_consent = fields.Bool(required=False, allow_none=True)
+    transport_parameters = fields.List(
+        fields.Nested(TransportParameterSchema),
+        required=False, allow_none=True)
 
     @post_load
     def make_writer(self, data, **kwargs):
