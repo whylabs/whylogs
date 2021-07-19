@@ -102,12 +102,7 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
 
     p = tmpdir.mkdir("whylogs")
 
-    writer_config = WriterConfig(
-        "local",
-        ["protobuf", "flat"],
-        p.realpath(),
-        filename_template="dataset_summary-$dataset_timestamp",
-    )
+    writer_config = WriterConfig("local", ["protobuf", "flat"], p.realpath(), filename_template="dataset_summary-$dataset_timestamp")
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
 
@@ -116,7 +111,7 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
 
     now = datetime.datetime.now()
     for i in range(0, 5):
-        with session.logger(dataset_timestamp=now + datetime.timedelta(days=i)) as logger:
+        with session.logger(dataset_timestamp=now + datetime.timedelta(days=i), with_rotation_time=None) as logger:
             logger.log_dataframe(df_lending_club)
     session.close()
 
