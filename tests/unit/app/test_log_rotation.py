@@ -1,6 +1,7 @@
 import datetime
 import os
 import shutil
+from datetime import timezone
 
 import pytest
 from freezegun import freeze_time
@@ -9,6 +10,18 @@ from pandas import util
 from whylogs.app.config import SessionConfig, WriterConfig
 from whylogs.app.logger import Logger
 from whylogs.app.session import get_or_create_session, session_from_config
+from whylogs.app.writers import writer_from_config
+
+
+def test_no_log_rotation(tmpdir):
+    output_path = tmpdir.mkdir("whylogs")
+    shutil.rmtree(output_path, ignore_errors=True)
+    writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
+    yaml_data = writer_config.to_yaml()
+    basewriter = writer_from_config(WriterConfig.from_yaml(yaml_data))
+    l = Logger(session_id="", dataset_name="testing", writers=[basewriter], dataset_timestamp=datetime.datetime.now(tz=timezone.utc), with_rotation_time=None)
+    l.log({"quick_test": 3})
+    l.flush()
 
 
 def test_log_rotation_parsing():
