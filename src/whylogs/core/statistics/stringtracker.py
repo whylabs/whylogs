@@ -38,11 +38,12 @@ class CharPosTracker:
     def update(self, value: str, character_list: str = None) -> None:
 
         if character_list:
-            if character_list != self.character_list:
+            char_set = set(character_list)
+            if char_set != self.character_list:
                 # check if any character were previously tracked
                 if not self.char_pos_map:
                     logger.warning("Changing character list, a non-empty character position tracker is being reset to remove ambiguities")
-                self.character_list = set(character_list)
+                self.character_list = char_set
                 self.char_pos_map = {}
 
         for indx, char in enumerate(value.lower()):
@@ -117,10 +118,7 @@ class CharPosTracker:
         # print(char_pos_map)
         character_list = list(self.character_list)
         character_list.sort()
-        opts = dict(
-            char_list="".join(character_list),
-            char_pos_map={key: nt.to_protobuf() for key, nt in self.char_pos_map.items()},
-        )
+        opts = dict(char_list="".join(character_list), char_pos_map={key: nt.to_protobuf() for key, nt in self.char_pos_map.items()})
         # print(f"opts::{opts}")
         msg = CharPosMessage(**opts)
         # print(f"msg:: {msg}")
@@ -136,9 +134,7 @@ class CharPosTracker:
         CharPosTracker
         """
 
-        opts = dict(
-            character_list=message.char_list,
-        )
+        opts = dict(character_list=message.char_list)
         char_pos_tracker = CharPosTracker(**opts)
 
         for each_key, each_value in message.char_pos_map.items():
@@ -146,9 +142,7 @@ class CharPosTracker:
 
         return char_pos_tracker
 
-    def to_summary(
-        self,
-    ):
+    def to_summary(self):
         character_list = list(self.character_list)
         character_list.sort()
         opts = dict(character_list="".join(character_list), char_pos_map={key: nt.to_summary() for key, nt in self.char_pos_map.items()})
@@ -294,9 +288,7 @@ class StringTracker:
             char_pos_tracker=CharPosTracker.from_protobuf(message.char_pos_tracker),
         )
 
-    def to_summary(
-        self,
-    ):
+    def to_summary(self):
         """
         Generate a summary of the statistics
 
