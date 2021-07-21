@@ -46,7 +46,7 @@ public class ColumnProfile {
   @NonNull private final ItemsSketch<String> frequentItems;
   @NonNull private final HllSketch cardinalityTracker;
   @NonNull private final ImmutableSet<String> nullStrs;
-  private final StringTracker stringTracker;
+  @NonNull private final StringTracker stringTracker;
 
   static ImmutableSet<String> nullStrsFromEnv() {
     if (ColumnProfile.NULL_STR_ENVS == null) {
@@ -151,21 +151,6 @@ public class ColumnProfile {
         }
       }
     }
-
-    /*
-           null_count = self.schema_tracker.get_count(InferredType.Type.NULL)
-       opts = dict(
-           counters=self.counters.to_protobuf(null_count=null_count),
-           frequent_items=self.frequent_items.to_summary(),
-           unique_count=self._unique_count_summary(),
-       )
-       if self.string_tracker is not None and self.string_tracker.count > 0:
-           opts["string_summary"] = self.string_tracker.to_summary()
-       if self.number_tracker is not None and self.number_tracker.count > 0:
-           opts["number_summary"] = self.number_tracker.to_summary()
-
-    */
-
     return builder.build();
   }
 
@@ -233,10 +218,15 @@ public class ColumnProfile {
                 FrequentStringsSketch.deserialize(message.getFrequentItems().getSketch()))
             .setNullStrs(ColumnProfile.nullStrsFromEnv());
 
-    // backward compatibility - only decode these messages if they exist
-    if (message.getStrings().toByteArray().length > 0) {
-      builder.setStringTracker(StringTracker.fromProtobuf(message.getStrings()));
+    // backward compatibility - only decode StringsMessage if it exists.
+    // older profiles written by java library may not have any StringsMessage.
+    StringTracker strTracker;
+    if (message.hasStrings()) {
+      strTracker = StringTracker.fromProtobuf(message.getStrings());
+    } else {
+      strTracker = new StringTracker();
     }
+    builder.setStringTracker(strTracker);
 
     return builder.build();
   }

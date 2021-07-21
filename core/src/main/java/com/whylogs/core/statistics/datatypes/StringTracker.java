@@ -173,7 +173,8 @@ public final class StringTracker {
             .thetaSketch(ThetaSketch.deserialize(message.getCompactTheta()));
 
     // backward compatibility - only decode these messages if they exist
-    if (message.getLength().toByteArray().length > 0) {
+    // older profiles written by python library may not have these fields.
+    if (message.hasLength()) {
       builder
           .length(NumberTracker.fromProtobuf(message.getLength()))
           .tokenLength(NumberTracker.fromProtobuf(message.getTokenLength()))
