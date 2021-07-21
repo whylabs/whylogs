@@ -145,13 +145,17 @@ public final class StringTracker {
   }
 
   public StringsMessage.Builder toProtobuf() {
-    return StringsMessage.newBuilder()
-        .setCount(count)
-        .setItems(ByteString.copyFrom(items.toByteArray(ARRAY_OF_STRINGS_SER_DE)))
-        .setCompactTheta(ThetaSketch.serialize(thetaSketch))
-        .setLength(length.toProtobuf())
-        .setTokenLength(tokenLength.toProtobuf())
-        .setCharPosTracker(charPosTracker.toProtobuf());
+    val builder =
+        StringsMessage.newBuilder()
+            .setCount(count)
+            .setCompactTheta(ThetaSketch.serialize(thetaSketch))
+            .setLength(length.toProtobuf())
+            .setTokenLength(tokenLength.toProtobuf())
+            .setCharPosTracker(charPosTracker.toProtobuf());
+    if (items != null) {
+      builder.setItems(ByteString.copyFrom(items.toByteArray(ARRAY_OF_STRINGS_SER_DE)));
+    }
+    return builder;
   }
 
   public static StringTracker fromProtobuf(StringsMessage message) {
