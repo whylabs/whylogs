@@ -116,9 +116,15 @@ public final class StringTracker {
    * @return a new StringTracker object
    */
   public StringTracker merge(StringTracker other) {
-    val bytes = this.items.toByteArray(ARRAY_OF_STRINGS_SER_DE);
-    val itemsCopy = ItemsSketch.getInstance(WritableMemory.wrap(bytes), ARRAY_OF_STRINGS_SER_DE);
-    itemsCopy.merge(other.items);
+    ItemsSketch<String> itemsCopy = null;
+    if (this.items != null) {
+      val bytes = this.items.toByteArray(ARRAY_OF_STRINGS_SER_DE);
+      itemsCopy = ItemsSketch.getInstance(WritableMemory.wrap(bytes), ARRAY_OF_STRINGS_SER_DE);
+      itemsCopy.merge(other.items);
+    } else if (other.items != null) {
+      val bytes = other.items.toByteArray(ARRAY_OF_STRINGS_SER_DE);
+      itemsCopy = ItemsSketch.getInstance(WritableMemory.wrap(bytes), ARRAY_OF_STRINGS_SER_DE);
+    }
 
     val thetaUnion = Union.builder().buildUnion();
     thetaUnion.update(this.thetaSketch.getResult());
