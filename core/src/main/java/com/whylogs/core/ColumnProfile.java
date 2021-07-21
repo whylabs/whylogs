@@ -48,7 +48,6 @@ public class ColumnProfile {
   @NonNull private final ImmutableSet<String> nullStrs;
   private final StringTracker stringTracker;
 
-
   static ImmutableSet<String> nullStrsFromEnv() {
     if (ColumnProfile.NULL_STR_ENVS == null) {
       val nullSpec = System.getenv("NULL_STRINGS");
@@ -220,17 +219,19 @@ public class ColumnProfile {
 
   public static ColumnProfile fromProtobuf(ColumnMessage message) {
 
-    val builder = ColumnProfile.builder()
-        .setColumnName(message.getName())
-        .setCounters(CountersTracker.fromProtobuf(message.getCounters()))
-        .setSchemaTracker(
-            SchemaTracker.fromProtobuf(
-                message.getSchema(), message.getCounters().getNullCount().getValue()))
-        .setNumberTracker(NumberTracker.fromProtobuf(message.getNumbers()))
-        .setCardinalityTracker(
-            HllSketch.heapify(message.getCardinalityTracker().getSketch().toByteArray()))
-        .setFrequentItems(FrequentStringsSketch.deserialize(message.getFrequentItems().getSketch()))
-        .setNullStrs(ColumnProfile.nullStrsFromEnv());
+    val builder =
+        ColumnProfile.builder()
+            .setColumnName(message.getName())
+            .setCounters(CountersTracker.fromProtobuf(message.getCounters()))
+            .setSchemaTracker(
+                SchemaTracker.fromProtobuf(
+                    message.getSchema(), message.getCounters().getNullCount().getValue()))
+            .setNumberTracker(NumberTracker.fromProtobuf(message.getNumbers()))
+            .setCardinalityTracker(
+                HllSketch.heapify(message.getCardinalityTracker().getSketch().toByteArray()))
+            .setFrequentItems(
+                FrequentStringsSketch.deserialize(message.getFrequentItems().getSketch()))
+            .setNullStrs(ColumnProfile.nullStrsFromEnv());
 
     // backward compatibility - only decode these messages if they exist
     if (message.getStrings().toByteArray().length > 0) {

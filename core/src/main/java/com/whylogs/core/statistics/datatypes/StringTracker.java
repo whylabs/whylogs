@@ -48,10 +48,33 @@ public final class StringTracker {
     this.tokenizer = TOKENIZER;
   }
 
+  /**
+   * Track statistical properties of characters in a string.
+   *
+   * <p>`value` is a Unicode string. `value` is tokenized and tokens are passed to CharPosTracker
+   * for tracking of position and frequency of unicode codepoints in the token.
+   *
+   * <p>Variants of this function signature allow modification of tokenizer and tracked character
+   * set during updates. Unless overridden by one of the other update routines, uses a tokenizer
+   * that breaks strings at spaces, and tracks alphanumeric lowercase characters.
+   *
+   * @param value string
+   */
   public void update(String value) {
     update(value, null);
   }
 
+  /**
+   * Track statistical properties of just the characters from a given character set.
+   *
+   * <p>`value` is tokenized, and position and frequency of unicode codepoints within tokens are
+   * tracked if they appear in `charString`. If set, `charString` will be applied to subsequent
+   * calls to update, overriding the default character set.
+   *
+   * @param value string Unicode string to be tracked
+   * @param charString string - Set of characters that should be tracked. all others will be tracked
+   *     as 'NITL'
+   */
   public void update(String value, String charString) {
     if (value == null) {
       return;
@@ -66,6 +89,19 @@ public final class StringTracker {
     tokenLength.track(tokenizer.apply(value).size());
   }
 
+  /**
+   * Track statistical properties of a string. Allows control over characters to be tracked and
+   * tokenizer function.
+   *
+   * <p>`value` is tokenized according to `tokenizer`. Position and frequency of unicode codepoints
+   * within tokens are tracked if they appear in `charString`. If set, `charString` and/or
+   * `tokenizer` will be used for subsequent calls to `update`
+   *
+   * @param value string
+   * @param charString string - Set of characters that should be tracked. all others will be tracked
+   *     as 'NITL'
+   * @param tokenizer function taking string and returning list of strings.
+   */
   public void update(String value, String charString, Function<String, List<String>> tokenizer) {
     if (tokenizer != null) {
       this.tokenizer = tokenizer;

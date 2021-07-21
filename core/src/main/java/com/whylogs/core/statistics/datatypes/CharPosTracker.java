@@ -11,7 +11,6 @@ import com.whylogs.core.message.NumberSummary;
 import com.whylogs.core.statistics.NumberTracker;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -51,14 +50,12 @@ public class CharPosTracker {
   }
 
   private void update(int idx, char c) {
-    // TODO synchronize access
     if (characterList != null && characterList.contains(c)) {
       if (!charPosMap.containsKey(c)) {
         charPosMap.put(c, new NumberTracker());
       }
       charPosMap.get(c).track(idx);
     } else {
-      // TODO self.char_pos_map["NITL"].track(indx)
       if (!charPosMap.containsKey((char) 0)) {
         charPosMap.put((char) 0, new NumberTracker());
       }
@@ -71,7 +68,6 @@ public class CharPosTracker {
     if (chars.length == 1) {
       update(idx, Character.toLowerCase(chars[0]));
     } else {
-      // TODO synchronize access
       if (!charPosMap.containsKey((char) 0)) {
         charPosMap.put((char) 0, new NumberTracker());
       }
@@ -79,11 +75,33 @@ public class CharPosTracker {
     }
   }
 
+  /**
+   * Track statistical properties of characters in a string.
+   *
+   * <p>`value` is a Unicode string. Position and frequency of all unicode codepoints in `value`
+   * that are contained in `characterList` will be tracked. Variants of this function signature
+   * allow modification of tracked character set during updates. Unless otherwise specified,
+   * `characterList` defaults to alpha-numeric lower-case characters.
+   *
+   * @param value string
+   */
   public void update(String value) {
-    AtomicInteger i = new AtomicInteger();
-    value.codePoints().forEach(cp -> update(i.getAndIncrement(), cp));
+    val cp = value.codePoints().toArray();
+    for (int i = 0; i < cp.length; i++) {
+      update(i, cp[i]);
+    }
   }
 
+  /**
+   * Track statistical properties of characters in a string.
+   *
+   * <p>`value` is a Unicode string. Position and frequency of all unicode codepoints in `value`
+   * that are contained in `characterList` will be tracked.
+   *
+   * @param value string
+   * @param charString string - Set of characters that should be tracked. all others will be tracked
+   *     as 'NITL'
+   */
   public void update(String value, String charString) {
     if (charString != null) {
       val newSet =
@@ -101,8 +119,10 @@ public class CharPosTracker {
       }
     }
 
-    AtomicInteger i = new AtomicInteger();
-    value.codePoints().forEach(cp -> update(i.getAndIncrement(), cp));
+    val cp = value.codePoints().toArray();
+    for (int i = 0; i < cp.length; i++) {
+      update(i, cp[i]);
+    }
   }
 
   public CharPosTracker merge(CharPosTracker other) {
@@ -152,7 +172,6 @@ public class CharPosTracker {
                     e -> e.getKey().toString(), e -> e.getValue().toProtobuf().build()));
     return CharPosMessage.newBuilder()
         .putAllCharPosMap(mapMsg)
-        // TODO changes order of characters in characterlist string
         .setCharList(Joiner.on("").join(characterList))
         .build();
   }
@@ -165,6 +184,9 @@ public class CharPosTracker {
 
   public CharPosSummary toSummary() {
     Map<String, NumberSummary> map = newHashMap();
+
+    // Internally characters that are not in `characterList` are tracked as the null character.
+    // In summary results, the catch-all tracker is called 'NITL', or Not-In-The-List.
     val nullChar = new Character((char) 0);
     charPosMap.forEach(
         (k, v) ->
