@@ -15,6 +15,7 @@ import com.whylogs.core.message.InferredType;
 import com.whylogs.core.statistics.CountersTracker;
 import com.whylogs.core.statistics.NumberTracker;
 import com.whylogs.core.statistics.SchemaTracker;
+import com.whylogs.core.statistics.datatypes.StringTracker;
 import com.whylogs.core.types.TypedData;
 import com.whylogs.core.types.TypedDataConverter;
 import com.whylogs.core.utils.sketches.FrequentStringsSketch;
@@ -45,6 +46,7 @@ public class ColumnProfile {
   @NonNull private final ItemsSketch<String> frequentItems;
   @NonNull private final HllSketch cardinalityTracker;
   @NonNull private final ImmutableSet<String> nullStrs;
+  @NonNull private final StringTracker stringTracker;
 
   static ImmutableSet<String> nullStrsFromEnv() {
     if (ColumnProfile.NULL_STR_ENVS == null) {
@@ -63,6 +65,7 @@ public class ColumnProfile {
     this.columnName = columnName;
     this.counters = new CountersTracker();
     this.schemaTracker = new SchemaTracker();
+    this.stringTracker = new StringTracker();
     this.numberTracker = new NumberTracker();
     this.frequentItems = FrequentStringsSketch.create();
     this.cardinalityTracker = new HllSketch(CARDINALITY_LG_K);
@@ -100,7 +103,14 @@ public class ColumnProfile {
           }
           break;
         case STRING:
-          trackText(typedData.getStringValue());
+          final String stringValue = typedData.getStringValue();
+
+          // trackText is the older tracking code.  It limits the length of strings in order to
+          // track cardinality.
+          trackText(stringValue);
+
+          // string tracking does not limit the length of input text.
+          stringTracker.update(stringValue);
       }
     }
   }
@@ -133,13 +143,14 @@ public class ColumnProfile {
     if (schema != null) {
       builder.setSchema(schema);
       if (NUMERIC_TYPES.contains(schema.getInferredType().getType())) {
+        val stringsSummary = SummaryConverters.fromStringTracker(this.stringTracker);
+
         val numberSummary = SummaryConverters.fromNumberTracker(this.numberTracker);
         if (numberSummary != null) {
           builder.setNumberSummary(numberSummary);
         }
       }
     }
-
     return builder.build();
   }
 
@@ -166,6 +177,7 @@ public class ColumnProfile {
     return ColumnProfile.builder()
         .setColumnName(this.columnName)
         .setCounters(this.counters.merge(other.counters))
+        .setStringTracker(this.stringTracker.merge(other.stringTracker))
         .setNumberTracker(this.numberTracker.merge(other.numberTracker))
         .setSchemaTracker(this.schemaTracker.merge(other.schemaTracker))
         .setCardinalityTracker(HllSketch.heapify(mergedSketch.toCompactByteArray()))
@@ -185,22 +197,37 @@ public class ColumnProfile {
         .setCounters(counters.toProtobuf())
         .setSchema(schemaTracker.toProtobuf())
         .setNumbers(numberTracker.toProtobuf())
+        .setStrings(stringTracker.toProtobuf())
         .setCardinalityTracker(hllSketchMessage)
         .setFrequentItems(FrequentStringsSketch.toStringSketch(this.frequentItems));
   }
 
   public static ColumnProfile fromProtobuf(ColumnMessage message) {
-    return ColumnProfile.builder()
-        .setColumnName(message.getName())
-        .setCounters(CountersTracker.fromProtobuf(message.getCounters()))
-        .setSchemaTracker(
-            SchemaTracker.fromProtobuf(
-                message.getSchema(), message.getCounters().getNullCount().getValue()))
-        .setNumberTracker(NumberTracker.fromProtobuf(message.getNumbers()))
-        .setCardinalityTracker(
-            HllSketch.heapify(message.getCardinalityTracker().getSketch().toByteArray()))
-        .setFrequentItems(FrequentStringsSketch.deserialize(message.getFrequentItems().getSketch()))
-        .setNullStrs(ColumnProfile.nullStrsFromEnv())
-        .build();
+
+    val builder =
+        ColumnProfile.builder()
+            .setColumnName(message.getName())
+            .setCounters(CountersTracker.fromProtobuf(message.getCounters()))
+            .setSchemaTracker(
+                SchemaTracker.fromProtobuf(
+                    message.getSchema(), message.getCounters().getNullCount().getValue()))
+            .setNumberTracker(NumberTracker.fromProtobuf(message.getNumbers()))
+            .setCardinalityTracker(
+                HllSketch.heapify(message.getCardinalityTracker().getSketch().toByteArray()))
+            .setFrequentItems(
+                FrequentStringsSketch.deserialize(message.getFrequentItems().getSketch()))
+            .setNullStrs(ColumnProfile.nullStrsFromEnv());
+
+    // backward compatibility - only decode StringsMessage if it exists.
+    // older profiles written by java library may not have any StringsMessage.
+    StringTracker strTracker;
+    if (message.hasStrings()) {
+      strTracker = StringTracker.fromProtobuf(message.getStrings());
+    } else {
+      strTracker = new StringTracker();
+    }
+    builder.setStringTracker(strTracker);
+
+    return builder.build();
   }
 }
