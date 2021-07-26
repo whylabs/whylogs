@@ -121,7 +121,7 @@ class ConfusionMatrix:
             TYPE: Description
         """
         return ScoreMatrixMessage(
-            labels=self.labels,
+            labels=[str(i) for i in self.labels],
             prediction_field=self.prediction_field,
             target_field=self.target_field,
             score_field=self.score_field,
