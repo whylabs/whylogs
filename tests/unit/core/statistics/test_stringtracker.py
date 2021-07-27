@@ -34,6 +34,17 @@ def test_character_pos_tracker():
     assert x.char_pos_tracker.char_pos_map["-"].histogram.get_min_value() == 5
 
 
+def test_unicode_character_pos():
+    x = StringTracker()
+    data = ["👷‍♀️ 🤺"]
+    for record in data:
+        x.update(record, character_list="🤺")
+
+    assert x.char_pos_tracker.char_pos_map["NITL"].count == 5
+    assert x.char_pos_tracker.char_pos_map["🤺"].count ==1
+    assert x.char_pos_tracker.char_pos_map["🤺"].histogram.get_min_value()==5
+
+
 def test_merge_character_pos():
     x = StringTracker()
     y = StringTracker()

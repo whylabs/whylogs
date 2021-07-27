@@ -31,7 +31,7 @@ class CharPosTracker:
     def __init__(self, character_list: str = None):
 
         if character_list is None:
-            character_list = "abcdefghijklmnopqrstuvwzyz0123456789-@!#$%^&*()[]{}"
+            character_list = "abcdefghijklmnopqrstuvwzyz0123456789-+_@!,./?#$%^&*()[]{}"
         self.character_list = set(character_list)
         self.char_pos_map = {}
 
@@ -47,11 +47,7 @@ class CharPosTracker:
                 self.char_pos_map = {}
 
         for indx, char in enumerate(value.lower()):
-
             try:
-                char = char.encode("ascii")
-
-                char = char.decode("utf-8")
 
                 if char in self.character_list:
                     self.char_pos_map.setdefault(char, NumberTracker())
@@ -114,14 +110,12 @@ class CharPosTracker:
         """
         Return the object serialized as a protobuf message
         """
-        # char_pos_map={ key: print(type(nt.to_protobuf())) for key, nt in self.char_pos_map.items()}
-        # print(char_pos_map)
         character_list = list(self.character_list)
         character_list.sort()
         opts = dict(char_list="".join(character_list), char_pos_map={key: nt.to_protobuf() for key, nt in self.char_pos_map.items()})
-        # print(f"opts::{opts}")
+
         msg = CharPosMessage(**opts)
-        # print(f"msg:: {msg}")
+
         return msg
 
     @staticmethod
