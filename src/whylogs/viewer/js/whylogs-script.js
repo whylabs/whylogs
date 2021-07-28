@@ -273,37 +273,37 @@
       });
       let dataTypeCountString = "";
       feature[1].dataTypeCount.forEach((dataTypeCount, index) => {
-        if (selectedProfiles.includes(index)) {
+        if (selectedProfiles.includes(String(index))) {
           dataTypeCountString += `<div>${dataTypeCount}</div>`;
         }
       });
       let quantilesMinString = "";
       feature[1].quantiles.forEach((quantiles, index) => {
-        if (selectedProfiles.includes(index)) {
+        if (selectedProfiles.includes(String(index))) {
           quantilesMinString += `<div>${quantiles.min}</div>`;
         }
       });
       let quantilesMedianString = "";
       feature[1].quantiles.forEach((quantiles, index) => {
-        if (selectedProfiles.includes(index)) {
+        if (selectedProfiles.includes(String(index))) {
           quantilesMedianString += `<div>${quantiles.median}</div>`;
         }
       });
       let quantilesThirdQuantileString = "";
       feature[1].quantiles.forEach((quentiles, index) => {
-        if (selectedProfiles.includes(index)) {
+        if (selectedProfiles.includes(String(index))) {
           quantilesThirdQuantileString += `<div>${quentiles.thirdQuantile}</div>`;
         }
       });
       let quantilesMaxString = "";
       feature[1].quantiles.forEach((quantiles, index) => {
-        if (selectedProfiles.includes(index)) {
+        if (selectedProfiles.includes(String(index))) {
           quantilesMaxString += `<div>${quantiles.max}</div>`;
         }
       });
       let quantilesFirsString = "";
       feature[1].quantiles.forEach((quantiles, index) => {
-        if (selectedProfiles.includes(index)) {
+        if (selectedProfiles.includes(String(index))) {
           quantilesFirsString += `<div>${quantiles.firstQuantile}</div>`;
         }
       });
