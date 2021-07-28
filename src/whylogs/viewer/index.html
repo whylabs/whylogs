@@ -97,27 +97,64 @@
               <div class="d-none sidebar-content__profile-dropdown-wrap mb-3" id="sidebar-content-multi-profile">
                 <strong class="d-block">Profiles</strong>
                 <p class="small mt-1 mb-2">Select a profile from the dropdown below</p>
-
-                <div class="sidebar-content__profile-dropdown-outer-container">
-                  <div class="sidebar-content__profile-dropdown-inner-container">
-                    <select
-                      class="form-control sidebar-content__profile-dropdown"
-                      id="sidebar-content-multi-profile-dropdown"
+                <div>
+                  <div class="sidebar-content__profile-dropdown-outer-container">
+                    <div
+                      class="sidebar-content__profile-dropdown-inner-container"
+                      id="sidebar-content__profile-dropdown-inner-container-0"
                     >
-                      <option value="example-profile-1">Example profile 1</option>
-                      <option value="example-profile-2">Example profile 2</option>
-                      <option value="example-profile-3">Example profile 3</option>
-                    </select>
+                      <select
+                        class="form-control sidebar-content__profile-dropdown"
+                        id="sidebar-content-multi-profile-dropdown-0"
+                        data-id="0"
+                      >
+                        <option value="example-profile-1">Example profile 1</option>
+                        <option value="example-profile-2">Example profile 2</option>
+                        <option value="example-profile-3">Example profile 3</option>
+                      </select>
 
-                    <svg
-                      class="sidebar-content__profile-dropdown-chevron"
-                      width="24"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
+                      <svg
+                        class="sidebar-content__profile-dropdown-chevron"
+                        width="24"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path d="M7 10l5 5 5-5z"></path>
+                      </svg>
+                    </div>
+                    <button class="d-none remove-button" id="remove-button-0">X</button>
+                  </div>
+                  <button class="add-profile-sidebar-button" id="add-profile-sidebar-button-0">Add profile</button>
+                </div>
+
+                <div class="d-none" id="add-profile-wrap-1">
+                  <div class="sidebar-content__profile-dropdown-outer-container">
+                    <div
+                      class="sidebar-content__profile-dropdown-inner-container"
+                      id="sidebar-content__profile-dropdown-inner-container-1"
                     >
-                      <path d="M7 10l5 5 5-5z"></path>
-                    </svg>
+                      <select
+                        class="form-control sidebar-content__profile-dropdown"
+                        id="sidebar-content-multi-profile-dropdown-1"
+                        data-id="1"
+                      >
+                        <option value="example-profile-1">Example profile 1</option>
+                        <option value="example-profile-2">Example profile 2</option>
+                        <option value="example-profile-3">Example profile 3</option>
+                      </select>
+
+                      <svg
+                        class="sidebar-content__profile-dropdown-chevron"
+                        width="24"
+                        focusable="false"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path d="M7 10l5 5 5-5z"></path>
+                      </svg>
+                    </div>
+                    <button class="d-none remove-button" id="remove-button-1">X</button>
                   </div>
                 </div>
               </div>

@@ -584,6 +584,31 @@ a .wl-table-row--bottom-shadow {
   text-align: right;
 }
 
+.add-profile-sidebar-button {
+  background-color: var(--white);
+  border: 1px solid var(--brandSecondary300);
+  border-radius: 10%;
+  font-size: 14px;
+  padding: 7px 10px 7px 10px;
+  position: relative;
+  left: 68%;
+  margin-top: 3px;
+  margin-bottom: 5px;
+  color: var(--brandSecondary800);
+}
+.remove-button {
+  background-color: var(--white);
+  padding: 6px 10px 6px 10px;
+  border: 1px solid var(--brandSecondary300);
+  margin-left: 5px;
+  border-radius: 10%;
+  color: var(--brandSecondary800);
+}
+
+.already-choosen-data {
+  opacity: 0.5;
+}
+
 /* Load JSON file form */
 .wl__json-form-input {
   position: absolute;

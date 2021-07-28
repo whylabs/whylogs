@@ -29,9 +29,11 @@
   const $sidebarContent = $("#sidebar-content");
   const $singleProfileWrap = $("#sidebar-content-single-profile");
   const $multiProfileWrap = $("#sidebar-content-multi-profile");
-  const $profileDropdown = $("#sidebar-content-multi-profile-dropdown");
+  const $profileDropdown = $(".sidebar-content__profile-dropdown");
   const $propertyPanelTitle = $(".wl-property-panel__title");
   const $propertyPanelProfileName = $(".wl-property-panel__table-th-profile");
+
+  const $removeButton = $(`#remove-button-1`);
 
   // Constants and variables
   let batchArray = [];
@@ -40,7 +42,11 @@
   let propertyPanelData = [];
   let profiles = [];
   let jsonData = {};
-
+  let dataForRead = {};
+  let featureDataForTableForAllProfiles = {};
+  let numOfProfilesBasedOnType = {};
+  let selectedProfiles = [];
+  selectedProfiles.push("0");
   // Util functions
   function debounce(func, wait, immediate) {
     let timeout;
@@ -159,146 +165,10 @@
   }
 
   // Override and populate HTML element values
-  function updateHtmlElementValues(data) {
-    const properties = data.properties;
-    const columns = data.columns;
-    batchArray = Object.entries(columns);
-    $tableBody.html("");
-    $sidebarFeatureNameList.html("");
-
-    const featureList = [];
-    const inferredFeatureType = {
-      discrete: [],
-      nonDiscrete: [],
-      unknown: [],
-    };
-    let totalCount = "";
-    let inferredType = "";
-    let nullRatio = "";
-    let estUniqueVal = "";
-    let dataType = "";
-    let dataTypeCount = "";
-    let quantiles = {
-      min: "",
-      firstQuantile: "",
-      median: "",
-      thirdQuantile: "",
-      max: "",
-    };
-    let mean = "";
-    let stddev = "";
-
-    for (let i = 0; i < batchArray.length; i++) {
-      const featureName = batchArray[i][0];
-      const featureNameValues = batchArray[i][1];
-      let frequentItemsElemString = "";
-      let chartData = [];
-
-      // Collect all feature names into one array
-      featureList.push(featureName);
-
-      if (featureNameValues.numberSummary) {
-        // Collect all discrete and non-discrete features
-        if (featureNameValues.numberSummary.isDiscrete) {
-          inferredType = "Discrete";
-          inferredFeatureType.discrete.push(featureNameValues);
-        } else {
-          inferredType = "Non-discrete";
-          inferredFeatureType.nonDiscrete.push(featureNameValues);
-        }
-
-        // Update other values
-        totalCount = featureNameValues.numberSummary.count;
-        quantiles = getQuantileValues(featureNameValues.numberSummary.quantiles.quantileValues);
-        mean = fixNumberTo(featureNameValues.numberSummary.mean);
-        stddev = fixNumberTo(featureNameValues.numberSummary.stddev);
-      } else {
-        inferredFeatureType.unknown.push(featureNameValues);
-        inferredType = "Unknown";
-        totalCount = "-";
-        quantiles = {
-          min: "-",
-          firstQuantile: "-",
-          median: "-",
-          thirdQuantile: "-",
-          max: "-",
-        };
-        mean = "-";
-        stddev = "-";
-      }
-
-      // Update other values
-      estUniqueVal = featureNameValues.uniqueCount ? fixNumberTo(featureNameValues.uniqueCount.estimate) : "-";
-      nullRatio = featureNameValues.schema.typeCounts.NULL ? featureNameValues.schema.typeCounts.NULL : "0";
-      dataType = featureNameValues.schema.inferredType.type;
-      dataTypeCount = featureNameValues.schema.typeCounts[dataType];
-
-      // Collect frequent items
-      if (
-        inferredType === "Discrete" &&
-        featureNameValues.frequentItems &&
-        featureNameValues.frequentItems.items.length
-      ) {
-        // Chart
-        featureNameValues.frequentItems.items.forEach((item, index) => {
-          chartData.push({
-            axisY: item.estimate,
-            axisX: index,
-          });
-        });
-
-        // Frequent item chips / bedge
-        propertyPanelData = featureNameValues.frequentItems.items.reduce((acc, item) => {
-          acc.push({
-            value: item.jsonValue,
-            count: item.estimate,
-          });
-          return acc;
-        }, []);
-
-        const slicedFrequentItems = featureNameValues.frequentItems.items.slice(0, 5);
-        for (let fi = 0; fi < slicedFrequentItems.length; fi++) {
-          frequentItemsElemString +=
-            '<span class="wl-table-cell__bedge">' + slicedFrequentItems[fi].jsonValue + "</span>";
-        }
-      } else {
-        if (inferredType === "Non-discrete") {
-          // Chart
-          if (featureNameValues.numberSummary) {
-            // Histogram chips / bedge
-            propertyPanelData = featureNameValues.numberSummary.histogram.counts.reduce((acc, value, index) => {
-              acc.push({
-                value: value,
-                count: featureNameValues.numberSummary.histogram.bins[index],
-              });
-              return acc;
-            }, []);
-
-            featureNameValues.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
-              chartData.push({
-                axisY: count,
-                axisX: index,
-              });
-            });
-          }
-
-          // Frequent item chips / bedge
-          frequentItemsElemString = "No data to show";
-        } else {
-          frequentItemsElemString = "-";
-          chartData = [];
-          propertyPanelData = [];
-        }
-      }
-
-      // Update sidebar HTML feature name list
-      $sidebarFeatureNameList.append(
-        `<li class="list-group-item js-list-group-item" data-feature-name="${featureName}" data-inferred-type="${inferredType}" style="display: none"><span data-feature-name-id="${featureName}" >${featureName}</span></li>`,
-      );
-
+  function updateHtmlElementValues() {
+    let iteration = 0;
+    Object.entries(featureDataForTableForAllProfiles).forEach((feature) => {
       function getGraphHtml(data) {
-        if (!data.length) return "";
-
         const MARGIN = {
           TOP: 5,
           RIGHT: 5,
@@ -306,7 +176,7 @@
           LEFT: 55,
         };
         const SVG_WIDTH = 350;
-        const SVG_HEIGHT = 140;
+        const SVG_HEIGHT = 30;
         const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
         const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
         const PRIMARY_COLOR_HEX = "#0e7384";
@@ -345,50 +215,158 @@
 
         return svgEl._groups[0][0].outerHTML;
       }
+      // strings for tableToShow
+      let tempChartDataString = "";
+      feature[1].chartData.forEach((chartData, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          tempChartDataString += `<div>${getGraphHtml(chartData)}</div>`;
+        }
+      });
 
-      const $tableRow = $(`
+      let freaquentItemsElmString = "";
+      feature[1].frequentItemsElemString.forEach((frequentItemElemString, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          freaquentItemsElmString += ` <div class="wl-table-cell__bedge-wrap">${frequentItemElemString}</div>`;
+        }
+      });
+      let inferredTypeString = "";
+      feature[1].inferredType.forEach((inferredType, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          inferredTypeString += `<div>${inferredType}</div>`;
+        }
+      });
+      let totalCountString = "";
+      feature[1].totalCount.forEach((totalCount, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          totalCountString += `<div>${totalCount}</div>`;
+        }
+      });
+      let nullRationString = "";
+      feature[1].nullRatio.forEach((nullRatio, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          nullRationString += `<div> ${nullRatio}</div>`;
+        }
+      });
+      let estUniqueValString = "";
+      feature[1].estUniqueVal.map((estUniqueVal, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          estUniqueValString += `<div>${estUniqueVal}</div>`;
+        }
+      });
+      let meanString = "";
+      feature[1].mean.forEach((mean, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          meanString += `<div>${mean}</div>`;
+        }
+      });
+      let stddevString = "";
+      feature[1].stddev.forEach((stddev, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          stddevString += `<div>${stddev}</div>`;
+        }
+      });
+      let dataTypeString = "";
+      feature[1].dataType.forEach((dataType, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          dataTypeString += `<div>${dataType}</div>`;
+        }
+      });
+      let dataTypeCountString = "";
+      feature[1].dataTypeCount.forEach((dataTypeCount, index) => {
+        if (selectedProfiles.includes(index)) {
+          dataTypeCountString += `<div>${dataTypeCount}</div>`;
+        }
+      });
+      let quantilesMinString = "";
+      feature[1].quantiles.forEach((quantiles, index) => {
+        if (selectedProfiles.includes(index)) {
+          quantilesMinString += `<div>${quantiles.min}</div>`;
+        }
+      });
+      let quantilesMedianString = "";
+      feature[1].quantiles.forEach((quantiles, index) => {
+        if (selectedProfiles.includes(index)) {
+          quantilesMedianString += `<div>${quantiles.median}</div>`;
+        }
+      });
+      let quantilesThirdQuantileString = "";
+      feature[1].quantiles.forEach((quentiles, index) => {
+        if (selectedProfiles.includes(index)) {
+          quantilesThirdQuantileString += `<div>${quentiles.thirdQuantile}</div>`;
+        }
+      });
+      let quantilesMaxString = "";
+      feature[1].quantiles.forEach((quantiles, index) => {
+        if (selectedProfiles.includes(index)) {
+          quantilesMaxString += `<div>${quantiles.max}</div>`;
+        }
+      });
+      let quantilesFirsString = "";
+      feature[1].quantiles.forEach((quantiles, index) => {
+        if (selectedProfiles.includes(index)) {
+          quantilesFirsString += `<div>${quantiles.firstQuantile}</div>`;
+        }
+      });
+      const $tableRow =
+        `
       <li class="wl-table-row${
-        inferredType.toLowerCase() !== "unknown" ? " wl-table-row--clickable" : ""
-      }" data-feature-name="${featureName}" data-inferred-type="${inferredType}" data-scroll-to-feature-name="${featureName}" style="display: none;">
+        feature[1].inferredType[0].toLowerCase() !== "unknown" ? " wl-table-row--clickable" : ""
+      }" data-feature-name="${feature[0]}" data-inferred-type="${
+          feature[1].inferredType[0]
+        }" data-scroll-to-feature-name="${feature[0]}" style="display: none;">
         <div class="wl-table-cell">
           <div class="wl-table-cell__title-wrap">
-            <h4 class="wl-table-cell__title">${featureName}</h4>
+            <h4 class="wl-table-cell__title">${feature[0]}</h4>
           </div>
-          <div class="wl-table-cell__graph-wrap">${getGraphHtml(chartData)}</div>
-        </div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle" style="max-width: 270px">
-          <div class="wl-table-cell__bedge-wrap">
-            ${frequentItemsElemString}
-          </div>
-        </div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle">${inferredType}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${totalCount}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${nullRatio}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${estUniqueVal}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle">${dataType}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${dataTypeCount}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${mean}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${stddev}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.min}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.firstQuantile}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.median}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.thirdQuantile}</div>
-        <div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">${quantiles.max}</div>
-      </li>
-    `);
+          <div class="wl-table-cell__graph-wrap">` +
+        tempChartDataString +
+        `</div></div><div class="wl-table-cell wl-table-cell--top-spacing align-middle" style="max-width: 270px">` +
+        freaquentItemsElmString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle">` +
+        inferredTypeString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        totalCountString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        nullRationString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        estUniqueValString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle">` +
+        dataTypeString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle">` +
+        dataTypeCountString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        meanString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        stddevString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        quantilesMinString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        quantilesFirsString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        quantilesMedianString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        quantilesThirdQuantileString +
+        `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle text-end">` +
+        quantilesMaxString +
+        `</div></li>`;
 
       const $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
-      $tableRowButton.on("click", openPropertyPanel.bind(this, propertyPanelData, inferredType.toLowerCase()));
-      $tableRow.find(".wl-table-cell__title-wrap").append($tableRowButton);
+      $tableRowButton.on(
+        "click",
+        openPropertyPanel.bind(this, propertyPanelData, feature[1].inferredType[0].toLowerCase()),
+      );
+      // $tableRow.find(".wl-table-cell__title-wrap").append($tableRowButton);
       // Update data table rows/columns
       $tableBody.append($tableRow);
-    }
 
-    $featureCountDiscrete.html(inferredFeatureType.discrete.length);
-    $featureCountNonDiscrete.html(inferredFeatureType.nonDiscrete.length);
-    $featureCountUnknown.html(inferredFeatureType.unknown.length);
-    $selectedProfile.html(formatLabelDate(+properties.dataTimestamp));
-    $featureCount.html(featureList.length);
+      // $featureCountDiscrete.html(numOfProfilesBasedOnType[feature[0]].inferredFeatureType.discrete.length);
+      // $featureCountNonDiscrete.html(numOfProfilesBasedOnType[iteration].inferredFeatureType.nonDiscrete.length);
+      // $featureCountUnknown.html(numOfProfilesBasedOnType[iteration].inferredFeatureType.unknown.length);
+      // // $selectedProfile.html(formatLabelDate(+properties.dataTimestamp));
+      // $featureCount.html(featureDataForTableForAllProfiles.length);
+
+      iteration += 1;
+    });
   }
 
   function renderList() {
@@ -421,16 +399,187 @@
     $profileDropdown.html("");
 
     for (let i = 0; i < profiles.length; i++) {
-      const option = `<option value="${profiles[i].value}"${i === 0 ? "selected" : ""}>${profiles[i].label}</option>`;
-      $profileDropdown.append(option);
+      if (selectedProfiles.includes(profiles[i]) || (selectedProfiles.length === 0 && i === 0)) {
+        const option = `<option class="already-choosen-data" value="${profiles[i].value}"${i === 0 ? "selected" : ""}>${
+          profiles[i].label
+        }</option>`;
+        $profileDropdown.append(option);
+      } else {
+        const option = `<option value="${i}"${i === 0 ? "selected" : ""}>${profiles[i].label}</option>`;
+        $profileDropdown.append(option);
+      }
     }
   }
 
   function handleProfileChange(event) {
     const value = event.target.value;
+    const id = event.target.dataset;
+    selectedProfiles[parseInt(id.id)] = value;
 
-    updateHtmlElementValues(jsonData[value]);
+    $tableBody.html("");
+    updateHtmlElementValues();
     renderList();
+  }
+
+  function mapProfileDataToReadData(jsonData, dataForRead) {
+    Object.entries(jsonData).forEach((profile) => {
+      if (!dataForRead.properties) {
+        dataForRead.properties = [];
+      }
+      dataForRead.properties.push(profile[1].properties);
+
+      Object.entries(profile[1].columns).forEach((feature) => {
+        let tempFeatureName = feature[0];
+        if (!dataForRead.columns) {
+          dataForRead.columns = [];
+        }
+        if (!dataForRead.columns[tempFeatureName]) dataForRead.columns[tempFeatureName] = [];
+        dataForRead.columns[tempFeatureName].push(feature[1]);
+      });
+    });
+    console.log(dataForRead);
+    makeFeatureDataForAllProfilesToShowOnTable(
+      featureDataForTableForAllProfiles,
+      dataForRead,
+      numOfProfilesBasedOnType,
+    );
+    console.log(featureDataForTableForAllProfiles);
+    console.log(numOfProfilesBasedOnType);
+  }
+
+  function makeFeatureDataForAllProfilesToShowOnTable(
+    featureDataForTableForAllProfiles,
+    dataForRead,
+    numOfProfilesBasedOnType,
+  ) {
+    Object.entries(dataForRead.columns).map((feature) => {
+      if (!featureDataForTableForAllProfiles[feature[0]]) {
+        featureDataForTableForAllProfiles[feature[0]] = {
+          totalCount: [],
+          inferredType: [],
+          nullRatio: [],
+          estUniqueVal: [],
+          dataType: [],
+          dataTypeCount: [],
+          quantiles: [],
+          mean: [],
+          stddev: [],
+          chartData: [],
+          frequentItemsElemString: [],
+        };
+        numOfProfilesBasedOnType[feature[0]] = {
+          discrete: [],
+          nonDiscrete: [],
+          unknown: [],
+        };
+        propertyPanelData[feature[0]] = {};
+      }
+      let iteration = 0;
+      feature[1].forEach((tempFeatureValues) => {
+        if (tempFeatureValues.numberSummary) {
+          let inffTypeTemp = tempFeatureValues.numberSummary.isDiscrete ? "Discrete" : "Non-Discrete";
+          tempFeatureValues.numberSummary.isDiscrete
+            ? numOfProfilesBasedOnType[feature[0]].discrete.push(feature[0])
+            : numOfProfilesBasedOnType[feature[0]].nonDiscrete.push(feature[0]);
+          featureDataForTableForAllProfiles[feature[0]].totalCount.push(tempFeatureValues.numberSummary.count);
+          featureDataForTableForAllProfiles[feature[0]].inferredType.push(inffTypeTemp);
+          featureDataForTableForAllProfiles[feature[0]].quantiles.push(
+            getQuantileValues(tempFeatureValues.numberSummary.quantiles.quantileValues),
+          );
+          featureDataForTableForAllProfiles[feature[0]].mean.push(fixNumberTo(tempFeatureValues.numberSummary.mean));
+          featureDataForTableForAllProfiles[feature[0]].stddev.push(
+            fixNumberTo(tempFeatureValues.numberSummary.stddev),
+          );
+        } else {
+          numOfProfilesBasedOnType[feature[0]].unknown.push(feature[0]);
+          featureDataForTableForAllProfiles[feature[0]].inferredType.push("Unknown");
+          featureDataForTableForAllProfiles[feature[0]].totalCount.push("-");
+          let quantiles = {
+            min: "-",
+            firstQuantile: "-",
+            median: "-",
+            thirdQuantile: "-",
+            max: "-",
+          };
+          featureDataForTableForAllProfiles[feature[0]].quantiles.push(quantiles);
+          featureDataForTableForAllProfiles[feature[0]].mean.push("-");
+          featureDataForTableForAllProfiles[feature[0]].stddev.push("-");
+        }
+        featureDataForTableForAllProfiles[feature[0]].estUniqueVal.push(
+          feature[1].uniqueCount ? fixNumberTo(tempFeatureValues.uniqueCount.estimate) : "-",
+        );
+        featureDataForTableForAllProfiles[feature[0]].nullRatio.push(
+          tempFeatureValues.schema.typeCounts.NULL ? tempFeatureValues.schema.typeCounts.NULL : "0",
+        );
+        featureDataForTableForAllProfiles[feature[0]].dataType.push(tempFeatureValues.schema.inferredType.type);
+        featureDataForTableForAllProfiles[feature[0]].dataTypeCount.push(
+          tempFeatureValues.schema.typeCounts[featureDataForTableForAllProfiles[feature[0]].dataType],
+        );
+
+        featureDataForTableForAllProfiles[feature[0]].chartData[iteration] = [];
+        featureDataForTableForAllProfiles[feature[0]].frequentItemsElemString[iteration] = "";
+        if (
+          featureDataForTableForAllProfiles[feature[0]].inferredType[iteration] === "Discrete" &&
+          tempFeatureValues.frequentItems &&
+          tempFeatureValues.frequentItems.items.length
+        ) {
+          // Chart
+          tempFeatureValues.frequentItems.items.forEach((item, index) => {
+            featureDataForTableForAllProfiles[feature[0]].chartData[iteration].push({
+              axisY: item.estimate,
+              axisX: index,
+            });
+          });
+
+          // Frequent item chips / bedge
+          propertyPanelData[feature[0]] = tempFeatureValues.frequentItems.items.reduce((acc, item) => {
+            acc.push({
+              value: item.jsonValue,
+              count: item.estimate,
+            });
+            return acc;
+          }, []);
+
+          const slicedFrequentItems = tempFeatureValues.frequentItems.items.slice(0, 5);
+          for (let fi = 0; fi < slicedFrequentItems.length; fi++) {
+            featureDataForTableForAllProfiles[feature[0]].frequentItemsElemString[iteration] +=
+              '<span class="wl-table-cell__bedge">' + slicedFrequentItems[fi].jsonValue + "</span>";
+          }
+        } else {
+          if (featureDataForTableForAllProfiles[feature[0]].inferredType[iteration] === "Non-Discrete") {
+            // Chart
+            if (tempFeatureValues.numberSummary) {
+              // Histogram chips / bedge
+              propertyPanelData[feature[0]] = tempFeatureValues.numberSummary.histogram.counts.reduce(
+                (acc, value, index) => {
+                  acc.push({
+                    value: value,
+                    count: tempFeatureValues.numberSummary.histogram.bins[index],
+                  });
+                  return acc;
+                },
+                [],
+              );
+
+              tempFeatureValues.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+                featureDataForTableForAllProfiles[feature[0]].chartData[iteration].push({
+                  axisY: count,
+                  axisX: index,
+                });
+              });
+            }
+
+            // Frequent item chips / bedge
+            featureDataForTableForAllProfiles[feature[0]].frequentItemsElemString[iteration] = "No data to show";
+          } else {
+            featureDataForTableForAllProfiles[feature[0]].frequentItemsElemString[iteration] = "-";
+            featureDataForTableForAllProfiles[feature[0]].chartData[iteration] = [];
+            propertyPanelData[feature[0]] = [];
+          }
+        }
+        iteration += 1;
+      });
+    });
   }
 
   function updateTableMessage(message) {
@@ -438,9 +587,10 @@
   }
 
   function collectProfilesFromJSON(data) {
-    return Object.keys(data).map((profile) => ({
+    return Object.keys(data).map((profile, i) => ({
       label: profile,
       value: profile,
+      index: i,
     }));
   }
 
@@ -515,17 +665,18 @@
   function receivedText(e) {
     const lines = e.target.result;
     jsonData = JSON.parse(lines);
+    mapProfileDataToReadData(jsonData, dataForRead);
 
     if (checkJSONValidityForMultiProfile(jsonData)) {
       profiles = collectProfilesFromJSON(jsonData);
       renderProfileDropdown();
-      updateHtmlElementValues(Object.values(jsonData)[0]);
+      updateHtmlElementValues();
       $multiProfileWrap.removeClass("d-none");
       $singleProfileWrap.addClass("d-none");
     } else if (checkJSONValidityForSingleProfile(jsonData)) {
       $multiProfileWrap.addClass("d-none");
       $singleProfileWrap.removeClass("d-none");
-      updateHtmlElementValues(jsonData);
+      updateHtmlElementValues();
     } else {
       updateTableMessage(MESSAGES.error.invalidJSONFile);
       hideDataVisibility();
@@ -536,6 +687,21 @@
     showDataVisibility();
     $jsonForm.trigger("reset");
   }
+
+  for (let i = 0; i < 1; i++) {
+    let addButton = $(`#add-profile-sidebar-button-${i}`);
+
+    addButton.on("click", function () {
+      $(`#add-profile-wrap-${i + 1}`).removeClass("d-none");
+      $(`#remove-button-${i + 1}`).removeClass("d-none");
+    });
+  }
+
+  $removeButton.on("click", function () {
+    $(`#add-profile-wrap-1`).addClass("d-none");
+    selectedProfiles.pop();
+    $removeButton.addClass("d-none");
+  });
 
   // Bind event listeners
   $fileInput.on("change", loadFile);
