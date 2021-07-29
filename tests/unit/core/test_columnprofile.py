@@ -99,7 +99,7 @@ def test_protobuf():
     assert c1.string_tracker.length is not None
 
     assert c1.string_tracker.length.count == 0
-    assert len(c1.string_tracker.char_pos_tracker.character_list) == 50
+    assert len(c1.string_tracker.char_pos_tracker.character_list) == 56
     msg2 = c1.to_protobuf()
     # We cannot do a straight equality comparison for serialized frequent
     # strings objects
