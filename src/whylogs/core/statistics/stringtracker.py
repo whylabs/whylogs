@@ -45,10 +45,10 @@ class CharPosTracker:
         value : str
             utf-16 string
         character_list : str, optional
-            use a specific character_list for 
-            the tracked string. Note that modifing 
-            it from a previous saved choice, will 
-            reset the character position map, since 
+            use a specific character_list for
+            the tracked string. Note that modifing
+            it from a previous saved choice, will
+            reset the character position map, since
             NITL no longer has the same context.
         """
         if character_list:
