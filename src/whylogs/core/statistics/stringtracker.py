@@ -25,6 +25,8 @@ class CharPosTracker:
     ----------
     character_list : str
         string containing all characters to be tracked
+        this list can include specific unicode characters to track. 
+
 
     """
 
@@ -36,7 +38,15 @@ class CharPosTracker:
         self.char_pos_map = {}
 
     def update(self, value: str, character_list: str = None) -> None:
-
+        """update
+        
+        Parameters
+        ----------
+        value : str
+            utf-16 string
+        character_list : str, optional
+            use a specific character_list for the tracked string. Note that modifing it from a previous saved choice, will reset the character position map, since NITL no longer has the same context. 
+        """
         if character_list:
             char_set = set(character_list)
             if char_set != self.character_list:
