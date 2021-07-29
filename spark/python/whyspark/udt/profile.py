@@ -52,7 +52,7 @@ class WhyProfileSession:
         return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
                                  group_by_columns=self._group_by_columns, model_profile=model_profile)
 
-    def wtihRegressionModel(self, prediction_field: str, target_field: str):  # noqa
+    def withRegressionModel(self, prediction_field: str, target_field: str):  # noqa
         """
         Track model performance. Specify the prediction field, target field and score field.
 

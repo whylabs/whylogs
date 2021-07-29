@@ -6,7 +6,7 @@ import com.google.protobuf.gradle.protoc
 buildscript {
     dependencies {
         classpath("com.amazonaws:aws-java-sdk-core:1.11.766")
-        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.12")
+        classpath("com.google.protobuf:protobuf-gradle-plugin:0.8.17")
     }
 }
 
@@ -56,13 +56,16 @@ dependencies {
     testImplementation("com.google.protobuf:protobuf-java-util:3.11.0")
 }
 
+protobuf {
+    protoc {
+        // The artifact spec for the Protobuf Compiler
+        artifact = "com.google.protobuf:protoc:3.13.0"
+    }
+}
+
 sourceSets {
 
     main {
-        java {
-            srcDir("src/main/java")
-            srcDir("src/main/resources")
-        }
         proto {
             srcDir("proto/src")
         }
@@ -74,13 +77,6 @@ sourceSets {
     }
 }
 
-val generatedDir = "$projectDir/generated"
-protobuf {
-    protoc {
-        // The artifact spec for the Protobuf Compiler
-        artifact = "com.google.protobuf:protoc:3.13.0"
-    }
-}
 
 tasks.test {
     useTestNG()
