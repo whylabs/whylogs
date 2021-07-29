@@ -84,7 +84,7 @@ class Session:
         project: str,
         pipeline: str,
         writers: List[Writer],
-        metadata_writer: MetadataWriter,
+        metadata_writer: Optional[MetadataWriter] = None,
         verbose: bool = False,
         with_rotation_time: str = None,
         cache_size: int = None,
@@ -414,7 +414,9 @@ def session_from_config(config: SessionConfig) -> Session:
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
-    metadata_writer = metadata_from_config(config.metadata)
+    metadata_writer = None
+    if config.metadata:
+        metadata_writer = metadata_from_config(config.metadata)
     return Session(
         config.project,
         config.pipeline,

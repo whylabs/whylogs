@@ -211,7 +211,7 @@ class SessionConfig:
         project: str,
         pipeline: str,
         writers: List[WriterConfig],
-        metadata: Optional[MetadataConfig] = False,
+        metadata: Optional[MetadataConfig] = None,
         verbose: bool = False,
         with_rotation_time: str = None,
         cache_size: int = 1,
@@ -221,8 +221,6 @@ class SessionConfig:
         self.pipeline = pipeline
         self.verbose = verbose
         self.writers = writers
-        if not metadata:
-            metadata = MetadataConfig(type="local", output_path="output", input_path="")
         self.metadata = metadata
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
