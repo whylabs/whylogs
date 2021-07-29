@@ -485,13 +485,13 @@ def get_or_create_session(path_to_config: Optional[str] = None, report_progress:
         if config is None:
             print("WARN: Missing config")
 
-        config = SessionConfig(
-            "default-project",
-            "default-pipeline",
-            [WriterConfig(type="local", output_path="output", formats=["all"])],
-            MetadataConfig(type="local", output_path="output", input_path=""),
-            False,
-        )
+            config = SessionConfig(
+                "default-project",
+                "default-pipeline",
+                [WriterConfig(type="local", output_path="output", formats=["all"])],
+                MetadataConfig(type="local", output_path="output", input_path=""),
+                False,
+            )
         if report_progress is not None:
             config.report_progress = report_progress
 
