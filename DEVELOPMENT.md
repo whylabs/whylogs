@@ -1,5 +1,10 @@
 
 # Environment Setup
+You will need to the protobuf compilers. In MacOs you can use brew to install it.
+```
+brew install protobuf
+```
+
 You'll need to install poetry in order to install dependencies using the lock file in this project. Follow [their docs](https://python-poetry.org/docs/) to get it set up.
 
 ```
