@@ -448,10 +448,9 @@ a .wl-table-row--bottom-shadow {
 }
 
 .wl-table-cell__bedge-wrap {
-  display: flex;
-  flex-flow: row nowrap;
+  padding: 2px 0;
+  white-space: nowrap;
   overflow: hidden;
-  flex-wrap: wrap;
   font-style: italic;
   color: var(--brandSecondary400);
 }

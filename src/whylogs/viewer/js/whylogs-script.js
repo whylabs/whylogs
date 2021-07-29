@@ -211,7 +211,7 @@
           LEFT: 55,
         };
         const SVG_WIDTH = 350;
-        const SVG_HEIGHT = 30;
+        const SVG_HEIGHT = 25;
         const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
         const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
         const PRIMARY_COLOR_HEX = "#0e7384";
@@ -226,14 +226,14 @@
           .range([MARGIN.LEFT, MARGIN.LEFT + CHART_WIDTH]);
         const yScale = d3
           .scaleLinear()
-          .domain([0, maxYValue * 1.02]) // so that chart's height has 10§2% height of the maximum value
+          .domain([0, maxYValue * 1.02]) // so that chart's height has 102% height of the maximum value
           .range([CHART_HEIGHT, 0]);
 
         // Add the y Axis
         svgEl
           .append("g")
           .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
-          .call(d3.axisLeft(yScale).ticks(5));
+          .call(d3.axisLeft(yScale).ticks(2));
 
         const gChart = svgEl.append("g");
         gChart
@@ -370,7 +370,7 @@
           </div>
           <div class="wl-table-cell__graph-wrap">` +
           tempChartDataString +
-          `</div></div><div class="wl-table-cell wl-table-cell--top-spacing align-middle" style="max-width: 270px">` +
+          `</div></div><div class="wl-table-cell wl-table-cell--top-spacing align-middle" style="max-width: 270px; padding-right: 18px">` +
           freaquentItemsElmString +
           `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle">` +
           inferredTypeString +
