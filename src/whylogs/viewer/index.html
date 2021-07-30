@@ -159,48 +159,53 @@
                 </div>
               </div>
 
-              <strong>Total features</strong>
-              <h1 class="feature-count mb-3 wl__feature-count">37</h1>
+              <div id="total-feature-count">
+                <strong>Total features</strong>
+                <h1 class="feature-count mb-3 wl__feature-count">37</h1>
+              </div>
               <div class="mb-4">
                 <label for="wl__feature-search" class="form-label"><strong>Find feature</strong></label>
                 <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
               </div>
-              <strong>Filter features by type</strong>
-              <div class="form-check mb-1 mt-2">
-                <input
-                  class="form-check-input wl__feature-filter-input"
-                  type="checkbox"
-                  value="Discrete"
-                  id="inferredDiscrete"
-                  checked
-                />
-                <label class="form-check-label" for="inferredDiscrete">
-                  Inferred discrete (<span class="wl__feature-count--discrete"></span>)
-                </label>
-              </div>
-              <div class="form-check mb-1">
-                <input
-                  class="form-check-input wl__feature-filter-input"
-                  type="checkbox"
-                  value="Non-discrete"
-                  id="inferredNonDiscrete"
-                  checked
-                />
-                <label class="form-check-label" for="inferredNonDiscrete">
-                  Inferred non-discrete (<span class="wl__feature-count--non-discrete"></span>)
-                </label>
-              </div>
-              <div class="form-check mb-4">
-                <input
-                  class="form-check-input wl__feature-filter-input"
-                  type="checkbox"
-                  value="Unknown"
-                  id="inferredUnknown"
-                  checked
-                />
-                <label class="form-check-label" for="inferredUnknown">
-                  Unknown (<span class="wl__feature-count--unknown"></span>)
-                </label>
+              <div class="filter-options d-none">
+                <strong>Filter features by type</strong>
+
+                <div class="form-check mb-1 mt-2">
+                  <input
+                    class="form-check-input wl__feature-filter-input"
+                    type="checkbox"
+                    value="Discrete"
+                    id="inferredDiscrete"
+                    checked
+                  />
+                  <label class="form-check-label" for="inferredDiscrete">
+                    Inferred discrete (<span class="wl__feature-count--discrete"></span>)
+                  </label>
+                </div>
+                <div class="form-check mb-1">
+                  <input
+                    class="form-check-input wl__feature-filter-input"
+                    type="checkbox"
+                    value="Non-discrete"
+                    id="inferredNonDiscrete"
+                    checked
+                  />
+                  <label class="form-check-label" for="inferredNonDiscrete">
+                    Inferred non-discrete (<span class="wl__feature-count--non-discrete"></span>)
+                  </label>
+                </div>
+                <div class="form-check mb-4">
+                  <input
+                    class="form-check-input wl__feature-filter-input"
+                    type="checkbox"
+                    value="Unknown"
+                    id="inferredUnknown"
+                    checked
+                  />
+                  <label class="form-check-label" for="inferredUnknown">
+                    Unknown (<span class="wl__feature-count--unknown"></span>)
+                  </label>
+                </div>
               </div>
               <strong>Feature list</strong>
               <p class="small mt-1">Click on features to scroll into view</p>
@@ -248,7 +253,14 @@
                   <thead class="wl-property-panel__table-head">
                     <tr class="wl-property-panel__table-tr">
                       <th class="wl-property-panel__table-th">Item</th>
-                      <th class="wl-property-panel__table-th wl-property-panel__table-th-profile"></th>
+                      <th
+                        class="wl-property-panel__table-th wl-property-panel__table-th-profile"
+                        id="property-panel-0"
+                      ></th>
+                      <th
+                        class="wl-property-panel__table-th wl-property-panel__table-th-profile d-none"
+                        id="property-panel-1"
+                      ></th>
                     </tr>
                   </thead>
                   <tbody class="wl-property-panel__frequent-items">

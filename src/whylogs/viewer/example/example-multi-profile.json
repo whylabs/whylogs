@@ -27,7 +27,7 @@
           }
         },
         "numberSummary": {
-          "count": "53660",
+          "count": "1111",
           "min": -89.93563063071949,
           "max": 157.1419388110259,
           "mean": 18.387253250583715,
@@ -18227,11 +18227,11 @@
         "frequentItems": {
           "items": [
             {
-              "estimate": "2284296",
+              "estimate": "3333",
               "jsonValue": "0.0"
             },
             {
-              "estimate": "1291",
+              "estimate": "4444",
               "jsonValue": "1.0"
             },
             {
@@ -21281,7 +21281,7 @@
           }
         },
         "numberSummary": {
-          "count": "53660",
+          "count": "2222",
           "min": -89.93563063071949,
           "max": 157.1419388110259,
           "mean": 18.387253250583715,
@@ -42535,7 +42535,7 @@
           }
         },
         "numberSummary": {
-          "count": "53660",
+          "count": "3333",
           "min": -89.93563063071949,
           "max": 157.1419388110259,
           "mean": 18.387253250583715,
@@ -63789,7 +63789,7 @@
           }
         },
         "numberSummary": {
-          "count": "53660",
+          "count": "4444",
           "min": -89.93563063071949,
           "max": 157.1419388110259,
           "mean": 18.387253250583715,
@@ -81917,12 +81917,12 @@
           "frequentNumbers": {
             "doubles": [
               {
-                "estimate": "2284296",
+                "estimate": "1111",
                 "value": 0.0,
                 "rank": 0
               },
               {
-                "estimate": "1291",
+                "estimate": "2222",
                 "value": 1.0,
                 "rank": 1
               },
@@ -81989,11 +81989,11 @@
         "frequentItems": {
           "items": [
             {
-              "estimate": "2284296",
+              "estimate": "1111",
               "jsonValue": "0.0"
             },
             {
-              "estimate": "1291",
+              "estimate": "2222",
               "jsonValue": "1.0"
             },
             {

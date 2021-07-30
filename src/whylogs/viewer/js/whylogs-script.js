@@ -32,11 +32,11 @@
   const $profileDropdown = $(".sidebar-content__profile-dropdown");
   const $propertyPanelTitle = $(".wl-property-panel__title");
   const $propertyPanelProfileName = $(".wl-property-panel__table-th-profile");
-
+  const $filterOptions = $(".filter-options");
+  const $selectOptionFirstTime = $("#select-option-first-time");
   const $removeButton = $(`#remove-button-1`);
 
   // Constants and variables
-  let batchArray = [];
   let featureSearchValue = "";
   const isActiveInferredType = {};
   let propertyPanelData = [];
@@ -130,6 +130,9 @@
 
   function openPropertyPanel(items, infType, infTypeSecond = null) {
     const types = [infType, infTypeSecond];
+    // handleClosePropertyPanel();
+    $(".wl-property-panel__table-th-profile").addClass("d-none");
+    $("#property-panel-0").removeClass("d-none");
     if (!checkJSONValidityForMultiProfile(jsonData)) {
       if (items.length > 0 && items !== "undefined") {
         let chipString = "";
@@ -137,7 +140,6 @@
         const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
         const chipElementEstimation = (count) =>
           `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
-
         items.forEach((item) => {
           chipString += `
         <tr class="wl-property-panel__table-tr">
@@ -160,32 +162,39 @@
       }
     } else {
       let chipString = "";
+      $propertyPanelTitle.html("");
       const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
       const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
       const chipElementEstimation = (count) =>
         `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
+      const columns = [];
+
       selectedProfiles.forEach((selected, index) => {
-        chipString += `<div><span> Profile ${index} </span>`;
         if (items[parseInt(selected)].length > 0 && items !== "undefined") {
-          items[parseInt(selected)].forEach((item) => {
-            chipString += `
-          <tr class="wl-property-panel__table-tr">
-            
-            ${chipElementTableData(item.value)}
-            ${chipElementEstimation(item.count)}
-          </tr>
-          `;
+          columns[index] = [];
+          items[parseInt(selected)].forEach((item, i) => {
+            columns[index][i] = "";
+
+            if (index === 0) {
+              columns[index][i] += `${chipElementTableData(item.value)}`;
+            }
+            columns[index][i] += `${chipElementEstimation(item.count)}`;
           });
-          chipString += `</div>`;
-          if (types[index] === "non-discrete") {
-            $propertyPanelTitle.html("Histogram data:");
-            $propertyPanelProfileName.html("Bin values");
-          } else if (types[index] === "discrete") {
-            $propertyPanelTitle.html("Frequent items:");
-            $propertyPanelProfileName.html("Counts");
-          }
+        }
+        $(`#property-panel-${index}`).html(`Profile ${index + 1}`);
+        if (index > 0) {
+          $(`#property-panel-${index}`).removeClass("d-none");
         }
       });
+      for (let i = 0; i < items[0].length; i++) {
+        chipString += `
+          <tr class="wl-property-panel__table-tr">`;
+        for (let j = 0; j < selectedProfiles.length; j++) {
+          chipString += columns[j][i];
+        }
+        chipString += `</tr>`;
+      }
+
       $(".wl-property-panel").addClass("wl-property-panel--open");
       $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
       $(".wl-property-panel__frequent-items").html(chipString);
@@ -200,8 +209,6 @@
 
   // Override and populate HTML element values
   function updateHtmlElementValues() {
-    let iteration = 0;
-    let featureCountMulti = 0;
     Object.entries(featureDataForTableForAllProfiles).forEach((feature) => {
       function getGraphHtml(data) {
         const MARGIN = {
@@ -233,7 +240,7 @@
         svgEl
           .append("g")
           .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
-          .call(d3.axisLeft(yScale).ticks(2));
+          .call(d3.axisLeft(yScale).tickValues([0, maxYValue]));
 
         const gChart = svgEl.append("g");
         gChart
@@ -254,7 +261,11 @@
       let tempChartDataString = "";
       feature[1].chartData.forEach((chartData, index) => {
         if (selectedProfiles.includes(String(index))) {
-          tempChartDataString += `<div>${getGraphHtml(chartData)}</div>`;
+          tempChartDataString += `<div>${
+            chartData.length > 0
+              ? getGraphHtml(chartData)
+              : '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>'
+          }</div>`;
         }
       });
 
@@ -267,96 +278,97 @@
       let inferredTypeString = "";
       feature[1].inferredType.forEach((inferredType, index) => {
         if (selectedProfiles.includes(String(index))) {
-          inferredTypeString += `<div>${inferredType}</div>`;
+          inferredType ? (inferredTypeString += `<div>${inferredType}</div>`) : (inferredTypeString += `<div>-</div>`);
         }
       });
       let totalCountString = "";
       feature[1].totalCount.forEach((totalCount, index) => {
         if (selectedProfiles.includes(String(index))) {
-          totalCountString += `<div>${totalCount}</div>`;
+          totalCount ? (totalCountString += `<div>${totalCount}</div>`) : (totalCountString += `<div>-</div>`);
         }
       });
       let nullRationString = "";
       feature[1].nullRatio.forEach((nullRatio, index) => {
         if (selectedProfiles.includes(String(index))) {
-          nullRationString += `<div> ${nullRatio}</div>`;
+          nullRatio ? (nullRationString += `<div> ${nullRatio}</div>`) : (nullRationString += `<div>-</div>`);
         }
       });
       let estUniqueValString = "";
       feature[1].estUniqueVal.map((estUniqueVal, index) => {
         if (selectedProfiles.includes(String(index))) {
-          estUniqueValString += `<div>${estUniqueVal}</div>`;
+          estUniqueVal ? (estUniqueValString += `<div>${estUniqueVal}</div>`) : (estUniqueValString += `<div>$-</div>`);
         }
       });
       let meanString = "";
       feature[1].mean.forEach((mean, index) => {
         if (selectedProfiles.includes(String(index))) {
-          meanString += `<div>${mean}</div>`;
+          mean ? (meanString += `<div>${mean}</div>`) : (meanString += `<div>-</div>`);
         }
       });
       let stddevString = "";
       feature[1].stddev.forEach((stddev, index) => {
         if (selectedProfiles.includes(String(index))) {
-          stddevString += `<div>${stddev}</div>`;
+          stddev ? (stddevString += `<div>${stddev}</div>`) : (stddevString += `<div>-</div>`);
         }
       });
       let dataTypeString = "";
       feature[1].dataType.forEach((dataType, index) => {
         if (selectedProfiles.includes(String(index))) {
-          dataTypeString += `<div>${dataType}</div>`;
+          dataType ? (dataTypeString += `<div>${dataType}</div>`) : (dataTypeString += `<div>-</div>`);
         }
       });
       let dataTypeCountString = "";
       feature[1].dataTypeCount.forEach((dataTypeCount, index) => {
         if (selectedProfiles.includes(String(index))) {
-          dataTypeCountString += `<div>${dataTypeCount}</div>`;
+          dataTypeCount
+            ? (dataTypeCountString += `<div>${dataTypeCount}</div>`)
+            : (dataTypeCountString += `<div>-</div>`);
         }
       });
       let quantilesMinString = "";
       feature[1].quantiles.forEach((quantiles, index) => {
         if (selectedProfiles.includes(String(index))) {
-          quantilesMinString += `<div>${quantiles.min}</div>`;
+          quantiles.min
+            ? (quantilesMinString += `<div>${quantiles.min}</div>`)
+            : (quantilesMinString += `<div>-</div>`);
         }
       });
       let quantilesMedianString = "";
       feature[1].quantiles.forEach((quantiles, index) => {
         if (selectedProfiles.includes(String(index))) {
-          quantilesMedianString += `<div>${quantiles.median}</div>`;
+          quantiles.median
+            ? (quantilesMedianString += `<div>${quantiles.median}</div>`)
+            : (quantilesMedianString += `<div>-</div>`);
         }
       });
       let quantilesThirdQuantileString = "";
       feature[1].quantiles.forEach((quentiles, index) => {
         if (selectedProfiles.includes(String(index))) {
-          quantilesThirdQuantileString += `<div>${quentiles.thirdQuantile}</div>`;
+          quentiles.thirdQuantile
+            ? (quantilesThirdQuantileString += `<div>${quentiles.thirdQuantile}</div>`)
+            : (quantilesThirdQuantileString += `<div>-</div>`);
         }
       });
       let quantilesMaxString = "";
       feature[1].quantiles.forEach((quantiles, index) => {
         if (selectedProfiles.includes(String(index))) {
-          quantilesMaxString += `<div>${quantiles.max}</div>`;
+          quantiles.max
+            ? (quantilesMaxString += `<div>${quantiles.max}</div>`)
+            : (quantilesMaxString += `<div>-</div>`);
         }
       });
       let quantilesFirsString = "";
       feature[1].quantiles.forEach((quantiles, index) => {
         if (selectedProfiles.includes(String(index))) {
-          quantilesFirsString += `<div>${quantiles.firstQuantile}</div>`;
+          quantiles.firstQuantile
+            ? (quantilesFirsString += `<div>${quantiles.firstQuantile}</div>`)
+            : (quantilesFirsString += `<div>-</div>`);
         }
       });
 
-      const buttonShownString = checkJSONValidityForMultiProfile(jsonData)
-        ? `${
-            feature[1].inferredType[selectedProfiles[0]].toLowerCase() !== "unknown" ||
-            (feature[1].inferredType[selectedProfiles[1]] &&
-              feature[1].inferredType[selectedProfiles[1]].toLowerCase() !== "unknown")
-              ? " wl-table-row--clickable"
-              : ""
-          }`
-        : `${feature[1].inferredType[0].toLowerCase() !== "unknown" ? " wl-table-row--clickable" : ""}`;
-
-      const showButton =
-        feature[1].inferredType[parseInt(selectedProfiles[0] || "0")].toLowerCase() !== "unknown" ||
-        (feature[1].inferredType[parseInt(selectedProfiles[1])] &&
-          feature[1].inferredType[parseInt(selectedProfiles[1])].toLowerCase() !== "unknown");
+      const showButton = selectedProfiles.some(
+        (profile) => feature[1].inferredType[profile].toLowerCase() !== "unknown",
+      );
       const $tableRow = $(
         `
       <li class="wl-table-row${showButton ? " wl-table-row--clickable" : ""}" data-feature-name="${
@@ -431,17 +443,7 @@
         $sidebarFeatureNameList.append(
           `<li class="list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${feature[1].inferredType}" style="display: none"><span data-feature-name-id="${feature[0]}" >${feature[0]}</span></li>`,
         );
-      } else {
-        if (feature[1].totalCount.length > parseInt(selectedProfiles[0])) {
-          $sidebarFeatureNameList.append(
-            `<li class="list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${
-              feature[1].inferredType[selectedProfiles[0]]
-            }" style="display: none"><span data-feature-name-id="${feature[0]}" >${feature[0]}</span></li>`,
-          );
-          ++featureCountMulti;
-        }
       }
-      iteration += 1;
     });
     if (!checkJSONValidityForMultiProfile(jsonData)) {
       const countDiscrete = Object.values(numOfProfilesBasedOnType).reduce(
@@ -462,22 +464,6 @@
       $featureCountUnknown.html(countUnknown);
       $selectedProfile.html(formatLabelDate(+dataForRead.properties.dataTimestamp));
       $featureCount.html(featureCount);
-    } else {
-      const countDiscreteMulti = Object.values(numOfProfilesBasedOnType).reduce((acc, feature) => {
-        return feature.discrete[parseInt(selectedProfiles[0])] ? ++acc : acc;
-      }, 0);
-      const countNonDiscreteMulti = Object.values(numOfProfilesBasedOnType).reduce((acc, feature) => {
-        return feature.nonDiscrete[parseInt(selectedProfiles[0])] ? ++acc : acc;
-      }, 0);
-      const countUnknownMulti = Object.values(numOfProfilesBasedOnType).reduce((acc, feature) => {
-        return feature.unknown[parseInt(selectedProfiles[0])] ? ++acc : acc;
-      }, 0);
-
-      $featureCountDiscrete.html(countDiscreteMulti);
-      $featureCountNonDiscrete.html(countNonDiscreteMulti);
-      $featureCountUnknown.html(countUnknownMulti);
-      $selectedProfile.html(formatLabelDate(+dataForRead.properties[parseInt(selectedProfiles[0])].dataTimestamp));
-      $featureCount.html(featureCountMulti);
     }
   }
 
@@ -509,25 +495,26 @@
 
   function renderProfileDropdown() {
     $profileDropdown.html("");
-
+    $profileDropdown.append(
+      `<option id="select-option-first-time" selected disabled value="none">Select your profile</option>`,
+    );
     for (let i = 0; i < profiles.length; i++) {
-      if (selectedProfiles.includes(profiles[i]) || (selectedProfiles.length === 0 && i === 0)) {
-        const option = `<option class="already-choosen-data" value="${profiles[i].value}"${i === 0 ? "selected" : ""}>${
-          profiles[i].label
-        }</option>`;
+      if (selectedProfiles.includes(String(i))) {
+        const option = `<option class="already-choosen-data" value="${i}">${profiles[i].label}</option>`;
         $profileDropdown.append(option);
       } else {
-        const option = `<option value="${i}"${i === 0 ? "selected" : ""}>${profiles[i].label}</option>`;
+        const option = `<option value="${i}">${profiles[i].label}</option>`;
         $profileDropdown.append(option);
       }
     }
   }
 
   function handleProfileChange(event) {
+    handleClosePropertyPanel();
     const value = event.target.value;
     const id = event.target.dataset;
     selectedProfiles[parseInt(id.id)] = value;
-
+    $selectOptionFirstTime.addClass("d-none");
     $tableBody.html("");
     updateHtmlElementValues();
     renderList();
@@ -570,7 +557,6 @@
       dataForRead,
       numOfProfilesBasedOnType,
     );
-    console.log("featur:", featureDataForTableForAllProfiles);
   }
 
   function makeFeatureDataForAllProfilesToShowOnTable(
@@ -578,6 +564,12 @@
     dataForRead,
     numOfProfilesBasedOnType,
   ) {
+    if (Object.keys(featureDataForTableForAllProfiles).length !== 0) {
+      featureDataForTableForAllProfiles = {};
+    }
+    if (Object.keys(numOfProfilesBasedOnType).length !== 0) {
+      numOfProfilesBasedOnType = {};
+    }
     Object.entries(dataForRead.columns).map((feature) => {
       if (!featureDataForTableForAllProfiles[feature[0]]) {
         featureDataForTableForAllProfiles[feature[0]] = {
@@ -698,7 +690,7 @@
             // Frequent item chips / bedge
             featureDataForTableForAllProfiles[feature[0]].frequentItemsElemString[iteration] = "No data to show";
           } else {
-            featureDataForTableForAllProfiles[feature[0]].frequentItemsElemString[iteration] = "-";
+            featureDataForTableForAllProfiles[feature[0]].frequentItemsElemString[iteration] = "No data to show";
             featureDataForTableForAllProfiles[feature[0]].chartData[iteration] = [];
             propertyPanelData[feature[0]] = [];
           }
@@ -772,7 +764,12 @@
       updateTableMessage(MESSAGES.error.fileAPINotSupported);
       return;
     }
+    dataForRead = {};
+    featureDataForTableForAllProfiles = {};
+    numOfProfilesBasedOnType = {};
+    $sidebarFeatureNameList.html("");
 
+    handleClosePropertyPanel();
     const input = document.getElementById("file-input");
     if (!input) {
       updateTableMessage(MESSAGES.error.noInputElementFound);
@@ -791,19 +788,32 @@
   function receivedText(e) {
     const lines = e.target.result;
     jsonData = JSON.parse(lines);
+    if (Object.keys(dataForRead).length !== 0) {
+      dataForRead = {};
+    }
     mapProfileDataToReadData(jsonData, dataForRead);
+    if (selectedProfiles.length > 0) {
+      selectedProfiles = [];
+    }
 
     if (checkJSONValidityForMultiProfile(jsonData)) {
       profiles = collectProfilesFromJSON(jsonData);
       renderProfileDropdown();
-      updateHtmlElementValues();
+      $tableBody.html("");
       $multiProfileWrap.removeClass("d-none");
       $singleProfileWrap.addClass("d-none");
+      $filterOptions.addClass("d-none");
+      $(`#total-feature-count`).addClass("d-none");
     } else if (checkJSONValidityForSingleProfile(jsonData)) {
       $multiProfileWrap.addClass("d-none");
       $singleProfileWrap.removeClass("d-none");
+      $filterOptions.removeClass("d-none");
+      $(`#total-feature-count`).removeClass("d-none");
+      selectedProfiles[0] = "0";
+      $tableBody.html("");
       updateHtmlElementValues();
     } else {
+      $tableBody.html("");
       updateTableMessage(MESSAGES.error.invalidJSONFile);
       hideDataVisibility();
       return;
@@ -824,9 +834,11 @@
   }
 
   $removeButton.on("click", function () {
+    handleClosePropertyPanel();
     $(`#add-profile-wrap-1`).addClass("d-none");
-    selectedProfiles.pop();
+    $("#sidebar-content-multi-profile-dropdown-1").val("none");
     $removeButton.addClass("d-none");
+    if (selectedProfiles.length > 1) selectedProfiles.pop();
     $tableBody.html("");
     updateHtmlElementValues();
     renderList();

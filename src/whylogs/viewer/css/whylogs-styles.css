@@ -377,7 +377,7 @@ a .wl-table-row--bottom-shadow {
   border-right: 1px solid var(--brandSecondary200);
   border-bottom: 1px solid var(--brandSecondary200);
   display: table-cell;
-  padding: 12px 4px 12px 18px;
+  padding: 12px 18px 12px 18px;
 }
 
 .wl-table-cell {
@@ -567,6 +567,9 @@ a .wl-table-row--bottom-shadow {
 }
 
 .wl-property-panel__table-th:nth-child(2) {
+  border-top: 2px solid var(--brandPrimary900);
+}
+.wl-property-panel__table-th:nth-child(3) {
   border-top: 2px solid var(--brandPrimary900);
 }
 
