@@ -3,7 +3,7 @@
 
 [![License](http://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE)
 [![PyPI version](https://badge.fury.io/py/whylogs.svg)](https://badge.fury.io/py/whylogs)
-[![Coverage Status](https://coveralls.io/repos/github/whylabs/whylogs-python/badge.svg?branch=mainline&service=github)](https://coveralls.io/github/whylabs/whylogs-python?branch=mainline)
+[![Coverage Status](https://coveralls.io/repos/github/whylabs/whylogs/badge.svg?branch=mainline)](https://coveralls.io/github/whylabs/whylogs?branch=mainline)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4490/badge)](https://bestpractices.coreinfrastructure.org/projects/4490)
 [![PyPi Downloads](https://pepy.tech/badge/whylogs)](https://pepy.tech/project/whylogs)
@@ -150,7 +150,7 @@ Whylogs supports both structured and unstructured data, specifically:
 | Images | exif metadata, derived pixels features,  bounding boxes | [Getting started with images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb) |
 | Video  | In development  | [Github Issue #214](https://github.com/whylabs/whylogs/issues/214) |
 | Tensors | derived 1d features (more in developement) | [Github Issue #216](https://github.com/whylabs/whylogs/issues/216) |
-| Text | top k values, counts, cardinality (more in developement) | [Github Issue #213](https://github.com/whylabs/whylogs/issues/213) |
+| Text | top k values, counts, cardinality | [String Features](https://github.com/whylabs/whylogs/blob/mainline/examples/String_Features.ipynb) |
 | Audio | In developement | [Github Issue #212](https://github.com/whylabs/whylogs/issues/212) | 
 
 

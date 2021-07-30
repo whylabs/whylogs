@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 
+import pandas as pd
 import pytest
 from freezegun import freeze_time
 from pandas import util
@@ -112,3 +113,37 @@ def test_segments_with_rotation(df_lending_club, tmpdir):
         output_files += files
     assert len(output_files) == 8
     shutil.rmtree(output_path, ignore_errors=True)
+
+
+def test_one_segment(tmpdir, image_files):
+    output_path = tmpdir.mkdir("whylogs")
+    shutil.rmtree(output_path, ignore_errors=True)
+    writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
+    yaml_data = writer_config.to_yaml()
+    WriterConfig.from_yaml(yaml_data)
+
+    session_config = SessionConfig("project", "pipeline", writers=[writer_config])
+
+    session = session_from_config(session_config)
+
+    df = pd.DataFrame(data={"x": [1], "y": [4], "z": [0.1]})
+    with session.logger("segment_test", segments=["x", "y"]) as logger:
+        logger.log_segments(df)
+        assert len(logger.segmented_profiles) == 1
+
+
+def test_log_multiple_segments(tmpdir, image_files):
+    output_path = tmpdir.mkdir("whylogs")
+    shutil.rmtree(output_path, ignore_errors=True)
+    writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
+    yaml_data = writer_config.to_yaml()
+    WriterConfig.from_yaml(yaml_data)
+
+    session_config = SessionConfig("project", "pipeline", writers=[writer_config])
+
+    session = session_from_config(session_config)
+
+    df = pd.DataFrame(data={"x": [1, 2, 3, 1, 2, 3, 1, 2, 3], "y": [4, 5, 6, 5, 6, 4, 6, 4, 5], "z": [0.1, 0.2, 0.3, 0.1, 0.2, 0.3, 0.1, 0.2, 0.3]})
+    with session.logger("image_test", segments=["x", "y"]) as logger:
+        logger.log_segments(df)
+        assert len(logger.segmented_profiles) == 9

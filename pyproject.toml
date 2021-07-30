@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "0.4.9"
+version = "0.5.1"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -71,6 +71,7 @@ flake8 = "^3.9.1"
 aiohttp = "^3.7.4"
 aiohttp_cors = "^0.7.0"
 ipywidgets = "^7.6.3"
+jiwer = "^2.2.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -79,7 +80,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-skip = ["src/whylogs/proto/"]
+skip = ["src/whylogs/proto/", ".venv"]
 
 [tool.black]
 line-length = 160

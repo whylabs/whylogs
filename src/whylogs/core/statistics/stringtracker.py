@@ -25,32 +25,43 @@ class CharPosTracker:
     ----------
     character_list : str
         string containing all characters to be tracked
+        this list can include specific unicode characters to track.
+
 
     """
 
     def __init__(self, character_list: str = None):
 
         if character_list is None:
-            character_list = "abcdefghijklmnopqrstuvwzyz0123456789-@!#$%^&*()[]{}"
+            character_list = "abcdefghijklmnopqrstuvwzyz0123456789-+_@!,./?#$%^&*()[]{}"
         self.character_list = set(character_list)
         self.char_pos_map = {}
 
     def update(self, value: str, character_list: str = None) -> None:
+        """update
 
+        Parameters
+        ----------
+        value : str
+            utf-16 string
+        character_list : str, optional
+            use a specific character_list for
+            the tracked string. Note that modifing
+            it from a previous saved choice, will
+            reset the character position map, since
+            NITL no longer has the same context.
+        """
         if character_list:
-            if character_list != self.character_list:
+            char_set = set(character_list)
+            if char_set != self.character_list:
                 # check if any character were previously tracked
                 if not self.char_pos_map:
                     logger.warning("Changing character list, a non-empty character position tracker is being reset to remove ambiguities")
-                self.character_list = set(character_list)
+                self.character_list = char_set
                 self.char_pos_map = {}
 
         for indx, char in enumerate(value.lower()):
-
             try:
-                char = char.encode("ascii")
-
-                char = char.decode("utf-8")
 
                 if char in self.character_list:
                     self.char_pos_map.setdefault(char, NumberTracker())
@@ -94,6 +105,17 @@ class CharPosTracker:
             elif other_tracker:
                 new_char_pos_map[character] = other_tracker
 
+        # merge not in the list
+        nitl_tracker = self.char_pos_map.get("NITL", None)
+        nitl_other_tracker = other.char_pos_map.get("NITL", None)
+
+        if nitl_tracker and nitl_other_tracker:
+            new_char_pos_map["NITL"] = nitl_tracker.merge(nitl_other_tracker)
+        elif nitl_tracker:
+            new_char_pos_map["NITL"] = nitl_tracker
+        elif nitl_other_tracker:
+            new_char_pos_map["NITL"] = nitl_other_tracker
+
         new_char_pos_tracker.char_pos_map = new_char_pos_map
 
         return new_char_pos_tracker
@@ -102,17 +124,12 @@ class CharPosTracker:
         """
         Return the object serialized as a protobuf message
         """
-        # char_pos_map={ key: print(type(nt.to_protobuf())) for key, nt in self.char_pos_map.items()}
-        # print(char_pos_map)
         character_list = list(self.character_list)
         character_list.sort()
-        opts = dict(
-            char_list="".join(character_list),
-            char_pos_map={key: nt.to_protobuf() for key, nt in self.char_pos_map.items()},
-        )
-        # print(f"opts::{opts}")
+        opts = dict(char_list="".join(character_list), char_pos_map={key: nt.to_protobuf() for key, nt in self.char_pos_map.items()})
+
         msg = CharPosMessage(**opts)
-        # print(f"msg:: {msg}")
+
         return msg
 
     @staticmethod
@@ -125,9 +142,7 @@ class CharPosTracker:
         CharPosTracker
         """
 
-        opts = dict(
-            character_list=message.char_list,
-        )
+        opts = dict(character_list=message.char_list)
         char_pos_tracker = CharPosTracker(**opts)
 
         for each_key, each_value in message.char_pos_map.items():
@@ -135,9 +150,7 @@ class CharPosTracker:
 
         return char_pos_tracker
 
-    def to_summary(
-        self,
-    ):
+    def to_summary(self):
         character_list = list(self.character_list)
         character_list.sort()
         opts = dict(character_list="".join(character_list), char_pos_map={key: nt.to_summary() for key, nt in self.char_pos_map.items()})
@@ -236,7 +249,7 @@ class StringTracker:
         count = self.count + other.count
 
         new_length = self.length.merge(other.length)
-        new_token_length = self.token_length.merge(other.length)
+        new_token_length = self.token_length.merge(other.token_length)
         new_char_pos_tracker = self.char_pos_tracker.merge(other.char_pos_tracker)
 
         return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_char_pos_tracker)
@@ -283,9 +296,7 @@ class StringTracker:
             char_pos_tracker=CharPosTracker.from_protobuf(message.char_pos_tracker),
         )
 
-    def to_summary(
-        self,
-    ):
+    def to_summary(self):
         """
         Generate a summary of the statistics
 

@@ -10,11 +10,13 @@ from uuid import uuid4
 import pandas as pd
 from tqdm.auto import tqdm
 
-from whylogs.app.config import SessionConfig, WriterConfig, load_config
-from whylogs.app.logger import Logger, Segment
+from whylogs.app.config import MetadataConfig, SessionConfig, WriterConfig, load_config
+from whylogs.app.logger import Logger
+from whylogs.app.metadata_writer import MetadataWriter, metadata_from_config
 from whylogs.app.writers import WhyLabsWriter, Writer, writer_from_config
 from whylogs.core import DatasetProfile
 from whylogs.core.statistics.constraints import DatasetConstraints
+from whylogs.features.autosegmentation import _estimate_segments
 
 
 @dataclass
@@ -82,6 +84,7 @@ class Session:
         project: str,
         pipeline: str,
         writers: List[Writer],
+        metadata_writer: Optional[MetadataWriter] = None,
         verbose: bool = False,
         with_rotation_time: str = None,
         cache_size: int = None,
@@ -93,12 +96,13 @@ class Session:
         self.project = project
         self.pipeline = pipeline
         self.writers = writers
+        self.metadata_writer = metadata_writer
         self.verbose = verbose
         self._active = True
         self._loggers = {}
         self._session_time = datetime.datetime.now()
         self._session_id = str(uuid4())
-        self._config = SessionConfig(project, pipeline, writers, verbose)
+        self._config = SessionConfig(project, pipeline, writers, metadata_writer, verbose)
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
         self.report_progress = report_progress
@@ -139,7 +143,7 @@ class Session:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
-        segments: Optional[List[Segment]] = None,
+        segments: Optional[Union[List[Dict], List[str], str]] = None,
         profile_full_dataset: bool = False,
         with_rotation_time: str = None,
         cache_size: int = 1,
@@ -187,6 +191,7 @@ class Session:
                 dataset_timestamp=dataset_timestamp,
                 session_timestamp=session_timestamp or self._session_time,
                 writers=self.writers,
+                metadata_writer=self.metadata_writer,
                 tags=tags or {},
                 metadata=metadata,
                 verbose=self.verbose,
@@ -211,7 +216,7 @@ class Session:
         session_timestamp: Optional[datetime.datetime] = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
-        segments: Optional[Union[List[Dict], List[str]]] = None,
+        segments: Optional[Union[List[Dict], List[str], str]] = None,
         profile_full_dataset: bool = False,
         constraints: DatasetConstraints = None,
     ) -> Optional[DatasetProfile]:
@@ -224,9 +229,12 @@ class Session:
         :param session_timestamp: the timestamp for the session. Override the default one
         :param tags: the tags for the profile. Useful when merging
         :param metadata: information about this current profile. Can be discarded when merging
-        :param segments: can be either
-        - a list of tag key value pairs for marking the segment of the data
-        - a list of tag keys to group the data by
+        :param segments:
+            Can be either:
+            - Autosegmentation source, one of ["auto", "local"]
+            - List of tag key value pairs for tracking data segments
+            - List of tag keys for which we will track every value
+            - None, no segments will be used
         :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
         :return: a dataset profile if the session is active
         """
@@ -304,7 +312,7 @@ class Session:
             return None
 
         if dataset_name is None:
-            # using the project name for the datasetname
+            # using the project name for the dataset name
             dataset_name = self.project
         if session_timestamp is None:
             session_timestamp = self._session_time
@@ -323,6 +331,34 @@ class Session:
         )
 
         return profile
+
+    def estimate_segments(
+        self,
+        df: pd.DataFrame,
+        name: str,
+        target_field: str = None,
+        max_segments: int = 30,
+        dry_run: bool = False,
+    ) -> Optional[Union[List[Dict], List[str]]]:
+        """
+        Estimates the most important features and values on which to segment
+        data profiling using entropy-based methods.
+
+        :param df: the dataframe of data to profile
+        :param name: name for discovery in the logger, automatically applied
+        to loggers with same dataset_name
+        :param target_field: target field (optional)
+        :param max_segments: upper threshold for total combinations of segments,
+        default 30
+        :param dry_run: run calculation but do not write results to metadata
+        :return: a list of segmentation feature names
+        """
+        segments = _estimate_segments(df=df, target_field=target_field, max_segments=max_segments)
+
+        if not dry_run:
+            self.metadata_writer.autosegmentation_write(name, segments)
+
+        return segments
 
     def close(self):
         """
@@ -378,10 +414,14 @@ def session_from_config(config: SessionConfig) -> Session:
     Construct a whylogs session from a `SessionConfig`
     """
     writers = list(map(lambda x: writer_from_config(x), config.writers))
+    metadata_writer = None
+    if config.metadata:
+        metadata_writer = metadata_from_config(config.metadata)
     return Session(
         config.project,
         config.pipeline,
         writers,
+        metadata_writer,
         config.verbose,
         config.with_rotation_time,
         config.cache_size,
@@ -406,6 +446,7 @@ def reset_default_session():
             "default-project",
             "default-pipeline",
             [WriterConfig(type="local", output_path="output", formats=["all"])],
+            MetadataConfig(type="local", output_path="output"),
             False,
         )
     _session = session_from_config(config)
@@ -445,10 +486,17 @@ def get_or_create_session(path_to_config: Optional[str] = None, report_progress:
         config = load_config(path_to_config)
         if config is None:
             print("WARN: Missing config")
-            writer = WriterConfig(type="local", output_path="output", formats=["all"])
-            config = SessionConfig("default-project", "default-pipeline", [writer], False)
+
+            config = SessionConfig(
+                "default-project",
+                "default-pipeline",
+                [WriterConfig(type="local", output_path="output", formats=["all"])],
+                MetadataConfig(type="local", output_path="output", input_path=""),
+                False,
+            )
         if report_progress is not None:
             config.report_progress = report_progress
+
         _session = session_from_config(config)
     return _session
 

@@ -12,6 +12,7 @@ from typing import IO, AnyStr, Callable, Dict, List, Optional, Union
 import pandas as pd
 from tqdm import tqdm
 
+from whylogs.app.metadata_writer import MetadataWriter
 from whylogs.app.writers import Writer
 from whylogs.core import (
     METADATA_DEFAULT_ATTRIBUTES,
@@ -41,6 +42,7 @@ class Logger:
     :param tags: Optional. Dictionary of key, value for aggregating data upstream
     :param metadata: Optional. Dictionary of key, value. Useful for debugging (associated with every single dataset profile)
     :param writers: Optional. List of Writer objects used to write out the data
+    :param metadata_writer: Optional. MetadataWriter object used to write non-profile information
     :param with_rotation_time: Optional. Log rotation interval, \
             consisting of digits with unit specification, e.g. 30s, 2h, d.\
             units are seconds ("s"), minutes ("m"), hours, ("h"), or days ("d") \
@@ -48,7 +50,12 @@ class Logger:
     :param interval: Deprecated: Interval multiplier for `with_rotation_time`, defaults to 1.
     :param verbose: enable debug logging
     :param cache_size: dataprofiles to cache
-    :param segments: define either a list of segment keys or a list of segments tags: [  {"key":<featurename>,"value": <featurevalue>},... ]
+    :param segments:
+        Can be either:
+            - Autosegmentation source, one of ["auto", "local"]
+            - List of tag key value pairs for tracking data segments
+            - List of tag keys for which we will track every value
+            - None, no segments will be used
     :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
     :param constraints: static assertions to be applied to streams and summaries.
     """
@@ -62,11 +69,12 @@ class Logger:
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         writers: List[Writer] = None,
+        metadata_writer: MetadataWriter = None,
         verbose: bool = False,
         with_rotation_time: Optional[str] = None,
         interval: int = 1,
         cache_size: int = 1,
-        segments: Optional[Union[List[Segment], List[str]]] = None,
+        segments: Optional[Union[List[Segment], List[str], str]] = None,
         profile_full_dataset: bool = False,
         constraints: DatasetConstraints = None,
     ):
@@ -84,6 +92,7 @@ class Logger:
             self.session_timestamp = session_timestamp
         self.dataset_name = dataset_name
         self.writers = writers
+        self.metadata_writer = metadata_writer
         self.verbose = verbose
         self.cache_size = cache_size
         self.tags = tags
@@ -138,8 +147,13 @@ class Logger:
         hashed_seg = hash_segment(segment)
         return self._profiles[-1]["segmented_profiles"].get(hashed_seg, None)
 
-    def set_segments(self, segments: Union[List[Segment], List[str]]) -> None:
+    def set_segments(self, segments: Union[List[Segment], List[str], str]) -> None:
         if segments:
+            if segments == "auto":
+                segments = self._retrieve_local_segments()
+
+        if segments:
+
             if all(isinstance(elem, str) for elem in segments):
                 self.segment_type = "keys"
                 self.segments = segments
@@ -149,6 +163,12 @@ class Logger:
         else:
             self.segments = None
             self.segment_type = None
+
+    def _retrieve_local_segments(self) -> Union[List[Segment], List[str], str]:
+        """Retrieves local segments"""
+        segments = self.metadata_writer.autosegmentation_read()
+        self._py_logger.info("Retrieved segments from local storage: " f"{segments}")
+        return segments
 
     def _intialize_profiles(
         self,
@@ -299,6 +319,8 @@ class Logger:
         features: Optional[Dict[str, any]] = None,
         feature_name: str = None,
         value: any = None,
+        character_list: str = None,
+        token_method: Optional[Callable] = None,
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
@@ -323,12 +345,12 @@ class Logger:
             self.log_dataframe(pd.DataFrame([features]))
         else:
             if self.full_profile_check():
-                self._profiles[-1]["full_profile"].track_datum(feature_name, value)
+                self._profiles[-1]["full_profile"].track_datum(feature_name, value, character_list=character_list, token_method=token_method)
 
             if self.segments:
-                self.log_segment_datum(feature_name, value)
+                self.log_segment_datum(feature_name, value, character_list=character_list, token_method=token_method)
 
-    def log_segment_datum(self, feature_name, value):
+    def log_segment_datum(self, feature_name, value, character_list: str = None, token_method: Optional[Callable] = None):
         segment = [{"key": feature_name, "value": value}]
         segment_profile = self.get_segment(segment)
         if self.segment_type == "keys":
@@ -336,15 +358,15 @@ class Logger:
                 if segment_profile is None:
                     return
                 else:
-                    segment_profile.track_datum(feature_name, value)
+                    segment_profile.track_datum(feature_name, value, character_list=character_list, token_method=token_method)
             else:
                 for each_profile in self._profiles[-1]["segmented_profiles"]:
-                    each_profile.track_datum(feature_name, value)
+                    each_profile.track_datum(feature_name, value, character_list=character_list, token_method=token_method)
         elif self.segment_type == "set":
             if segment not in self.segments:
                 return
             else:
-                segment_profile.track_datum(feature_name, value)
+                segment_profile.track_datum(feature_name, value, character_list=character_list, token_method=token_method)
 
     def log_metrics(
         self,

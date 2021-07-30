@@ -5,7 +5,7 @@ src.python.pyc := $(shell find ./src -type f -name "*.pyc")
 src.proto.dir := ./proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 
-version := 0.4.9
+version := 0.5.1
 
 dist.dir := dist
 egg.dir := .eggs
@@ -20,6 +20,8 @@ default: dist
 
 release: format lint test dist ## Compile distribution files and run all tests and checks.
 
+pre-commit: format-fix lint-fix release
+
 .PHONY: dist clean clean-test help format lint test install coverage docs default proto test-notebooks github release
 .PHONY: test-system-python format-fix bump-patch bump-minor bump-major publish bump-dev bump-build bump-release blackd
 .PHONY: jupyter-kernel
@@ -32,7 +34,6 @@ install-poetry:
 	@$(call i, Installing Poetry)
 	curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 
-
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
@@ -42,11 +43,11 @@ bump-patch: ## Bump the patch version (_._.X) everywhere it appears in the proje
 
 bump-minor: ## Bump the minor version (_.X._) everywhere it appears in the project
 	@$(call i, Bumping the minor number)
-	poetry run bumpversion patch --allow-dirty
+	poetry run bumpversion minor --allow-dirty
 
 bump-major: ## Bump the major version (X._._) everywhere it appears in the project
 	@$(call i, Bumping the major number)
-	poetry run bumpversion patch --allow-dirty
+	poetry run bumpversion major --allow-dirty
 
 bump-release: ## Convert the version into a release variant (_._._) everywhere it appears in the project
 	@$(call i, Bumping the major number)
