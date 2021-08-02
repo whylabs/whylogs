@@ -127,4 +127,27 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
 
     assert(dp.getColumns.get("age").getSchemaTracker.getTypeCounts.get(InferredType.Type.NULL) == 1)
   }
+
+
+  test("profile data value") {
+    val schema = List(
+      StructField("name", StringType, nullable = false),
+      StructField("age", IntegerType, nullable = true)
+    )
+
+    val data = Seq(
+      Row("miguel", null),
+      Row("luisa", 21)
+    )
+
+    val df = spark.createDataFrame(
+      spark.sparkContext.parallelize(data),
+      StructType(schema)
+    )
+
+    val res = df.newProfilingSession("model")
+      .aggProfiles(Instant.now())
+    df.newProfilingSession("model").log(orgId = "org-7235", modelId = "model-2", apiKey = "JXqXmlLVWM.1Ggj09dNjgLinoUMtM6C67kR41ihHES4YdA3iT07vrD5rOQlSUcyD")
+  }
+
 }
