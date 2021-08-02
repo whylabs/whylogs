@@ -2,7 +2,7 @@ package com.whylogs.spark
 
 import ai.whylabs.service.api.LogApi
 import ai.whylabs.service.invoker.ApiClient
-import ai.whylabs.service.model.SegmentTag
+import ai.whylabs.service.model.{LogAsyncRequest, SegmentTag}
 import org.apache.spark.sql.types.{DataTypes, NumericType, StructField}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.whylogs.DatasetProfileAggregator
@@ -203,7 +203,10 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
 
       // Create the upload url
       val uploadResultFuture = RetryUtil.withRetries() {
-        logApi.logAsync(orgId, modelId, timestamp, segmentTags, null)
+        val req = new LogAsyncRequest()
+        req.setSegmentTags(segmentTags)
+        req.datasetTimestamp(timestamp)
+        logApi.logAsync(orgId, modelId, req)
       }
       val uploadResult = Await.result(uploadResultFuture, Duration.create(10, "s"))
 
