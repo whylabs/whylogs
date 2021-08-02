@@ -6,6 +6,7 @@
       noInputElementFound: "It seems we could not find the file input element.",
       noBrowserSupport: "This browser does not seem to support the `files` property of file inputs.",
       noFileSelected: "Please select a file.",
+      noProfileSelected: "Please select a profile.",
       fileAPINotSupported: "The file API is not supported on this browser yet.",
       invalidJSONFile:
         "The JSON file you are trying to load does not match the expected whylogs format. Please check the file and try again.",
@@ -38,7 +39,7 @@
 
   // Constants and variables
   let featureSearchValue = "";
-  const isActiveInferredType = {};
+  let isActiveInferredType = {};
   let propertyPanelData = [];
   let profiles = [];
   let jsonData = {};
@@ -48,6 +49,11 @@
   let selectedProfiles = [];
   selectedProfiles.push("0");
   // Util functions
+
+  const colors = {
+    0: "#0e7384",
+    1: "#2683c9",
+  };
   function debounce(func, wait, immediate) {
     let timeout;
 
@@ -130,7 +136,6 @@
 
   function openPropertyPanel(items, infType, infTypeSecond = null) {
     const types = [infType, infTypeSecond];
-    // handleClosePropertyPanel();
     $(".wl-property-panel__table-th-profile").addClass("d-none");
     $("#property-panel-0").removeClass("d-none");
     if (!checkJSONValidityForMultiProfile(jsonData)) {
@@ -208,9 +213,11 @@
   }
 
   // Override and populate HTML element values
-  function updateHtmlElementValues() {
+  function updateHtmlElementValues(index) {
+    $sidebarFeatureNameList.html("");
     Object.entries(featureDataForTableForAllProfiles).forEach((feature) => {
-      function getGraphHtml(data) {
+      function getGraphHtml(data, index) {
+        console.log(index);
         const MARGIN = {
           TOP: 5,
           RIGHT: 5,
@@ -221,7 +228,6 @@
         const SVG_HEIGHT = 25;
         const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
         const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
-        const PRIMARY_COLOR_HEX = "#0e7384";
 
         const svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
 
@@ -253,7 +259,7 @@
           .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
           .attr("x", (d) => xScale(d.axisX))
           .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-          .attr("fill", PRIMARY_COLOR_HEX);
+          .attr("fill", colors[index]);
 
         return svgEl._groups[0][0].outerHTML;
       }
@@ -261,9 +267,10 @@
       let tempChartDataString = "";
       feature[1].chartData.forEach((chartData, index) => {
         if (selectedProfiles.includes(String(index))) {
+          let profileSelected = selectedProfiles.indexOf(String(index));
           tempChartDataString += `<div>${
             chartData.length > 0
-              ? getGraphHtml(chartData)
+              ? getGraphHtml(chartData, profileSelected)
               : '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>'
           }</div>`;
         }
@@ -439,11 +446,9 @@
       // Update data table rows/columns
       $tableBody.append($tableRow);
 
-      if (!checkJSONValidityForMultiProfile(jsonData)) {
-        $sidebarFeatureNameList.append(
-          `<li class="list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${feature[1].inferredType}" style="display: none"><span data-feature-name-id="${feature[0]}" >${feature[0]}</span></li>`,
-        );
-      }
+      $sidebarFeatureNameList.append(
+        `<li class="list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${feature[1].inferredType}"><span data-feature-name-id="${feature[0]}" >${feature[0]}</span></li>`,
+      );
     });
     if (!checkJSONValidityForMultiProfile(jsonData)) {
       const countDiscrete = Object.values(numOfProfilesBasedOnType).reduce(
@@ -458,12 +463,11 @@
         (acc, feature) => (acc += feature.unknown.length),
         0,
       );
-      const featureCount = Object.values(featureDataForTableForAllProfiles).length;
+
       $featureCountDiscrete.html(countDiscrete);
       $featureCountNonDiscrete.html(countNonDiscrete);
       $featureCountUnknown.html(countUnknown);
       $selectedProfile.html(formatLabelDate(+dataForRead.properties.dataTimestamp));
-      $featureCount.html(featureCount);
     }
   }
 
@@ -493,14 +497,22 @@
     }
   }
 
-  function renderProfileDropdown() {
+  function renderProfileDropdown(id) {
     $profileDropdown.html("");
+    let selected = "";
+    if (selectedProfiles.length == 0) {
+      selected = "selected";
+    }
     $profileDropdown.append(
-      `<option id="select-option-first-time" selected disabled value="none">Select your profile</option>`,
+      `<option id="select-option-first-time" ${selected} disabled value="none">Select your profile</option>`,
     );
     for (let i = 0; i < profiles.length; i++) {
       if (selectedProfiles.includes(String(i))) {
-        const option = `<option class="already-choosen-data" value="${i}">${profiles[i].label}</option>`;
+        let selected = "";
+        if (selectedProfiles[id] === String(i)) {
+          selected = "selected";
+        }
+        const option = `<option ${selected} disabled value="${i}">${profiles[i].label}</option>`;
         $profileDropdown.append(option);
       } else {
         const option = `<option value="${i}">${profiles[i].label}</option>`;
@@ -511,6 +523,8 @@
 
   function handleProfileChange(event) {
     handleClosePropertyPanel();
+    $tableContent.removeClass("d-none");
+    $("#table-content-wrapper").removeClass("d-none");
     const value = event.target.value;
     const id = event.target.dataset;
     selectedProfiles[parseInt(id.id)] = value;
@@ -698,6 +712,7 @@
         iteration += 1;
       });
     });
+    $featureCount.html(Object.values(featureDataForTableForAllProfiles).length);
   }
 
   function updateTableMessage(message) {
@@ -760,6 +775,11 @@
   }
 
   function loadFile() {
+    isActiveInferredType = {};
+    $featureFilterInput.html("");
+    $sidebarFeatureNameList.html("");
+    $tableBody.html("");
+    $(".form-check-input").prop("checked", true);
     if (typeof window.FileReader !== "function") {
       updateTableMessage(MESSAGES.error.fileAPINotSupported);
       return;
@@ -767,7 +787,6 @@
     dataForRead = {};
     featureDataForTableForAllProfiles = {};
     numOfProfilesBasedOnType = {};
-    $sidebarFeatureNameList.html("");
 
     handleClosePropertyPanel();
     const input = document.getElementById("file-input");
@@ -799,37 +818,46 @@
     if (checkJSONValidityForMultiProfile(jsonData)) {
       profiles = collectProfilesFromJSON(jsonData);
       renderProfileDropdown();
-      $tableBody.html("");
+      $(".compare-select").addClass("d-none");
+      $tableMessage.removeClass("d-none");
+      $tableContent.addClass("d-none");
+      $("#table-content-wrapper").addClass("d-none");
+      updateTableMessage(MESSAGES.error.noProfileSelected);
       $multiProfileWrap.removeClass("d-none");
       $singleProfileWrap.addClass("d-none");
       $filterOptions.addClass("d-none");
-      $(`#total-feature-count`).addClass("d-none");
+      $sidebarContent.removeClass("d-none");
+      renderList();
+      $jsonForm.trigger("reset");
     } else if (checkJSONValidityForSingleProfile(jsonData)) {
       $multiProfileWrap.addClass("d-none");
       $singleProfileWrap.removeClass("d-none");
       $filterOptions.removeClass("d-none");
-      $(`#total-feature-count`).removeClass("d-none");
       selectedProfiles[0] = "0";
       $tableBody.html("");
       updateHtmlElementValues();
+      renderList();
+      showDataVisibility();
+      $jsonForm.trigger("reset");
     } else {
       $tableBody.html("");
       updateTableMessage(MESSAGES.error.invalidJSONFile);
       hideDataVisibility();
       return;
     }
-
-    renderList();
-    showDataVisibility();
-    $jsonForm.trigger("reset");
   }
 
   for (let i = 0; i < 1; i++) {
     let addButton = $(`#add-profile-sidebar-button-${i}`);
 
     addButton.on("click", function () {
-      $(`#add-profile-wrap-${i + 1}`).removeClass("d-none");
-      $(`#remove-button-${i + 1}`).removeClass("d-none");
+      console.log($(`#sidebar-content-multi-profile-dropdown-${i}`).val());
+      if ($(`#sidebar-content-multi-profile-dropdown-${i}`).val() !== null) {
+        addButton.addClass("d-none");
+        $(`#add-profile-wrap-${i + 1}`).addClass("button-remove-select");
+        $(`#add-profile-wrap-${i + 1}`).removeClass("d-none");
+        $(`#remove-button-${i + 1}`).removeClass("d-none");
+      }
     });
   }
 
@@ -838,6 +866,9 @@
     $(`#add-profile-wrap-1`).addClass("d-none");
     $("#sidebar-content-multi-profile-dropdown-1").val("none");
     $removeButton.addClass("d-none");
+    $(`#add-profile-wrap-0`).removeClass("button-remove-select");
+    $(`#remove-button-0`).addClass("d-none");
+    $(`#add-profile-sidebar-button-0`).removeClass("d-none");
     if (selectedProfiles.length > 1) selectedProfiles.pop();
     $tableBody.html("");
     updateHtmlElementValues();
@@ -846,6 +877,7 @@
 
   // Bind event listeners
   $fileInput.on("change", loadFile);
+
   $profileDropdown.on("change", handleProfileChange);
   $(document).on("click", ".js-list-group-item span", scrollToFeatureName);
   $featureSearch.on(

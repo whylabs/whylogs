@@ -594,7 +594,7 @@ a .wl-table-row--bottom-shadow {
   padding: 7px 10px 7px 10px;
   position: relative;
   left: 68%;
-  margin-top: 3px;
+  margin-top: 6px;
   margin-bottom: 5px;
   color: var(--brandSecondary800);
 }
@@ -605,12 +605,31 @@ a .wl-table-row--bottom-shadow {
   margin-left: 5px;
   border-radius: 10%;
   color: var(--brandSecondary800);
+  height: 80%;
+  width: 15%;
+  align-self: flex-end;
 }
-
+.button-remove-select {
+  margin-top: 20px;
+}
+.label-select {
+  font-size: 12px;
+}
 .already-choosen-data {
   opacity: 0.5;
 }
-
+.div-select-0 {
+  width: 5px;
+  margin-right: 5px;
+  border-radius: 2px;
+  background-color: #0e7384;
+}
+.div-select-1 {
+  width: 5px;
+  margin-right: 5px;
+  border-radius: 2px;
+  background-color: #2683c9;
+}
 /* Load JSON file form */
 .wl__json-form-input {
   position: absolute;
