@@ -247,6 +247,7 @@
     $tableMessage.addClass("d-none");
     Object.entries(featureDataForTableForAllProfiles).forEach((feature) => {
       function getGraphHtml(data, index) {
+        const SINGLE_PROFILE_JSON = !profiles.length;
         const MARGIN = {
           TOP: 5,
           RIGHT: 5,
@@ -254,7 +255,7 @@
           LEFT: 55,
         };
         const SVG_WIDTH = 350;
-        const SVG_HEIGHT = 25;
+        const SVG_HEIGHT = SINGLE_PROFILE_JSON ? 75 : 35;
         const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
         const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
 
@@ -829,6 +830,7 @@
   }
 
   function loadFile() {
+    profiles = [];
     isActiveInferredType = {};
     $featureFilterInput.html("");
     $sidebarFeatureNameList.html("");
