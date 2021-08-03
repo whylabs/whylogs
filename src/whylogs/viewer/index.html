@@ -127,7 +127,9 @@
                     </div>
                     <button class="d-none remove-button" id="remove-button-0">X</button>
                   </div>
-                  <button class="add-profile-sidebar-button" id="add-profile-sidebar-button-0">Add profile</button>
+                  <button class="add-profile-sidebar-button" disabled id="add-profile-sidebar-button-0">
+                    Add profile
+                  </button>
                 </div>
 
                 <div class="d-none compare-select" id="add-profile-wrap-1">
@@ -160,12 +162,48 @@
                     </div>
                     <button class="d-none remove-button" id="remove-button-1">X</button>
                   </div>
+                  <button class="add-profile-sidebar-button" disabled id="add-profile-sidebar-button-1">
+                    Add profile
+                  </button>
                 </div>
               </div>
 
+              <div class="d-none compare-select" id="add-profile-wrap-2">
+                <div class="sidebar-content__profile-dropdown-outer-container">
+                  <div class="div-select-2"></div>
+                  <div
+                    class="sidebar-content__profile-dropdown-inner-container"
+                    id="sidebar-content__profile-dropdown-inner-container-2"
+                  >
+                    <label class="label-select"> Profile 3:</label>
+                    <select
+                      class="form-control sidebar-content__profile-dropdown"
+                      id="sidebar-content-multi-profile-dropdown-2"
+                      data-id="2"
+                    >
+                      <option value="example-profile-1">Example profile 1</option>
+                      <option value="example-profile-2">Example profile 2</option>
+                      <option value="example-profile-3">Example profile 3</option>
+                    </select>
+
+                    <svg
+                      class="sidebar-content__profile-dropdown-chevron"
+                      width="24"
+                      focusable="false"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M7 10l5 5 5-5z"></path>
+                    </svg>
+                  </div>
+                  <button class="d-none remove-button" id="remove-button-2">X</button>
+                </div>
+              </div>
+            </div>
+
               <div id="total-feature-count">
                 <strong>Total features</strong>
-                <h1 class="feature-count mb-3 wl__feature-count">37</h1>
+                <h1 class="feature-count mb-3 wl__feature-count">0</h1>
               </div>
               <div class="mb-4">
                 <label for="wl__feature-search" class="form-label"><strong>Find feature</strong></label>
@@ -265,6 +303,10 @@
                         class="wl-property-panel__table-th wl-property-panel__table-th-profile d-none"
                         id="property-panel-1"
                       ></th>
+                      <th
+                      class="wl-property-panel__table-th wl-property-panel__table-th-profile d-none"
+                      id="property-panel-2"
+                    ></th>
                     </tr>
                   </thead>
                   <tbody class="wl-property-panel__frequent-items">

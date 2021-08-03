@@ -36,6 +36,7 @@
   const $filterOptions = $(".filter-options");
   const $selectOptionFirstTime = $("#select-option-first-time");
   const $removeButton = $(`#remove-button-1`);
+  const $removeButton2 = $("#remove-button-2");
 
   // Constants and variables
   let featureSearchValue = "";
@@ -53,6 +54,7 @@
   const colors = {
     0: "#0e7384",
     1: "#2683c9",
+    2: "#44c0e7",
   };
   function debounce(func, wait, immediate) {
     let timeout;
@@ -87,14 +89,28 @@
       }
     }
 
-    for (let i = 0; i < featureListChildren.length; i++) {
-      const name = featureListChildren[i].dataset.featureName.toLowerCase();
-      const type = featureListChildren[i].dataset.inferredType.toLowerCase();
+    if (!checkJSONValidityForMultiProfile(jsonData)) {
+      for (let i = 0; i < featureListChildren.length; i++) {
+        const name = featureListChildren[i].dataset.featureName.toLowerCase();
+        const type = featureListChildren[i].dataset.inferredType.toLowerCase();
+        if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
+          featureListChildren[i].style.display = "";
+        } else {
+          featureListChildren[i].style.display = "none";
+        }
+      }
+    }
+    if (checkJSONValidityForMultiProfile(jsonData)) {
+      for (let i = 0; i < featureListChildren.length; i++) {
+        const name = featureListChildren[i].dataset.featureName.toLowerCase();
+        const type = featureListChildren[i].dataset.inferredType.toLowerCase();
 
-      if (isActiveInferredType[type]) {
-        featureListChildren[i].style.display = "";
-      } else {
-        featureListChildren[i].style.display = "none";
+        const typeOfFirst = type.split(",")[0];
+        if (isActiveInferredType[typeOfFirst] && name.startsWith(featureSearchValue)) {
+          featureListChildren[i].style.display = "";
+        } else {
+          featureListChildren[i].style.display = "none";
+        }
       }
     }
   }
@@ -173,9 +189,9 @@
       const chipElementEstimation = (count) =>
         `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
       const columns = [];
-
+      let itemsLength = items[0].length;
       selectedProfiles.forEach((selected, index) => {
-        if (items[parseInt(selected)].length > 0 && items !== "undefined") {
+        if (selected !== null && items[parseInt(selected)].length > 0 && items !== "undefined") {
           columns[index] = [];
           items[parseInt(selected)].forEach((item, i) => {
             columns[index][i] = "";
@@ -183,13 +199,18 @@
             if (index === 0) {
               columns[index][i] += `${chipElementTableData(item.value)}`;
             }
-            columns[index][i] += `${chipElementEstimation(item.count)}`;
+            let value = Number.isInteger(Number(item.count)) ? item.count : roundToThreeDecimals(item.count);
+            columns[index][i] += `${chipElementEstimation(value)}`;
           });
+        } else {
+          columns[index] = [];
+          for (let i = 0; i < itemsLength; i++) {
+            columns[index][i] = "<td></td>";
+          }
         }
+
         $(`#property-panel-${index}`).html(`Profile ${index + 1}`);
-        if (index > 0) {
-          $(`#property-panel-${index}`).removeClass("d-none");
-        }
+        $(`#property-panel-${index}`).removeClass("d-none");
       });
       for (let i = 0; i < items[0].length; i++) {
         chipString += `
@@ -212,12 +233,18 @@
     $(".wl-property-panel__frequent-items").html("");
   }
 
+  function roundToThreeDecimals(str) {
+    let floatNum = parseFloat(str);
+    let floatRounded = floatNum.toFixed(3);
+
+    return String(floatRounded);
+  }
   // Override and populate HTML element values
   function updateHtmlElementValues(index) {
     $sidebarFeatureNameList.html("");
+    $tableMessage.addClass("d-none");
     Object.entries(featureDataForTableForAllProfiles).forEach((feature) => {
       function getGraphHtml(data, index) {
-        console.log(index);
         const MARGIN = {
           TOP: 5,
           RIGHT: 5,
@@ -374,8 +401,9 @@
       });
 
       const showButton = selectedProfiles.some(
-        (profile) => feature[1].inferredType[profile].toLowerCase() !== "unknown",
+        (profile) => profile !== null && feature[1].inferredType[profile].toLowerCase() !== "unknown",
       );
+
       const $tableRow = $(
         `
       <li class="wl-table-row${showButton ? " wl-table-row--clickable" : ""}" data-feature-name="${
@@ -499,11 +527,28 @@
 
   function renderProfileDropdown(id) {
     $profileDropdown.html("");
+
+    $profileDropdown.append(
+      `<option id="select-option-first-time" selected disabled value="none">Select your profile</option>`,
+    );
+    for (let i = 0; i < profiles.length; i++) {
+      if (selectedProfiles.includes(String(i))) {
+        const option = `<option  disabled value="${i}">${profiles[i].label}</option>`;
+        $profileDropdown.append(option);
+      } else {
+        const option = `<option value="${i}">${profiles[i].label}</option>`;
+        $profileDropdown.append(option);
+      }
+    }
+  }
+
+  function reRenderProfileDropdown(id) {
+    $(`#sidebar-content-multi-profile-dropdown-${id}`).html("");
     let selected = "";
-    if (selectedProfiles.length == 0) {
+    if (selectedProfiles[id] === null || selectedProfiles.length - 1 < id) {
       selected = "selected";
     }
-    $profileDropdown.append(
+    $(`#sidebar-content-multi-profile-dropdown-${id}`).append(
       `<option id="select-option-first-time" ${selected} disabled value="none">Select your profile</option>`,
     );
     for (let i = 0; i < profiles.length; i++) {
@@ -513,10 +558,10 @@
           selected = "selected";
         }
         const option = `<option ${selected} disabled value="${i}">${profiles[i].label}</option>`;
-        $profileDropdown.append(option);
+        $(`#sidebar-content-multi-profile-dropdown-${id}`).append(option);
       } else {
         const option = `<option value="${i}">${profiles[i].label}</option>`;
-        $profileDropdown.append(option);
+        $(`#sidebar-content-multi-profile-dropdown-${id}`).append(option);
       }
     }
   }
@@ -528,6 +573,11 @@
     const value = event.target.value;
     const id = event.target.dataset;
     selectedProfiles[parseInt(id.id)] = value;
+    let addButton = $(`#add-profile-sidebar-button-${id.id}`);
+    addButton.attr("disabled", false);
+    for (let i = 0; i < selectedProfiles.length; i++) {
+      reRenderProfileDropdown(i);
+    }
     $selectOptionFirstTime.addClass("d-none");
     $tableBody.html("");
     updateHtmlElementValues();
@@ -816,6 +866,12 @@
     }
 
     if (checkJSONValidityForMultiProfile(jsonData)) {
+      for (let i = 0; i < 2; i++) {
+        let addButton = $(`#add-profile-sidebar-button-${i}`);
+        addButton.removeClass("d-none");
+        addButton.attr("disabled", true);
+      }
+
       profiles = collectProfilesFromJSON(jsonData);
       renderProfileDropdown();
       $(".compare-select").addClass("d-none");
@@ -830,6 +886,7 @@
       renderList();
       $jsonForm.trigger("reset");
     } else if (checkJSONValidityForSingleProfile(jsonData)) {
+      $(".compare-select").addClass("d-none");
       $multiProfileWrap.addClass("d-none");
       $singleProfileWrap.removeClass("d-none");
       $filterOptions.removeClass("d-none");
@@ -847,16 +904,18 @@
     }
   }
 
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 2; i++) {
     let addButton = $(`#add-profile-sidebar-button-${i}`);
 
     addButton.on("click", function () {
-      console.log($(`#sidebar-content-multi-profile-dropdown-${i}`).val());
-      if ($(`#sidebar-content-multi-profile-dropdown-${i}`).val() !== null) {
+      reRenderProfileDropdown(i + 1);
+      if ($(`#sidebar-content-multi-profile-dropdown-${i} option:selected`).text() !== "Select your profile") {
         addButton.addClass("d-none");
+
         $(`#add-profile-wrap-${i + 1}`).addClass("button-remove-select");
         $(`#add-profile-wrap-${i + 1}`).removeClass("d-none");
         $(`#remove-button-${i + 1}`).removeClass("d-none");
+      } else {
       }
     });
   }
@@ -866,15 +925,35 @@
     $(`#add-profile-wrap-1`).addClass("d-none");
     $("#sidebar-content-multi-profile-dropdown-1").val("none");
     $removeButton.addClass("d-none");
+    let addButton = $(`#add-profile-sidebar-button-1`);
+    addButton.attr("disabled", true);
     $(`#add-profile-wrap-0`).removeClass("button-remove-select");
     $(`#remove-button-0`).addClass("d-none");
     $(`#add-profile-sidebar-button-0`).removeClass("d-none");
-    if (selectedProfiles.length > 1) selectedProfiles.pop();
+    selectedProfiles[1] = null;
+    for (let i = 0; i < selectedProfiles.length; i++) {
+      reRenderProfileDropdown(i);
+    }
     $tableBody.html("");
     updateHtmlElementValues();
     renderList();
   });
 
+  $removeButton2.on("click", function () {
+    handleClosePropertyPanel();
+    $(`#add-profile-wrap-2`).addClass("d-none");
+    $("#sidebar-content-multi-profile-dropdown-1").val("none");
+    $removeButton2.addClass("d-none");
+    $(`#add-profile-wrap-1`).removeClass("button-remove-select");
+    $(`#add-profile-sidebar-button-1`).removeClass("d-none");
+    selectedProfiles[2] = null;
+    for (let i = 0; i < selectedProfiles.length; i++) {
+      reRenderProfileDropdown(i);
+    }
+    $tableBody.html("");
+    updateHtmlElementValues();
+    renderList();
+  });
   // Bind event listeners
   $fileInput.on("change", loadFile);
 
