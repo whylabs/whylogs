@@ -377,7 +377,7 @@ a .wl-table-row--bottom-shadow {
   border-right: 1px solid var(--brandSecondary200);
   border-bottom: 1px solid var(--brandSecondary200);
   display: table-cell;
-  padding: 12px 18px 12px 18px;
+  padding: 12px 18px;
 }
 
 .wl-table-cell {
@@ -391,7 +391,7 @@ a .wl-table-row--bottom-shadow {
 .wl-table-head {
   position: sticky;
   top: 0;
-  min-width: 120px;
+  min-width: 130px;
   background-color: var(--white);
   border-bottom: 2px solid var(--brandSecondary100);
   font-size: 12px;
