@@ -377,7 +377,7 @@ a .wl-table-row--bottom-shadow {
   border-right: 1px solid var(--brandSecondary200);
   border-bottom: 1px solid var(--brandSecondary200);
   display: table-cell;
-  padding: 12px 4px 12px 18px;
+  padding: 12px 18px 12px 18px;
 }
 
 .wl-table-cell {
@@ -448,10 +448,9 @@ a .wl-table-row--bottom-shadow {
 }
 
 .wl-table-cell__bedge-wrap {
-  display: flex;
-  flex-flow: row nowrap;
+  padding: 2px 0;
+  white-space: nowrap;
   overflow: hidden;
-  flex-wrap: wrap;
   font-style: italic;
   color: var(--brandSecondary400);
 }
@@ -570,6 +569,12 @@ a .wl-table-row--bottom-shadow {
 .wl-property-panel__table-th:nth-child(2) {
   border-top: 2px solid var(--brandPrimary900);
 }
+.wl-property-panel__table-th:nth-child(3) {
+  border-top: 2px solid var(--brandPrimary900);
+}
+.wl-property-panel__table-th:nth-child(4) {
+  border-top: 2px solid var(--brandPrimary900);
+}
 
 .wl-property-panel__table-th-profile {
   text-align: right;
@@ -584,6 +589,61 @@ a .wl-table-row--bottom-shadow {
   text-align: right;
 }
 
+.add-profile-sidebar-button {
+  background-color: var(--white);
+  border: 1px solid var(--brandSecondary300);
+  border-radius: 10%;
+  font-size: 14px;
+  padding: 7px 10px 7px 10px;
+  position: relative;
+  left: 68%;
+  margin-top: 6px;
+  margin-bottom: 5px;
+  color: var(--brandSecondary800);
+}
+
+.add-profile-sidebar-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.remove-button {
+  background-color: var(--white);
+  padding: 6px 10px 6px 10px;
+  border: 1px solid var(--brandSecondary300);
+  margin-left: 5px;
+  border-radius: 10%;
+  color: var(--brandSecondary800);
+  height: 80%;
+  width: 15%;
+  align-self: flex-end;
+}
+.button-remove-select {
+  margin-top: 20px;
+}
+.label-select {
+  font-size: 12px;
+}
+.already-choosen-data {
+  opacity: 0.5;
+}
+.div-select-0 {
+  width: 5px;
+  margin-right: 5px;
+  border-radius: 2px;
+  background-color: #0e7384;
+}
+.div-select-1 {
+  width: 5px;
+  margin-right: 5px;
+  border-radius: 2px;
+  background-color: #2683c9;
+}
+.div-select-2 {
+  width: 5px;
+  margin-right: 5px;
+  border-radius: 2px;
+  background-color: #44c0e7;
+}
 /* Load JSON file form */
 .wl__json-form-input {
   position: absolute;
