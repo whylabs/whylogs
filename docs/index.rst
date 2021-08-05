@@ -1,5 +1,11 @@
 :github_url: https://github.com/whylabs/whylogs
 
+
+whylogs documentation can be found at docs.whylabs.ai
+==================
+
+Visit `docs.whylabs.ai <https://docs.whylabs.ai/>`__ for up-to-date documentation
+
 whylogs API reference
 ==================
 
