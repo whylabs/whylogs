@@ -5,6 +5,7 @@ import pytest
 from moto import mock_s3
 from moto.s3.responses import DEFAULT_REGION_NAME
 from smart_open import open
+
 from whylogs.app import WriterConfig
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
@@ -75,20 +76,14 @@ def test_s3_writer(df_lending_club, moto_boto, s3_all_config_path):
     for idx, each_objc in enumerate(objects["Contents"]):
         assert each_objc["Key"] == object_keys[idx]
 
+
 @pytest.mark.usefixtures("moto_boto")
-def test_s3_writer_transport(df_lending_club, moto_boto, s3_all_config_path):
+def test_s3_writer_transport(df_lending_club, moto_boto, s3_transport_config_path):
 
-    # Stream to Digital Ocean Spaces bucket providing credentials from boto3 profile
-    transport_params = {
-    'resource_kwargs': {
-        'endpoint_url': 'http://localhost:9000',
-        'aws_access_key_id':'minioadmin',
-        'aws_secret_access_key':'minioadmin',
-    }
-    }
+    assert os.path.exists(s3_transport_config_path)
 
-    with open('s3://mocked_bucket/test.txt', 'wb', transport_params=transport_params) as fout:
-        fout.write(b'Yay I work on S3 on minio!')
+    config = load_config(s3_transport_config_path)
+    session_from_config(config)
 
 
 @pytest.mark.usefixtures("moto_boto")
