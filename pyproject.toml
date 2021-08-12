@@ -41,8 +41,6 @@ puremagic = "@1.10"
 matplotlib = "3.3.3"
 mlflow = "~1.13.1"
 sklearn = "^0.0"
-pyarrow = "^3.0.0"
-llvmlite = "^0.36.0"
 tqdm = "^4.60.0"
 openpyxl = "^3.0.7"
 
@@ -72,6 +70,7 @@ aiohttp = "^3.7.4"
 aiohttp_cors = "^0.7.0"
 ipywidgets = "^7.6.3"
 jiwer = "^2.2.0"
+pyarrow = "^5.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
