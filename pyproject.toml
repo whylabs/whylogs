@@ -70,6 +70,7 @@ aiohttp = "^3.7.4"
 aiohttp_cors = "^0.7.0"
 ipywidgets = "^7.6.3"
 jiwer = "^2.2.0"
+pyarrow = "^5.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
