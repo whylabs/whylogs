@@ -40,12 +40,11 @@ xlrd = "^2.0.1"
 puremagic = "@1.10"
 matplotlib = "3.3.3"
 mlflow = "~1.13.1"
-sklearn = "^0.0"
 tqdm = "^4.60.0"
 openpyxl = "^3.0.7"
+scikit-learn = "^0.24.2"
 
 [tool.poetry.dev-dependencies]
-sklearn = "^0.0"
 pytest = "6.1.2"
 Pillow = "^8.2.0"
 pytest-cov = "^2.11.1"
