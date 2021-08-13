@@ -61,15 +61,35 @@ def tests_no_metrics_to_protobuf_regression():
     assert model_metrics.model_type == ModelType.REGRESSION
 
 
+def regression_metrics_eq(self, other):
+    # test for object attribute equality - only used for tests,
+    # defining __eq__ also renders object unhashable.
+    # so might be necessary to define __hash__ to behave sanely in dicts and sets,
+    if not isinstance(other, RegressionMetrics) or not isinstance(self, RegressionMetrics):
+        # don't attempt to compare against unrelated types
+        return NotImplemented
+
+    return (
+        self.prediction_field == other.prediction_field
+        and self.target_field == other.target_field
+        and self.count == other.count
+        and self.sum_abs_diff == other.sum_abs_diff
+        and self.sum_diff == other.sum_diff
+        and self.sum2_diff == other.sum2_diff
+    )
+
+
 def tests_model_metrics_to_protobuf_regression():
     regression_model = ModelMetrics(model_type=ModelType.REGRESSION)
 
     targets_1 = [0.1, 0.3, 0.4]
     predictions_1 = [0.5, 0.5, 0.5]
-    regression_model.compute_regression_metrics(predictions_1, targets_1)
+    regression_model.compute_regression_metrics(predictions=predictions_1, targets=targets_1, target_field="target", prediction_field="prediction")
+
     regression_message = regression_model.to_protobuf()
     model_metrics_from_message = ModelMetrics.from_protobuf(regression_message)
     assert model_metrics_from_message.model_type == ModelType.REGRESSION
+    assert regression_metrics_eq(model_metrics_from_message.regression_metrics, regression_model.regression_metrics)
 
 
 def test_merge_none():

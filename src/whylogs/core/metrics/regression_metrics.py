@@ -118,7 +118,7 @@ class RegressionMetrics:
         if message.ByteSize() == 0:
             return None
 
-        reg_met = RegressionMetrics()
+        reg_met = RegressionMetrics(message.prediction_field, message.target_field)
         reg_met.count = message.count
         reg_met.sum_abs_diff = message.sum_abs_diff
         reg_met.sum_diff = message.sum_diff
