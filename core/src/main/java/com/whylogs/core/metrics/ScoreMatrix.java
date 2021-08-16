@@ -225,15 +225,15 @@ public class ScoreMatrix {
       return null;
     }
 
-    if (msg.getLabelsCount() == 0) {
-      // Not a valid scoreMatrix without labels.
-      log.warn("Skipping classification ScoreMatrix: no labels");
-      return null;
-    }
-
     val labels = Lists.<String>newArrayList();
     for (int i = 0; i < msg.getLabelsCount(); i++) {
       labels.add(msg.getLabels(i));
+    }
+
+    if (msg.getLabelsCount() == 0 && msg.getScoresCount() > 0) {
+      // Not valid to have score without labels.
+      log.warn("Skipping classification ScoreMatrix: has scores but no labels");
+      return null;
     }
 
     final int n = labels.size();
