@@ -6,10 +6,12 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 @RequiredArgsConstructor
 @Getter
+@Slf4j
 public class RegressionMetrics {
   private final String predictionField;
   private final String targetField;
@@ -83,6 +85,7 @@ public class RegressionMetrics {
     }
 
     if ("".equals(msg.getPredictionField()) || "".equals(msg.getTargetField())) {
+      log.warn("Skipping Regression metrics: prediction or target field not set");
       return null;
     }
 
