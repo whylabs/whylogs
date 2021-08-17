@@ -174,16 +174,24 @@ public class ColumnProfile {
     val copyFreqItems = ItemsSketch.getInstance(iMem, ARRAY_OF_STRINGS_SER_DE);
     copyFreqItems.merge(other.frequentItems);
 
-    return ColumnProfile.builder()
-        .setColumnName(this.columnName)
-        .setCounters(this.counters.merge(other.counters))
-        .setStringTracker(this.stringTracker.merge(other.stringTracker))
-        .setNumberTracker(this.numberTracker.merge(other.numberTracker))
-        .setSchemaTracker(this.schemaTracker.merge(other.schemaTracker))
-        .setCardinalityTracker(HllSketch.heapify(mergedSketch.toCompactByteArray()))
-        .setFrequentItems(copyFreqItems)
-        .setNullStrs(Sets.union(this.getNullStrs(), other.getNullStrs()).immutableCopy())
-        .build();
+    val builder =
+        ColumnProfile.builder()
+            .setColumnName(this.columnName)
+            .setCounters(this.counters.merge(other.counters))
+            .setNumberTracker(this.numberTracker.merge(other.numberTracker))
+            .setSchemaTracker(this.schemaTracker.merge(other.schemaTracker))
+            .setCardinalityTracker(HllSketch.heapify(mergedSketch.toCompactByteArray()))
+            .setFrequentItems(copyFreqItems)
+            .setNullStrs(Sets.union(this.getNullStrs(), other.getNullStrs()).immutableCopy());
+
+    // backward compatibility with profiles that don't have stringtracker.
+    if (this.stringTracker == null) {
+      builder.setStringTracker(other.stringTracker);
+    } else {
+      builder.setStringTracker(this.stringTracker.merge(other.stringTracker));
+    }
+
+    return builder.build();
   }
 
   public ColumnMessage.Builder toProtobuf() {

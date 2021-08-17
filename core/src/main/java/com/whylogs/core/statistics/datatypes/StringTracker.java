@@ -117,6 +117,10 @@ public final class StringTracker {
    */
   public StringTracker merge(StringTracker other) {
     ItemsSketch<String> itemsCopy = null;
+    if (other == null) {
+      return this;
+    }
+
     if (this.items != null) {
       val bytes = this.items.toByteArray(ARRAY_OF_STRINGS_SER_DE);
       itemsCopy = ItemsSketch.getInstance(WritableMemory.wrap(bytes), ARRAY_OF_STRINGS_SER_DE);

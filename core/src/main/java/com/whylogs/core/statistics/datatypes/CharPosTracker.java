@@ -126,6 +126,10 @@ public class CharPosTracker {
   }
 
   public CharPosTracker merge(CharPosTracker other) {
+    if (other == null) {
+      return this;
+    }
+
     if (characterList != other.characterList && (charPosMap == null || other.charPosMap == null)) {
       log.error("Merging two non-empty Character position tracker with different character lists");
     }

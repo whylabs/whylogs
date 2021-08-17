@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.lessThan;
 import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.Int64Value;
 import com.whylogs.core.message.InferredType;
+import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.datasketches.frequencies.ErrorType;
 import org.apache.datasketches.frequencies.ItemsSketch;
@@ -104,6 +105,33 @@ public class ColumnProfileTest {
 
     // verify that the merged profile is updatable
     merged.track("value");
+  }
+
+  /*
+   Tests the merge of column profile with stringtracker to legacy column without stringtracker
+  */
+  @Test
+  @SneakyThrows
+  public void column_Merge_StringTracker() {
+
+    val col = new ColumnProfile("fico_range_low");
+    col.track("But, soft! what light through yonder window breaks?");
+    {
+      //  test merging stringtracker with itself.
+      val merged = col.merge(col);
+      assertThat(merged.getStringTracker().getCount(), is(2L));
+      assertThat(merged.getStringTracker().getLength().getLongs().getMax(), is(51L));
+      assertThat(merged.getStringTracker().getTokenLength().getLongs().getMax(), is(8L));
+    }
+    {
+      //  test merging with legacy column that does not have stringtracker
+      val ds = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
+      val col2 = ds.columns.get("fico_range_low");
+      val merged = col.merge(col2);
+      assertThat(merged.getStringTracker().getCount(), is(1L));
+      assertThat(merged.getStringTracker().getLength().getLongs().getMax(), is(51L));
+      assertThat(merged.getStringTracker().getTokenLength().getLongs().getMax(), is(8L));
+    }
   }
 
   @Test
