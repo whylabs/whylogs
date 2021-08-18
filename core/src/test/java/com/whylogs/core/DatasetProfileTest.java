@@ -1,17 +1,12 @@
 package com.whylogs.core;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.aMapWithSize;
-import static org.hamcrest.Matchers.anEmptyMap;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
+import static org.testng.AssertJUnit.*;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.whylogs.core.message.ModelType;
 import com.whylogs.core.metrics.RegressionMetrics;
 import java.io.IOException;
 import java.time.Instant;
@@ -259,6 +254,54 @@ public class DatasetProfileTest {
         profile.modelProfile.getMetrics().getRegressionMetrics();
     assertThat(regressionMetrics, is(notNullValue()));
     assertThat(regressionMetrics.getCount(), is(89L));
+  }
+
+  @Test
+  public void testMergeRecentWithOlderProfile() throws IOException {
+    val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
+    val merged = profile1.merge(profile2);
+    assertNotNull(merged.getModelProfile());
+    assertNotNull(merged.getModelProfile().getMetrics());
+    assertEquals(merged.getModelProfile().getMetrics().getModelType(), ModelType.REGRESSION);
+    asertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
+  }
+
+  @Test
+  public void testMergeRecentWithOlderProfileOppositeDirection() throws IOException {
+    val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
+    val merged = profile2.merge(profile1);
+    assertNotNull(merged.getModelProfile());
+    assertNotNull(merged.getModelProfile().getMetrics());
+    asertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
+  }
+
+  private void asertMetrics(RegressionMetrics metrics, int multiplier) {
+    assertThat(metrics.getSumAbsDiff(), closeTo(7649.135452245152 * multiplier, 0.01));
+    assertThat(metrics.getSumDiff(), closeTo(522.7580608276942 * multiplier, 0.01));
+    assertThat(metrics.getSum2Diff(), closeTo(1021265.7543864828 * multiplier, 0.01));
+    assertEquals(metrics.getCount(), 89 * multiplier);
+    assertEquals(metrics.getTargetField(), "targets");
+    assertEquals(metrics.getPredictionField(), "predictions");
+  }
+
+  @Test
+  public void testMergeTwoNewerProfiles() throws IOException {
+    val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
+    val merged = profile1.merge(profile2);
+    assertNotNull(merged.getModelProfile());
+    assertNotNull(merged.getModelProfile().getMetrics());
+    asertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 2);
+  }
+
+  @Test
+  public void testMergeTwoOlderProfiles() throws IOException {
+    val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
+    val merged = profile1.merge(profile2);
+    assertNull(merged.getModelProfile());
   }
 
   @Test

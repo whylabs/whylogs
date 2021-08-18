@@ -38,6 +38,7 @@ public class RegressionMetrics {
     res.sumAbsDiff = this.sumAbsDiff;
     res.sumDiff = this.sumDiff;
     res.sum2Diff = this.sum2Diff;
+    res.count = this.count;
     return res;
   }
 
