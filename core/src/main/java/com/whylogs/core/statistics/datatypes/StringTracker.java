@@ -135,17 +135,17 @@ public final class StringTracker {
     thetaUnion.update(other.thetaSketch.getResult());
 
     NumberTracker newLength = length;
-    if(length != null && other != null) {
+    if (length != null && other != null) {
       newLength = length.merge(other.length);
     }
 
     NumberTracker newTokenLength = tokenLength;
-    if(tokenLength != null && other != null) {
+    if (tokenLength != null && other != null) {
       newTokenLength = tokenLength.merge(other.tokenLength);
     }
 
     CharPosTracker newCharPostTracker = charPosTracker;
-    if(charPosTracker != null && other != null) {
+    if (charPosTracker != null && other != null) {
       newCharPostTracker = charPosTracker.merge(other.charPosTracker);
     }
 

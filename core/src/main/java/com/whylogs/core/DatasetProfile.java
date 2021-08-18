@@ -296,7 +296,8 @@ public class DatasetProfile implements Serializable {
         && other.modelProfile != null
         && other.modelProfile.getMetrics() != null) {
       result.modelProfile = this.modelProfile.merge(other.modelProfile);
-    } else if ((modelProfile == null || modelProfile.getMetrics() == null) && other.modelProfile != null) {
+    } else if ((modelProfile == null || modelProfile.getMetrics() == null)
+        && other.modelProfile != null) {
       result.modelProfile = other.modelProfile.copy();
     }
 
