@@ -264,7 +264,7 @@ public class DatasetProfileTest {
     assertNotNull(merged.getModelProfile());
     assertNotNull(merged.getModelProfile().getMetrics());
     assertEquals(merged.getModelProfile().getMetrics().getModelType(), ModelType.REGRESSION);
-    asertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
+    assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
   }
 
   @Test
@@ -274,10 +274,10 @@ public class DatasetProfileTest {
     val merged = profile2.merge(profile1);
     assertNotNull(merged.getModelProfile());
     assertNotNull(merged.getModelProfile().getMetrics());
-    asertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
+    assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
   }
 
-  private void asertMetrics(RegressionMetrics metrics, int multiplier) {
+  private void assertMetrics(RegressionMetrics metrics, int multiplier) {
     assertThat(metrics.getSumAbsDiff(), closeTo(7649.135452245152 * multiplier, 0.01));
     assertThat(metrics.getSumDiff(), closeTo(522.7580608276942 * multiplier, 0.01));
     assertThat(metrics.getSum2Diff(), closeTo(1021265.7543864828 * multiplier, 0.01));
@@ -293,7 +293,7 @@ public class DatasetProfileTest {
     val merged = profile1.merge(profile2);
     assertNotNull(merged.getModelProfile());
     assertNotNull(merged.getModelProfile().getMetrics());
-    asertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 2);
+    assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 2);
   }
 
   @Test
