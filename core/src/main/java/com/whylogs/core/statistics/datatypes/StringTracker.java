@@ -134,9 +134,20 @@ public final class StringTracker {
     thetaUnion.update(this.thetaSketch.getResult());
     thetaUnion.update(other.thetaSketch.getResult());
 
-    val newLength = length.merge(other.length);
-    val newTokenLength = tokenLength.merge(other.tokenLength);
-    val newCharPostTracker = charPosTracker.merge(other.charPosTracker);
+    NumberTracker newLength = length;
+    if (length != null && other != null) {
+      newLength = length.merge(other.length);
+    }
+
+    NumberTracker newTokenLength = tokenLength;
+    if (tokenLength != null && other != null) {
+      newTokenLength = tokenLength.merge(other.tokenLength);
+    }
+
+    CharPosTracker newCharPostTracker = charPosTracker;
+    if (charPosTracker != null && other != null) {
+      newCharPostTracker = charPosTracker.merge(other.charPosTracker);
+    }
 
     return StringTracker.builder()
         .count(this.count + other.count)

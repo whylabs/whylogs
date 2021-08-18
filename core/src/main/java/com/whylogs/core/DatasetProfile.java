@@ -290,12 +290,17 @@ public class DatasetProfile implements Serializable {
       result.columns.put(column, thisColumn.merge(otherColumn));
     }
 
+    if (modelProfile != null) {
+      result.modelProfile = this.modelProfile.copy();
+    }
+
     if (this.modelProfile != null
         && modelProfile.getMetrics() != null
         && other.modelProfile != null
         && other.modelProfile.getMetrics() != null) {
       result.modelProfile = this.modelProfile.merge(other.modelProfile);
-    } else if (other.modelProfile != null) {
+    } else if ((modelProfile == null || modelProfile.getMetrics() == null)
+        && other.modelProfile != null) {
       result.modelProfile = other.modelProfile.copy();
     }
 
