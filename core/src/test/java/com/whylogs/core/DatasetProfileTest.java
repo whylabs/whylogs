@@ -318,6 +318,33 @@ public class DatasetProfileTest {
   }
 
   @Test
+  public void testModelMetricsWithUnknownTypeSpecified() throws IOException {
+    DatasetProfile profile1 =
+        DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
+    // .getModelProfile().getMetrics().getModelType();
+    val builder = profile1.toProtobuf().build().toBuilder();
+    val metrics = new RegressionMetrics("prediction", "target");
+    metrics.track(ImmutableMap.of("prediction", 1, "target", 1));
+    // Model type must be specified if any metrics are present. This can only occur when validation
+    // between
+    // languages isn't 1:1 for creating and reading a profile
+    val metricsBuilder =
+        builder
+            .getModeProfile()
+            .getMetrics()
+            .toBuilder()
+            .setModelType(ModelType.UNKNOWN)
+            .setRegressionMetrics(metrics.toProtobuf());
+    val modelProfile =
+        builder.getModeProfile().toBuilder().setMetrics(metricsBuilder.build()).build();
+    val unkown = builder.setModeProfile(modelProfile).build();
+    val a = DatasetProfile.fromProtobuf(unkown);
+    val b = DatasetProfile.fromProtobuf(unkown);
+    a.merge(b).toProtobuf();
+  }
+
+  @Test
   public void testMergeLegacyProfilesWithModelMetricsProfile() throws IOException {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));

@@ -2,6 +2,7 @@ package com.whylogs.core;
 
 import com.google.common.collect.Sets;
 import com.whylogs.core.message.ModelProfileMessage;
+import com.whylogs.core.message.ModelType;
 import com.whylogs.core.metrics.ModelMetrics;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +39,10 @@ public class ModelProfile {
   }
 
   public static ModelProfile fromProtobuf(ModelProfileMessage message) {
-    if (message == null || message.getSerializedSize() == 0) {
+    if (message == null
+        || message.getSerializedSize() == 0
+        || (message.getMetrics() != null
+            && message.getMetrics().getModelType().equals(ModelType.UNKNOWN))) {
       return null;
     }
 
