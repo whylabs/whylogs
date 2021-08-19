@@ -52,8 +52,8 @@ def profile_viewer(profiles: List[DatasetProfile] = None, output_path=None) -> s
     output_index = template({"profile_from_whylogs": profile_jsons[0]})
 
     if not output_path:
-        output_path= os.path.abspath(os.path.join(_MY_DIR,os.pardir,"viewer", "test.html"))
-
+        output_path=tempfile.mkstemp(suffix = '.html')[1]
+        
     with open(output_path, "w") as f:
         f.write(output_index)
 
