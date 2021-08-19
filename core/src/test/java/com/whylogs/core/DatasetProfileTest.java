@@ -305,6 +305,30 @@ public class DatasetProfileTest {
   }
 
   @Test
+  public void testMergeTwoLegacyProfiles() throws IOException {
+    val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
+    val merged = profile1.merge(profile2);
+    assertNull(merged.getModelProfile().getMetrics());
+  }
+
+  @Test
+  public void testMergeLegacyProfilesWithModelMetricsProfile() throws IOException {
+    val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
+    val merged = profile1.merge(profile2);
+    assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
+  }
+
+  @Test
+  public void testMergeLegacyProfilesWithModelMetricsProfileOppositeDirection() throws IOException {
+    val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
+    val merged = profile2.merge(profile1);
+    assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
+  }
+
+  @Test
   public void roundTripWithModelData_should_succeed() {
     val dp =
         new DatasetProfile("test", Instant.now())
