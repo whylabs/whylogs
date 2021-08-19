@@ -6,7 +6,7 @@ from whylogs.viz import ProfileVisualizer
 
 
 def test_viz():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     session_id = uuid4().hex
     x1 = DatasetProfile(
         name="test",
@@ -70,7 +70,7 @@ def test_viz_token_length(profile_lending_club):
 
 def test_viz_char_pos(profile_lending_club):
 
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     profile_lending_club.dataset_timestamp = now
     viz = ProfileVisualizer()
     viz.set_profiles([profile_lending_club])

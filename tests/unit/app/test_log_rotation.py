@@ -27,7 +27,7 @@ def test_no_log_rotation(tmpdir):
 def test_log_rotation_parsing():
     with freeze_time("2012-01-14 03:21:34", tz_offset=-4) as frozen_time:
         l = Logger(session_id="", dataset_name="testing")
-        now = int(datetime.datetime.utcnow().timestamp())
+        now = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         l._set_rotation(with_rotation_time="s")
         assert l.interval == 1
         assert l.rotate_at == now + 1
