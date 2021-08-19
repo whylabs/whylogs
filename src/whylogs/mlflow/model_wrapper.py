@@ -19,7 +19,7 @@ class ModelWrapper(object):
         self.model = model
         self.session = whylogs.get_or_create_session("/opt/ml/model/" + WHYLOGS_YML)
         self.ylog = self.create_logger()
-        self.last_upload_time = datetime.datetime.utcnow()
+        self.last_upload_time = datetime.datetime.now(datetime.timezone.utc)
         atexit.register(self.ylog.close)
 
     def create_logger(self):

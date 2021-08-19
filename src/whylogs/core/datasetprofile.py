@@ -722,7 +722,7 @@ def dataframe_profile(df: pd.DataFrame, name: str = None, timestamp: datetime.da
     if name is None:
         name = "dataset"
     if timestamp is None:
-        timestamp = datetime.datetime.utcnow()
+        timestamp = datetime.datetime.now(datetime.timezone.utc)
     elif not isinstance(timestamp, datetime.datetime):
         # Assume UTC epoch seconds
         timestamp = datetime.datetime.utcfromtimestamp(float(timestamp))
@@ -758,7 +758,7 @@ def array_profile(
     if name is None:
         name = "dataset"
     if timestamp is None:
-        timestamp = datetime.datetime.utcnow()
+        timestamp = datetime.datetime.now(datetime.timezone.utc)
     prof = DatasetProfile(name, timestamp)
     prof.track_array(x, columns)
     return prof

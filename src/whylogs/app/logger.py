@@ -213,7 +213,7 @@ class Logger:
         else:
             raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
         # time in seconds
-        current_time = int(datetime.datetime.utcnow().timestamp())
+        current_time = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         self.interval = interval * self.interval_multiplier
         self.rotate_at = self.rotate_when(current_time)
 
@@ -227,14 +227,15 @@ class Logger:
         if self.with_rotation_time is None:
             return False
 
-        current_time = int(datetime.datetime.utcnow().timestamp())
+        current_time = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         return current_time >= self.rotate_at
 
     def _rotate_time(self):
         """
         rotate with time add a suffix
         """
-        current_time = int(datetime.datetime.utcnow().timestamp())
+        current_time = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+        print("time in logger: ", current_time)
         # get the time that this current logging rotation started
         sequence_start = self.rotate_at - self.interval
         time_tuple = datetime.datetime.fromtimestamp(sequence_start)

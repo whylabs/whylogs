@@ -75,7 +75,7 @@ def test_datetime_tracking():
         datetime(2020, 2, 3),
         datetime(2020, 2, 3, tzinfo=pytz.UTC),
         datetime(2020, 2, 3, 21, 28, 31),
-        datetime.utcnow(),
+        datetime.now(datetime.timezone.utc),
     ]
     for v in vals:
         hll.update(v)

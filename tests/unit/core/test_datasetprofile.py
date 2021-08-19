@@ -31,7 +31,7 @@ def test_all_zeros_returns_summary_with_stats():
 
 
 def test_empty_valid_datasetprofiles_empty():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
     x1 = DatasetProfile(
         name="test",
@@ -56,7 +56,7 @@ def test_empty_valid_datasetprofiles_empty():
 
 
 def test_merge_different_columns():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
     x1 = DatasetProfile(
         name="test",
@@ -88,7 +88,7 @@ def test_merge_different_columns():
 
 
 def test_merge_lhs_no_profile():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
     x1 = DatasetProfile(
         name="test",
@@ -115,7 +115,7 @@ def test_merge_lhs_no_profile():
 
 
 def test_merge_rhs_no_profile():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
     x1 = DatasetProfile(
         name="test",
@@ -142,7 +142,7 @@ def test_merge_rhs_no_profile():
 
 
 def test_merge_same_columns():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
     x1 = DatasetProfile(
         name="test",
@@ -172,7 +172,7 @@ def test_merge_same_columns():
 
 
 def test_protobuf_round_trip():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     tags = {"k1": "rock", "k2": "scissors", "k3": "paper"}
     original = DatasetProfile(
         name="test",
@@ -198,7 +198,7 @@ def test_protobuf_round_trip():
 
 
 def test_non_string_tag_raises_assert_error():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     tags = {"key": "value"}
     x = DatasetProfile("test", now, tags=tags)
     x.validate()
@@ -213,7 +213,7 @@ def test_non_string_tag_raises_assert_error():
 
 
 def test_mismatched_tags_raises_assertion_error():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     x1 = DatasetProfile("test", now, tags={"key": "foo"})
     x2 = DatasetProfile("test", now, tags={"key": "bar"})
     try:
@@ -224,7 +224,7 @@ def test_mismatched_tags_raises_assertion_error():
 
 
 def test_mismatched_tags_merge_succeeds():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     x1 = DatasetProfile("test", now, tags={"key": "foo"})
     x2 = DatasetProfile("test2", now, tags={"key": "bar"})
 
@@ -265,7 +265,7 @@ def test_parse_delimited_from_java_multiple():
 
 
 def test_write_delimited_single():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     original = DatasetProfile(
         name="test",
@@ -287,7 +287,7 @@ def test_write_delimited_single():
 
 
 def test_write_delimited_multiple():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     original = DatasetProfile(
         name="test",
@@ -360,7 +360,7 @@ def test_dataframe_profile():
 
 
 def test_track():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     original = DatasetProfile(
         name="test",
@@ -378,7 +378,7 @@ def test_track():
 
 
 def test_errors():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     original = DatasetProfile(
         name="test",
@@ -392,7 +392,7 @@ def test_errors():
 
 
 def test_flat_summary():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     original = DatasetProfile(
         name="test",
@@ -407,7 +407,7 @@ def test_flat_summary():
 
 
 def test_chunk_iterator():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     original = DatasetProfile(
         name="test",
@@ -427,7 +427,7 @@ def test_chunk_iterator():
 
 
 def test_array():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     original = DatasetProfile(
         name="test",
