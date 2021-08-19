@@ -42,6 +42,7 @@ public class ModelProfile {
     if (message == null
         || message.getSerializedSize() == 0
         || (message.getMetrics() != null
+            && message.getMetrics().getModelType() != null
             && message.getMetrics().getModelType().equals(ModelType.UNKNOWN))) {
       return null;
     }
