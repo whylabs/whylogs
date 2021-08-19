@@ -160,18 +160,17 @@ public final class StringTracker {
   }
 
   public StringsMessage.Builder toProtobuf() {
-    val builder =
-        StringsMessage.newBuilder().setCount(count);
-    if(length != null) {
+    val builder = StringsMessage.newBuilder().setCount(count);
+    if (length != null) {
       builder.setLength(length.toProtobuf());
     }
-    if(tokenLength != null) {
+    if (tokenLength != null) {
       builder.setTokenLength(tokenLength.toProtobuf());
     }
-    if(charPosTracker != null) {
+    if (charPosTracker != null) {
       builder.setCharPosTracker(charPosTracker.toProtobuf());
     }
-    if(thetaSketch != null) {
+    if (thetaSketch != null) {
       builder.setCompactTheta(ThetaSketch.serialize(thetaSketch));
     }
     if (items != null) {
