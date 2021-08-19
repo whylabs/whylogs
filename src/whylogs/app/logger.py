@@ -235,7 +235,6 @@ class Logger:
         rotate with time add a suffix
         """
         current_time = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
-        print("time in logger: ", current_time)
         # get the time that this current logging rotation started
         sequence_start = self.rotate_at - self.interval
         time_tuple = datetime.datetime.fromtimestamp(sequence_start)
