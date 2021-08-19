@@ -260,7 +260,8 @@ public class DatasetProfileTest {
   public void testMergeRecentWithOlderProfile() throws IOException {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
-    val merged = profile1.merge(profile2);
+    DatasetProfile merged = profile1.merge(profile2);
+    merged = DatasetProfile.fromProtobuf(merged.toProtobuf().build());
     assertNotNull(merged.getModelProfile());
     assertNotNull(merged.getModelProfile().getMetrics());
     assertEquals(merged.getModelProfile().getMetrics().getModelType(), ModelType.REGRESSION);
@@ -271,7 +272,8 @@ public class DatasetProfileTest {
   public void testMergeRecentWithOlderProfileOppositeDirection() throws IOException {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
-    val merged = profile2.merge(profile1);
+    DatasetProfile merged = profile2.merge(profile1);
+    merged = DatasetProfile.fromProtobuf(merged.toProtobuf().build());
     assertNotNull(merged.getModelProfile());
     assertNotNull(merged.getModelProfile().getMetrics());
     assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
@@ -290,7 +292,8 @@ public class DatasetProfileTest {
   public void testMergeTwoNewerProfiles() throws IOException {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
-    val merged = profile1.merge(profile2);
+    DatasetProfile merged = profile1.merge(profile2);
+    merged = DatasetProfile.fromProtobuf(merged.toProtobuf().build());
     assertNotNull(merged.getModelProfile());
     assertNotNull(merged.getModelProfile().getMetrics());
     assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 2);
@@ -300,7 +303,8 @@ public class DatasetProfileTest {
   public void testMergeTwoOlderProfiles() throws IOException {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
-    val merged = profile1.merge(profile2);
+    DatasetProfile merged = profile1.merge(profile2);
+    merged = DatasetProfile.fromProtobuf(merged.toProtobuf().build());
     assertNull(merged.getModelProfile());
   }
 
@@ -308,15 +312,17 @@ public class DatasetProfileTest {
   public void testMergeTwoLegacyProfiles() throws IOException {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
-    val merged = profile1.merge(profile2);
-    assertNull(merged.getModelProfile().getMetrics());
+    DatasetProfile merged = profile1.merge(profile2);
+    merged = DatasetProfile.fromProtobuf(merged.toProtobuf().build());
+    assertNull(merged.getModelProfile());
   }
 
   @Test
   public void testMergeLegacyProfilesWithModelMetricsProfile() throws IOException {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
-    val merged = profile1.merge(profile2);
+    DatasetProfile merged = profile1.merge(profile2);
+    merged = DatasetProfile.fromProtobuf(merged.toProtobuf().build());
     assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
   }
 
@@ -324,7 +330,8 @@ public class DatasetProfileTest {
   public void testMergeLegacyProfilesWithModelMetricsProfileOppositeDirection() throws IOException {
     val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/profiles-1.bin"));
     val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
-    val merged = profile2.merge(profile1);
+    DatasetProfile merged = profile2.merge(profile1);
+    merged = DatasetProfile.fromProtobuf(merged.toProtobuf().build());
     assertMetrics(merged.getModelProfile().getMetrics().getRegressionMetrics(), 1);
   }
 
