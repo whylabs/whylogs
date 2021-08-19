@@ -50,7 +50,11 @@ public class ModelProfile {
 
   public ModelProfile merge(ModelProfile other) {
     if (other == null) {
-      return new ModelProfile(Sets.newHashSet(outputFields), metrics.copy());
+      ModelMetrics metricsCopy = null;
+      if (metrics != null) {
+        metricsCopy = metrics.copy();
+      }
+      return new ModelProfile(Sets.newHashSet(outputFields), metricsCopy);
     }
     return new ModelProfile(Sets.newHashSet(outputFields), metrics.merge(other.metrics));
   }

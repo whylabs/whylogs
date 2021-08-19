@@ -160,13 +160,19 @@ public final class StringTracker {
   }
 
   public StringsMessage.Builder toProtobuf() {
-    val builder =
-        StringsMessage.newBuilder()
-            .setCount(count)
-            .setCompactTheta(ThetaSketch.serialize(thetaSketch))
-            .setLength(length.toProtobuf())
-            .setTokenLength(tokenLength.toProtobuf())
-            .setCharPosTracker(charPosTracker.toProtobuf());
+    val builder = StringsMessage.newBuilder().setCount(count);
+    if (length != null) {
+      builder.setLength(length.toProtobuf());
+    }
+    if (tokenLength != null) {
+      builder.setTokenLength(tokenLength.toProtobuf());
+    }
+    if (charPosTracker != null) {
+      builder.setCharPosTracker(charPosTracker.toProtobuf());
+    }
+    if (thetaSketch != null) {
+      builder.setCompactTheta(ThetaSketch.serialize(thetaSketch));
+    }
     if (items != null) {
       builder.setItems(ByteString.copyFrom(items.toByteArray(ARRAY_OF_STRINGS_SER_DE)));
     }
