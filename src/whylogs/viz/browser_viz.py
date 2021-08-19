@@ -53,7 +53,8 @@ def profile_viewer(profiles: List[DatasetProfile] = None, output_path=None) -> s
 
     if not output_path:
         output_path=tempfile.mkstemp(suffix = '.html')[1]
-        
+    else:
+        output_path= os.path.abspath(os.path.expanduser(output_path))
     with open(output_path, "w") as f:
         f.write(output_index)
 
