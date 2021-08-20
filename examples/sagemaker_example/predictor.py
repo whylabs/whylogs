@@ -109,12 +109,10 @@ def transformation():
             mimetype="text/plain",
         )
 
-    # embeded image 
+    # embeded image
     embedding = predict_fn(image, model)
-
 
     result = {}
     result["embedding"] = embedding
-
 
     return flask.Response(response=json.dumps(result), status=200, mimetype="application/json")
