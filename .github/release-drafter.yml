@@ -24,7 +24,10 @@ categories:
     labels: 
       - "testing"
       - "test"
-
+  - title: " 🔨 Maintance"
+    labels: 
+      - "Maintenance"
+ 
 exclude-labels:
   - "changelog: skip"
 
