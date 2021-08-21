@@ -42,7 +42,7 @@ jobs:
         echo $VERSION
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        poetry run bump2version release --verbose --commit --no-tag --new-version $VERSION
+        poetry run bump2version patch --verbose --commit --no-tag --new-version $VERSION
 
     #push version bump to tagged branch so new version is included in pypi
     - name: Push changes
@@ -52,13 +52,6 @@ jobs:
         branch: ${{ github.ref }}
         force: true
 
-    # push bump to mainline
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: mainline
-        force: true
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
