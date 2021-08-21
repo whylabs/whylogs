@@ -20,7 +20,7 @@ categories:
       - "documentation"
       - "docs"
       - "📚"
-  - title: " 🚨 Testing"
+  - title: " 🚨 Continous Integration"
     labels: 
       - "testing"
       - "test"
