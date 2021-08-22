@@ -1,23 +1,23 @@
-# .whylogs.yaml
 
-# Example whylogs YAML configuration
-project: example-project
-pipeline: example-pipeline
+project: s3_example_project
+pipeline: latest_results
 verbose: false
 writers:
-# Save out the full protobuf datasketches data locally
 - formats:
-    - protobuf
-  output_path: whylogs-output
-  # Template variables can be accessed via $variable or ${variable}
-  path_template: $name/dataset_profile
-  filename_template: datase_profile-$dataset_timestamp
-  type: local
-# Save out the flat summary data locally, separately from the protobuf
-- formats:
-    - flat
-    - json
-  output_path: whylogs-output
+  - protobuf
+  output_path: s3://super_awesome_bucket/
   path_template: $name/dataset_summary
-  filename_template: dataset_summary-$dataset_timestamp
-  type: local
+  filename_template: dataset_summary
+  type: s3
+- formats:
+  - flat
+  output_path: s3://super_awesome_bucket/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary
+  type: s3
+- formats:
+  - json
+  output_path: s3://super_awesome_bucket/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary
+  type: s3
