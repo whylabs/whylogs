@@ -1,13 +1,14 @@
 import datetime
 import os
-import numpy as np
 
+import numpy as np
 
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
 from whylogs.viz import profile_viewer
 
-def test_profile_viewer(tmpdir,local_config_path):
+
+def test_profile_viewer(tmpdir, local_config_path):
 
     config = load_config(local_config_path)
     session = session_from_config(config)
