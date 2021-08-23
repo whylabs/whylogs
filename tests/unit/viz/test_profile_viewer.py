@@ -1,14 +1,16 @@
 import datetime
 import os
-
 import numpy as np
 
-from whylogs import get_or_create_session
+
+from whylogs.app.config import load_config
+from whylogs.app.session import session_from_config
 from whylogs.viz import profile_viewer
 
+def test_profile_viewer(tmpdir,local_config_path):
 
-def test_profile_viewer(tmpdir):
-    session = get_or_create_session()
+    config = load_config(local_config_path)
+    session = session_from_config(config)
 
     with session.logger("mytestytest", dataset_timestamp=datetime.datetime(2021, 6, 2)) as logger:
         for _ in range(5):
@@ -16,5 +18,6 @@ def test_profile_viewer(tmpdir):
             logger.log({"nulls": None})
 
         profile = logger.profile
-    profile_viewer(profiles=[profile], output_path=tmpdir + "my_test.html")
+    result = profile_viewer(profiles=[profile], output_path=tmpdir + "my_test.html")
     assert os.path.exists(tmpdir + "my_test.html")
+    assert result == tmpdir + "my_test.html"
