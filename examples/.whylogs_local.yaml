@@ -1,0 +1,22 @@
+project: test-project-yaml
+pipeline: test-pipeline
+verbose: false
+writers:
+- formats:
+  - protobuf
+  output_path: whylogs-output/
+  path_template: $name/dataset_profile
+  filename_template: datase_profile-$dataset_timestamp
+  type: local
+- formats:
+  - flat
+  output_path: whylogs-output/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary-$dataset_timestamp
+  type: local
+- formats:
+  - json
+  output_path: whylogs-output/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary-$dataset_timestamp
+  type: local 
