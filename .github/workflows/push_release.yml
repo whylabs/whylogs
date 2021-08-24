@@ -62,7 +62,6 @@ jobs:
         poetry run twine upload dist/*
   bump_mainline:
     runs-on: ubuntu-latest
-    needs: deploy
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
