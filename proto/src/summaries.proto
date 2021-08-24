@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "messages.proto";
+import "google/protobuf/struct.proto";
 
 option java_package = "com.whylogs.core.message";
 option java_outer_classname = "Summaries";
@@ -104,6 +105,23 @@ message ColumnSummary {
   UniqueCountSummary unique_count = 6;
 }
 
+// Alias for a plugin messagem, the intention is that you can summarize differently
+// than a metric plugin's state serialization (optional)
+message PluginSummary {
+  string name = 1;
+  repeated PluginType plugin_types = 2; // The language and corresponding classname that implements this plugin.
+  oneof item {
+    google.protobuf.Struct struct = 3;
+    bytes serialized_bytes = 4;
+  }
+}
+
+message DatasetSummaryV2 {
+  DatasetProperties properties = 1;
+  map<string, ColumnSummary> columns = 2;
+  map<string, PluginMessage> metric_plugins = 3;
+}
+
 message DatasetSummary {
   DatasetProperties properties = 1;
   map<string, ColumnSummary> columns = 2;
@@ -111,4 +129,8 @@ message DatasetSummary {
 
 message DatasetSummaries {
   map<string, DatasetSummary> profiles = 1;
+}
+
+message DatasetSummariesV2 {
+  map<string, DatasetSummaryV2> profiles = 1;
 }
