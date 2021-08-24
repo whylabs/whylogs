@@ -59,7 +59,8 @@ jobs:
       run: |
         poetry install twine
         make dist
-        poetry run twine upload dist/*
+        poetry publish
+        
   bump_mainline:
     runs-on: ubuntu-latest
     steps:
