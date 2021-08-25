@@ -14,13 +14,12 @@ from whylogs import get_or_create_session
 prefix = "/opt/ml/"
 # location of you checkpoint in sagemaker container
 model_path = os.path.join(prefix, "model")
-
 whylogs_session = get_or_create_session()
+logger=whylogs_session.logger(dataset_name="sagemaker_deployment",d)
+
 
 # loads the model into memory from disk and returns it
 def model_fn(model_dir):
-
-    print(os.listdir(model_dir))
 
     model_config = {"backbone": "resnet", "outlayer": "C5", "model_path": os.path.join(model_dir, "my_checkpoint.pth.tar")}
     print("Model Config: {}", format(model_config))
@@ -30,7 +29,7 @@ def model_fn(model_dir):
         # try to use gpu if available (there are prob faster ways to check)
         model.to(torch.device("cuda"))
 
-    except Exception as e:
+    except Exception:
         pass
 
     return model
@@ -71,7 +70,7 @@ def predict_fn(input_object, model):
     try:
         # try to load data to the gpu
         input_object = input_object.to(torch.device("cuda"))
-    except Exception as e:
+    except Exception:
         pass
 
     embedding = model(input_object).cpu().detach().numpy().flatten().tolist()
