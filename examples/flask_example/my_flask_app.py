@@ -49,8 +49,10 @@ def predict():
         filepath = request.json["file"]
         logger.log({"file": filepath})
         with open(filepath, "rb") as file:
-            img_bytes = file.read()
+            img_bytes = file.read()   
         class_id, class_name = get_prediction(image_bytes=img_bytes)
+        
+
         logger.log({"class_id": class_id})
         logger.log({"class_name": class_name})
 

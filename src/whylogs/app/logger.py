@@ -126,7 +126,6 @@ class Logger:
         return self._profiles[-1]["full_profile"]
 
     def tracking_checks(self):
-        print("checking ")
         if not self._active:
             return False
 
@@ -259,9 +258,12 @@ class Logger:
         if len(self._profiles) > self.cache_size:
             self._profiles[-self.cache_size - 1] = None
 
-        for t in self._pending_timer_threads:
-            t.cancel()
-            t.join()
+        for pending_timers in self._pending_timer_threads:
+            pending_timers.cancel()
+            try:
+                pending_timers.join()
+            except RuntimeError:  # noqa
+                logger.exception("Failed to await timer task")
         self._pending_timer_threads.clear()
         self._intialize_profiles()
 
