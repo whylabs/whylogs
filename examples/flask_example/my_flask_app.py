@@ -13,7 +13,7 @@ from whylogs import get_or_create_session
 session = get_or_create_session()
 logger = session.logger(dataset_name="my_deployed_model", 
                         dataset_timestamp= datetime.datetime.now(datetime.timezone.utc),
-                        with_rotation_time="1m")
+                        with_rotation_time="30s")
 
 
 app = Flask(__name__)
