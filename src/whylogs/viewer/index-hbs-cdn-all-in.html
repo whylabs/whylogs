@@ -998,10 +998,10 @@
       Handlebars.registerHelper("frequentItems", function (column) {
         frequentItemsElemString = "";
         if (column.numberSummary && column.numberSummary.isDiscrete) {
-          const slicedFrequentItems = column.frequentItems.items.slice(0, 5);
+          const slicedFrequentItems = column.frequentItems.longs.slice(0, 5);
           for (let fi = 0; fi < slicedFrequentItems.length; fi++) {
             frequentItemsElemString +=
-              '<span class="wl-table-cell__bedge">' + slicedFrequentItems[fi].jsonValue + "</span>";
+              '<span class="wl-table-cell__bedge">' + slicedFrequentItems[fi].value + "</span>";
           }
         } else {
           frequentItemsElemString += "No data to show";
@@ -1147,7 +1147,7 @@
 
         if (column.numberSummary) {
           if (column.numberSummary.isDiscrete) {
-            column.frequentItems.items.forEach((item, index) => {
+            column.frequentItems.longs.forEach((item, index) => {
               data.push({
                 axisY: item.estimate,
                 axisX: index,
@@ -1179,8 +1179,8 @@
         const histData = [];
 
         if (column.numberSummary) {
-          if (column.frequentItems && column.frequentItems.items) {
-            column.frequentItems.items.forEach((item, index) => {
+          if (column.frequentItems && column.frequentItems.longs) {
+            column.frequentItems.longs.forEach((item, index) => {
               freqData.push({
                 axisY: item.estimate,
                 axisX: index,
@@ -1330,9 +1330,9 @@
 
       if (feature.numberSummary) {
         if (feature.numberSummary.isDiscrete) {
-          propertyPanelData = feature.frequentItems.items.reduce((acc, item) => {
+          propertyPanelData = feature.frequentItems.longs.reduce((acc, item) => {
             acc.push({
-              value: item.jsonValue,
+              value: item.value,
               count: item.estimate,
             });
             return acc;
