@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 
@@ -5,6 +6,7 @@ import boto3
 import botocore
 import flask
 import my_model as my_model_code
+import numpy as np
 import torch
 import torchvision.transforms as transforms
 from PIL import Image
@@ -14,8 +16,13 @@ from whylogs import get_or_create_session
 prefix = "/opt/ml/"
 # location of you checkpoint in sagemaker container
 model_path = os.path.join(prefix, "model")
+
+
 whylogs_session = get_or_create_session()
-logger=whylogs_session.logger(dataset_name="sagemaker_deployment",d)
+logger = whylogs_session.logger(dataset_name="my_deployed_model", dataset_timestamp=datetime.datetime.now(datetime.timezone.utc), with_rotation_time="5m")
+
+# simple custom metric for embedding
+embedding_centr = np.linalg.norm(np.ones(1024))
 
 
 # loads the model into memory from disk and returns it
@@ -28,9 +35,10 @@ def model_fn(model_dir):
     try:
         # try to use gpu if available (there are prob faster ways to check)
         model.to(torch.device("cuda"))
-
+        logger.log({"arch": "cuda"})
     except Exception:
-        pass
+        logger.log({"arch": "cpu"})
+        return None
 
     return model
 
@@ -43,7 +51,11 @@ def input_fn(request_body):
     request = request_body
 
     BUCKET_NAME = request["bucket_name"]
-    KEY = os.path.join(request["key"], request["key2"], request["image_name"])
+    KEY = os.path.join(request["image_path"])
+
+    # whylog track file paths
+    logger.log({"bucket": BUCKET_NAME})
+    logger.log({"image_path": KEY})
 
     s3 = boto3.resource("s3")
 
@@ -56,6 +68,10 @@ def input_fn(request_body):
             raise
     # open image byte data and transform as necessary
     image_ = Image.open("temp_image.png").convert("RGB")
+
+    # logger image
+    logger.log_image(image_)
+
     resize = transforms.Resize(300)
     loader = transforms.Compose([resize, transforms.ToTensor()])
     img = loader(image_).float().unsqueeze(0)
@@ -74,6 +90,7 @@ def predict_fn(input_object, model):
         pass
 
     embedding = model(input_object).cpu().detach().numpy().flatten().tolist()
+
     return embedding
 
 
@@ -110,7 +127,7 @@ def transformation():
 
     # embeded image
     embedding = predict_fn(image, model)
-
+    logger.log({"distance_from_cntr": np.dot(embedding, embedding_centr)})
     result = {}
     result["embedding"] = embedding
 
