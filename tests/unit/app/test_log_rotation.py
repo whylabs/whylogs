@@ -59,7 +59,7 @@ def test_log_rotation_parsing():
             l._set_rotation(with_rotation_time="2")
         with pytest.raises(TypeError):
             l._set_rotation(with_rotation_time="s2")
-
+        l.close()
 
 def test_log_rotation_seconds(tmpdir):
     output_path = tmpdir.mkdir("whylogs")
@@ -82,6 +82,7 @@ def test_log_rotation_seconds(tmpdir):
                 frozen_time.tick(delta=datetime.timedelta(seconds=1))
                 df = util.testing.makeDataFrame()
                 logger.log_dataframe(df)
+                logger.close()
     output_files = []
     for root, subdirs, files in os.walk(output_path):
         output_files += files
@@ -110,6 +111,7 @@ def test_log_rotation_minutes(tmpdir):
                 frozen_time.tick(delta=datetime.timedelta(minutes=2))
                 df = util.testing.makeDataFrame()
                 logger.log_dataframe(df)
+                logger.close()
     output_files = []
     for root, subdirs, files in os.walk(output_path):
         output_files += files

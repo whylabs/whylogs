@@ -261,6 +261,7 @@ class Logger:
 
         for t in self._pending_timer_threads:
             t.cancel()
+            t.join()
         self._pending_timer_threads.clear()
         self._intialize_profiles()
 
@@ -271,8 +272,8 @@ class Logger:
         while self.rotate_at <= current_time:
             self.rotate_at += self.interval
 
-        t = timer_wrap(self.tracking_checks, self.interval)
-        self._pending_timer_threads.append(t)
+        new_thread = timer_wrap(self.tracking_checks, self.interval)
+        self._pending_timer_threads.append(new_thread)
 
     def flush(self, rotation_suffix: str = None):
         """
@@ -329,6 +330,7 @@ class Logger:
         # time rotation threads
         for t in self._pending_timer_threads:
             t.cancel()
+            t.join()
         self._pending_timer_threads.clear()
         return profile
 
