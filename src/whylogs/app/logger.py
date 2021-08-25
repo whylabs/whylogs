@@ -218,8 +218,8 @@ class Logger:
         self.interval = interval * self.interval_multiplier
         self.rotate_at = self.rotate_when(current_time)
 
-        t = timer_wrap(self.tracking_checks, self.interval)
-        self._pending_timer_threads.append(t)
+        timer_thread = timer_wrap(self.tracking_checks, self.interval)
+        self._pending_timer_threads.append(timer_thread)
 
     def rotate_when(self, time):
         return time + self.interval
@@ -260,10 +260,11 @@ class Logger:
 
         for pending_timers in self._pending_timer_threads:
             pending_timers.cancel()
-            try:
-                pending_timers.join()
-            except RuntimeError:  # noqa
-                logger.exception("Failed to await timer task")
+            if not pending_timers.finished:
+                try:
+                    pending_timers.join()
+                except RuntimeError:  # noqa
+                    logger.exception("Failed to await timer task")
         self._pending_timer_threads.clear()
         self._intialize_profiles()
 

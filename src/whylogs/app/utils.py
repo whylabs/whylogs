@@ -64,4 +64,3 @@ def _wait_for_children():
             t.join()
         except:  # noqa
             _logger.exception("Failed to await timer task")
-

@@ -61,6 +61,7 @@ def test_log_rotation_parsing():
             l._set_rotation(with_rotation_time="s2")
         l.close()
 
+
 def test_log_rotation_seconds(tmpdir):
     output_path = tmpdir.mkdir("whylogs")
     shutil.rmtree(output_path, ignore_errors=True)
