@@ -19,7 +19,7 @@ TEST_DATA_PATH = os.path.abspath(
 
 def test_track_bb_annotation():
 
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
 
     test_annotation_path = os.path.join(TEST_DATA_PATH, "files", "yolo_bounding_box.jsonl")
@@ -51,7 +51,7 @@ def test_track_bb_annotation():
 
 def test_track_json_annotation():
 
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
     len(BB_ATTRIBUTES)
 

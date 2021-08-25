@@ -356,7 +356,8 @@ class Session:
         segments = _estimate_segments(df=df, target_field=target_field, max_segments=max_segments)
 
         if not dry_run:
-            self.metadata_writer.autosegmentation_write(name, segments)
+            if self.metadata_writer:
+                self.metadata_writer.autosegmentation_write(name, segments)
 
         return segments
 

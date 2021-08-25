@@ -187,7 +187,7 @@ def run(
     )
     profiles = {}
     for record in reader:
-        dt = record.get(datetime_col, datetime.utcnow())
+        dt = record.get(datetime_col, datetime.now(datetime.timezone.utc))
         assert isinstance(dt, datetime)
         dt_str = dt.strftime(OUTPUT_DATE_FORMAT)
         try:

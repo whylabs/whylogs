@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from enum import Enum
 
 import pytest
@@ -71,11 +71,11 @@ def test_protobuf_then_merge():
 def test_datetime_tracking():
     hll = hllsketch.HllSketch()
     vals = [
-        datetime(2020, 2, 3),
-        datetime(2020, 2, 3),
-        datetime(2020, 2, 3, tzinfo=pytz.UTC),
-        datetime(2020, 2, 3, 21, 28, 31),
-        datetime.utcnow(),
+        datetime.datetime(2020, 2, 3),
+        datetime.datetime(2020, 2, 3),
+        datetime.datetime(2020, 2, 3, tzinfo=pytz.UTC),
+        datetime.datetime(2020, 2, 3, 21, 28, 31),
+        datetime.datetime.now(datetime.timezone.utc),
     ]
     for v in vals:
         hll.update(v)

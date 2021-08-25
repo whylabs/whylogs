@@ -34,7 +34,7 @@ class MetadataWriter:
     def __init__(
         self,
         output_path: str,
-        input_path: str = "",
+        input_path: Optional[str] = "",
         path_template: Optional[str] = None,
         writer_type: Optional[str] = "local",
     ):

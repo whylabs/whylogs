@@ -136,7 +136,7 @@ class MetadataConfig:
         self,
         type: str,
         output_path: str,
-        input_path: str,
+        input_path: Optional[str] = "",
         path_template: Optional[str] = None,
     ):
         self.type = type

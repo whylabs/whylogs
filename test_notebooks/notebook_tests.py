@@ -7,6 +7,8 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir)
 
+skip_notebooks = ["Guest Session Demo.ipynb", "RAPIDS GPU Integration Example.ipynb", "Analysis.ipynb", "ROV-whylogs.ipynb"]
+
 
 def process_notebook(notebook_filename, html_directory="notebook-html"):
     """
@@ -17,11 +19,12 @@ def process_notebook(notebook_filename, html_directory="notebook-html"):
     with open(notebook_filename) as f:
         nb = nbformat.read(f, as_version=4)
 
-    ep = ExecutePreprocessor(timeout=600, kernel_name="python3", allow_errors=True)
+    os.path.abspath(os.path.dirname(notebook_filename))
+    ep = ExecutePreprocessor(timeout=2000, kernel_name="whylogs-dev", allow_errors=False)
 
     try:
         # Check that the notebook runs
-        ep.preprocess(nb, {"metadata": {"path": ""}})
+        ep.preprocess(nb, {"metadata": {"path": os.path.join(PARENT_DIR, "examples")}})
     except CellExecutionError:
         raise
 
@@ -38,7 +41,7 @@ def test_all_notebooks(remove_fail_test=True):
     git_files = subprocess.check_output("git ls-tree --full-tree --name-only -r HEAD", shell=True).decode("utf-8").splitlines()
 
     # Get just the notebooks from the git files
-    notebooks = [fn for fn in git_files if fn.endswith(".ipynb")]
+    notebooks = [fn for fn in git_files if fn.endswith(".ipynb") and os.path.basename(fn) not in skip_notebooks]
     print(notebooks)
 
     # Test each notebook
@@ -49,5 +52,5 @@ def test_all_notebooks(remove_fail_test=True):
     return
 
 
-if __name__ == "__main__":
-    test_all_notebooks()
+# if __name__ == "__main__":
+#     test_all_notebooks()

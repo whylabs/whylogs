@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       max-parallel: 6
       matrix:
         python-version: [3.9]
@@ -41,7 +41,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Install dependencies
-      run: make install
+      run: |
+           make install
+           make
+    - name: make jupyter-kernel
+      run: make jupyter-kernel
     - name: Run notebook test
       run: make test-notebooks
 

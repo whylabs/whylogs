@@ -21,7 +21,7 @@ def profile_lending_club():
     import datetime
     from uuid import uuid4
 
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     session_id = uuid4().hex
     df = pd.read_csv(os.path.join(_MY_DIR, os.pardir, "testdata", "lending_club_1000.csv"))
     profile = DatasetProfile(name="test", session_id=session_id, session_timestamp=now)
@@ -50,8 +50,14 @@ def s3_all_config_metadata_path():
 
 
 @pytest.fixture(scope="session")
-def df_lending_club():
+def local_config_path():
+    config_path = os.path.join(_MY_DIR, os.pardir, "testdata", ".whylogs_local.yaml")
+    return config_path
 
+
+@pytest.fixture(scope="session")
+def df_lending_club():
+    # just the top 50
     df = pd.read_csv(os.path.join(_MY_DIR, os.pardir, "testdata", "lending_club_1000.csv"))
     return df.head(50)
 

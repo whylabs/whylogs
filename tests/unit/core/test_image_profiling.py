@@ -20,7 +20,7 @@ TEST_DATA_PATH = os.path.abspath(
 
 
 def test_track_image():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
     num_image_features = len(_IMAGE_FEATURES)
     num_metadata_features = len(_METADATA_DEFAULT_ATTRIBUTES)
@@ -50,7 +50,7 @@ def test_track_image():
 
 
 def test_track_PIL_img():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
     num_image_features = len(_IMAGE_FEATURES)
     num_metadata_features = len(_METADATA_DEFAULT_ATTRIBUTES)
