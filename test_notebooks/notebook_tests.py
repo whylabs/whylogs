@@ -7,7 +7,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir)
 
-skip_notebooks = ["Guest Session Demo.ipynb", "RAPIDS GPU Integration Example.ipynb", "Analysis.ipynb", "ROV-whylogs.ipynb"]
+skip_notebooks = ["Guest Session Demo.ipynb", "RAPIDS GPU Integration Example.ipynb", "Analysis.ipynb", "ROV-whylogs.ipynb", "Flask App Logging.ipynb"]
 
 
 def process_notebook(notebook_filename, html_directory="notebook-html"):
