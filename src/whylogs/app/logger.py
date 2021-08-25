@@ -13,6 +13,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from whylogs.app.metadata_writer import MetadataWriter
+from whylogs.app.utils import timer_wrap
 from whylogs.app.writers import Writer
 from whylogs.core import (
     METADATA_DEFAULT_ATTRIBUTES,
@@ -23,7 +24,7 @@ from whylogs.core import (
 from whylogs.core.statistics.constraints import DatasetConstraints
 from whylogs.io import LocalDataset
 from whylogs.proto import ModelType
-from whylogs.app.utils import timer_wrap
+
 # TODO upgrade to Classes
 SegmentTag = Dict[str, any]
 Segment = List[SegmentTag]
@@ -85,7 +86,7 @@ class Logger:
         if writers is None:
             writers = []
         self._active = True
-        self._pending_timer_threads=[]
+        self._pending_timer_threads = []
         if session_timestamp is None:
             self.session_timestamp = datetime.datetime.now(datetime.timezone.utc)
         else:
@@ -125,7 +126,7 @@ class Logger:
         return self._profiles[-1]["full_profile"]
 
     def tracking_checks(self):
-
+        print("checking ")
         if not self._active:
             return False
 
@@ -188,26 +189,16 @@ class Logger:
             )
         self._profiles.append({"full_profile": full_profile, "segmented_profiles": {}})
 
-
-
-
     def _set_rotation(self, with_rotation_time: str = None):
-        
 
         if with_rotation_time is None:
             return
 
-        
-
         self.with_rotation_time = with_rotation_time.lower()
-
-        
 
         m = re.match(r"^(\d*)([smhd])$", with_rotation_time.lower())
         if m is None:
             raise TypeError("Invalid rotation interval, expected integer followed by one of 's', 'm', 'h', or 'd'")
-
-       
 
         interval = 1 if m.group(1) == "" else int(m.group(1))
         if m.group(2) == "s":
@@ -228,10 +219,8 @@ class Logger:
         self.interval = interval * self.interval_multiplier
         self.rotate_at = self.rotate_when(current_time)
 
-        t=timer_wrap(self.tracking_checks,self.interval)
+        t = timer_wrap(self.tracking_checks, self.interval)
         self._pending_timer_threads.append(t)
-
-
 
     def rotate_when(self, time):
         return time + self.interval
@@ -251,8 +240,6 @@ class Logger:
         rotate with time add a suffix
         """
 
-
-    
         current_time = int(datetime.datetime.utcnow().timestamp())
         # get the time that this current logging rotation started
         sequence_start = self.rotate_at - self.interval
@@ -269,7 +256,6 @@ class Logger:
 
         self.flush(rotation_suffix)
 
-
         if len(self._profiles) > self.cache_size:
             self._profiles[-self.cache_size - 1] = None
 
@@ -285,7 +271,7 @@ class Logger:
         while self.rotate_at <= current_time:
             self.rotate_at += self.interval
 
-        t=timer_wrap(self.tracking_checks,self.interval)
+        t = timer_wrap(self.tracking_checks, self.interval)
         self._pending_timer_threads.append(t)
 
     def flush(self, rotation_suffix: str = None):
@@ -340,7 +326,7 @@ class Logger:
         profile = self._profiles[-1]["full_profile"]
         self._profiles = None
 
-        # time rotation threads 
+        # time rotation threads
         for t in self._pending_timer_threads:
             t.cancel()
         self._pending_timer_threads.clear()
