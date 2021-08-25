@@ -12,6 +12,13 @@ _logger = logging.getLogger(__name__)
 _threads: List[threading.Thread] = []
 
 
+def timer_wrap(func,interval,*args,**kwargs):
+    thread=threading.Timer(interval, func, args=args, kwargs=kwargs)
+    thread.start()
+    _threads.append(thread)
+    return thread
+
+
 def _do_wrap(func):
     @wraps(func)
     async def run(*args, loop=None, executor=None, **kwargs):
