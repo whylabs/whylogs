@@ -13,6 +13,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from whylogs.app.metadata_writer import MetadataWriter
+from whylogs.app.utils import timer_wrap
 from whylogs.app.writers import Writer
 from whylogs.core import (
     METADATA_DEFAULT_ATTRIBUTES,
@@ -85,7 +86,7 @@ class Logger:
         if writers is None:
             writers = []
         self._active = True
-
+        self._pending_timer_threads = []
         if session_timestamp is None:
             self.session_timestamp = datetime.datetime.now(datetime.timezone.utc)
         else:
@@ -125,7 +126,6 @@ class Logger:
         return self._profiles[-1]["full_profile"]
 
     def tracking_checks(self):
-
         if not self._active:
             return False
 
@@ -189,6 +189,7 @@ class Logger:
         self._profiles.append({"full_profile": full_profile, "segmented_profiles": {}})
 
     def _set_rotation(self, with_rotation_time: str = None):
+
         if with_rotation_time is None:
             return
 
@@ -217,6 +218,9 @@ class Logger:
         self.interval = interval * self.interval_multiplier
         self.rotate_at = self.rotate_when(current_time)
 
+        timer_thread = timer_wrap(self.tracking_checks, self.interval)
+        self._pending_timer_threads.append(timer_thread)
+
     def rotate_when(self, time):
         return time + self.interval
 
@@ -234,6 +238,7 @@ class Logger:
         """
         rotate with time add a suffix
         """
+
         current_time = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
         # get the time that this current logging rotation started
         sequence_start = self.rotate_at - self.interval
@@ -253,13 +258,25 @@ class Logger:
         if len(self._profiles) > self.cache_size:
             self._profiles[-self.cache_size - 1] = None
 
+        for pending_timers in self._pending_timer_threads:
+            pending_timers.cancel()
+            if not pending_timers.finished:
+                try:
+                    pending_timers.join()
+                except RuntimeError:  # noqa
+                    logger.exception("Failed to await timer task")
+        self._pending_timer_threads.clear()
         self._intialize_profiles()
 
         # compute new rotate_at and while loop in case current function
         # takes longer than interval
+
         self.rotate_at = self.rotate_when(current_time)
         while self.rotate_at <= current_time:
             self.rotate_at += self.interval
+
+        new_thread = timer_wrap(self.tracking_checks, self.interval)
+        self._pending_timer_threads.append(new_thread)
 
     def flush(self, rotation_suffix: str = None):
         """
@@ -312,6 +329,12 @@ class Logger:
         self._active = False
         profile = self._profiles[-1]["full_profile"]
         self._profiles = None
+
+        # time rotation threads
+        for t in self._pending_timer_threads:
+            t.cancel()
+            t.join()
+        self._pending_timer_threads.clear()
         return profile
 
     def log(
