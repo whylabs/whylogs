@@ -1,10 +1,10 @@
 name: whylogs CI
 
 on:
-  # push:
-  #   branches: [ mainline, release]
-  # pull_request:
-  #   branches: [ mainline, release]
+  push:
+    branches: [ mainline, release]
+  pull_request:
+    branches: [ mainline, release]
 
 jobs:
   test:
