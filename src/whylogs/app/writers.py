@@ -14,7 +14,6 @@ from smart_open import open
 from whylogs.app.output_formats import OutputFormat
 from whylogs.core import DatasetProfile
 from whylogs.core.flatten_datasetprofile import (
-    flatten_dataset_frequent_numbers,
     flatten_dataset_frequent_strings,
     flatten_dataset_histograms,
     get_dataset_frame,
@@ -228,11 +227,7 @@ class LocalWriter(Writer):
         summary_df.to_csv(os.path.join(flat_table_path, self.file_name(profile, ".csv", rotation_suffix)), index=False)
 
         _suffix = rotation_suffix or ""
-        frequent_numbers_path = self.ensure_path(os.path.join(self.path_suffix(profile), f"freq_numbers{_suffix}"))
         json_flat_file = self.file_name(profile, ".json")
-        with open(os.path.join(frequent_numbers_path, json_flat_file), "wt") as f:
-            hist = flatten_dataset_frequent_numbers(summary)
-            json.dump(hist, f, indent=indent)
 
         frequent_strings_path = self.ensure_path(os.path.join(self.path_suffix(profile), f"frequent_strings{_suffix}"))
         with open(os.path.join(frequent_strings_path, json_flat_file), "wt") as f:
@@ -334,11 +329,6 @@ class S3Writer(Writer):
 
         json_flat_file = self.file_name(profile, ".json")
         _suffix = rotation_suffix or ""
-
-        frequent_numbers_path = os.path.join(self.output_path, self.path_suffix(profile), f"freq_numbers{_suffix}")
-        with open(os.path.join(frequent_numbers_path, json_flat_file), "wt") as f:
-            hist = flatten_dataset_histograms(summary)
-            json.dump(hist, f, indent=indent)
 
         frequent_strings_path = os.path.join(self.output_path, self.path_suffix(profile), f"frequent_strings{_suffix}")
         with open(os.path.join(frequent_strings_path, json_flat_file), "wt") as f:

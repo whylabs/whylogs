@@ -325,7 +325,7 @@ def test_verify_schema_version():
     )
     props = dp.to_properties()
     assert props.schema_major_version == 1
-    assert props.schema_minor_version == 1
+    assert props.schema_minor_version == 2
 
 
 def tests_timestamp():
@@ -403,7 +403,7 @@ def test_flat_summary():
     )
     flat_summary = original.flat_summary()
     assert flat_summary is not None
-    assert len(original.flat_summary()) == 4
+    assert len(original.flat_summary()) == 3
 
 
 def test_chunk_iterator():

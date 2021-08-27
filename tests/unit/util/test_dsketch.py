@@ -35,3 +35,18 @@ def test_deserialize_full_strings_returns_sketch():
         ("A", 19, 19, 19),
         ("D", 14, 14, 14),
     ]
+
+
+def test_encode_string_do_not_modify_string():
+    x = dsketch.FrequentItemsSketch._encode_item("test")
+    assert x == "test"
+
+
+def test_encode_int_succeeds():
+    x = dsketch.FrequentItemsSketch._encode_item(10)
+    assert x == "10"
+
+
+def test_encode_float_succeeds():
+    x = dsketch.FrequentItemsSketch._encode_item(10.5)
+    assert x == "10.5"
