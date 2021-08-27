@@ -73,12 +73,6 @@ def test_merge():
     assert merged.histogram.get_n() == 6
     assert merged.histogram.get_max_value() == 13.0
     assert merged.histogram.get_min_value() == 10.0
-    expected_freq = [
-        (10, 2, 2, 2),
-        (11, 2, 2, 2),
-        (13, 2, 2, 2),
-    ]
-    compare_frequent_items(expected_freq, merged.frequent_numbers.get_frequent_items())
 
     msg = merged.to_protobuf()
     NumberTracker.from_protobuf(msg)

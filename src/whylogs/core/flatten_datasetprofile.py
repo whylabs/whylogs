@@ -5,7 +5,6 @@ import pandas as pd
 from whylogs.core.types.typeddataconverter import TYPES
 from whylogs.proto import DatasetSummary
 from whylogs.util.data import getter, remap
-from whylogs.util.dsketch import FrequentNumbersSketch
 
 TYPENUM_COLUMN_NAMES = OrderedDict()
 for k in TYPES.keys():
@@ -92,13 +91,11 @@ def flatten_summary(dataset_summary: DatasetSummary) -> dict:
     """
     hist = flatten_dataset_histograms(dataset_summary)
     frequent_strings = flatten_dataset_frequent_strings(dataset_summary)
-    frequent_numbers = flatten_dataset_frequent_numbers(dataset_summary)
     summary = get_dataset_frame(dataset_summary)
     return {
         "summary": summary,
         "hist": hist,
         "frequent_strings": frequent_strings,
-        "frequent_numbers": frequent_numbers,
     }
 
 
@@ -159,23 +156,6 @@ def flatten_dataset_histograms(dataset_summary: DatasetSummary):
         except KeyError:
             continue
     return histograms
-
-
-def flatten_dataset_frequent_numbers(dataset_summary: DatasetSummary):
-    """
-    Flatten frequent number counts from a dataset summary
-    """
-    frequent_numbers = {}
-
-    for col_name, col in dataset_summary.columns.items():
-        try:
-            summary = getter(getter(col, "number_summary"), "frequent_numbers")
-            flat_dict = FrequentNumbersSketch.flatten_summary(summary)
-            if len(flat_dict) > 0:
-                frequent_numbers[col_name] = flat_dict
-        except KeyError:
-            continue
-    return frequent_numbers
 
 
 def flatten_dataset_frequent_strings(dataset_summary: DatasetSummary):
