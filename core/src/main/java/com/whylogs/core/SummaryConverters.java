@@ -13,11 +13,11 @@ import com.whylogs.core.message.UniqueCountSummary;
 import com.whylogs.core.statistics.NumberTracker;
 import com.whylogs.core.statistics.SchemaTracker;
 import com.whylogs.core.statistics.datatypes.StringTracker;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import lombok.val;
 import org.apache.datasketches.frequencies.ErrorType;
 import org.apache.datasketches.frequencies.ItemsSketch;
@@ -185,38 +185,82 @@ public class SummaryConverters {
         .build();
   }
 
-  public static HistogramSummary fromUpdateDoublesSketch(KllFloatsSketch sketch) {
-    val n = sketch.getN();
-    float start = sketch.getMinValue();
-    float end = sketch.getMaxValue();
+  public static HistogramSummary fromUpdateDoublesSketch(final KllFloatsSketch sketch) {
+    return fromUpdateDoublesSketch(sketch, 30);
+  }
 
-    val builder = HistogramSummary.newBuilder().setStart(start).setEnd(end);
+  public static HistogramSummary fromUpdateDoublesSketch(
+      final KllFloatsSketch sketch, float[] splitpoints) {
+    return fromUpdateDoublesSketch(sketch, 0, splitpoints);
+  }
 
-    // try to be smart here. We don't really have a "histogram"
-    // if there are too few data points or there's no band
-    if (n < 2 || start == end) {
-      val longs = new ArrayList<Long>();
-      for (int i = 0; i < n; i++) {
-        longs.add(0L);
-      }
-      return builder.setWidth(0).addAllCounts(longs).build();
+  public static HistogramSummary fromUpdateDoublesSketch(
+      final KllFloatsSketch sketch, final int nBins) {
+    return fromUpdateDoublesSketch(sketch, nBins, null);
+  }
+
+  private static HistogramSummary fromUpdateDoublesSketch(
+      final KllFloatsSketch sketch, int nBins, @Nullable float[] splitPoints) {
+    nBins = splitPoints != null ? splitPoints.length + 1 : (nBins > 0 ? nBins : 30);
+    if (nBins < 2) {
+      throw new IllegalArgumentException("at least 2 bins expected");
     }
+    val builder = HistogramSummary.newBuilder();
+    if (sketch.isEmpty()) {
+      return builder.build();
+    }
+    val n = sketch.getN();
+    float start = noNan(sketch.getMinValue());
+    float end = noNan(sketch.getMaxValue());
+    builder
+        .setN(n) //
+        .setMin(start) //
+        .setMax(end);
 
-    int numberOfBuckets = (int) Math.min(Math.ceil(n / 4.0), 100);
-    val width = (end - start) / (numberOfBuckets * 1.0f);
+    // calculate equally spaced points between [start, end]
+    float width = (end - start) / nBins;
+    width = Math.max(width, Math.ulp(start)); // min width in case start==end
     builder.setWidth(width);
 
-    // calculate histograms from PMF
-    val splitPoints = new float[numberOfBuckets];
-    for (int i = 0; i < numberOfBuckets; i++) {
-      splitPoints[i] = start + i * width;
-    }
-    val pmf = sketch.getPMF(splitPoints);
-    int len = pmf.length - 1;
-    for (int i = 0; i < len; i++) {
-      builder.addCounts(Math.round(pmf[i] * sketch.getN()));
+    if (splitPoints != null) {
+      builder.addBins(sketch.getMinValue());
+      for (float splitPoint : splitPoints) {
+        builder.addBins(splitPoint);
+      }
+      builder.addBins(sketch.getMaxValue());
+    } else {
+      // calculate equally spaced points between [start, end]
+      // splitPoints must be unique and monotonically increasing
+      final int noSplitPoints = nBins - 1;
+      splitPoints = new float[noSplitPoints];
+      builder.addBins(start);
+      for (int i = 0; i < noSplitPoints; i++) {
+        splitPoints[i] = start + (i + 1) * width;
+        builder.addBins(splitPoints[i]);
+      }
+      builder.addBins(end);
     }
 
+    for (double v : sketch.getPMF(splitPoints)) {
+      // scale fractions to counts
+      builder.addCounts(Math.round(noNan(v) * n));
+    }
     return builder.build();
+  }
+
+  // noNan for Double streams
+  public static double noNan(double value) {
+    if (Double.isNaN(value) || Double.isInfinite(value)) {
+      return 0f;
+    }
+    return value;
+  }
+
+  // noNan for Float streams
+  public static float noNan(float value) {
+    if (Float.isNaN(value) || Float.isInfinite(value)) {
+      return 0f;
+    }
+    return value;
   }
 }

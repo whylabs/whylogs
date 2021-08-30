@@ -54,6 +54,7 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("org.apache.commons:commons-lang3:3.10")
     testImplementation("com.google.protobuf:protobuf-java-util:3.11.0")
+    testImplementation("org.apache.commons:commons-math3:3.6.1")
 }
 
 protobuf {
