@@ -15,6 +15,7 @@ from whylogs.app.logger import Logger
 from whylogs.app.metadata_writer import MetadataWriter, metadata_from_config
 from whylogs.app.writers import WhyLabsWriter, Writer, writer_from_config
 from whylogs.core import DatasetProfile
+from whylogs.core.conf import WhyConf
 from whylogs.core.statistics.constraints import DatasetConstraints
 from whylogs.features.autosegmentation import _estimate_segments
 
@@ -89,6 +90,7 @@ class Session:
         with_rotation_time: str = None,
         cache_size: int = None,
         report_progress: bool = False,
+        config: Optional[WhyConf] = None,
     ):
         self._py_logger = _getLogger(__name__)
         if writers is None:
@@ -106,6 +108,10 @@ class Session:
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
         self.report_progress = report_progress
+
+        if not config:
+            config = WhyConf()
+        self._conf = config
 
         # enable special logic when starting/closing a Session if we're using whylabs client to save dataset profiles
         whylabs_writer_is_present = any(isinstance(w, WhyLabsWriter) for w in self.writers)
