@@ -1,5 +1,6 @@
 package com.whylogs.spark
 
+import ai.whylabs.service.invoker.ApiException
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,7 +32,13 @@ object RetryUtil {
     }.recoverWith {
       case t: Throwable =>
         if (context.retries >= config.maxTries) {
-          throw new PermanentFailure("Failed too many times.", context.lastCause)
+          val lastCause = context.lastCause
+          lastCause match {
+            case apiException: ApiException =>
+              throw new PermanentFailure("Failed too many times", new ApiException(s"Error code: ${apiException.getCode}. " +
+                s"Headers: ${apiException.getResponseHeaders}. Body: ${apiException.getResponseBody}"))
+            case _ => throw new PermanentFailure("Failed too many times.", lastCause)
+          }
         }
         completeAfter(context.lastWaitMillis)
           .flatMap { _ =>

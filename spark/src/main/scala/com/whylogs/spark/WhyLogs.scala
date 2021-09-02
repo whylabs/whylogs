@@ -3,14 +3,17 @@ package com.whylogs.spark
 import ai.whylabs.service.api.LogApi
 import ai.whylabs.service.invoker.ApiClient
 import ai.whylabs.service.model.{LogAsyncRequest, SegmentTag}
+import com.whylogs.spark.WhyLogs.PROFILE_FIELD
+import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.types.{DataTypes, NumericType, StructField}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
-import org.apache.spark.whylogs.DatasetProfileAggregator
+import org.apache.spark.whylogs.{DatasetProfileAggregator, DatasetProfileMerger}
 import org.slf4j.LoggerFactory
 
 import java.net.{HttpURLConnection, URL}
 import java.nio.file.{Files, StandardOpenOption}
 import java.time.Instant
+import java.util.concurrent.TimeUnit
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -39,8 +42,6 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
                             ) {
   private val logger = LoggerFactory.getLogger(getClass)
   private val columnNames = dataFrame.schema.fieldNames.toSet
-  // we use an intermediate name so we can extract the "value" after
-  val PROFILE_FIELD = "why_profile"
 
   /**
    * Set the column for grouping by time. This column must be of Timestamp type in Spark SQL.
@@ -129,26 +130,50 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
     logger.debug(s"All columns: $columnNames")
 
     val timeInMillis = timestamp.toEpochMilli
-    val whyStructDataFrame =
-      if (timeColumn != null) { // if timeColumn is specified
-        logger.info(s"Run profiling with: [$name, $timestamp] with time column [$timeColumn], group by: $debugGroupByStr")
-        val profileAgg = DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns, modelProfile)
-          .toColumn
-          .alias(PROFILE_FIELD)
-        val df = dataFrame.groupBy(timeColumn, groupByColumns: _*)
-          .agg(profileAgg)
-        df
-      } else {
-        logger.info(s"Run profiling with: [$name, $timestamp] without time column, group by: $debugGroupByStr")
-        val profileAgg = DatasetProfileAggregator(name, timeInMillis, groupByColumns = groupByColumns,
-          model = modelProfile)
-          .toColumn
-          .alias(PROFILE_FIELD)
-        dataFrame.groupBy(groupByColumns.map(dataFrame.col): _*)
-          .agg(profileAgg)
-      }
 
-    whyStructDataFrame
+    // very important: we don't want the job to have a huge number of partitions
+    // it's counter intuitive but the jobs are CPU bound and thus are better to be bounded
+    // by the default parallelism value
+    val coalesced = dataFrame.coalesce(dataFrame.sparkSession.sparkContext.defaultParallelism)
+
+    logger.info(s"Run profiling with: [$name, $timestamp] with time column [$timeColumn], group by: $debugGroupByStr")
+    val groupByWithTime = groupByColumns ++ Option(timeColumn).toSeq
+
+    val profileMetricsFields = Option(modelProfile).toSeq.flatMap(m => {
+      Seq(m.targetField, m.predictionField, m.scoreField).filter(_ != null)
+    })
+
+    val fields = dataFrame.schema.fields.map(_.name)
+    val remainingFields = fields.filter(!groupByWithTime.contains(_)).filter(!profileMetricsFields.contains(_))
+    val columnGroups = remainingFields.grouped(100).toSeq
+
+    val primaryProfiles = coalesced.select((groupByWithTime ++ profileMetricsFields ++ columnGroups.head).map(col):_*)
+      .groupBy(groupByWithTime.map(col):_*)
+      .agg(DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns, modelProfile)
+        .toColumn
+        .alias(PROFILE_FIELD))
+
+    (
+      Seq(primaryProfiles) ++
+      // adding the rest of the columns
+      columnGroups
+      .tail
+      .map(cols => {
+        val targetFields = groupByWithTime ++ cols
+        val filteredDf = coalesced.select(targetFields.head, targetFields.tail: _*)
+
+        val res = filteredDf.groupBy(groupByWithTime.map(col):_*)
+          .agg(DatasetProfileAggregator(name, timeInMillis, timeColumn, groupByColumns)
+            .toColumn
+            .alias(PROFILE_FIELD))
+        res
+      })
+     )
+      .reduce((left, right) => {
+        left.union(right)
+      })
+      .groupBy(groupByWithTime.map(col):_*)
+      .agg(new DatasetProfileMerger(name, timeInMillis).toColumn.alias(PROFILE_FIELD))
   }
 
   def log(timestampInMs: Long = Instant.now().toEpochMilli,
@@ -208,7 +233,7 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
         req.datasetTimestamp(timestamp)
         logApi.logAsync(orgId, modelId, req)
       }
-      val uploadResult = Await.result(uploadResultFuture, Duration.create(10, "s"))
+      val uploadResult = Await.result(uploadResultFuture, Duration.create(10, TimeUnit.SECONDS))
 
       // Write the profile to the upload url
       val profileUploadResult = RetryUtil.withRetries() {
@@ -274,6 +299,8 @@ object RowHelper {
  * Helper object that helps create new profiling sessions
  */
 object WhyLogs {
+  // we use an intermediate name so we can extract the "value" after
+  val PROFILE_FIELD = "why_profile"
 
   implicit class ProfiledDataFrame(dataframe: Dataset[Row]) {
 

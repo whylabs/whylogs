@@ -32,9 +32,8 @@ trait SharedSparkContext extends BeforeAndAfterAll {
       activeTestSuitesCount += 1
       if (_spark == null) {
         val builder = SparkSession.builder()
-          .master("local[*, 3]")
+          .master("local[*]")
           .appName("SparkTesting-" + LocalDateTime.now().toString)
-          .config("spark.ui.enabled", "false")
 
         _spark = builder.getOrCreate()
       }

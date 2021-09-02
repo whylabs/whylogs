@@ -5,6 +5,7 @@ import com.whylogs.core.message.RegressionMetricsMessage;
 import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -13,16 +14,14 @@ import lombok.val;
 @Getter
 @Slf4j
 public class RegressionMetrics {
-  private final String predictionField;
-  private final String targetField;
+  @NonNull private final String predictionField;
+  @NonNull private final String targetField;
   private double sumAbsDiff;
   private double sumDiff;
   private double sum2Diff;
   private long count;
 
   public void track(Map<String, ?> columns) {
-    Preconditions.checkState(predictionField != null);
-    Preconditions.checkState(targetField != null);
     val prediction = (Number) columns.get(predictionField);
     val target = (Number) columns.get(targetField);
 
@@ -68,9 +67,6 @@ public class RegressionMetrics {
   }
 
   public RegressionMetricsMessage.Builder toProtobuf() {
-    if (this.predictionField == null | this.targetField == null) {
-      return null;
-    }
     return RegressionMetricsMessage.newBuilder()
         .setPredictionField(this.predictionField)
         .setTargetField(this.targetField)
@@ -81,7 +77,7 @@ public class RegressionMetrics {
   }
 
   public static RegressionMetrics fromProtobuf(RegressionMetricsMessage msg) {
-    if (msg == null) {
+    if (msg == null || msg.getSerializedSize() == 0) {
       return null;
     }
 

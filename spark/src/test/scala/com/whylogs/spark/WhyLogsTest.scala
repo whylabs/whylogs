@@ -9,6 +9,7 @@ import com.whylogs.core.DatasetProfile
 import com.whylogs.core.message.InferredType
 import com.whylogs.spark.WhyLogs.ProfiledDataFrame
 import org.apache.commons.lang3.RandomUtils
+import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{Row, SaveMode}
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.whylogs.SharedSparkContext
@@ -75,8 +76,8 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
     val dp = DatasetProfile.parse(new ByteArrayInputStream(bytes))
 
     assert(dp.getModelProfile != null)
-    assert(dp.getModelProfile.getMetrics.getScoreMatrix.getLabels == List("0", "1").asJava)
-    val matrix: Array[Array[Long]] = dp.getModelProfile.getMetrics.getScoreMatrix.getConfusionMatrix
+    assert(dp.getModelProfile.getMetrics.getClassificationMetrics.getLabels == List("0", "1").asJava)
+    val matrix: Array[Array[Long]] = dp.getModelProfile.getMetrics.getClassificationMetrics.getConfusionMatrix
     assert(matrix(0)(0) == 40L)
     assert(matrix(0)(1) == 7L)
     assert(matrix(1)(0) == 11L)
@@ -99,8 +100,31 @@ class WhyLogsTest extends AnyFunSuite with SharedSparkContext {
 
     assert(dp.getModelProfile != null)
     assert(dp.getModelProfile != null)
-    assert(dp.getModelProfile.getMetrics.getScoreMatrix == null)
+    assert(dp.getModelProfile.getMetrics.getClassificationMetrics == null)
     assert(dp.getModelProfile.getMetrics.getRegressionMetrics != null)
+  }
+
+  test("test WhyLogs with RegressionMetrics") {
+    val file = Files.createTempFile("data", ".parquet")
+    Files.copy(WhyLogs.getClass.getResourceAsStream("/brazillian_608_features.parquet"), file, StandardCopyOption.REPLACE_EXISTING)
+
+    val df = spark.read.parquet("file://" + file.toAbsolutePath)
+
+    val res = df
+      .withColumn("delivery_prediction", col("delivery_prediction").cast(IntegerType))
+      .withColumn("delivery_status", col("delivery_status").cast(IntegerType))
+      .newProfilingSession("model")
+      .withRegressionModel("delivery_prediction", "delivery_status")
+      .aggProfiles(Instant.now())
+    res.count()
+
+    val bytes = res.collect()(0).getAs[Array[Byte]](0)
+    val dp = DatasetProfile.parse(new ByteArrayInputStream(bytes))
+
+    assert(dp.getModelProfile != null)
+    assert(dp.getModelProfile.getMetrics.getClassificationMetrics == null)
+    assert(dp.getModelProfile.getMetrics.getRegressionMetrics != null)
+    assert(dp.getColumns.size() == 608)
   }
 
   test("profile null value") {

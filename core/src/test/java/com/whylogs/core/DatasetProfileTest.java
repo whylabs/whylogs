@@ -1,8 +1,18 @@
 package com.whylogs.core;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.testng.AssertJUnit.*;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -237,9 +247,14 @@ public class DatasetProfileTest {
     assertThat(roundTrip.tags.values(), containsInAnyOrder("paper", "rock", "scissors"));
     assertThat(roundTrip.modelProfile, is(notNullValue()));
     assertThat(
-        roundTrip.modelProfile.getMetrics().getScoreMatrix().getPredictionField(), is("pred"));
-    assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getTargetField(), is("target"));
-    assertThat(roundTrip.modelProfile.getMetrics().getScoreMatrix().getScoreField(), is("score"));
+        roundTrip.modelProfile.getMetrics().getClassificationMetrics().getPredictionField(),
+        is("pred"));
+    assertThat(
+        roundTrip.modelProfile.getMetrics().getClassificationMetrics().getTargetField(),
+        is("target"));
+    assertThat(
+        roundTrip.modelProfile.getMetrics().getClassificationMetrics().getScoreField(),
+        is("score"));
   }
 
   @Test
@@ -373,10 +388,23 @@ public class DatasetProfileTest {
     val roundTrip = DatasetProfile.fromProtobuf(msg);
     assertThat(roundTrip.getModelProfile(), is(notNullValue()));
     assertThat(
-        roundTrip.getModelProfile().getMetrics().getScoreMatrix().getPredictionField(), is("pred"));
+        roundTrip.getModelProfile().getMetrics().getClassificationMetrics().getPredictionField(),
+        is("pred"));
     assertThat(
-        roundTrip.getModelProfile().getMetrics().getScoreMatrix().getTargetField(), is("target"));
+        roundTrip.getModelProfile().getMetrics().getClassificationMetrics().getTargetField(),
+        is("target"));
     assertThat(
-        roundTrip.getModelProfile().getMetrics().getScoreMatrix().getScoreField(), is("score"));
+        roundTrip.getModelProfile().getMetrics().getClassificationMetrics().getScoreField(),
+        is("score"));
+  }
+
+  @Test
+  public void test_mergeOld_WithNew() throws IOException {
+    // by reading a profile, we basically "convert" it to the new format
+    val profile1 = DatasetProfile.parse(getClass().getResourceAsStream("/python_profile.bin"));
+    DatasetProfile.fromProtobuf(profile1.toProtobuf().build()).merge(profile1);
+
+    val profile2 = DatasetProfile.parse(getClass().getResourceAsStream("/regression.bin"));
+    DatasetProfile.fromProtobuf(profile2.toProtobuf().build()).merge(profile2);
   }
 }

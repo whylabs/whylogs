@@ -6,7 +6,6 @@ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.expressions.Aggregator
 import org.apache.spark.sql.{Encoder, Encoders, Row}
 
-import java.io.ByteArrayOutputStream
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}
 import java.util.{Collections, UUID}
@@ -36,6 +35,7 @@ case class DatasetProfileAggregator(datasetName: String,
   private val allGroupByColumns = (groupByColumns ++ Option(timeColumn).toSeq).toSet
 
   override def zero: DatasetProfile = new DatasetProfile(sessionId, Instant.ofEpochMilli(0))
+    .withTag("Name", datasetName)
 
   override def reduce(profile: DatasetProfile, row: Row): DatasetProfile = {
     val schema = row.schema
@@ -115,26 +115,11 @@ case class DatasetProfileAggregator(datasetName: String,
   }
 
   override def merge(profile1: DatasetProfile, profile2: DatasetProfile): DatasetProfile = {
-    if (profile1.getColumns.isEmpty) return profile2
-    if (profile2.getColumns.isEmpty) return profile1
-
     profile1.merge(profile2)
   }
 
   override def finish(reduction: DatasetProfile): Array[Byte] = {
-    val finalProfile = new DatasetProfile(
-      datasetName,
-      reduction.getSessionTimestamp,
-      reduction.getDataTimestamp,
-      reduction.getColumns,
-      reduction.getTags,
-      reduction.getMetadata,
-      reduction.getModelProfile
-    )
-    val msg = finalProfile.toProtobuf.build()
-    val bos = new ByteArrayOutputStream(msg.getSerializedSize)
-    msg.writeDelimitedTo(bos)
-    bos.toByteArray
+    reduction.toBytes
   }
 
   override def bufferEncoder: Encoder[DatasetProfile] = Encoders.javaSerialization(classOf[DatasetProfile])

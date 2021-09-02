@@ -32,6 +32,7 @@ public class RegressionMetricsTest {
     assertThat(merged.getSumDiff(), is(0.0));
     assertThat(merged.getSum2Diff(), is(0.0));
     assertThat(merged.getSumAbsDiff(), is(0.0));
+    assertThat(merged.getCount(), is(3L));
   }
 
   @Test
@@ -45,6 +46,20 @@ public class RegressionMetricsTest {
     assertThat(merged.getSumDiff(), is(0.0));
     assertThat(merged.getSum2Diff(), is(0.0));
     assertThat(merged.getSumAbsDiff(), is(0.0));
+    assertThat(metrics.getCount(), is(3L));
+  }
+
+  @Test
+  public void basic_copy() {
+    val metrics = new RegressionMetrics("prediction", "target");
+    metrics.track(ImmutableMap.of("prediction", 1, "target", 1));
+    metrics.track(ImmutableMap.of("prediction", 2, "target", 2));
+    metrics.track(ImmutableMap.of("prediction", 3, "target", 3));
+
+    val copy = metrics.copy();
+    assertThat(copy.getSumDiff(), is(0.0));
+    assertThat(copy.getSum2Diff(), is(0.0));
+    assertThat(copy.getSumAbsDiff(), is(0.0));
     assertThat(metrics.getCount(), is(3L));
   }
 }

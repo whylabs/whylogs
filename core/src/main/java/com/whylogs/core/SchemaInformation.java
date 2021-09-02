@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 @UtilityClass
 public class SchemaInformation {
   final int SCHEMA_MAJOR_VERSION = 1;
-  final int SCHEMA_MINOR_VERSION = 2;
+  final int SCHEMA_MINOR_VERSION = 3;
 
   void validateSchema(int majorVersion, int minorVersion) {
     Preconditions.checkArgument(

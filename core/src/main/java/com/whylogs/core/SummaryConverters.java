@@ -2,7 +2,6 @@ package com.whylogs.core;
 
 import static org.apache.commons.lang3.ArrayUtils.toObject;
 
-import com.whylogs.core.message.FrequentNumbersSummary;
 import com.whylogs.core.message.FrequentStringsSummary;
 import com.whylogs.core.message.HistogramSummary;
 import com.whylogs.core.message.NumberSummary;
@@ -100,31 +99,6 @@ public class SummaryConverters {
 
     val histogram = fromUpdateDoublesSketch(numberTracker.getHistogram());
 
-    val items =
-        numberTracker.getFrequentNumbers().getFrequentItems(0, ErrorType.NO_FALSE_NEGATIVES);
-    val frequentNumbers = FrequentNumbersSummary.newBuilder();
-
-    for (int i = 0; i < items.length; i++) {
-      val item = items[i];
-      final String content = item.getItem();
-      if (content.contains(".")) {
-        val value =
-            FrequentNumbersSummary.FrequentDoubleItem.newBuilder()
-                .setValue(Double.parseDouble(content))
-                .setEstimate(item.getEstimate())
-                .setRank(i)
-                .build();
-        frequentNumbers.addDoubles(value);
-      } else {
-        val value =
-            FrequentNumbersSummary.FrequentLongItem.newBuilder()
-                .setValue(Long.parseLong(content))
-                .setEstimate(item.getEstimate())
-                .setRank(i)
-                .build();
-        frequentNumbers.addLongs(value);
-      }
-    }
     val result = numberTracker.getThetaSketch().getResult();
     val uniqueCountSummary =
         UniqueCountSummary.newBuilder()
@@ -156,7 +130,6 @@ public class SummaryConverters {
         .setMax(max)
         .setMean(mean)
         .setHistogram(histogram)
-        .setFrequentNumbers(frequentNumbers)
         .setUniqueCount(uniqueCountSummary)
         .setQuantiles(quantileSummary)
         .setIsDiscrete(false) // TODO: migrate Python code over

@@ -19,6 +19,7 @@ import com.whylogs.core.statistics.datatypes.StringTracker;
 import com.whylogs.core.types.TypedData;
 import com.whylogs.core.types.TypedDataConverter;
 import com.whylogs.core.utils.sketches.FrequentStringsSketch;
+import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -210,7 +211,11 @@ public class ColumnProfile {
         .setFrequentItems(FrequentStringsSketch.toStringSketch(this.frequentItems));
   }
 
-  public static ColumnProfile fromProtobuf(ColumnMessage message) {
+  @Nullable
+  public static ColumnProfile fromProtobuf(@Nullable ColumnMessage message) {
+    if (message == null || message.getSerializedSize() == 0) {
+      return null;
+    }
 
     val builder =
         ColumnProfile.builder()

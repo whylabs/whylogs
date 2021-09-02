@@ -53,6 +53,7 @@ shadowJar.apply {
 
     // okio is consumed by songbird
     relocate("okio", "com.shaded.whylabs.okio")
+    relocate("okhttp3", "com.shaded.whylabs.okhttp3")
 
     archiveFileName.set("$artifactBaseName-${versionString}.jar")
 }

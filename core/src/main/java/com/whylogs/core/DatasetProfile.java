@@ -291,16 +291,8 @@ public class DatasetProfile implements Serializable {
     }
 
     if (modelProfile != null) {
-      result.modelProfile = this.modelProfile.copy();
-    }
-
-    if (this.modelProfile != null
-        && modelProfile.getMetrics() != null
-        && other.modelProfile != null
-        && other.modelProfile.getMetrics() != null) {
       result.modelProfile = this.modelProfile.merge(other.modelProfile);
-    } else if ((modelProfile == null || modelProfile.getMetrics() == null)
-        && other.modelProfile != null) {
+    } else if (other.modelProfile != null) {
       result.modelProfile = other.modelProfile.copy();
     }
 
@@ -344,7 +336,12 @@ public class DatasetProfile implements Serializable {
         .setSchemaMinorVersion(SchemaInformation.SCHEMA_MINOR_VERSION);
   }
 
-  public static DatasetProfile fromProtobuf(DatasetProfileMessage message) {
+  @Nullable
+  public static DatasetProfile fromProtobuf(@Nullable DatasetProfileMessage message) {
+    if (message == null || message.getSerializedSize() == 0) {
+      return null;
+    }
+
     val props = message.getProperties();
     SchemaInformation.validateSchema(props.getSchemaMajorVersion(), props.getSchemaMinorVersion());
 

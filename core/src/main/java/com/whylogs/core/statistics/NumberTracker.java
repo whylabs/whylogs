@@ -1,22 +1,18 @@
 package com.whylogs.core.statistics;
 
-import static com.whylogs.core.statistics.datatypes.StringTracker.ARRAY_OF_STRINGS_SER_DE;
-import static com.whylogs.core.statistics.datatypes.StringTracker.MAX_FREQUENT_ITEM_SIZE;
-
 import com.google.protobuf.ByteString;
 import com.whylogs.core.message.NumbersMessage;
 import com.whylogs.core.statistics.datatypes.DoubleTracker;
 import com.whylogs.core.statistics.datatypes.LongTracker;
 import com.whylogs.core.statistics.datatypes.VarianceTracker;
-import com.whylogs.core.utils.sketches.FrequentStringsSketch;
 import com.whylogs.core.utils.sketches.ThetaSketch;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.val;
-import org.apache.datasketches.frequencies.ItemsSketch;
 import org.apache.datasketches.kll.KllFloatsSketch;
 import org.apache.datasketches.memory.Memory;
 import org.apache.datasketches.theta.Union;
@@ -33,7 +29,6 @@ public class NumberTracker {
   // sketches
   KllFloatsSketch histogram; // histogram
   Union thetaSketch; // theta sketch for cardinality
-  ItemsSketch<String> frequentNumbers; // frequent numbers
 
   public NumberTracker() {
     this.variance = new VarianceTracker();
@@ -42,7 +37,6 @@ public class NumberTracker {
 
     this.histogram = new KllFloatsSketch(256);
     this.thetaSketch = Union.builder().buildUnion();
-    this.frequentNumbers = new ItemsSketch<>(MAX_FREQUENT_ITEM_SIZE);
   }
 
   public void track(Number number) {
@@ -55,12 +49,10 @@ public class NumberTracker {
       doubles.update(dValue);
     } else if (number instanceof Long || number instanceof Integer) {
       longs.update(number.longValue());
-      frequentNumbers.update(Long.toString(number.longValue()));
     } else {
       doubles.addLongs(longs);
       longs.reset();
       doubles.update(dValue);
-      frequentNumbers.update(Double.toString(dValue));
     }
   }
 
@@ -75,6 +67,7 @@ public class NumberTracker {
     this.histogram.merge(other.histogram);
   }
 
+  @NonNull
   public NumberTracker merge(NumberTracker other) {
     if (other == null) {
       return this;
@@ -87,18 +80,11 @@ public class NumberTracker {
     thetaUnion.update(this.thetaSketch.getResult());
     thetaUnion.update(other.thetaSketch.getResult());
 
-    val freqNumbers =
-        ItemsSketch.getInstance(
-            Memory.wrap(this.frequentNumbers.toByteArray(ARRAY_OF_STRINGS_SER_DE)),
-            ARRAY_OF_STRINGS_SER_DE);
-    freqNumbers.merge(other.frequentNumbers);
-
     return NumberTracker.builder()
         .setVariance(this.variance.merge(other.variance))
         .setDoubles(this.doubles.merge(other.doubles))
         .setLongs(this.longs.merge(other.longs))
         .setThetaSketch(thetaUnion)
-        .setFrequentNumbers(freqNumbers)
         .setHistogram(unionHistogram)
         .build();
   }
@@ -116,11 +102,11 @@ public class NumberTracker {
     }
 
     builder.setCompactTheta(ThetaSketch.serialize(thetaSketch));
-    builder.setFrequentNumbers(FrequentStringsSketch.toNumbersMessage(this.frequentNumbers));
 
     return builder;
   }
 
+  @NonNull
   public static NumberTracker fromProtobuf(NumbersMessage message) {
     val hMem = Memory.wrap(message.getHistogram().toByteArray());
     val builder =
@@ -136,8 +122,6 @@ public class NumberTracker {
         .ifPresent(builder::setLongs);
 
     builder.setThetaSketch(ThetaSketch.deserialize(message.getCompactTheta()));
-    builder.setFrequentNumbers(
-        FrequentStringsSketch.deserialize(message.getFrequentNumbers().getSketch()));
 
     return builder.build();
   }
