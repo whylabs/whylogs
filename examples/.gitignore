@@ -1,4 +1,6 @@
 whylogs-output/
 output/
 constraints.json
+*.joblib
+dataset/
 TODO
