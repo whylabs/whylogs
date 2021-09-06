@@ -3,6 +3,8 @@
 
 ## Environment variables management
 
+Write a .env file with the following configuration
+
 ```bash
 WHYLABS_DEFAULT_DATASET_ID=...
 WHYLABS_API_KEY=...
@@ -13,7 +15,7 @@ WHYLABS_API_ENDPOINT=...
 ## Build the image
 
 ```bash
-docker build --build-arg PYTHON_VERSION=3.7 -t whylabs-flask .
+docker build --build-arg PYTHON_VERSION=3.7 -t whylogs-flask .
 ```
 
 ## Run the image

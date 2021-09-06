@@ -2,7 +2,7 @@ ARG REGION=us-west-2
 ARG ARCH=cpu
 
 # SageMaker PyTorch image
-FROM 520713654638.dkr.ecr.$REGION.amazonaws.com/sagemaker-pytorch:1.0.0-$ARCH-py3
+FROM 520713654638.dkr.ecr.$REGION.amazonaws.com/pytorch-inference:1.5.0-$ARCH-py36-ubuntu16.04
 
 ARG py_version=3
 
