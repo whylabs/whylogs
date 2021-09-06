@@ -1,77 +1,71 @@
+# -*- coding: utf-8 -*-
+"""The app module, containing the app factory function."""
+
 import os
-import datetime
 import logging
 import pandas as pd
-import numpy as np
-from joblib import load
-from flask import Flask, jsonify, request
-from whylogs import get_or_create_session
 from dotenv import load_dotenv
-
-app = Flask(__name__)
-logging.basicConfig(level=logging.DEBUG)
+from joblib import load
+from flask import Flask, jsonify
+from flask_cors import CORS
+from utils import MessageException, message_exception_handler
+from extensions import init_swagger
 
 # Load environment variables
 load_dotenv()
-# Initialize session
-session = get_or_create_session(".whylabs.yaml")
-# logger = session.logger(
-#     dataset_name="this_is_my_dataset", 
-#     dataset_timestamp=datetime.datetime.now(datetime.timezone.utc), 
-#     with_rotation_time="1h"
-# )
 
+# Initialize Dataset
+df = pd.read_csv(os.environ["DATASET_URL"])
 # Load model with joblib
-model = load("model.joblib")
+model = load(os.environ["MODEL_PATH"])
 
-df = pd.read_csv("https://query.data.world/s/4kv7ilu7xzfnwryy6uslb6atoys7lz")
-
-@app.route("/", methods=["GET"])
-def health():
-    return jsonify({"state": "healthy"})
-
-@app.route("/update", methods=["POST"])
-def update_df():
-    logger = session.logger(
-        dataset_name="this_is_my_dataset", 
-        dataset_timestamp=datetime.datetime.now(datetime.timezone.utc), 
-        with_rotation_time="1h"
-    )
-    with logger:
-        logger.log_dataframe(df)
-    return jsonify({})
-
-@app.route("/predict", methods=["POST"])
-def predict():
-    # Schema validation
+# blueprints
+from api.views import blueprint
 
 
-    # Predict the output given the input
-    data = request.get_json().get("data")
-    # EXCEPTION
-    
-    n_attemps = 3
-    while n_attemps > 0:
-        logger = session.logger(
-            dataset_name="this_is_my_dataset", 
-            dataset_timestamp=datetime.datetime.now(datetime.timezone.utc), 
-            with_rotation_time="1h"
-        )
-        if logger is not None:
-            break
-        else:
-            n_attemps -= 1
-    if n_attemps <= 0:
-        return jsonify({"Error": "logger error"})
-        
-    # Convert into nd-array
-    data = np.array(data).reshape(1, -1)
-    pred = model.predict(data)[0]
+def create_app(config_object="settings"):
+    """Create application factory, as explained here: http://flask.pocoo.org/docs/patterns/appfactories/.
 
-    with logger:
-        logger.log({"class": pred})
+    :param config_object: The configuration object to use.
+    """
 
-    return jsonify({"class": pred})
+    app = Flask(__name__.split(".")[0])
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    # Adding CORS
+    CORS(app)
+
+    # Adding Logging
+    logging.basicConfig(level=logging.DEBUG)
+
+    app.config.from_object(config_object)
+
+    register_extensions(app)
+    register_blueprints(app)
+    register_error_handlers(app)
+
+    return app
+
+
+def register_extensions(app):
+    """Register Flask extensions."""
+    init_swagger(app)
+    return None
+
+
+def register_blueprints(app):
+    """Register Flask blueprints."""
+    app.register_blueprint(blueprint)
+
+    return None
+
+
+def register_error_handlers(app):
+    """Register error handlers."""
+
+    app.register_error_handler(MessageException, message_exception_handler)
+
+    def render_error(error):
+        response = jsonify(error.to_dict())
+        response.status_code = error.status_code
+        return response
+
