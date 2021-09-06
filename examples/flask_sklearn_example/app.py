@@ -1,48 +1,64 @@
+# -*- coding: utf-8 -*-
+"""The app module, containing the app factory function."""
+
 import os
-import datetime
 import logging
 import pandas as pd
-from flask import Flask, jsonify, request
-from whylogs import get_or_create_session
-from dotenv import load_dotenv
+from flask import Flask, jsonify
+from flask_cors import CORS
+from utils import MessageException, message_exception_handler
+from extensions import init_swagger
 
-app = Flask(__name__)
-logging.basicConfig(level=logging.DEBUG)
+# Initialize Dataset
+df = pd.read_csv(os.environ["DATASET_URL"])
 
-# Load environment variables
-load_dotenv()
-# Initialize session
-session = get_or_create_session(".whylabs.yaml")
-logger = session.logger(
-    dataset_name="this_is_my_dataset", 
-    dataset_timestamp=datetime.datetime.now(datetime.timezone.utc), 
-    with_rotation_time="1h"
-)
+# blueprints
+from api.views import blueprint
 
-# Load model with joblib
 
-df = pd.read_csv("https://query.data.world/s/4kv7ilu7xzfnwryy6uslb6atoys7lz")
+def create_app(config_object="settings"):
+    """Create application factory, as explained here: http://flask.pocoo.org/docs/patterns/appfactories/.
 
-@app.route("/", methods=["GET"])
-def health():
-    print(os.system("printenv"))
-    return jsonify({"state": "healthy"})
+    :param config_object: The configuration object to use.
+    """
 
-@app.route("/update", methods=["POST"])
-def update_df():
-    with logger:
-        logger.log_dataframe(df)
-    return jsonify({})
+    app = Flask(__name__.split(".")[0])
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    # Predict the output given the input
+    # Adding CORS
+    CORS(app)
 
-    with logger:
-        # Log input and output
-        logger.log({"confidence": "2"})
-        logger.log_dataframe(df)
-    return jsonify({"class_id": "exito"})
+    # Adding Logging
+    logging.basicConfig(level=logging.DEBUG)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    app.config.from_object(config_object)
+
+    register_extensions(app)
+    register_blueprints(app)
+    register_error_handlers(app)
+
+    return app
+
+
+def register_extensions(app):
+    """Register Flask extensions."""
+    init_swagger(app)
+    return None
+
+
+def register_blueprints(app):
+    """Register Flask blueprints."""
+    app.register_blueprint(blueprint)
+
+    return None
+
+
+def register_error_handlers(app):
+    """Register error handlers."""
+
+    app.register_error_handler(MessageException, message_exception_handler)
+
+    def render_error(error):
+        response = jsonify(error.to_dict())
+        response.status_code = error.status_code
+        return response
+
