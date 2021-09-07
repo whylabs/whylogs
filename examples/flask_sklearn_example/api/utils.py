@@ -1,3 +1,4 @@
+from typing import List
 from flask.globals import current_app
 import numpy as np
 from app import df, model
@@ -50,7 +51,7 @@ def initialize_logger():
         raise MessageException("Logger could not be initialized.", 500)
     return whylabs_logger
 
-def get_prediction(data):
+def get_prediction(data: List[float]) -> str:
     # Convert into nd-array
     try:
         data = np.array(data).reshape(1, -1)

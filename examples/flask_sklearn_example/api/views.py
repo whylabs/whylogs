@@ -1,5 +1,7 @@
 from flask import Blueprint, current_app, request
+from flask_pydantic import validate
 from api.utils import add_random_column_outliers, initialize_logger, get_prediction
+from schemas import FeatureVector
 from app import df, model
 from utils import object_response, message_response
 
@@ -14,21 +16,17 @@ def health():
 @blueprint.route("/update", methods=["POST"])
 def update_df():
     add_random_column_outliers()
-
     with initialize_logger() as logger:
-
         logger.log_dataframe(df)
-
     return message_response("Dataframe Successfully updated", 200)
 
 
 @blueprint.route("/predict", methods=["POST"])
-def predict():
+@validate()
+def predict(body: FeatureVector):
     # Predict the output given the input
-    data = request.get_json().get("data")
-    pred = get_prediction(data)
-
+    vector = body.data
+    pred = get_prediction(vector)
     with initialize_logger() as logger:
         logger.log({"class": pred})
-
     return object_response({"class": pred}, 200)

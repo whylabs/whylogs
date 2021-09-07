@@ -17,6 +17,8 @@ tags:
   externalDocs:
     description: "Find out more"
     url: "http://swagger.io"
+- name: "data"
+  description: "Predictions and operations over a dataset"
 schemes:
 - "https"
 - "http"
@@ -35,8 +37,48 @@ paths:
       parameters: []
       responses:
         "200":
-          description: "Sucesfull operation"
+          description: "Successful operation"
+  /predict:
+    post:
+      tags:
+        - "data"
+      summary: "Predict the class given and input array"
+      parameters:
+        - in: "body"
+          name: "body"
+          schema:
+            $ref: "#/definitions/FeatureVector"
+      description: ""
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Successful operation"
+  /update:
+    post:
+      tags:
+        - "data"
+      summary: "Modify the dataset distribution randomly"
+      description: ""
+      operationId: "update"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Successful operation"
 definitions:
+  FeatureVector:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          type: "number"
+          format: "float"
   ApiResponse:
     type: "object"
     properties:
