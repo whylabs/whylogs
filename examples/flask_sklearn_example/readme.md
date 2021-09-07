@@ -1,15 +1,35 @@
-# Flask scikit-learn examples
+# Flask scikit-learn example
 
+This example can be used runs a Flask application that hosts a scikit-learn model serialized with joblib.
 
 ## Environment variables management
 
-Write a .env file with the following configuration
+Write a .env file with the following configuration:
 
 ```bash
-WHYLABS_DEFAULT_DATASET_ID=...
+# Flask
+FLASK_ENV=development
+FLASK_DEBUG=1
+FLASK_APP=autoapp.py
+MODEL_PATH=model.joblib
+
+# Swagger Documentation
+SWAGGER_HOST=0.0.0.0:5000
+SWAGGER_BASEPATH=/api/v1
+SWAGGER_SCHEMES={"http"}
+
+# WhyLabs
+WHYLABS_CONFIG=.whylabs.yaml
 WHYLABS_API_KEY=...
 WHYLABS_DEFAULT_ORG_ID=...
-WHYLABS_API_ENDPOINT=...
+WHYLABS_DEFAULT_DATASET_ID=model-1
+WHYLABS_API_ENDPOINT=https://api.whylabsapp.com
+WHYLABS_N_ATTEMPS=3
+
+# Whylabs session
+DATASET_NAME=this_is_my_dataset
+ROTATION_TIME=1h
+DATASET_URL=dataset/iris.csv
 ```
 ## Train the model
 
@@ -23,10 +43,12 @@ __Train an SVM classifier__
 1. Configure dependencies in an environment (e.g. can use conda).
 2. Run train.py.
 
+__Note__: To be able to run __train.py__ you need to install kaggle.
+
 ## Build the image
 
 ```bash
-docker build --build-arg PYTHON_VERSION=3.7 -t whylogs-flask .
+docker build --build-arg PYTHON_VERSION=3.7 -t whylabss-flask .
 ```
 
 ## Run the image
@@ -37,4 +59,4 @@ docker run --rm -p 5000:5000 -v $(pwd):/app  whylogs-flask
 
 ## Swagger Documentation
 
-Go to http://0.0.0.0:5000/apidocs.
+To open Swagger UI go to http://0.0.0.0:5000/apidocs.
