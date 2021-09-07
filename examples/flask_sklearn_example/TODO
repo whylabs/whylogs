@@ -1,0 +1,14 @@
+- The code that call the /update endpoint will be running on lambda (chalice or cdk) (NICOLAS)
+- Modify flask endpoint structure to have good practices (e.g. exception handling) (JUAN-NICOLAS)
+    - Finish swagger.yaml (NICOLAS)
+    - Create POSTMAN collection (Optional - Ask tomorrow)
+- Fix readme files.
+- Deploy the docker container with CDK on AWS ECS (NICOLAS-JUAN)
+
+Questions:
+- Do you want to add POSTMAN collection?
+- Add deployment documentation and code on AWS CDK
+- Do we need to create a new model within the example (using REST API)
+- Which configurations are missing?
+- Is necessary to use poetry with the examples?
+- Unit tests should be added?
