@@ -60,6 +60,13 @@ class ModelMetrics:
             model_type=message.modelType,
         )
 
+    # Model type is initialized only if the metric model type is None or UNKNOWN
+    def init_or_get_model_type(self, scores) -> ModelType:
+        if self.model_type is None or self.model_type == ModelType.UNKNOWN:
+            # If scores are passed in then treat the model as CLASSIFICATION
+            self.model_type = ModelType.REGRESSION if scores is None else ModelType.CLASSIFICATION
+        return self.model_type
+
     def compute_confusion_matrix(
         self,
         predictions: List[Union[str, int, bool, float]],

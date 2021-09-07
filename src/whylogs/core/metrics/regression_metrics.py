@@ -1,8 +1,6 @@
 import math
 from typing import List
 
-from sklearn.utils.multiclass import type_of_target
-
 from whylogs.proto import RegressionMetricsMessage
 
 SUPPORTED_TYPES = "regression"
@@ -27,14 +25,7 @@ class RegressionMetrics:
         Args:
             predictions (List[float]):
             targets (List[float]):
-
-        Raises:
-            NotImplementedError: in case targets do not fall into continuous support
-            ValueError: incase missing validation or predictions
         """
-        tgt_type = type_of_target(targets)
-        if tgt_type not in ("continuous"):
-            raise NotImplementedError(f"target type: {tgt_type} not supported for these metrics")
 
         # need to vectorize this
         for idx, target in enumerate(targets):
