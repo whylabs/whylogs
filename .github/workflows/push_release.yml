@@ -100,7 +100,7 @@ jobs:
         title: 'Bump version to release'
         body: |
           Update mainline version to match release
-          - bumped to release version  ${VERSION} date
+          - bumped to release version
 
         labels: |
           automated pr
