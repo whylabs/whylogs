@@ -1,12 +1,8 @@
-import json
-
 import datasketches
 import numpy as np
 from testutil import compare_frequent_items
 
 from whylogs.util import dsketch
-
-decode_item = dsketch.FrequentItemsSketch._decode_item
 
 NUMBERS = [1, 1, 1, 2, 3, 4, 4, 5.0, 5.0, 4.0, 1e90]
 STRINGS = ["a", "b", "hello world", "hello World", "a", "a", "b"]
@@ -34,69 +30,7 @@ def track_and_validate_summary_estimates(vals: list, expected: set):
     assert isinstance(expected, set)
     sketch = make_sketch_and_track(vals)
     summary = sketch.to_summary()
-    estimates = [(decode_item(xi.json_value), xi.estimate) for xi in summary.items]
-    assert expected == set(estimates)
-    assert len(estimates) == len(expected)
-
-
-def test_number_summary_returns_correct_estimates():
-    expected = {
-        (1, 3),
-        (2, 1),
-        (3, 1),
-        (4, 2),
-        (5.0, 2),
-        (4.0, 1),
-        (1.0e90, 1),
-    }
-    track_and_validate_summary_estimates(NUMBERS, expected)
-
-
-def test_bool_summary_returns_correct_estimates():
-    expected = {
-        (True, 2),
-        (False, 1),
-    }
-    track_and_validate_summary_estimates(BOOLS, expected)
-
-
-def test_string_summary_returns_correct_estimates():
-    expected = {
-        ("a", 3),
-        ("b", 2),
-        ("hello world", 1),
-        ("hello World", 1),
-    }
-    track_and_validate_summary_estimates(STRINGS, expected)
-
-
-def test_mixed_summary_returns_correct_estimates():
-    expected = {
-        (1, 3),
-        (2, 1),
-        (3, 1),
-        (4, 2),
-        (5.0, 2),
-        (4.0, 1),
-        (1.0e90, 1),
-        (True, 2),
-        (False, 1),
-        ("a", 3),
-        ("b", 2),
-        ("hello world", 1),
-        ("hello World", 1),
-    }
-    track_and_validate_summary_estimates(ALL_VALS, expected)
-
-
-def test_bool_summary_returns_correct_estimates():
-    sketch = make_sketch_and_track(BOOLS)
-    summary = sketch.to_summary()
-    estimates = [(json.loads(xi.json_value), xi.estimate) for xi in summary.items]
-    expected = {
-        (True, 2),
-        (False, 1),
-    }
+    estimates = [(xi.json_value, xi.estimate) for xi in summary.items]
     assert expected == set(estimates)
     assert len(estimates) == len(expected)
 
@@ -125,27 +59,6 @@ def test_estimates_equal_datasketches():
         assert sketch.get_estimate(v) == strings_sketch.get_estimate(v)
         assert sketch.get_lower_bound(v) == strings_sketch.get_lower_bound(v)
         assert sketch.get_upper_bound(v) == strings_sketch.get_upper_bound(v)
-
-
-def test_frequent_items_correct():
-    sketch = make_sketch_and_track(ALL_VALS)
-    items = sketch.get_frequent_items()
-    true_items = [
-        (1, 3, 3, 3),
-        (2, 1, 1, 1),
-        (3, 1, 1, 1),
-        (4, 2, 2, 2),
-        (5.0, 2, 2, 2),
-        (4.0, 1, 1, 1),
-        (1.0e90, 1, 1, 1),
-        (True, 2, 2, 2),
-        (False, 1, 1, 1),
-        ("a", 3, 3, 3),
-        ("b", 2, 2, 2),
-        ("hello world", 1, 1, 1),
-        ("hello World", 1, 1, 1),
-    ]
-    compare_frequent_items(true_items, items)
 
 
 def test_correct_num_active_items():
@@ -266,12 +179,6 @@ def test_merge_gives_correct_values():
         new_item = (item[0], 2 * item[1], 2 * item[2], 2 * item[3])
         expected.append(new_item)
     compare_frequent_items(expected, merged_items)
-
-
-def test_empty_sketch_summary_returns_none():
-    sketch = dsketch.FrequentItemsSketch()
-    summary = sketch.to_summary()
-    assert summary is None
 
 
 def test_null_lg_max_k_protobuf_value():

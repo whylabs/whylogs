@@ -7,7 +7,7 @@ on:
     branches: [ mainline, release]
 
 jobs:
-  test:
+  notebook-test:
     runs-on: ${{ matrix.os }}
 
     strategy:

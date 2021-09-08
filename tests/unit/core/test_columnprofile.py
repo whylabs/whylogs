@@ -1,5 +1,3 @@
-import json
-
 import numpy as np
 import pandas as pd
 import pytest
@@ -100,15 +98,7 @@ def test_protobuf():
 
     assert c1.string_tracker.length.count == 0
     assert len(c1.string_tracker.char_pos_tracker.character_list) == 56
-    msg2 = c1.to_protobuf()
-    # We cannot do a straight equality comparison for serialized frequent
-    # strings objects
-    compare_frequent_items(
-        c1.number_tracker.frequent_numbers.get_frequent_items(),
-        c.number_tracker.frequent_numbers.get_frequent_items(),
-    )
-    msg.numbers.frequent_numbers.sketch = bytes()
-    msg2.numbers.frequent_numbers.sketch = bytes()
+    c1.to_protobuf()
 
 
 def test_summary():
@@ -157,26 +147,6 @@ def test_summary():
     }
     actual_unique = actual_val.pop("uniqueCount")
     assert actual_unique == pytest.approx(expected_unique, 0.0001)
-
-    # Cannot do a straightforward comparison of frequent number counts, since
-    # their orders can vary
-    actual_freq = actual_val["numberSummary"]["frequentNumbers"]
-    actual_val["numberSummary"].pop("frequentNumbers")
-    counts = []
-    for num_list in (actual_freq["longs"], actual_freq["doubles"]):
-        for xi in num_list:
-            val = xi["value"]
-            if isinstance(val, str):
-                # Parse JSON encoded int64
-                val = json.loads(val)
-            count = xi["estimate"]
-            if isinstance(count, str):
-                # Parse JSON encoded int64
-                count = json.loads(count)
-            counts.append((val, count))
-    expected_counts = {(1, 1), (2, 1), (3, 1)}
-    assert len(counts) == len(expected_counts)
-    assert set(counts) == expected_counts
 
     # Cannot do a straightforward frequentItems count since order is ambiguous
     actual_freq = actual_val.pop("frequentItems")

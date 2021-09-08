@@ -15,7 +15,6 @@ MY_PREFIX = "mock_folder"
 
 object_keys = [
     "dataset_test_s3/dataset_summary/flat_table/dataset_summary.csv",
-    "dataset_test_s3/dataset_summary/freq_numbers/dataset_summary.json",
     "dataset_test_s3/dataset_summary/frequent_strings/dataset_summary.json",
     "dataset_test_s3/dataset_summary/histogram/dataset_summary.json",
     "dataset_test_s3/dataset_summary/json/dataset_summary.json",

@@ -1,19 +1,11 @@
 """
 Define functions and classes for interfacing with `datasketches`
 """
-import json
 import math
-from collections import defaultdict
 
 import datasketches
-import pandas as pd
 
-from whylogs.proto import (
-    FrequentItemsSketchMessage,
-    FrequentItemsSummary,
-    FrequentNumbersSketchMessage,
-    FrequentNumbersSummary,
-)
+from whylogs.proto import FrequentItemsSketchMessage, FrequentItemsSummary
 
 
 def deserialize_kll_floats_sketch(x: bytes, kind: str = "float"):
@@ -159,7 +151,7 @@ class FrequentItemsSketch:
         if decode:
             decoded_items = []
             for item in items:
-                x = self._decode_item(item[0])
+                x = item[0]
                 decoded_items.append((x,) + item[1:])
             return decoded_items
         else:
@@ -293,11 +285,7 @@ class FrequentItemsSketch:
 
     @staticmethod
     def _encode_item(x):
-        return pd.io.json.dumps(x)
-
-    @staticmethod
-    def _decode_item(x):
-        return pd.io.json.loads(x)
+        return str(x)
 
     @staticmethod
     def deserialize(x: bytes):
@@ -310,107 +298,3 @@ class FrequentItemsSketch:
             return FrequentItemsSketch()
         sketch = datasketches.frequent_strings_sketch.deserialize(x)
         return FrequentItemsSketch(sketch=sketch)
-
-
-class FrequentNumbersSketch(FrequentItemsSketch):
-    """
-    A class to implement frequent number counting
-    """
-
-    def copy(self):
-        """
-        Returns
-        -------
-        self_copy : FrequentNumbersSketch
-            A copy of this object
-        """
-        self_copy = FrequentNumbersSketch.deserialize(self.serialize())
-        if self_copy is None:
-            # Self must be empty
-            self_copy = FrequentNumbersSketch(self.lg_max_k)
-        return self_copy
-
-    def to_summary(self, max_items=30, min_count=1):
-        """
-        Generate a protobuf summary.  Returns None if there are no frequent
-        items.
-
-        Parameters
-        ----------
-        max_items : int
-            Maximum number of items to return.  The most frequent items will
-            be returned
-        min_count : int
-            Minimum number counts for all returned items
-
-        Returns
-        -------
-        summary : FrequentNumbersSummary
-            Protobuf summary message
-        """
-        items = self.get_frequent_items(threshold=min_count - 1)
-        if len(items) < 1:
-            return
-
-        items_dict = defaultdict(list)
-        for rank, x in enumerate(items[0:max_items]):
-            d = {"value": x[0], "estimate": x[1], "rank": rank}
-            if isinstance(d["value"], float):
-                items_dict["doubles"].append(d)
-            else:
-                items_dict["longs"].append(d)
-
-        return FrequentNumbersSummary(**items_dict)
-
-    def to_protobuf(self):
-        """
-        Generate a protobuf representation of this object
-        """
-        lg_max_k = self.lg_max_k
-        if lg_max_k is None:
-            lg_max_k = -1
-        return FrequentNumbersSketchMessage(
-            sketch=self.sketch.serialize(),
-            lg_max_k=lg_max_k,
-        )
-
-    @staticmethod
-    def from_protobuf(message: FrequentNumbersSketchMessage):
-        lg_max_k = message.lg_max_k
-        if lg_max_k < 0:
-            lg_max_k = None
-        sketch = FrequentNumbersSketch.deserialize(message.sketch)
-        sketch.lg_max_k = lg_max_k
-        return sketch
-
-    @staticmethod
-    def deserialize(x: bytes):
-        """
-        Deserialize a frequent numbers sketch.
-
-        If x is an empty sketch, None is returned
-        """
-        if len(x) <= 8:
-            return FrequentNumbersSketch()
-        sketch = datasketches.frequent_strings_sketch.deserialize(x)
-        return FrequentNumbersSketch(sketch=sketch)
-
-    @staticmethod
-    def flatten_summary(summary: FrequentItemsSummary):
-        """
-        Flatten a FrequentNumbersSummary
-        """
-        counts = {"value": [], "count": []}
-        for num_list in (summary.doubles, summary.longs):
-            for msg in num_list:
-                counts["value"].append(msg.value)
-                counts["count"].append(msg.estimate)
-        return counts
-
-    @staticmethod
-    def _encode_number(x):
-        return json.dumps(x)
-
-    @staticmethod
-    def _decode_number(x):
-        return json.loads(x)

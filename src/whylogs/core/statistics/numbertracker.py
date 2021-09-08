@@ -52,7 +52,6 @@ class NumberTracker:
         ints: IntTracker = None,
         theta_sketch: ThetaSketch = None,
         histogram: datasketches.kll_floats_sketch = None,
-        frequent_numbers: dsketch.FrequentNumbersSketch = None,
     ):
         # Our own trackers
         if variance is None:
@@ -65,14 +64,11 @@ class NumberTracker:
             theta_sketch = ThetaSketch()
         if histogram is None:
             histogram = datasketches.kll_floats_sketch(DEFAULT_HIST_K)
-        if frequent_numbers is None:
-            frequent_numbers = dsketch.FrequentNumbersSketch()
         self.variance = variance
         self.floats = floats
         self.ints = ints
         self.theta_sketch = theta_sketch
         self.histogram = histogram
-        self.frequent_numbers = frequent_numbers
 
     @property
     def count(self):
@@ -92,7 +88,6 @@ class NumberTracker:
             return
         self.variance.update(number)
         self.theta_sketch.update(number)
-        self.frequent_numbers.update(number)
         # TODO: histogram update
         # Update floats/ints counting
         f_value = float(number)
@@ -114,14 +109,12 @@ class NumberTracker:
         hist_copy.merge(other.histogram)
 
         theta_sketch = self.theta_sketch.merge(other.theta_sketch)
-        frequent_numbers = self.frequent_numbers.merge(other.frequent_numbers)
         return NumberTracker(
             variance=self.variance.merge(other.variance),
             floats=self.floats.merge(other.floats),
             ints=self.ints.merge(other.ints),
             theta_sketch=theta_sketch,
             histogram=hist_copy,
-            frequent_numbers=frequent_numbers,
         )
 
     def to_protobuf(self):
@@ -132,7 +125,6 @@ class NumberTracker:
             variance=self.variance.to_protobuf(),
             compact_theta=self.theta_sketch.serialize(),
             histogram=self.histogram.serialize(),
-            frequent_numbers=self.frequent_numbers.to_protobuf(),
         )
         if self.floats.count > 0:
             opts["doubles"] = self.floats.to_protobuf()
@@ -160,7 +152,6 @@ class NumberTracker:
             theta_sketch=theta,
             variance=VarianceTracker.from_protobuf(message.variance),
             histogram=dsketch.deserialize_kll_floats_sketch(message.histogram),
-            frequent_numbers=dsketch.FrequentNumbersSketch.from_protobuf(message.frequent_numbers),
         )
         if message.HasField("doubles"):
             opts["floats"] = FloatTracker.from_protobuf(message.doubles)
@@ -194,7 +185,6 @@ class NumberTracker:
         unique_count = self.theta_sketch.to_summary()
         histogram = histogram_from_sketch(self.histogram)
         quant = quantiles_from_sketch(self.histogram)
-        frequent_numbers = self.frequent_numbers.to_summary()
         num_records = self.variance.count
         cardinality = unique_count.estimate
         if doubles.count > 0:
@@ -211,6 +201,5 @@ class NumberTracker:
             histogram=histogram,
             quantiles=quant,
             unique_count=unique_count,
-            frequent_numbers=frequent_numbers,
             is_discrete=discrete,
         )

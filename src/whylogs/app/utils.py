@@ -10,6 +10,14 @@ _NO_ASYNC = "WHYLOGS_NO_ASYNC"
 _logger = logging.getLogger(__name__)
 
 _threads: List[threading.Thread] = []
+_timer_threads: List[threading.Thread] = []
+
+
+def timer_wrap(func, interval, *args, **kwargs):
+    thread = threading.Timer(interval, func, args=args, kwargs=kwargs)
+    thread.start()
+    _timer_threads.append(thread)
+    return thread
 
 
 def _do_wrap(func):
@@ -50,3 +58,9 @@ def _wait_for_children():
             t.join()
         except:  # noqa
             _logger.exception("Failed to await task")
+    for t in _timer_threads:
+        try:
+            t.cancel()
+            t.join()
+        except:  # noqa
+            _logger.exception("Failed to await timer task")

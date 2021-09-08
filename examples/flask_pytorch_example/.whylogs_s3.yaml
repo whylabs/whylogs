@@ -1,0 +1,11 @@
+project: test-project-yaml
+pipeline: test-pipeline
+verbose: false
+writers:
+- formats:
+  - protobuf
+  output_path: s3://mocked_bucket/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary_$datetime_timestamp
+  type: local
+

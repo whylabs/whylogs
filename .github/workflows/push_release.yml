@@ -57,7 +57,7 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        poetry install twine
+        make clean
         make dist
         poetry run twine upload dist/*
   bump_mainline:
@@ -84,7 +84,6 @@ jobs:
         # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         # git config --local user.name "github-actions[bot]"
         poetry run bump2version patch --verbose  --no-tag --new-version $VERSION
-        make bump-dev
         
     - name: Create Pull Request
       id: cpr
@@ -101,7 +100,7 @@ jobs:
         title: 'Bump version to release'
         body: |
           Update mainline version to match release
-          - bumped to release version  ${VERSION} date
+          - bumped to release version
 
         labels: |
           automated pr

@@ -82,7 +82,7 @@ def test_log_dataframe(tmpdir, df_lending_club):
     output_files = []
     for root, subdirs, files in os.walk(p):
         output_files += files
-    assert len(output_files) == 5
+    assert len(output_files) == 4
 
 
 def test_log_csv(tmpdir):
@@ -119,7 +119,7 @@ def test_log_multiple_calls(tmpdir, df_lending_club):
     for root, subdirs, files in os.walk(p):
         output_files += files
     # we run 5 times, so we should have five times more files than the above test
-    assert len(output_files) == 25
+    assert len(output_files) == 20
     os.chdir(original_dir)
 
 

@@ -29,6 +29,9 @@ from whylogs.proto import (
 from whylogs.util import time
 from whylogs.util.time import from_utc_ms, to_utc_ms
 
+SCHEMA_MAJOR_VERSION = 1
+SCHEMA_MINOR_VERSION = 2
+
 logger = logging.getLogger(__name__)
 # Optional import for cudf
 try:
@@ -290,8 +293,8 @@ class DatasetProfile:
         data_timestamp = to_utc_ms(self.dataset_timestamp)
 
         return DatasetProperties(
-            schema_major_version=1,
-            schema_minor_version=1,
+            schema_major_version=SCHEMA_MAJOR_VERSION,
+            schema_minor_version=SCHEMA_MINOR_VERSION,
             session_id=self.session_id,
             session_timestamp=session_timestamp,
             data_timestamp=data_timestamp,
