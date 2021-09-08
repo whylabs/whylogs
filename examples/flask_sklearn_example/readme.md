@@ -2,6 +2,21 @@
 
 This example can be used runs a Flask application that hosts a scikit-learn model serialized with joblib.
 
+## Whylabs configuration
+
+Adapt the .whylabs.yaml:
+
+```yaml
+project: example-project
+pipeline: example-pipeline
+verbose: false
+writers:
+- data_collection_consent: true
+  formats: ['protobuf']
+  output_path: whylabs
+  type: whylabs
+```
+
 ## Environment variables management
 
 Write a .env file with the following configuration:
@@ -48,13 +63,13 @@ __Note__: To be able to run __train.py__ you need to install kaggle.
 ## Build the image
 
 ```bash
-docker build --build-arg PYTHON_VERSION=3.7 -t whylabss-flask .
+docker build --build-arg PYTHON_VERSION=3.7 -t whylabs-flask .
 ```
 
 ## Run the image
 
 ```bash
-docker run --rm -p 5000:5000 -v $(pwd):/app  whylogs-flask
+docker run --rm -p 5000:5000 -v $(pwd):/app  whylabs-flask
 ```
 
 ## Swagger Documentation

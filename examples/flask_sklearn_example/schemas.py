@@ -1,6 +1,9 @@
-from typing import List
+from typing import Dict
 from pydantic import BaseModel
 
 
 class FeatureVector(BaseModel):
-    data: List[float]
+    sepal_length_cm: float
+    sepal_width_cm: float
+    petal_length_cm: float
+    petal_width_cm: float
