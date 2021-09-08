@@ -74,11 +74,18 @@ definitions:
   FeatureVector:
     type: "object"
     properties:
-      data:
-        type: "array"
-        items:
-          type: "number"
-          format: "float"
+      sepal_length_cm:
+        type: "number"
+        format: "float"
+      sepal_width_cm:
+        type: "number"
+        format: "float"
+      petal_length_cm:
+        type: "number"
+        format: "float"
+      petal_width_cm:
+        type: "number"
+        format: "float"
   ApiResponse:
     type: "object"
     properties:
