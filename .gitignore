@@ -148,4 +148,5 @@ cython_debug/
 # Misc
 /output # default location of the whylogs binary output
 
-requirements.txt
+# Ignore requirements.txt of top level folder
+/requirements.txt

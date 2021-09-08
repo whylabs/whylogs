@@ -6,9 +6,12 @@
 - Deploy the docker container with CDK on AWS ECS (NICOLAS-JUAN)
 
 Questions:
-- Do you want to add POSTMAN collection?
-- Add deployment documentation and code on AWS CDK
-- Do we need to create a new model within the example (using REST API)
-- Which configurations are missing?
-- Is necessary to use poetry with the examples?
-- Unit tests should be added?
+- Do you want to add POSTMAN collection?: no
+- Add deployment documentation and code on AWS CDK: no
+- Do we need to create a new model within the example (using REST API)?: no
+- Which configurations are missing?: 
+    - requirements.txt bug in gitignore (just ignore the one in root)
+    - add logging feature-vector as dictionary
+    - closing the logger everytime (problemo)
+- Is necessary to use poetry with the examples?: no
+- Unit tests should be added?: no
