@@ -28,5 +28,6 @@ def predict(body: FeatureVector):
     vector = body.data
     pred = get_prediction(vector)
     with initialize_logger() as logger:
+        #logger.log()# also log the feature vector (key-value)
         logger.log({"class": pred})
     return object_response({"class": pred}, 200)
