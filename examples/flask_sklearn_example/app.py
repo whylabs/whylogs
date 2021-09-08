@@ -10,14 +10,17 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from utils import MessageException, message_exception_handler
 from extensions import init_swagger
-
+from whylogs import get_or_create_session
 # Load environment variables
 load_dotenv()
 
 # Initialize Dataset
 df = pd.read_csv(os.environ["DATASET_URL"])
+
 # Load model with joblib
 model = load(os.environ["MODEL_PATH"])
+whylabs_session = get_or_create_session(os.environ["WHYLABS_CONFIG"])
+whylabs_logger = None
 
 # blueprints
 from api.views import blueprint
@@ -68,4 +71,3 @@ def register_error_handlers(app):
         response = jsonify(error.to_dict())
         response.status_code = error.status_code
         return response
-
