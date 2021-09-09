@@ -22,11 +22,12 @@ SegmentTags = List[SegmentTag]
 
 
 class TransportParameterConfig:
-    def __init__(self, endpoint_url: str, aws_access_key_id: str, aws_secret_access_key: str, region_name: str):
+    def __init__(self, endpoint_url: str, aws_access_key_id: str, aws_secret_access_key: str, region_name: str, verify: str):
         self.endpoint_url = endpoint_url
         self.aws_access_key_id = aws_access_key_id
         self.aws_secret_access_key = aws_secret_access_key
         self.region_name = region_name
+        self.verify = verify
 
 
 class TransportParameterConfigSchema(Schema):
@@ -38,6 +39,7 @@ class TransportParameterConfigSchema(Schema):
     aws_access_key_id = fields.Str(required=False, allow_none=True)
     aws_secret_access_key = fields.Str(required=False, allow_none=True)
     region_name = fields.Str(required=False, allow_none=True)
+    verify = fields.Str(required=False, allow_none=True)
 
     @post_load
     def make_writer(self, data, **kwargs):
