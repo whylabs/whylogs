@@ -298,6 +298,7 @@ class S3Writer(Writer):
                 aws_access_key_id=self.transport_params.aws_access_key_id,
                 aws_secret_access_key=self.transport_params.aws_secret_access_key,
                 region_name=self.transport_params.region_name,
+                verify=self.transport_params.verify,
             )
             transport_params = {"client": session.client("s3")}
         else:
@@ -349,11 +350,6 @@ class S3Writer(Writer):
 
         json_flat_file = self.file_name(profile, ".json")
         _suffix = rotation_suffix or ""
-
-        frequent_numbers_path = os.path.join(self.output_path, self.path_suffix(profile), f"freq_numbers{_suffix}")
-        with open(os.path.join(frequent_numbers_path, json_flat_file), "wt", transport_params=transport_params) as f:
-            hist = flatten_dataset_histograms(summary)
-            json.dump(hist, f, indent=indent)
 
         frequent_strings_path = os.path.join(self.output_path, self.path_suffix(profile), f"frequent_strings{_suffix}")
         with open(os.path.join(frequent_strings_path, json_flat_file), "wt", transport_params=transport_params) as f:
