@@ -31,8 +31,9 @@ def count_features(json_profile_filename):
 
 def get_json_profile(json_profile_filename):
     profile = {}
-    with open(json_profile_filename) as profile_file:
-        profile = json.load(profile_file)
+    if os.path.exists(json_profile_filename) and os.stat(json_profile_filename).st_size > 0:
+        with open(json_profile_filename) as profile_file:
+            profile = json.load(profile_file)
     return profile
 
 
