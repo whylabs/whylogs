@@ -4,6 +4,7 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
+from threading import RLock
 from typing import Dict, List, Mapping, Optional, Union
 from uuid import uuid4
 
@@ -97,6 +98,7 @@ class DatasetProfile:
         if session_id is None:
             session_id = uuid4().hex
 
+        self.serialization_lock = RLock()
         self.session_id = session_id
         self.session_timestamp = session_timestamp
         self.dataset_timestamp = dataset_timestamp
@@ -104,7 +106,6 @@ class DatasetProfile:
         self._metadata = metadata.copy()
         self.columns = columns
         self.constraints = constraints
-
         self.model_profile = model_profile
 
         # Store Name attribute
@@ -188,17 +189,18 @@ class DatasetProfile:
         score_field : str, optional
 
         """
-        if self.model_profile is None:
-            self.model_profile = ModelProfile()
-        self.model_profile.compute_metrics(
-            predictions=predictions,
-            targets=targets,
-            scores=scores,
-            model_type=model_type,
-            target_field=target_field,
-            prediction_field=prediction_field,
-            score_field=score_field,
-        )
+        with self.serialization_lock:
+            if self.model_profile is None:
+                self.model_profile = ModelProfile()
+            self.model_profile.compute_metrics(
+                predictions=predictions,
+                targets=targets,
+                scores=scores,
+                model_type=model_type,
+                target_field=target_field,
+                prediction_field=prediction_field,
+                score_field=score_field,
+            )
 
     def track(self, columns, data=None, character_list=None, token_method=None):
         """
@@ -214,18 +216,19 @@ class DatasetProfile:
         data : object, None
             Value to track.  Specify if `columns` is a string.
         """
-        if data is not None:
-            if type(columns) != str:
-                raise TypeError("Unambiguous column to data mapping")
-            self.track_datum(columns, data)
-        else:
-            if isinstance(columns, dict):
-                for column_name, data in columns.items():
-                    self.track_datum(column_name, data, character_list=None, token_method=None)
-            elif isinstance(columns, str):
-                self.track_datum(columns, None, character_list=None, token_method=None)
+        with self.serialization_lock:
+            if data is not None:
+                if type(columns) != str:
+                    raise TypeError("Unambiguous column to data mapping")
+                self.track_datum(columns, data)
             else:
-                raise TypeError("Data type of: {} not supported for tracking".format(columns.__class__.__name__))
+                if isinstance(columns, dict):
+                    for column_name, data in columns.items():
+                        self.track_datum(column_name, data, character_list=None, token_method=None)
+                elif isinstance(columns, str):
+                    self.track_datum(columns, None, character_list=None, token_method=None)
+                else:
+                    raise TypeError("Data type of: {} not supported for tracking".format(columns.__class__.__name__))
 
     def track_datum(self, column_name, data, character_list=None, token_method=None):
         try:
@@ -254,7 +257,8 @@ class DatasetProfile:
         if columns is None:
             columns = np.arange(x.shape[1])
         columns = [str(c) for c in columns]
-        return self.track_dataframe(pd.DataFrame(x, columns=columns))
+        with self.serialization_lock:
+            self.track_dataframe(pd.DataFrame(x, columns=columns))
 
     def track_dataframe(self, df: pd.DataFrame, character_list=None, token_method=None):
         """
@@ -268,12 +272,13 @@ class DatasetProfile:
         # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
         if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
             df = df.to_pandas()
-        for col in df.columns:
-            col_str = str(col)
+        with self.serialization_lock:
+            for col in df.columns:
+                col_str = str(col)
 
-            x = df[col].values
-            for xi in x:
-                self.track(col_str, xi, character_list=None, token_method=None)
+                x = df[col].values
+                for xi in x:
+                    self.track(col_str, xi, character_list=None, token_method=None)
 
     def to_properties(self):
         """
@@ -311,13 +316,14 @@ class DatasetProfile:
         summary : DatasetSummary
             Protobuf summary message.
         """
-        self.validate()
-        column_summaries = {name: colprof.to_summary() for name, colprof in self.columns.items()}
+        with self.serialization_lock:
+            self.validate()
+            column_summaries = {name: colprof.to_summary() for name, colprof in self.columns.items()}
 
-        return DatasetSummary(
-            properties=self.to_properties(),
-            columns=column_summaries,
-        )
+            return DatasetSummary(
+                properties=self.to_properties(),
+                columns=column_summaries,
+            )
 
     def generate_constraints(self) -> DatasetConstraints:
         """
@@ -412,17 +418,18 @@ class DatasetProfile:
         columns_set = set(list(self.columns.keys()) + list(other.columns.keys()))
 
         columns = {}
-        for col_name in columns_set:
-            constraints = None if self.constraints is None else self.constraints[col_name]
-            empty_column = ColumnProfile(col_name, constraints=constraints)
-            this_column = self.columns.get(col_name, empty_column)
-            other_column = other.columns.get(col_name, empty_column)
-            columns[col_name] = this_column.merge(other_column)
+        with self.serialization_lock:
+            for col_name in columns_set:
+                constraints = None if self.constraints is None else self.constraints[col_name]
+                empty_column = ColumnProfile(col_name, constraints=constraints)
+                this_column = self.columns.get(col_name, empty_column)
+                other_column = other.columns.get(col_name, empty_column)
+                columns[col_name] = this_column.merge(other_column)
 
-        if self.model_profile is not None:
-            new_model_profile = self.model_profile.merge(other.model_profile)
-        else:
-            new_model_profile = other.model_profile
+            if self.model_profile is not None:
+                new_model_profile = self.model_profile.merge(other.model_profile)
+            else:
+                new_model_profile = other.model_profile
 
         return DatasetProfile(
             name=self.name,
@@ -488,15 +495,17 @@ class DatasetProfile:
         -------
         message : DatasetProfileMessage
         """
-        properties = self.to_properties()
+        with self.serialization_lock:
+            properties = self.to_properties()
 
-        if self.model_profile is not None:
-            model_profile_msg = self.model_profile.to_protobuf()
-        else:
-            model_profile_msg = None
+            if self.model_profile is not None:
+                model_profile_msg = self.model_profile.to_protobuf()
+            else:
+                model_profile_msg = None
+            column_protos = {k: v.to_protobuf() for k, v in self.columns.items()}
         return DatasetProfileMessage(
             properties=properties,
-            columns={k: v.to_protobuf() for k, v in self.columns.items()},
+            columns=column_protos,
             modeProfile=model_profile_msg,
         )
 
