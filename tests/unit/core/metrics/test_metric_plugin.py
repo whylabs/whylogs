@@ -37,18 +37,33 @@ class ACustomMetric(MetricPlugin):
                 self.word_counts[word] = other.word_counts[word]
 
 
-def tests_custom_metrics_name():
-    custom_metric = ACustomMetric()
+@dataclass
+class CustomMetricSerializedAsJson(ACustomMetric):
+    name: str = "TargetWordCounterJson"
+
+    @staticmethod
+    def deserialize(data: bytes):
+        return MetricPlugin.from_string(data)
+
+    def serialize(self) -> bytes:
+        return self.to_string()
+
+testdata = [(ACustomMetric), (CustomMetricSerializedAsJson)]
+
+@pytest.mark.parametrize("plugin_type", testdata)
+def tests_custom_metrics_name(plugin_type):
+    custom_metric = plugin_type()
     subclasses = MetricPlugin.get_subclasses()
     assert custom_metric.__class__ in subclasses
     assert isinstance(custom_metric, MetricPlugin)
-    assert custom_metric.name.endswith("TargetWordCounter")
+    assert custom_metric.name.startswith("TargetWordCounter")
 
 
-def tests_custom_metric_merge():
-    custom_metric1 = ACustomMetric()
-    custom_metric2 = ACustomMetric()
-    expected_merge = ACustomMetric()
+@pytest.mark.parametrize("plugin_type", testdata)
+def tests_custom_metric_merge(plugin_type):
+    custom_metric1 = plugin_type()
+    custom_metric2 = plugin_type()
+    expected_merge = plugin_type()
     custom_metric1.track("ACT I SCENE I. Before LEONATO'S house.")
     custom_metric2.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
     custom_metric1.merge(custom_metric2)
@@ -58,8 +73,9 @@ def tests_custom_metric_merge():
     assert custom_metric1 == expected_merge
 
 
-def tests_custom_metric_merge_self():
-    custom_metric = ACustomMetric()
+@pytest.mark.parametrize("plugin_type", testdata)
+def tests_custom_metric_merge_self(plugin_type):
+    custom_metric = plugin_type()
     custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
     custom_metric.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
     assert custom_metric.word_counts["ACT"] == 1
@@ -67,12 +83,28 @@ def tests_custom_metric_merge_self():
     assert custom_metric.word_counts["ACT"] == 1
 
 
-def tests_custom_metric_serialization_and_deserialization():
-    custom_metric = ACustomMetric()
+@pytest.mark.parametrize("plugin_type", testdata)
+def tests_custom_metric_serialization_and_deserialization(plugin_type):
+    custom_metric = plugin_type()
     custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
     custom_metric.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
     serialized_metric = custom_metric.serialize()
-    custom_metric_deserialized = ACustomMetric.deserialize(serialized_metric)
+    custom_metric_deserialized = plugin_type.deserialize(serialized_metric)
+    assert isinstance(custom_metric_deserialized, plugin_type)
+    assert custom_metric_deserialized == custom_metric
+    custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
+    assert custom_metric_deserialized != custom_metric
+    assert custom_metric.word_counts["ACT"] > 0
+    assert custom_metric.word_counts["SCENE"] > 0
+
+
+@pytest.mark.parametrize("plugin_type", testdata)
+def tests_summary_and_serialization_are_same_by_default(plugin_type):
+    custom_metric = plugin_type()
+    custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
+    custom_metric.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
+    serialized_metric = custom_metric.serialize()
+    custom_metric_deserialized = plugin_type.deserialize(serialized_metric)
     assert isinstance(custom_metric_deserialized, MetricPlugin)
     assert custom_metric_deserialized == custom_metric
     custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
@@ -81,12 +113,13 @@ def tests_custom_metric_serialization_and_deserialization():
     assert custom_metric.word_counts["SCENE"] > 0
 
 
-def tests_summary_and_serialization_are_same_by_default():
-    custom_metric = ACustomMetric()
+@pytest.mark.parametrize("plugin_type", testdata)
+def tests_name_match_predicate(plugin_type):
+    custom_metric = plugin_type()
     custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
     custom_metric.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
     serialized_metric = custom_metric.serialize()
-    custom_metric_deserialized = ACustomMetric.deserialize(serialized_metric)
+    custom_metric_deserialized = plugin_type.deserialize(serialized_metric)
     assert isinstance(custom_metric_deserialized, MetricPlugin)
     assert custom_metric_deserialized == custom_metric
     custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
@@ -95,28 +128,35 @@ def tests_summary_and_serialization_are_same_by_default():
     assert custom_metric.word_counts["SCENE"] > 0
 
 
-def tests_name_match_predicate():
-    custom_metric = ACustomMetric()
-    custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
-    custom_metric.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
-    serialized_metric = custom_metric.serialize()
-    custom_metric_deserialized = ACustomMetric.deserialize(serialized_metric)
-    assert isinstance(custom_metric_deserialized, MetricPlugin)
-    assert custom_metric_deserialized == custom_metric
-    custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
-    assert custom_metric_deserialized != custom_metric
-    assert custom_metric.word_counts["ACT"] > 0
-    assert custom_metric.word_counts["SCENE"] > 0
-
-
-def tests_custom_metric_protobuf_and_file_deserialization():
-    custom_metric = ACustomMetric()
+@pytest.mark.parametrize("plugin_type", testdata)
+def tests_custom_metric_protobuf_and_file_deserialization(plugin_type):
+    custom_metric = plugin_type()
     custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
     custom_metric.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
     assert custom_metric.word_counts["ACT"] == 1
     serialized_metric_bytes = custom_metric.serialize()
-    deserialized_metric = MetricPlugin.deserialize(serialized_metric_bytes)
-    assert isinstance(deserialized_metric, ACustomMetric)
+    deserialized_metric = plugin_type.deserialize(serialized_metric_bytes)
+    assert isinstance(deserialized_metric, plugin_type)
+    assert deserialized_metric == custom_metric
+
+    # if we track more data that this metric does not care about, then the serialized version is still same
+    custom_metric.track("not interesting data")
+    assert deserialized_metric == custom_metric
+
+    # if we track more data that this metric summarizes, then the serialized version is now stale
+    custom_metric.track("ACT II")
+    assert deserialized_metric != custom_metric
+
+
+def tests_custom_metric_json_deserialization():
+    custom_metric = CustomMetricSerializedAsJson()
+    custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
+    custom_metric.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
+    assert custom_metric.word_counts["ACT"] == 1
+    serialized_metric_bytes = custom_metric.to_string()
+    TEST_LOGGER.info(serialized_metric_bytes)
+    deserialized_metric = CustomMetricSerializedAsJson.from_string(serialized_metric_bytes)
+    assert isinstance(deserialized_metric, CustomMetricSerializedAsJson)
     assert deserialized_metric == custom_metric
 
     # if we track more data that this metric does not care about, then the serialized version is still same

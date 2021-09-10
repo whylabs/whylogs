@@ -210,7 +210,7 @@ message PluginMessage {
   string name = 1;
   repeated PluginType plugin_types = 2; // The language and corresponding classname that implements this plugin.
   oneof item {
-    google.protobuf.Struct struct = 3;
+    google.protobuf.Struct params = 3;
     bytes serialized_bytes = 4;
   }
 }

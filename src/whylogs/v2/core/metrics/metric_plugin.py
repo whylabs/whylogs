@@ -1,7 +1,7 @@
 import logging as test_logging
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
-from json import dumps
+from json import dumps, loads
 from typing import Type
 
 from google.protobuf import json_format
@@ -35,13 +35,30 @@ class MetricPlugin(ABC):
             yield subclass
 
     @classmethod
-    def get_name_from_type(cls, plugin_type: Type):
+    def get_name_from_type(cls, plugin_type: Type) -> str:
         module_name = plugin_type.__module__
         type_name = plugin_type.__name__ if module_name == "__main__" else module_name + "." + plugin_type.__name__
         return type_name
 
+    @staticmethod
+    def class_from_name(target_class_name: str, enforce_strict_name_matching: bool) -> Type:
+        plugin_class = next(
+            filter(
+                lambda plugin_class: MetricPlugin.name_type_match_predicate(target_class_name, plugin_class, enforce_strict_name_matching),
+                MetricPlugin.get_subclasses(),
+            ),
+            None,
+        )
+        if plugin_class is None:
+            raise TypeError(
+                "There is no defined subclass of MetricPlugin matching serialized name {}, the plugin types are: {}".format(
+                    target_class_name, [plugin for plugin in MetricPlugin.get_subclasses()]
+                )
+            )
+        return plugin_class
+
     @classmethod
-    def name_type_match_predicate(cls, target_class_name: str, plugin_type: Type, enforce_strict_name_matching: bool) -> bool:
+    def name_type_match_predicate(cls, target_class_name: str, plugin_type: Type, enforce_strict_name_matching: bool = False) -> bool:
         if enforce_strict_name_matching:
             return target_class_name == MetricPlugin.get_name_from_type(plugin_type)
         else:
@@ -60,28 +77,11 @@ class MetricPlugin(ABC):
         if python_plugin is None:
             raise TypeError("The given plugin does not contain a definition for Python, the plugin types are ({})".format(message.plugin_types))
         target_class_name = python_plugin.plugin_class_name
-
-        plugin_class = next(
-            filter(
-                lambda plugin_class: MetricPlugin.name_type_match_predicate(target_class_name, plugin_class, enforce_strict_name_matching),
-                MetricPlugin.get_subclasses(),
-            ),
-            None,
-        )
-        if plugin_class is None:
-            raise TypeError(
-                "There is no defined subclass of MetricPlugin matching serialized name {}, the plugin types are: {}".format(
-                    target_class_name, [plugin for plugin in MetricPlugin.get_subclasses()]
-                )
-            )
+        plugin_class = MetricPlugin.class_from_name(target_class_name, enforce_strict_name_matching)
         custom_serialization = message.WhichOneof("item")
-        if custom_serialization != "struct":
-            raise TypeError(
-                "The given plugin message for {} does not contain a struct, if using serialized_bytes override from_protobuf() to avoid this error.".format(
-                    target_class_name
-                )
-            )
-        plugin_field = json_format.MessageToDict(message.struct)
+        if custom_serialization != "params":
+            raise TypeError(f"The given plugin message for {target_class_name} does not contain params nor overrides from_protobuf() to avoid this error.")
+        plugin_field = json_format.MessageToDict(message.params)
         metric_plugin = plugin_class(**plugin_field)
         metric_plugin.name = message.name
         return metric_plugin
@@ -101,13 +101,13 @@ class MetricPlugin(ABC):
             name=self.name,
             plugin_types=types,
         )
-        # The protobuf struct will serialize the field names as well as the values, so plugin
-        # authors might get better efficiency if you override and serialize to bytes instead.
+        # The protobuf struct will serialize the field names as well as the values to 'params',
+        # so plugin authors might get better efficiency if you override and serialize to bytes instead.
         plugin_fields = asdict(self)
         # we don't want to duplicate the name field in the serialized fields as
         # we already have a 'name' property on PluginMessage
         plugin_fields.pop("name", None)
-        plugin_message.struct.update(plugin_fields)
+        plugin_message.params.update(plugin_fields)
         return plugin_message
 
     @abstractmethod
@@ -126,8 +126,39 @@ class MetricPlugin(ABC):
         message = PluginMessage.FromString(data)
         return MetricPlugin.from_protobuf(message, enforce_strict_name_matching)
 
+    @staticmethod
+    def from_json(json_data) -> "MetricPlugin":
+        if "plugin_types" not in json_data:
+            raise TypeError(f"The json_data does not contain 'plugin_types' nor overrides from_json() to avoid this error.")
+        if "params" not in json_data:
+            raise TypeError(f"The json_data does not contain 'params' nor overrides from_json() to avoid this error.")
+        if "name" not in json_data:
+            raise TypeError(f"The json_data does not contain 'name' nor overrides from_json() to avoid this error.")
+
+        python_plugin = next(filter(lambda type: type["language"] == "PYTHON", json_data["plugin_types"]), None)
+        target_class_name = python_plugin["plugin_class_name"]
+        plugin_field = json_data["params"]
+
+        if python_plugin is None:
+            raise TypeError(f"The plugin_type does not contain a definition for Python, the plugin types are ({json_data['plugin_types']}")
+        plugin_class = MetricPlugin.class_from_name(target_class_name, enforce_strict_name_matching=False)
+        metric_plugin = plugin_class(**plugin_field)
+        metric_plugin.name = json_data["name"]
+        return metric_plugin
+
     def to_json(self) -> dict:
-        return asdict(self)
+        # This approximates the protobuf message PluginMessage in proto/src/messages.proto for consistency, but this is just an example.
+        plugin_fields = asdict(self)
+        plugin_fields.pop("name", None)
+        return {
+            "name": self.name,
+            "plugin_types": [{"plugin_class_name": MetricPlugin.get_name_from_type(self.__class__), "language": "PYTHON"}],
+            "params": plugin_fields,
+        }
+
+    @staticmethod
+    def from_string(json_string: str) -> dict:
+        return MetricPlugin.from_json(loads(json_string))
 
     def to_string(self):
         return dumps(self.to_json())
