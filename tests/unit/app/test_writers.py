@@ -83,7 +83,7 @@ def test_s3_writer(df_lending_club, moto_boto, s3_all_config_path):
         assert each_objc["Key"] == object_keys[idx]
 
 
-def test_s3_writer_transport_config(df_lending_club, s3_transport_config_path):
+def test_s3_writer_transport_config(s3_transport_config_path):
 
     assert os.path.exists(s3_transport_config_path)
     config = load_config(s3_transport_config_path)
