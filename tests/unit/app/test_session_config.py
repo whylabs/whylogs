@@ -12,4 +12,3 @@ def test_config():
     assert session_config.pipeline == pipeline
 
     assert session_config.writers == []
-    # session = session_from_config(session_config)
