@@ -1,6 +1,6 @@
 # Flask scikit-learn example
 
-This example can be used runs a Flask application that hosts a scikit-learn model serialized with joblib.
+This example can be used to run a Flask application that hosts a scikit-learn model serialized with joblib.
 
 ## Whylabs configuration
 

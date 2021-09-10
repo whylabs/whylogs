@@ -1,0 +1,6 @@
+output
+__pycache__
+download_iris.sh
+train.py
+# ignore .env file and rather pass environment variables to container
+.env
