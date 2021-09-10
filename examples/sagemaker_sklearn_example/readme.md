@@ -88,3 +88,11 @@ The json response printed should look like this:
 ```bash
 {'data': {'class': 'Iris-setosa'}, 'message': 'Success'}
 ```
+
+## IMPORTANT NOTE: Clean up AWS created resources
+
+Be careful with keeping your endpoint running because this will generate AWS charges. To clean up your endpoint, you can go to the console and delete it manually or execute the following script:
+
+```bash
+python clean_up.py -p <your-aws-profile-name> -e <endpoint-name>
+```
