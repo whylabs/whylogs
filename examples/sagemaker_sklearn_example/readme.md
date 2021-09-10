@@ -4,7 +4,8 @@ SageMaker custom container with scikit-learn inference example that integrates w
 
 ## Requirements
 
-- AWS account and AWS CLI
+- Docker
+- An AWS account and AWS CLI installed
 - Python 3
 - Conda (or any dependency and environment management for Python. e.g. venv.)
 - An AWS user that have permissions for SageMakerFullAccess and pushing docker image to ECR repository.
@@ -30,9 +31,10 @@ pandas==1.3.2
 
 ## Download data and train the model
 
-This example uses the iris-dataset. The resulting folder __dataset__ must be moved inside of code directory after training the model. For downloading and training the model run the following commands:
+This example uses the iris-dataset. For downloading and training the model run the following commands:
 
 ```bash
+cd code/
 chmod +x download_iris.sh
 ./download_iris.sh
 ```
@@ -43,7 +45,7 @@ To train the model:
 python train.py
 ```
 
-As a result, you will get a __model.joblib__ file that must be moved inside of code directory.
+As a result, you will get a __model.joblib__.
 
 ## Configure .env file
 
@@ -51,9 +53,14 @@ Create a .env file inside the code directory. A .env.example file is included as
 
 ## Build docker image an push it to AWS ECR
 
+SageMaker uses docker images to run your algorithm. In order to pass an image to SageMaker, you need to build it and push it to Amazon Elastic Container Registry (ECR). The following script will create and ECR repository, login to it, build your image, retag it accordingly and push it to the repository.
+
 ```bash
 chmod +x build_push.sh
+./build_push.sh whylabs-sagemaker <your-aws-profile-name>
 ```
+
+__Note:__ You can find the aws profile names inside ~/.aws folder.
 
 ## Deploy endpoint to SageMaker
 
@@ -65,16 +72,18 @@ You should modify the variables values according to configuration made in the la
 - instance_type (in case you want to use another type of instance.)
 
 ```bash
-python create_endpoint.py
+python create_endpoint.py -p <your-aws-profile-name> -i <sagemaker-instance-type> -e <endpoint-name> 
 ```
 
 ## Test endpoint
 
+Once your endpoint has been created, to test it run the following script.
+
 ```bash
-python test_endpoint.py
+python test_endpoint.py -p <your-aws-profile-name> -e <endpoint-name>
 ```
 
-The response should look like this:
+The json response printed should look like this:
 
 ```bash
 {'data': {'class': 'Iris-setosa'}, 'message': 'Success'}

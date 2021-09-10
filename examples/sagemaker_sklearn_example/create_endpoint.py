@@ -1,5 +1,21 @@
+import argparse
 import boto3
 from dotenv import dotenv_values
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-p', '--profile', type=str, default="default",
+        help='AWS Profile name')
+    parser.add_argument(
+        '-e', '--endpoint_name', type=str, default="whylabs-sagemaker",
+        help='SageMaker endpoint name')
+    parser.add_argument(
+        '-i', '--instance', type=str, default="ml.m4.xlarge",
+        help="SageMaker instance type to serve your endpoint.")
+    args = parser.parse_args()
+    return args
 
 def is_endpoint_running(endpoint_name: str, profile_name: str, region_name: str) -> None:
     """
@@ -41,11 +57,9 @@ def deploy_endpoint(
     Raises:
         e: [description]
     """
-
     if is_endpoint_running(endpoint_name, profile, region) is not None:
         print("Endpoint already exist and will return.")
         return
-
     try:
         session = boto3.session.Session(profile_name=profile)
         sm = session.client('sagemaker', region_name=region)
@@ -59,7 +73,7 @@ def deploy_endpoint(
             ExecutionRoleArn=role,
             PrimaryContainer=primary_container,
         )
-
+        print("SageMaker model created.")
         # create endpoint configuration
         endpoint_config_name = endpoint_name + '-config'
         _ = sm.create_endpoint_config(
@@ -74,29 +88,30 @@ def deploy_endpoint(
                 }
             ]
         )
-
+        print("Endpoint configuration created.")
         # create endpoint
         _ = sm.create_endpoint(
             EndpointName=endpoint_name,
             EndpointConfigName=endpoint_config_name
         )
-
     except Exception as e:
         print("Cannot create endpoint - Exception is >> {}".format(e))
         if type(e).__name__ == "StateMachineAlreadyExists":
             print("Skip creation because it was created before.")
         else:
             raise e
-    print(f"Completed model endpoint {endpoint_name} deployment !!!")
+    print(f"Completed {endpoint_name} model endpoint deployment !!!")
 
 if __name__ == "__main__":
-    profile = "mfa"
+    args = parse_args()
+
+    profile_name = args.profile
+    endpoint_name = args.endpoint_name
+    instance_type = args.instance
     image_name = "whylabs-sagemaker"
-    endpoint_name = "whylogs-sagemaker-v3"
-    instance_type = "ml.m4.xlarge"
     environment = dotenv_values("code/.env")
 
-    session = boto3.session.Session(profile_name=profile)
+    session = boto3.session.Session(profile_name=profile_name)
     sts = session.client("sts")
     # Get account ID and region of current profile
     account_id = sts.get_caller_identity().get("Account")
@@ -105,4 +120,4 @@ if __name__ == "__main__":
     # SageMaker execution role
     role = f"arn:aws:iam::{account_id}:role/SageMakerExecution"
 
-    deploy_endpoint(profile, region, image_uri, environment, endpoint_name, instance_type, role)
+    deploy_endpoint(profile_name, region, image_uri, environment, endpoint_name, instance_type, role)
