@@ -2,6 +2,7 @@ import logging as test_logging
 from dataclasses import dataclass, field
 
 import pytest
+from dataclasses_json import dataclass_json
 from smart_open import open
 
 from whylogs.v2 import MetricPlugin
@@ -13,6 +14,7 @@ An example of implementation of a custom metric to test with.
 """
 
 
+@dataclass_json
 @dataclass
 class ACustomMetric(MetricPlugin):
     name: str = "TargetWordCounter"
@@ -37,18 +39,67 @@ class ACustomMetric(MetricPlugin):
                 self.word_counts[word] = other.word_counts[word]
 
 
+@dataclass_json
 @dataclass
 class CustomMetricSerializedAsJson(ACustomMetric):
     name: str = "TargetWordCounterJson"
 
     @staticmethod
-    def deserialize(data: bytes):
+    def deserialize(data: bytes) -> "CustomMetricSerializedAsJson":
         return MetricPlugin.from_string(data)
 
     def serialize(self) -> bytes:
         return self.to_string()
 
-testdata = [(ACustomMetric), (CustomMetricSerializedAsJson)]
+
+@dataclass_json
+@dataclass
+class CustomMetricWithPrivateField(CustomMetricSerializedAsJson):
+    name: str = "TargetWordCounterPrivateField"
+    a_field: int = 0
+    __private_field: int = 0
+
+
+@dataclass_json
+@dataclass
+class CustomMetricNested(MetricPlugin):
+    custom_metric: ACustomMetric = field(default_factory=ACustomMetric)
+    name: str = "TargetWordCounterNested"
+    target_column_name: str = "Much Ado About Nothing"
+    is_container: bool = True
+
+    def track(self, data):
+        self.custom_metric.track(data)
+
+    def merge(self, other: "CustomMetricNested"):
+        self.custom_metric.merge(other.custom_metric)
+
+    @property
+    def word_counts(self):
+        return self.custom_metric.word_counts
+
+
+@dataclass_json
+@dataclass
+class DoubleNested(MetricPlugin):
+    custom_metric: CustomMetricNested = field(default_factory=CustomMetricNested)
+    name: str = "TargetWordCounterDoubleNested"
+    target_column_name: str = "Much Ado About Nothing"
+    is_container: bool = True
+
+    def track(self, data):
+        self.custom_metric.track(data)
+
+    def merge(self, other: "DoubleNested"):
+        self.custom_metric.merge(other.custom_metric)
+
+    @property
+    def word_counts(self):
+        return self.custom_metric.word_counts
+
+
+testdata = [ACustomMetric, CustomMetricSerializedAsJson, CustomMetricWithPrivateField, CustomMetricNested, DoubleNested]
+
 
 @pytest.mark.parametrize("plugin_type", testdata)
 def tests_custom_metrics_name(plugin_type):
@@ -78,9 +129,9 @@ def tests_custom_metric_merge_self(plugin_type):
     custom_metric = plugin_type()
     custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
     custom_metric.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
-    assert custom_metric.word_counts["ACT"] == 1
+    assert custom_metric.word_counts["ACT"] == 1, f"{custom_metric}"
     custom_metric.merge(custom_metric)
-    assert custom_metric.word_counts["ACT"] == 1
+    assert custom_metric.word_counts["ACT"] == 1, f"{custom_metric}"
 
 
 @pytest.mark.parametrize("plugin_type", testdata)
@@ -130,11 +181,21 @@ def tests_name_match_predicate(plugin_type):
 
 @pytest.mark.parametrize("plugin_type", testdata)
 def tests_custom_metric_protobuf_and_file_deserialization(plugin_type):
+    write_test_files = False
     custom_metric = plugin_type()
     custom_metric.track("ACT I SCENE I. Before LEONATO'S house.")
     custom_metric.track("Enter LEONATO, HERO, and BEATRICE, with a Messenger")
     assert custom_metric.word_counts["ACT"] == 1
     serialized_metric_bytes = custom_metric.serialize()
+    test_file_name = f"metric.plugin.{plugin_type.__name__}.bin"
+    if write_test_files:
+        if isinstance(serialized_metric_bytes, str):
+            with open(test_file_name, "w") as output_file:
+                output_file.write(serialized_metric_bytes)
+        else:
+            with open(test_file_name, "wb") as output_file:
+                output_file.write(serialized_metric_bytes)
+
     deserialized_metric = plugin_type.deserialize(serialized_metric_bytes)
     assert isinstance(deserialized_metric, plugin_type)
     assert deserialized_metric == custom_metric
