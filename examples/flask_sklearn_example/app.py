@@ -11,6 +11,7 @@ from flask_cors import CORS
 from utils import MessageException, message_exception_handler
 from extensions import init_swagger
 from whylogs import get_or_create_session
+import atexit
 # Load environment variables
 load_dotenv()
 
@@ -45,6 +46,7 @@ def create_app(config_object="settings"):
     register_extensions(app)
     register_blueprints(app)
     register_error_handlers(app)
+    atexit.register(close_logger_at_exit)
 
     return app
 
@@ -71,3 +73,7 @@ def register_error_handlers(app):
         response = jsonify(error.to_dict())
         response.status_code = error.status_code
         return response
+
+
+def close_logger_at_exit():
+    whylabs_logger.close()
