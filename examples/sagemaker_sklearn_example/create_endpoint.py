@@ -38,6 +38,33 @@ def is_endpoint_running(endpoint_name: str, profile_name: str, region_name: str)
             return check_name[1]
     return None
 
+def delete_endpoint(client: boto3.client, endpoint_name: str) -> None:
+    try:
+        _ = client.delete_endpoint(
+            EndpointName=endpoint_name,
+        )
+        print(f"Endpoint {endpoint_name} deleted.")
+    except Exception as e:
+        print(e.response)
+        
+def delete_model(client: boto3.client, model_name: str) -> None:
+    try:
+        _ = client.delete_model(
+            ModelName=model_name
+        )
+        print(f"Model {model_name} deleted.")
+    except Exception as e:
+        print(e.response)
+
+def delete_endpoint_config(client: boto3.client, endpoint_config: str) -> None:
+    try:
+        _ = client.delete_endpoint_config(
+            EndpointConfigName=endpoint_config
+        )
+        print(f"Endpoint configuration {endpoint_config} deleted.")
+    except Exception as e:
+        print(e.response)
+
 def deploy_endpoint(
         profile: str, region: str, image_uri: str, environment: dict,
         endpoint_name: str, instance_type: str, role: str

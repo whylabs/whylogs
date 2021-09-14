@@ -11,6 +11,10 @@ set -e
 image=${1:-whylabs-sagemaker}
 profile=${2:-default}
 
+echo "Image name ${image}"
+echo "Profile name ${profile}"
+
+
 # Get the account number associated with the current IAM credentials
 account=$(aws --profile ${profile} sts get-caller-identity --query Account --output text)
 # Get the region defined in the current configuration

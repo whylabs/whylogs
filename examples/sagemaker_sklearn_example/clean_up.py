@@ -1,5 +1,6 @@
 import argparse
 import boto3
+from utils import delete_endpoint, delete_model, delete_endpoint_config
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -12,16 +13,6 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def delete_endpoint(client: boto3.client, endpoint_name: str) -> None:
-    try:
-        _ = client.delete_endpoint(
-            EndpointName=endpoint_name,
-        )
-        print(f"Endpoint {endpoint_name} deleted.")
-    except Exception as e:
-        print(e.response)
-        
-
 if __name__ == '__main__':
     args = parse_args()
     profile_name = args.profile
@@ -32,3 +23,8 @@ if __name__ == '__main__':
     sg = session.client('sagemaker', region_name=region_name)
     # Delete sagemaker endpoint
     delete_endpoint(sg, endpoint_name)
+    try:
+        delete_endpoint_config(sg, f"{endpoint_name}-config")
+        delete_model(sg, endpoint_name)
+    except Exception as e:
+        print(e.response)

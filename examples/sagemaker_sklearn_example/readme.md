@@ -1,4 +1,4 @@
-# Amazon SageMaker Scikit-learn example (Doc in progress)
+# Amazon SageMaker + WhyLabs integration
 
 SageMaker custom container with scikit-learn inference example that integrates whylabs logging.
 
@@ -8,7 +8,7 @@ SageMaker custom container with scikit-learn inference example that integrates w
 - An AWS account and AWS CLI installed
 - Python 3
 - Conda (or any dependency and environment management for Python. e.g. venv.)
-- An AWS user that have permissions for SageMakerFullAccess and pushing docker image to ECR repository.
+- An AWS user that have permissions for SageMakerFullAccess and ECR push access.
 
 ## Create a conda environment
 
@@ -45,11 +45,24 @@ To train the model:
 python train.py
 ```
 
-As a result, you will get a __model.joblib__.
+As a result, you will get a __model.joblib__ that will be package within the docker image.
 
 ## Configure .env file
 
 Create a .env file inside the code directory. A .env.example file is included as a template, you can adapt it according to your requirements. This .env file will be ignored by docker build but loaded in the next step as a dictionary of environment variables to the container that will be running on SageMaker host.
+
+Inside the .env file you can find important variables used by whylogs for configuration:
+
+- __WHYLABS_CONFIG__: Whylabs yaml file name.
+- __WHYLABS_API_KEY__: Whylabs API key/Access token for your organization.
+- __WHYLABS_DEFAULT_ORG_ID__: Whylabs organization ID.
+- __WHYLABS_DEFAULT_DATASET_ID__: Dataset ID.
+- __WHYLABS_API_ENDPOINT__: WhyLabs API endpoint URI.
+- __WHYLABS_N_ATTEMPS__: Number of retry attempts for initializing the whylogs logger.
+
+## API Structure
+
+................................................................
 
 ## Build docker image an push it to AWS ECR
 
