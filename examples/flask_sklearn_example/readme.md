@@ -45,6 +45,7 @@ WHYLABS_N_ATTEMPS=3
 DATASET_NAME=this_is_my_dataset
 ROTATION_TIME=1h
 DATASET_URL=dataset/iris.csv
+UPDATE_TIME_IN_SECONDS=10
 ```
 ## Train the model
 

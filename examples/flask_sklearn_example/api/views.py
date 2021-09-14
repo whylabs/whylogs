@@ -1,11 +1,13 @@
 from flask import Blueprint, request
 from flask_pydantic import validate
-from api.utils import add_random_column_outliers, initialize_logger, get_prediction
+from api.utils import add_random_column_outliers, initialize_logger, get_prediction, initialized_scheduled_action
 from schemas import FeatureVector
 import app
 from utils import object_response, message_response
 
 blueprint = Blueprint("api", __name__, url_prefix="/api/v1")
+initialize_logger()
+initialized_scheduled_action()
 
 
 @blueprint.route("/health", methods=["GET"])
@@ -13,19 +15,10 @@ def health():
     return object_response({"state": "healthy"}, 200)
 
 
-@blueprint.route("/update", methods=["POST"])
-def update_df():
-    initialize_logger()
-    add_random_column_outliers()
-    app.whylabs_logger.log_dataframe(app.df)
-    app.whylabs_logger.close()
-    return message_response("Dataframe Successfully updated", 200)
-
-
 @blueprint.route("/predict", methods=["POST"])
 @validate()
 def predict(body: FeatureVector):
-    initialize_logger()
+
     # Predict the output given the input vector
     vector = [
         body.sepal_length_cm,
@@ -39,5 +32,4 @@ def predict(body: FeatureVector):
     app.whylabs_logger.log(request.json)
     # Log predicted class
     app.whylabs_logger.log({"class": pred})
-    app.whylabs_logger.close()
     return object_response({"class": pred}, 200)

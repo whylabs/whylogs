@@ -6,6 +6,8 @@ from utils import MessageException
 import datetime
 import os
 from whylogs import get_or_create_session
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
 
 
 def modify_random_column_values(value: float = np.random.uniform(low=0.0, high=10.0)) -> None:
@@ -58,3 +60,10 @@ def get_prediction(data: List[float]) -> str:
     except Exception as e:
         raise MessageException("Model could not be loaded.", 500, str(e))
     return pred
+
+
+def initialized_scheduled_action():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=modify_random_column_values, trigger="interval", seconds=int(os.environ.get("UPDATE_TIME_IN_SECONDS")))
+    scheduler.start()
+    atexit.register(lambda: scheduler.shutdown())
