@@ -1,3 +1,4 @@
+""" View functions for every endpoint. """
 from flask import Blueprint, request
 from flask_pydantic import validate
 from api.utils import add_random_column_outliers, initialize_logger, get_prediction, initialized_scheduled_action
@@ -9,7 +10,6 @@ blueprint = Blueprint("api", __name__, url_prefix="/api/v1")
 initialize_logger()
 initialized_scheduled_action()
 
-
 @blueprint.route("/health", methods=["GET"])
 def health():
     return object_response({"state": "healthy"}, 200)
@@ -18,7 +18,6 @@ def health():
 @blueprint.route("/predict", methods=["POST"])
 @validate()
 def predict(body: FeatureVector):
-
     # Predict the output given the input vector
     vector = [
         body.sepal_length_cm,

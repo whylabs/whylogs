@@ -6,7 +6,6 @@ def message_response(message, status_code=200, reason=None):
 
 
 def object_response(object, status_code=200):
-
     standard_response = {"data": object, "message": "Success"}
     return standard_response, status_code
 
