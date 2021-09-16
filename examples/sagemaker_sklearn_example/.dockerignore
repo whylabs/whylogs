@@ -1,4 +1,5 @@
 output
+ipynb_checkpoints
 __pycache__
 download_iris.sh
 train.py

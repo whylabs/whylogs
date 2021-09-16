@@ -1,12 +1,13 @@
 from flask import Blueprint, request, Response
 from flask_pydantic import validate
-from api.utils import add_random_column_outliers, initialize_logger, get_prediction
+from api.utils import add_random_column_outliers, initialize_logger, get_prediction, initialized_scheduled_action
 from schemas import FeatureVector
 import app
 from utils import object_response, message_response
 
 blueprint = Blueprint("api", __name__)
-
+initialize_logger()
+initialized_scheduled_action()
 
 @blueprint.route("/ping", methods=["GET"])
 def ping():
@@ -15,15 +16,6 @@ def ping():
     it healthy if we can load the model successfully."""
     status = 200
     return Response(response="\n", status=status, mimetype="application/json")
-
-# @blueprint.route("/modifications", methods=["POST"])
-# def update_df():
-#     initialize_logger()
-#     add_random_column_outliers()
-#     app.whylabs_logger.log_dataframe(app.df)
-#     app.whylabs_logger.close()
-#     return message_response("Dataframe Successfully updated", 200)
-
 
 @blueprint.route("/invocations", methods=["POST"])
 @validate()

@@ -56,20 +56,6 @@ paths:
       responses:
         "200":
           description: "Successful operation"
-  /update:
-    post:
-      tags:
-        - "data"
-      summary: "Modify the dataset distribution randomly"
-      description: ""
-      operationId: "update"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-      responses:
-        "200":
-          description: "Successful operation"
 definitions:
   FeatureVector:
     type: "object"

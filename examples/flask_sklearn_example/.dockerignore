@@ -1,5 +1,4 @@
 output
-dataset
 __pycache__
 download_iris.sh
 train.py
