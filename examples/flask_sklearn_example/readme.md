@@ -29,6 +29,7 @@ These files contains code to download the [Iris Dataset](https://www.kaggle.com/
 
 This application uses a **background scheduler** that changes the dataset values every _N_ amount of seconds, you can modify that variable in [__.env__](.env) as **UPDATE_TIME_IN_SECONDS**
 
+</details>
 <details>
 <summary> Background Scheduler details</summary>
 
