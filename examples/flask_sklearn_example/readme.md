@@ -10,6 +10,8 @@ The app is structured in different files and folders:
 <details>
 
 - [__api/__](api/): This folder contains view functions code for each endpoint.
+  - [__utils.py__](api/utils.py): Utility functions for endpoints.
+  - [__views.py__](api/views.py): Endpoints management.
 - [__.env__](.env): Environment variables configuration file.
 - [__.whylabs.yaml__](.whylabs.yaml): Whylogs session configuration file.
 - [__app.py__](app.py): App module, containing the app factory function.
@@ -25,11 +27,27 @@ These files contains code to download the [Iris Dataset](https://www.kaggle.com/
 - [__train.py__](train.py)
 - [__download.py__](download_iris.sh)
 
+This application uses a **background scheduler** that changes the dataset values every _N_ amount of seconds, you can modify that variable in [__.env__](.env) as **UPDATE_TIME_IN_SECONDS**
+
+<details>
+<summary> Background Scheduler details</summary>
+
+- In [__views.py__](https://github.com/whylabs/whylogs/blob/dev/loka/examples/examples/flask_sklearn_example/api/views.py#L11) you will notice we are using `initialized_scheduled_action()` which creates a Background Scheduler whick every UPDATE_TIME_IN_SECONDS will update the dataframe with the function `modify_random_column_values`. Also you can change this function to `add_random_column_outliers` if you want to add some outliers to your df.
+</details>
+
+The Flask application also takes care of writing the data when you kill the application with `^C`
+
+<details>
+<summary> Session management details</summary>
+
+- In [__views.py__](https://github.com/whylabs/whylogs/blob/dev/loka/examples/examples/flask_sklearn_example/api/views.py#L10) you will notice we are using `initialize_logger()` which creates a logger instance, so every time that the app is running will have a new logger initialization.
+- In [__app.py__](https://github.com/whylabs/whylogs/blob/dev/loka/examples/examples/flask_sklearn_example/app.py#L49) you will notice that we are using atexit library `atexit.register(close_logger_at_exit)` to ensure thar when a kill signal is being generated the session will close before closing the application saving your logs. 
+
 </details>
 
 ## Requirements
 
-- Conda or a python environment management tool (e.g. venev)
+- Conda or a python environment management tool (e.g. venv or pipenv)
 - Docker
 
 ## Steps
@@ -54,8 +72,10 @@ writers:
 To be able to use this application with your own WhyLabs account, you have to create an .env file, copy the following lines of code and fill _WHYLABS_API_KEY_ and _WHYLABS_DEFAULT_ORG_ID_ accordingly.
 
 <details>
+<summary>.env example</summary>
 
 ```bash
+# This is an example of what .env file should looks like
 # Flask
 FLASK_ENV=development
 FLASK_DEBUG=1
@@ -81,10 +101,12 @@ ROTATION_TIME=1h
 DATASET_URL=dataset/Iris.csv
 UPDATE_TIME_IN_SECONDS=10
 ```
+
 </details>
 
-### 3. Activate your conda environment
+### 3. Activate your environment
 
+If you are using conda environments use the next command:
 ```bash
 conda env create -f environment.yml
 ```
@@ -93,19 +115,19 @@ conda env create -f environment.yml
 
 __Download IRIS dataset.__
 
-1. Configure kaggle credentials with the following instructions: https://github.com/Kaggle/kaggle-api#api-credentials
-2. Run download_iris.sh
+1. Configure kaggle credentials with the following instructions: [Configure Kaggle API Credentials](https://github.com/Kaggle/kaggle-api#api-credentials)
+2. Run `download_iris.sh`
 
 __Train an SVM classifier__
 
 1. Configure dependencies in an environment (e.g. can use conda).
-2. Run train.py.
+2. Run `train.py`.
 
-__Note__: To be able to run __train.py__ you need to install kaggle.
+__Note__: To be able to run __train.py__ you need to install kaggle (`pip install kaggle`).
 
 ### 5. Build a docker image
 
-The whole API is packaged using Docker. To build the docker image that contains all your app needs to run without problems, run the following command:
+The whole API is being packaged using Docker. To build the docker image that contains all your app needs to run without problems, run the following command:
 
 ```bash
 docker build --build-arg PYTHON_VERSION=3.7 -t whylabs-flask .
@@ -119,7 +141,7 @@ To start your server API run the following command:
 docker run --rm -p 5000:5000 -v $(pwd):/app  whylabs-flask
 ```
 
-API will be serve on http://0.0.0.0:5000/.
+API will be served on http://0.0.0.0:5000/.
 
 ## 7. Test the API
 
