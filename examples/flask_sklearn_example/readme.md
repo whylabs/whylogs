@@ -7,16 +7,25 @@ This example runs a Flask application that serves a scikit-learn model which pre
 
 The app is structured in different files and folders:
 
-- __api/__: This folder contains view functions code for each endpoint.
-- __.env__: Environment variables configuration file.
-- __.whylabs.yaml__: Whylogs session configuration file.
-- __app.py__: App module, containing the app factory function.
-- __extensions.py__: Swagger documentation utility functions.
-- __schemas.py__: Schemas used in the API.
-- __requirements.txt__: App python packages needed by the application.
-- __swagger.yaml__: Swagger yaml documentation definition.
-- __settings.py__: Environment variables setting.
-- __utils.py__: Utility functions to handle responses.
+<details>
+
+- [__api/__](api/): This folder contains view functions code for each endpoint.
+- [__.env__](.env): Environment variables configuration file.
+- [__.whylabs.yaml__](.whylabs.yaml): Whylogs session configuration file.
+- [__app.py__](app.py): App module, containing the app factory function.
+- [__extensions.py__](extensions.py): Swagger documentation utility functions.
+- [__schemas.py__](schemas.py): Schemas used in the API.
+- [__requirements.txt__](requirements.txt): App python packages needed by the application.
+- [__swagger.yaml__](swagger.yaml): Swagger yaml documentation definition.
+- [__settings.py__](settings.py): Environment variables setting.
+- [__utils.py__](utils.py): Utility functions to handle responses.
+
+These files contains code to download the [Iris Dataset](https://www.kaggle.com/uciml/iris) and train the model:
+
+- [__train.py__](train.py)
+- [__download.py__](download_iris.sh)
+
+</details>
 
 ## Requirements
 
@@ -44,6 +53,8 @@ writers:
 
 To be able to use this application with your own WhyLabs account, you have to create an .env file, copy the following lines of code and fill _WHYLABS_API_KEY_ and _WHYLABS_DEFAULT_ORG_ID_ accordingly.
 
+<details>
+
 ```bash
 # Flask
 FLASK_ENV=development
@@ -70,8 +81,15 @@ ROTATION_TIME=1h
 DATASET_URL=dataset/Iris.csv
 UPDATE_TIME_IN_SECONDS=10
 ```
+</details>
 
-### 3. Train the model
+### 3. Activate your conda environment
+
+```bash
+conda env create -f environment.yml
+```
+
+### 4. Train the model
 
 __Download IRIS dataset.__
 
@@ -85,7 +103,7 @@ __Train an SVM classifier__
 
 __Note__: To be able to run __train.py__ you need to install kaggle.
 
-### 4. Build a docker image
+### 5. Build a docker image
 
 The whole API is packaged using Docker. To build the docker image that contains all your app needs to run without problems, run the following command:
 
@@ -93,7 +111,7 @@ The whole API is packaged using Docker. To build the docker image that contains 
 docker build --build-arg PYTHON_VERSION=3.7 -t whylabs-flask .
 ```
 
-### 5. Starting the API
+### 6. Starting the API
 
 To start your server API run the following command:
 
@@ -103,18 +121,22 @@ docker run --rm -p 5000:5000 -v $(pwd):/app  whylabs-flask
 
 API will be serve on http://0.0.0.0:5000/.
 
-## 6. Test the API
+## 7. Test the API
 
 Swagger documentation is included so you can test your endpoints from Swagger UI easily. To open Swagger UI go to http://0.0.0.0:5000/apidocs once your docker container is running.
 
-## 7. Watch your logs on WhyLabs platform
+[]()
+
+## 8. Watch your logs on WhyLabs platform
 
 - Go to https://hub.whylabsapp.com/models
 
-
+[]()
 
 - Select your model
 
-
+[]()
 
 - Select your dataset
+
+[]()
