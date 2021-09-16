@@ -2,8 +2,8 @@
 
 This example runs a Flask application that serves a scikit-learn model which predicts a flower class given its features. This app is build with Flask with two endpoints:
 
-- __/health__: Returns a 200 status response if the API is up and running.
-- __/predict__: Returns a predicted class given an input feature vector.
+- __/api/v1/health__: Returns a 200 status response if the API is up and running.
+- __/api/v1/predict__: Returns a predicted class given an input feature vector.
 
 The app is structured in different files and folders:
 
@@ -148,18 +148,18 @@ API will be served on http://0.0.0.0:5000/.
 
 Swagger documentation is included so you can test your endpoints from Swagger UI easily. To open Swagger UI go to http://0.0.0.0:5000/apidocs once your docker container is running.
 
-[]()
+![Swagger UI](assets/swagger.png)
 
 ## 8. Watch your logs on WhyLabs platform
 
 - Go to https://hub.whylabsapp.com/models
 
-[]()
+![WhyLabs Models page](assets/1.png)
 
-- Select your model
+- Select your model (by default is model-1)
 
-[]()
+![WhyLabs model-1 page](assets/2.png)
 
-- Select your dataset
+- Select the feature of interest and explore.
 
-[]()
+![WhyLabs Feature page](assets/3.png)
