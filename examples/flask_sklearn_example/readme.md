@@ -108,6 +108,7 @@ UPDATE_TIME_IN_SECONDS=10
 ### 3. Activate your environment
 
 If you are using conda environments use the next command:
+
 ```bash
 conda env create -f environment.yml
 ```
@@ -119,12 +120,20 @@ __Download IRIS dataset.__
 1. Configure kaggle credentials with the following instructions: [Configure Kaggle API Credentials](https://github.com/Kaggle/kaggle-api#api-credentials)
 2. Run `download_iris.sh`
 
+```bash
+./download_irish.sh
+```
+
 __Train an SVM classifier__
 
 1. Configure dependencies in an environment (e.g. can use conda).
 2. Run `train.py`.
 
 __Note__: To be able to run __train.py__ you need to install kaggle (`pip install kaggle`).
+
+```bash
+python train.py
+```
 
 ### 5. Build a docker image
 
@@ -160,6 +169,6 @@ Swagger documentation is included so you can test your endpoints from Swagger UI
 
 ![WhyLabs model-1 page](assets/2.png)
 
-- Select the feature of interest and explore.
+- Select the feature of interest and explore
 
 ![WhyLabs Feature page](assets/3.png)
