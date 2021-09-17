@@ -3,7 +3,7 @@ from joblib import dump
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 
-data = pd.read_csv('dataset/iris.csv')
+data = pd.read_csv('dataset/Iris.csv')
 # Separating the independent variables from dependent variables
 X = data.drop(['Id', 'Species'], axis=1)
 y = data['Species']
