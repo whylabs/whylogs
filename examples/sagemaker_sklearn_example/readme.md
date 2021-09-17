@@ -62,7 +62,7 @@ Inside the .env file you can find important variables used by whylogs for config
 
 ## API Structure
 
-................................................................
+This follows a similar structure for the __flask_sklearn_example__.
 
 ## Build docker image an push it to AWS ECR
 
