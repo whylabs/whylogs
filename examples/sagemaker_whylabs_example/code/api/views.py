@@ -1,13 +1,12 @@
 from flask import Blueprint, request, Response
 from flask_pydantic import validate
-from api.utils import add_random_column_outliers, initialize_logger, get_prediction, initialized_scheduled_action
+from api.utils import add_random_column_outliers, initialize_logger, get_prediction
 from schemas import FeatureVector
 import app
 from utils import object_response, message_response
 
 blueprint = Blueprint("api", __name__)
 initialize_logger()
-initialized_scheduled_action()
 
 @blueprint.route("/ping", methods=["GET"])
 def ping():

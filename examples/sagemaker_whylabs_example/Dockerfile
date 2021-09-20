@@ -48,5 +48,3 @@ COPY code /opt/program
 WORKDIR /opt/program
 
 EXPOSE 8080
-
-# ENTRYPOINT ["python3", "serve.py"]
