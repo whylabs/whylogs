@@ -92,9 +92,9 @@ Optional parameters:
 - -i <sagemaker-instance-type>
 - -e <endpoint-name>
 
-The json response printed should look like this:
+The response should look like this:
 
-```json
+```bash
 {'data': {'class': 'Iris-setosa'}, 'message': 'Success'}
 ```
 
@@ -126,4 +126,4 @@ Optional parameters:
 
 ## TL;DR
 
-Create a conda environment using the [environment.yml](environment.yml) file and activate it then run [the example notebook](sagemaker_whylabs.ipynb).
+Create a conda environment using the [environment.yml](environment.yml) file and activate it then run [the example notebook](sagemaker_whylabs.ipynb) while inside of this folder.
