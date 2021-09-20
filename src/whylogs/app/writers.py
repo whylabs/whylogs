@@ -395,9 +395,10 @@ class MlFlowWriter(Writer):
     @staticmethod
     def _write_protobuf(profile: DatasetProfile, rotation_suffix: str = None, **kwargs):
         """
-        Write a protobuf profile to MlFlow
+        Write a protobuf the dataset profile to disk in binary format to MlFlow
         """
         import whylogs.mlflow.patcher as patcher
+
         name = profile.name
         tmp_dir = tempfile.mkdtemp()
         logger.debug("Using tmp dir: %s", tmp_dir)

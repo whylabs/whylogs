@@ -1,14 +1,12 @@
 import datetime
 import logging
 import os
-import tempfile
 from typing import Dict, Optional
 
 import pandas as pd
 
 from whylogs import __version__ as whylogs_version
 from whylogs.app.logger import Logger
-from whylogs import get_or_create_session
 
 logger = logging.getLogger(__name__)
 
@@ -58,14 +56,13 @@ class WhyLogsRun(object):
             logger_dataset_name,
             tags,
         )
-        tmp = self._session.logger(
+        logger_ = self._session.logger(
             run_info.run_id,
-            #dataset_name=logger_dataset_name,
             session_timestamp=session_timestamp,
             dataset_timestamp=dataset_timestamp,
             tags=tags
         )
-        return tmp
+        return logger_
 
     def log_pandas(self, df: pd.DataFrame, dataset_name: Optional[str] = None, dataset_timestamp:Optional[datetime.datetime] = None):
         """
@@ -131,7 +128,6 @@ class WhyLogsRun(object):
                 )
         logger.debug("Finished uploading all the loggers")
         self._active_run_id = None
-
         logger.debug("Finished closing the session")
 
 
