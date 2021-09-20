@@ -1,6 +1,7 @@
 # Flask + WhyLabs
+This example runs a Flask application that serves a scikit-learn model which predicts a flower class given its features. 
 
-This example runs a Flask application that serves a scikit-learn model which predicts a flower class given its features. This app is build with Flask with two endpoints:
+This app is build with Flask with two endpoints:
 
 - __/api/v1/health__: Returns a 200 status response if the API is up and running.
 - __/api/v1/predict__: Returns a predicted class given an input feature vector.
@@ -22,10 +23,9 @@ The app is structured in different files and folders:
 - [__settings.py__](settings.py): Environment variables setting.
 - [__utils.py__](utils.py): Utility functions to handle responses.
 
-These files contains code to download the [Iris Dataset](https://www.kaggle.com/uciml/iris) and train the model:
+These files contains code to download the [Iris Species Dataset](https://archive.ics.uci.edu/ml/datasets/iris) and train the model:
 
 - [__train.py__](train.py)
-- [__download.py__](download_iris.sh)
 
 This application uses a **background scheduler** that changes the dataset values every _N_ amount of seconds, you can modify that variable in [__.env__](.env) as **UPDATE_TIME_IN_SECONDS**
 
@@ -115,21 +115,10 @@ conda env create -f environment.yml
 
 ### 4. Train the model
 
-__Download IRIS dataset.__
-
-1. Configure kaggle credentials with the following instructions: [Configure Kaggle API Credentials](https://github.com/Kaggle/kaggle-api#api-credentials)
-2. Run `download_iris.sh`
-
-```bash
-./download_irish.sh
-```
-
 __Train an SVM classifier__
 
 1. Configure dependencies in an environment (e.g. can use conda).
 2. Run `train.py`.
-
-__Note__: To be able to run __train.py__ you need to install kaggle (`pip install kaggle`).
 
 ```bash
 python train.py
@@ -172,3 +161,7 @@ Swagger documentation is included so you can test your endpoints from Swagger UI
 - Select the feature of interest and explore
 
 ![WhyLabs Feature page](assets/3.png)
+
+## TL;DR
+
+Activate a conda environment using the [environment.yml](environment.yml) file with this example and run [the example notebook](full_notebook.ipynb).
