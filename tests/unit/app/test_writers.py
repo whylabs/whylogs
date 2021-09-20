@@ -4,6 +4,7 @@ import boto3
 import pytest
 from moto import mock_s3
 from moto.s3.responses import DEFAULT_REGION_NAME
+from smart_open import open
 
 from whylogs.app import WriterConfig
 from whylogs.app.config import load_config
@@ -22,6 +23,13 @@ object_keys = [
 ]
 
 object_keys_meta_config = ["dataset_test/dataset_summary/protobuf/dataset_summary.bin", "metadata/segments.json"]
+
+
+MINIO_BUCKET = "minio_bucket"
+
+ENDPOINT_URL = "http://localhost:5000"
+AWS_ACCESS_KEY_ID = "minioadmin"
+AWS_SECRET_ACCESS_KEY = "minioadmin"
 
 
 @pytest.fixture
@@ -71,9 +79,20 @@ def test_s3_writer(df_lending_club, moto_boto, s3_all_config_path):
 
     client = boto3.client("s3")
     objects = client.list_objects(Bucket="mocked_bucket")
-
     for idx, each_objc in enumerate(objects["Contents"]):
         assert each_objc["Key"] == object_keys[idx]
+
+
+def test_s3_writer_transport_config(s3_transport_config_path):
+
+    assert os.path.exists(s3_transport_config_path)
+    config = load_config(s3_transport_config_path)
+
+    assert config.writers[0].transport_parameters.endpoint_url == "http://127.0.0.1:5000/"
+    assert config.writers[0].transport_parameters.aws_access_key_id == AWS_ACCESS_KEY_ID
+    assert config.writers[0].transport_parameters.aws_secret_access_key == AWS_SECRET_ACCESS_KEY
+    assert config.writers[0].transport_parameters.region_name == DEFAULT_REGION_NAME
+    assert config.writers[0].transport_parameters.verify == "path/to/file"
 
 
 @pytest.mark.usefixtures("moto_boto")
@@ -95,9 +114,7 @@ def test_s3_writer_metadata(df_lending_club, moto_boto, s3_all_config_metadata_p
     session.close()
 
     objects = client.list_objects(Bucket="mocked_bucket")
-    print(objects)
     for idx, each_objc in enumerate(objects["Contents"]):
-        print(each_objc["Key"])
         assert each_objc["Key"] == object_keys_meta_config[idx]
 
 

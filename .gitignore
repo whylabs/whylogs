@@ -52,6 +52,9 @@ coverage.xml
 cover/
 mlruns/
 
+# whylogs
+output/
+
 # Translations
 *.mo
 *.pot
