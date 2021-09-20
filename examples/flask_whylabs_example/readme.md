@@ -1,4 +1,4 @@
-# Flask + WhyLabs
+# Flask + WhyLabs Integration
 This example runs a Flask application that serves a scikit-learn model which predicts a flower class given its features. 
 
 This app is build with Flask with two endpoints:
@@ -164,4 +164,4 @@ Swagger documentation is included so you can test your endpoints from Swagger UI
 
 ## TL;DR
 
-Activate a conda environment using the [environment.yml](environment.yml) file with this example and run [the example notebook](full_notebook.ipynb).
+Create a conda environment using the [environment.yml](environment.yml) file and activate it then run [the example notebook](full_notebook.ipynb).
