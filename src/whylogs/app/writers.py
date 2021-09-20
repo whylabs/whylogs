@@ -10,6 +10,7 @@ from string import Template
 from typing import List, Optional
 
 import boto3
+import tempfile
 from smart_open import open
 
 from whylogs.app.output_formats import OutputFormat
@@ -372,6 +373,45 @@ class S3Writer(Writer):
             f.write(profile.serialize_delimited())
 
 
+class MlFlowWriter(Writer):
+
+    def __init__(
+        self,
+        output_path: str,
+        formats: List[str],
+        path_template: str = None,
+        filename_template: str = None,
+    ):
+        super().__init__(output_path, formats, path_template, filename_template)
+
+    def write(self, profile: DatasetProfile, rotation_suffix: str = None):
+        """
+        Write a dataset profile to MLFlow path
+        """
+
+        t = async_wrap(self._write_protobuf, profile, rotation_suffix)
+        self._pending_threads.append(t)
+
+    @staticmethod
+    def _write_protobuf(profile: DatasetProfile, rotation_suffix: str = None, **kwargs):
+        """
+        Write a protobuf profile to MlFlow
+        """
+        import whylogs.mlflow.patcher as patcher
+        name = profile.name
+        tmp_dir = tempfile.mkdtemp()
+        logger.debug("Using tmp dir: %s", tmp_dir)
+        dataset_dir = name or "default"
+        output_dir = os.path.join(tmp_dir, dataset_dir)
+        os.makedirs(output_dir, exist_ok=True)
+        output = os.path.join(output_dir, "profile.bin")
+        logger.debug("Writing logger %s's data to %s",  output, f"whylogs/{dataset_dir}")
+        profile.write_protobuf(output)
+        patcher._mlflow.log_artifact(output, artifact_path=f"whylogs/{dataset_dir}")
+        logger.debug("Successfully uploaded logger %s data to MLFlow", name)
+        patcher._mlflow.end_run()
+
+
 class WhyLabsWriter(Writer):
     def write(self, profile: DatasetProfile, rotation_suffix: str = None):
         """
@@ -412,6 +452,13 @@ def writer_from_config(config: WriterConfig):
         )
     elif config.type == "s3":
         return S3Writer(
+            config.output_path,
+            config.formats,
+            config.path_template,
+            config.filename_template,
+        )
+    elif config.type == "mlflow":
+        return MlFlowWriter(
             config.output_path,
             config.formats,
             config.path_template,
