@@ -1,5 +1,7 @@
 
 import logging
+import os
+
 logging.basicConfig(level=logging.DEBUG)
 import random
 import time
@@ -7,7 +9,7 @@ import time
 import pandas as pd
 import mlflow
 import whylogs
-
+import datetime
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import ElasticNet
@@ -16,21 +18,15 @@ from dotenv import load_dotenv
 load_dotenv()
 assert whylogs.__version__ >= "0.1.13" # we need 0.1.13 or later for MLflow integration
 
-
-whylogs.enable_mlflow()
-
-data_url = "http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
-data = pd.read_csv(data_url, sep=";")
-
+data = pd.read_csv(os.environ["DATASET_URL"], sep=";")
 
 # Split the data into training and test sets
 train, test = train_test_split(data)
 
+session = get_or_create_session(path_to_config=".whylabs.yaml")
+session.with_rotation_time = os.environ["ROTATION_TIME"]
 
-
-#session = get_or_create_session(path_to_config=".whylabs.yaml")
-#summary = session.profile_dataframe(train, "training-data").flat_summary()['summary']
-
+whylogs.enable_mlflow(session=session)
 
 # Relocate predicted variable "quality" to y vectors
 train_x = train.drop(["quality"], axis=1).reset_index(drop=True)
@@ -69,9 +65,11 @@ for i in range(num_batches):
 
         mlflow.log_params(model_params)
         mlflow.log_metric("mae", mae)
+        batch["mae"] = mae
 
+        for k, v in model_params.items():
+            batch[k] = v
         # use whylogs to log data quality metrics for the current batch
-        mlflow.whylogs.log_pandas(batch)
 
-    # wait a second between runs to create a time series of prediction results
-    time.sleep(1)
+        mlflow.whylogs.log_pandas(batch, datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=i))
+        time.sleep(70)

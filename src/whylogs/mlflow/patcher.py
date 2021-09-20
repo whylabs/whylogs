@@ -26,11 +26,11 @@ class WhyLogsRun(object):
     _active_run_id = None
     _loggers: Dict[str, Logger] = dict()
 
-    def __init__(self):
+    def __init__(self, session):
         logger.debug("Creating a real session for WhyLogsRun")
-        self._session = get_or_create_session(path_to_config="/Users/juanpulido/Desktop/Loka/whylogs/examples/mlflow_whylabs_example/.whylabs.yaml")
+        self._session = session
 
-    def _create_logger(self, dataset_name: Optional[str] = None):
+    def _create_logger(self, dataset_name: Optional[str] = None, dataset_timestamp:Optional[datetime.datetime] = None):
         active_run = _mlflow.active_run()
         if self._active_run_id is not None and active_run is None:
             self._close()
@@ -48,8 +48,6 @@ class WhyLogsRun(object):
             self._active_run_id = run_info.run_id
 
         session_timestamp = datetime.datetime.utcfromtimestamp(run_info.start_time / 1000.0)
-        print("session_timestamp: ", session_timestamp)
-        print("real_timestamp: ", datetime.datetime.now(datetime.timezone.utc))
         experiment: _mlflow.entities.Experiment = _mlflow.tracking.MlflowClient().get_experiment(run_info.experiment_id)
         logger_dataset_name = dataset_name or experiment.name
         tags = dict(active_run.data.tags)
@@ -64,12 +62,12 @@ class WhyLogsRun(object):
             run_info.run_id,
             #dataset_name=logger_dataset_name,
             session_timestamp=session_timestamp,
-            dataset_timestamp=session_timestamp,
+            dataset_timestamp=dataset_timestamp,
             tags=tags
         )
         return tmp
 
-    def log_pandas(self, df: pd.DataFrame, dataset_name: Optional[str] = None):
+    def log_pandas(self, df: pd.DataFrame, dataset_name: Optional[str] = None, dataset_timestamp:Optional[datetime.datetime] = None):
         """
         Log the statistics of a Pandas dataframe. Note that this method is additive
         within a run: calling this method with a specific dataset name will not generate
@@ -80,7 +78,7 @@ class WhyLogsRun(object):
         :param df: the Pandas dataframe to log
         :param dataset_name: the name of the dataset (Optional). If not specified, the experiment name is used
         """
-        ylogs = self._get_or_create_logger(dataset_name)
+        ylogs = self._get_or_create_logger(dataset_name, dataset_timestamp=dataset_timestamp)
 
         if ylogs is None:
             logger.warning("Unable to get an active logger. Are you in an active MLFlow run?")
@@ -110,10 +108,10 @@ class WhyLogsRun(object):
 
         ylogs.log(features, feature_name, value)
 
-    def _get_or_create_logger(self, dataset_name: Optional[str] = None):
+    def _get_or_create_logger(self, dataset_name: Optional[str] = None, dataset_timestamp:Optional[datetime.datetime] = None):
         ylogs = self._loggers.get(dataset_name)
         if ylogs is None:
-            ylogs = self._create_logger(dataset_name)
+            ylogs = self._create_logger(dataset_name, dataset_timestamp=dataset_timestamp)
             self._loggers[dataset_name] = ylogs
         return ylogs
 
@@ -200,7 +198,7 @@ def new_model_log(**kwargs):
     _original_model_log(**kwargs)
 
 
-def enable_mlflow() -> bool:
+def enable_mlflow(session) -> bool:
     """
     Enable whylogs in ``mlflow`` module via ``mlflow.whylogs``.
 
@@ -260,7 +258,7 @@ def enable_mlflow() -> bool:
     if len(_active_whylogs) > 0:
         ylogs = _active_whylogs[0]
     else:
-        ylogs = WhyLogsRun()
+        ylogs = WhyLogsRun(session)
         _active_whylogs.append(ylogs)
 
     _mlflow.whylogs = ylogs
