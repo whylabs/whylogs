@@ -7,7 +7,7 @@ import pandas as pd
 
 from whylogs import __version__ as whylogs_version
 from whylogs.app.logger import Logger
-
+from whylogs import get_or_create_session
 logger = logging.getLogger(__name__)
 
 _mlflow = None
@@ -24,9 +24,10 @@ class WhyLogsRun(object):
     _active_run_id = None
     _loggers: Dict[str, Logger] = dict()
 
-    def __init__(self, session):
+    def __init__(self):
         logger.debug("Creating a real session for WhyLogsRun")
-        self._session = session
+        self._session = get_or_create_session()
+        self._session.with_rotation_time = os.environ.get("ROTATION_TIME", None)
 
     def _create_logger(self, dataset_name: Optional[str] = None, dataset_timestamp:Optional[datetime.datetime] = None):
         active_run = _mlflow.active_run()
@@ -194,7 +195,7 @@ def new_model_log(**kwargs):
     _original_model_log(**kwargs)
 
 
-def enable_mlflow(session) -> bool:
+def enable_mlflow() -> bool:
     """
     Enable whylogs in ``mlflow`` module via ``mlflow.whylogs``.
 
@@ -254,7 +255,7 @@ def enable_mlflow(session) -> bool:
     if len(_active_whylogs) > 0:
         ylogs = _active_whylogs[0]
     else:
-        ylogs = WhyLogsRun(session)
+        ylogs = WhyLogsRun()
         _active_whylogs.append(ylogs)
 
     _mlflow.whylogs = ylogs
