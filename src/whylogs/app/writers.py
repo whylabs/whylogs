@@ -389,8 +389,7 @@ class MlFlowWriter(Writer):
         Write a dataset profile to MLFlow path
         """
 
-        t = async_wrap(self._write_protobuf, profile, rotation_suffix)
-        self._pending_threads.append(t)
+        self._write_protobuf(profile, rotation_suffix)
 
     @staticmethod
     def _write_protobuf(profile: DatasetProfile, rotation_suffix: str = None, **kwargs):
@@ -410,7 +409,6 @@ class MlFlowWriter(Writer):
         profile.write_protobuf(output)
         patcher._mlflow.log_artifact(output, artifact_path=f"whylogs/{dataset_dir}")
         logger.debug("Successfully uploaded logger %s data to MLFlow", name)
-        patcher._mlflow.end_run()
 
 
 class WhyLabsWriter(Writer):
