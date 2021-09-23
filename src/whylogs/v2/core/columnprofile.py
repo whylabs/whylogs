@@ -1,21 +1,24 @@
 """
 Defines the ColumnProfile class for tracking per-column statistics
 """
+from whylogs.src.whylogs.v2.core.statistics.stringtracker import _STRING_TRACKER_TYPE
 import pandas as pd
 
-from whylogs.core.statistics import (
+from typing import List
+
+from whylogs.v2.core.statistics import (
     CountersTracker,
     NumberTracker,
     SchemaTracker,
     StringTracker,
 )
-from whylogs.core.statistics.constraints import (
+from whylogs.v2.core.statistics.constraints import (
     SummaryConstraint,
     SummaryConstraints,
     ValueConstraints,
 )
-from whylogs.core.statistics.hllsketch import HllSketch
-from whylogs.core.types import TypedDataConverter
+from whylogs.v2.core.statistics.hllsketch import HllSketch
+from whylogs.v2.core.tracker import Tracker
 from whylogs.proto import (
     ColumnMessage,
     ColumnSummary,
@@ -26,9 +29,6 @@ from whylogs.proto import (
 from whylogs.util.dsketch import FrequentItemsSketch
 
 _TYPES = InferredType.Type
-_NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}
-_UNIQUE_COUNT_BOUNDS_STD = 1
-
 
 class ColumnProfile:
     """
@@ -40,18 +40,7 @@ class ColumnProfile:
     ----------
     name : str (required)
         Name of the column profile
-    number_tracker : NumberTracker
-        Implements numeric data statistics tracking
-    string_tracker : StringTracker
-        Implements string data-type statistics tracking
-    schema_tracker : SchemaTracker
-        Implements tracking of schema-related information
-    counters : CountersTracker
-        Keep count of various things
-    frequent_items : FrequentItemsSketch
-        Keep track of all frequent items, even for mixed datatype features
-    cardinality_tracker : HllSketch
-        Track feature cardinality (even for mixed data types)
+    trackers : list of trackers configured for this column
     constraints : ValueConstraints
         Static assertions to be applied to numeric data tracked in this column
 
@@ -63,73 +52,55 @@ class ColumnProfile:
     def __init__(
         self,
         name: str,
-        number_tracker: NumberTracker = None,
-        string_tracker: StringTracker = None,
-        schema_tracker: SchemaTracker = None,
-        counters: CountersTracker = None,
-        frequent_items: FrequentItemsSketch = None,
-        cardinality_tracker: HllSketch = None,
+        trackers: List[Tracker] = None,
+        strict_typing: bool = False,
         constraints: ValueConstraints = None,
     ):
-        # Handle default values
-        if counters is None:
-            counters = CountersTracker()
-        if number_tracker is None:
-            number_tracker = NumberTracker()
-        if string_tracker is None:
-            string_tracker = StringTracker()
-        if schema_tracker is None:
-            schema_tracker = SchemaTracker()
-        if frequent_items is None:
-            frequent_items = FrequentItemsSketch()
-        if cardinality_tracker is None:
-            cardinality_tracker = HllSketch()
+
+        # Handle default trackers
+        if trackers is None:
+            trackers = [
+                HllSketch(),
+                NumberTracker(),
+                StringTracker(),
+                SchemaTracker(),
+                CountersTracker(),
+                FrequentItemsSketch(),
+            ]
+
+        # TODO: simplify this further, for now preserve existing behavior around cardinality tracking
+        self.unique_count_estimators = [tracker for tracker in trackers if tracker.is_cardinality_tracker]
+
         if constraints is None:
             constraints = ValueConstraints()
 
         # Assign values
         self.column_name = name
-        self.number_tracker = number_tracker
-        self.string_tracker = string_tracker
-        self.schema_tracker = schema_tracker
-        self.counters = counters
-        self.frequent_items = frequent_items
-        self.cardinality_tracker = cardinality_tracker
+        self.strict_typing = strict_typing
+        self.column_type = _TYPES.UNKNOWN
         self.constraints = constraints
+        self.unique_count_estimators = [tracker for tracker in self.trackers if isinstance(tracker, (HllSketch, StringTracker, NumberTracker))]
 
     def track(self, value, character_list=None, token_method=None):
         """
         Add `value` to tracking statistics.
         """
-        self.counters.increment_count()
-        if pd.isnull(value):
-            self.schema_tracker.track(InferredType.Type.NULL)
-            return
+        # TODO: factor into better structure with functions
+        if self.strict_typing:
+            if self.column_type == _TYPES.UNKNOWN and not pd.isnull([value]).all():
+                self.column_type = type(value)
+            for tracker in self.trackers:
+                tracker.track(value, self.column_type)
+        else: 
+            data_type = InferredType.Type.NULL if pd.isnull([value]).all() else type(value)
+            for tracker in self.trackers:
+                tracker.track(value, data_type)
 
-        # TODO: ignore this if we already know the data type
-        if isinstance(value, str):
-
-            self.string_tracker.update(value, character_list=character_list, token_method=token_method)
-        # TODO: Implement real typed data conversion
-        typed_data = TypedDataConverter.convert(value)
-
-        if not pd.isnull(typed_data):
-            self.cardinality_tracker.update(typed_data)
-            self.frequent_items.update(typed_data)
-        dtype = TypedDataConverter.get_type(typed_data)
-        self.schema_tracker.track(dtype)
-
-        if isinstance(typed_data, bool):
-            # Note: bools are sub-classes of ints in python, so we should check
-            # for bool type first
-            self.counters.increment_bool()
-
-        self.number_tracker.track(typed_data)
-
-        self.constraints.update(typed_data)
+        self.constraints.update(value, data_type)
 
     def _unique_count_summary(self) -> UniqueCountSummary:
-        cardinality_summary = self.cardinality_tracker.to_summary(_UNIQUE_COUNT_BOUNDS_STD)
+        if self.trackers
+        cardinality_summary = self.cardinality_tracker.to_summary()
         if cardinality_summary:
             return cardinality_summary
 

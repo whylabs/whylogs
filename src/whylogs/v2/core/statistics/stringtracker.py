@@ -6,18 +6,20 @@ from datasketches import frequent_strings_sketch
 
 from whylogs.core.statistics.thetasketch import ThetaSketch
 from whylogs.core.summaryconverters import from_string_sketch
-from whylogs.proto import CharPosMessage, CharPosSummary, StringsMessage, StringsSummary
+from whylogs.proto import CharPosMessage, CharPosSummary, StringsMessage, StringsSummary, TrackerMessage, TrackerSummary
 from whylogs.util import dsketch
 
-from .numbertracker import NumberTracker
+from whylogs.v2.core.statistics.numbertracker import NumberTracker
+from whylogs.v2.core.tracker import Tracker
 
 MAX_ITEMS_SIZE = 128
 MAX_SUMMARY_ITEMS = 100
+_STRING_TRACKER_TYPE = 6
 
 logger = logging.getLogger(__name__)
 
 
-class CharPosTracker:
+class CharPosTracker(Tracker):
     """
     Track statistics for character positions within a string
 
@@ -34,6 +36,7 @@ class CharPosTracker:
             character_list = "abcdefghijklmnopqrstuvwzyz0123456789-@!#$%^&*()[]{}"
         self.character_list = set(character_list)
         self.char_pos_map = {}
+        self.name = "CharPostTracker"
 
     def update(self, value: str, character_list: str = None) -> None:
 
@@ -150,7 +153,7 @@ class CharPosTracker:
         return CharPosSummary(**opts)
 
 
-class StringTracker:
+class StringTracker(Tracker):
     """
     Track statistics for strings
 
@@ -166,7 +169,7 @@ class StringTracker:
         tracks the distribution of length of strings
     token_length :  NumberTracker
         counts token per sentence
-    token_method : funtion
+    token_method : function
         method used to turn string into tokens
     char_pos_tracker: CharPosTracker
 
@@ -199,6 +202,7 @@ class StringTracker:
         self.token_length = token_length if token_length else NumberTracker()
 
         self.token_method = token_method if token_method else lambda x: x.split(" ")
+        self.name = "StringTracker"
 
     def update(self, value: str, character_list=None, token_method=None):
         """
@@ -246,7 +250,7 @@ class StringTracker:
 
         return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_char_pos_tracker)
 
-    def to_protobuf(self):
+    def to_protobuf(self) -> TrackerMessage:
         """
         Return the object serialized as a protobuf message
 
@@ -254,18 +258,21 @@ class StringTracker:
         -------
         message : StringsMessage
         """
-
-        return StringsMessage(
-            count=self.count,
-            items=self.items.serialize(),
-            compact_theta=self.theta_sketch.serialize(),
-            length=self.length.to_protobuf() if self.length else None,
-            token_length=self.token_length.to_protobuf() if self.token_length else None,
-            char_pos_tracker=self.char_pos_tracker.to_protobuf() if self.char_pos_tracker else None,
+        return TrackerMessage(
+            name = self.name,
+            type_index = _STRING_TRACKER_TYPE,
+            strings = StringsMessage(
+                count=self.count,
+                items=self.items.serialize(),
+                compact_theta=self.theta_sketch.serialize(),
+                length=self.length.to_protobuf() if self.length else None,
+                token_length=self.token_length.to_protobuf() if self.token_length else None,
+                char_pos_tracker=self.char_pos_tracker.to_protobuf() if self.char_pos_tracker else None,
+            ),
         )
 
     @staticmethod
-    def from_protobuf(message: StringsMessage):
+    def from_protobuf(message: TrackerMessage):
         """
         Load from a protobuf message
 
@@ -274,21 +281,21 @@ class StringTracker:
         string_tracker : StringTracker
         """
         theta = None
-        if message.compact_theta is not None and len(message.compact_theta) > 0:
-            theta = ThetaSketch.deserialize(message.compact_theta)
-        elif message.theta is not None and len(message.theta) > 0:
+        if message.strings.compact_theta is not None and len(message.strings.compact_theta) > 0:
+            theta = ThetaSketch.deserialize(message.strings.compact_theta)
+        elif message.strings.theta is not None and len(message.strings.theta) > 0:
             logger.warning("Possible missing data. Non-compact theta sketches are no longer supported")
 
         return StringTracker(
-            count=message.count,
-            items=dsketch.deserialize_frequent_strings_sketch(message.items),
+            count=message.strings.count,
+            items=dsketch.deserialize_frequent_strings_sketch(message.strings.items),
             theta_sketch=theta,
-            length=NumberTracker.from_protobuf(message.length),
-            token_length=NumberTracker.from_protobuf(message.token_length),
-            char_pos_tracker=CharPosTracker.from_protobuf(message.char_pos_tracker),
+            length=NumberTracker.from_protobuf(message.strings.length),
+            token_length=NumberTracker.from_protobuf(message.strings.token_length),
+            char_pos_tracker=CharPosTracker.from_protobuf(message.strings.char_pos_tracker),
         )
 
-    def to_summary(self):
+    def to_summary(self) -> TrackerSummary:
         """
         Generate a summary of the statistics
 
@@ -311,4 +318,8 @@ class StringTracker:
             if frequent_strings is not None:
                 opts["frequent"] = frequent_strings
 
-        return StringsSummary(**opts)
+        return TrackerSummary(
+            name = self.name,
+            type_index = _STRING_TRACKER_TYPE,
+            strings = StringsSummary(**opts),
+        )

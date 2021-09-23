@@ -96,6 +96,29 @@ message NumberSummary {
   bool is_discrete = 10;
 }
 
+message TrackerSummary {
+  string name = 1;
+  int32 type_index = 2;
+  oneof value {
+    int64 n = 3;
+    double d = 4;
+    Counters counters = 5;
+    NumberSummary schema = 6;
+    NumberSummary numbers = 7;
+    StringsSummary strings = 8;
+    InferredType inferred_type = 9;
+    FrequentItemsSummary frequent_items = 10;
+    UniqueCountSummary unique_count = 11;
+
+    PluginMessage custom = 99;
+  }
+}
+
+message ColumnSummaryV2 {
+  string name = 1;
+  repeated TrackerSummary trackers = 2;
+}
+
 message ColumnSummary {
   Counters counters = 1;
   SchemaSummary schema = 2;
@@ -118,7 +141,7 @@ message PluginSummary {
 
 message DatasetSummaryV2 {
   DatasetProperties properties = 1;
-  map<string, ColumnSummary> columns = 2;
+  repeated ColumnSummaryV2 columns = 2;
   map<string, PluginMessage> metric_plugins = 3;
 }
 

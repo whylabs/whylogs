@@ -1,11 +1,13 @@
 import copy
+import pandas as pd
 
-from whylogs.proto import InferredType, SchemaMessage, SchemaSummary
+from whylogs.proto import InferredType, SchemaMessage, SchemaSummary, TrackerMessage, TrackerSummary
+from whylogs.v2.core.tracker import Tracker
 
 Type = InferredType.Type
+_SCHEMA_TRACKER_TYPE = 4
 
-
-class SchemaTracker:
+class SchemaTracker(Tracker):
     """
     Track information about a column's schema and present datatypes
 
@@ -35,6 +37,7 @@ class SchemaTracker:
                 self.type_counts[Type.NULL] = legacy_null_count
             else:
                 self.type_counts[Type.NULL] += legacy_null_count
+        self.name = "SchemaTracker"
 
     def _non_null_type_counts(self):
         type_counts = self.type_counts.copy()
@@ -42,14 +45,15 @@ class SchemaTracker:
             type_counts.pop(Type.NULL)
         return type_counts
 
-    def track(self, item_type):
+    def track(self, item_type, data_type=None):
         """
         Track an item type
         """
-        try:
-            self.type_counts[item_type] += 1
-        except KeyError:
-            self.type_counts[item_type] = 1
+        if data_type is None:
+            inspected_type = type(item_type)
+            self.type_counts[inspected_type] = self.get_count(inspected_type) + 1
+        else:
+            self.type_counts[data_type] = self.get_count(data_type) + 1 
 
     def get_count(self, item_type):
         """
@@ -142,7 +146,7 @@ class SchemaTracker:
         type_counts = copy.copy(self.type_counts)
         return SchemaTracker(type_counts)
 
-    def to_protobuf(self):
+    def to_protobuf(self) -> TrackerMessage:
         """
         Return the object serialized as a protobuf message
 
@@ -150,10 +154,14 @@ class SchemaTracker:
         -------
         message : SchemaMessage
         """
-        return SchemaMessage(typeCounts=self.type_counts)
+        return TrackerMessage(
+            name = self.name,
+            type_index = _SCHEMA_TRACKER_TYPE,
+            schema = SchemaMessage(typeCounts=self.type_counts)
+        )
 
     @staticmethod
-    def from_protobuf(message, legacy_null_count=0):
+    def from_protobuf(message: TrackerMessage, legacy_null_count=0):
         """
         Load from a protobuf message
 
@@ -161,9 +169,9 @@ class SchemaTracker:
         -------
         schema_tracker : SchemaTracker
         """
-        return SchemaTracker(type_counts=message.typeCounts, legacy_null_count=legacy_null_count)
+        return SchemaTracker(type_counts=message.schema.typeCounts, legacy_null_count=legacy_null_count)
 
-    def to_summary(self):
+    def to_summary(self) -> TrackerSummary:
         """
         Generate a summary of the statistics
 
@@ -175,7 +183,12 @@ class SchemaTracker:
         type_counts = self.type_counts
         # Convert the integer keys to their corresponding string names
         type_counts_with_names = {Type.Name(k): v for k, v in type_counts.items()}
-        return SchemaSummary(
-            inferred_type=self.infer_type(),
-            type_counts=type_counts_with_names,
+        return TrackerSummary(
+            name=self.name,
+            type_index = _SCHEMA_TRACKER_TYPE,
+            schema = SchemaSummary(
+                inferred_type=self.infer_type(),
+                type_counts=type_counts_with_names,
+            ),
         )
+

@@ -1,14 +1,16 @@
 import datasketches
 
-from whylogs.proto import UniqueCountSummary
+from whylogs.proto import TrackerMessage, TrackerSummary, UniqueCountSummary
+from whylogs.v2.core.tracker import Tracker
 
+_NUMBER_TRACKER_TYPE = 5
 
 def _copy_union(union):
     new_union = datasketches.theta_union()
     new_union.update(union.get_result())
     return new_union
 
-
+# TODO: make this a tracker if we want to compose or use standalone.
 class ThetaSketch:
     """
     A sketch for approximate cardinality tracking.
@@ -20,7 +22,9 @@ class ThetaSketch:
     theta sketches.
     """
 
-    def __init__(self, theta_sketch=None, union=None, compact_theta=None):
+    def __init__(self,
+        theta_sketch=datasketches.update_theta_sketch(),
+        union=None, compact_theta=None):
         if theta_sketch is None:
             theta_sketch = datasketches.update_theta_sketch()
         if union is None:
@@ -32,6 +36,7 @@ class ThetaSketch:
 
         self.theta_sketch = theta_sketch
         self.union = union
+        self.name = "ThetaSketch"
 
     def update(self, value):
         """

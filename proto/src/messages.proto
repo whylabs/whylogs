@@ -108,13 +108,7 @@ message ColumnMessage {
 
 message ColumnMessageV2 {
   string name = 1;
-  Counters counters = 2;
-  SchemaMessage schema = 3;
-  NumbersMessage numbers = 4;
-  StringsMessage strings = 5;
-  InferredType inferred_type = 6;
-  FrequentItemsSketchMessage frequent_items = 7;
-  HllSketchMessage cardinality_tracker = 8;
+  repeated TrackerMessage trackers = 2;
 }
 
 message DatasetProperties {
@@ -175,7 +169,41 @@ message ModelProfileMessage {
   ModelMetricsMessage metrics = 10;
 }
 
-message Metric {
+message TrackerMap {
+  enum Type {
+    UNKNOWN = 0;
+    n = 1;
+    d = 2;
+    serialized_bytes = 3;
+    schema = 4;
+    numbers = 5;
+    strings = 6;
+    inferred_type = 7;
+    frequent_items = 8;
+    cardinality_tracker = 9;
+    custom = 99;
+  }
+}
+
+message TrackerMessage {
+  string name = 1;
+  int32 type_index = 2;
+  oneof value {
+    int64 n = 3;
+    double d = 4;
+    bytes serialized_bytes = 5;
+    SchemaMessage schema = 6;
+    NumbersMessage numbers = 7;
+    StringsMessage strings = 8;
+    InferredType inferred_type = 9;
+    FrequentItemsSketchMessage frequent_items = 10;
+    HllSketchMessage cardinality_tracker = 11;
+
+    PluginMessage custom = 99;
+  }
+}
+
+message MetricMessage {
   string name = 1;
   int32 type_index = 2;
 
@@ -218,7 +246,7 @@ message PluginMessage {
 message DatasetProfileMessageV2 {
   DatasetProperties properties = 1;
   repeated ColumnMessageV2 columns = 2;
-  repeated Metric metrics = 3;
+  repeated MetricMessage metrics = 3;
 }
 
 message DatasetProfileMessage {

@@ -2,10 +2,11 @@ import warnings
 
 from google.protobuf.wrappers_pb2 import Int64Value
 
-from whylogs.proto import Counters
+from whylogs.v2.core.tracker import Tracker
+from whylogs.proto import TrackerMessage
 
-
-class CountersTracker:
+_TRACKER_TYPE = 1
+class CountersTracker(Tracker):
     """
     Class to keep track of the counts of various data types
 
@@ -13,15 +14,11 @@ class CountersTracker:
     ----------
     count : int, optional
         Current number of objects
-    true_count : int, optional
-        Number of boolean values
-    null_count : int, optional
-        Number of nulls encountered
     """
 
-    def __init__(self, count=0, true_count=0):
+    def __init__(self, count=0):
         self.count = count
-        self.true_count = true_count
+        self.name = "Counter"
 
     def increment_count(self):
         """
@@ -29,17 +26,14 @@ class CountersTracker:
         """
         self.count += 1
 
+    def track(self, _):
+        self.increment_count()
+
     def increment_bool(self):
         """
         Add one to the boolean count
         """
-        self.true_count += 1
-
-    def increment_null(self):
-        """
-        Add one to the null count
-        """
-        warnings.warn("This call is a No-OP. Use SchemaTracker.nullCount instead", DeprecationWarning)
+        warnings.warn("This call is a No-OP. Use SchemaTracker.boolCount instead", DeprecationWarning)
 
     def merge(self, other):
         """
@@ -50,26 +44,20 @@ class CountersTracker:
         new_tracker : CountersTracker
             The merged tracker
         """
-        return CountersTracker(
-            count=self.count + other.count,
-            true_count=self.true_count + other.true_count,
-        )
+        return CountersTracker(count=self.count + other.count)
 
-    def to_protobuf(self, null_count=0):
+    def to_protobuf(self) -> TrackerMessage:
         """
         Return the object serialized as a protobuf message
         """
-        opts = dict(count=self.count)
-        if self.true_count > 0:
-            opts["true_count"] = Int64Value(value=self.true_count)
-
-        # TODO: remove this logic once we deprecate null_count form the protobuf schema
-        if null_count > 0:
-            opts["null_count"] = Int64Value(value=null_count)
-        return Counters(**opts)
+        return TrackerMessage(
+            name=self.name,
+            type_index=_TRACKER_TYPE, #todo plugin map or registry
+            n = self.count # Use 'TrackerMessage.value.n' over embedding Counters message.
+        )
 
     @staticmethod
-    def from_protobuf(message: Counters):
+    def from_protobuf(message: TrackerMessage) -> "CountersTracker":
         """
         Load from a protobuf message
 
@@ -77,7 +65,6 @@ class CountersTracker:
         -------
         counters : CountersTracker
         """
-        return CountersTracker(
-            count=message.count,
-            true_count=message.true_count.value,
-        )
+        if message.type_index != _TRACKER_TYPE: # TODO plugin map or type registry
+            raise ValueError(f"Cannot deserialize a counter tracker named {message.name} using type_index: {message.type_index}")
+        return CountersTracker(count=message.n)

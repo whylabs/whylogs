@@ -8,19 +8,20 @@ import numbers
 import datasketches
 import pandas as pd
 
-from whylogs.core.statistics.datatypes import FloatTracker, IntTracker, VarianceTracker
-from whylogs.core.statistics.thetasketch import ThetaSketch
-from whylogs.core.summaryconverters import histogram_from_sketch, quantiles_from_sketch
-from whylogs.proto import NumbersMessage, NumberSummary
+from whylogs.v2.core.statistics.datatypes import FloatTracker, IntTracker, VarianceTracker
+from whylogs.v2.core.statistics.thetasketch import ThetaSketch
+from whylogs.v2.core.summaryconverters import histogram_from_sketch, quantiles_from_sketch
+from whylogs.v2.core.tracker import Tracker
+from whylogs.proto import NumbersMessage, NumberSummary, TrackerMessage, TrackerSummary
 from whylogs.util import dsketch, stats
 
 # Parameter controlling histogram accuracy.  Larger = more accurate
 DEFAULT_HIST_K = 256
-
+_NUMBER_TRACKER_TYPE = 5
 logger = logging.getLogger(__name__)
 
 
-class NumberTracker:
+class NumberTracker(Tracker):
     """
     Class to track statistics for numeric data.
 
@@ -41,7 +42,7 @@ class NumberTracker:
         See above
     ints
         See above
-    theta_sketch : `whylabs.logs.core.statistics.thetasketch.ThetaSketch`
+    theta_sketch : `whylogs.logs.core.statistics.thetasketch.ThetaSketch`
         Sketch which tracks approximate cardinality
     """
 
@@ -69,12 +70,13 @@ class NumberTracker:
         self.ints = ints
         self.theta_sketch = theta_sketch
         self.histogram = histogram
+        self.name = "NumberTracker"
 
     @property
     def count(self):
         return self.variance.count
 
-    def track(self, number):
+    def track(self, number, data_type=None):
         """
         Add a number to statistics tracking
 
@@ -83,6 +85,7 @@ class NumberTracker:
         number : int, float
             A numeric value
         """
+        # TODO: simplify with data_type passed in
         if pd.isnull(number) or (not isinstance(number, numbers.Real)) or isinstance(number, bool):
             # XXX: this type checking may still be fragile in python.
             return
@@ -131,10 +134,15 @@ class NumberTracker:
         elif self.ints.count > 0:
             opts["longs"] = self.ints.to_protobuf()
         msg = NumbersMessage(**opts)
-        return msg
+
+        return TrackerMessage(
+            name = self.name,
+            type_index = _NUMBER_TRACKER_TYPE,
+            numbers = msg,
+        )
 
     @staticmethod
-    def from_protobuf(message: NumbersMessage):
+    def from_protobuf(message: TrackerMessage):
         """
         Load from a protobuf message
 
@@ -143,15 +151,15 @@ class NumberTracker:
         number_tracker : NumberTracker
         """
         theta = None
-        if message.compact_theta is not None and len(message.compact_theta) > 0:
+        if message.numbers.compact_theta is not None and len(message.numbers.compact_theta) > 0:
             theta = ThetaSketch.deserialize(message.compact_theta)
-        elif message.theta is not None and len(message.theta) > 0:
+        elif message.numbers.theta is not None and len(message.numbers.theta) > 0:
             logger.warning("Possible missing data. Non-compact theta sketches are no longer supported")
 
         opts = dict(
             theta_sketch=theta,
-            variance=VarianceTracker.from_protobuf(message.variance),
-            histogram=dsketch.deserialize_kll_floats_sketch(message.histogram),
+            variance=VarianceTracker.from_protobuf(message.numbers.variance),
+            histogram=dsketch.deserialize_kll_floats_sketch(message.numbers.histogram),
         )
         if message.HasField("doubles"):
             opts["floats"] = FloatTracker.from_protobuf(message.doubles)
@@ -159,7 +167,7 @@ class NumberTracker:
             opts["ints"] = IntTracker.from_protobuf(message.longs)
         return NumberTracker(**opts)
 
-    def to_summary(self):
+    def to_summary(self) -> TrackerSummary:
         """
         Construct a `NumberSummary` message
 
@@ -192,14 +200,18 @@ class NumberTracker:
         else:
             discrete = stats.is_discrete(num_records, cardinality)
 
-        return NumberSummary(
-            count=self.variance.count,
-            stddev=stddev,
-            min=min,
-            max=max,
-            mean=mean,
-            histogram=histogram,
-            quantiles=quant,
-            unique_count=unique_count,
-            is_discrete=discrete,
+        return TrackerSummary(
+            name= self.name,
+            type_index = _NUMBER_TRACKER_TYPE,
+            numbers = NumberSummary(
+                count=self.variance.count,
+                stddev=stddev,
+                min=min,
+                max=max,
+                mean=mean,
+                histogram=histogram,
+                quantiles=quant,
+                unique_count=unique_count,
+                is_discrete=discrete,
+            ),
         )

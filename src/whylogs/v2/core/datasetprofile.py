@@ -13,10 +13,10 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 from smart_open import open
 
-from whylogs.core import ColumnProfile
+from whylogs.v2.core import ColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
-from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
+from whylogs.v2.core.statistics.constraints import DatasetConstraints, SummaryConstraints
 from whylogs.proto import (
     ColumnsChunkSegment,
     DatasetMetadataSegment,
