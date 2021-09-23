@@ -13,7 +13,6 @@ import datetime
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import ElasticNet
-from whylogs import get_or_create_session
 from dotenv import load_dotenv
 load_dotenv()
 assert whylogs.__version__ >= "0.1.13" # we need 0.1.13 or later for MLflow integration
@@ -23,10 +22,7 @@ data = pd.read_csv(os.environ["DATASET_URL"], sep=";")
 # Split the data into training and test sets
 train, test = train_test_split(data)
 
-session = get_or_create_session(path_to_config=".whylabs.yaml")
-session.with_rotation_time = os.environ["ROTATION_TIME"]
-
-whylogs.enable_mlflow(session=session)
+whylogs.enable_mlflow()
 
 # Relocate predicted variable "quality" to y vectors
 train_x = train.drop(["quality"], axis=1).reset_index(drop=True)
@@ -56,7 +52,9 @@ print("ElasticNet model (%s):" % model_params)
 
 # run predictions on the batches of data we set up earlier and log whylogs data
 for i in range(num_batches):
-    with mlflow.start_run(run_name=f"Run {i + 1}"):
+    print("Run Name: ", f"Run {i + 1}")
+    with mlflow.start_run(run_name=f"Run {i + 1}") as runner:
+        print("Run Id: ", runner._info.run_uuid)
         batch = subset_test_x[i]
         predicted_output = lr.predict(batch)
 
@@ -72,4 +70,4 @@ for i in range(num_batches):
         # use whylogs to log data quality metrics for the current batch
 
         mlflow.whylogs.log_pandas(batch, datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=i))
-        time.sleep(70)
+        #time.sleep(70)
