@@ -1,12 +1,11 @@
 import logging
 from typing import Callable, Dict, List, Union
 
-from whylogs.features.transforms import Brightness, Hue, Saturation
-
 logger = logging.getLogger(__name__)
 
 try:
     from PIL.Image import Image as ImageType
+    from PIL.ImageStat import Stat
     from PIL.TiffImagePlugin import IFDRational
     from PIL.TiffTags import TAGS
 except ImportError as e:
@@ -14,9 +13,10 @@ except ImportError as e:
     logger.debug(str(e))
     logger.debug("Unable to load PIL; install Pillow for image support")
 
-DEFAULT_IMAGE_FEATURES = [Hue(), Saturation(), Brightness()]
+DEFAULT_IMAGE_FEATURES = []
 
-_METADATA_DEFAULT_ATTRIBUTES = [
+
+_DEFAULT_TAGS_ATTRIBUTES = [
     "ImageWidth",
     "ImageLength",
     "BitsPerSample",
@@ -34,6 +34,10 @@ _METADATA_DEFAULT_ATTRIBUTES = [
     "BrightnessValue",
     "Flash",
 ]
+_IMAGE_HSV_CHANNELS = ["Hue", "Saturation", "Brightness"]
+_STATS_PROPERTIES = ["mean", "stddev"]
+_DEFAULT_STAT_ATTRIBUTES = [c + "." + s for c in _IMAGE_HSV_CHANNELS for s in _STATS_PROPERTIES]
+_METADATA_DEFAULT_ATTRIBUTES = _DEFAULT_STAT_ATTRIBUTES + _DEFAULT_TAGS_ATTRIBUTES
 
 
 def image_loader(path: str = None) -> ImageType:
@@ -92,25 +96,25 @@ class TrackImage:
         if self.metadata_attributes is not None:
             metadata = get_pil_image_metadata(self.img)
 
-        for each_transform in self.feature_transforms:
-            transform_name = "{0}".format(each_transform)
-            transformed_image = each_transform(self.img)
-            for each_profile in profiles:
-
+        for each_profile in profiles:
+            # Turn off feature transforms + logging by default, they can be expensive if they don't reduce dimensionality.
+            for each_transform in self.feature_transforms:
+                transform_name = "{0}".format(each_transform)
+                transformed_image = each_transform(self.img)
                 each_profile.track_array(columns=[self.feature_name + transform_name], x=transformed_image)
 
-                if self.metadata_attributes == "all":
-                    each_profile.track(metadata)
+            if self.metadata_attributes == "all":
+                each_profile.track(metadata)
 
-                else:
-                    for each_attr in self.metadata_attributes:
-                        attribute_value = metadata.get(each_attr, None)
-                        each_profile.track(self.feature_name + each_attr, attribute_value)
+            else:
+                for each_attr in self.metadata_attributes:
+                    attribute_value = metadata.get(each_attr, None)
+                    each_profile.track(self.feature_name + each_attr, attribute_value)
 
 
-def get_pil_image_metadata(img: ImageType) -> Dict:
+def get_pil_image_statistics(img: ImageType, channels: List[str] = _IMAGE_HSV_CHANNELS, image_stats: List[str] = _STATS_PROPERTIES) -> Dict:
     """
-    Grab metra data from a PIL Image
+    Compute statistics data for a PIL Image
 
     Args:
         img (ImageType): PIL Image
@@ -118,9 +122,39 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
     Returns:
         Dict: of metadata
     """
-    metadata = {TAGS[k]: "{}".format(v) if (isinstance(v, IFDRational)) else v for k, v in dict(img.getexif()).items()}
 
-    metadata.update({"ImageFormat": img.format})
+    stats = Stat(img.convert("HSV"))
+    metadata = {}
+    for index in range(len(channels)):
+        for statistic_name in image_stats:
+            if hasattr(stats, statistic_name):
+                metadata[channels[index] + "." + statistic_name] = getattr(stats, statistic_name)[index]
+
+    return metadata
+
+
+def get_pil_image_metadata(img: ImageType) -> Dict:
+    """
+    Grab statistics data from a PIL ImageStats.Stat
+
+    Args:
+        img (ImageType): PIL Image
+
+    Returns:
+        Dict: of metadata
+    """
+    metadata = {}
+    for k, v in dict(img.getexif()).items():
+        try:
+            if isinstance(v, IFDRational):
+                metadata[TAGS[k]] = "{}".format(v)
+            else:
+                metadata[TAGS[k]] = v
+        except KeyError:
+            f"Skipping key {k}."
+
+    metadata.update(image_based_metadata(img))
+    metadata.update(get_pil_image_statistics(img))
 
     return metadata
 
