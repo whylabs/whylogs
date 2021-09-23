@@ -53,7 +53,7 @@ pip install whylogs
 
 - You'll need to install poetry in order to install dependencies using the lock file in this project. Follow [their docs](https://python-poetry.org/docs/) to get it set up.
 
-- Run the following comand at the root of the source code:
+- Run the following command at the root of the source code:
 
 ```
 make install

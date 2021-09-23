@@ -7,16 +7,14 @@ class FloatTracker:
     """
     Track statistics for floating point numbers
 
-    Parameters
-    ---------
-    min : float
-        Current min value
-    max : float
-        Current max value
-    sum : float
-        Sum of the numbers
-    count : int
-        Total count of numbers
+    :param min:  Current min value
+    :type min: float
+    :param max:  Current max value
+    :type max: float
+    :param sum:  Sum of the numbers
+    :type sum: float
+    :param count:  Total count of numbers
+    :type count: int
     """
 
     def __init__(
@@ -57,9 +55,8 @@ class FloatTracker:
         Copy data from a IntTracker into this object, overwriting the current
         values.
 
-        Parameters
-        ----------
-        tracker : IntTracker
+        :param tracker:
+        :type tracker: IntTracker
         """
         if tracker is not None and tracker.count != 0:
             # Copy data over from the ints, casting as floats
@@ -81,15 +78,10 @@ class FloatTracker:
         """
         Merge this tracker with another.
 
-        Parameters
-        ----------
-        other : FloatTracker
-            The other float tracker
-
-        Returns
-        -------
-        merged : FloatTracker
-            A new float tracker
+        :param other:  The other float tracker
+        :type other: FloatTracker
+        :return:  A new float tracker
+        :rtype: FloatTracker
         """
         this_copy = FloatTracker(self.min, self.max, self.sum, self.count)
         if other.min < this_copy.min:
@@ -104,9 +96,7 @@ class FloatTracker:
         """
         Return the object serialized as a protobuf message
 
-        Returns
-        -------
-        message : DoublesMessage
+        :rtype: DoublesMessage
         """
         return DoublesMessage(count=self.count, max=self.max, min=self.min, sum=self.sum)
 
@@ -115,8 +105,6 @@ class FloatTracker:
         """
         Load from a protobuf message
 
-        Returns
-        -------
-        number_tracker : FloatTracker
+        :rtype: FloatTracker
         """
         return FloatTracker(min=message.min, max=message.max, sum=message.sum, count=message.count)

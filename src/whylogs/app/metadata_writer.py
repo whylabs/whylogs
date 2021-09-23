@@ -18,17 +18,13 @@ class MetadataWriter:
     """
     Class for writing metadata to disk
 
-    Parameters
-    ----------
-    output_path : str
-        Prefix of where to output files.  A directory for `type = 'local'`,
-        or key prefix for `type = 's3'`
-    path_template : str, optional
-        Templatized path output using standard python string templates.
-        Variables are accessed via $identifier or ${identifier}.
-        See :func:`MetadataWriter.template_params` for a list of available
-        identifers.
-        Default = :data:`DEFAULT_PATH_TEMPLATE`
+    `path_template` uses standard python string templates. Variables are accessed via $identifier or ${identifier}.
+    See :func:`MetadataWriter.template_params` for a list of available identifers.
+
+    :param output_path:  Prefix of where to output files.  A directory for `type = 'local'`, or key prefix for `type = 's3'`
+    :type output_path: str
+    :param path_template: Output path template, Defaults to :data:`DEFAULT_PATH_TEMPLATE`
+    :type path_template: str, optional
     """
 
     def __init__(

@@ -8,14 +8,12 @@ class VarianceTracker:
     Class that implements variance estimates for streaming data and for
     batched data.
 
-    Parameters
-    ----------
-    count
-        Number tracked elements
-    sum
-        Sum of all numbers
-    mean
-        Current estimate of the mean
+    :param mean:  Current estimate of the mean
+    :type mean: float
+    :param sum:  Sum of the numbers
+    :type sum: float
+    :param count:  Number tracked elements
+    :type count: int
     """
 
     def __init__(self, count=0, sum=0.0, mean=0.0):
@@ -30,9 +28,8 @@ class VarianceTracker:
         Based on
         https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
 
-        Parameters
-        ----------
-        new_value : int, float
+        :param new_value:
+        :type new_value: int, float
         """
         self.count += 1
 
@@ -65,15 +62,10 @@ class VarianceTracker:
         See:
         https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
 
-        Parameters
-        ----------
-        other : VarianceTracker
-            Other variance tracker
-
-        Returns
-        -------
-        merged : VarianceTracker
-            A new variance tracker from the merged statistics
+        :param other:  Other variance tracker
+        :type other: VarianceTracker
+        :return:  A new variance tracker from the merged statistics
+        :rtype: VarianceTracker
         """
         if other.count == 0:
             return self.copy()
@@ -102,9 +94,7 @@ class VarianceTracker:
         """
         Return the object serialized as a protobuf message
 
-        Returns
-        -------
-        message : VarianceMessage
+        :rtype: VarianceMessage
         """
         return VarianceMessage(count=self.count, sum=self.sum, mean=self.mean)
 
@@ -113,9 +103,7 @@ class VarianceTracker:
         """
         Load from a protobuf message
 
-        Returns
-        -------
-        variance_tracker : VarianceTracker
+        :rtype: VarianceTracker
         """
         tracker = VarianceTracker()
         tracker.count = message.count

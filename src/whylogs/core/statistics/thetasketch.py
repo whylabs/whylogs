@@ -37,10 +37,8 @@ class ThetaSketch:
         """
         Update the statistics tracking
 
-        Parameters
-        ----------
-        value : object
-            Value to follow
+        :param value:  Value to follow
+        :type value: object
         """
         self.theta_sketch.update(value)
 
@@ -48,15 +46,10 @@ class ThetaSketch:
         """
         Merge another `ThetaSketch` with this one, returning a new object
 
-        Parameters
-        ----------
-        other : ThetaSketch
-            Other theta sketch
-
-        Returns
-        -------
-        new : ThetaSketch
-            New theta sketch with merged statistics
+        :param other:  Other theta sketch
+        :type other: ThetaSketch
+        :return:  New theta sketch with merged statistics
+        :rtype: ThetaSketch
         """
         new_union = datasketches.theta_union()
         new_union.update(self.get_result())
@@ -67,10 +60,8 @@ class ThetaSketch:
         """
         Generate a theta sketch
 
-        Returns
-        -------
-        compact_sketch : datasketches.compact_theta_sketch
-            Read-only compact theta sketch with full statistics.
+        :return:  Read-only compact theta sketch with full statistics.
+        :rtype: datasketches.compact_theta_sketch
         """
         new_union = datasketches.theta_union()
         new_union.update(self.union.get_result())
@@ -83,10 +74,8 @@ class ThetaSketch:
 
         Note that serialization only preserves the object approximately.
 
-        Returns
-        -------
-        msg : bytes
-            Serialized to `bytes`
+        :return:  Serialized to `bytes`
+        :rtype: bytes
         """
         return self.get_result().serialize()
 
@@ -95,20 +84,15 @@ class ThetaSketch:
         """
         Deserialize from a serialized message.
 
-        `msg`
+        Serialized object can be a serialized version of:
+            * ThetaSketch
+            * datasketches.update_theta_sketch,
+            * datasketches.compact_theta_sketch
 
-        Parameters
-        ----------
-        msg : bytes
-            Serialized object.  can be a serialized version of:
-                * ThetaSketch
-                * datasketches.update_theta_sketch,
-                * datasketches.compact_theta_sketch
-
-        Returns
-        -------
-        sketch : ThetaSketch
-            ThetaSketch object
+        :param msg:  Serialized object.
+        :type msg: bytes
+        :return:  ThetaSketch object
+        :rtype: ThetaSketch
         """
         theta = datasketches.compact_theta_sketch.deserialize(msg)
         if isinstance(theta, datasketches.compact_theta_sketch):
@@ -120,15 +104,10 @@ class ThetaSketch:
         """
         Generate a summary protobuf message
 
-        Parameters
-        ----------
-        num_std_devs : float
-            For estimating bounds
-
-        Returns
-        -------
-        summary : UniqueCountSummary
-            Summary protobuf message
+        :param num_std_devs:  For estimating bounds
+        :type num_std_devs: float
+        :return:  Summary protobuf message
+        :rtype: UniqueCountSummary
         """
         compact_theta = self.get_result()
         return UniqueCountSummary(
@@ -143,17 +122,12 @@ def numbers_summary(sketch: ThetaSketch, num_std_devs=1):
     Generate a summary protobuf message from a thetasketch based on numeric
     values
 
-    Parameters
-    ----------
-    sketch
+    :type sketch: ThetaSketch
+    :param num_std_devs:  For estimating bounds
+    :type num_std_devs: float
+    :return:  Summary protobuf message
+    :rtype: UniqueCountSummary
 
-    num_std_devs : float
-        For estimating bounds
-
-    Returns
-    -------
-    summary : UniqueCountSummary
-        Summary protobuf message
     """
     compact_theta = sketch.get_result()
     return UniqueCountSummary(

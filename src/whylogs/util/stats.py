@@ -11,17 +11,12 @@ def is_discrete(num_records: int, cardinality: int, p=0.15):
 
     The default assumption is that features are not discrete.
 
-    Parameters
-    ----------
-    num_records : int
-        The number of observed records
-    cardinality : int
-        Number of unique observed values
-
-    Returns
-    -------
-    discrete : bool
-        Whether the feature is discrete
+    :param num_records:  The number of observed records
+    :type num_records: int
+    :param cardinality:  Number of unique observed values
+    :type cardinality: int
+    :return:  Whether the feature is discrete
+    :rtype: bool
     """
     if cardinality >= num_records:
         return False

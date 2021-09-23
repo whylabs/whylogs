@@ -19,12 +19,12 @@ class RegressionMetrics:
         # self.nt_diff = whylogs.core.statistics.NumberTracker()
 
     def add(self, predictions: List[float], targets: List[float]):
-        """
-        Function adds predictions and targets computation of regression metrics.
+        """Function adds predictions and targets to regression metrics.
 
-        Args:
-            predictions (List[float]):
-            targets (List[float]):
+        :param predictions:
+        :type predictions: List[float]
+        :param targets:
+        :type targets: List[float]
         """
 
         # need to vectorize this
@@ -52,14 +52,14 @@ class RegressionMetrics:
             return None
         return math.sqrt(self.sum2_diff / self.count)
 
-    def merge(self, other):
-        """
-        Merge two seperate confusion matrix which may or may not overlap in labels.
+    def merge(self, other: "RegressionMetrics") -> "RegressionMetrics":
+        """Merge two seperate confusion matrix which may or may not overlap in labels.
 
-        Args:
-              other : regression metrics to merge with self
-        Returns:
-              RegressionMetrics: merged regression metrics
+        :param other:
+        :type predictions: RegressionMetrics
+
+        :returns: a newly constructed merged regression metrics object
+        :rtype: RegressionMetrics
         """
         if other is None:
             return self
@@ -85,13 +85,11 @@ class RegressionMetrics:
     def to_protobuf(
         self,
     ):
-        """
-        Convert to protobuf
+        """Convert to protobuf message
 
-        Returns:
-            TYPE: Protobuf Message
+        :returns: protobuf message
+        :rtype: RegressionMetricsMessage
         """
-
         return RegressionMetricsMessage(
             prediction_field=self.prediction_field,
             target_field=self.target_field,

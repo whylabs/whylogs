@@ -60,34 +60,25 @@ def flatten_summary(dataset_summary: DatasetSummary) -> dict:
     """
     Flatten a DatasetSummary
 
-    Parameters
-    ----------
-    dataset_summary : DatasetSummary
-        Summary to flatten
+    Returns a dictionary with the following keys:
 
-    Returns
-    -------
-    data : dict
-        A dictionary with the following keys:
+        summary : pandas.DataFrame
+            Per-column summary statistics
+        hist : pandas.Series
+            Series of histogram Series with (column name, histogram) key,
+            value pairs.  Histograms are formatted as a `pandas.Series`
+        frequent_strings : pandas.Series
+            Series of frequent string counts with (column name, counts)
+            key, val pairs.  `counts` are a pandas Series.
 
-            summary : pandas.DataFrame
-                Per-column summary statistics
-            hist : pandas.Series
-                Series of histogram Series with (column name, histogram) key,
-                value pairs.  Histograms are formatted as a `pandas.Series`
-            frequent_strings : pandas.Series
-                Series of frequent string counts with (column name, counts)
-                key, val pairs.  `counts` are a pandas Series.
-
-    Notes
-    -----
     Some relevant info on the summary mapping:
-
-    .. code-block:: python
-
         >>> from whylogs.core.datasetprofile import SCALAR_NAME_MAPPING
         >>> import json
         >>> print(json.dumps(SCALAR_NAME_MAPPING, indent=2))
+
+    :param dataset_summary: Summary to flatten
+    :return: summary dict
+
     """
     hist = flatten_dataset_histograms(dataset_summary)
     frequent_strings = flatten_dataset_frequent_strings(dataset_summary)
@@ -180,17 +171,13 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
     """
     Get a dataframe from scalar values flattened from a dataset summary
 
-    Parameters
-    ----------
-    dataset_summary : DatasetSummary
-        The dataset summary.
-    mapping : dict, optional
-        Override the default variable mapping.
+    :param dataset_summary: The dataset summary.
+    :param mapping: Override the default variable mapping.
+    :type dataset_summary: DatasetSummary
+    :type mapping: dict, optional
 
-    Returns
-    -------
-    summary : pd.DataFrame
-        Scalar values, flattened and re-named according to `mapping`
+    :return: Scalar values, flattened and re-named according to `mapping`
+    :rtype: pd.DataFrame
     """
     if mapping is None:
         mapping = SCALAR_NAME_MAPPING

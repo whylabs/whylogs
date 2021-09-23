@@ -26,16 +26,12 @@ def from_sketch(sketch: update_theta_sketch, num_std_devs: float = 1):
     """
     Generate a protobuf summary message from a datasketches theta sketch
 
-    Parameters
-    ----------
-    sketch
-        Theta sketch to summarize
-    num_std_devs
-        Number of standard deviations for calculating bounds
+    :param sketch: Theta sketch to summarize
+    :type sketch: update_theta_sketch
+    :param num_std_devs: Number of standard deviations for calculating bounds
+    :type num_std_devs: float, optional, default=1
 
-    Returns
-    -------
-    summary : UniqueCountSummary
+    :rtype: UniqueCountSummary
     """
     return UniqueCountSummary(
         estimate=sketch.get_estimate(),
@@ -48,14 +44,9 @@ def from_string_sketch(sketch: frequent_strings_sketch):
     """
     Generate a protobuf summary message from a string sketch
 
-    Parameters
-    ----------
-    sketch
-        Frequent strings sketch
-
-    Returns
-    -------
-    summary : FrequentStringsSummary
+    :param sketch: Frequent strings sketch
+    :type sketch: frequent_strings_sketch
+    :rtype: FrequentStringsSummary
     """
     frequent_items = sketch.get_frequent_items(frequent_items_error_type.NO_FALSE_NEGATIVES)
     # Note: frequent items is a list of tuples containing info about the
@@ -72,13 +63,10 @@ def quantiles_from_sketch(sketch: kll_floats_sketch, quantiles=None):
     """
     Calculate quantiles from a data sketch
 
-    Parameters
-    ----------
-    sketch : kll_floats_sketch
-        Data sketch
-    quantiles : list-like
-        Override the default quantiles.  Should be a list of values from
-        0 to 1 inclusive.
+    :param sketch:  Data sketch
+    :type sketch: kll_floats_sketch
+    :param quantiles:  Override the default quantiles.  Should be a list of values from 0 to 1 inclusive.
+    :type quantiles: list-like
     """
     if quantiles is None:
         quantiles = QUANTILES
@@ -93,19 +81,14 @@ def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int = None, av
     """
     Generate a summary of a kll_floats_sketch, including a histogram
 
-    Parameters
-    ----------
-    sketch : kll_floats_sketch
-        Data sketch
-    max_buckets : int
-        Override the default maximum number of buckets
-    avg_per_bucket : int
-        Override the default target number of items per bucket.
-
-    Returns
-    -------
-    histogram : HistogramSummary
-        Protobuf histogram message
+    :param sketch:  Data sketch
+    :type sketch: kll_floats_sketch
+    :param max_buckets:  Override the default maximum number of buckets
+    :type max_buckets: int
+    :param avg_per_bucket:  Override the default target number of items per bucket.
+    :type avg_per_bucket: int
+    :return:  Protobuf histogram message
+    :rtype: HistogramSummary
     """
     n = sketch.get_n()
     start = sketch.get_min_value()

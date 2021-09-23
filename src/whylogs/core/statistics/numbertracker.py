@@ -24,14 +24,12 @@ class NumberTracker:
     """
     Class to track statistics for numeric data.
 
-    Parameters
-    ----------
-    variance
-        Tracker to follow the variance
-    floats
-        Float tracker for tracking all floats
-    ints
-        Integer tracker
+    :param variance:  Tracker to follow the variance
+    :type variance: VarianceTracker
+    :param floats:  Float tracker for tracking all floats
+    :type floats: FloatTracker
+    :param ints:  Integer tracker
+    :type ints: IntTracker
 
     Attributes
     ----------
@@ -78,10 +76,8 @@ class NumberTracker:
         """
         Add a number to statistics tracking
 
-        Parameters
-        ----------
-        number : int, float
-            A numeric value
+        :param number:  A numeric value
+        :type number: int, float
         """
         if pd.isnull(number) or (not isinstance(number, numbers.Real)) or isinstance(number, bool):
             # XXX: this type checking may still be fragile in python.
@@ -138,9 +134,8 @@ class NumberTracker:
         """
         Load from a protobuf message
 
-        Returns
-        -------
-        number_tracker : NumberTracker
+        :return:  number_tracker
+        :rtype: NumberTracker
         """
         theta = None
         if message.compact_theta is not None and len(message.compact_theta) > 0:
@@ -163,10 +158,8 @@ class NumberTracker:
         """
         Construct a `NumberSummary` message
 
-        Returns
-        -------
-        summary : NumberSummary
-            Summary of the tracker statistics
+        :return:  Summary of the tracker statistics
+        :rtype: NumberSummary
         """
         if self.variance.count == 0:
             return

@@ -14,18 +14,13 @@ def deserialize_kll_floats_sketch(x: bytes, kind: str = "float"):
 
     whylogs histograms are serialized as kll floats sketches
 
-    Parameters
-    ----------
-    x : bytes
-        Serialized sketch
-    kind : str, optional
-        Specify type of sketch: 'float' or 'int'
+    :param x:  Serialized sketch
+    :type x: bytes
+    :param kind:  Specify type of sketch: 'float' or 'int'
+    :type kind: str, optional
+    :return:  If `x` is an empty sketch, return None, else return the deserialized sketch.
+    :rtype: `kll_floats_sketch`, `kll_ints_sketch`, or None
 
-    Returns
-    -------
-    sketch : `kll_floats_sketch`, `kll_ints_sketch`, or None
-        If `x` is an empty sketch, return None, else return the deserialized
-        sketch.
     """
     if len(x) < 1:
         return
@@ -44,16 +39,10 @@ def deserialize_frequent_strings_sketch(x: bytes):
 
     Wrapper for `datasketches.frequent_strings_sketch.deserialize`
 
-    Parameters
-    ----------
-    x : bytes
-        Serialized sketch
-
-    Returns
-    -------
-    sketch : `datasketches.frequent_strings_sketch`, None
-        If `x` is an empty string sketch, returns None, else returns the
-        deserialized string sketch
+    :param x:  Serialized sketch
+    :type x: bytes
+    :return:  If `x` is an empty string sketch, returns None, else returns the deserialized string sketch
+    :rtype: `datasketches.frequent_strings_sketch`, None
     """
     if len(x) <= 8:
         return
@@ -69,13 +58,10 @@ class FrequentItemsSketch:
     strings since the `datasketches` python implementation does not implement
     frequent number tracking.
 
-    Parameters
-    ----------
-    lg_max_k : int, optional
-        Parameter controlling the size and accuracy of the sketch.  A larger
-        number increases accuracy and the memory requirements for the sketch
-    sketch : datasketches.frequent_strings_sketch, optional
-        Initialize with an existing frequent strings sketch
+    :param lg_max_k:  Parameter controlling the size and accuracy of the sketch.  A larger number increases accuracy and the memory requirements for the sketch
+    :type lg_max_k: int, optional
+    :param sketch:  Initialize with an existing frequent strings sketch
+    :type sketch: datasketches.frequent_strings_sketch, optional
     """
 
     DEFAULT_MAX_ITEMS_SIZE = 128
@@ -95,16 +81,13 @@ class FrequentItemsSketch:
         """
         Return an apriori estimate of the uncertainty for various parameters
 
-        Parameters
-        ----------
-        lg_max_map_size : int
-            The `lg_max_k` value
-        estimated_total_weight
-            Total weight (see :func:`FrequentItems.get_total_weight`)
-        Returns
-        -------
-        error : float
-            Approximate uncertainty
+        :param lg_max_map_size:  The `lg_max_k` value
+        :type lg_max_map_size: int
+        :param estimated_total_weight:  Total weight (see :func:`FrequentItems.get_total_weight`)
+        :type lg_max_map_size: int
+
+        :return:  Approximate uncertainty
+        :rtype: float
         """
         return self.sketch.get_apriori_error(lg_max_map_size, estimated_total_weight)
 
@@ -129,21 +112,14 @@ class FrequentItemsSketch:
         """
         Retrieve the frequent items.
 
-
-        Parameters
-        ----------
-        err_type : datasketches.frequent_items_error_type
-            Override default error type
-        threshold : int
-            Minimum count for returned items
-        decode : bool (default=True)
-            Decode the returned values.  Internally, all items are encoded
-            as strings.
-
-        Returns
-        -------
-        items : list
-            A list of tuples of items: ``[(item, count)]``
+        :param err_type:  Override default error type
+        :type err_type: datasketches.frequent_items_error_type
+        :param threshold:  Minimum count for returned items
+        :type threshold: int
+        :param decode:  Decode the returned values.  Internally, all items are encoded as strings.
+        :type decode: bool (default=True)
+        :return:  A list of tuples of items: ``[(item, count)]``
+        :rtype: list
         """
         if err_type is None:
             err_type = self.DEFAULT_ERROR_TYPE
@@ -178,10 +154,8 @@ class FrequentItemsSketch:
 
         This object will not be modified.  This operation is commutative.
 
-        Parameters
-        ----------
-        other: FrequentItemsSketch
-            The other sketch
+        :param other:  The other sketch
+        :type other: FrequentItemsSketch
         """
         # We want all our "merge" methods to return a NEW object.
         # TODO: investigate relaxing this constraint
@@ -191,10 +165,8 @@ class FrequentItemsSketch:
 
     def copy(self):
         """
-        Returns
-        -------
-        sketch : FrequentItemsSketch
-            A copy of this sketch
+        :return:  A copy of this sketch
+        :rtype: FrequentItemsSketch
         """
         self_copy = FrequentItemsSketch.deserialize(self.serialize())
         if self_copy is None:
@@ -208,10 +180,8 @@ class FrequentItemsSketch:
 
         See also :func:`FrequentItemsSketch.deserialize`
 
-        Returns
-        -------
-        data : bytes
-            Serialized object.
+        :return:  Serialized object.
+        :rtype: bytes
         """
         return self.sketch.serialize()
 
@@ -222,12 +192,10 @@ class FrequentItemsSketch:
         """
         Track an item.
 
-        Parameters
-        ----------
-        x : object
-            Item to track
-        weight : int
-            Number of times the item appears
+        :param x:  Item to track
+        :type x: object
+        :param weight:  Number of times the item appears
+        :type weight: int
         """
         self.sketch.update(self._encode_item(x), weight)
 
@@ -236,18 +204,12 @@ class FrequentItemsSketch:
         Generate a protobuf summary.  Returns None if there are no frequent
         items.
 
-        Parameters
-        ----------
-        max_items : int
-            Maximum number of items to return.  The most frequent items will
-            be returned
-        min_count : int
-            Minimum number counts for all returned items
-
-        Returns
-        -------
-        summary : FrequentItemsSummary
-            Protobuf summary message
+        :param max_items:  Maximum number of items to return.  The most frequent items will be returned
+        :type max_items: int
+        :param min_count:  Minimum number counts for all returned items
+        :type min_count: int
+        :return:  Protobuf summary message
+        :rtype: FrequentItemsSummary
         """
         items = self.get_frequent_items(threshold=min_count - 1, decode=False)
         if len(items) < 1:

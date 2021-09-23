@@ -9,11 +9,8 @@ class SchemaTracker:
     """
     Track information about a column's schema and present datatypes
 
-    Paramters
-    ---------
-    type_counts : dict
-        If specified, a dictionary containing information about the counts of
-        all data types.
+    :param type_counts:  If specified, a dictionary containing information about the counts of all data types.
+    :type type_counts: dict
     """
 
     UNKNOWN_TYPE = InferredType(type=Type.UNKNOWN)
@@ -61,10 +58,8 @@ class SchemaTracker:
         """
         Generate a guess at what type the tracked values are.
 
-        Returns
-        -------
-        type_guess : object
-            The guess tome.  See `InferredType.Type` for candidates
+        :param type_guess:  The guess tome.  See `InferredType.Type` for candidates
+        :type type_guess: object
         """
         null_count = self.get_count(Type.NULL)
         type_counts = self._non_null_type_counts()
@@ -119,14 +114,10 @@ class SchemaTracker:
         Merge another schema tracker with this and return a new one.
         Does not alter this object.
 
-        Parameters
-        ----------
-        other : SchemaTracker
-
-        Returns
-        -------
-        merged : SchemaTracker
-            Merged tracker
+        :param other:
+        :type other: SchemaTracker
+        :return:  Merged tracker
+        :rtype: SchemaTracker
         """
         this_copy = self.copy()
         all_types = Type.values()
@@ -146,9 +137,7 @@ class SchemaTracker:
         """
         Return the object serialized as a protobuf message
 
-        Returns
-        -------
-        message : SchemaMessage
+        :rtype: SchemaMessage
         """
         return SchemaMessage(typeCounts=self.type_counts)
 
@@ -157,9 +146,7 @@ class SchemaTracker:
         """
         Load from a protobuf message
 
-        Returns
-        -------
-        schema_tracker : SchemaTracker
+        :rtype: SchemaTracker
         """
         return SchemaTracker(type_counts=message.typeCounts, legacy_null_count=legacy_null_count)
 
@@ -167,10 +154,8 @@ class SchemaTracker:
         """
         Generate a summary of the statistics
 
-        Returns
-        -------
-        summary : SchemaSummary
-            Protobuf summary message.
+        :return:  Protobuf summary message.
+        :rtype: SchemaSummary
         """
         type_counts = self.type_counts
         # Convert the integer keys to their corresponding string names

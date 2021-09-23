@@ -56,27 +56,21 @@ class WriterConfig:
     * :class:`whylogs.app.writers.Writer`
     * :func:`whylogs.app.writers.writer_from_config`
 
-    Parameters
-    ----------
-    type : str
-        Destination for the writer output, e.g. 'local' or 's3'
-    formats : list
-        All output formats.  See :data:`ALL_SUPPORTED_FORMATS`
-    output_path : str
-        Prefix of where to output files.  A directory for `type = 'local'`,
-        or key prefix for `type = 's3'`
-    path_template : str, optional
-        Templatized path output using standard python string templates.
-        Variables are accessed via $identifier or ${identifier}.
-        See :func:`whylogs.app.writers.Writer.template_params` for a list of
-        available identifers.
-        Default = :data:`whylogs.app.writers.DEFAULT_PATH_TEMPLATE`
-    filename_template : str, optional
-        Templatized output filename using standardized python string templates.
-        Variables are accessed via $identifier or ${identifier}.
-        See :func:`whylogs.app.writers.Writer.template_params` for a list of
-        available identifers.
-        Default = :data:`whylogs.app.writers.DEFAULT_FILENAME_TEMPLATE`
+    `path_template` and `filename_template` use standard python string templates. Variables are accessed via $identifier or ${identifier}.
+    See :func:`whylogs.app.writers.Writer.template_params` for a list of available identifers.
+
+
+    :param type: Destination for the writer output, e.g. 'local' or 's3'
+    :type type: str
+    :param formats: All output formats.  See :data:`ALL_SUPPORTED_FORMATS`
+    :type formats: list
+    :param output_path: Prefix of where to output files.  A directory for `type = 'local'`, or key prefix for `type = 's3'`
+    :type output_path: str
+    :param path_template: Output path template, Defaults to :data:`whylogs.app.writers.DEFAULT_PATH_TEMPLATE`
+    :type path_template: str, optional
+    :param filename_template: Output filename template, defaults to :data:`whylogs.app.writers.DEFAULT_FILENAME_TEMPLATE`
+    :type filename_template: str, optional
+
     """
 
     def __init__(
@@ -99,13 +93,10 @@ class WriterConfig:
 
     def to_yaml(self, stream=None):
         """
-        Serialize this config to YAML
+        Serialize this config into a YAML stream.
+        If stream is None, return the produced string instead.
 
-        Parameters
-        ----------
-        stream
-            If None (default) return a string, else dump the yaml into this
-            stream.
+        :type stream: io.StringIO, optional
         """
         dump = WriterConfigSchema().dump(self)
         return yaml.dump(dump, stream)
@@ -115,18 +106,11 @@ class WriterConfig:
         """
         Load config from yaml
 
-        Parameters
-        ----------
-        stream : str, file-obj
-            String or file-like object to load yaml from
-
-        kwargs
-            ignored
-
-        Returns
-        -------
-        config : `WriterConfig`
-            Generated config
+        :param stream: String or file-like object to load yaml from
+        :param kwargs: ignored
+        :type stream: str, file-obj
+        :return: Generated config
+        :rtype: `WriterConfig`
         """
         data = yaml.safe_load(stream)
         return WriterConfigSchema().load(data)
@@ -136,27 +120,23 @@ class MetadataConfig:
     """
     Config for whylogs metadata
 
+    `path_template` uses standard python string templates. Variables are accessed via $identifier or ${identifier}.
+    See :func:`whylogs.app.writers.Writer.template_params` for a list of available identifers.
+
     See also:
 
     * :class:`MetadataConfigSchema`
     * :class:`whylogs.app.writers.Writer`
     * :func:`whylogs.app.writers.writer_from_config`
 
-    Parameters
-    ----------
-    type : str
-        Destination for the writer output, e.g. 'local' or 's3'
-    output_path : str
-        Prefix of where to output files.  A directory for `type = 'local'`,
-        or key prefix for `type = 's3'`
-    input_path : str
-        Path to search for pre-calculated segment files. Paths separated by ':'.
-    path_template : str, optional
-        Templatized path output using standard python string templates.
-        Variables are accessed via $identifier or ${identifier}.
-        See :func:`whylogs.app.writers.Writer.template_params` for a list of
-        available identifers.
-        Default = :data:`whylogs.app.metadata_writer.DEFAULT_PATH_TEMPLATE`
+    :param type: Destination for the writer output, e.g. 'local' or 's3'
+    :type type: str
+    :param output_path: Prefix of where to output files.  A directory for `type = 'local'`, or key prefix for `type = 's3'`
+    :type output_path: str
+    :param input_path: Path to search for pre-calculated segment files. Paths separated by ':'.
+    :type input_path: str
+    :param path_template: Output path template, Defaults to :data:`whylogs.app.metadata_writer.DEFAULT_PATH_TEMPLATE`
+    :type path_template: str, optional
     """
 
     def __init__(
@@ -173,13 +153,10 @@ class MetadataConfig:
 
     def to_yaml(self, stream=None):
         """
-        Serialize this config to YAML
+        Serialize this config into a YAML stream.
+        If stream is None, return the produced string instead.
 
-        Parameters
-        ----------
-        stream
-            If None (default) return a string, else dump the yaml into this
-            stream.
+        :type stream: io.StringIO, optional
         """
         dump = MetadataConfigSchema().dump(self)
         return yaml.dump(dump, stream)
@@ -189,18 +166,11 @@ class MetadataConfig:
         """
         Load config from yaml
 
-        Parameters
-        ----------
-        stream : str, file-obj
-            String or file-like object to load yaml from
-
-        kwargs
-            ignored
-
-        Returns
-        -------
-        config : `WriterConfig`
-            Generated config
+        :param stream: String or file-like object to load yaml from
+        :param kwargs: ignored
+        :type stream: str, file-obj
+        :return: Generated config
+        :rtype: `WriterConfig`
         """
         data = yaml.safe_load(stream)
         return MetadataConfigSchema().load(data)
@@ -210,27 +180,34 @@ class SessionConfig:
     """
     Config for a whylogs session.
 
-    See also :class:`SessionConfigSchema`
-
-    Parameters
-    ----------
-    project : str
-        Project associated with this whylogs session
-    pipeline : str
-        Name of the associated data pipeline
-    writers : list
-        A list of `WriterConfig` objects defining writer outputs
-    metadata : MetadataConfig
-        A MetadataConfiguration object. If none, will replace with default.
-    verbose : bool, default=False
-        Output verbosity
     with_rotation_time: str, default = None, to rotate profiles with time, takes values of overall rotation interval,
             "s" for seconds
             "m" for minutes
             "h" for hours
             "d" for days
 
-    cache_size: int default =1, sets how many dataprofiles to cache in logger during rotation
+    See also :class:`SessionConfigSchema`
+
+    :param project: Project associated with this whylogs session
+    :type project: str
+
+    :param pipeline: Name of the associated data pipeline
+    :type pipeline: str
+
+    :param writers: A list of `WriterConfig` objects defining writer outputs
+    :type writers: List[WriterConfig]
+
+    :param metadata: A MetadataConfiguration object. If none, will replace with default.
+    :type metadata: MetadataConfig, optional
+
+    :param verbose: enable debug logging
+    :type verbose: str, optional
+
+    :param with_rotation_time: Log rotation interval
+    :type with_rotation_time: str, optional
+
+    :param cache_size: sets how many dataprofiles to cache in logger during rotation, default=1
+    :type cache_size: int, optional
     """
 
     def __init__(
@@ -255,13 +232,10 @@ class SessionConfig:
 
     def to_yaml(self, stream=None):
         """
-        Serialize this config to YAML
+        Serialize this config into a YAML stream.
+        If stream is None, return the produced string instead.
 
-        Parameters
-        ----------
-        stream
-            If None (default) return a string, else dump the yaml into this
-            stream.
+        :type stream: io.StringIO, optional
         """
         return yaml.dump(SessionConfigSchema().dump(self), stream)
 
@@ -270,15 +244,10 @@ class SessionConfig:
         """
         Load config from yaml
 
-        Parameters
-        ----------
-        stream : str, file-obj
-            String or file-like object to load yaml from
-
-        Returns
-        -------
-        config : SessionConfig
-            Generated config
+        :param stream: String or file-like object to load yaml from
+        :type stream: str, file-obj
+        :return: Generated config
+        :rtype: `SessionConfig`
         """
         return SessionConfigSchema().load(yaml.safe_load(stream=stream))
 
@@ -354,11 +323,8 @@ def load_config(path_to_config: str = None):
     3. ``~/.whylogs.yaml`` (home directory)
     4. ``/opt/whylogs/.whylogs.yaml`` path
 
-    Returns
-    -------
-    config : SessionConfig, None
-        Config for the logger, if a valid config file is found, else returns
-        `None`.
+    :return: Config for the logger, if a valid config file is found, else returns `None`.
+    :rtype: SessionConfig, None
     """
     import os
 

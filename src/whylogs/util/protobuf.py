@@ -58,18 +58,12 @@ def multi_msg_reader(f, msg_class):
 
     See also: `write_multi_msg()`
 
-    Parameters
-    ----------
-    f : str, file-object
-        Filename or open file object to read from
-    msg_class : class
-        The Protobuf message class, gets instantiated with a call to
-        `msg_class()`
+    :param f:  Filename or open file object to read from
+    :type f: str, file-object
+    :param msg_class:  The Protobuf message class, gets instantiated with a call to `msg_class()`
+    :type msg_class: class
 
-    Returns
-    -------
-    msg_iterator
-        Iterator which returns protobuf messages
+    :return:  Iterator which returns protobuf messages
     """
     for raw_msg in _varint_delim_iterator(f):
         msg = msg_class()
@@ -105,12 +99,10 @@ def write_multi_msg(msgs: list, f):
 
     Which is repeated, where the len(message) in bytes is `MessageBytesSize`
 
-    Parameters
-    ----------
-    msgs : list, iterable
-        Protobuf messages to write to disk
-    f : str, file-object
-        Filename or open binary file object to write to
+    :param msgs:  Protobuf messages to write to disk
+    :type msgs: list, iterable
+    :param f:  Filename or open binary file object to write to
+    :type f: str, file-object
     """
     if isinstance(f, str):
         with open(f, "wb") as fp:
@@ -126,19 +118,14 @@ def repr_message(x: google.protobuf.message.Message, indent=2, display=True):
     to get a preview of the attribute names and structure of a protobuf
     message class.
 
-    Parameters
-    ----------
-    x : google.protobuf.message.Message
-        Message to preview
-    indent : int
-        Indentation
-    display : bool
-        If True, print the message and return `None`.  Else, return a string.
-
-    Returns
-    -------
-    msg : str, None
-        If `display == False`, return the message, else return None.
+    :param x:  Message to preview
+    :type x: google.protobuf.message.Message
+    :param indent:  Indentation
+    :type indent: int
+    :param display:  If True, print the message and return `None`.  Else, return a string.
+    :type display: bool
+    :return:  If `display == False`, return the message, else return None.
+    :rtype: str, None
     """
     return _repr_message(x, indent=indent, display=display)
 

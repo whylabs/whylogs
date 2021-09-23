@@ -54,14 +54,10 @@ class TypedDataConverter:
         Extract the data type of a value.  See `typeddataconvert.TYPES` for
         available types.
 
-        Parameters
-        ----------
-        typed_data
-            Data processed by TypedDataConverter.convert
+        :param typed_data:  Data processed by TypedDataConverter.convert
 
-        Returns
-        -------
-        dtype : TYPES
+        :return:  Datetime object
+        :rtype: TYPES
         """
         dtype = TYPES.UNKNOWN
         if pd.isnull(typed_data):

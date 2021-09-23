@@ -44,18 +44,17 @@ def csv_reader(f, date_format: str = None, dropna=False, infer_dtypes=False, **k
 
     See also `pandas.read_csv`
 
-    Parameters
-    ----------
-    f : str, path object, or file-like object
-        File to read from.  See `pandas.read_csv` documentation
-    date_format : str
-        If specified, string format for the date.  See `pd.datetime.strptime`
-    dropna : bool
-        Remove null values from returned records
-    infer_dtypes : bool
-        Automatically infer data types (standard pandas behavior).  Else,
-        return all items as strings (except specified date columns)
-    **kwargs : passed to `pandas.read_csv`
+    :param f: File to read from.  See `pandas.read_csv` documentation
+    :param date_format: If specified, string format for the date.  See `pd.datetime.strptime`
+    :param dropna:  Remove null values from returned records
+    :param infer_dtypes: Automatically infer data types (standard pandas behavior).  Else, return all items as strings (except specified date columns)
+    :param kwargs:  passed to `pandas.read_csv`
+    :return:
+
+    :type f: str, path object, or file-like object
+    :type date_format: str
+    :type dropna: bool
+    :type infer_dtypes: bool
     """
     import pandas as pd
 
@@ -109,33 +108,32 @@ def run(
         Binary protobuf output of DatasetProfile
 
 
-    Parameters
-    ----------
-    input_path : str
-        Input CSV file
-    datetime : str
-        Column containing timestamps.  If missing, we assume the dataset is
-        running in batch mode
-    delivery_stream : str
-        [IGNORED] The delivery stream name
-    fmt : str
-        Format of the datetime column, used if `datetime` is specified.
-        If not specified, the format will be attempt to be inferred.
-    limit : int
-        Limit the number of entries to processes
-    output_prefix : str
-        Specify a prefix for the output files.  By default, this will be
-        derived from the input path to generate files in the input directory.
-        Can include folders
-    region : str
-        [IGNORED] AWS region name for Firehose
-    separator : str
-        Record separator.  Default = ','
-    dropna : bool
-        Drop null values when reading
-    infer_dtypes : bool
-        Infer input datatypes when reading.  If false, treat inputs as
-        un-converted strings.
+    By default, `output_prefix`` will be derived from the input path to
+    generate files in the input directory. Can include folders
+
+
+
+    :param input_path: Input CSV file
+    :param datetime: Column containing timestamps.  If missing, we assume the dataset is running in batch mode
+    :param delivery_stream: [IGNORED] The delivery stream name
+    :param fmt: Format of the datetime column, used if `datetime` is specified. If not specified, the format will be attempt to be inferred.
+    :param limit: Limit the number of entries to processes
+    :param output_prefix: Specify a prefix for the output files.
+    :param region: [IGNORED] AWS region name for Firehose
+    :param separator: Record separator.  Default = ','
+    :param dropna: Drop null values when reading
+    :param infer_dtypes: Infer input datatypes when reading.  If false, treat inputs as un-converted strings.
+
+    :type input_path: str
+    :type datetime: str
+    :type delivery_stream: str
+    :type fmt: str
+    :type limit: int
+    :type output_prefix: str
+    :type region: str
+    :type separator: str
+    :type dropna: bool
+    :type infer_dtypes: bool
     """
     datetime_col = datetime  # don't shadow the standard module name
     import os

@@ -9,10 +9,8 @@ def to_utc_ms(dt: datetime.datetime) -> Optional[int]:
     """
     Convert a datetime object to UTC epoch milliseconds
 
-    Returns
-    -------
-    timstamp_ms : int
-        Timestamp
+    :return:  Timestamp
+    :rtype: int
     """
     if dt is None:
         return None
@@ -23,15 +21,10 @@ def from_utc_ms(utc: Optional[int]) -> Optional[datetime.datetime]:
     """
     Convert a UTC epoch milliseconds timestamp to a datetime object
 
-    Parameters
-    ----------
-    utc : int
-        Timestamp
-
-    Returns
-    -------
-    dt : datetime.datetime
-        Datetime object
+    :param utc:  Timestamp
+    :type utc: int, optional
+    :return:  Datetime object
+    :rtype: datetime.datetime, optional
     """
     if utc is None:
         return None

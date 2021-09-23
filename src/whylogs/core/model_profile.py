@@ -47,23 +47,19 @@ class ModelProfile:
         """
         Compute and track metrics for confusion_matrix
 
-        Parameters
-        ----------
-        targets : List
-            targets (or actuals) for validation, if these are floats it is assumed the model is a regression type model
-        predictions : List
-            predictions (or inferred values)
-        scores : List, optional
-            associated scores for each prediction (for binary and multiclass problems)
-        target_field : str, optional
-        prediction_field : str, optional
-        score_field : str, optional (for binary and multiclass problems)
+        :type targets : List
+        :param targets:    targets (or actuals) for validation, if these are floats it is assumed the model is a regression type model
+        :type predictions : List
+        :param  predictions:   predictions (or inferred values)
+        :type scores: List, optional
+        :param  scores:   associated scores for each prediction (for binary and multiclass problems)
+        :type target_field: str, optional
+        :param target_field:
+        :type prediction_field: str, optional
+        :param score_field:  (for binary and multiclass problems)
+        :type score_field: str, optional
 
-
-        Raises
-        ------
-        NotImplementedError
-
+        :raise NotImplementedError: in case targets do not fall into binary or multiclass support
         """
 
         metric_type = self.metrics.init_or_get_model_type(scores)

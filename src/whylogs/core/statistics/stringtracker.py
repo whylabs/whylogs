@@ -21,13 +21,8 @@ class CharPosTracker:
     """
     Track statistics for character positions within a string
 
-    Parameters
-    ----------
-    character_list : str
-        string containing all characters to be tracked
-        this list can include specific unicode characters to track.
-
-
+    :param character_list:  string containing all characters to be tracked this list can include specific unicode characters to track.
+    :type character_list: str
     """
 
     def __init__(self, character_list: str = None):
@@ -40,16 +35,14 @@ class CharPosTracker:
     def update(self, value: str, character_list: str = None) -> None:
         """update
 
-        Parameters
-        ----------
-        value : str
-            utf-16 string
-        character_list : str, optional
-            use a specific character_list for
-            the tracked string. Note that modifing
-            it from a previous saved choice, will
-            reset the character position map, since
-            NITL no longer has the same context.
+        Specify `character_list` to track a custom set of characters in strings.
+        Note that modifing `character_list` from a previous saved choice will
+        reset the character position map, since NITL no longer has the same context.
+
+        :param value:  utf-16 string
+        :type value: str
+        :param character_list:  use a specific character_list for the tracked string.
+        :type character_list: str, optional
         """
         if character_list:
             char_set = set(character_list)
@@ -79,10 +72,8 @@ class CharPosTracker:
         """
         Merges two Char Pos Frequency Maps
 
-        Args:
-
-            other (CharPosTracker): to be merged
-
+        :param other:  CharPosTracker to be merged
+        :type other: CharPosTracker
         """
         if (self.character_list != other.character_list) and (not self.char_pos_map or not other.char_pos_map):
             logger.error("Merging two non-empty Character position tracker with different character lists")
@@ -137,9 +128,7 @@ class CharPosTracker:
         """
         Load from a CharPosMessage protobuf message
 
-        Returns
-        -------
-        CharPosTracker
+        :rtype: CharPosTracker
         """
 
         opts = dict(character_list=message.char_list)
@@ -162,21 +151,20 @@ class StringTracker:
     """
     Track statistics for strings
 
-    Parameters
-    ----------
-    count : int
-        Total number of processed values
-    items : frequent_strings_sketch
-        Sketch for tracking string counts
-    theta_sketch : ThetaSketch
-        Sketch for approximate cardinality tracking
-    length : NumberTracker
-        tracks the distribution of length of strings
-    token_length :  NumberTracker
-        counts token per sentence
-    token_method : funtion
-        method used to turn string into tokens
-    char_pos_tracker: CharPosTracker
+    :param count:  Total number of processed values
+    :type count: int
+    :param items:  Sketch for tracking string counts
+    :type items: frequent_strings_sketch
+    :param theta_sketch:  Sketch for approximate cardinality tracking
+    :type theta_sketch: ThetaSketch
+    :param length:  tracks the distribution of length of strings
+    :type length: NumberTracker
+    :param token_length:  counts token per sentence
+    :type token_length: NumberTracker
+    :param token_method:  method used to turn string into tokens
+    :type token_method: funtion
+    :param char_pos_tracker:
+    :type char_pos_tracker: CharPosTracker
 
     """
 
@@ -232,15 +220,10 @@ class StringTracker:
         """
         Merge the values of this string tracker with another
 
-        Parameters
-        ----------
-        other : StringTracker
-            The other StringTracker
-
-        Returns
-        -------
-        new : StringTracker
-            Merged values
+        :param other:  The other StringTracker
+        :type other: StringTracker
+        :return:  Merged values
+        :rtype: StringTracker
         """
         items_copy = frequent_strings_sketch.deserialize(self.items.serialize())
         items_copy.merge(other.items)
@@ -258,9 +241,7 @@ class StringTracker:
         """
         Return the object serialized as a protobuf message
 
-        Returns
-        -------
-        message : StringsMessage
+        :rtype: StringsMessage
         """
 
         return StringsMessage(
@@ -277,9 +258,7 @@ class StringTracker:
         """
         Load from a protobuf message
 
-        Returns
-        -------
-        string_tracker : StringTracker
+        :rtype: StringTracker
         """
         theta = None
         if message.compact_theta is not None and len(message.compact_theta) > 0:
@@ -300,10 +279,8 @@ class StringTracker:
         """
         Generate a summary of the statistics
 
-        Returns
-        -------
-        summary : StringsSummary
-            Protobuf summary message.
+        :return:  Protobuf summary message.
+        :rtype: StringsSummary
         """
         if self.count == 0:
             return None

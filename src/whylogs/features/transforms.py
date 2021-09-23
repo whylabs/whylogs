@@ -50,13 +50,10 @@ class Brightness:
 
     def __call__(self, img: Union[ImageType, np.ndarray]) -> np.ndarray:
         """
-        Args:
-            img (Union[Image, np.ndarray]): Either a PIL image or numpy array with int8 values
-        Returns:
-            np.ndarray: Converted image.
-
-        Deleted Parameters:
-            pic (PIL Image or numpy.ndarray): Image to be converted to tensor.
+        :param img:  Either a PIL image or numpy array with int8 values
+        :type img: Union[ImageType, np.ndarray]
+        :return: Converted image.
+        :rtype: np.ndarray
         """
         if isinstance(img, np.ndarray):
             img = Image.fromarray(img)

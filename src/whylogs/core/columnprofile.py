@@ -36,28 +36,28 @@ class ColumnProfile:
 
     The primary method for
 
-    Parameters
-    ----------
-    name : str (required)
-        Name of the column profile
-    number_tracker : NumberTracker
-        Implements numeric data statistics tracking
-    string_tracker : StringTracker
-        Implements string data-type statistics tracking
-    schema_tracker : SchemaTracker
-        Implements tracking of schema-related information
-    counters : CountersTracker
-        Keep count of various things
-    frequent_items : FrequentItemsSketch
-        Keep track of all frequent items, even for mixed datatype features
-    cardinality_tracker : HllSketch
-        Track feature cardinality (even for mixed data types)
-    constraints : ValueConstraints
-        Static assertions to be applied to numeric data tracked in this column
+    :param name:  Name of the column profile
+    :type name: str (required)
+    :param number_tracker:  Implements numeric data statistics tracking
+    :type number_tracker: NumberTracker
+    :param string_tracker:  Implements string data-type statistics tracking
+    :type string_tracker: StringTracker
+    :param schema_tracker:  Implements tracking of schema-related information
+    :type schema_tracker: SchemaTracker
+    :param counters:  Keep count of various things
+    :type counters: CountersTracker
+    :param frequent_items:  Keep track of all frequent items, even for mixed datatype features
+    :type frequent_items: FrequentItemsSketch
+    :param cardinality_tracker:  Track feature cardinality (even for mixed data types)
+    :type cardinality_tracker: HllSketch
+    :param constraints:  Static assertions to be applied to numeric data tracked in this column
+    :type constraints: ValueConstraints
 
+    ```
     TODO:
         * Proper TypedDataConverter type checking
         * Multi-threading/parallelism
+    ```
     """
 
     def __init__(
@@ -144,10 +144,8 @@ class ColumnProfile:
         """
         Generate a summary of the statistics
 
-        Returns
-        -------
-        summary : ColumnSummary
-            Protobuf summary message.
+        :return:  Protobuf summary message.
+        :rtype: ColumnSummary
         """
         schema = None
         if self.schema_tracker is not None:
@@ -185,14 +183,10 @@ class ColumnProfile:
         """
         Merge this columnprofile with another.
 
-        Parameters
-        ----------
-        other : ColumnProfile
-
-        Returns
-        -------
-        merged : ColumnProfile
-            A new, merged column profile.
+        :param other:
+        :type other: ColumnProfile
+        :return:  A new, merged column profile.
+        :rtype: ColumnProfile
         """
         assert self.column_name == other.column_name
         return ColumnProfile(
@@ -209,9 +203,7 @@ class ColumnProfile:
         """
         Return the object serialized as a protobuf message
 
-        Returns
-        -------
-        message : ColumnMessage
+        :rtype: ColumnMessage
         """
 
         return ColumnMessage(
@@ -229,9 +221,7 @@ class ColumnProfile:
         """
         Load from a protobuf message
 
-        Returns
-        -------
-        column_profile : ColumnProfile
+        :rtype: ColumnProfile
         """
         schema_tracker = SchemaTracker.from_protobuf(message.schema, legacy_null_count=message.counters.null_count.value)
         return ColumnProfile(

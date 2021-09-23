@@ -35,24 +35,18 @@ class Writer(ABC):
     """
     Class for writing to disk
 
-    Parameters
-    ----------
-    output_path : str
-        Prefix of where to output files.  A directory for `type = 'local'`,
+    `path_template` and `filename_template` use standard python string templates. Variables are accessed via $identifier or ${identifier}.
+    See :func:`whylogs.app.writers.Writer.template_params` for a list of available identifers.
+
+    :param output_path: Prefix of where to output files.  A directory for `type = 'local'`,
         or key prefix for `type = 's3'`
-    formats : list
-        All output formats.
-        See :data:`whylogs.app.config.ALL_SUPPORTED_FORMATS`
-    path_template : str, optional
-        Templatized path output using standard python string templates.
-        Variables are accessed via $identifier or ${identifier}.
-        See :func:`Writer.template_params` for a list of available identifers.
-        Default = :data:`DEFAULT_PATH_TEMPLATE`
-    filename_template : str, optional
-        Templatized output filename using standardized python string templates.
-        Variables are accessed via $identifier or ${identifier}.
-        See :func:`Writer.template_params` for a list of available identifers.
-        Default = :data:`DEFAULT_FILENAME_TEMPLATE`
+    :type output_path: str
+    :param formats: All output formats.
+        See :data:`ALL_SUPPORTED_FORMATS`
+    :type formats: list
+    :param path_template: Output path template, Defaults to :data:`DEFAULT_PATH_TEMPLATE`
+    :param filename_template: Output filename template, defaults to :data:`DEFAULT_FILENAME_TEMPLATE`
+    :type filename_template: str, optional
     """
 
     def __init__(
@@ -128,17 +122,6 @@ class Writer(ABC):
         Return a dictionary of dataset profile metadata which can be used for
         generating templatized variables or paths.
 
-        Parameters
-        ----------
-        profile : DatasetProfile
-            The dataset profile
-
-        Returns
-        -------
-        params : dict
-            Variables which can be substituted into a template string.
-
-
         Notes
         -----
         Template params:
@@ -147,6 +130,11 @@ class Writer(ABC):
         * ``session_timestamp``: session time in UTC epoch milliseconds
         * ``dataset_timestamp``: timestamp for the data in UTC epoch ms
         * ``session_id``: Unique identifier for the session
+
+        :param profile: The dataset profile
+        :type profile: The dataset profile
+        :return: Variables which can be substituted into a template string.
+        :rtype: dict
         """
         dataset_timestamp = "batch"
         if profile.dataset_timestamp is not None:
@@ -219,12 +207,13 @@ class LocalWriter(Writer):
         """
         Write output data for flat format
 
-        Parameters
-        ----------
-        profile : DatasetProfile
-            the dataset profile to output
-        indent : int
-            The JSON indentation to use. Default is 4
+        :param profile: the dataset profile to output
+        :param indent: The JSON indentation to use. Default is 4
+        :param rotation_suffix:
+
+        :type profile: DatasetProfile
+        :type indent: int
+        :type rotation_suffix: str, optional
         """
         # TODO: only calculate this summary once.  No need to calculate it for
         # _write_json() as well
@@ -334,12 +323,13 @@ class S3Writer(Writer):
         """
         Write output data for flat format
 
-        Parameters
-        ----------
-        profile : DatasetProfile
-            the dataset profile to output
-        indent : int
-            The JSON indentation to use. Default is 4
+        :param profile: the dataset profile to output
+        :param indent: The JSON indentation to use. Default is 4
+        :param rotation_suffix:
+
+        :type profile: DatasetProfile
+        :type indent: int
+        :type rotation_suffix: str, optional
         """
         summary = profile.to_summary()
 
@@ -394,10 +384,8 @@ def writer_from_config(config: WriterConfig):
     """
     Construct a whylogs `Writer` from a `WriterConfig`
 
-    Returns
-    -------
-    writer : Writer
-        whylogs writer
+    :return:  whylogs writer
+    :rtype: Writer
     """
     if config.type == "local":
         abs_path = os.path.abspath(config.output_path)

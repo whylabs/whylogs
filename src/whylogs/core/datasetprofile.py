@@ -52,27 +52,28 @@ class DatasetProfile:
 
     A dataset refers to a collection of columns.
 
-    Parameters
-    ----------
-    name: str
-        A human readable name for the dataset profile. Could be model name.
-        This is stored under "name" tag
-    dataset_timestamp: datetime.datetime
-        The timestamp associated with the data (i.e. batch run). Optional.
-    session_timestamp : datetime.datetime
-        Timestamp of the dataset
-    columns : dict
-        Dictionary lookup of `ColumnProfile`s
-    tags : dict
-        A dictionary of key->value. Can be used upstream for aggregating data. Tags must match when merging
-        with another dataset profile object.
-    metadata: dict
-        Metadata that can store arbitrary string mapping. Metadata is not used when aggregating data
-        and can be dropped when merging with another dataset profile object.
-    session_id : str
-        The unique session ID run. Should be a UUID.
-    constraints: DatasetConstraints
-        Static assertions to be applied to tracked numeric data and profile summaries.
+    `metadata` field is not used when aggregating data and can be dropped when
+    merging with another dataset profile object.
+
+    `tags` can be used upstream for aggregating data. Tags must match when
+    merging with another dataset profile object.
+
+    :type name: str
+    :param name:  A human readable name for the dataset profile. Could be model name.  This is stored under "name" tag.
+    :type dataset_timestamp: datetime.datetime
+    :param name:     The timestamp associated with the data (i.e. batch run). Optional.
+    :type session_timestamp : datetime.datetime
+    :param session_timestamp:     Timestamp of the dataset
+    :type columns : dict
+    :param columns:     Dictionary lookup of `ColumnProfile`s
+    :type tags : dict
+    :param tags: A dictionary of key->value pairs.
+    :type metadata: dict
+    :param metadata: Metadata that can store arbitrary string mapping.
+    :type session_id : str
+    :param session_id:     The unique session ID run. Should be a UUID.
+    :type constraints: DatasetConstraints
+    :param constraints:     Static assertions to be applied to tracked numeric data and profile summaries.
     """
 
     def __init__(
@@ -165,27 +166,22 @@ class DatasetProfile:
         user may also pass the associated attribute names associated with
         target, prediction, and/or score.
 
-        Parameters
-        ----------
-        targets : List[Union[str, bool, float, int]]
-            actual validated values
-        predictions : List[Union[str, bool, float, int]]
-            inferred/predicted values
-        scores : List[float], optional
-            assocaited scores for each inferred, all values set to 1 if not
-            passed
-        target_field : str, optional
-            Description
-        prediction_field : str, optional
-            Description
-        score_field : str, optional
-            Description
-        model_type : ModelType, optional
-            Defaul is Classification type.
-        target_field : str, optional
-        prediction_field : str, optional
-        score_field : str, optional
-        score_field : str, optional
+        :param targets: actual validated values
+        :param predictions: inferred/predicted values
+        :param scores: assocaited scores for each inferred, all values set to 1 if not passed
+        :param model_type: Defaul is Classification type.
+        :param target_field: Description
+        :param prediction_field: Description
+        :param score_field: Description
+
+        :type targets:  List[Union[str, bool, float, int]]
+        :type predictions:  List[Union[str, bool, float, int]]
+        :type scores: List[float], optional
+        :type model_type: ModelType, optional
+        :type target_field: str, optional
+        :type prediction_field: str, optional
+        :type score_field: str, optional
+
 
         """
         if self.model_profile is None:
@@ -204,15 +200,21 @@ class DatasetProfile:
         """
         Add value(s) to tracking statistics for column(s).
 
-        Parameters
-        ----------
-        columns : str, dict
-            Either the name of a column, or a dictionary specifying column
-            names and the data (value) for each column
-            If a string, `data` must be supplied.  Otherwise, `data` is
-            ignored.
-        data : object, None
-            Value to track.  Specify if `columns` is a string.
+        `columns` can be either the name of a column, or a dictionary
+        specifying column names and the data (value) for each column. If a
+        string, `data` must be supplied.  Otherwise, `data` is ignored.
+
+
+        :param columns: column specification(s).
+        :param data: Value to track.  Specify if `columns` is a string.
+        :param character_list:
+        :param token_method:
+
+        :type columns: str, dict
+        :type data: object, None
+        :type character_list:
+        :type token_method:
+
         """
         if data is not None:
             if type(columns) != str:
@@ -241,12 +243,11 @@ class DatasetProfile:
         """
         Track statistics for a numpy array
 
-        Parameters
-        ----------
-        x : np.ndarray
-            2D array to track.
-        columns : list
-            Optional column labels
+        :param x: 2D array to track.
+        :param columns: Optional column labels
+
+        :type x: np.ndarray
+        :type columns: list, optional
         """
         x = np.asanyarray(x)
         if np.ndim(x) != 2:
@@ -260,10 +261,10 @@ class DatasetProfile:
         """
         Track statistics for a dataframe
 
-        Parameters
-        ----------
-        df : pandas.DataFrame
-            DataFrame to track
+        :param df: the dataframe to profile
+        :type df: pandas.DataFrame
+        :param character_list:
+        :param token_method:
         """
         # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
         if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
@@ -279,10 +280,9 @@ class DatasetProfile:
         """
         Return dataset profile related metadata
 
-        Returns
-        -------
-        properties : DatasetProperties
-            The metadata as a protobuf object.
+        :return: The metadata as a protobuf object.
+        :rtype: DatasetProperties
+
         """
         tags = self.tags
         metadata = self.metadata
@@ -303,13 +303,10 @@ class DatasetProfile:
         )
 
     def to_summary(self):
-        """
-        Generate a summary of the statistics
+        """Generate a summary of the statistics
 
-        Returns
-        -------
-        summary : DatasetSummary
-            Protobuf summary message.
+        :return: Protobuf summary message.
+        :rtype: DatasetSummary
         """
         self.validate()
         column_summaries = {name: colprof.to_summary() for name, colprof in self.columns.items()}
@@ -323,10 +320,8 @@ class DatasetProfile:
         """
         Assemble a sparse dict of constraints for all features.
 
-        Returns
-        -------
-        summary : DatasetConstraints
-            Protobuf constraints message.
+        :return: Protobuf constraints message.
+        :rtype: DatasetConstraints
         """
         self.validate()
         constraints = [(name, col.generate_constraints()) for name, col in self.columns.items()]
@@ -339,7 +334,6 @@ class DatasetProfile:
         Generate and flatten a summary of the statistics.
 
         See :func:`flatten_summary` for a description
-
 
         """
         summary = self.to_summary()
@@ -394,14 +388,10 @@ class DatasetProfile:
 
         This operation will drop the metadata from the 'other' profile object.
 
-        Parameters
-        ----------
-        other : DatasetProfile
+        :type other: DatasetProfile
+        :return: New, merged DatasetProfile
+        :rtype: DatasetProfile
 
-        Returns
-        -------
-        merged : DatasetProfile
-            New, merged DatasetProfile
         """
         self.validate()
         other.validate()
@@ -442,14 +432,11 @@ class DatasetProfile:
 
         This operation will drop the metadata from the 'other' profile object.
 
-        Parameters
-        ----------
-        other : DatasetProfile
+        :param other:
+        :type other: DatasetProfile
+        :return: New, merged DatasetProfile
+        :rtype: DatasetProfile
 
-        Returns
-        -------
-        merged : DatasetProfile
-            New, merged DatasetProfile
         """
         self.validate()
         other.validate()
@@ -468,10 +455,8 @@ class DatasetProfile:
 
         This is useful when you are streaming multiple dataset profile objects
 
-        Returns
-        -------
-        data : bytes
-            A sequence of bytes
+        :return: A sequence of bytes
+        :rtype: bytes
         """
         with io.BytesIO() as f:
             protobuf: DatasetProfileMessage = self.to_protobuf()
@@ -484,9 +469,7 @@ class DatasetProfile:
         """
         Return the object serialized as a protobuf message
 
-        Returns
-        -------
-        message : DatasetProfileMessage
+        :rtype: DatasetProfileMessage
         """
         properties = self.to_properties()
 
@@ -504,16 +487,15 @@ class DatasetProfile:
         """
         Write the dataset profile to disk in binary format
 
-        Parameters
-        ----------
-        protobuf_path : str
-            local path or any path supported supported by smart_open:
-            https://github.com/RaRe-Technologies/smart_open#how.
-            The parent directory must already exist
-        delimited_file : bool, optional
-            whether to prefix the data with the length of output or not.
-            Default is True
+        `protobuf_path` may be a local path or uri supported by smart_open: https://github.com/RaRe-Technologies/smart_open#how.
+        The parent directory must already exist.
 
+        :param protobuf_path: output file name.
+        :param delimited_file: whether to prefix the data with the length of output or not. Default is True
+        :param transport_parameters: Additional parameters for the transport layer
+        :type delimited_file: bool, optional
+        :type protobuf_path: str
+        :type transport_parameters: dict, optional
         """
         if transport_parameters:
             with open(protobuf_path, "wb", transport_parameters=transport_parameters) as f:
@@ -535,18 +517,17 @@ class DatasetProfile:
         """
         Parse a protobuf file and return a DatasetProfile object
 
+        `protobuf_path` may be a local path or uri supported by smart_open: https://github.com/RaRe-Technologies/smart_open#how.
+        The parent directory must already exist.
 
-        Parameters
-        ----------
-        protobuf_path : str
-            the path of the protobuf data, can be local or any other path supported by smart_open: https://github.com/RaRe-Technologies/smart_open#how
-        delimited_file : bool, optional
-            whether the data is delimited or not. Default is `True`
-
-        Returns
-        -------
-        DatasetProfile
-            whylogs.DatasetProfile object from the protobuf
+        :param protobuf_path: output file name.
+        :type protobuf_path: str
+        :param delimited_file: whether the data is delimited or not. Default is `True`
+        :type delimited_file: bool
+        :param transport_parameters:
+        :type transport_parameters: dict
+        :return: whylogs.DatasetProfile object from the protobuf
+        :rtype: DatasetProfile
         """
         with open(protobuf_path, "rb") as f:
             data = f.read()
@@ -563,15 +544,9 @@ class DatasetProfile:
         """
         Load from a protobuf message
 
-        Parameters
-        ----------
-        message : DatasetProfileMessage
-            The protobuf message.  Should match the output of
-            `DatasetProfile.to_protobuf()`
-
-        Returns
-        -------
-        dataset_profile : DatasetProfile
+        :param message: The protobuf message.  Should match the output of `DatasetProfile.to_protobuf()`
+        :return: DatasetProfile
+        :rtype: DatasetProfile
         """
         properties: DatasetProperties = message.properties
         name = (properties.tags or {}).get("name", None) or (properties.tags or {}).get("Name", None) or ""
@@ -592,15 +567,10 @@ class DatasetProfile:
         """
         Deserialize a serialized `DatasetProfileMessage`
 
-        Parameters
-        ----------
-        data : bytes
-            The serialized message
-
-        Returns
-        -------
-        profile : DatasetProfile
-            The deserialized dataset profile
+        :param data: The serialized message
+        :type data: bytes
+        :return: The deserialized dataset profile
+        :rtype: DatasetProfile
         """
         msg = DatasetProfileMessage.FromString(data)
         return DatasetProfile.from_protobuf(msg)
@@ -617,19 +587,13 @@ class DatasetProfile:
     def parse_delimited_single(data: bytes, pos=0):
         """
         Parse a single delimited entry from a byte stream
-        Parameters
-        ----------
-        data : bytes
-            The bytestream
-        pos : int
-            The starting position. Default is zero
 
-        Returns
-        -------
-        pos : int
-            Current position in the stream after parsing
-        profile : DatasetProfile
-            A dataset profile
+        :param data: The bytestream
+        :type data: bytes
+        :param pos: The starting position. Default is zero
+        :type pos: int, optional
+        :return: Current position in the stream after parsing, DatasetProfile
+        :rtype: int, DatasetProfile
         """
         msg_len, new_pos = _DecodeVarint32(data, pos)
         pos = new_pos
@@ -647,16 +611,10 @@ class DatasetProfile:
         storing multiple dataset profiles. This means that the main data is
         prefixed with the length of the message.
 
-        Parameters
-        ----------
-        data : bytes
-            The input byte stream
-
-        Returns
-        -------
-        profiles : list
-            List of all Dataset profile objects
-
+        :param data: The input byte stream
+        :type data: bytes
+        :return: List of all Dataset profile objects
+        :rtype: List[DatasetProfile]
         """
         return list(DatasetProfile._parse_delimited_generator(data))
 
@@ -681,12 +639,8 @@ def columns_chunk_iterator(iterator, marker: str):
     """
     Create an iterator to return column messages in batches
 
-    Parameters
-    ----------
-    iterator
-        An iterator which returns protobuf column messages
-    marker
-        Value used to mark a group of column messages
+    :param iterator: An iterator which returns protobuf column messages
+    :param marker: Value used to mark a group of column messages
     """
     # Initialize
     max_len = COLUMN_CHUNK_MAX_LEN_IN_BYTES
@@ -716,19 +670,15 @@ def dataframe_profile(df: pd.DataFrame, name: str = None, timestamp: datetime.da
     """
     Generate a dataset profile for a dataframe
 
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        Dataframe to track, treated as a complete dataset.
-    name : str
-        Name of the dataset
-    timestamp : datetime.datetime, float
-        Timestamp of the dataset.  Defaults to current UTC time.  Can be a
-        datetime or UTC epoch seconds.
+    :param df: Dataframe to track, treated as a complete dataset.
+    :type df: pandas.DataFrame
+    :param name: Name of the dataset
+    :type name: str
+    :param timestamp: Timestamp of the dataset.  Defaults to current UTC time.  Can be a datetime or UTC epoch seconds.
+    :type timestamp: datetime.datetime, float
+    :return: DatasetProfile
+    :rtype: DatasetProfile
 
-    Returns
-    -------
-    prof : DatasetProfile
     """
     if name is None:
         name = "dataset"
@@ -751,20 +701,15 @@ def array_profile(
     """
     Generate a dataset profile for an array
 
-    Parameters
-    ----------
-    x : np.ndarray
-        Array-like object to track.  Will be treated as an full dataset
-    name : str
-        Name of the dataset
-    timestamp : datetime.datetime
-        Timestamp of the dataset.  Defaults to current UTC time
-    columns : list
-        Optional column labels
-
-    Returns
-    -------
-    prof : DatasetProfile
+    :param x: Array-like object to track.  Will be treated as an full dataset
+    :param name: Name of the dataset
+    :param timestamp: Timestamp of the dataset.  Defaults to current UTC time
+    :param columns: Optional column labels
+    :type x: np.ndarray
+    :type name: atr
+    :type timestamp: datetime.datetime
+    :type columns: list, optional
+    :return: DatasetProfile
     """
     if name is None:
         name = "dataset"

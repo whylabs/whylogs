@@ -9,14 +9,13 @@ class CountersTracker:
     """
     Class to keep track of the counts of various data types
 
-    Parameters
-    ----------
-    count : int, optional
-        Current number of objects
-    true_count : int, optional
-        Number of boolean values
-    null_count : int, optional
-        Number of nulls encountered
+    :param count:  Current number of objects
+    :type count: int, optional
+    :param true_count:  Number of boolean values
+    :type true_count: int, optional
+    :param null_count:  Number of nulls encountered
+    :type null_count: int, optional
+
     """
 
     def __init__(self, count=0, true_count=0):
@@ -45,10 +44,8 @@ class CountersTracker:
         """
         Merge another counter tracker with this one
 
-        Returns
-        -------
-        new_tracker : CountersTracker
-            The merged tracker
+        :return:  The merged tracker
+        :rtype: CountersTracker
         """
         return CountersTracker(
             count=self.count + other.count,
@@ -73,9 +70,7 @@ class CountersTracker:
         """
         Load from a protobuf message
 
-        Returns
-        -------
-        counters : CountersTracker
+        :rtype: CountersTracker
         """
         return CountersTracker(
             count=message.count,

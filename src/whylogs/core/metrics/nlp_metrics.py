@@ -21,13 +21,14 @@ class NLPMetrics:
         self.wil = NumberTracker()
 
     def update(self, predictions: Union[List[str], str], targets: Union[List[str]], transform=None) -> None:
-        """
-        Function adds predictions and targets computation of nlp metrics.
+        """Function adds predictions and targets computation of nlp metrics.
 
-        Args:
-            predictions (Union[str,List[str]]):
-            targets (Union[List[str],str]):
-
+        :param predictions: the hypothesis sentence(s) as a string or list of strings
+        :type predictions: Union[List[str], str]
+        :param targets: the ground-truth sentence(s) as a string or list of strings
+        :type targets: Union[List[str], str]
+        :param transform: the transformation to apply on both truth and hypothesis input
+        :type transform: Union[tr.Compose, tr.AbstractTransform], optional
         """
         if transform:
             mes = jiwer.compute_measures(truth=targets, hypothesis=predictions, truth_transform=transform, hypothesis_transform=transform)
@@ -39,13 +40,13 @@ class NLPMetrics:
         self.wil.track(mes["wil"])
 
     def merge(self, other: "NLPMetrics") -> "NLPMetrics":
-        """
-        Merge two seperate nlp metrics
+        """Merge two seperate nlp metrics
 
-        Args:
-              other : nlp metrics to merge with self
-        Returns:
-              NLPMetrics: merged nlp metrics
+        :param other: nlp metrics to merge with self
+        :type other: NLPMetrics
+
+        :returns: merged nlp metrics
+        :rtype: NLPMetrics
         """
         if other is None:
             return self
@@ -62,11 +63,10 @@ class NLPMetrics:
     def to_protobuf(
         self,
     ) -> NLPMetricsMessage:
-        """
-        Convert to protobuf
+        """Convert to protobuf message
 
-        Returns:
-            TYPE: Protobuf Message
+        :returns: protobuf message
+        :rtype: NLPMetricsMessage
         """
 
         return NLPMetricsMessage(

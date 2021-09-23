@@ -36,27 +36,38 @@ class Logger:
     """
     Class for logging whylogs statistics.
 
+    `with_rotation_time` specifies an interval at which profiles should be automatically saved to disk.
+    Parameter is a string value consisting of digits with unit specification, e.g. 30s, 2h, d. units are seconds ("s"),
+    minutes ("m"), hours, ("h"), or days ("d").  Output filenames will have a suffix reflecting the rotation interval.
+
+    `segments ` can be either:
+    - Autosegmentation source, one of ["auto", "local"]
+    - List of tag key value pairs for tracking data segments
+    - List of tag keys for which we will track every value
+    - None, no segments will be used
+
+
     :param session_id: The session ID value. Should be set by the Session boject
     :param dataset_name: The name of the dataset. Gets included in the DatasetProfile metadata and can be used in generated filenames.
-    :param dataset_timestamp: Optional. The timestamp that the logger represents
-    :param session_timestamp: Optional. The time the session was created
-    :param tags: Optional. Dictionary of key, value for aggregating data upstream
-    :param metadata: Optional. Dictionary of key, value. Useful for debugging (associated with every single dataset profile)
-    :param writers: Optional. List of Writer objects used to write out the data
-    :param metadata_writer: Optional. MetadataWriter object used to write non-profile information
-    :param with_rotation_time: Optional. Log rotation interval, \
-            consisting of digits with unit specification, e.g. 30s, 2h, d.\
-            units are seconds ("s"), minutes ("m"), hours, ("h"), or days ("d") \
-            Output filenames will have a suffix reflecting the rotation interval.
+    :param dataset_timestamp: The timestamp that the logger represents
+    :type dataset_timestamp: datetime.datetime, optional
+    :param session_timestamp: The time the session was created
+    :type session_timestamp: datetime.datetime, optional
+    :param tags: Dictionary of key, value for aggregating data upstream
+    :type tags: dict, optional
+    :param metadata: Dictionary of key, value. Useful for debugging (associated with every single dataset profile)
+    :type metadata: dict, optional
+    :param writers: List of Writer objects used to write out the data
+    :type writers: List[Writer], optional
+    :param metadata_writer: MetadataWriter object used to write non-profile information
+    :type metadata_writer: MetadataWriter, optional
+    :param with_rotation_time: Log rotation interval
+    :type with_rotation_time: str, optional
     :param interval: Deprecated: Interval multiplier for `with_rotation_time`, defaults to 1.
     :param verbose: enable debug logging
     :param cache_size: dataprofiles to cache
-    :param segments:
-        Can be either:
-            - Autosegmentation source, one of ["auto", "local"]
-            - List of tag key value pairs for tracking data segments
-            - List of tag keys for which we will track every value
-            - None, no segments will be used
+    :param segments: specify the tag key value pairs for segments
+    :type segments: Union[List[Segment], List[str], str], optional
     :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset.
     :param constraints: static assertions to be applied to streams and summaries.
     """
@@ -460,11 +471,12 @@ class Logger:
         metadata, and magic numbers. If the folder has single layer for children
         folders, this will pick up folder names as a segmented feature
 
-        Args:
-            show_progress: showing the progress bar
-            image_feature_transforms: image transform that you would like to use with the image log
-            root_dir (str): directory where dataset is located.
-            folder_feature_name (str, optional): Name for the subfolder features, i.e. class, store etc.
+        :param root_dir: directory where dataset is located.
+        :type root_dir: str
+        :param folder_feature_name: Name for the subfolder features, i.e. class, store etc.
+        :type folder_feature_name: str, optional
+        :param image_feature_transforms: image transform that you would like to use with the image log
+        :param show_progress: showing the progress bar
         """
         try:
             from PIL.Image import Image as ImageType
@@ -506,9 +518,8 @@ class Logger:
         """
         Log structured annotation data ie. JSON like structures
 
-
-        Args:
-            annotation_data (Dict or List): Description
+        :param annotation_data:
+        :type annotation_data:  Dict or List
         """
         if not self.tracking_checks():
             return None
@@ -525,11 +536,10 @@ class Logger:
         """
         Log a CSV file. This supports the same parameters as :func`pandas.red_csv<pandas.read_csv>` function.
 
-        Args:
-            filepath_or_buffer: the path to the CSV or a CSV buffer
-            segments: define either a list of segment keys or a list of segments tags: `[  {"key":<featurename>,"value": <featurevalue>},... ]`
-            profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
-            **kwargs: from pandas:read_csv
+        :param filepath_or_buffer: the path to the CSV or a CSV buffer
+        :param segments: define either a list of segment keys or a list of segments tags: `[  {"key":<featurename>,"value": <featurevalue>},... ]`
+        :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
+        :param **kwargs: from pandas:read_csv
         """
         self.profile_full_dataset = profile_full_dataset
         if segments is not None:

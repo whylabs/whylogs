@@ -65,18 +65,15 @@ defaultLoggerArgs = _LoggerKey()
 
 class Session:
     """
-    Parameters
-    ----------
-    project : str
-        The project name. We will default to the project name when logging
-        a dataset if the dataset name is not specified
-    pipeline : str
-        Name of the pipeline associated with this session
-    writers : list
-        configuration for the output writers. This is where the log data
-        will go
-    verbose : bool
-        enable verbose logging for not. Default is ``False``
+    :param project: The project name. We will default to the project name when logging a dataset if the dataset name is not specified
+    :param pipeline: Name of the pipeline associated with this session
+    :param writers: configuration for the output writers. This is where the log data will go
+    :param verbose: enable verbose logging for not. Default is ``False``
+
+    :type project: str
+    :type pipeline: str
+    :type writers: List[Writer]
+    :type verbose: bool
     """
 
     def __init__(
@@ -149,21 +146,19 @@ class Session:
         cache_size: int = 1,
         constraints: DatasetConstraints = None,
     ) -> Logger:
-        """
-        Create a new logger or return an existing one for a given dataset name.
-        If no dataset_name is specified, we default to project name
+        """Create a new logger or return an existing one for a given dataset name.
+        If no dataset_name is specified, we default to project name.
 
-        Args:
-            dataset_name: name of the dataset
-            dataset_timestamp: timestamp of the dataset. Default to now
-            session_timestamp: timestamp of the session. Inherits from the session
-            tags: metadata associated with the profile
-            metadata: same as tags. Will be deprecated
-            segments: slice of data that the profile belongs to
-            profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
-            with_rotation_time: rotation time in minutes our hours ("1m", "1h")
-            cache_size: size of the segment cache
-            constraints: whylogs contrainst to monitor against
+        :param dataset_name: name of the xxdataset
+        :param dataset_timestamp: timestamp of the dataset. Default to now
+        :param session_timestamp: timestamp of the session. Inherits from the session
+        :param tags: metadata associated with the profile
+        :param metadata: same as tags. Will be deprecated
+        :param segments: slice of data that the profile belongs to
+        :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
+        :param with_rotation_time:  rotation time in minutes our hours ("1m", "1h")
+        :param cache_size:  size of the segment cache
+        :param constraints: whylogs contrainst to monitor against
         """
         if not self._active:
             raise RuntimeError("Session is already closed. Cannot create more loggers")
@@ -223,18 +218,19 @@ class Session:
         """
         Perform statistics caluclations and log a pandas dataframe
 
+        `segments` can be either:
+            - Autosegmentation source, one of ["auto", "local"]
+            - List of tag key value pairs for tracking data segments
+            - List of tag keys for which we will track every value
+            - None, no segments will be used
+
         :param df: the dataframe to profile
         :param dataset_name: name of the dataset
         :param dataset_timestamp: the timestamp for the dataset
         :param session_timestamp: the timestamp for the session. Override the default one
         :param tags: the tags for the profile. Useful when merging
         :param metadata: information about this current profile. Can be discarded when merging
-        :param segments:
-            Can be either:
-            - Autosegmentation source, one of ["auto", "local"]
-            - List of tag key value pairs for tracking data segments
-            - List of tag keys for which we will track every value
-            - None, no segments will be used
+        :param segments: specify the tag key value pairs for segments
         :param profile_full_dataset: when segmenting dataset, an option to keep the full unsegmented profile of the dataset
         :return: a dataset profile if the session is active
         """
@@ -392,13 +388,7 @@ class Session:
         """
         Remove a logger from the dataset. This is called by the logger when it's being closed
 
-        Parameters
-        ----------
-        dataset_name the name of the dataset. used to identify the logger
-
-        Returns None
-        -------
-
+        :param dataset_name: the name of the dataset. used to identify the logger
         """
         if self._loggers.get(dataset_name) is None:
             raise KeyError("WARNING: logger {} is not present in the current Session".format(dataset_name))
@@ -480,9 +470,12 @@ def get_or_create_session(path_to_config: Optional[str] = None, report_progress:
     If an active session exists, return the session without loading new
     config.
 
+    :param path_to_config:
+    :type path_to_config: str
+    :param report_progress:
+    :type report_progress: str
     :return: The global active session
     :rtype: Session
-    :type path_to_config: str
     """
     global _session
     if _session is not None and _session.is_active():
@@ -510,10 +503,8 @@ def get_session():
     """
     Retrieve the logging session without altering or activating it.
 
-    Returns
-    -------
-    session : Session
-        The global session
+    :return: The global active session
+    :rtype: Session
     """
     return _session
 
@@ -522,9 +513,7 @@ def get_logger():
     """
     Retrieve the global session logger
 
-    Returns
-    -------
-    ylog : whylogs.app.logger.Logger
-        The global session logger
+    :return: The global session logger
+    :rtype: Logger
     """
     return _session.logger()

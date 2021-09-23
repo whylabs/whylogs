@@ -7,16 +7,14 @@ class IntTracker:
     """
     Track statistics for integers
 
-    Parameters
-    ---------
-    min
-        Current min value
-    max
-        Current max value
-    sum
-        Sum of the numbers
-    count
-        Total count of numbers
+    :param min:  Current min value
+    :type min: float
+    :param max:  Current max value
+    :type max: float
+    :param sum:  Sum of the numbers
+    :type sum: float
+    :param count:  Total count of numbers
+    :type count: int
     """
 
     DEFAULTS = {
@@ -68,15 +66,10 @@ class IntTracker:
         """
         Merge values of another IntTracker with this one.
 
-        Parameters
-        ----------
-        other : IntTracker
-            Other tracker
-
-        Returns
-        -------
-        new : IntTracker
-            New, merged tracker
+        :param other:  Other tracker
+        :type other: IntTracker
+        :return:  New, merged tracker
+        :rtype: IntTracker
         """
         x = IntTracker(self.min, self.max, self.sum, self.count)
         x.min = min(x.min, other.min)
@@ -89,9 +82,7 @@ class IntTracker:
         """
         Return the object serialized as a protobuf message
 
-        Returns
-        -------
-        message : LongsMessage
+        :rtype: LongsMessage
         """
         return LongsMessage(
             count=self.count,
@@ -105,8 +96,6 @@ class IntTracker:
         """
         Load from a protobuf message
 
-        Returns
-        -------
-        number_tracker : IntTracker
+        :rtype: IntTracker
         """
         return IntTracker(min=message.min, max=message.max, sum=message.sum, count=message.count)

@@ -7,12 +7,12 @@ from whylogs.proto import ModelMetricsMessage, ModelType
 
 
 class ModelMetrics:
-    """
-    Container class for various model-related metrics
+    """Container class for various model-related metrics
 
-    Attributes:
-        confusion_matrix (ConfusionMatrix): ConfusionMatrix which keeps it track of counts with NumberTracker
-        regression_metrics (RegressionMetrics): Regression Metrics keeps track of a common regression metrics in case the targets are continous.
+    :param confusion_matrix: ConfusionMatrix which keeps it track of counts with NumberTracker
+    :type confusion_matrix: ConfusionMatrix
+    :param regression_metrics: Regression Metrics keeps track of a common regression metrics in case the targets are continous.
+    :type regression_metrics: RegressionMetrics
     """
 
     def __init__(
@@ -76,16 +76,20 @@ class ModelMetrics:
         prediction_field: str = None,
         score_field: str = None,
     ):
-        """
-        computes the confusion_matrix, if one is already present merges to old one.
+        """Computes the confusion_matrix, if one is already present merges to old one.
 
-        Args:
-            predictions (List[Union[str, int, bool]]):
-            targets (List[Union[str, int, bool]]):
-            scores (List[float], optional):
-            target_field (str, optional):
-            prediction_field (str, optional):
-            score_field (str, optional):
+        :param predictions:
+        :type predictions: List[Union[str, int, bool]]
+        :param targets:
+        :type targets: List[Union[str, int, bool]]
+        :param scores:
+        :type scores: List[float], optional
+        :param target_field: name of the target field
+        :type target_field: str, optional
+        :param prediction_field: name of the prediction field
+        :type prediction_field: str, optional
+        :param score_field: name of the score field
+        :type score_field: str, optional
         """
         labels = sorted(list(set(targets + predictions)))
         confusion_matrix = ConfusionMatrix(
@@ -117,8 +121,12 @@ class ModelMetrics:
 
     def merge(self, other):
         """
+        Merge a set of model metrics with self.
+        :param other: model metrics to merge with self
+        :type other: ModelMetrics, optional
 
-        :type other: ModelMetrics
+        :returns: a newly constructed merged model metrics
+        :rtype: ModelMetrics
         """
         if other is None:
             return self

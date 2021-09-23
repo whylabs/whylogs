@@ -11,17 +11,18 @@ SUPPORTED_TYPES = ("binary", "multiclass")
 
 
 class ConfusionMatrix:
-    """
+    """Confusion Matrix Class to hold labels and matrix data.
 
-    Confusion Matrix Class to hold labels and matrix data.
-
-    Attributes:
-        labels: list of labels in a sorted order
-        prediction_field: name of the prediction field
-        target_field: name of the target field
-        score_field: name of the score field
-        confusion_matrix (nd.array): Confusion Matrix kept as matrix of NumberTrackers
-        labels (List[str]): list of labels for the confusion_matrix axes
+    :param labels: list of labels for the confusion_matrix axes
+    :type labels: List[str]
+    :param prediction_field: name of the prediction field
+    :type prediction_field: str
+    :param target_field: name of the target field
+    :type target_field: str
+    :param score_field: name of the score field
+    :type score_field: str
+    :param confusion_matrix: Confusion Matrix kept as matrix of NumberTrackers
+    :type confusion_matrix: nd.array
     """
 
     def __init__(
@@ -51,18 +52,17 @@ class ConfusionMatrix:
         targets: List[Union[str, int, bool]],
         scores: List[float],
     ):
-        """
-        Function adds predictions and targets to confusion matrix with scores.
+        """Function adds predictions and targets to confusion matrix with scores.
 
-        Args:
-            predictions (List[Union[str, int, bool]]):
-            targets (List[Union[str, int, bool]]):
-            scores (List[float]):
+        :param predictions:
+        :type predictions: List[Union[str, int, bool]]
+        :param targets:
+        :type targets: List[Union[str, int, bool]]
+        :param scores:
+        :type scores: List[float]
 
-        Raises:
-            NotImplementedError: in case targets do not fall into binary or
-            multiclass suport
-            ValueError: incase missing validation or predictions
+        :raise NotImplementedError: in case targets do not fall into binary or multiclass suport
+        :raise ValueError: incase missing validation or predictions
         """
         tgt_type = type_of_target(targets)
         if tgt_type not in ("binary", "multiclass"):
@@ -86,13 +86,13 @@ class ConfusionMatrix:
             self.confusion_matrix[prediction_indx[ind], targets_indx[ind]].track(scores[ind])
 
     def merge(self, other_cm):
-        """
-        Merge two seperate confusion matrix which may or may not overlap in labels.
+        """Merge two seperate confusion matrix which may or may not overlap in labels.
 
-        Args:
-              other_cm (Optional[ConfusionMatrix]): confusion_matrix to merge with self
-        Returns:
-              ConfusionMatrix: merged confusion_matrix
+        :param other_cm: confusion_matrix to merge with self
+        :type other_cm: ConfusionMatrix, optional
+
+        :returns: merged confusion_matrix
+        :rtype: ConfusionMatrix
         """
         # TODO: always return new objects
         if other_cm is None:
@@ -117,8 +117,8 @@ class ConfusionMatrix:
         """
         Convert to protobuf
 
-        Returns:
-            TYPE: Description
+        :returns: a protobuf message
+        :rtype: ScoreMatrixMessage
         """
         return ScoreMatrixMessage(
             labels=[str(i) for i in self.labels],
@@ -154,9 +154,13 @@ def _merge_CM(old_conf_matrix: ConfusionMatrix, new_conf_matrix: ConfusionMatrix
     """
     Merges two confusion_matrix since distinc or overlaping labels
 
-    Args:
-        old_conf_matrix (ConfusionMatrix)
-        new_conf_matrix (ConfusionMatrix): Will be overridden
+    :param old_conf_matrix: first confusion_matrix `
+    :type old_conf_matrix: ConfusionMatrix
+    :param new_conf_matrix: second confusion_matrix `
+    :type new_conf_matrix: ConfusionMatrix
+
+    :returns: a new ConfusionMatrix, the result of merging the two arguments
+    :rtype: ConfusionMatrix
     """
     new_indxes = encode_to_integers(old_conf_matrix.labels, new_conf_matrix.labels)
     old_indxes = encode_to_integers(old_conf_matrix.labels, old_conf_matrix.labels)

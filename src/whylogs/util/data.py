@@ -15,19 +15,12 @@ def getter(x, k: str, *args):
     This is a convenience function that allows you to interact the same with
     an object or a dictionary
 
-    Parameters
-    ----------
-    x : object, dict
-        Item to get attribute from
-    k : str
-        Key or attribute name
-    default : optional
-        Default value if `k` not present
-
-    Returns
-    -------
-    val : object
-        Associated value
+    :param x:  Item to get attribute from
+    :type x: object, dict
+    :param k:  Key or attribute name
+    :type k: str
+    :return:  Associated value
+    :rtype: object
     """
     try:
         try:
@@ -52,34 +45,30 @@ def remap(x, mapping: dict):
     """
     Flatten a nested dictionary/object according to a specified name mapping.
 
-    Parameters
-    ----------
-    x : object, dict
-        An object or dict which can be treated as a nested dictionary, where
-        attributes can be accessed as:
-            `attr = x.a.b['key_name']['other_Name'].d`
-        Indexing list values is not implemented, e.g.:
-            `x.a.b[3].d['key_name']`
-    mapping : dict
-        Nested dictionary specifying the mapping.  ONLY values specified in the
-        mapping will be returned.
-        For example:
+    `x` is a nested dictionary, where
+    attributes can be accessed as:
+        `attr = x.a.b['key_name']['other_Name'].d`
+    Indexing list values is not implemented, e.g.:
+        `x.a.b[3].d['key_name']`
 
-        .. code-block:: python
+    ONLY values specified in the mapping will be returned. For example:
+    For example:
 
-            {'a': {
-                'b': {
-                    'c': 'new_name'
-                }
+    ```
+        {'a': {
+            'b': {
+                'c': 'new_name'
             }
+        }
+    ```
+    could flatten `x.a.b.c` or `x.a['b']['c']` to `x['new_name']`
 
-        could flatten `x.a.b.c` or `x.a['b']['c']` to `x['new_name']`
-
-    Returns
-    -------
-    flat : OrderedDict
-        A flattened ordered dictionary of values
-
+    :param x:  a nested attribute dictionary
+    :type x: object, dict
+    :param mapping:  Nested dictionary specifying the mapping.
+    :type mapping: dict
+    :return:  A flattened ordered dictionary of values
+    :rtype: OrderedDict
     """
     out = OrderedDict()
     _remap(x, mapping, out)
@@ -108,10 +97,10 @@ def get_valid_filename(s):
     underscores; and remove anything that is not an alphanumeric, dash,
     underscore, or dot.
 
-    .. code-block:: python
-
+    ```
         >>> from whylogs.util.data import get_valid_filename
         >>> get_valid_filename("  Background of tim's 8/1/2019 party!.jpg ")
+    ```
     """
     import re
 
