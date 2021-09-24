@@ -6,7 +6,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 try:
-    from PIL import Image, ImageFilter, ImageStat
+    from PIL import Image, ImageFilter
     from PIL.Image import Image as ImageType
 except ImportError as e:
     ImageType = None
@@ -41,29 +41,6 @@ class ComposeTransforms:
                 format_string += ")"
 
         return format_string
-
-
-class StandardHueSaturationBrightnessStats:
-    def __init__(self, stats=None):
-        self.stats = stats
-
-    def __call__(self, img: ImageType) -> np.ndarray:
-        """
-        Args:
-            img (Image): PIL image with int8 values
-        Returns:
-            np.ndarray: Converted image.
-        """
-        if isinstance(img, np.ndarray):
-            img_copy = Image.fromarray(img)
-        else:
-            img_copy = img.copy()
-
-        self.stats = ImageStat.Stat(img_copy.convert("HSV"))
-        return self
-
-    def __repr__(self):
-        return self.__class__.__name__
 
 
 class Brightness:
