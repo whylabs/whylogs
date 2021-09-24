@@ -20,6 +20,7 @@ from whylogs.v2.app.logger import Logger
 from whylogs.v2.app.metadata_writer import MetadataWriter, metadata_from_config
 from whylogs.v2.app.writers import WhyLabsWriter, Writer, writer_from_config
 from whylogs.v2.core import DatasetProfile
+from whylogs.v2.core.columnprofile_configuration import ColumnProfileConfiguration
 from whylogs.v2.core.statistics.constraints import DatasetConstraints
 from whylogs.v2.features.autosegmentation import _estimate_segments
 
@@ -111,6 +112,9 @@ class Session:
         self.with_rotation_time = with_rotation_time
         self.cache_size = cache_size
         self.report_progress = report_progress
+        self._custom_profile_config = False
+        self._custom_column_profiles = {}
+        self._metric_plugins = {}
 
         # enable special logic when starting/closing a Session if we're using whylabs client to save dataset profiles
         whylabs_writer_is_present = any(isinstance(w, WhyLabsWriter) for w in self.writers)
@@ -133,13 +137,22 @@ class Session:
     def __repr__(self):
         return self._config.to_yaml()
 
-    def get_config(
-        self,
-    ):
+    def get_config(self):
         return self._config
 
     def is_active(self):
         return self._active
+
+    def with_no_column_trackers(self):
+        self._custom_profile_config = True
+        self._no_column_trackers = True
+        return self
+
+    def with_custom_column_profiles(self, column_profiles: Dict[str, ColumnProfileConfiguration], no_trackers: bool = False):
+        self._custom_profile_config = True
+        self._custom_column_profiles = column_profiles
+        self._no_column_trackers = no_trackers
+        return self
 
     def logger(
         self,
@@ -205,7 +218,10 @@ class Session:
                 profile_full_dataset=profile_full_dataset,
                 cache_size=cache_size,
                 constraints=constraints,
+                metric_plugins=self._metric_plugins,
             )
+            if self._custom_profile_config:
+                logger.with_custom_column_profiles(self._custom_column_profiles)
             self._loggers[logger_key] = logger
 
         return logger

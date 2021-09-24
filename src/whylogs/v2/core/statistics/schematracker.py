@@ -1,11 +1,21 @@
 import copy
+import logging
+
 import pandas as pd
 
-from whylogs.proto import InferredType, SchemaMessage, SchemaSummary, TrackerMessage, TrackerSummary
+from whylogs.proto import (
+    InferredType,
+    SchemaMessage,
+    SchemaSummary,
+    TrackerMessage,
+    TrackerSummary,
+)
 from whylogs.v2.core.tracker import Tracker
 
 Type = InferredType.Type
 _SCHEMA_TRACKER_TYPE = 4
+logger = logging.getLogger(__name__)
+
 
 class SchemaTracker(Tracker):
     """
@@ -17,6 +27,15 @@ class SchemaTracker(Tracker):
         If specified, a dictionary containing information about the counts of
         all data types.
     """
+
+    _TYPE_MAP = dict(
+        [
+            (str, Type.STRING),
+            (bool, Type.BOOLEAN),
+            (int, Type.INTEGRAL),
+            (float, Type.FRACTIONAL),
+        ]
+    )
 
     UNKNOWN_TYPE = InferredType(type=Type.UNKNOWN)
     NULL_TYPE = InferredType(type=Type.NULL, ratio=1.0)
@@ -38,6 +57,7 @@ class SchemaTracker(Tracker):
             else:
                 self.type_counts[Type.NULL] += legacy_null_count
         self.name = "SchemaTracker"
+        self.summary_name = "schema"
 
     def _non_null_type_counts(self):
         type_counts = self.type_counts.copy()
@@ -45,15 +65,19 @@ class SchemaTracker(Tracker):
             type_counts.pop(Type.NULL)
         return type_counts
 
-    def track(self, item_type, data_type=None):
+    def track(self, data, data_type=None):
         """
         Track an item type
         """
-        if data_type is None:
-            inspected_type = type(item_type)
-            self.type_counts[inspected_type] = self.get_count(inspected_type) + 1
-        else:
-            self.type_counts[data_type] = self.get_count(data_type) + 1 
+        inspected_type = data_type if data_type else type(data)
+        inferred_type = SchemaTracker.map_type_to_inferred_type(data, inspected_type)
+        self.type_counts[inferred_type] = self.get_count(inferred_type) + 1
+
+    @staticmethod
+    def map_type_to_inferred_type(data, inspected_type):
+        if pd.isnull(data):
+            return Type.NULL
+        return SchemaTracker._TYPE_MAP.get(inspected_type, Type.UNKNOWN)
 
     def get_count(self, item_type):
         """
@@ -154,11 +178,7 @@ class SchemaTracker(Tracker):
         -------
         message : SchemaMessage
         """
-        return TrackerMessage(
-            name = self.name,
-            type_index = _SCHEMA_TRACKER_TYPE,
-            schema = SchemaMessage(typeCounts=self.type_counts)
-        )
+        return TrackerMessage(name=self.name, type_index=_SCHEMA_TRACKER_TYPE, schema=SchemaMessage(typeCounts=self.type_counts))
 
     @staticmethod
     def from_protobuf(message: TrackerMessage, legacy_null_count=0):
@@ -180,15 +200,17 @@ class SchemaTracker(Tracker):
         summary : SchemaSummary
             Protobuf summary message.
         """
-        type_counts = self.type_counts
         # Convert the integer keys to their corresponding string names
-        type_counts_with_names = {Type.Name(k): v for k, v in type_counts.items()}
+        type_counts_with_names = {}
+        for k, v in self.type_counts.items():
+            # logger.debug(f"summarizing {k}:{v}")
+            type_counts_with_names[Type.Name(k)] = v
+
         return TrackerSummary(
             name=self.name,
-            type_index = _SCHEMA_TRACKER_TYPE,
-            schema = SchemaSummary(
+            type_index=_SCHEMA_TRACKER_TYPE,
+            schema=SchemaSummary(
                 inferred_type=self.infer_type(),
                 type_counts=type_counts_with_names,
             ),
         )
-

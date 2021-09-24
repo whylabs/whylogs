@@ -7,11 +7,16 @@ import numpy as np
 import pytest
 from pandas import util
 
+from whylogs.core import ColumnProfile
 from whylogs.core.datasetprofile import DatasetProfile, array_profile, dataframe_profile
 from whylogs.core.model_profile import ModelProfile
 from whylogs.util import time
 from whylogs.util.protobuf import message_to_dict, message_to_json
 from whylogs.util.time import to_utc_ms
+from whylogs.v2.core import ColumnProfile as ColumnProfileV2
+from whylogs.v2.core.datasetprofile import DatasetProfile as DatasetProfileV2
+
+test_column_types = [ColumnProfile, ColumnProfileV2]
 
 
 def test_all_zeros_returns_summary_with_stats():

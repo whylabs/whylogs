@@ -6,15 +6,24 @@ from datasketches import frequent_strings_sketch
 
 from whylogs.core.statistics.thetasketch import ThetaSketch
 from whylogs.core.summaryconverters import from_string_sketch
-from whylogs.proto import CharPosMessage, CharPosSummary, StringsMessage, StringsSummary, TrackerMessage, TrackerSummary
+from whylogs.proto import (
+    CharPosMessage,
+    CharPosSummary,
+    InferredType,
+    StringsMessageV2,
+    StringsSummary,
+    TrackerMessage,
+    TrackerSummary,
+    UniqueCountSummary,
+)
 from whylogs.util import dsketch
-
 from whylogs.v2.core.statistics.numbertracker import NumberTracker
 from whylogs.v2.core.tracker import Tracker
 
 MAX_ITEMS_SIZE = 128
 MAX_SUMMARY_ITEMS = 100
 _STRING_TRACKER_TYPE = 6
+_TYPES = InferredType.Type
 
 logger = logging.getLogger(__name__)
 
@@ -38,19 +47,10 @@ class CharPosTracker(Tracker):
         self.char_pos_map = {}
         self.name = "CharPostTracker"
 
-    def update(self, value: str, character_list: str = None) -> None:
-
-        if character_list:
-            char_set = set(character_list)
-            if char_set != self.character_list:
-                # check if any character were previously tracked
-                if not self.char_pos_map:
-                    logger.warning("Changing character list, a non-empty character position tracker is being reset to remove ambiguities")
-                self.character_list = char_set
-                self.char_pos_map = {}
-
+    def track(self, value: str, data_type=None) -> None:
+        if data_type is not str:
+            return None
         for indx, char in enumerate(value.lower()):
-
             try:
                 char = char.encode("ascii")
 
@@ -184,6 +184,8 @@ class StringTracker(Tracker):
         token_length: NumberTracker = None,
         char_pos_tracker: CharPosTracker = None,
         token_method: Callable[[], List[str]] = None,
+        has_unique_count: bool = False,
+        schema_tracker=None,
     ):
         if count is None:
             count = 0
@@ -203,6 +205,21 @@ class StringTracker(Tracker):
 
         self.token_method = token_method if token_method else lambda x: x.split(" ")
         self.name = "StringTracker"
+        self._has_unique_count = has_unique_count
+        self.schema_tracker = schema_tracker
+
+    def register_unique_count_for_string(self, schema_tracker):
+        self.schema_tracker = schema_tracker
+        self._has_unique_count = self.schema_tracker is not None
+
+    def has_unique_count(self) -> bool:
+        if self._has_unique_count:
+            inferred_type = self.schema_tracker.infer_type()
+            return inferred_type.type == _TYPES.STRING
+        return False
+
+    def get_unique_count_summary(self) -> UniqueCountSummary:
+        self.string_tracker.theta_sketch.to_summary()
 
     def update(self, value: str, character_list=None, token_method=None):
         """
@@ -221,6 +238,16 @@ class StringTracker(Tracker):
 
         if token_method:
             self.token_method = token_method
+        self.length.track(len(value))
+        self.token_length.track(len(self.token_method(value)))
+
+    def track(self, value: str, data_type):
+        if value is None or data_type is not str:
+            return
+        # by default this only tracks string counts, cardinality estimates, lengths, token counts
+        self.count += 1
+        self.theta_sketch.update(value)
+        # TODO: consider putting back in items
         self.length.track(len(value))
         self.token_length.track(len(self.token_method(value)))
 
@@ -258,16 +285,19 @@ class StringTracker(Tracker):
         -------
         message : StringsMessage
         """
+        string_length_tracker = self.length.to_protobuf() if self.length else None
+        token_length_tracker = self.token_length.to_protobuf() if self.token_length else None
+        char_pos_tracker = self.char_pos_tracker.to_protobuf() if self.char_pos_tracker else None
         return TrackerMessage(
-            name = self.name,
-            type_index = _STRING_TRACKER_TYPE,
-            strings = StringsMessage(
+            name=self.name,
+            type_index=_STRING_TRACKER_TYPE,
+            strings=StringsMessageV2(
                 count=self.count,
                 items=self.items.serialize(),
                 compact_theta=self.theta_sketch.serialize(),
-                length=self.length.to_protobuf() if self.length else None,
-                token_length=self.token_length.to_protobuf() if self.token_length else None,
-                char_pos_tracker=self.char_pos_tracker.to_protobuf() if self.char_pos_tracker else None,
+                length=string_length_tracker,
+                token_length=token_length_tracker,
+                char_pos_tracker=char_pos_tracker,
             ),
         )
 
@@ -309,17 +339,19 @@ class StringTracker(Tracker):
         unique_count = self.theta_sketch.to_summary()
         opts = dict(
             unique_count=unique_count,
-            length=self.length.to_summary(),
-            token_length=self.token_length.to_summary(),
+            length=self.length.to_summary().numbers,
+            token_length=self.token_length.to_summary().numbers,
             char_pos_tracker=self.char_pos_tracker.to_summary(),
         )
-        if unique_count.estimate < MAX_SUMMARY_ITEMS:
+        if unique_count.estimate < MAX_SUMMARY_ITEMS and self.items:
             frequent_strings = from_string_sketch(self.items)
             if frequent_strings is not None:
                 opts["frequent"] = frequent_strings
+        # logger.debug(f"about to summarize with {opts}")
+        strings_summary = StringsSummary(**opts)
 
         return TrackerSummary(
-            name = self.name,
-            type_index = _STRING_TRACKER_TYPE,
-            strings = StringsSummary(**opts),
+            name=self.name,
+            type_index=_STRING_TRACKER_TYPE,
+            strings=strings_summary,
         )

@@ -1,11 +1,18 @@
 """
 Defines the ColumnProfile class for tracking per-column statistics
 """
-from whylogs.src.whylogs.v2.core.statistics.stringtracker import _STRING_TRACKER_TYPE
+import logging
+from typing import List, Optional
+
 import pandas as pd
 
-from typing import List
-
+from whylogs.proto import (
+    ColumnMessageV2,
+    ColumnSummaryV2,
+    InferredType,
+    Op,
+    UniqueCountSummary,
+)
 from whylogs.v2.core.statistics import (
     CountersTracker,
     NumberTracker,
@@ -19,16 +26,12 @@ from whylogs.v2.core.statistics.constraints import (
 )
 from whylogs.v2.core.statistics.hllsketch import HllSketch
 from whylogs.v2.core.tracker import Tracker
-from whylogs.proto import (
-    ColumnMessage,
-    ColumnSummary,
-    InferredType,
-    Op,
-    UniqueCountSummary,
-)
-from whylogs.util.dsketch import FrequentItemsSketch
+from whylogs.v2.core.tracker_registry import TrackerRegistry
+from whylogs.v2.util.dsketch import FrequentItemsSketch
 
 _TYPES = InferredType.Type
+logger = logging.getLogger(__name__)
+
 
 class ColumnProfile:
     """
@@ -49,39 +52,48 @@ class ColumnProfile:
         * Multi-threading/parallelism
     """
 
-    def __init__(
-        self,
-        name: str,
-        trackers: List[Tracker] = None,
-        strict_typing: bool = False,
-        constraints: ValueConstraints = None,
-    ):
-
+    def __init__(self, name: str, trackers: List[Tracker] = None, strict_typing: bool = False, constraints: ValueConstraints = None, is_merge: bool = False):
+        if constraints is None:
+            constraints = ValueConstraints()
+        # TODO simplify this API, for now store trackers by name for merging
+        self._tracker_map = {}
         # Handle default trackers
         if trackers is None:
-            trackers = [
+            schema_tracker = SchemaTracker()
+            string_tracker = StringTracker()
+            string_tracker.register_unique_count_for_string(schema_tracker)
+            default_trackers = [
                 HllSketch(),
                 NumberTracker(),
-                StringTracker(),
-                SchemaTracker(),
+                string_tracker,
+                schema_tracker,
                 CountersTracker(),
                 FrequentItemsSketch(),
             ]
+            self._initialize_trackers(default_trackers)
+        else:
+            self._initialize_trackers(trackers)
 
-        # TODO: simplify this further, for now preserve existing behavior around cardinality tracking
-        self.unique_count_estimators = [tracker for tracker in trackers if tracker.is_cardinality_tracker]
-
-        if constraints is None:
-            constraints = ValueConstraints()
+        # TODO: review if we need to preserve existing behavior around cardinality tracking
+        self.unique_count_estimators = [tracker for tracker in self._tracker_map.values() if tracker.is_cardinality_tracker]
 
         # Assign values
         self.column_name = name
         self.strict_typing = strict_typing
         self.column_type = _TYPES.UNKNOWN
         self.constraints = constraints
-        self.unique_count_estimators = [tracker for tracker in self.trackers if isinstance(tracker, (HllSketch, StringTracker, NumberTracker))]
 
-    def track(self, value, character_list=None, token_method=None):
+        if not is_merge and trackers is not None:
+            logger.info(f"Using custom set of trackers {self.get_tracker_names()} on column {self.column_name}")
+
+    def _initialize_trackers(self, trackers: List[Tracker]):
+        for tracker in trackers:
+            if tracker:
+                self._tracker_map[tracker.name] = tracker
+            else:
+                logger.warning(f"empty tracker was passed in for {self.name}")
+
+    def track(self, value):
         """
         Add `value` to tracking statistics.
         """
@@ -89,56 +101,43 @@ class ColumnProfile:
         if self.strict_typing:
             if self.column_type == _TYPES.UNKNOWN and not pd.isnull([value]).all():
                 self.column_type = type(value)
-            for tracker in self.trackers:
+            for tracker in self._tracker_map.values():
                 tracker.track(value, self.column_type)
-        else: 
+        else:
             data_type = InferredType.Type.NULL if pd.isnull([value]).all() else type(value)
-            for tracker in self.trackers:
+            for tracker in self._tracker_map.values():
                 tracker.track(value, data_type)
 
-        self.constraints.update(value, data_type)
+        self.constraints.update(value)
 
-    def _unique_count_summary(self) -> UniqueCountSummary:
-        if self.trackers
-        cardinality_summary = self.cardinality_tracker.to_summary()
-        if cardinality_summary:
-            return cardinality_summary
+    def _unique_count_summary(self) -> Optional[UniqueCountSummary]:
+        cardinality_estimator = None
+        if self.unique_count_estimators:
+            cardinality_estimator = next(filter(lambda tracker: tracker.has_unique_count(), self.unique_count_estimators), None)
+        if cardinality_estimator:
+            return cardinality_estimator.get_unique_count_summary()
+        else:
+            logger.error(f"Possible missing data. No unique count estimators configured for this column: {self.column_name}")
+        return cardinality_estimator
 
-        inferred_type = self.schema_tracker.infer_type()
-        if inferred_type.type == _TYPES.STRING:
-            cardinality_summary = self.string_tracker.theta_sketch.to_summary()
-        else:  # default is number summary
-            cardinality_summary = self.number_tracker.theta_sketch.to_summary()
-        return cardinality_summary
-
-    def to_summary(self):
+    def to_summary(self) -> ColumnSummaryV2:
         """
         Generate a summary of the statistics
 
         Returns
         -------
-        summary : ColumnSummary
+        summary : ColumnSummaryV2
             Protobuf summary message.
         """
-        schema = None
-        if self.schema_tracker is not None:
-            schema = self.schema_tracker.to_summary()
-        # TODO: implement the real schema/type checking
-        null_count = self.schema_tracker.get_count(InferredType.Type.NULL)
-        opts = dict(
-            counters=self.counters.to_protobuf(null_count=null_count),
-            frequent_items=self.frequent_items.to_summary(),
-            unique_count=self._unique_count_summary(),
-        )
-        if self.string_tracker is not None and self.string_tracker.count > 0:
-            opts["string_summary"] = self.string_tracker.to_summary()
-        if self.number_tracker is not None and self.number_tracker.count > 0:
-            opts["number_summary"] = self.number_tracker.to_summary()
+        tracker_summaries = {}
+        for tracker in self._tracker_map.values():
+            tracker_summary = tracker.to_summary()
+            if not tracker_summary:
+                logger.debug(f"{tracker.name} produced no summary")
+            else:
+                tracker_summaries[tracker.name] = tracker_summary
 
-        if schema is not None:
-            opts["schema"] = schema
-
-        return ColumnSummary(**opts)
+        return ColumnSummaryV2(name=self.column_name, trackers=tracker_summaries)
 
     def generate_constraints(self) -> SummaryConstraints:
         items = []
@@ -152,7 +151,22 @@ class ColumnProfile:
 
         return None
 
-    def merge(self, other):
+    def add_tracker(self, tracker: Tracker):
+        name = tracker.name
+        if name in self._tracker_map:
+            raise ValueError(f"A tracker with name: {name} already exists on this column profile.")
+        else:
+            self._tracker_map[name] = tracker
+
+    def get_tracker(self, tracker_name: str) -> Optional[Tracker]:
+        return self._tracker_map.get(tracker_name, None)
+
+    def get_tracker_names(self) -> List[str]:
+        if self._tracker_map is None:
+            return list()
+        return list(self._tracker_map.keys())
+
+    def merge(self, other, strict: bool = True):
         """
         Merge this columnprofile with another.
 
@@ -166,37 +180,37 @@ class ColumnProfile:
             A new, merged column profile.
         """
         assert self.column_name == other.column_name
-        return ColumnProfile(
-            self.column_name,
-            number_tracker=self.number_tracker.merge(other.number_tracker),
-            string_tracker=self.string_tracker.merge(other.string_tracker),
-            schema_tracker=self.schema_tracker.merge(other.schema_tracker),
-            counters=self.counters.merge(other.counters),
-            frequent_items=self.frequent_items.merge(other.frequent_items),
-            cardinality_tracker=self.cardinality_tracker.merge(other.cardinality_tracker),
-        )
+        merged_trackers = []
+        if strict:
+            assert len(self._tracker_map.values()) == len(
+                other._tracker_map.values()
+            ), f"trying to merge column profiles with {len(self._tracker_map.values())} and {len(other._tracker_map.values())} trackers."
 
-    def to_protobuf(self):
+        for name in self._tracker_map.keys():
+            tracker = self.get_tracker(name)
+            other_tracker = other.get_tracker(name)
+            if strict:
+                assert other.get_tracker(name) is not None, f"trying to merge column profiles but missing {name} from one of the profiles."
+            merged_trackers.append(tracker.merge(other_tracker))
+
+        return ColumnProfile(self.column_name, trackers=merged_trackers, is_merge=True)
+
+    def to_protobuf(self) -> ColumnMessageV2:
         """
         Return the object serialized as a protobuf message
 
         Returns
         -------
-        message : ColumnMessage
+        message : ColumnMessageV2
         """
+        tracker_messages = {tracker.name: tracker.to_protobuf() for tracker in self._tracker_map.values()}
+        if len(tracker_messages.values()) == 0:
+            logger.warning(f"There are no trackers on this column profile, the ColumnMessageV2 will be mostly empty for {self.column_name}")
 
-        return ColumnMessage(
-            name=self.column_name,
-            counters=self.counters.to_protobuf(),
-            schema=self.schema_tracker.to_protobuf(),
-            numbers=self.number_tracker.to_protobuf(),
-            strings=self.string_tracker.to_protobuf(),
-            frequent_items=self.frequent_items.to_protobuf(),
-            cardinality_tracker=self.cardinality_tracker.to_protobuf(),
-        )
+        return ColumnMessageV2(name=self.column_name, trackers=tracker_messages)
 
     @staticmethod
-    def from_protobuf(message):
+    def from_protobuf(message: ColumnMessageV2) -> "ColumnProfile":
         """
         Load from a protobuf message
 
@@ -204,13 +218,19 @@ class ColumnProfile:
         -------
         column_profile : ColumnProfile
         """
-        schema_tracker = SchemaTracker.from_protobuf(message.schema, legacy_null_count=message.counters.null_count.value)
+        trackers = []
+        column_name = None
+        if not message.name:
+            logger.error(f"Attempt to deserialize a column profile message without name property: {message}")
+        else:
+            column_name = message.name
+
+        if not message.trackers:
+            logger.warning(f"There are no trackers in this message, the column profile will not track anything: {message}")
+        else:
+            # TODO: consider passing in a registry to resolve protobuf messages
+            trackers = [TrackerRegistry.from_protobuf(tracker_message) for tracker_message in message.trackers.values()]
         return ColumnProfile(
-            message.name,
-            counters=(CountersTracker.from_protobuf(message.counters)),
-            schema_tracker=schema_tracker,
-            number_tracker=NumberTracker.from_protobuf(message.numbers),
-            string_tracker=StringTracker.from_protobuf(message.strings),
-            frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),
-            cardinality_tracker=HllSketch.from_protobuf(message.cardinality_tracker),
+            name=column_name,
+            trackers=trackers,
         )

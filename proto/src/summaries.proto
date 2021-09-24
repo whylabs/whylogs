@@ -103,7 +103,7 @@ message TrackerSummary {
     int64 n = 3;
     double d = 4;
     Counters counters = 5;
-    NumberSummary schema = 6;
+    SchemaSummary schema = 6;
     NumberSummary numbers = 7;
     StringsSummary strings = 8;
     InferredType inferred_type = 9;
@@ -116,7 +116,7 @@ message TrackerSummary {
 
 message ColumnSummaryV2 {
   string name = 1;
-  repeated TrackerSummary trackers = 2;
+  map<string, TrackerSummary> trackers = 2;
 }
 
 message ColumnSummary {

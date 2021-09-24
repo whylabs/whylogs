@@ -10,6 +10,8 @@ Attributes:
     target_column_name (str): Description
     column_type (Optional[Type]): Description
 """
+
+
 @dataclass
 class ColumnPredicate(ABC):
     target_column_name: str = ""
@@ -21,6 +23,3 @@ class ColumnPredicate(ABC):
     @abstractmethod
     def evaluate(self, column_value) -> bool:
         pass
-
-
-

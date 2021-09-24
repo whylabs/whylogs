@@ -8,12 +8,25 @@ import numbers
 import datasketches
 import pandas as pd
 
-from whylogs.v2.core.statistics.datatypes import FloatTracker, IntTracker, VarianceTracker
-from whylogs.v2.core.statistics.thetasketch import ThetaSketch
-from whylogs.v2.core.summaryconverters import histogram_from_sketch, quantiles_from_sketch
-from whylogs.v2.core.tracker import Tracker
-from whylogs.proto import NumbersMessage, NumberSummary, TrackerMessage, TrackerSummary
+from whylogs.proto import (
+    NumbersMessage,
+    NumberSummary,
+    TrackerMessage,
+    TrackerSummary,
+    UniqueCountSummary,
+)
 from whylogs.util import dsketch, stats
+from whylogs.v2.core.statistics.datatypes import (
+    FloatTracker,
+    IntTracker,
+    VarianceTracker,
+)
+from whylogs.v2.core.statistics.thetasketch import ThetaSketch
+from whylogs.v2.core.summaryconverters import (
+    histogram_from_sketch,
+    quantiles_from_sketch,
+)
+from whylogs.v2.core.tracker import Tracker
 
 # Parameter controlling histogram accuracy.  Larger = more accurate
 DEFAULT_HIST_K = 256
@@ -76,6 +89,12 @@ class NumberTracker(Tracker):
     def count(self):
         return self.variance.count
 
+    def has_unique_count(self) -> bool:
+        return True
+
+    def get_unique_count_summary(self) -> UniqueCountSummary:
+        self.theta_sketch.to_summary()
+
     def track(self, number, data_type=None):
         """
         Add a number to statistics tracking
@@ -90,10 +109,11 @@ class NumberTracker(Tracker):
             # XXX: this type checking may still be fragile in python.
             return
         self.variance.update(number)
-        self.theta_sketch.update(number)
+        # self.theta_sketch.update(number)
         # TODO: histogram update
         # Update floats/ints counting
         f_value = float(number)
+        self.theta_sketch.update(f_value)
         self.histogram.update(f_value)
         if self.floats.count > 0:
             self.floats.update(f_value)
@@ -136,13 +156,13 @@ class NumberTracker(Tracker):
         msg = NumbersMessage(**opts)
 
         return TrackerMessage(
-            name = self.name,
-            type_index = _NUMBER_TRACKER_TYPE,
-            numbers = msg,
+            name=self.name,
+            type_index=_NUMBER_TRACKER_TYPE,
+            numbers=msg,
         )
 
     @staticmethod
-    def from_protobuf(message: TrackerMessage):
+    def from_protobuf(message: TrackerMessage) -> "NumberTracker":
         """
         Load from a protobuf message
 
@@ -150,9 +170,16 @@ class NumberTracker(Tracker):
         -------
         number_tracker : NumberTracker
         """
+        if not hasattr(message, "type_index"):
+            raise ValueError(f"Attempting to deserialize a message to NumberTracker without type_index {message}")
+        if message.type_index != _NUMBER_TRACKER_TYPE:
+            raise ValueError(f"Attempting to deserialize a message to NumberTracker with type_index not {_NUMBER_TRACKER_TYPE}->{message}")
+        if not message.numbers:
+            logger.warning(f"Possible missing data, deserialized an empty NumberTracker message {message}")
+            return NumberTracker()
         theta = None
         if message.numbers.compact_theta is not None and len(message.numbers.compact_theta) > 0:
-            theta = ThetaSketch.deserialize(message.compact_theta)
+            theta = ThetaSketch.deserialize(message.numbers.compact_theta)
         elif message.numbers.theta is not None and len(message.numbers.theta) > 0:
             logger.warning("Possible missing data. Non-compact theta sketches are no longer supported")
 
@@ -161,10 +188,10 @@ class NumberTracker(Tracker):
             variance=VarianceTracker.from_protobuf(message.numbers.variance),
             histogram=dsketch.deserialize_kll_floats_sketch(message.numbers.histogram),
         )
-        if message.HasField("doubles"):
-            opts["floats"] = FloatTracker.from_protobuf(message.doubles)
-        if message.HasField("longs"):
-            opts["ints"] = IntTracker.from_protobuf(message.longs)
+        if message.numbers.HasField("doubles"):
+            opts["floats"] = FloatTracker.from_protobuf(message.numbers.doubles)
+        if message.numbers.HasField("longs"):
+            opts["ints"] = IntTracker.from_protobuf(message.numbers.longs)
         return NumberTracker(**opts)
 
     def to_summary(self) -> TrackerSummary:
@@ -201,9 +228,9 @@ class NumberTracker(Tracker):
             discrete = stats.is_discrete(num_records, cardinality)
 
         return TrackerSummary(
-            name= self.name,
-            type_index = _NUMBER_TRACKER_TYPE,
-            numbers = NumberSummary(
+            name=self.name,
+            type_index=_NUMBER_TRACKER_TYPE,
+            numbers=NumberSummary(
                 count=self.variance.count,
                 stddev=stddev,
                 min=min,

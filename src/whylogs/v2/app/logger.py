@@ -23,6 +23,7 @@ from whylogs.v2.core import (
     TrackBB,
     TrackImage,
 )
+from whylogs.v2.core.columnprofile_configuration import ColumnProfileConfiguration
 from whylogs.v2.core.metrics.metric_plugin import MetricPlugin
 
 # TODO upgrade to Classes
@@ -78,13 +79,19 @@ class Logger:
         segments: Optional[Union[List[Segment], List[str], str]] = None,
         profile_full_dataset: bool = False,
         constraints: DatasetConstraints = None,
+        metric_plugins: Dict[str, MetricPlugin] = None,
     ):
         """"""
         self._py_logger = logging.getLogger(__name__)
+
+        if metadata is None:
+            metadata = {}
         if tags is None:
             tags = {}
         if writers is None:
             writers = []
+        if metric_plugins is None:
+            metric_plugins = {}
         self._active = True
 
         if session_timestamp is None:
@@ -104,10 +111,14 @@ class Logger:
         self.set_segments(segments)
 
         self._profiles = []
+        self._custom_profile_config = False
+        self._custom_column_profiles = None
+        self._no_column_trackers = False
         self._intialize_profiles(dataset_timestamp)
         self.interval_multiplier = interval  # deprecated, rotation interval multiplier
         self.with_rotation_time = with_rotation_time  # rotation interval specification
         self._set_rotation(with_rotation_time)
+        self._metric_plugins = metric_plugins
 
     def __enter__(self):
         return self
@@ -132,7 +143,22 @@ class Logger:
         return self._profiles[-1]["full_profile"].metric_plugins
 
     def add_metric_plugin(self, metric: MetricPlugin):
+        self._metric_plugins[metric.name] = metric
         self._profiles[-1]["full_profile"].add_metric_plugin(metric)
+
+    def with_custom_column_profiles(self, column_profiles: Dict[str, ColumnProfileConfiguration]):
+        self._custom_profile_config = True
+        self._custom_column_profiles = column_profiles
+        self._profiles[-1]["full_profile"].with_custom_column_profiles(column_profiles)
+        return self
+
+    def with_no_column_trackers(
+        self,
+    ):
+        self._custom_profile_config = True
+        self._no_column_trackers = True
+        self._profiles[-1]["full_profile"].with_no_column_trackers()
+        return self
 
     def tracking_checks(self):
 
@@ -195,6 +221,7 @@ class Logger:
                 metadata=self.metadata,
                 session_id=self.session_id,
                 constraints=self.constraints,
+                custom_column_profiles=self._custom_column_profiles,
             )
         self._profiles.append({"full_profile": full_profile, "segmented_profiles": {}})
 

@@ -1,11 +1,11 @@
 import warnings
 
-from google.protobuf.wrappers_pb2 import Int64Value
-
+from whylogs.proto import TrackerMessage, TrackerSummary
 from whylogs.v2.core.tracker import Tracker
-from whylogs.proto import TrackerMessage
 
 _TRACKER_TYPE = 1
+
+
 class CountersTracker(Tracker):
     """
     Class to keep track of the counts of various data types
@@ -19,6 +19,7 @@ class CountersTracker(Tracker):
     def __init__(self, count=0):
         self.count = count
         self.name = "Counter"
+        self.summary_name = "counters"
 
     def increment_count(self):
         """
@@ -26,7 +27,7 @@ class CountersTracker(Tracker):
         """
         self.count += 1
 
-    def track(self, _):
+    def track(self, value, _):
         self.increment_count()
 
     def increment_bool(self):
@@ -52,8 +53,18 @@ class CountersTracker(Tracker):
         """
         return TrackerMessage(
             name=self.name,
-            type_index=_TRACKER_TYPE, #todo plugin map or registry
-            n = self.count # Use 'TrackerMessage.value.n' over embedding Counters message.
+            type_index=_TRACKER_TYPE,  # todo plugin map or registry
+            n=self.count,  # Use 'TrackerMessage.value.n' over embedding Counters message.
+        )
+
+    def to_summary(self) -> TrackerSummary:
+        """
+        Return the object serialized as a protobuf message
+        """
+        return TrackerSummary(
+            name=self.name,
+            type_index=_TRACKER_TYPE,  # todo plugin map or registry
+            n=self.count,  # Use 'TrackerMessage.value.n' over embedding Counters message.
         )
 
     @staticmethod
@@ -65,6 +76,6 @@ class CountersTracker(Tracker):
         -------
         counters : CountersTracker
         """
-        if message.type_index != _TRACKER_TYPE: # TODO plugin map or type registry
+        if message.type_index != _TRACKER_TYPE:  # TODO plugin map or type registry
             raise ValueError(f"Cannot deserialize a counter tracker named {message.name} using type_index: {message.type_index}")
         return CountersTracker(count=message.n)

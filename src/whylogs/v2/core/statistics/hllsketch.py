@@ -4,11 +4,17 @@ from enum import Enum
 import datasketches
 import pandas as pd
 
-from whylogs.proto import HllSketchMessage, UniqueCountSummary, TrackerMessage, TrackerSummary
+from whylogs.proto import (
+    HllSketchMessage,
+    TrackerMessage,
+    TrackerSummary,
+    UniqueCountSummary,
+)
 from whylogs.v2.core.tracker import Tracker
 
 DEFAULT_LG_K = 12
 _HLL_SKETCH_TRACKER_TYPE = 9
+
 
 class HllSketch(Tracker):
     def __init__(self, lg_k=None, sketch=None):
@@ -27,8 +33,8 @@ class HllSketch(Tracker):
         except TypeError:
             value = self._serialize_item(value)
             self.sketch.update(value)
-    
-    def track(self, value):
+
+    def track(self, value, data_type=None):
         self.update(value)
 
     def merge(self, other):
@@ -49,11 +55,7 @@ class HllSketch(Tracker):
 
     def to_protobuf(self) -> TrackerMessage:
         sketch_message = HllSketchMessage(sketch=self.sketch.serialize_compact(), lg_k=self.lg_k)
-        return TrackerMessage(
-            name=self.name,
-            type_index=_HLL_SKETCH_TRACKER_TYPE, #todo plugin map or registry
-            cardinality_tracker = sketch_message 
-            )
+        return TrackerMessage(name=self.name, type_index=_HLL_SKETCH_TRACKER_TYPE, cardinality_tracker=sketch_message)  # todo plugin map or registry
 
     def _serialize_item(self, x):
         if isinstance(x, datetime.datetime):
@@ -85,8 +87,4 @@ class HllSketch(Tracker):
             lower=self.get_lower_bound(),
         )
 
-        return TrackerSummary(
-            name=self.name,
-            type_index=_HLL_SKETCH_TRACKER_TYPE,
-            unique_count=unique_estimate
-        )
+        return TrackerSummary(name=self.name, type_index=_HLL_SKETCH_TRACKER_TYPE, unique_count=unique_estimate)

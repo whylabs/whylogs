@@ -3,7 +3,7 @@ from collections import OrderedDict
 import pandas as pd
 
 from whylogs.core.types.typeddataconverter import TYPES
-from whylogs.proto import DatasetSummary
+from whylogs.proto import DatasetSummaryV2
 from whylogs.util.data import getter, remap
 
 TYPENUM_COLUMN_NAMES = OrderedDict()
@@ -56,7 +56,7 @@ SCALAR_NAME_MAPPING = OrderedDict(
 )
 
 
-def flatten_summary(dataset_summary: DatasetSummary) -> dict:
+def flatten_summary(dataset_summary: DatasetSummaryV2) -> dict:
     """
     Flatten a DatasetSummary
 
@@ -103,53 +103,53 @@ def _quantile_strings(quantiles: list):
     return ["quantile_{:.4f}".format(q) for q in quantiles]
 
 
-def flatten_dataset_quantiles(dataset_summary: DatasetSummary):
+def flatten_dataset_quantiles(dataset_summary: DatasetSummaryV2):
     """
     Flatten quantiles from a dataset summary
     """
     quants = {}
-    for col_name, col in dataset_summary.columns.items():
+    for col in dataset_summary.columns:
         try:
             quant = getter(getter(col, "number_summary"), "quantiles")
             x = OrderedDict()
             for q, qval in zip(_quantile_strings(quant.quantiles), quant.quantile_values):
                 x[q] = qval
-            quants[col_name] = x
+            quants[col.name] = x
         except KeyError:
             pass
 
     return quants
 
 
-def flatten_dataset_string_quantiles(dataset_summary: DatasetSummary):
+def flatten_dataset_string_quantiles(dataset_summary: DatasetSummaryV2):
     """
     Flatten quantiles from a dataset summary
     """
     quants = {}
-    for col_name, col in dataset_summary.columns.items():
+    for col in dataset_summary.columns:
         try:
             quant = getter(getter(col, "number_summary"), "quantiles")
             x = OrderedDict()
             for q, qval in zip(_quantile_strings(quant.quantiles), quant.quantile_values):
                 x[q] = qval
-            quants[col_name] = x
+            quants[col.name] = x
         except KeyError:
             pass
 
     return quants
 
 
-def flatten_dataset_histograms(dataset_summary: DatasetSummary):
+def flatten_dataset_histograms(dataset_summary: DatasetSummaryV2):
     """
     Flatten histograms from a dataset summary
     """
     histograms = {}
 
-    for col_name, col in dataset_summary.columns.items():
+    for col in dataset_summary.columns:
         try:
             hist = getter(getter(col, "number_summary"), "histogram")
             if len(hist.bins) > 1:
-                histograms[col_name] = {
+                histograms[col.name] = {
                     "bin_edges": list(hist.bins),
                     "counts": list(hist.counts),
                 }
@@ -158,25 +158,25 @@ def flatten_dataset_histograms(dataset_summary: DatasetSummary):
     return histograms
 
 
-def flatten_dataset_frequent_strings(dataset_summary: DatasetSummary):
+def flatten_dataset_frequent_strings(dataset_summary: DatasetSummaryV2):
     """
     Flatten frequent strings summaries from a dataset summary
     """
     frequent_strings = {}
 
-    for col_name, col in dataset_summary.columns.items():
+    for col in dataset_summary.columns:
         try:
             item_summary = getter(getter(col, "string_summary"), "frequent").items
             items = {item.value: int(item.estimate) for item in item_summary}
             if items:
-                frequent_strings[col_name] = items
+                frequent_strings[col.name] = items
         except KeyError:
             continue
 
     return frequent_strings
 
 
-def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
+def get_dataset_frame(dataset_summary: DatasetSummaryV2, mapping: dict = None):
     """
     Get a dataframe from scalar values flattened from a dataset summary
 
@@ -196,7 +196,8 @@ def get_dataset_frame(dataset_summary: DatasetSummary, mapping: dict = None):
         mapping = SCALAR_NAME_MAPPING
     quantile = flatten_dataset_quantiles(dataset_summary)
     col_out = {}
-    for _k, col in dataset_summary.columns.items():
+    for col in dataset_summary.columns:
+        _k = col.name
         col_out[_k] = remap(col, mapping)
         col_out[_k].update(quantile.get(_k, {}))
     scalar_summary = pd.DataFrame(col_out).T

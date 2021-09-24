@@ -258,6 +258,32 @@ class SessionConfig:
         return SessionConfigSchema().load(yaml.safe_load(stream=stream))
 
 
+class ProfileConfig:
+    def __init__(
+        self,
+        type: str,
+        strict_column_typing: Optional[bool] = False,
+    ):
+        self.type = type
+        self.strict_column_typing = strict_column_typing
+
+    def to_yaml(self, stream=None):
+        return yaml.dump(ProfileConfigSchema().dump(self), stream)
+
+    @staticmethod
+    def from_yaml(stream):
+        return ProfileConfigSchema().load(yaml.safe_load(stream=stream))
+
+
+class ProfileConfigSchema(Schema):
+    type = fields.Str(validate=validate.OneOf(["v0", "custom"]), required=True)
+    strict_column_typing = fields.Bool(required=False, allow_none=True)
+
+    @post_load
+    def make_writer(self, data, **kwargs):
+        return ProfileConfig(**data)
+
+
 class WriterConfigSchema(Schema):
     """
     Marshmallow schema for :class:`WriterConfig` class.
@@ -310,6 +336,7 @@ class SessionConfigSchema(Schema):
         required=True,
     )
     metadata = fields.Nested(MetadataConfigSchema, required=False)
+    profile = fields.Nested(ProfileConfigSchema, required=False)
 
     @post_load
     def make_session(self, data, **kwargs):

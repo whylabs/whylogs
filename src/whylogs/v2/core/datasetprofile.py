@@ -13,14 +13,13 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 from smart_open import open
 
-from whylogs.v2.core import ColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
-from whylogs.v2.core.statistics.constraints import DatasetConstraints, SummaryConstraints
 from whylogs.proto import (
     ColumnsChunkSegment,
     DatasetMetadataSegment,
     DatasetProfileMessage,
+    DatasetProfileMessageV2,
     DatasetProperties,
     DatasetSummaryV2,
     MessageSegment,
@@ -28,7 +27,16 @@ from whylogs.proto import (
 )
 from whylogs.util import time
 from whylogs.util.time import from_utc_ms, to_utc_ms
+from whylogs.v2.core import ColumnProfile
+from whylogs.v2.core.columnprofile_configuration import ColumnProfileConfiguration
 from whylogs.v2.core.metrics.metric_plugin import MetricPlugin
+from whylogs.v2.core.statistics.constraints import (
+    DatasetConstraints,
+    SummaryConstraints,
+)
+
+SCHEMA_MAJOR_VERSION = 1
+SCHEMA_MINOR_VERSION = 3
 
 logger = logging.getLogger(__name__)
 # Optional import for cudf
@@ -78,22 +86,19 @@ class DatasetProfile:
         name: str,
         dataset_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
-        columns: dict = None,
-        tags: Dict[str, str] = None,
-        metadata: Dict[str, str] = None,
-        session_id: str = None,
+        columns: dict = {},
+        tags: Dict[str, str] = {},
+        metadata: Dict[str, str] = {},
+        session_id: str = uuid4().hex,
         model_profile: ModelProfile = None,
         constraints: DatasetConstraints = None,
+        custom_column_profiles: Dict[str, ColumnProfileConfiguration] = None,
+        metric_plugins: Dict[str, MetricPlugin] = None,
+        no_trackers: bool = False,
     ):
-        # Default values
-        if columns is None:
-            columns = {}
-        if tags is None:
-            tags = {}
-        if metadata is None:
-            metadata = {}
-        if session_id is None:
-            session_id = uuid4().hex
+
+        if metric_plugins is None:
+            metric_plugins = {}
 
         self.session_id = session_id
         self.session_timestamp = session_timestamp
@@ -106,6 +111,10 @@ class DatasetProfile:
         self.model_profile = model_profile
         self._metric_plugins = dict()
         self._column_metric_plugins = dict()
+        self._custom_profile_config = custom_column_profiles is not None
+        self._custom_column_profiles = custom_column_profiles
+        self._metric_plugins = metric_plugins
+        self._no_trackers = no_trackers
 
         # Store Name attribute
         self._tags["name"] = name
@@ -125,6 +134,20 @@ class DatasetProfile:
     @property
     def metric_plugins(self):
         return self._metric_plugins
+
+    @property
+    def no_trackers(self) -> bool:
+        return self._no_trackers
+
+    @property
+    def configured_column_names(self) -> List[str]:
+        if not self._custom_profile_config:
+            return list()
+        return list(self._custom_column_profiles.keys())
+
+    @property
+    def has_custom_profile_config(self) -> bool:
+        return self._custom_profile_config
 
     @property
     def session_timestamp(self):
@@ -160,6 +183,21 @@ class DatasetProfile:
                 self._column_metric_plugins[metric.target_column_name].add(metric.name)
             else:
                 self._column_metric_plugins[metric.target_column_name] = set([metric.name])
+
+    def with_custom_column_profiles(self, column_profiles: Dict[str, ColumnProfileConfiguration]):
+        self._custom_profile_config = True
+        self._custom_column_profiles = column_profiles
+        return self
+
+    def with_no_column_trackers(self):
+        self._no_trackers = True
+        self._custom_profile_config = True
+        return self
+
+    def get_column_profile_configuration(self, column_name: str) -> Optional[ColumnProfileConfiguration]:
+        if not self._custom_profile_config:
+            return None
+        return self._custom_column_profiles.get(column_name, None)
 
     def track_metrics(
         self,
@@ -240,15 +278,24 @@ class DatasetProfile:
                 raise TypeError("Data type of: {} not supported for tracking".format(columns.__class__.__name__))
 
     def track_datum(self, column_name, data, character_list=None, token_method=None):
-        try:
-            prof = self.columns[column_name]
-        except KeyError:
+        prof = self.columns.get(column_name, None)
+        if not prof:
             constraints = None if self.constraints is None else self.constraints[column_name]
-            prof = ColumnProfile(column_name, constraints=constraints)
+            trackers = None
+            column_typing = False
+            if self._custom_profile_config:
+                profile_config = self._custom_column_profiles.get(column_name, None)
+                trackers = profile_config.trackers
+                column_typing = profile_config.strict_column_type
+                logger.info(f"We got trackers: {trackers} and type {column_typing}")
+            if self._no_trackers and trackers is None:
+                # Empty list of trackers will mean no default trackers are added, but passing in None results in defaults.
+                trackers = []
+            prof = ColumnProfile(column_name, constraints=constraints, trackers=trackers, strict_typing=column_typing)
             self.columns[column_name] = prof
 
-        prof.track(data, character_list=None, token_method=None)
-        # If there are metric plugins for this column also track those here
+        prof.track(data)
+        # If there are custom metric plugins for this column also track those here
         if column_name in self._column_metric_plugins.keys():
             for plugin_name in self._column_metric_plugins[column_name]:
                 if plugin_name not in self._metric_plugins.keys():
@@ -292,7 +339,7 @@ class DatasetProfile:
 
             x = df[col].values
             for xi in x:
-                self.track(col_str, xi, character_list=None, token_method=None)
+                self.track(col_str, xi)
 
     def to_properties(self):
         """
@@ -312,8 +359,8 @@ class DatasetProfile:
         data_timestamp = to_utc_ms(self.dataset_timestamp)
 
         return DatasetProperties(
-            schema_major_version=1,
-            schema_minor_version=1,
+            schema_major_version=SCHEMA_MAJOR_VERSION,
+            schema_minor_version=SCHEMA_MINOR_VERSION,
             session_id=self.session_id,
             session_timestamp=session_timestamp,
             data_timestamp=data_timestamp,
@@ -331,7 +378,7 @@ class DatasetProfile:
             Protobuf summary message.
         """
         self.validate()
-        column_summaries = {name: colprof.to_summary() for name, colprof in self.columns.items()}
+        column_summaries = [colprof.to_summary() for colprof in sorted(self.columns.values())]
         summary = None
         if self.metric_plugins.items():
             metric_plugin_summaries = dict()
@@ -508,13 +555,13 @@ class DatasetProfile:
             A sequence of bytes
         """
         with io.BytesIO() as f:
-            protobuf: DatasetProfileMessage = self.to_protobuf()
+            protobuf: DatasetProfileMessageV2 = self.to_protobuf()
             size = protobuf.ByteSize()
             f.write(_VarintBytes(size))
             f.write(protobuf.SerializeToString(deterministic=True))
             return f.getvalue()
 
-    def to_protobuf(self) -> DatasetProfileMessage:
+    def to_protobuf(self) -> DatasetProfileMessageV2:
         """
         Return the object serialized as a protobuf message
 
@@ -528,9 +575,18 @@ class DatasetProfile:
             model_profile_msg = self.model_profile.to_protobuf()
         else:
             model_profile_msg = None
-        return DatasetProfileMessage(
+
+        if self.metric_plugins.items():
+            metric_plugins = dict()
+            for key in self.metric_plugins.keys():
+                plugin_summary = self.metric_plugins[key].to_protobuf()
+                metric_plugins[key] = plugin_summary
+        else:
+            metric_plugins = None
+        return DatasetProfileMessageV2(
             properties=properties,
             columns={k: v.to_protobuf() for k, v in self.columns.items()},
+            metric_plugins=metric_plugins,
             modeProfile=model_profile_msg,
         )
 
@@ -585,7 +641,7 @@ class DatasetProfile:
             return DatasetProfile.from_protobuf_string(msg_buf)
 
     @staticmethod
-    def from_protobuf(message: DatasetProfileMessage) -> "DatasetProfile":
+    def from_protobuf(message: DatasetProfileMessageV2) -> "DatasetProfile":
         """
         Load from a protobuf message
 
