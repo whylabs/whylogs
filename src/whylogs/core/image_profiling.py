@@ -151,7 +151,7 @@ def get_pil_image_metadata(img: ImageType) -> Dict:
             else:
                 metadata[TAGS[k]] = v
         except KeyError:
-            f"Skipping key {k}."
+            logger.warning(f"Couldn't read exif tag: {k} skipping.")
 
     metadata.update(image_based_metadata(img))
     metadata.update(get_pil_image_statistics(img))
