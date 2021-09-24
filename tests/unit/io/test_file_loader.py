@@ -8,12 +8,12 @@ from whylogs.io.file_loader import file_loader
 
 
 def test_image_loader(image_files):
-    imgfmts = ["TIFF", "JPEG", "BMP"]
+    imgfmts = ["TIFF", "JPEG", "JPEG", "JPEG", "JPEG", "JPEG", "JPEG", "JPEG", "JPEG", "JPEG", "JPEG", "BMP"]
     for idx, img_path in enumerate(image_files):
         (img, magic_data), imgfmt = file_loader(img_path)
         assert isinstance(img, ImageType)
         assert isinstance(imgfmt, str)
-        assert imgfmt == imgfmts[idx]
+        assert imgfmt == imgfmts[idx], f"{imgfmt} at {idx} but expected {imgfmts[idx]}"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="requires python3.7 or higher")

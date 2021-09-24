@@ -22,11 +22,10 @@ TEST_DATA_PATH = os.path.abspath(
 def test_track_image():
     now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
-    num_image_features = len(_IMAGE_FEATURES)
-    num_metadata_features = len(_METADATA_DEFAULT_ATTRIBUTES)
     test_image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
 
-    total_default_features = num_image_features + num_metadata_features
+    total_default_features = _METADATA_DEFAULT_ATTRIBUTES
+
     profile_1 = DatasetProfile(
         name="test",
         session_id=shared_session_id,
@@ -36,28 +35,33 @@ def test_track_image():
     )
     trackImage = TrackImage(test_image_path)
 
-    pixels_per_image = 67500
     trackImage(profile_1)
     columns = profile_1.columns
-    assert len(columns) == total_default_features
-    assert columns["Saturation"].number_tracker.count == pixels_per_image
-    assert columns["BitsPerSample"].counters.count == 3
+    for feature_name in total_default_features:
+        assert feature_name in columns, f"{feature_name} not in {columns}"
+
+    assert columns["Saturation.mean"].number_tracker.count == 1
+    assert columns["Saturation.stddev"].number_tracker.count == 1
+    assert columns["BitsPerSample"].counters.count == 1
+
     trackImage = TrackImage(test_image_path)
     trackImage(profile_1)
     columns = profile_1.columns
-    assert len(columns) == total_default_features
-    assert columns["Saturation"].number_tracker.count == 2 * pixels_per_image
+    for feature_name in total_default_features:
+        assert feature_name in columns, f"{feature_name} not in {columns}"
+
+    assert columns["Saturation.mean"].number_tracker.count == 2
+    assert columns["Saturation.stddev"].number_tracker.count == 2
+    assert columns["BitsPerSample"].counters.count == 2
 
 
 def test_track_PIL_img():
     now = datetime.datetime.now(datetime.timezone.utc)
     shared_session_id = uuid4().hex
-    num_image_features = len(_IMAGE_FEATURES)
-    num_metadata_features = len(_METADATA_DEFAULT_ATTRIBUTES)
+    total_default_features = _METADATA_DEFAULT_ATTRIBUTES
 
     test_image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
 
-    total_default_features = num_image_features + num_metadata_features
     profile_1 = DatasetProfile(
         name="test",
         session_id=shared_session_id,
@@ -70,6 +74,7 @@ def test_track_PIL_img():
 
     trackImage(profile_1)
     columns = profile_1.columns
-    assert len(columns) == total_default_features
-    assert columns["Saturation"].number_tracker.count == 67500
-    assert columns["BitsPerSample"].counters.count == 3
+    for feature_name in total_default_features:
+        assert feature_name in columns, f"{feature_name} not in {columns}"
+    assert columns["Saturation.mean"].number_tracker.count == 1
+    assert columns["BitsPerSample"].counters.count == 1
