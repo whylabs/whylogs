@@ -75,9 +75,9 @@ python create_endpoint.py
 ```
 Optional parameters:
 
-- -p <your-aws-profile-name>
-- -i <sagemaker-instance-type>
-- -e <endpoint-name>
+- -p `<your-aws-profile-name>`
+- -i `<sagemaker-instance-type>`
+- -e `<endpoint-name>`
 
 ## 6. Test endpoint
 Once your endpoint has been created, to test it run the following script.
@@ -88,9 +88,9 @@ python test_endpoint.py
 
 Optional parameters:
 
-- -p <your-aws-profile-name>
-- -i <sagemaker-instance-type>
-- -e <endpoint-name>
+- -p `<your-aws-profile-name>`
+- -i `<sagemaker-instance-type>`
+- -e `<endpoint-name>`
 
 The response should look like this:
 
@@ -121,8 +121,8 @@ python clean_up.py
 
 Optional parameters:
 
-- -p <your-aws-profile-name>
-- -e <endpoint-name>
+- -p `<your-aws-profile-name>`
+- -e `<endpoint-name>`
 
 ## TL;DR
 
