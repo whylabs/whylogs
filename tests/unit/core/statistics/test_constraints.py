@@ -67,6 +67,45 @@ def test_value_constraints(df_lending_club, local_config_path):
     assert report[1][1][0][2] == 50
 
 
+def test_value_constraints_pattern_match(df_lending_club, local_config_path):
+
+    regex_state_abbreviation = r"^[a-zA-Z]{2}$"
+    contains_state = ValueConstraint(Op.MATCH, regex_pattern=regex_state_abbreviation)
+
+    regex_date = r"^[a-zA-Z]{3}-[0-9]{4}$"
+    contains_date = ValueConstraint(Op.NOMATCH, regex_pattern=regex_date)
+
+    # just to test applying regex patterns on non-string values
+    contains_state_loan_amnt = ValueConstraint(Op.MATCH, regex_pattern=regex_state_abbreviation)
+
+    dc = DatasetConstraints(
+        None, value_constraints={"addr_state": [contains_state], "earliest_cr_line": [contains_date], "loan_amnt": [contains_state_loan_amnt]}
+    )
+
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+    # checks there are constraints for 3 features
+    assert len(report) == 3
+    print(report)
+    # make sure it checked every value
+    for each_feat in report:
+        for each_constraint in each_feat[1]:
+            assert each_constraint[1] == 50
+
+    # Every row should match a state abbreviation
+    assert report[0][1][0][2] == 0
+
+    # At least 1 should be a match w/ the given pattern (# of failures of NOMATCH = # Matches)
+    assert report[1][1][0][2] > 0
+
+    # Every row should be a failure, because "loan_amnt" is not a string type
+    assert report[2][1][0][2] == 50
+
+
 def test_summary_constraints(df_lending_club, local_config_path):
 
     non_negative = SummaryConstraint("min", Op.GE, 0)

@@ -15,6 +15,8 @@ enum Op {
     NE = 4;
     GE = 5;
     GT = 6;
+    MATCH = 7;
+    NOMATCH = 8;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -34,11 +36,16 @@ message SummaryConstraintMsg {
   bool verbose = 6;
 }
 
-/* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal.
+/* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal, or between a string value and a regex pattern.
    These are applied to every incoming value that is processed by whylogs.  */
+
+
 message ValueConstraintMsg {
   string name = 1;
-  double value = 2;
+  oneof second_field {
+    double value = 2;
+    string regex_pattern = 5;
+  }
   Op op = 3;
   bool verbose = 4;
 }
