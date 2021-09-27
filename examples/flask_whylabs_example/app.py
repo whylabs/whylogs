@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
 
-import atexit
 import logging
+
+# import atexit
 import os
 
 import pandas as pd
@@ -49,8 +50,7 @@ def create_app(config_object="settings"):
     register_extensions(app)
     register_blueprints(app)
     register_error_handlers(app)
-    atexit.register(close_logger_at_exit)
-
+    # atexit.register(close_logger_at_exit)
     return app
 
 

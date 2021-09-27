@@ -29,7 +29,7 @@ class WhyLogsRun(object):
         logger.debug("Creating a real session for WhyLogsRun")
         self._session = session if session else get_or_create_session()
 
-    def _create_logger(self, dataset_name: Optional[str] = None, dataset_timestamp:Optional[datetime.datetime] = None):
+    def _create_logger(self, dataset_name: Optional[str] = None, dataset_timestamp: Optional[datetime.datetime] = None):
         active_run = _mlflow.active_run()
         if self._active_run_id is not None and active_run is None:
             self._close()
@@ -57,15 +57,10 @@ class WhyLogsRun(object):
             logger_dataset_name,
             tags,
         )
-        logger_ = self._session.logger(
-            run_info.run_id,
-            session_timestamp=session_timestamp,
-            dataset_timestamp=dataset_timestamp,
-            tags=tags
-        )
+        logger_ = self._session.logger(run_info.run_id, session_timestamp=session_timestamp, dataset_timestamp=dataset_timestamp, tags=tags)
         return logger_
 
-    def log_pandas(self, df: pd.DataFrame, dataset_name: Optional[str] = None, dataset_timestamp:Optional[datetime.datetime] = None):
+    def log_pandas(self, df: pd.DataFrame, dataset_name: Optional[str] = None, dataset_timestamp: Optional[datetime.datetime] = None):
         """
         Log the statistics of a Pandas dataframe. Note that this method is additive
         within a run: calling this method with a specific dataset name will not generate
@@ -106,7 +101,7 @@ class WhyLogsRun(object):
 
         ylogs.log(features, feature_name, value)
 
-    def _get_or_create_logger(self, dataset_name: Optional[str] = None, dataset_timestamp:Optional[datetime.datetime] = None):
+    def _get_or_create_logger(self, dataset_name: Optional[str] = None, dataset_timestamp: Optional[datetime.datetime] = None):
         ylogs = self._loggers.get(dataset_name)
         if ylogs is None:
             ylogs = self._create_logger(dataset_name, dataset_timestamp=dataset_timestamp)

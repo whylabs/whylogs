@@ -50,7 +50,6 @@ Inside the .env file you can find important variables used by whylogs for config
 - `WHYLABS_DEFAULT_ORG_ID`: Whylabs organization ID.
 - `WHYLABS_DEFAULT_DATASET_ID`: Dataset ID.
 - `WHYLABS_API_ENDPOINT`: WhyLabs API endpoint URI.
-- `WHYLABS_N_ATTEMPS`: Number of retry attempts for initializing the whylogs logger.
 
 ## 4. Build docker image an push it to AWS ECR
 SageMaker uses docker images to run your algorithm. In order to pass an image to SageMaker, you need to build it and push it to Amazon Elastic Container Registry (ECR). The following script will create and ECR repository, login to it, build your image, retag it accordingly and push it to the repository.

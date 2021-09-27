@@ -9,8 +9,7 @@ from utils import MessageException
 
 def initialize_logger():
     # Initialize session
-    n_attemps = int(os.environ.get("WHYLABS_N_ATTEMPS"))
-
+    n_attemps = 3
     while n_attemps > 0:
         # Initialize logger
         app.whylabs_logger = app.whylabs_session.logger(

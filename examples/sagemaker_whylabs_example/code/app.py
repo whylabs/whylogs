@@ -5,6 +5,9 @@ import logging
 import os
 
 import pandas as pd
+
+# blueprints
+from api.views import blueprint
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -23,9 +26,6 @@ df = pd.read_csv(os.environ["DATASET_URL"])
 model = load(os.environ["MODEL_PATH"])
 whylabs_session = get_or_create_session(os.environ["WHYLABS_CONFIG"])
 whylabs_logger = None
-
-# blueprints
-from api.views import blueprint
 
 
 def create_app(config_object="settings"):

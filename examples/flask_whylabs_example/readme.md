@@ -14,7 +14,7 @@ The app is structured in different files and folders:
   - [__utils.py__](api/utils.py): Utility functions for endpoints.
   - [__views.py__](api/views.py): Endpoints management.
 - [__.env__](.env): Environment variables configuration file.
-- [__.whylabs.yaml__](.whylabs.yaml): Whylogs session configuration file.
+- [__.whylogs.yaml__](.whylogs.yaml): Whylogs session configuration file.
 - [__app.py__](app.py): App module, containing the app factory function.
 - [__extensions.py__](extensions.py): Swagger documentation utility functions.
 - [__schemas.py__](schemas.py): Schemas used in the API.
@@ -35,7 +35,6 @@ The Flask application also takes care of writing the data when you kill the appl
 <summary> Session management details</summary>
 
 - In [__views.py__](https://github.com/whylabs/whylogs/blob/dev/loka/examples/examples/flask_sklearn_example/api/views.py#L10) you will notice we are using `initialize_logger()` which creates a logger instance, so every time that the app is running will have a new logger initialization.
-- In [__app.py__](https://github.com/whylabs/whylogs/blob/dev/loka/examples/examples/flask_sklearn_example/app.py#L49) you will notice that we are using atexit library `atexit.register(close_logger_at_exit)` to ensure thar when a kill signal is being generated the session will close before closing the application saving your logs. 
 
 </details>
 
@@ -48,7 +47,7 @@ The Flask application also takes care of writing the data when you kill the appl
 
 ### 1. Whylabs configuration
 
-Adapt the .whylabs.yaml file. This file configures your output destiny using writers, the output format of your dataset profile, the name of your project, between others.
+Adapt the .whylogs.yaml file. This file configures your output destiny using writers, the output format of your dataset profile, the name of your project, between others.
 
 ```yaml
 project: example-project
@@ -82,12 +81,11 @@ SWAGGER_BASEPATH=/api/v1
 SWAGGER_SCHEMES={"http"}
 
 # WhyLabs
-WHYLABS_CONFIG=.whylabs.yaml
+WHYLABS_CONFIG=.whylogs.yaml
 WHYLABS_API_KEY=...
 WHYLABS_DEFAULT_ORG_ID=...
 WHYLABS_DEFAULT_DATASET_ID=model-1
 WHYLABS_API_ENDPOINT=https://api.whylabsapp.com
-WHYLABS_N_ATTEMPS=3
 
 # Whylabs session
 DATASET_NAME=this_is_my_dataset

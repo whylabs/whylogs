@@ -8,4 +8,4 @@ flask_cors==3.0.10
 flasgger==0.9.5
 pydantic==1.8.2
 Flask-Pydantic==0.8.0
-APScheduler==3.7.0
+# APScheduler==3.7.0

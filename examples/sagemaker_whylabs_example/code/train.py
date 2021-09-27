@@ -1,7 +1,6 @@
 import os
 import urllib.request as urllib
 
-import numpy as np
 import pandas as pd
 from joblib import dump
 from sklearn.model_selection import train_test_split
@@ -12,11 +11,11 @@ url = "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
 raw_data = urllib.urlopen(url)
 try:
     os.mkdir("dataset/")
-except Exception as e:
+    # Save data as csv
+    with open("dataset/Iris.csv", "wb") as file:
+        file.write(raw_data.read())
+except Exception:
     print(" 'dataset' directory already existed. Moving forward")
-# Save data as csv
-with open("dataset/Iris.csv", "wb") as file:
-    file.write(raw_data.read())
 # Load data
 data = pd.read_csv("dataset/Iris.csv", header=None)
 # Separating the independent variables from dependent variables
