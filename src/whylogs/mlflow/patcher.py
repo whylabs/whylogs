@@ -6,8 +6,8 @@ from typing import Dict, Optional
 import pandas as pd
 
 from whylogs import __version__ as whylogs_version
-from whylogs.app.logger import Logger
 from whylogs import get_or_create_session
+from whylogs.app.logger import Logger
 
 logger = logging.getLogger(__name__)
 

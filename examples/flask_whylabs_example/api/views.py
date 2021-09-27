@@ -1,14 +1,20 @@
 """ View functions for every endpoint. """
+import app
+from api.utils import (
+    add_random_column_outliers,
+    get_prediction,
+    initialize_logger,
+    initialized_scheduled_action,
+)
 from flask import Blueprint, request
 from flask_pydantic import validate
-from api.utils import add_random_column_outliers, initialize_logger, get_prediction, initialized_scheduled_action
 from schemas import FeatureVector
-import app
-from utils import object_response, message_response
+from utils import message_response, object_response
 
 blueprint = Blueprint("api", __name__, url_prefix="/api/v1")
 initialize_logger()
 initialized_scheduled_action()
+
 
 @blueprint.route("/health", methods=["GET"])
 def health():

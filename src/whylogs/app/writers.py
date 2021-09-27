@@ -3,6 +3,7 @@ Classes for writing whylogs output
 """
 import json
 import os
+import tempfile
 import typing
 from abc import ABC, abstractmethod
 from logging import getLogger
@@ -10,7 +11,6 @@ from string import Template
 from typing import List, Optional
 
 import boto3
-import tempfile
 from smart_open import open
 
 from whylogs.app.output_formats import OutputFormat

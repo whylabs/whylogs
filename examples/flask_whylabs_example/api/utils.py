@@ -1,13 +1,13 @@
-from typing import List
-from flask.globals import current_app
-import numpy as np
-import app
-from utils import MessageException
+import atexit
 import datetime
 import os
-from whylogs import get_or_create_session
+from typing import List
+
+import app
+import numpy as np
 from apscheduler.schedulers.background import BackgroundScheduler
-import atexit
+from flask.globals import current_app
+from utils import MessageException
 
 
 def modify_random_column_values(value: float = np.random.uniform(low=0.0, high=10.0)) -> None:
@@ -42,7 +42,7 @@ def initialize_logger():
         app.whylabs_logger = app.whylabs_session.logger(
             dataset_name=os.environ["WHYLABS_DEFAULT_DATASET_ID"],
             dataset_timestamp=datetime.datetime.now(datetime.timezone.utc),
-            with_rotation_time=os.environ["ROTATION_TIME"]
+            with_rotation_time=os.environ["ROTATION_TIME"],
         )
         if app.whylabs_logger is not None:
             break
@@ -64,6 +64,6 @@ def get_prediction(data: List[float]) -> str:
 
 def initialized_scheduled_action():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=modify_random_column_values, trigger="interval", seconds=int(os.environ.get("UPDATE_TIME_IN_SECONDS")))
+    scheduler.add_job(func=modify_random_column_values, trigger="interval", seconds=180)
     scheduler.start()
     atexit.register(lambda: scheduler.shutdown())

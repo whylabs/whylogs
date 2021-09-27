@@ -1,21 +1,22 @@
-
 import logging
 import os
 
 logging.basicConfig(level=logging.DEBUG)
+import datetime
 import random
 import time
 
-import pandas as pd
 import mlflow
-import whylogs
-import datetime
+import pandas as pd
+from dotenv import load_dotenv
+from sklearn.linear_model import ElasticNet
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import ElasticNet
-from dotenv import load_dotenv
+
+import whylogs
+
 load_dotenv()
-assert whylogs.__version__ >= "0.1.13" # we need 0.1.13 or later for MLflow integration
+assert whylogs.__version__ >= "0.1.13"  # we need 0.1.13 or later for MLflow integration
 
 data = pd.read_csv(os.environ["DATASET_URL"], sep=";")
 
@@ -43,8 +44,7 @@ for i in range(num_batches):
 experiment_name = "whylogs demo"
 mlflow.set_experiment(experiment_name)
 
-model_params = {"alpha": 1.0,
-                "l1_ratio": 0.7}
+model_params = {"alpha": 1.0, "l1_ratio": 0.7}
 
 lr = ElasticNet(**model_params)
 lr.fit(train_x, train_y)
@@ -70,4 +70,4 @@ for i in range(num_batches):
         # use whylogs to log data quality metrics for the current batch
 
         mlflow.whylogs.log_pandas(batch, datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=i))
-        #time.sleep(70)
+        # time.sleep(70)

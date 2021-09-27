@@ -27,13 +27,6 @@ These files contains code to download the [Iris Species Dataset](https://archive
 
 - [__train.py__](train.py)
 
-This application uses a **background scheduler** that changes the dataset values every _N_ amount of seconds, you can modify that variable in [__.env__](.env) as **UPDATE_TIME_IN_SECONDS**
-
-</details>
-<details>
-<summary> Background Scheduler details</summary>
-
-- In [__views.py__](https://github.com/whylabs/whylogs/blob/dev/loka/examples/examples/flask_sklearn_example/api/views.py#L11) you will notice we are using `initialized_scheduled_action()` which creates a Background Scheduler whick every UPDATE_TIME_IN_SECONDS will update the dataframe with the function `modify_random_column_values`. Also you can change this function to `add_random_column_outliers` if you want to add some outliers to your df.
 </details>
 
 The Flask application also takes care of writing the data when you kill the application with `^C`
@@ -100,7 +93,6 @@ WHYLABS_N_ATTEMPS=3
 DATASET_NAME=this_is_my_dataset
 ROTATION_TIME=1h
 DATASET_URL=dataset/Iris.csv
-UPDATE_TIME_IN_SECONDS=10
 ```
 
 </details>

@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
 
-import os
 import logging
+import os
+
 import pandas as pd
 from dotenv import load_dotenv
-from joblib import load
 from flask import Flask, jsonify
 from flask_cors import CORS
+from joblib import load
 from utils import MessageException, message_exception_handler
+
 from whylogs import get_or_create_session
+
 # Load environment variables
 load_dotenv()
 

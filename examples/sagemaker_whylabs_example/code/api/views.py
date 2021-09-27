@@ -1,12 +1,13 @@
-from flask import Blueprint, request, Response
-from flask_pydantic import validate
-from api.utils import add_random_column_outliers, initialize_logger, get_prediction
-from schemas import FeatureVector
 import app
-from utils import object_response, message_response
+from api.utils import get_prediction, initialize_logger
+from flask import Blueprint, Response, request
+from flask_pydantic import validate
+from schemas import FeatureVector
+from utils import object_response
 
 blueprint = Blueprint("api", __name__)
 initialize_logger()
+
 
 @blueprint.route("/ping", methods=["GET"])
 def ping():
@@ -15,6 +16,7 @@ def ping():
     it healthy if we can load the model successfully."""
     status = 200
     return Response(response="\n", status=status, mimetype="application/json")
+
 
 @blueprint.route("/invocations", methods=["POST"])
 @validate()

@@ -1,5 +1,3 @@
-
-
 def message_response(message, status_code=200, reason=None):
     standard_response = {"data": None, "message": message, "reason": reason}
     return standard_response, status_code

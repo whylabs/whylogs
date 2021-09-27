@@ -1,5 +1,5 @@
-from flasgger import Swagger
 import yaml
+from flasgger import Swagger
 
 
 def init_swagger(app):

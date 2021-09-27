@@ -31,3 +31,4 @@ aws --profile ${profile} ecr get-login-password --region ${region} | \
 docker build -t ${image} .
 docker tag ${image} ${fullname}
 docker push ${fullname}
+
