@@ -1,0 +1,3 @@
+[submodule "core/proto"]
+	path = core/proto
+	url = git@github.com:whylabs/whylogs-proto.git
