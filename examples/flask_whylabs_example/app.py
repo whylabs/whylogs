@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
 
+import atexit
 import logging
-
-# import atexit
 import os
 
 import pandas as pd
+
+# blueprints
+from api.views import blueprint
 from dotenv import load_dotenv
 from extensions import init_swagger
 from flask import Flask, jsonify
@@ -26,9 +28,6 @@ df = pd.read_csv(os.environ["DATASET_URL"])
 model = load(os.environ["MODEL_PATH"])
 whylabs_session = get_or_create_session(os.environ["WHYLABS_CONFIG"])
 whylabs_logger = None
-
-# blueprints
-from api.views import blueprint
 
 
 def create_app(config_object="settings"):
@@ -50,7 +49,7 @@ def create_app(config_object="settings"):
     register_extensions(app)
     register_blueprints(app)
     register_error_handlers(app)
-    # atexit.register(close_logger_at_exit)
+    atexit.register(close_logger_at_exit)
     return app
 
 

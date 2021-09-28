@@ -114,7 +114,6 @@ class WhyLogsRun(object):
             try:
                 ylogs = self._loggers[name]
                 ylogs.close()
-
                 self._loggers.pop(name)
             except Exception as ex:  # noqa
                 logger.warning(

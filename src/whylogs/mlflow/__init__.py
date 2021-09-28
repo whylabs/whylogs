@@ -20,7 +20,7 @@ def list_whylogs_runs(experiment_id: str, dataset_name: str = "default"):
     for run in run_infos:
         if run.status != "FINISHED":
             continue
-        artifacts = client.list_artifacts(run.run_id, path=f"whylogs/{dataset_name}")
+        artifacts = client.list_artifacts(run.run_id, path=f"{_WHYLOGS_PATH}/{dataset_name}")
         if len(artifacts) == 1 and not artifacts[0].is_dir and artifacts[0].path.endswith("/profile.bin"):
             res.append(run)
 
