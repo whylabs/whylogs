@@ -68,7 +68,7 @@ sourceSets {
 
     main {
         proto {
-            srcDir("proto/src")
+            srcDir("../../proto/src")
         }
     }
 
