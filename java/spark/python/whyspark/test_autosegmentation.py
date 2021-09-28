@@ -1,5 +1,3 @@
-import math
-
 import pytest
 from pyspark.sql import Row, SparkSession
 from whyspark import estimate_segments

@@ -2,7 +2,7 @@ import math
 from typing import Dict, List, Optional, Tuple, Union
 
 import pyspark
-from pyspark.sql import SparkSession, Window
+from pyspark.sql import Window
 from pyspark.sql import functions as F
 
 
@@ -152,7 +152,7 @@ def estimate_segments(
 
     countdf = df.select(valid_column_names).groupby(valid_column_names).count().cache()
 
-    print(f"Calculating segments...")
+    print("Calculating segments...")
     while segments_used < max_segments:
         valid_column_names = {col for col in valid_column_names if (col not in segments and n_uniques[col] * segments_used <= (max_segments - segments_used))}
         _, segment_column_name = _find_best_split(
