@@ -17,8 +17,7 @@ class WhyProfileSession:
     A class that enable easy access to the profiling API
     """
 
-    def __init__(self, dataframe: DataFrame, name: str, time_column: Optional[str] = None, group_by_columns=None,
-                 model_profile: ModelProfileSession = None):
+    def __init__(self, dataframe: DataFrame, name: str, time_column: Optional[str] = None, group_by_columns=None, model_profile: ModelProfileSession = None):
         if group_by_columns is None:
             group_by_columns = []
         self._group_by_columns = group_by_columns
@@ -37,8 +36,7 @@ class WhyProfileSession:
 
         :rtype: WhyLogSession
         """
-        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=time_column,
-                                 group_by_columns=self._group_by_columns)
+        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=time_column, group_by_columns=self._group_by_columns)
 
     def withClassificationModel(self, prediction_field: str, target_field: str, score_field: str):  # noqa
         """
@@ -49,8 +47,9 @@ class WhyProfileSession:
         :rtype: WhyLogSession
         """
         model_profile = ModelProfileSession(prediction_field, target_field, score_field)
-        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
-                                 group_by_columns=self._group_by_columns, model_profile=model_profile)
+        return WhyProfileSession(
+            dataframe=self._df, name=self._name, time_column=self._time_colunn, group_by_columns=self._group_by_columns, model_profile=model_profile
+        )
 
     def withRegressionModel(self, prediction_field: str, target_field: str):  # noqa
         """
@@ -61,13 +60,12 @@ class WhyProfileSession:
         :rtype: WhyLogSession
         """
         model_profile = ModelProfileSession(prediction_field, target_field, None)
-        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
-                                 group_by_columns=self._group_by_columns, model_profile=model_profile)
-
+        return WhyProfileSession(
+            dataframe=self._df, name=self._name, time_column=self._time_colunn, group_by_columns=self._group_by_columns, model_profile=model_profile
+        )
 
     def groupBy(self, col: str, *cols):  # noqa
-        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn,
-                                 group_by_columns=[col] + list(cols))
+        return WhyProfileSession(dataframe=self._df, name=self._name, time_column=self._time_colunn, group_by_columns=[col] + list(cols))
 
     def aggProfiles(self, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None) -> DataFrame:  # noqa
         if datetime_ts is not None:
@@ -89,12 +87,9 @@ class WhyProfileSession:
         if self._model_profile is not None:
             mp = self._model_profile
             if mp.score_field:
-                j_session = j_session.withClassificationModel(mp.prediction_field,
-                                                              mp.target_field,
-                                                              mp.score_field)
+                j_session = j_session.withClassificationModel(mp.prediction_field, mp.target_field, mp.score_field)
             else:
-                j_session = j_session.withRegressionModel(mp.prediction_field,
-                                                          mp.target_field)
+                j_session = j_session.withRegressionModel(mp.prediction_field, mp.target_field)
         return j_session
 
     def aggParquet(self, path: str, datetime_ts: Optional[datetime] = None, timestamp_ms: int = None):  # noqa
@@ -107,8 +102,7 @@ class WhyProfileSession:
         df = self.aggProfiles(datetime_ts=datetime_ts, timestamp_ms=timestamp_ms)
         df.write.parquet(path)
 
-    def log(self, dt: Optional[datetime] = None, org_id: str = None, model_id: str = None, api_key: str = None,
-            endpoint: str = "https://api.whylabsapp.com"):
+    def log(self, dt: Optional[datetime] = None, org_id: str = None, model_id: str = None, api_key: str = None, endpoint: str = "https://api.whylabsapp.com"):
         """
         Run profiling and send results to WhyLabs using the WhyProfileSession's configurations.
 
@@ -126,17 +120,17 @@ class WhyProfileSession:
         else:
             timestamp_ms = int(datetime.now(tz=timezone.utc).timestamp() * 1000)
         if org_id is None:
-            org_id = os.environ.get('WHYLABS_ORG_ID')
+            org_id = os.environ.get("WHYLABS_ORG_ID")
             if org_id is None:
-                raise RuntimeError('Please specify the org ID')
+                raise RuntimeError("Please specify the org ID")
         if model_id is None:
-            model_id = os.environ.get('WHYLABS_MODEL_ID')
+            model_id = os.environ.get("WHYLABS_MODEL_ID")
             if model_id is None:
-                raise RuntimeError('Please specify the model ID')
+                raise RuntimeError("Please specify the model ID")
         if api_key is None:
-            api_key = os.environ.get('WHYLABS_API_KEY')
+            api_key = os.environ.get("WHYLABS_API_KEY")
             if api_key is None:
-                raise RuntimeError('Please specify the API key')
+                raise RuntimeError("Please specify the API key")
 
         j_session = self._create_j_session()
         j_session.log(timestamp_ms, org_id, model_id, api_key, endpoint)
