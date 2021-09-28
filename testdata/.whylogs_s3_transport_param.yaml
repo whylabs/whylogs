@@ -1,0 +1,17 @@
+project: test-project-yaml
+pipeline: test-pipeline
+verbose: false
+writers:
+- formats:
+  - protobuf
+  transport_parameters:
+    endpoint_url : http://127.0.0.1:5000/
+    aws_access_key_id : minioadmin
+    aws_secret_access_key : minioadmin
+    region_name: us-east-1
+    verify: path/to/file
+  output_path: s3://minio_bucket/
+  path_template: $name/dataset_summary
+  filename_template: dataset_summary
+  type: s3
+

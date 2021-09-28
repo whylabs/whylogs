@@ -98,16 +98,23 @@ def test_Brightness():
 def test_simple_blur(image_files):
     expected_results = [
         3754.4,
+        449.4,
+        700.7,
         1392.5,
+        382.6,
+        239.1,
+        300.9,
+        851.9,
+        594.9,
+        729.9,
+        895.8,
         13544.2,
     ]
     transform = SimpleBlur()
     for idx, eachimg in enumerate(image_files):
         img = image_loader(eachimg)
         res = transform(img)
-        # compute average brightness
-
-        assert pytest.approx(res, 0.1) == expected_results[idx]
+        assert pytest.approx(res, 0.1) == expected_results[idx], f"index:{idx} res:{res} expected: {expected_results[idx]}"
 
 
 def test_compose():
