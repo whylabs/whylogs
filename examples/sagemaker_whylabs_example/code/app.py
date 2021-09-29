@@ -6,8 +6,6 @@ import os
 
 import pandas as pd
 
-# blueprints
-from api.views import blueprint
 from dotenv import load_dotenv
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -52,6 +50,8 @@ def create_app(config_object="settings"):
 
 def register_blueprints(app):
     """Register Flask blueprints."""
+    # blueprints
+    from api.views import blueprint
     app.register_blueprint(blueprint)
     return None
 

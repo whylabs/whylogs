@@ -21,7 +21,6 @@ def ping():
 @blueprint.route("/invocations", methods=["POST"])
 @validate()
 def predict(body: FeatureVector):
-    initialize_logger()
     # Predict the output given the input vector
     vector = [
         body.sepal_length_cm,
@@ -34,5 +33,4 @@ def predict(body: FeatureVector):
     # Log input vector as dictionary and predicted class
     app.whylabs_logger.log(request.json)
     app.whylabs_logger.log({"class": pred})
-    app.whylabs_logger.close()
     return object_response({"class": pred}, 200)

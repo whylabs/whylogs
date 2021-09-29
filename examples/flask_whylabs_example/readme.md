@@ -154,4 +154,4 @@ Swagger documentation is included so you can test your endpoints from Swagger UI
 
 ## TL;DR
 
-Create a conda environment using the [environment.yml](environment.yml) file and activate it then run [the example notebook](full_notebook.ipynb).
+Create a conda environment using the [environment.yml](environment.yml) file and activate it then run [the example notebook](flask_whylabs_example.ipynb).

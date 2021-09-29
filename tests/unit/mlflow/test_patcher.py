@@ -53,37 +53,37 @@ def set_up_mlflow(mlflow, tmpdir):
     mlflow.create_experiment("default")
 
 
-# def test_assert_log_artifact_is_called(tmpdir):
-#     import mlflow
+def test_assert_log_artifact_is_called(tmpdir):
+    import mlflow
 
-#     import whylogs
+    import whylogs
 
-#     set_up_mlflow(mlflow, tmpdir)
-#     with mock.patch.object(mlflow, "log_artifact") as log_artifact:
-#         whylogs.enable_mlflow()
-#         with mlflow.start_run():
-#             mlflow.whylogs.log(features={"a": 1})
+    set_up_mlflow(mlflow, tmpdir)
+    with mock.patch.object(mlflow, "log_artifact") as log_artifact:
+        whylogs.enable_mlflow()
+        with mlflow.start_run():
+            mlflow.whylogs.log(features={"a": 1})
 
-#         log_artifact.assert_called_once()
+        log_artifact.assert_called_once()
 
-#     whylogs.mlflow.disable_mlflow()
+    whylogs.mlflow.disable_mlflow()
 
 
-# def test_assert_log_artifact_is_called_twice(tmpdir):
-#     import mlflow
+def test_assert_log_artifact_is_called_twice(tmpdir):
+    import mlflow
 
-#     import whylogs
+    import whylogs
 
-#     set_up_mlflow(mlflow, tmpdir)
-#     with mock.patch.object(mlflow, "log_artifact") as log_artifact:
-#         whylogs.enable_mlflow()
+    set_up_mlflow(mlflow, tmpdir)
+    with mock.patch.object(mlflow, "log_artifact") as log_artifact:
+        whylogs.enable_mlflow()
 
-#         with mlflow.start_run():
-#             mlflow.whylogs.log(features={"a": 1})
-#             mlflow.whylogs.log(dataset_name="another", features={"a": 1})
+        with mlflow.start_run():
+            mlflow.whylogs.log(features={"a": 1})
+            mlflow.whylogs.log(dataset_name="another", features={"a": 1})
 
-#         assert log_artifact.call_count == 2
-#     whylogs.mlflow.disable_mlflow()
+        assert log_artifact.call_count == 2
+    whylogs.mlflow.disable_mlflow()
 
 
 def test_sklearn_model_log(tmpdir):

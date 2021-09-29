@@ -395,18 +395,21 @@ class MlFlowWriter(Writer):
         """
         Write a protobuf the dataset profile to disk in binary format to MlFlow
         """
-        import whylogs.mlflow.patcher as patcher
+        # import whylogs.mlflow.patcher as patcher
+        import mlflow
 
         name = profile.name
         tmp_dir = tempfile.mkdtemp()
         logger.debug("Using tmp dir: %s", tmp_dir)
-        dataset_dir = name or "default"
+        
+        dataset_dir = "default"#name or "default"
+        
         output_dir = os.path.join(tmp_dir, dataset_dir)
         os.makedirs(output_dir, exist_ok=True)
         output = os.path.join(output_dir, "profile.bin")
         logger.debug("Writing logger %s's data to %s", output, f"whylogs/{dataset_dir}")
         profile.write_protobuf(output)
-        patcher._mlflow.log_artifact(output, artifact_path=f"whylogs/{dataset_dir}")
+        mlflow.log_artifact(output, artifact_path=f"whylogs/{dataset_dir}")
         logger.debug("Successfully uploaded logger %s data to MLFlow", name)
 
 

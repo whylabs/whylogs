@@ -4,5 +4,5 @@ verbose: false
 writers:
 - data_collection_consent: true
   formats: ['protobuf']
-  output_path: whylabs
-  type: whylabs
+  output_path: mlflow
+  type: mlflow

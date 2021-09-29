@@ -6,9 +6,6 @@ import logging
 import os
 
 import pandas as pd
-
-# blueprints
-from api.views import blueprint
 from dotenv import load_dotenv
 from extensions import init_swagger
 from flask import Flask, jsonify
@@ -28,6 +25,9 @@ df = pd.read_csv(os.environ["DATASET_URL"])
 model = load(os.environ["MODEL_PATH"])
 whylabs_session = get_or_create_session(os.environ["WHYLABS_CONFIG"])
 whylabs_logger = None
+
+# # blueprints
+# from api.views import blueprint
 
 
 def create_app(config_object="settings"):
@@ -61,6 +61,9 @@ def register_extensions(app):
 
 def register_blueprints(app):
     """Register Flask blueprints."""
+    # blueprints
+    from api.views import blueprint
+
     app.register_blueprint(blueprint)
 
     return None
