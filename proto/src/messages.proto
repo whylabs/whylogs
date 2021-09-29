@@ -86,7 +86,7 @@ message StringsMessage {
   NumbersMessage length = 5;
   NumbersMessage token_length = 6;
   CharPosMessage char_pos_tracker = 7;
- 
+
 }
 
 
@@ -150,7 +150,7 @@ message NLPMetricsMessage {
   NumbersMessage mer = 1;
   NumbersMessage wer = 2;
   NumbersMessage wil = 3;
-  
+
 }
 
 message ModelMetricsMessage {
