@@ -4,6 +4,9 @@ from PIL import Image
 
 from whylogs.app.config import SessionConfig, WriterConfig
 from whylogs.app.session import session_from_config
+from whylogs.core.image_profiling import _METADATA_DEFAULT_ATTRIBUTES
+
+_EXPECTED_COLUMNS = _METADATA_DEFAULT_ATTRIBUTES
 
 
 def test_log_image(tmpdir, image_files):
@@ -24,7 +27,8 @@ def test_log_image(tmpdir, image_files):
 
         profile = logger.profile
         columns = profile.columns
-        assert len(columns) == 19
+        for column_name in _EXPECTED_COLUMNS:
+            assert column_name in columns, f"{column_name} not found in {columns}"
     shutil.rmtree(output_path, ignore_errors=True)
 
 
@@ -47,5 +51,6 @@ def test_log_pil_image(tmpdir, image_files):
 
         profile = logger.profile
         columns = profile.columns
-        assert len(columns) == 19
+        for column_name in _EXPECTED_COLUMNS:
+            assert column_name in columns, f"{column_name} not found in {columns}"
     shutil.rmtree(output_path, ignore_errors=True)

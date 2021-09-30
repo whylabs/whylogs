@@ -1,5 +1,4 @@
 import numpy as np
-from sklearn.utils.multiclass import type_of_target
 
 from whylogs.core.metrics.model_metrics import ModelMetrics
 from whylogs.proto import ModelProfileMessage, ModelType
@@ -66,31 +65,18 @@ class ModelProfile:
         NotImplementedError
 
         """
-        if model_type == ModelType.NLP:
 
-            self.metrics.compute_nlp_metrics(
-                predictions=predictions,
-                targets=targets,
-                scores=scores,
-                target_field=target_field,
-                prediction_field=prediction_field,
-            )
-            self.metrics.model_type = model_type
-            return None
+        metric_type = self.metrics.init_or_get_model_type(scores)
 
-        tgt_type = type_of_target(targets)
-        if tgt_type in ("continuous") or model_type == ModelType.REGRESSION:
-
+        if metric_type == ModelType.REGRESSION:
             self.metrics.compute_regression_metrics(
                 predictions=predictions,
                 targets=targets,
                 target_field=target_field,
                 prediction_field=prediction_field,
             )
-            self.metrics.model_type = ModelType.REGRESSION
 
-        elif tgt_type in ("binary", "multiclass") or model_type == ModelType.CLASSIFICATION:
-            self.metrics.model_type = ModelType.CLASSIFICATION
+        elif metric_type == ModelType.CLASSIFICATION:
 
             # if score are not present set them to 1.
             if scores is None:
@@ -108,7 +94,7 @@ class ModelProfile:
                 score_field=score_field,
             )
         else:
-            raise NotImplementedError(f"target type {tgt_type} not supported yet")
+            raise NotImplementedError(f"Model type {metric_type} not supported yet")
 
     def to_protobuf(self):
         return ModelProfileMessage(output_fields=self.output_fields, metrics=self.metrics.to_protobuf())

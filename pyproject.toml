@@ -1,6 +1,8 @@
 [tool.poetry]
 name = "whylogs"
-version = " 0.6.5-dev1"
+
+version = "0.6.5-dev1"
+
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -36,12 +38,9 @@ whylabs-datasketches = ">=2.2.0b1"
 boto3 = ">=1.14.1"
 botocore = ">=1.17.44"
 smart-open = ">=4.1.2"
-xlrd = "^2.0.1"
 puremagic = "@1.10"
 matplotlib = "^3.0.3"
-mlflow = "~1.13."
 tqdm = "^4.60.0"
-openpyxl = "^3.0.7"
 scikit-learn = "^0.24.2"
 dataclasses-json = "^0.5.6"
 
@@ -59,6 +58,7 @@ ipykernel = "^5.5.3"
 setuptools = "^56.0.0"
 2to3 = "^1.0"
 sphinx-rtd-theme = "^0.5.2"
+mlflow = "~1.13."
 autoapi = "^2.0.1"
 sphinx-autoapi = "^1.8.0"
 sphinx-autodoc-typehints = "^1.12.0"

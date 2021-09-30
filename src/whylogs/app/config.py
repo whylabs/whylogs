@@ -21,6 +21,31 @@ SegmentTag = Dict[str, any]
 SegmentTags = List[SegmentTag]
 
 
+class TransportParameterConfig:
+    def __init__(self, endpoint_url: str, aws_access_key_id: str, aws_secret_access_key: str, region_name: str, verify: str):
+        self.endpoint_url = endpoint_url
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
+        self.region_name = region_name
+        self.verify = verify
+
+
+class TransportParameterConfigSchema(Schema):
+    """
+    Marshmallow schema for :class:`WriterConfig` class.
+    """
+
+    endpoint_url = fields.Str(required=False, allow_none=True)
+    aws_access_key_id = fields.Str(required=False, allow_none=True)
+    aws_secret_access_key = fields.Str(required=False, allow_none=True)
+    region_name = fields.Str(required=False, allow_none=True)
+    verify = fields.Str(required=False, allow_none=True)
+
+    @post_load
+    def make_writer(self, data, **kwargs):
+        return TransportParameterConfig(**data)
+
+
 class WriterConfig:
     """
     Config for whylogs writers
@@ -62,6 +87,7 @@ class WriterConfig:
         path_template: Optional[str] = None,
         filename_template: Optional[str] = None,
         data_collection_consent: Optional[bool] = False,
+        transport_parameters: Optional[TransportParameterConfig] = None,
     ):
         self.type = type
         self.formats = formats
@@ -69,6 +95,7 @@ class WriterConfig:
         self.path_template = path_template
         self.filename_template = filename_template
         self.data_collection_consent = data_collection_consent
+        self.transport_parameters = transport_parameters
 
     def to_yaml(self, stream=None):
         """
@@ -271,6 +298,7 @@ class WriterConfigSchema(Schema):
     path_template = fields.Str(required=False, allow_none=True)
     filename_template = fields.Str(required=False, allow_none=True)
     data_collection_consent = fields.Bool(required=False, allow_none=True)
+    transport_parameters = fields.Nested(TransportParameterConfigSchema, required=False, allow_none=True)
 
     @post_load
     def make_writer(self, data, **kwargs):
