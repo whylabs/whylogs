@@ -45,7 +45,6 @@ class WhyLogsRun(object):
             )
             self._close()
             self._active_run_id = run_info.run_id
-
         session_timestamp = datetime.datetime.utcfromtimestamp(run_info.start_time / 1000.0)
         experiment: _mlflow.entities.Experiment = _mlflow.tracking.MlflowClient().get_experiment(run_info.experiment_id)
         logger_dataset_name = dataset_name or experiment.name
@@ -236,7 +235,6 @@ def enable_mlflow(session=None) -> bool:
 
     try:
         import mlflow
-
         _mlflow = mlflow
     except ImportError:
         logger.warning("Failed to import MLFlow. Please make sure MLFlow is installed in your runtime")

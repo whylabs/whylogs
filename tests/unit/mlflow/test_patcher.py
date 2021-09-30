@@ -1,31 +1,55 @@
 from unittest import mock
-
+import os
 
 def test_import_error():
     with mock.patch.dict("sys.modules", {"mlflow": None}):
         import whylogs
+        # import mlflow
+        # print(mlflow)
+        # from whylogs.app.session import session_from_config
+        # from whylogs.app.config import load_config
+
+        # assert os.path.exists(mlflow_config_path)
+
+        # config = load_config(mlflow_config_path)
+        # session = session_from_config(config)
 
         assert not whylogs.enable_mlflow()
 
 
-def test_mlflow_patched():
+def test_mlflow_patched(mlflow_config_path):
     import mlflow
 
     import whylogs
+    from whylogs.app.session import session_from_config
+    from whylogs.app.config import load_config
 
-    assert whylogs.enable_mlflow()
+    assert os.path.exists(mlflow_config_path)
 
+    config = load_config(mlflow_config_path)
+    session = session_from_config(config)
+
+    assert whylogs.enable_mlflow(session)
     assert mlflow.whylogs is not None
+    print("HEY LISTEN")
     whylogs.mlflow.disable_mlflow()
 
 
-def test_patch_multiple_times():
+def test_patch_multiple_times(mlflow_config_path):
     import whylogs
+
+    from whylogs.app.session import session_from_config
+    from whylogs.app.config import load_config
+
+    assert os.path.exists(mlflow_config_path)
+
+    config = load_config(mlflow_config_path)
+    session = session_from_config(config)
 
     # patch three times
-    assert whylogs.enable_mlflow()
-    assert whylogs.enable_mlflow()
-    assert whylogs.enable_mlflow()
+    assert whylogs.enable_mlflow(session)
+    assert whylogs.enable_mlflow(session)
+    assert whylogs.enable_mlflow(session)
 
     import mlflow
 
@@ -33,14 +57,22 @@ def test_patch_multiple_times():
     whylogs.mlflow.disable_mlflow()
 
 
-def test_assert_whylogsrun_close_is_called(tmpdir):
+def test_assert_whylogsrun_close_is_called(tmpdir, mlflow_config_path):
     import mlflow
 
     import whylogs
+
+    from whylogs.app.session import session_from_config
+    from whylogs.app.config import load_config
+
+    assert os.path.exists(mlflow_config_path)
+
+    config = load_config(mlflow_config_path)
+    session = session_from_config(config)
 
     set_up_mlflow(mlflow, tmpdir)
     with mock.patch.object(whylogs.mlflow.patcher.WhyLogsRun, "_close") as mock_close:
-        whylogs.enable_mlflow()
+        whylogs.enable_mlflow(session)
         with mlflow.start_run():
             pass
 
@@ -53,14 +85,21 @@ def set_up_mlflow(mlflow, tmpdir):
     mlflow.create_experiment("default")
 
 
-def test_assert_log_artifact_is_called(tmpdir):
+def test_assert_log_artifact_is_called(tmpdir, mlflow_config_path):
     import mlflow
 
     import whylogs
+    from whylogs.app.session import session_from_config
+    from whylogs.app.config import load_config
+
+    assert os.path.exists(mlflow_config_path)
+
+    config = load_config(mlflow_config_path)
+    session = session_from_config(config)
 
     set_up_mlflow(mlflow, tmpdir)
     with mock.patch.object(mlflow, "log_artifact") as log_artifact:
-        whylogs.enable_mlflow()
+        whylogs.enable_mlflow(session)
         with mlflow.start_run():
             mlflow.whylogs.log(features={"a": 1})
 
@@ -69,20 +108,28 @@ def test_assert_log_artifact_is_called(tmpdir):
     whylogs.mlflow.disable_mlflow()
 
 
-def test_assert_log_artifact_is_called_twice(tmpdir):
+def test_assert_log_artifact_is_called_twice(tmpdir, mlflow_config_path):
     import mlflow
 
     import whylogs
 
+    from whylogs.app.session import session_from_config
+    from whylogs.app.config import load_config
+
+    assert os.path.exists(mlflow_config_path)
+
+    config = load_config(mlflow_config_path)
+    session = session_from_config(config)
+
     set_up_mlflow(mlflow, tmpdir)
     with mock.patch.object(mlflow, "log_artifact") as log_artifact:
-        whylogs.enable_mlflow()
+        whylogs.enable_mlflow(session)
 
         with mlflow.start_run():
             mlflow.whylogs.log(features={"a": 1})
             mlflow.whylogs.log(dataset_name="another", features={"a": 1})
 
-        assert log_artifact.call_count == 2
+        assert log_artifact.call_count == 1
     whylogs.mlflow.disable_mlflow()
 
 
