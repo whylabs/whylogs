@@ -235,6 +235,7 @@ def enable_mlflow(session=None) -> bool:
 
     try:
         import mlflow
+
         _mlflow = mlflow
     except ImportError:
         logger.warning("Failed to import MLFlow. Please make sure MLFlow is installed in your runtime")

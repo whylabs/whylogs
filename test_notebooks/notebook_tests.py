@@ -8,8 +8,14 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir)
 
 skip_notebooks = [
-    "Guest Session Demo.ipynb", "RAPIDS GPU Integration Example.ipynb", "Analysis.ipynb", "ROV-whylogs.ipynb", "Flask App Logging.ipynb" \
-    "flask_whylabs_example.ipynb", "mlflow_whylabs.ipynb", "sagemaker_whylabs.ipynb", "MLFlow Integration Example.ipynb"
+    "Guest Session Demo.ipynb",
+    "RAPIDS GPU Integration Example.ipynb",
+    "Analysis.ipynb",
+    "ROV-whylogs.ipynb",
+    "Flask App Logging.ipynb" "flask_whylabs_example.ipynb",
+    "mlflow_whylabs.ipynb",
+    "sagemaker_whylabs.ipynb",
+    "MLFlow Integration Example.ipynb",
 ]
 
 

@@ -1,11 +1,13 @@
+import os
 from unittest import mock
 from unittest.mock import patch
-import os
 
-@patch('whylogs.mlflow.patcher._is_patched', False)  
+
+@patch("whylogs.mlflow.patcher._is_patched", False)
 def test_import_error():
     with mock.patch.dict("sys.modules", {"mlflow": None}):
         import whylogs
+
         assert not whylogs.enable_mlflow()
 
 
@@ -13,8 +15,8 @@ def test_mlflow_patched(mlflow_config_path):
     import mlflow
 
     import whylogs
-    from whylogs.app.session import session_from_config
     from whylogs.app.config import load_config
+    from whylogs.app.session import session_from_config
 
     assert os.path.exists(mlflow_config_path)
 
@@ -29,9 +31,8 @@ def test_mlflow_patched(mlflow_config_path):
 
 def test_patch_multiple_times(mlflow_config_path):
     import whylogs
-
-    from whylogs.app.session import session_from_config
     from whylogs.app.config import load_config
+    from whylogs.app.session import session_from_config
 
     assert os.path.exists(mlflow_config_path)
 
@@ -53,9 +54,8 @@ def test_assert_whylogsrun_close_is_called(tmpdir, mlflow_config_path):
     import mlflow
 
     import whylogs
-
-    from whylogs.app.session import session_from_config
     from whylogs.app.config import load_config
+    from whylogs.app.session import session_from_config
 
     assert os.path.exists(mlflow_config_path)
 
@@ -81,8 +81,8 @@ def test_assert_log_artifact_is_called(tmpdir, mlflow_config_path):
     import mlflow
 
     import whylogs
-    from whylogs.app.session import session_from_config
     from whylogs.app.config import load_config
+    from whylogs.app.session import session_from_config
 
     assert os.path.exists(mlflow_config_path)
 
@@ -104,9 +104,8 @@ def test_assert_log_artifact_is_called_twice(tmpdir, mlflow_config_path):
     import mlflow
 
     import whylogs
-
-    from whylogs.app.session import session_from_config
     from whylogs.app.config import load_config
+    from whylogs.app.session import session_from_config
 
     assert os.path.exists(mlflow_config_path)
 

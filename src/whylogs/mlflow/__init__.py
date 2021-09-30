@@ -11,8 +11,8 @@ def list_whylogs_runs(experiment_id: str, dataset_name: str = "default"):
     :param experiment_id: the experiment id
     :param dataset_name: the name of the dataset. Default to "default"
     """
+
     import mlflow
-    import os
 
     client = mlflow.tracking.MlflowClient()
     run_infos = client.list_run_infos(experiment_id)

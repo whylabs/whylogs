@@ -1,5 +1,6 @@
 import os
 
+
 def set_up_mlflow(mlflow, tmpdir):
     mlflow.set_tracking_uri(f"file:{str(tmpdir)}")
     mlflow.create_experiment("default")
@@ -7,9 +8,10 @@ def set_up_mlflow(mlflow, tmpdir):
 
 def test_listRuns_shouldReturn_NoRuns(tmpdir, mlflow_config_path):
     import mlflow
+
     import whylogs
-    from whylogs.app.session import session_from_config
     from whylogs.app.config import load_config
+    from whylogs.app.session import session_from_config
 
     assert os.path.exists(mlflow_config_path)
 
@@ -30,9 +32,10 @@ def test_listRuns_shouldReturn_NoRuns(tmpdir, mlflow_config_path):
 
 def test_listRuns_shouldReturn_CorrectRunCount(tmpdir, mlflow_config_path):
     import mlflow
+
     import whylogs
-    from whylogs.app.session import session_from_config
     from whylogs.app.config import load_config
+    from whylogs.app.session import session_from_config
 
     assert os.path.exists(mlflow_config_path)
 
@@ -57,8 +60,8 @@ def test_get_run_profiles_shouldReturn_multipleProfiles(tmpdir, mlflow_config_pa
     import mlflow
 
     import whylogs
-    from whylogs.app.session import session_from_config
     from whylogs.app.config import load_config
+    from whylogs.app.session import session_from_config
 
     assert os.path.exists(mlflow_config_path)
 
@@ -87,7 +90,7 @@ def test_get_run_profiles_shouldReturn_multipleProfiles(tmpdir, mlflow_config_pa
     # for the first run, verify content
     assert len(default_profiles) == 1
     assert len(another_profile) == 1
-    #assert default_profiles[0].name == "default"
+    # assert default_profiles[0].name == "default"
     assert default_profiles[0].dataset_timestamp is not None
     assert another_profile[0].dataset_timestamp is not None
-    #whylogs.mlflow.disable_mlflow()
+    # whylogs.mlflow.disable_mlflow()
