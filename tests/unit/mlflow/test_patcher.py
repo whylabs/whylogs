@@ -1,19 +1,11 @@
 from unittest import mock
+from unittest.mock import patch
 import os
 
+@patch('whylogs.mlflow.patcher._is_patched', False)  
 def test_import_error():
     with mock.patch.dict("sys.modules", {"mlflow": None}):
         import whylogs
-        # import mlflow
-        # print(mlflow)
-        # from whylogs.app.session import session_from_config
-        # from whylogs.app.config import load_config
-
-        # assert os.path.exists(mlflow_config_path)
-
-        # config = load_config(mlflow_config_path)
-        # session = session_from_config(config)
-
         assert not whylogs.enable_mlflow()
 
 
