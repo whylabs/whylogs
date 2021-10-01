@@ -7,7 +7,17 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir)
 
-skip_notebooks = ["Guest Session Demo.ipynb", "RAPIDS GPU Integration Example.ipynb", "Analysis.ipynb", "ROV-whylogs.ipynb", "Flask App Logging.ipynb"]
+skip_notebooks = [
+    "Guest Session Demo.ipynb",
+    "RAPIDS GPU Integration Example.ipynb",
+    "Analysis.ipynb",
+    "ROV-whylogs.ipynb",
+    "Flask App Logging.ipynb",
+    "flask_whylabs_example.ipynb",
+    "mlflow_whylabs.ipynb",
+    "sagemaker_whylabs.ipynb",
+    "MLFlow Integration Example.ipynb",
+]
 
 
 def process_notebook(notebook_filename, html_directory="notebook-html"):
@@ -43,7 +53,6 @@ def test_all_notebooks(remove_fail_test=True):
     # Get just the notebooks from the git files
     notebooks = [fn for fn in git_files if fn.endswith(".ipynb") and os.path.basename(fn) not in skip_notebooks]
     print(notebooks)
-
     # Test each notebook
     for notebook in notebooks:
         print("Testing", notebook)

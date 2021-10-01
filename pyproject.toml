@@ -22,6 +22,10 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
+[tool.poetry.scripts]
+whylogs = 'whylogs.cli:main'
+whylogs-demo = 'whylogs.cli:demo_main'
+
 [tool.poetry.dependencies]
 python = ">=3.6.1,<3.10"
 click = ">=7.1.2"

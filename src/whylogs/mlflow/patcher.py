@@ -1,12 +1,12 @@
 import datetime
 import logging
 import os
-import tempfile
 from typing import Dict, Optional
 
 import pandas as pd
 
 from whylogs import __version__ as whylogs_version
+from whylogs import get_or_create_session
 from whylogs.app.logger import Logger
 
 logger = logging.getLogger(__name__)
@@ -25,9 +25,12 @@ class WhyLogsRun(object):
     _active_run_id = None
     _loggers: Dict[str, Logger] = dict()
 
-    def _create_logger(self, dataset_name: Optional[str] = None):
-        active_run = _mlflow.active_run()
+    def __init__(self, session=None):
+        logger.debug("Creating a real session for WhyLogsRun")
+        self._session = session if session else get_or_create_session()
 
+    def _create_logger(self, dataset_name: Optional[str] = None, dataset_timestamp: Optional[datetime.datetime] = None):
+        active_run = _mlflow.active_run()
         if self._active_run_id is not None and active_run is None:
             self._close()
             self._active_run_id = None
@@ -42,7 +45,6 @@ class WhyLogsRun(object):
             )
             self._close()
             self._active_run_id = run_info.run_id
-
         session_timestamp = datetime.datetime.utcfromtimestamp(run_info.start_time / 1000.0)
         experiment: _mlflow.entities.Experiment = _mlflow.tracking.MlflowClient().get_experiment(run_info.experiment_id)
         logger_dataset_name = dataset_name or experiment.name
@@ -54,16 +56,10 @@ class WhyLogsRun(object):
             logger_dataset_name,
             tags,
         )
-        return Logger(
-            run_info.run_id,
-            logger_dataset_name,
-            session_timestamp=session_timestamp,
-            dataset_timestamp=session_timestamp,
-            tags=tags,
-            writers=[],
-        )
+        logger_ = self._session.logger(run_info.run_id, session_timestamp=session_timestamp, dataset_timestamp=dataset_timestamp, tags=tags)
+        return logger_
 
-    def log_pandas(self, df: pd.DataFrame, dataset_name: Optional[str] = None):
+    def log_pandas(self, df: pd.DataFrame, dataset_name: Optional[str] = None, dataset_timestamp: Optional[datetime.datetime] = None):
         """
         Log the statistics of a Pandas dataframe. Note that this method is additive
         within a run: calling this method with a specific dataset name will not generate
@@ -74,7 +70,7 @@ class WhyLogsRun(object):
         :param df: the Pandas dataframe to log
         :param dataset_name: the name of the dataset (Optional). If not specified, the experiment name is used
         """
-        ylogs = self._get_or_create_logger(dataset_name)
+        ylogs = self._get_or_create_logger(dataset_name, dataset_timestamp=dataset_timestamp)
 
         if ylogs is None:
             logger.warning("Unable to get an active logger. Are you in an active MLFlow run?")
@@ -104,36 +100,29 @@ class WhyLogsRun(object):
 
         ylogs.log(features, feature_name, value)
 
-    def _get_or_create_logger(self, dataset_name: Optional[str] = None):
+    def _get_or_create_logger(self, dataset_name: Optional[str] = None, dataset_timestamp: Optional[datetime.datetime] = None):
         ylogs = self._loggers.get(dataset_name)
         if ylogs is None:
-            ylogs = self._create_logger(dataset_name)
+            ylogs = self._create_logger(dataset_name, dataset_timestamp=dataset_timestamp)
             self._loggers[dataset_name] = ylogs
         return ylogs
 
     def _close(self):
-        tmp_dir = tempfile.mkdtemp()
-        logger.debug("Using tmp dir: %s", tmp_dir)
+        logger.debug("Attempting close patcher WhyLogsRun")
         for name in list(self._loggers.keys()):
             try:
                 ylogs = self._loggers[name]
-                dataset_dir = name or "default"
-                output_dir = os.path.join(tmp_dir, dataset_dir)
-                os.makedirs(output_dir, exist_ok=True)
-                output = os.path.join(output_dir, "profile.bin")
-                logger.debug("Writing logger %s's data to %s", name, output)
-                ylogs.profile.write_protobuf(output)
-                _mlflow.log_artifact(output, artifact_path=f"whylogs/{dataset_dir}")
-                logger.debug("Successfully uploaded logger %s data to MLFlow", name)
+                ylogs.close()
                 self._loggers.pop(name)
-            except:  # noqa
+            except Exception as ex:  # noqa
                 logger.warning(
                     "Exception happened when saving %s for run %s",
                     name,
                     self._active_run_id,
                 )
-            logger.debug("Finished uploading all the loggers")
-            self._active_run_id = None
+        logger.debug("Finished uploading all the loggers")
+        self._active_run_id = None
+        logger.debug("Finished closing the session")
 
 
 def _new_mlflow_conda_env(
@@ -199,7 +188,7 @@ def new_model_log(**kwargs):
     _original_model_log(**kwargs)
 
 
-def enable_mlflow() -> bool:
+def enable_mlflow(session=None) -> bool:
     """
     Enable whylogs in ``mlflow`` module via ``mlflow.whylogs``.
 
@@ -259,7 +248,7 @@ def enable_mlflow() -> bool:
     if len(_active_whylogs) > 0:
         ylogs = _active_whylogs[0]
     else:
-        ylogs = WhyLogsRun()
+        ylogs = WhyLogsRun(session)
         _active_whylogs.append(ylogs)
 
     _mlflow.whylogs = ylogs

@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import List, Mapping, Optional
 
 from google.protobuf.json_format import Parse
@@ -31,6 +32,8 @@ _value_funcs = {
     Op.NE: lambda x: lambda v: v != x,
     Op.GE: lambda x: lambda v: v >= x,
     Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
+    Op.MATCH: lambda x: lambda v: re.match(x, v) is not None,
+    Op.NOMATCH: lambda x: lambda v: re.match(x, v) is None,
 }
 
 _summary_funcs1 = {
@@ -74,22 +77,39 @@ class ValueConstraint:
 
     """
 
-    def __init__(self, op: Op, value, name: str = None, verbose=False):
+    def __init__(self, op: Op, value=None, regex_pattern: str = None, name: str = None, verbose=False):
         self._name = name
         self._verbose = verbose
         self.op = op
-        self.value = value
-        self.func = _value_funcs[op](value)
         self.total = 0
         self.failures = 0
+        if value is not None and regex_pattern is None:
+            # numeric value
+            self.value = value
+            self.func = _value_funcs[op](value)
+
+        elif regex_pattern is not None and value is None:
+            # Regex pattern
+            self.regex_pattern = regex_pattern
+            self.func = _value_funcs[op](regex_pattern)
+
+        else:
+            raise ValueError("Value constraint must specify a numeric value or regex pattern, but not both")
 
     @property
     def name(self):
-        return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.value}"
+        if getattr(self, "value", None):
+            return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.value}"
+        else:
+            return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
 
     def update(self, v) -> bool:
         self.total += 1
-        if not self.func(v):
+        if self.op in [Op.MATCH, Op.NOMATCH] and not isinstance(v, str):
+            self.failures += 1
+            if self._verbose:
+                logger.info(f"value constraint {self.name} failed: value {v} not a string")
+        elif not self.func(v):
             self.failures += 1
             if self._verbose:
                 logger.info(f"value constraint {self.name} failed on value {v}")
@@ -99,12 +119,20 @@ class ValueConstraint:
         return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
-        return ValueConstraintMsg(
-            name=self.name,
-            op=self.op,
-            value=self.value,
-            verbose=self._verbose,
-        )
+        if hasattr(self, "value"):
+            return ValueConstraintMsg(
+                name=self.name,
+                op=self.op,
+                value=self.value,
+                verbose=self._verbose,
+            )
+        else:
+            return ValueConstraintMsg(
+                name=self.name,
+                op=self.op,
+                regex_pattern=self.regex_pattern,
+                verbose=self._verbose,
+            )
 
     def report(self):
         return (self.name, self.total, self.failures)

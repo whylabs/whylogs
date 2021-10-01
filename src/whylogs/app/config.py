@@ -257,7 +257,7 @@ class WriterConfigSchema(Schema):
     Marshmallow schema for :class:`WriterConfig` class.
     """
 
-    type = fields.Str(validate=validate.OneOf(["local", "s3", "whylabs"]), required=True)
+    type = fields.Str(validate=validate.OneOf(["local", "s3", "whylabs", "mlflow"]), required=True)
     formats = fields.List(
         fields.Str(validate=validate.OneOf(ALL_SUPPORTED_FORMATS)),
         required=True,

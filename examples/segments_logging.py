@@ -8,6 +8,7 @@ if __name__ == "__main__":
     df = pd.read_csv("data/lending_club_1000.csv")
     print(df.head())
     session = get_or_create_session()
+    profile_seg = None
 
     # example with 4 seperate loggers
 
@@ -22,7 +23,7 @@ if __name__ == "__main__":
     ) as logger:
         print(session.get_config())
         logger.log_dataframe(df)
-        profile_seg = logger.segemented_profiles
+        profile_seg = logger.segmented_profiles
 
     # logger with rotation with time and single key segment
     with session.logger(
@@ -35,7 +36,7 @@ if __name__ == "__main__":
         logger.log_dataframe(df)
         time.sleep(2)
         logger.log_dataframe(df)
-        profile_seg = logger.segemented_profiles
+        profile_seg = logger.segmented_profiles
 
     # logger with rotation with time and two keys segment
     with session.logger(
@@ -48,7 +49,7 @@ if __name__ == "__main__":
         logger.log_csv("data/lending_club_1000.csv")
         time.sleep(2)
         logger.log_dataframe(df)
-        profile_seg = logger.segemented_profiles
+        profile_seg = logger.segmented_profiles
 
     # logger
     with session.logger(
@@ -62,7 +63,7 @@ if __name__ == "__main__":
         logger.log_csv("data/lending_club_1000.csv")
         time.sleep(2)
         logger.log_dataframe(df)
-        profile_seg = logger.segemented_profiles
+        profile_seg = logger.segmented_profiles
         full_profile = logger.profile
         # each segment profile has a tag associated with the segment
         for k, prof in profile_seg.items():

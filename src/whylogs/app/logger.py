@@ -28,6 +28,9 @@ from whylogs.proto import ModelType
 # TODO upgrade to Classes
 SegmentTag = Dict[str, any]
 Segment = List[SegmentTag]
+_TAG_PREFIX = "whylogs.tag."
+_TAG_KEY = "key"
+_TAG_VALUE = "value"
 
 logger = logging.getLogger(__name__)
 
@@ -588,6 +591,7 @@ class Logger:
         try:
             grouped_data = data.groupby(self.segments)
         except KeyError as e:
+            logger.exception(f"Failed to groupby {self.segments} over {data.head()} which resulted in {e}")
             raise e
 
         segments = grouped_data.groups.keys()
@@ -621,22 +625,23 @@ class Logger:
             self.log_df_segment(segment_df, segment_tag)
 
     def log_df_segment(self, df, segment: Segment):
-        segment = sorted(segment, key=lambda x: x["key"])
+        segment_key_values = sorted(segment, key=lambda x: x["key"])
+        segment_tags = Logger._prefix_segment_tags(segment_key_values)
 
-        segment_profile = self.get_segment(segment)
+        segment_profile = self.get_segment(segment_key_values)
 
         if segment_profile is None:
             segment_profile = DatasetProfile(
                 self.dataset_name,
                 dataset_timestamp=datetime.datetime.now(datetime.timezone.utc),
                 session_timestamp=self.session_timestamp,
-                tags={**self.tags, **{"segment": json.dumps(segment)}},
+                tags={**self.tags, **segment_tags},
                 metadata=self.metadata,
                 session_id=self.session_id,
                 constraints=self.constraints,
             )
             segment_profile.track_dataframe(df)
-            hashed_seg = hash_segment(segment)
+            hashed_seg = hash_segment(segment_key_values)
             self._profiles[-1]["segmented_profiles"][hashed_seg] = segment_profile
         else:
             segment_profile.track_dataframe(df)
@@ -646,6 +651,14 @@ class Logger:
         Return the boolean state of the logger
         """
         return self._active
+
+    @staticmethod
+    def _prefix_segment_tags(segment_key_values):
+        # prefix the tag values and extract dictionary entries for passing in a DatasetProfile in format backend expects
+        segment_tags = {}
+        for entry in segment_key_values:
+            segment_tags[_TAG_PREFIX + entry[_TAG_KEY]] = str(entry[_TAG_VALUE])
+        return segment_tags
 
 
 def hash_segment(seg: List[Dict]) -> str:

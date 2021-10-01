@@ -1,5 +1,4 @@
 import datetime
-import json
 import os
 import shutil
 
@@ -9,6 +8,7 @@ from freezegun import freeze_time
 from pandas import util
 
 from whylogs.app.config import SessionConfig, WriterConfig
+from whylogs.app.logger import _TAG_KEY, _TAG_PREFIX, _TAG_VALUE
 from whylogs.app.session import session_from_config
 
 
@@ -18,29 +18,35 @@ def test_segments(df_lending_club, tmpdir):
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
     yaml_data = writer_config.to_yaml()
     WriterConfig.from_yaml(yaml_data)
+    test_segments = [
+        [{"key": "home_ownership", "value": "RENT"}],
+        [{"key": "home_ownership", "value": "MORTGAGE"}],
+    ]
 
     session_config = SessionConfig("project", "pipeline", writers=[writer_config])
     with session_from_config(session_config) as session:
         with session.logger(
             "test",
-            segments=[
-                [{"key": "home_ownership", "value": "RENT"}],
-                [{"key": "home_ownership", "value": "MORTGAGE"}],
-            ],
+            segments=test_segments,
             cache_size=1,
         ) as logger:
             logger.log_dataframe(df_lending_club)
             profile = logger.profile
             profiles = logger.segmented_profiles
-            mortage_segment = logger.get_segment([{"key": "home_ownership", "value": "MORTGAGE"}])
+            mortage_segment = logger.get_segment(test_segments[1])
 
     assert profile is None
     assert len(profiles) == 2
-    assert profiles[list(profiles.keys())[0]].tags["segment"] == json.dumps([{"key": "home_ownership", "value": "RENT"}])
-    assert profiles[list(profiles.keys())[1]].tags["segment"] == json.dumps([{"key": "home_ownership", "value": "MORTGAGE"}])
+    segment_keys = [key for key in profiles[list(profiles.keys())[0]].tags.keys() if key.startswith(_TAG_PREFIX)]
+    for segment_key in segment_keys:
+        assert profiles[list(profiles.keys())[0]].tags[segment_key] == test_segments[0][0][_TAG_VALUE]  # 'RENT'
+
+    segment_keys = [key for key in profiles[list(profiles.keys())[1]].tags.keys() if key.startswith(_TAG_PREFIX)]
+    for segment_key in segment_keys:
+        assert profiles[list(profiles.keys())[1]].tags[segment_key] == test_segments[1][0][_TAG_VALUE]  # 'MORTGAGE'
+
     check_segment = profiles[list(profiles.keys())[1]]
     assert mortage_segment == check_segment
-
     shutil.rmtree(output_path, ignore_errors=True)
 
 
