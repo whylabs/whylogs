@@ -44,6 +44,12 @@ def s3_all_config_path():
 
 
 @pytest.fixture(scope="session")
+def mlflow_config_path():
+    config_path = os.path.join(_MY_DIR, os.pardir, "testdata", ".whylogs_mlflow.yaml")
+    return config_path
+
+
+@pytest.fixture(scope="session")
 def s3_transport_config_path():
     config_path = os.path.join(_MY_DIR, os.pardir, "testdata", ".whylogs_s3_transport_param.yaml")
     return config_path

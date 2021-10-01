@@ -11,6 +11,7 @@ def list_whylogs_runs(experiment_id: str, dataset_name: str = "default"):
     :param experiment_id: the experiment id
     :param dataset_name: the name of the dataset. Default to "default"
     """
+
     import mlflow
 
     client = mlflow.tracking.MlflowClient()
@@ -20,10 +21,9 @@ def list_whylogs_runs(experiment_id: str, dataset_name: str = "default"):
     for run in run_infos:
         if run.status != "FINISHED":
             continue
-        artifacts = client.list_artifacts(run.run_id, path=f"whylogs/{dataset_name}")
+        artifacts = client.list_artifacts(run.run_id, path=f"{_WHYLOGS_PATH}/{run.run_id}")
         if len(artifacts) == 1 and not artifacts[0].is_dir and artifacts[0].path.endswith("/profile.bin"):
             res.append(run)
-
     return res
 
 
@@ -47,7 +47,7 @@ def get_run_profiles(run_id: str, dataset_name: str = "default", client=None):
     if client is None:
         client = mlflow.tracking.MlflowClient()
 
-    artifacts = client.list_artifacts(run_id, path=f"{_WHYLOGS_PATH}/{dataset_name}")
+    artifacts = client.list_artifacts(run_id, path=f"{_WHYLOGS_PATH}/{run_id}")
     if len(artifacts) == 1 and not artifacts[0].is_dir:
         tmp_dir = tempfile.mkdtemp()
         output_file = client.download_artifacts(run_id, artifacts[0].path, tmp_dir)
