@@ -32,8 +32,8 @@ _value_funcs = {
     Op.NE: lambda x: lambda v: v != x,
     Op.GE: lambda x: lambda v: v >= x,
     Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
-    Op.MATCH: lambda x: lambda v: re.match(x, v) is not None,
-    Op.NOMATCH: lambda x: lambda v: re.match(x, v) is None,
+    Op.MATCH: lambda x: lambda v: x.match(v) is not None,
+    Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
 }
 
 _summary_funcs1 = {
@@ -91,7 +91,7 @@ class ValueConstraint:
         elif regex_pattern is not None and value is None:
             # Regex pattern
             self.regex_pattern = regex_pattern
-            self.func = _value_funcs[op](regex_pattern)
+            self.func = _value_funcs[op](re.compile(self.regex_pattern))
 
         else:
             raise ValueError("Value constraint must specify a numeric value or regex pattern, but not both")
