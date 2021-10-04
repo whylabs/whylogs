@@ -32,6 +32,15 @@ def _get_or_create_log_client() -> LogApi:
     if _api_key is None:
         _api_key = os.environ["WHYLABS_API_KEY"]
         _logger.warning(f"Using API key ID: {_api_key[:10]}")
+        config = whylabs_client.Configuration(host=whylabs_api_endpoint, api_key={"ApiKeyAuth": _api_key}, discard_unknown_keys=True)
+        _api_log_client = whylabs_client.ApiClient(config)
+    elif os.environ["WHYLABS_API_KEY"] is not None and os.environ["WHYLABS_API_KEY"] != _api_key:
+        updated_key = os.environ["WHYLABS_API_KEY"]
+        _logger.warning(f"Updating API key ID from: {_api_key[:10]} to: {updated_key[:10]}")
+        _api_key = updated_key
+        config = whylabs_client.Configuration(host=whylabs_api_endpoint, api_key={"ApiKeyAuth": _api_key}, discard_unknown_keys=True)
+        _api_log_client = whylabs_client.ApiClient(config)
+
     if _api_log_client is None:
         config = whylabs_client.Configuration(host=whylabs_api_endpoint, api_key={"ApiKeyAuth": _api_key}, discard_unknown_keys=True)
         _api_log_client = whylabs_client.ApiClient(config)
@@ -70,7 +79,7 @@ def upload_profile(dataset_profile: DatasetProfile) -> None:
 
 
 def _upload_whylabs(dataset_profile, dataset_timestamp, profile_path):
-    _logger.debug("Upload with WhyLabs API token")
+    _logger.info(f"Upload with WhyLabs API token with ID: {_api_key[:10]}")
     log_api = _get_or_create_log_client()
     org_id = dataset_profile.tags.get("orgId", os.environ.get("WHYLABS_DEFAULT_ORG_ID"))
     dataset_id = dataset_profile.tags.get("datasetId", os.environ.get("WHYLABS_DEFAULT_DATASET_ID"))
@@ -81,9 +90,9 @@ def _upload_whylabs(dataset_profile, dataset_timestamp, profile_path):
     try:
         with open(profile_path, "rb") as f:
             log_api.log(org_id=org_id, model_id=dataset_id, dataset_timestamp=dataset_timestamp, file=f)
-        _logger.debug(f"Done uploading to {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint}")
+        _logger.info(f"Done uploading to {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint} with API token ID: {_api_key[:10]}")
     except:  # noqa
-        _logger.exception(f"Failed to upload to {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint}")
+        _logger.exception(f"Failed to upload to {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint} with API token ID: {_api_key[:10]}")
 
 
 def _upload_guest_session(dataset_timestamp: int, profile_path: str):
