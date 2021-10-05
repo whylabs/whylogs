@@ -79,7 +79,7 @@ def upload_profile(dataset_profile: DatasetProfile) -> None:
 
 
 def _upload_whylabs(dataset_profile, dataset_timestamp, profile_path):
-    _logger.info(f"Upload with WhyLabs API token with ID: {_api_key[:10]}")
+    _logger.info("Upload with WhyLabs API token")
     log_api = _get_or_create_log_client()
     org_id = dataset_profile.tags.get("orgId", os.environ.get("WHYLABS_DEFAULT_ORG_ID"))
     dataset_id = dataset_profile.tags.get("datasetId", os.environ.get("WHYLABS_DEFAULT_DATASET_ID"))
