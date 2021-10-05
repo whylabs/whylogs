@@ -8,6 +8,26 @@ from whylogs.core.datasetprofile import DatasetProfile, array_profile, dataframe
 from whylogs.core.image_profiling import _METADATA_DEFAULT_ATTRIBUTES, TrackImage
 from whylogs.features import _IMAGE_FEATURES
 
+METADATA_IMAGE_TAGS = {
+    "ImageWidth",
+    "ImageLength",
+    "BitsPerSample",
+    "Compression",
+    "Quality",
+    "PhotometricInterpretation",
+    "SamplesPerPixel",
+    "Model",
+    "Software",
+    "ResolutionUnit",
+    "X-Resolution",
+    "Y-Resolution",
+    "Orientation",
+    "RowsPerStrip",
+    "ExposureTime",
+    "BrightnessValue",
+    "Flash",
+}
+
 TEST_DATA_PATH = os.path.abspath(
     os.path.join(
         os.path.realpath(os.path.dirname(__file__)),
@@ -42,7 +62,7 @@ def test_track_image():
 
     assert columns["Saturation.mean"].number_tracker.count == 1
     assert columns["Saturation.stddev"].number_tracker.count == 1
-    assert columns["BitsPerSample"].counters.count == 1
+    assert columns["ImagePixelWidth"].counters.count == 1
 
     trackImage = TrackImage(test_image_path)
     trackImage(profile_1)
@@ -52,7 +72,7 @@ def test_track_image():
 
     assert columns["Saturation.mean"].number_tracker.count == 2
     assert columns["Saturation.stddev"].number_tracker.count == 2
-    assert columns["BitsPerSample"].counters.count == 2
+    assert columns["ImagePixelWidth"].counters.count == 2
 
 
 def test_track_PIL_img():
@@ -77,4 +97,4 @@ def test_track_PIL_img():
     for feature_name in total_default_features:
         assert feature_name in columns, f"{feature_name} not in {columns}"
     assert columns["Saturation.mean"].number_tracker.count == 1
-    assert columns["BitsPerSample"].counters.count == 1
+    assert columns["ImagePixelWidth"].counters.count == 1

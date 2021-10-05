@@ -17,22 +17,9 @@ DEFAULT_IMAGE_FEATURES = []
 
 
 _DEFAULT_TAGS_ATTRIBUTES = [
-    "ImageWidth",
-    "ImageLength",
-    "BitsPerSample",
-    "Compression",
-    "Quality",
-    "PhotometricInterpretation" "SamplesPerPixel",
-    "Model",
-    "Software",
-    "ResolutionUnit",
-    "X-Resolution",
-    "Y-Resolution",
-    "Orientation",
-    "RowsPerStrip",
-    "ExposureTime",
-    "BrightnessValue",
-    "Flash",
+    "ImagePixelWidth",
+    "ImagePixelLength",
+    "Colorspace",
 ]
 _IMAGE_HSV_CHANNELS = ["Hue", "Saturation", "Brightness"]
 _STATS_PROPERTIES = ["mean", "stddev"]
@@ -164,5 +151,4 @@ def image_based_metadata(img):
         "ImagePixelWidth": img.width,
         "ImagePixelHeight": img.height,
         "Colorspace": img.mode,
-        "ImageFormat": img.format,
     }
