@@ -268,11 +268,19 @@ class DatasetProfile:
         # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
         if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
             df = df.to_pandas()
+        element_count = df.size
+        large_df = element_count > 200000
+        if large_df:
+            logger.warning(f"About to log a dataframe with {element_count} elements, logging might take some time to complete.")
+        count = 0
         for col in df.columns:
             col_str = str(col)
 
             x = df[col].values
             for xi in x:
+                count = count + 1
+                if large_df and (count % 200000 == 0):
+                    logger.warning(f"Logged {count} elements out of {element_count}")
                 self.track(col_str, xi, character_list=None, token_method=None)
 
     def to_properties(self):
