@@ -3,8 +3,6 @@ from pandas import util
 
 from whylogs.app.config import SessionConfig
 from whylogs.app.session import (
-    Session,
-    get_logger,
     get_or_create_session,
     get_session,
     reset_default_session,

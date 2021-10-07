@@ -10,11 +10,8 @@ from typing import List
 import pandas as pd
 import pytest
 
-from whylogs import DatasetProfile
 from whylogs.app.config import SessionConfig, WriterConfig
-from whylogs.app.session import get_or_create_session, session_from_config
-from whylogs.app.writers import writer_from_config
-from whylogs.util import time
+from whylogs.app.session import session_from_config
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 TEST_LOGGER = getLogger(__name__)
