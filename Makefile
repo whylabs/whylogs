@@ -5,7 +5,7 @@ src.python.pyc := $(shell find ./src -type f -name "*.pyc")
 src.proto.dir := ./proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 
-version := 0.6.5
+version := 0.6.7
 
 dist.dir := dist
 egg.dir := .eggs
@@ -111,7 +111,7 @@ lint: ## Check code for lint errors.
 
 lint-fix: ## Automatically fix linting issues.
 	@$(call i, Running the linter)
-	poetry run autoflake --in-place --remove-unused-variables $(src.python) $(tst.python) $(tst.notebooks.python)
+	poetry run autoflake --in-place --remove-all-unused-imports --remove-unused-variables $(src.python) $(tst.python) $(tst.notebooks.python)
 
 format: ## Check style formatting.
 	@$(call i, Checking import formatting)

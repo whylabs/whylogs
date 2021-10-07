@@ -1,7 +1,6 @@
 import pytest
 
 from whylogs.core.metrics.nlp_metrics import NLPMetrics
-from whylogs.proto import NLPMetricsMessage
 
 
 def test_nlp_metrics():
