@@ -18,7 +18,7 @@ DEFAULT_IMAGE_FEATURES = []
 
 _DEFAULT_TAGS_ATTRIBUTES = [
     "ImagePixelWidth",
-    "ImagePixelLength",
+    "ImagePixelHeight",
     "Colorspace",
 ]
 _IMAGE_HSV_CHANNELS = ["Hue", "Saturation", "Brightness"]

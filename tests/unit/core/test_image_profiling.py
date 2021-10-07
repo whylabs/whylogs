@@ -72,7 +72,7 @@ def test_track_image():
 
     assert columns["Saturation.mean"].number_tracker.count == 2
     assert columns["Saturation.stddev"].number_tracker.count == 2
-    assert columns["ImagePixelWidth"].counters.count == 2
+    assert columns["ImagePixelHeight"].counters.count == 2
 
 
 def test_track_PIL_img():
@@ -96,5 +96,8 @@ def test_track_PIL_img():
     columns = profile_1.columns
     for feature_name in total_default_features:
         assert feature_name in columns, f"{feature_name} not in {columns}"
+    assert columns["Hue.mean"].number_tracker.count == 1
     assert columns["Saturation.mean"].number_tracker.count == 1
+    assert columns["Brightness.mean"].number_tracker.count == 1
     assert columns["ImagePixelWidth"].counters.count == 1
+    assert columns["ImagePixelHeight"].counters.count == 1
