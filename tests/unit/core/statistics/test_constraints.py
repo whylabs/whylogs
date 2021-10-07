@@ -73,13 +73,13 @@ def test_value_constraints_pattern_match(df_lending_club, local_config_path):
     contains_state = ValueConstraint(Op.MATCH, regex_pattern=regex_state_abbreviation)
 
     regex_date = r"^[a-zA-Z]{3}-[0-9]{4}$"
-    contains_date = ValueConstraint(Op.NOMATCH, regex_pattern=regex_date)
+    not_contains_date = ValueConstraint(Op.NOMATCH, regex_pattern=regex_date)
 
     # just to test applying regex patterns on non-string values
     contains_state_loan_amnt = ValueConstraint(Op.MATCH, regex_pattern=regex_state_abbreviation)
 
     dc = DatasetConstraints(
-        None, value_constraints={"addr_state": [contains_state], "earliest_cr_line": [contains_date], "loan_amnt": [contains_state_loan_amnt]}
+        None, value_constraints={"addr_state": [contains_state], "earliest_cr_line": [not_contains_date], "loan_amnt": [contains_state_loan_amnt]}
     )
 
     config = load_config(local_config_path)
