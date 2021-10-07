@@ -7,8 +7,6 @@ from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.proto import ColumnMessage, ColumnSummary, InferredType
 from whylogs.util.protobuf import message_to_dict
 
-from ...helpers.testutil import compare_frequent_items
-
 
 def test_all_numeric_types_get_tracked_by_number_tracker():
     all_values = [

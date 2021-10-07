@@ -111,7 +111,7 @@ lint: ## Check code for lint errors.
 
 lint-fix: ## Automatically fix linting issues.
 	@$(call i, Running the linter)
-	poetry run autoflake --in-place --remove-unused-variables $(src.python) $(tst.python) $(tst.notebooks.python)
+	poetry run autoflake --in-place --remove-all-unused-imports --remove-unused-variables $(src.python) $(tst.python) $(tst.notebooks.python)
 
 format: ## Check style formatting.
 	@$(call i, Checking import formatting)

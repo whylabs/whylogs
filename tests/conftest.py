@@ -4,7 +4,6 @@ import sys
 import pandas as pd
 import pytest
 
-import whylogs
 from whylogs.core.datasetprofile import DatasetProfile
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
