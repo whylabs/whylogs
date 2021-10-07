@@ -4,9 +4,8 @@ from uuid import uuid4
 
 from PIL import Image
 
-from whylogs.core.datasetprofile import DatasetProfile, array_profile, dataframe_profile
+from whylogs.core.datasetprofile import DatasetProfile
 from whylogs.core.image_profiling import _METADATA_DEFAULT_ATTRIBUTES, TrackImage
-from whylogs.features import _IMAGE_FEATURES
 
 METADATA_IMAGE_TAGS = {
     "ImageWidth",

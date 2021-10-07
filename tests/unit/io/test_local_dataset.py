@@ -1,7 +1,5 @@
 import os
 
-from PIL.Image import Image as ImageType
-
 from whylogs.io.local_dataset import LocalDataset
 
 

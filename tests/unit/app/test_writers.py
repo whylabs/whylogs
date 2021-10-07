@@ -4,7 +4,6 @@ import boto3
 import pytest
 from moto import mock_s3
 from moto.s3.responses import DEFAULT_REGION_NAME
-from smart_open import open
 
 from whylogs.app import WriterConfig
 from whylogs.app.config import load_config

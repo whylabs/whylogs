@@ -8,7 +8,7 @@ from freezegun import freeze_time
 from pandas import util
 
 from whylogs.app.config import SessionConfig, WriterConfig
-from whylogs.app.logger import _TAG_KEY, _TAG_PREFIX, _TAG_VALUE
+from whylogs.app.logger import _TAG_PREFIX, _TAG_VALUE
 from whylogs.app.session import session_from_config
 
 
