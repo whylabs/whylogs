@@ -23,7 +23,7 @@ from whylogs.core.flatten_datasetprofile import (
 
 from ..util import time
 from ..util.protobuf import message_to_json
-from .config import TransportParameterConfig, WriterConfig
+from .config import TransportParameterConfig, WriterConfig, WriterType
 from .utils import async_wrap
 
 DEFAULT_PATH_TEMPLATE = "$name/$session_id"
@@ -412,6 +412,11 @@ class MlFlowWriter(Writer):
 
 
 class WhyLabsWriter(Writer):
+    def __init__(self, output_path="", formats=None):
+        if formats is None:
+            formats = []
+        super().__init__(output_path=output_path, formats=formats)
+
     def write(self, profile: DatasetProfile, rotation_suffix: str = None):
         """
         Write a dataset profile to WhyLabs
@@ -438,7 +443,7 @@ def writer_from_config(config: WriterConfig):
     writer : Writer
         whylogs writer
     """
-    if config.type == "local":
+    if config.type == WriterType.local.name:
         abs_path = os.path.abspath(config.output_path)
         if not os.path.exists(abs_path):
             os.makedirs(abs_path, exist_ok=True)
@@ -449,23 +454,21 @@ def writer_from_config(config: WriterConfig):
             config.path_template,
             config.filename_template,
         )
-    elif config.type == "s3":
+    elif config.type == WriterType.s3.name:
         return S3Writer(
             config.output_path,
             config.formats,
             config.path_template,
             config.filename_template,
         )
-    elif config.type == "mlflow":
+    elif config.type == WriterType.mlflow.name:
         return MlFlowWriter(
             config.output_path,
             config.formats,
             config.path_template,
             config.filename_template,
         )
-    elif config.type == "whylabs":
-        if config.data_collection_consent is not True:
-            raise ValueError(f"Writer of type {config.type} requires data_collection_consent parameter to be set to True")
+    elif config.type == WriterType.whylabs.name:
         return WhyLabsWriter(config.output_path, config.formats)
     else:
         raise ValueError(f"Unknown writer type: {config.type}")

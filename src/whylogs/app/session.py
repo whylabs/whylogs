@@ -2,6 +2,7 @@
 whylogs logging session
 """
 import datetime
+import warnings
 from dataclasses import dataclass
 from logging import getLogger as _getLogger
 from typing import Dict, List, Optional, Union
@@ -459,12 +460,9 @@ def reset_default_session():
 
 def start_whylabs_session(
     path_to_config: Optional[str] = None,
-    data_collection_consent: Optional[bool] = None,
     report_progress: Optional[bool] = False,
 ):
-    if not data_collection_consent:
-        raise PermissionError("When creating a session that will send data to WhyLabs, data_collection_consent must be set to True")
-
+    warnings.warn("start_whylabs_session() is deprecated. Please sign up for WhyLabs", DeprecationWarning)
     global _use_whylabs_client
     _use_whylabs_client = True
     return get_or_create_session(path_to_config, report_progress)
