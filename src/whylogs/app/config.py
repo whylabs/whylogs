@@ -3,14 +3,26 @@ Classes/functions for configuring the whylogs app
 
 .. autodata:: ALL_SUPPORTED_FORMATS
 """
+import warnings
+from enum import Enum, auto
 from logging import getLogger
 from typing import Dict, List, Optional
 
 # import typing
 import yaml as yaml
-from marshmallow import Schema, fields, post_load, validate
+from marshmallow import EXCLUDE, Schema, fields, post_load, validate
 
 from whylogs.app.output_formats import SUPPORTED_OUTPUT_FORMATS
+
+
+class WriterType(Enum):
+    local = auto()
+    s3 = auto()
+    whylabs = auto()
+    mlflow = auto()
+
+
+SUPPORTED_WRITERS = list(WriterType.__members__.keys())
 
 WHYLOGS_YML = ".whylogs.yaml"
 
@@ -82,11 +94,11 @@ class WriterConfig:
     def __init__(
         self,
         type: str,
-        formats: List[str],
-        output_path: str,
+        formats: Optional[List[str]] = None,
+        output_path: Optional[str] = None,
         path_template: Optional[str] = None,
         filename_template: Optional[str] = None,
-        data_collection_consent: Optional[bool] = False,
+        data_collection_consent: Optional[bool] = None,
         transport_parameters: Optional[TransportParameterConfig] = None,
     ):
         self.type = type
@@ -94,8 +106,10 @@ class WriterConfig:
         self.output_path = output_path
         self.path_template = path_template
         self.filename_template = filename_template
-        self.data_collection_consent = data_collection_consent
         self.transport_parameters = transport_parameters
+
+        if data_collection_consent:
+            warnings.warn("data_collection_consent was deprecated. Please use WhyLabs API key", DeprecationWarning)
 
     def to_yaml(self, stream=None):
         """
@@ -288,16 +302,18 @@ class WriterConfigSchema(Schema):
     Marshmallow schema for :class:`WriterConfig` class.
     """
 
-    type = fields.Str(validate=validate.OneOf(["local", "s3", "whylabs", "mlflow"]), required=True)
+    class Meta:
+        unknown = EXCLUDE
+
+    type = fields.Str(validate=validate.OneOf(SUPPORTED_WRITERS), required=True)
     formats = fields.List(
         fields.Str(validate=validate.OneOf(ALL_SUPPORTED_FORMATS)),
-        required=True,
+        required=False,
         validate=validate.Length(min=1),
     )
-    output_path = fields.Str(required=True)
+    output_path = fields.Str(required=False)
     path_template = fields.Str(required=False, allow_none=True)
     filename_template = fields.Str(required=False, allow_none=True)
-    data_collection_consent = fields.Bool(required=False, allow_none=True)
     transport_parameters = fields.Nested(TransportParameterConfigSchema, required=False, allow_none=True)
 
     @post_load
@@ -310,7 +326,7 @@ class MetadataConfigSchema(Schema):
     Marshmallow schema for :class:`MetadataConfig` class.
     """
 
-    type = fields.Str(validate=validate.OneOf(["local", "s3"]), required=False)
+    type = fields.Str(validate=validate.OneOf([WriterType.local.name, WriterType.s3.name]), required=False)
     output_path = fields.Str(required=False)
     input_path = fields.Str(required=False, default="")
     path_template = fields.Str(required=False, allow_none=True)
