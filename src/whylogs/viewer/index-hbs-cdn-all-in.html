@@ -733,7 +733,7 @@
                     class="btn btn-warning btn-signup"
                     target="_blank"
                     href="http://bit.ly/whylogs-to-whylabs-free-signup"
-                  >Sign up for a free WhyLabs account</a>
+                  >Get started for free</a>
                 </div>
                 <div class="d-none sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
                   <strong>Profile</strong>
@@ -1284,6 +1284,19 @@
         };
       }
 
+      function scrollToFeatureNameId(featureNameId) {
+        const TABLE_HEADER_OFFSET = 90;
+        const $tableWrap = $(".wl-table-wrap");
+        const currentOffsetTop = $tableWrap.scrollTop();
+        const offsetTop = $('[data-scroll-to-feature-name="' + featureNameId + '"]').offset().top;
+        $tableWrap.animate(
+          {
+            scrollTop: currentOffsetTop + offsetTop - TABLE_HEADER_OFFSET,
+          },
+          500,
+        );
+      }
+
       $featureSearch.addEventListener(
         "keyup",
         debounce((event) => {
@@ -1317,6 +1330,12 @@
           activeTypes["unknown"] = false;
         }
         handleSearch();
+      });
+
+      $sidebarFeatureNameList.addEventListener("click", (event) => {
+        if (event.target && event.target.dataset && event.target.dataset.featureNameId) {
+          scrollToFeatureNameId(event.target.dataset.featureNameId)
+        }
       });
     }
 
