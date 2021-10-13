@@ -20,7 +20,7 @@ def test_entropy_ints():
 
 
 def test_entropy_empty():
-    series = pd.Series([])
+    series = pd.Series([], dtype=float)
     res = _entropy(series, False)
 
     assert pytest.approx(res, 0.001) == 0
