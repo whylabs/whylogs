@@ -1,5 +1,4 @@
 import pytest
-from pandas import util
 
 from whylogs.app.config import SessionConfig
 from whylogs.app.session import (
@@ -27,11 +26,10 @@ def test_reset():
     assert global_session.project is not None
 
 
-def test_session_log_dataframe():
+def test_session_log_dataframe(df):
     pass
 
     session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
-    df = util.testing.makeDataFrame()
     session.log_dataframe(df)
 
     assert session.logger() is not None
@@ -39,10 +37,9 @@ def test_session_log_dataframe():
     assert session.logger("default-project").dataset_name == "default-project"
 
 
-def test_session_profile():
+def test_session_profile(df):
 
     session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
-    df = util.testing.makeDataFrame()
     profile = session.log_dataframe(df)
     assert profile is not None
 
@@ -52,9 +49,8 @@ def test_session_profile():
     assert len(flat_summary) == 4
 
 
-def test_profile_df():
+def test_profile_df(df):
     session = get_or_create_session()
-    df = util.testing.makeDataFrame()
     log_profile = session.log_dataframe(df)
     profile = session.profile_dataframe(df)
 
@@ -67,11 +63,10 @@ def test_profile_df():
     assert len(profile.tags) == 2
 
 
-def test_close_session():
+def test_close_session(df):
     session = get_or_create_session()
     session.close()
     assert session.is_active() == False
-    df = util.testing.makeDataFrame()
     log_profile = session.log_dataframe(df)
     assert log_profile == None
     profile = session.profile_dataframe(df)

@@ -5,7 +5,6 @@ import shutil
 import pandas as pd
 import pytest
 from freezegun import freeze_time
-from pandas import util
 
 from whylogs.app.config import SessionConfig, WriterConfig
 from whylogs.app.logger import _TAG_PREFIX, _TAG_VALUE
@@ -88,7 +87,7 @@ def test_segments_single_key(df_lending_club, tmpdir):
     shutil.rmtree(output_path, ignore_errors=True)
 
 
-def test_segments_with_rotation(df_lending_club, tmpdir):
+def test_segments_with_rotation(df_lending_club, df, tmpdir):
     output_path = tmpdir.mkdir("whylogs")
     shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
@@ -110,18 +109,17 @@ def test_segments_with_rotation(df_lending_club, tmpdir):
             logger.log_dataframe(df_lending_club)
             frozen_time.tick(delta=datetime.timedelta(seconds=1))
 
-            df = util.testing.makeDataFrame()
             with pytest.raises(KeyError):
                 logger.log_dataframe(df)
         session.close()
     output_files = []
-    for root, subdirs, files in os.walk(output_path):
+    for _, _, files in os.walk(output_path):
         output_files += files
     assert len(output_files) == 8
     shutil.rmtree(output_path, ignore_errors=True)
 
 
-def test_one_segment(tmpdir, image_files):
+def test_one_segment(tmpdir):
     output_path = tmpdir.mkdir("whylogs")
     shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
@@ -138,7 +136,7 @@ def test_one_segment(tmpdir, image_files):
         assert len(logger.segmented_profiles) == 1
 
 
-def test_log_multiple_segments(tmpdir, image_files):
+def test_log_multiple_segments(tmpdir):
     output_path = tmpdir.mkdir("whylogs")
     shutil.rmtree(output_path, ignore_errors=True)
     writer_config = WriterConfig("local", ["protobuf"], output_path.realpath())
