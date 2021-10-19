@@ -1,6 +1,7 @@
 import os
 import sys
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -71,6 +72,12 @@ def df_lending_club():
     # just the top 50
     df = pd.read_csv(os.path.join(_MY_DIR, os.pardir, "testdata", "lending_club_1000.csv"))
     return df.head(50)
+
+
+@pytest.fixture(scope="session")
+def df():
+    # create a simple test dataframe to replace deprecated pandas.util.testing.makeDataFrame which returns 4 columns with 30 rows of numeric values
+    return pd.DataFrame((np.random.rand(30, 4) - 0.5) * 3, columns=["A", "B", "C", "D"])
 
 
 @pytest.fixture(scope="session")

@@ -79,9 +79,6 @@ def test_viz_char_pos(profile_lending_club):
 
 
 def test_viz_missing_values(profile_lending_club):
-
     viz = ProfileVisualizer()
-
     viz.set_profiles([profile_lending_club])
-
     viz.plot_missing_values("hardship_payoff_balance_amount")
