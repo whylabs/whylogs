@@ -2,6 +2,7 @@ import pytest
 
 from whylogs.app.config import SessionConfig
 from whylogs.app.session import (
+    Session,
     get_or_create_session,
     get_session,
     reset_default_session,
@@ -75,6 +76,13 @@ def test_close_session(df):
 
     with pytest.raises(RuntimeError):
         session.logger()
+
+
+def test_session_default():
+    session = Session()
+    assert session.is_active() == True, "Newly created default session is expected to be active."
+    assert session.project == "", "project should be optional and default to empty string."
+    assert session.pipeline == "", "pipeline should be optional and default to empty string."
 
 
 def test_logger_cache():
