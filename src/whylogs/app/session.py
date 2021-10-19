@@ -82,9 +82,9 @@ class Session:
 
     def __init__(
         self,
-        project: str,
-        pipeline: str,
-        writers: List[Writer],
+        project: Optional[str] = None,
+        pipeline: Optional[str] = None,
+        writers: Optional[List[Writer]] = None,
         metadata_writer: Optional[MetadataWriter] = None,
         verbose: bool = False,
         with_rotation_time: str = None,
@@ -94,6 +94,10 @@ class Session:
         self._py_logger = _getLogger(__name__)
         if writers is None:
             writers = []
+        if project is None:
+            project = ""
+        if pipeline is None:
+            pipeline = ""
         self.project = project
         self.pipeline = pipeline
         self.writers = writers
