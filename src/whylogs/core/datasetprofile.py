@@ -110,6 +110,13 @@ class DatasetProfile:
         # Store Name attribute
         self._tags["name"] = name
 
+    def __getstate__(self):
+        return self.serialize_delimited()
+
+    def __setstate__(self, serialized_profile):
+        profile = DatasetProfile.parse_delimited_single(serialized_profile)[1]
+        self.__dict__.update(profile.__dict__)
+
     @property
     def name(self):
         return self._tags["name"]
