@@ -173,6 +173,11 @@ class Session:
         if not self._active:
             raise RuntimeError("Session is already closed. Cannot create more loggers")
 
+        # Explicitly set the default timezone to utc if none was provided. Helps with equality testing
+        # profiles by making sure dates are the same whether they're supplied or deserizlied from protobuf.
+        if dataset_timestamp is not None and dataset_timestamp.tzinfo is None:
+            dataset_timestamp = dataset_timestamp.replace(tzinfo=datetime.timezone.utc)
+
         logger_key = str(
             _LoggerKey(
                 dataset_name=dataset_name,

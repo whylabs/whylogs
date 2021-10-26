@@ -96,10 +96,12 @@ class DatasetProfile:
             metadata = {}
         if session_id is None:
             session_id = uuid4().hex
-
+        if dataset_timestamp is None:
+            self.dataset_timestamp = datetime.datetime.now(datetime.timezone.utc)
+        else:
+            self.dataset_timestamp = dataset_timestamp
         self.session_id = session_id
         self.session_timestamp = session_timestamp
-        self.dataset_timestamp = dataset_timestamp
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
