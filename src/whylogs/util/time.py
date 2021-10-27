@@ -33,6 +33,6 @@ def from_utc_ms(utc: Optional[int]) -> Optional[datetime.datetime]:
     dt : datetime.datetime
         Datetime object
     """
-    if utc is None:
+    if utc is None or utc == 0:
         return None
     return datetime.datetime.fromtimestamp(utc / 1000.0, tz=datetime.timezone.utc)
