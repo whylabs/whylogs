@@ -50,9 +50,12 @@ def test_session_profile(df):
 
 
 def test_profile_df(df):
+    import datetime
+
     session = get_or_create_session()
-    log_profile = session.log_dataframe(df)
-    profile = session.profile_dataframe(df)
+    dt = datetime.datetime.now(datetime.timezone.utc)
+    log_profile = session.log_dataframe(df, dataset_timestamp=dt)
+    profile = session.profile_dataframe(df, dataset_timestamp=dt)
 
     assert log_profile.name == profile.name
     assert log_profile.dataset_timestamp == profile.dataset_timestamp
