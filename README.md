@@ -21,7 +21,7 @@ whylogs is designed by data scientists, ML engineers and distributed systems eng
 
 whylogs is released under the Apache 2.0 open source license. It supports many languages and is easy to extend. This repo contains the whylogs CLI, language SDKs, and individual libraries are in their own repos.
 
-This repository contains both a [Python implementation](https://github.com/whylabs/src) and a [Java implementation](https://github.com/whylabs/java).
+This repository contains both a [Python implementation](https://github.com/whylabs/whylogs/tree/mainline/src/whylogs) and a [Java implementation](https://github.com/whylabs/whylogs/tree/mainline/java).
 
 If you have any questions, comments, or just want to hang out with us, please join [our Slack channel](http://join.slack.whylabs.ai/).
 
