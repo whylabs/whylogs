@@ -21,7 +21,7 @@ whylogs is designed by data scientists, ML engineers and distributed systems eng
 
 whylogs is released under the Apache 2.0 open source license. It supports many languages and is easy to extend. This repo contains the whylogs CLI, language SDKs, and individual libraries are in their own repos.
 
-This is a Python implementation of whylogs. The Java implementation can be found [here](https://github.com/whylabs/whylogs-java).
+This repository contains both a [Python implementation](https://github.com/whylabs/src) and a [Java implementation](https://github.com/whylabs/java).
 
 If you have any questions, comments, or just want to hang out with us, please join [our Slack channel](http://join.slack.whylabs.ai/).
 
@@ -82,7 +82,7 @@ with session.logger(dataset_name="my_dataset") as logger:
     logger.log({"name": 1})
 
     #images
-    logger.log_images("path/to/image.png")
+    logger.log_image("path/to/image.png")
 ```
 
 whylogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
