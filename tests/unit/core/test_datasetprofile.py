@@ -5,7 +5,6 @@ from uuid import uuid4
 
 import numpy as np
 import pytest
-from pandas import util
 
 from whylogs.core.datasetprofile import DatasetProfile, array_profile, dataframe_profile
 from whylogs.core.model_profile import ModelProfile
@@ -341,9 +340,8 @@ def tests_timestamp():
     assert time_2 == int(time.replace(tzinfo=datetime.timezone.utc).timestamp() * 1000.0)
 
 
-def test_dataframe_profile():
+def test_dataframe_profile(df):
     time = datetime.datetime.now()
-    df = util.testing.makeDataFrame()
 
     profile = DatasetProfile("test", time)
     profile.track_dataframe(df)

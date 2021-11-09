@@ -114,6 +114,17 @@ class ValueConstraint:
             if self._verbose:
                 logger.info(f"value constraint {self.name} failed on value {v}")
 
+    def merge(self, other) -> "ValueConstraint":
+        if not other:
+            return self
+        assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
+        assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
+        assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
+        merged_value_constraint = ValueConstraint(op=self.op, value=self.value, name=self.name, verbose=self._verbose)
+        merged_value_constraint.total = self.total + other.total
+        merged_value_constraint.failures = self.failures + other.failures
+        return merged_value_constraint
+
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
         return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
@@ -206,6 +217,23 @@ class SummaryConstraint:
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
 
+    def merge(self, other) -> "SummaryConstraint":
+        if not other:
+            return self
+        assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
+        assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
+        assert self.value == other.value, f"Cannot merge constraints with different values: {self.value} and {other.value}"
+        assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
+        assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
+
+        merged_constraint = SummaryConstraint(
+            first_field=self.first_field, op=self.op, value=self.value, second_field=self.second_field, name=self.name, verbose=self._verbose
+        )
+
+        merged_constraint.total = self.total + other.total
+        merged_constraint.failures = self.failures + other.failures
+        return merged_constraint
+
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
         if msg.HasField("value") and not msg.HasField("second_field"):
@@ -251,18 +279,29 @@ class SummaryConstraint:
 
 
 class ValueConstraints:
-    def __init__(self, constraints: List[ValueConstraint] = []):
-        self.constraints = constraints
+    def __init__(self, constraints: Mapping[str, ValueConstraint] = None):
+        if constraints is None:
+            constraints = dict()
+
+        if isinstance(constraints, list):
+            self.constraints = {constraint.name: constraint for constraint in constraints}
+        else:
+            self.constraints = constraints
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsgs) -> "ValueConstraints":
-        v = [ValueConstraint.from_protobuf(c) for c in msg.constraints]
-        if len(v) > 0:
-            return ValueConstraints(v)
+        value_constraints = [ValueConstraint.from_protobuf(c) for c in msg.constraints]
+        if len(value_constraints) > 0:
+            return ValueConstraints({v.name: v for v in value_constraints})
+        return None
+
+    def __getitem__(self, name: str) -> Optional[ValueConstraint]:
+        if self.contraints:
+            return self.constraints.get(name)
         return None
 
     def to_protobuf(self) -> ValueConstraintMsgs:
-        v = [c.to_protobuf() for c in self.constraints]
+        v = [c.to_protobuf() for c in self.constraints.values()]
         if len(v) > 0:
             vcmsg = ValueConstraintMsgs()
             vcmsg.constraints.extend(v)
@@ -270,29 +309,51 @@ class ValueConstraints:
         return None
 
     def update(self, v):
-        for c in self.constraints:
+        for c in self.constraints.values():
             c.update(v)
 
+    def merge(self, other) -> "ValueConstraints":
+        if not other or not other.constraints:
+            return self
+
+        merged_constraints = other.constraints.copy()
+        for name, constraint in self.constraints:
+            merged_constraints[name] = constraint.merge(other.constraints.get(name))
+
+        return ValueConstraints(merged_constraints)
+
     def report(self) -> List[tuple]:
-        v = [c.report() for c in self.constraints]
+        v = [c.report() for c in self.constraints.values()]
         if len(v) > 0:
             return v
         return None
 
 
 class SummaryConstraints:
-    def __init__(self, constraints: List[SummaryConstraint]):
-        self.constraints = constraints
+    def __init__(self, constraints: Mapping[str, SummaryConstraint] = None):
+        if constraints is None:
+            constraints = dict()
+
+        # Support list of constraints for back compat with previous version.
+        if isinstance(constraints, list):
+            self.constraints = {constraint.name: constraint for constraint in constraints}
+        else:
+            self.constraints = constraints
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsgs) -> "SummaryConstraints":
-        v = [SummaryConstraint.from_protobuf(c) for c in msg.constraints]
-        if len(v) > 0:
-            return SummaryConstraints(v)
+        constraints = [SummaryConstraint.from_protobuf(c) for c in msg.constraints]
+        if len(constraints) > 0:
+            return SummaryConstraints({v.name: v for v in constraints})
+        return None
+
+    def __getitem__(self, name: str) -> Optional[SummaryConstraint]:
+        if self.contraints:
+            return self.constraints.get(name)
         return None
 
     def to_protobuf(self) -> SummaryConstraintMsgs:
-        v = [c.to_protobuf() for c in self.constraints]
+        v = [c.to_protobuf() for c in self.constraints.values()]
         if len(v) > 0:
             scmsg = SummaryConstraintMsgs()
             scmsg.constraints.extend(v)
@@ -300,11 +361,22 @@ class SummaryConstraints:
         return None
 
     def update(self, v):
-        for c in self.constraints:
+        for c in self.constraints.values():
             c.update(v)
 
+    def merge(self, other) -> "SummaryConstraints":
+
+        if not other or not other.constraints:
+            return self
+
+        merged_constraints = other.constraints.copy()
+        for name, constraint in self.constraints:
+            merged_constraints[name] = constraint.merge(other.constraints.get(name))
+
+        return SummaryConstraints(merged_constraints)
+
     def report(self) -> List[tuple]:
-        v = [c.report() for c in self.constraints]
+        v = [c.report() for c in self.constraints.values()]
         if len(v) > 0:
             return v
         return None
@@ -314,8 +386,8 @@ class DatasetConstraints:
     def __init__(
         self,
         props: DatasetProperties,
-        value_constraints: Optional[Mapping[str, ValueConstraints]] = None,
-        summary_constraints: Optional[Mapping[str, SummaryConstraints]] = None,
+        value_constraints: Optional[ValueConstraints] = None,
+        summary_constraints: Optional[SummaryConstraints] = None,
     ):
         self.dataset_properties = props
         # repackage lists of constraints if necessary

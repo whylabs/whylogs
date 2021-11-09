@@ -94,6 +94,10 @@ class Logger:
             self.session_timestamp = datetime.datetime.now(datetime.timezone.utc)
         else:
             self.session_timestamp = session_timestamp
+        if dataset_timestamp is None:
+            self.dataset_timestamp = datetime.datetime.now(datetime.timezone.utc)
+        else:
+            self.dataset_timestamp = dataset_timestamp
         self.dataset_name = dataset_name
         self.writers = writers
         self.metadata_writer = metadata_writer

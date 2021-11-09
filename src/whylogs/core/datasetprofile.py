@@ -96,10 +96,12 @@ class DatasetProfile:
             metadata = {}
         if session_id is None:
             session_id = uuid4().hex
-
+        if dataset_timestamp is None:
+            self.dataset_timestamp = datetime.datetime.now(datetime.timezone.utc)
+        else:
+            self.dataset_timestamp = dataset_timestamp
         self.session_id = session_id
         self.session_timestamp = session_timestamp
-        self.dataset_timestamp = dataset_timestamp
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
@@ -109,6 +111,13 @@ class DatasetProfile:
 
         # Store Name attribute
         self._tags["name"] = name
+
+    def __getstate__(self):
+        return self.serialize_delimited()
+
+    def __setstate__(self, serialized_profile):
+        profile = DatasetProfile.parse_delimited_single(serialized_profile)[1]
+        self.__dict__.update(profile.__dict__)
 
     @property
     def name(self):

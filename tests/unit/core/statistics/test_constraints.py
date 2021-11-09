@@ -107,7 +107,6 @@ def test_value_constraints_pattern_match(df_lending_club, local_config_path):
 
 
 def test_summary_constraints(df_lending_club, local_config_path):
-
     non_negative = SummaryConstraint("min", Op.GE, 0)
 
     dc = DatasetConstraints(None, summary_constraints={"annual_inc": [non_negative]})
@@ -122,3 +121,45 @@ def test_summary_constraints(df_lending_club, local_config_path):
     for each_feat in report:
         for each_constraint in each_feat[1]:
             assert each_constraint[1] == 1
+
+
+def test_value_constraints_no_merge_different_names():
+    constraint1 = ValueConstraint(Op.LT, 1, name="c1")
+    constraint2 = ValueConstraint(Op.LT, 1, name="c2")
+    with pytest.raises(AssertionError):
+        constraint1.merge(constraint2)
+
+
+def test_value_constraints_no_merge_different_values():
+    constraint1 = ValueConstraint(Op.LT, 1)
+    constraint2 = ValueConstraint(Op.LT, 2)
+    with pytest.raises(AssertionError):
+        constraint1.merge(constraint2)
+
+
+def test_summary_constraints_no_merge_different_names():
+    constraint1 = SummaryConstraint("min", Op.GE, 0, name="non-negative")
+    constraint2 = SummaryConstraint("min", Op.GE, 0, name="positive-number")
+    with pytest.raises(AssertionError):
+        constraint1.merge(constraint2)
+
+
+def test_summary_constraints_no_merge_different_values():
+    constraint1 = SummaryConstraint("min", Op.GE, 1, name="GreaterThanThreshold")
+    constraint2 = SummaryConstraint("min", Op.GE, 2, name="GreaterThanThreshold")
+    with pytest.raises(AssertionError):
+        constraint1.merge(constraint2)
+
+
+def test_value_constraints_merge():
+    constraint1 = ValueConstraint(Op.LT, 1)
+    constraint2 = ValueConstraint(Op.LT, 1)
+    merged = constraint1.merge(constraint2)
+    assert merged.report() == ("value LT 1", 0, 0), "merging unlogged constraints should not change them from initiat state"
+
+
+def test_value_constraints_merge_empty():
+    constraint1 = ValueConstraint(Op.LT, 1)
+    constraint2 = None
+    merged = constraint1.merge(constraint2)
+    assert merged == constraint1, "merging empty constraints should preserve left hand side"

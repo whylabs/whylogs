@@ -1,8 +1,8 @@
 import pytest
-from pandas import util
 
 from whylogs.app.config import SessionConfig
 from whylogs.app.session import (
+    Session,
     get_or_create_session,
     get_session,
     reset_default_session,
@@ -26,11 +26,10 @@ def test_reset():
     assert global_session.project is not None
 
 
-def test_session_log_dataframe():
+def test_session_log_dataframe(df):
     pass
 
     session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
-    df = util.testing.makeDataFrame()
     session.log_dataframe(df)
 
     assert session.logger() is not None
@@ -38,10 +37,9 @@ def test_session_log_dataframe():
     assert session.logger("default-project").dataset_name == "default-project"
 
 
-def test_session_profile():
+def test_session_profile(df):
 
     session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
-    df = util.testing.makeDataFrame()
     profile = session.log_dataframe(df)
     assert profile is not None
 
@@ -51,11 +49,13 @@ def test_session_profile():
     assert len(flat_summary) == 4
 
 
-def test_profile_df():
+def test_profile_df(df):
+    import datetime
+
     session = get_or_create_session()
-    df = util.testing.makeDataFrame()
-    log_profile = session.log_dataframe(df)
-    profile = session.profile_dataframe(df)
+    dt = datetime.datetime.now(datetime.timezone.utc)
+    log_profile = session.log_dataframe(df, dataset_timestamp=dt)
+    profile = session.profile_dataframe(df, dataset_timestamp=dt)
 
     assert log_profile.name == profile.name
     assert log_profile.dataset_timestamp == profile.dataset_timestamp
@@ -66,11 +66,10 @@ def test_profile_df():
     assert len(profile.tags) == 2
 
 
-def test_close_session():
+def test_close_session(df):
     session = get_or_create_session()
     session.close()
     assert session.is_active() == False
-    df = util.testing.makeDataFrame()
     log_profile = session.log_dataframe(df)
     assert log_profile == None
     profile = session.profile_dataframe(df)
@@ -80,6 +79,13 @@ def test_close_session():
 
     with pytest.raises(RuntimeError):
         session.logger()
+
+
+def test_session_default():
+    session = Session()
+    assert session.is_active() == True, "Newly created default session is expected to be active."
+    assert session.project == "", "project should be optional and default to empty string."
+    assert session.pipeline == "", "pipeline should be optional and default to empty string."
 
 
 def test_logger_cache():
