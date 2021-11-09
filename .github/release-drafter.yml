@@ -36,7 +36,7 @@ template: |
   ## whylogs release v$NEXT_PATCH_VERSION
 
   Hi everyone! We’ve now released whylogs $NEXT_PATCH_VERSION 🚀.
-  Whylogs is an open standard for data and ML logging created by WhyLabs. 👩🏽‍🔬
+  whylogs is the open standard for data and ML logging created by WhyLabs. 👩🏽‍🔬
 
   This version includes: 
   
