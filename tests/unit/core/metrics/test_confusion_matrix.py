@@ -13,7 +13,6 @@ from whylogs.proto import ScoreMatrixMessage
 
 
 def _generateTestTargetsAndPredictionsForEachLabel(label_size: int, output_length, rand_ratio: float):
-    # labels = [i for i in range(label_size)]
     labels = range(label_size)
     targets = []
     predictions = []
@@ -182,7 +181,7 @@ def test_over_threshold_confusion_matrix():
 
 def test_merged_labels_over_threshold_confusion_matrix():
     labels = range(200)
-    more_labels = [j for j in range(201, 300)]
+    more_labels = range(201, 300)
     matrix_1 = ConfusionMatrix(labels)
     matrix_2 = ConfusionMatrix(more_labels)
 
