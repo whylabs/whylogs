@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import pytest
 from sklearn.utils.multiclass import type_of_target
@@ -8,6 +10,36 @@ from whylogs.core.metrics.confusion_matrix import (
     encode_to_integers,
 )
 from whylogs.proto import ScoreMatrixMessage
+
+
+def _generateTestTargetsAndPredictions(label_size: int, output_length, rand_ratio: float):
+    labels = [i for i in range(label_size)]
+    targets = []
+    predictions = []
+
+    for _ in range(output_length):
+        label = random.choice(labels)
+        targets.append(label)
+        if random.random() < rand_ratio:
+            predictions.append(random.choice(labels))
+        else:
+            predictions.append(label)
+    return targets, predictions
+
+
+def _generateTestTargetsAndPredictionsForEachLabel(label_size: int, output_length, rand_ratio: float):
+    labels = [i for i in range(label_size)]
+    targets = []
+    predictions = []
+
+    for i in range(output_length):
+        label = labels[i % label_size]
+        targets.append(label)
+        if random.random() < rand_ratio:
+            predictions.append(random.choice(labels))
+        else:
+            predictions.append(label)
+    return targets, predictions
 
 
 def test_positive_count():
@@ -155,6 +187,33 @@ def test_confusion_matrix_to_protobuf():
     for idx, value in enumerate(new_conf.labels):
         for jdx, value_2 in enumerate(new_conf.labels):
             assert new_conf.confusion_matrix[idx, jdx].floats.count == expected_1[idx][jdx]
+
+
+def test_over_threshold_confusion_matrix():
+    targets, predictions = _generateTestTargetsAndPredictionsForEachLabel(257, 257, 0.0)
+
+    labels = set(targets)
+    [1.0 for _ in labels]
+    with pytest.raises(ValueError):
+        ConfusionMatrix(labels)
+
+
+def test_merged_labels_over_threshold_confusion_matrix():
+    labels = [i for i in range(200)]
+    more_labels = [j for j in range(201, 300)]
+    matrix_1 = ConfusionMatrix(labels)
+    matrix_2 = ConfusionMatrix(more_labels)
+
+    with pytest.raises(ValueError):
+        matrix_1.merge(matrix_2)
+
+
+def test_large_confusion_matrix():
+    targets, predictions = _generateTestTargetsAndPredictionsForEachLabel(65, 65, 0.0)
+    labels = set(targets)
+    confusion_matrix = ConfusionMatrix(labels)
+    confusion_matrix.add(predictions, targets, [1.0 for _ in labels])
+    assert len(confusion_matrix.confusion_matrix) == 65
 
 
 def test_parse_empty_protobuf_should_return_none():
