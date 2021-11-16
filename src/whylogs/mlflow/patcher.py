@@ -79,8 +79,8 @@ class WhyLogsRun(object):
 
     def log(
         self,
-        features: Dict[str, any] = None,
-        feature_name: str = None,
+        features: Optional[Dict[str, any]] = None,
+        feature_name: Optional[str] = None,
         value: any = None,
         dataset_name: Optional[str] = None,
     ):
@@ -88,7 +88,6 @@ class WhyLogsRun(object):
         Logs a collection of features or a single feature (must specify one or the other).
 
         :param features: a map of key value feature for model input
-        :param feature_name: a dictionary of key->value for multiple features. Each entry represent a single columnar feature
         :param feature_name: name of a single feature. Cannot be specified if 'features' is specified
         :param value: value of as single feature. Cannot be specified if 'features' is specified
         :param dataset_name: the name of the dataset. If not specified, we fall back to using the experiment name
