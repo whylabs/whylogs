@@ -225,7 +225,7 @@ class DatasetProfile:
         """
         if data is not None:
             if type(columns) != str:
-                raise TypeError("Unambiguous column to data mapping")
+                raise TypeError("Ambiguous column to data mapping")
             self.track_datum(columns, data)
         else:
             if isinstance(columns, dict):
