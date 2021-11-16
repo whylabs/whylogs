@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import List, Union
 
 import numpy as np
@@ -8,6 +9,10 @@ from whylogs.proto import ScoreMatrixMessage
 from whylogs.util.util_functions import encode_to_integers
 
 SUPPORTED_TYPES = ("binary", "multiclass")
+MODEL_METRICS_MAX_LABELS = 256
+MODEL_METRICS_LABEL_SIZE_WARNING_THRESHOLD = 64
+
+_logger = getLogger("whylogs")
 
 
 class ConfusionMatrix:
@@ -35,6 +40,22 @@ class ConfusionMatrix:
         self.target_field = target_field
         self.score_field = score_field
         if labels:
+            labels_size = len(labels)
+            if labels_size > MODEL_METRICS_LABEL_SIZE_WARNING_THRESHOLD:
+                _logger.warning(
+                    f"The initialized confusion matrix has {labels_size} labels and the resulting"
+                    " confusion matrix will be larger than is recommended with whylogs current"
+                    " representation of the model metric for a confusion matrix of this size."
+                )
+            if labels_size > MODEL_METRICS_MAX_LABELS:
+                raise ValueError(
+                    f"The initialized confusion matrix has {labels_size} labels and the resulting"
+                    " confusion matrix will be larger than is supported by whylogs current"
+                    " representation of the model metric for a confusion matrix of this size,"
+                    " selectively log the most important labels or configure the threshold of"
+                    " {MODEL_METRICS_MAX_LABELS} higher by setting MODEL_METRICS_MAX_LABELS."
+                )
+
             self.labels = sorted(labels)
             num_labels = len(self.labels)
             self.confusion_matrix = np.empty([num_labels, num_labels], dtype=object)
