@@ -70,17 +70,17 @@ class Logger:
         dataset_name: str,
         dataset_timestamp: Optional[datetime.datetime] = None,
         session_timestamp: Optional[datetime.datetime] = None,
-        tags: Dict[str, str] = None,
-        metadata: Dict[str, str] = None,
-        writers: List[Writer] = None,
-        metadata_writer: MetadataWriter = None,
+        tags: Optional[Dict[str, str]] = None,
+        metadata: Optional[Dict[str, str]] = None,
+        writers: Optional[List[Writer]] = None,
+        metadata_writer: Optional[MetadataWriter] = None,
         verbose: bool = False,
         with_rotation_time: Optional[str] = None,
         interval: int = 1,
         cache_size: int = 1,
         segments: Optional[Union[List[Segment], List[str], str]] = None,
         profile_full_dataset: bool = False,
-        constraints: DatasetConstraints = None,
+        constraints: Optional[DatasetConstraints] = None,
     ):
         """"""
         self._py_logger = logging.getLogger(__name__)
@@ -285,7 +285,7 @@ class Logger:
         new_thread = timer_wrap(self.tracking_checks, self.interval)
         self._pending_timer_threads.append(new_thread)
 
-    def flush(self, rotation_suffix: str = None):
+    def flush(self, rotation_suffix: Optional[str] = None):
         """
         Synchronously perform all remaining write tasks
         """
@@ -347,22 +347,21 @@ class Logger:
     def log(
         self,
         features: Optional[Dict[str, any]] = None,
-        feature_name: str = None,
+        feature_name: Optional[str] = None,
         value: any = None,
-        character_list: str = None,
+        character_list: Optional[str] = None,
         token_method: Optional[Callable] = None,
     ):
         """
         Logs a collection of features or a single feature (must specify one or the other).
 
         :param features: a map of key value feature for model input
-        :param feature_name: a dictionary of key->value for multiple features. Each entry represent a single columnar feature
         :param feature_name: name of a single feature. Cannot be specified if 'features' is specified
         :param value: value of as single feature. Cannot be specified if 'features' is specified
 
         """
         if not self.tracking_checks():
-            return None
+            return
 
         if features is None and feature_name is None:
             return
