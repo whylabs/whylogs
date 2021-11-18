@@ -2424,7 +2424,7 @@ watchdog = ["watchdog"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.1"
+version = "0.1.1.dev0"
 description = "WhyLabs API client"
 category = "main"
 optional = false
@@ -2433,6 +2433,10 @@ python-versions = ">=3.6"
 [package.dependencies]
 python-dateutil = "*"
 urllib3 = ">=1.25.3"
+
+[package.source]
+type = "file"
+url = "../whylabs-client-0.1.1.dev0.tar.gz"
 
 [[package]]
 name = "whylabs-datasketches"
@@ -2497,7 +2501,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.1,<3.10"
-content-hash = "d83898cfc9551648f16fdec90501e3750666b6ffdf7391b3659c319655755905"
+
 
 [metadata.files]
 2to3 = [
@@ -4253,7 +4257,7 @@ werkzeug = [
     {file = "Werkzeug-2.0.2.tar.gz", hash = "sha256:aa2bb6fc8dee8d6c504c0ac1e7f5f7dc5810a9903e793b6f715a9f015bdadb9a"},
 ]
 whylabs-client = [
-    {file = "whylabs_client-0.1-py3-none-any.whl", hash = "sha256:dd9bdf75973e841b9a2f33ca362565626fe50323a880fd15c164d086fd110190"},
+    {file = "whylabs-client-0.1.1.dev0.tar.gz", hash = "sha256:ce8afa8e8fbdf15013a345db958d71a9a73612f13655f7205b89626f188dcd09"},
 ]
 whylabs-datasketches = [
     {file = "whylabs_datasketches-2.2.0b1-cp35-cp35m-macosx_10_15_x86_64.whl", hash = "sha256:a2942e830341df19afab200eed04d9db86ee0dfbd00c061156521eb5233908b1"},

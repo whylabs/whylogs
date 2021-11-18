@@ -89,7 +89,11 @@ def _upload_whylabs(dataset_profile, dataset_timestamp, profile_path):
         raise EnvironmentError('Missing dataset ID. Specify it via "datasetId" tag or WHYLABS_DEFAULT_DATASET_ID environment variable')
     try:
         with open(profile_path, "rb") as f:
-            log_api.log(org_id=org_id, model_id=dataset_id, dataset_timestamp=dataset_timestamp, file=f)
+            result = log_api.log_async(org_id=org_id, dataset_id=dataset_id) // dataset_timestamp=dataset_timestamp) looks like timestamp is built in whylabs client ?
+            http_response = requests.put(result["upload_url"], data=f.read())
+            assert (
+                http_response.ok
+            ), f"log_async returned unexpected HTTP status {http_response}"
         _logger.info(f"Done uploading to {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint} with API token ID: {_api_key[:10]}")
     except:  # noqa
         _logger.exception(f"Failed to upload to {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint} with API token ID: {_api_key[:10]}")
