@@ -529,7 +529,7 @@ class Logger:
         **kwargs,
     ):
         """
-        Log a CSV file. This supports the same parameters as :func`pandas.red_csv<pandas.read_csv>` function.
+        Log a CSV file. This supports the same parameters as :func`pandas.read_csv<pandas.read_csv>` function.
 
         Args:
             filepath_or_buffer: the path to the CSV or a CSV buffer
