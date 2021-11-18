@@ -1,0 +1,30 @@
+FROM python:3.7
+
+RUN mkdir /workspace && \
+    apt update && \
+    apt install git -y && \
+    apt install protobuf-compiler -y && \
+    pip install pytest && \
+    pip install pytest-cov && \
+    pip install numpy && \
+    pip install pandas && \
+    pip install sphinx && \
+    apt install openjdk-17-jre-headless -y && \
+    curl -fsSL https://deb.nodesource.com/setup_17.x | bash - && \
+    apt install nodejs -y && \
+    npm install --global yarn && \
+    curl -LJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/deb/gitlab-runner_amd64.deb" && \
+    dpkg -i gitlab-runner_amd64.deb && \
+    adduser --quiet --disabled-password whyuser
+ 
+RUN apt install less -y && \
+    apt install emacs -y
+
+USER whyuser
+
+WORKDIR /home/whyuser
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - && \
+    echo source /home/whyuser/.poetry/env >> .bashrc
+
+WORKDIR /workspace
+CMD [ "bash" ]
