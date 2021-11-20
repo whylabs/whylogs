@@ -10,6 +10,7 @@ from whylabs_client.api import sessions_api
 from whylabs_client.api.log_api import LogApi
 from whylabs_client.apis import SessionsApi
 from whylabs_client.model.log_async_request import LogAsyncRequest
+
 from whylogs.core import DatasetProfile
 
 whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
@@ -89,16 +90,15 @@ def _upload_whylabs(dataset_profile, dataset_timestamp, profile_path):
         raise EnvironmentError('Missing dataset ID. Specify it via "datasetId" tag or WHYLABS_DEFAULT_DATASET_ID environment variable')
     try:
         with open(profile_path, "rb") as f:
-            request = LogAsyncRequest(
-                dataset_timestamp = dataset_timestamp,
-                segment_tags = []
-            )
+            request = LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[])
             result = log_api.log_async(org_id=org_id, dataset_id=dataset_id, log_async_request=request)
             http_response = requests.put(result["upload_url"], data=f.read())
             if http_response.ok:
                 _logger.info(f"Done uploading {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint} with API token ID: {_api_key[:10]}")
             else:
-                _logger.error(f"Failed to upload {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint}: log_async returned unexpected HTTP status {http_response}")
+                _logger.error(
+                    f"Failed to upload {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint}: log_async returned unexpected HTTP status {http_response}"
+                )
     except:  # noqa
         _logger.exception(f"Failed to upload {org_id}/{dataset_id}/{dataset_timestamp} to {whylabs_api_endpoint} with API token ID: {_api_key[:10]}")
 
