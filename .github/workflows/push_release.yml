@@ -90,7 +90,7 @@ jobs:
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: Update version
+        commit-message: Update version ${{ VERSION }}
         committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         signoff: false
