@@ -4,6 +4,10 @@ name: Upload Python Package
 on:
   release:
     types: [ released, prereleased]
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Reason for rerun'
 
 jobs:
   deploy:
