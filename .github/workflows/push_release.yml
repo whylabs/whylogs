@@ -73,6 +73,10 @@ jobs:
       uses: abatilo/actions-poetry@v2.0.0
       with:
         poetry-version: 1.1.5
+    - name: set VERSION github env var
+      run: |
+        # from refs/tags/v1.2.3 get 1.2.3
+        echo "VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')" >> $GITHUB_ENV
     - name: install bump2version
       run: |
         pip install bump2version
@@ -80,17 +84,17 @@ jobs:
       run: |
         # from refs/tags/v1.2.3 get 1.2.3
         VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')
-        echo $VERSION
+        echo $env.VERSION
         # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         # git config --local user.name "github-actions[bot]"
-        poetry run bump2version patch --verbose  --no-tag --new-version $VERSION
+        poetry run bump2version patch --verbose  --no-tag --new-version $env.VERSION
         
     - name: Create Pull Request
       id: cpr
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: Update version ${{ VERSION }}
+        commit-message: Update version ${{ env.VERSION }}
         committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         signoff: false
