@@ -332,7 +332,7 @@ def tests_timestamp():
     dp = DatasetProfile(
         name="test",
         session_id="test.session.id",
-        session_timestamp=datetime.datetime.now(),
+        session_timestamp=time,
         tags={"key": "value"},
         metadata={"key": "value"},
     )
