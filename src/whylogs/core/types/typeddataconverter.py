@@ -64,7 +64,7 @@ class TypedDataConverter:
         dtype : TYPES
         """
         dtype = TYPES.UNKNOWN
-        if pd.isnull(typed_data):
+        if typed_data is None:
             dtype = TYPES.NULL
         elif isinstance(typed_data, bool):
             dtype = TYPES.BOOLEAN
@@ -74,4 +74,10 @@ class TypedDataConverter:
             dtype = TYPES.INTEGRAL
         elif isinstance(typed_data, str):
             dtype = TYPES.STRING
+        if isinstance(typed_data, list) or isinstance(typed_data, np.ndarray) or isinstance(typed_data, pd.Series):
+            if all(pd.isnull(typed_data)):
+                dtype = TYPES.NULL
+        elif pd.isnull(typed_data):
+            dtype = TYPES.NULL
+
         return dtype

@@ -1,6 +1,7 @@
 """
 Defines the ColumnProfile class for tracking per-column statistics
 """
+import numpy as np
 import pandas as pd
 
 from whylogs.core.statistics import (
@@ -102,18 +103,20 @@ class ColumnProfile:
         Add `value` to tracking statistics.
         """
         self.counters.increment_count()
-        if pd.isnull(value):
+        if ColumnProfile._are_nulls(value):
             self.schema_tracker.track(InferredType.Type.NULL)
+            return
+
+        if ColumnProfile._is_array_like(value):
             return
 
         # TODO: ignore this if we already know the data type
         if isinstance(value, str):
-
             self.string_tracker.update(value, character_list=character_list, token_method=token_method)
         # TODO: Implement real typed data conversion
         typed_data = TypedDataConverter.convert(value)
 
-        if not pd.isnull(typed_data):
+        if not ColumnProfile._are_nulls(typed_data):
             self.cardinality_tracker.update(typed_data)
             self.frequent_items.update(typed_data)
         dtype = TypedDataConverter.get_type(typed_data)
@@ -127,6 +130,17 @@ class ColumnProfile:
         self.number_tracker.track(typed_data)
 
         self.constraints.update(typed_data)
+
+    @staticmethod
+    def _is_array_like(value):
+        return isinstance(value, list) or isinstance(value, np.ndarray) or isinstance(value, pd.Series)
+
+    @staticmethod
+    def _are_nulls(value):
+        if ColumnProfile._is_array_like(value):
+            return all(pd.isnull(value))
+        else:
+            return pd.isnull(value)
 
     def _unique_count_summary(self) -> UniqueCountSummary:
         cardinality_summary = self.cardinality_tracker.to_summary(_UNIQUE_COUNT_BOUNDS_STD)

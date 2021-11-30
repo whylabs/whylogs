@@ -7,6 +7,14 @@ from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.proto import ColumnMessage, ColumnSummary, InferredType
 from whylogs.util.protobuf import message_to_dict
 
+_TEST_NULL_DATA = [
+    ([None, np.nan, None] * 3, 9, InferredType.Type.NULL),
+    ([pd.Series(data={"a": None, "b": None}, index=["x", "y"]), pd.Series(data={"c": None, "d": 1}, index=["x", "y"])], 2, InferredType.Type.NULL),
+    ([[None, np.nan], [np.nan], [None]], 3, InferredType.Type.NULL),
+    ([[None, 1], [None]], 1, InferredType.Type.NULL),
+    ([np.zeros(3)], 0, InferredType.Type.UNKNOWN),
+]
+
 
 def test_all_numeric_types_get_tracked_by_number_tracker():
     all_values = [
@@ -25,26 +33,28 @@ def test_all_numeric_types_get_tracked_by_number_tracker():
         assert c.number_tracker.count == len(values)
 
 
-def test_all_nulls_inferred_type_null():
-    import numpy as np
+@pytest.mark.parametrize("data,nulls_expected,_", _TEST_NULL_DATA)
+def test_are_nulls(data, nulls_expected, _):
+    null_count = 0
+    for val in data:
+        if ColumnProfile._are_nulls(val):
+            null_count += 1
 
-    from whylogs.proto import InferredType
+    assert null_count == nulls_expected
 
-    Type = InferredType.Type
+
+@pytest.mark.parametrize("data,nulls_expected, expected_type", _TEST_NULL_DATA)
+def test_all_nulls_inferred_type_null(data, nulls_expected, expected_type):
+    InferredType.Type
     c = ColumnProfile("col")
-    data = [None, np.nan, None] * 3
     for val in data:
         c.track(val)
     summary: ColumnSummary = c.to_summary()
-    assert summary.counters.null_count.value == 9
-    assert summary.schema.inferred_type.type == Type.NULL
+    assert summary.counters.null_count.value == nulls_expected
+    assert summary.schema.inferred_type.type == expected_type
 
 
 def test_mostly_nulls_inferred_type_not_null():
-    import numpy as np
-
-    from whylogs.proto import InferredType
-
     Type = InferredType.Type
     c = ColumnProfile("col")
     data = [None, np.nan, None] * 3 + ["not a null val!"]
@@ -55,8 +65,6 @@ def test_mostly_nulls_inferred_type_not_null():
 
 
 def test_frequent_items_do_not_track_nulls():
-    import numpy as np
-
     data = [None, np.nan, None]
     c = ColumnProfile("col")
     for val in data:
