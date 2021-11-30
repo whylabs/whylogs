@@ -1,7 +1,6 @@
 """
 Defines the ColumnProfile class for tracking per-column statistics
 """
-import pandas as pd
 
 from whylogs.core.statistics import (
     CountersTracker,
@@ -102,18 +101,20 @@ class ColumnProfile:
         Add `value` to tracking statistics.
         """
         self.counters.increment_count()
-        if pd.isnull(value):
+        if TypedDataConverter._are_nulls(value):
             self.schema_tracker.track(InferredType.Type.NULL)
+            return
+
+        if TypedDataConverter._is_array_like(value):
             return
 
         # TODO: ignore this if we already know the data type
         if isinstance(value, str):
-
             self.string_tracker.update(value, character_list=character_list, token_method=token_method)
         # TODO: Implement real typed data conversion
         typed_data = TypedDataConverter.convert(value)
 
-        if not pd.isnull(typed_data):
+        if not TypedDataConverter._are_nulls(typed_data):
             self.cardinality_tracker.update(typed_data)
             self.frequent_items.update(typed_data)
         dtype = TypedDataConverter.get_type(typed_data)
