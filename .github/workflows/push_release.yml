@@ -4,10 +4,6 @@ name: Upload Python Package
 on:
   release:
     types: [ released, prereleased]
-  workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Reason for rerun'
 
 jobs:
   deploy:
@@ -77,10 +73,6 @@ jobs:
       uses: abatilo/actions-poetry@v2.0.0
       with:
         poetry-version: 1.1.5
-    - name: set VERSION github env var
-      run: |
-        # from refs/tags/v1.2.3 get 1.2.3
-        echo "VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')" >> $GITHUB_ENV
     - name: install bump2version
       run: |
         pip install bump2version
@@ -88,10 +80,10 @@ jobs:
       run: |
         # from refs/tags/v1.2.3 get 1.2.3
         VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')
-        echo $env.VERSION
+        echo $VERSION
         # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         # git config --local user.name "github-actions[bot]"
-        poetry run bump2version patch --verbose  --no-tag --new-version $env.VERSION
+        poetry run bump2version patch --verbose  --no-tag --new-version $VERSION
         
     - name: Create Pull Request
       id: cpr
