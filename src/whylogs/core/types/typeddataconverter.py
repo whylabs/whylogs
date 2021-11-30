@@ -49,6 +49,17 @@ class TypedDataConverter:
         return data
 
     @staticmethod
+    def _is_array_like(value):
+        return isinstance(value, list) or isinstance(value, np.ndarray) or isinstance(value, pd.Series)
+
+    @staticmethod
+    def _are_nulls(value):
+        if TypedDataConverter._is_array_like(value):
+            return all(pd.isnull(value))
+        else:
+            return pd.isnull(value)
+
+    @staticmethod
     def get_type(typed_data):
         """
         Extract the data type of a value.  See `typeddataconvert.TYPES` for
@@ -74,10 +85,7 @@ class TypedDataConverter:
             dtype = TYPES.INTEGRAL
         elif isinstance(typed_data, str):
             dtype = TYPES.STRING
-        if isinstance(typed_data, list) or isinstance(typed_data, np.ndarray) or isinstance(typed_data, pd.Series):
-            if all(pd.isnull(typed_data)):
-                dtype = TYPES.NULL
-        elif pd.isnull(typed_data):
+        elif TypedDataConverter._are_nulls(typed_data):
             dtype = TYPES.NULL
 
         return dtype

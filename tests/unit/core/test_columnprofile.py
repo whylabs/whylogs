@@ -33,16 +33,6 @@ def test_all_numeric_types_get_tracked_by_number_tracker():
         assert c.number_tracker.count == len(values)
 
 
-@pytest.mark.parametrize("data,nulls_expected,_", _TEST_NULL_DATA)
-def test_are_nulls(data, nulls_expected, _):
-    null_count = 0
-    for val in data:
-        if ColumnProfile._are_nulls(val):
-            null_count += 1
-
-    assert null_count == nulls_expected
-
-
 @pytest.mark.parametrize("data,nulls_expected, expected_type", _TEST_NULL_DATA)
 def test_all_nulls_inferred_type_null(data, nulls_expected, expected_type):
     InferredType.Type
