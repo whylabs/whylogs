@@ -356,7 +356,11 @@ class SummaryConstraints:
         v = [c.to_protobuf() for c in self.constraints.values()]
         if len(v) > 0:
             scmsg = SummaryConstraintMsgs()
-            scmsg.constraints.extend(v)
+            for msg in v:
+                if isinstance(msg, SummaryConstraintMsgs):
+                    scmsg.constraints.extend(msg.constraints)
+                else:
+                    scmsg.constraints.extend([msg])
             return scmsg
         return None
 
@@ -370,7 +374,7 @@ class SummaryConstraints:
             return self
 
         merged_constraints = other.constraints.copy()
-        for name, constraint in self.constraints:
+        for name, constraint in self.constraints.items():
             merged_constraints[name] = constraint.merge(other.constraints.get(name))
 
         return SummaryConstraints(merged_constraints)
@@ -438,3 +442,46 @@ class DatasetConstraints:
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
         return l1 + l2
+
+
+"""
+Inherits from SummaryConstraints since there would be a problem if
+we inherit from SummaryConstraint which serializes to Summary
+"""
+
+
+class ComplexSummaryConstraint(SummaryConstraints):
+    def __init__(self, name=None, constraints: Mapping[str, SummaryConstraint] = None):
+        super(ComplexSummaryConstraint, self).__init__(constraints)
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name if self._name is not None else "summary constraints"
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    def report(self) -> List[tuple]:
+        max_total = 0
+        max_failed = 0
+        for c in self.constraints.values():
+            # the complex constraint would fail as many times
+            # as the maximum number of fails of a single component constraint
+            r = c.report()
+            if r[1] > max_total:
+                max_total = r[1]
+            if r[2] > max_failed:
+                max_failed = r[2]
+
+        return [(self._name, max_total, max_failed)]
+
+
+def stddev_between_constraint(min_value: "float", max_value: "float", verbose: "bool" = False):
+    stddev_ge_constraint = SummaryConstraint("stddev", Op.GE, min_value, None, "stddev>=min_value", verbose)
+    stddev_le_constraint = SummaryConstraint("stddev", Op.LE, max_value, None, "stddev<=max_value", verbose)
+
+    return ComplexSummaryConstraint(
+        f"stddev between {min_value} and {max_value}", {stddev_ge_constraint.name: stddev_ge_constraint, stddev_le_constraint.name: stddev_le_constraint}
+    )
