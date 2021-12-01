@@ -5,7 +5,7 @@ src.python.pyc := $(shell find ./src -type f -name "*.pyc")
 src.proto.dir := ./proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 
-version := 0.6.13
+version := 0.6.14-dev0
 
 dist.dir := dist
 egg.dir := .eggs
