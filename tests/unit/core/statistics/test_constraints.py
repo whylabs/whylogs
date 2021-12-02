@@ -7,11 +7,11 @@ from whylogs.app.session import session_from_config
 from whylogs.core.statistics.constraints import (
     DatasetConstraints,
     Op,
+    StddevBetweenConstraint,
     SummaryConstraint,
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
-    stddev_between_constraint,
 )
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
@@ -167,59 +167,69 @@ def test_value_constraints_merge_empty():
 
 
 def test_stddev_between_constraint_serialization():
-    stddev_between = stddev_between_constraint(2.3, 5.6, False)
+    stddev_between = StddevBetweenConstraint(2.3, 5.6, False)
     msg_value = stddev_between.to_protobuf()
     json_value = json.loads(message_to_json(msg_value))
 
-    assert len(json_value["constraints"]) == 2
+    assert json_value["name"] == f"stddev between 2.3 and 5.6"
 
-    assert json_value["constraints"][0]["name"] == "stddev>=min_value"
-    assert pytest.approx(json_value["constraints"][0]["value"], 0.001) == 2.3
-    assert json_value["constraints"][0]["op"] == Op.Name(Op.GE)
-    assert json_value["constraints"][0]["verbose"] == False
+    constraints = json_value["constraints"]
+    assert len(constraints) == 2
+    first_constraint = constraints[0]
+    second_constraint = constraints[1]
 
-    assert json_value["constraints"][1]["name"] == "stddev<=max_value"
-    assert pytest.approx(json_value["constraints"][1]["value"], 0.001) == 5.6
-    assert json_value["constraints"][1]["op"] == Op.Name(Op.LE)
-    assert json_value["constraints"][1]["verbose"] == False
+    assert first_constraint["name"] == "stddev>=min_value"
+    assert pytest.approx(first_constraint["value"], 0.001) == 2.3
+    assert first_constraint["op"] == Op.Name(Op.GE)
+    assert first_constraint["verbose"] == False
+
+    assert second_constraint["name"] == "stddev<=max_value"
+    assert pytest.approx(second_constraint["value"], 0.001) == 5.6
+    assert second_constraint["op"] == Op.Name(Op.LE)
+    assert second_constraint["verbose"] == False
 
 
 def test_stddev_between_constraint_invalid_initialization():
     with pytest.raises(ValueError):
-        stddev_between_constraint(None, 5.6, False)
+        StddevBetweenConstraint(None, 5.6, False)
 
     with pytest.raises(ValueError):
-        stddev_between_constraint(2.3, None, False)
+        StddevBetweenConstraint(2.3, None, False)
 
 
 # inheritance would be a better option than a function for implementing specific merging
-def test_stddev_between_constraints_merge():
-    stddev_1 = stddev_between_constraint(1.3, 6.7, False)
-    stddev_2 = stddev_between_constraint(2.3, 7.8, True)
+def test_stddev_between_constraints_merge_different_values():
+    stddev_1 = StddevBetweenConstraint(1.3, 6.7, False)
+    stddev_2 = StddevBetweenConstraint(2.3, 7.8, True)
     with pytest.raises(AssertionError):
-        merged = stddev_1.merge(stddev_2)  # in SummaryConstraints merge, constraints.items() is forgotten
+        stddev_1.merge(stddev_2)  # in SummaryConstraints merge, constraints.items() is forgotten
 
-    stddev_3 = stddev_between_constraint(1.3, 6.7, False)
-    stddev_4 = stddev_between_constraint(1.3, 6.7, False)
-    merged = stddev_3.merge(stddev_4)
+
+def test_stddev_between_constraints_merge_same_values():
+    stddev_1 = StddevBetweenConstraint(1.3, 6.7, False)
+    stddev_2 = StddevBetweenConstraint(1.3, 6.7, False)
+    merged = stddev_1.merge(stddev_2)
     msg_value = merged.to_protobuf()
     json_value = json.loads(message_to_json(msg_value))
 
-    assert json_value["constraints"][0]["name"] == "stddev>=min_value"
-    assert json_value["constraints"][0]["firstField"] == "stddev"
-    assert json_value["constraints"][0]["op"] == Op.Name(Op.GE)
-    assert pytest.approx(json_value["constraints"][0]["value"], 0.001) == 1.3
-    assert json_value["constraints"][0]["verbose"] == False
+    first_constraint = json_value["constraints"][0]
+    second_constraint = json_value["constraints"][1]
 
-    assert json_value["constraints"][1]["name"] == "stddev<=max_value"
-    assert json_value["constraints"][1]["firstField"] == "stddev"
-    assert json_value["constraints"][1]["op"] == Op.Name(Op.LE)
-    assert pytest.approx(json_value["constraints"][1]["value"], 0.001) == 6.7
-    assert json_value["constraints"][1]["verbose"] == False
+    assert first_constraint["name"] == "stddev>=min_value"
+    assert first_constraint["firstField"] == "stddev"
+    assert first_constraint["op"] == Op.Name(Op.GE)
+    assert pytest.approx(first_constraint["value"], 0.001) == 1.3
+    assert first_constraint["verbose"] == False
+
+    assert second_constraint["name"] == "stddev<=max_value"
+    assert second_constraint["firstField"] == "stddev"
+    assert second_constraint["op"] == Op.Name(Op.LE)
+    assert pytest.approx(second_constraint["value"], 0.001) == 6.7
+    assert second_constraint["verbose"] == False
 
 
 def test_stddev_report(df_lending_club, local_config_path):
-    stddev_between = stddev_between_constraint(2.3, 3.4, False)
+    stddev_between = StddevBetweenConstraint(2.3, 3.4, False)
     non_negative = SummaryConstraint("mean", Op.GE, 0, None, "non negative mean", False)
     dc = DatasetConstraints(
         None, summary_constraints={"addr_state": [stddev_between, non_negative], "earliest_cr_line": [non_negative], "loan_amnt": [non_negative]}
@@ -236,36 +246,35 @@ def test_stddev_report(df_lending_club, local_config_path):
     assert report[0][1][1] == ("non negative mean", 0, 0)
 
 
-def test_stddev_summary_constraints_to_protobuf_from_dataset_constraints(df_lending_club, local_config_path):
-    stddev_between = stddev_between_constraint(2.3, 3.4, False)
+def test_stddev_summary_constraints_to_protobuf_from_dataset_constraints():
+    stddev_between = StddevBetweenConstraint(2.3, 3.4, False)
     non_negative = SummaryConstraint("mean", Op.GE, 0, None, "non negative mean", False)
+
     dc = DatasetConstraints(
         None, summary_constraints={"addr_state": [stddev_between, non_negative], "earliest_cr_line": [non_negative], "loan_amnt": [non_negative]}
     )
 
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-
     # check serialization and deserialization, should not fail
-    profile.constraints.from_protobuf(profile.constraints.to_protobuf())
+    dc.from_protobuf(dc.to_protobuf())
 
-    msg_value = profile.constraints.to_protobuf()
+    msg_value = dc.to_protobuf()
     json_value = json.loads(message_to_json(msg_value))
 
-    assert json_value["summaryConstraints"]["addr_state"]["constraints"][0]["name"] == "stddev>=min_value"
-    assert json_value["summaryConstraints"]["addr_state"]["constraints"][0]["firstField"] == "stddev"
-    assert json_value["summaryConstraints"]["addr_state"]["constraints"][0]["op"] == Op.Name(Op.GE)
-    assert pytest.approx(json_value["summaryConstraints"]["addr_state"]["constraints"][0]["value"], 0.001) == 2.3
-    assert json_value["summaryConstraints"]["addr_state"]["constraints"][0]["verbose"] == False
+    complex_constraints = json_value["summaryConstraints"]["addr_state"]["complexConstraints"][0]["constraints"]
+    first_constraint = complex_constraints[0]
+    second_constraint = complex_constraints[1]
 
-    assert json_value["summaryConstraints"]["addr_state"]["constraints"][1]["name"] == "stddev<=max_value"
-    assert json_value["summaryConstraints"]["addr_state"]["constraints"][1]["firstField"] == "stddev"
-    assert json_value["summaryConstraints"]["addr_state"]["constraints"][1]["op"] == Op.Name(Op.LE)
-    assert pytest.approx(json_value["summaryConstraints"]["addr_state"]["constraints"][1]["value"], 0.001) == 3.4
-    assert json_value["summaryConstraints"]["addr_state"]["constraints"][1]["verbose"] == False
+    assert first_constraint["name"] == "stddev>=min_value"
+    assert first_constraint["firstField"] == "stddev"
+    assert first_constraint["op"] == Op.Name(Op.GE)
+    assert pytest.approx(first_constraint["value"], 0.001) == 2.3
+    assert first_constraint["verbose"] == False
+
+    assert second_constraint["name"] == "stddev<=max_value"
+    assert second_constraint["firstField"] == "stddev"
+    assert second_constraint["op"] == Op.Name(Op.LE)
+    assert pytest.approx(second_constraint["value"], 0.001) == 3.4
+    assert second_constraint["verbose"] == False
 
     # issues reading from and writing to protobuf
     # since the implementation expects SummaryConstraintMsg but is provided SummaryConstraintMsgs
@@ -274,7 +283,7 @@ def test_stddev_summary_constraints_to_protobuf_from_dataset_constraints(df_lend
 
 
 def test_stddev_apply_constraints(df_lending_club, local_config_path):
-    stddev_between = stddev_between_constraint(2.3, 3.4, False)
+    stddev_between = StddevBetweenConstraint(2.3, 3.4, False)
     non_negative_addr_state_mean = SummaryConstraint("mean", Op.GE, 0, None, "non negative address state mean", False)
     non_negative_loan_amnt = SummaryConstraint("min", Op.GE, 0, None)
     dc = DatasetConstraints(None, summary_constraints={"addr_state": [stddev_between, non_negative_addr_state_mean], "loan_amnt": [non_negative_loan_amnt]})

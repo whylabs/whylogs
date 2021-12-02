@@ -5,6 +5,7 @@ from typing import List, Mapping, Optional
 from google.protobuf.json_format import Parse
 
 from whylogs.proto import (
+    ComplexSummaryConstraintMsg,
     DatasetConstraintMsg,
     DatasetProperties,
     NumberSummary,
@@ -343,6 +344,7 @@ class SummaryConstraints:
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsgs) -> "SummaryConstraints":
         constraints = [SummaryConstraint.from_protobuf(c) for c in msg.constraints]
+        constraints.extend([ComplexSummaryConstraint.from_protobuf(c) for c in msg.complex_constraints])
         if len(constraints) > 0:
             return SummaryConstraints({v.name: v for v in constraints})
         return None
@@ -356,11 +358,11 @@ class SummaryConstraints:
         v = [c.to_protobuf() for c in self.constraints.values()]
         if len(v) > 0:
             scmsg = SummaryConstraintMsgs()
-            for msg in v:
-                if isinstance(msg, SummaryConstraintMsgs):
-                    scmsg.constraints.extend(msg.constraints)
+            for constraint in v:
+                if isinstance(constraint, ComplexSummaryConstraintMsg):
+                    scmsg.complex_constraints.append(constraint)
                 else:
-                    scmsg.constraints.extend([msg])
+                    scmsg.constraints.append(constraint)
             return scmsg
         return None
 
@@ -444,12 +446,6 @@ class DatasetConstraints:
         return l1 + l2
 
 
-"""
-Inherits from SummaryConstraints since there would be a problem if
-we inherit from SummaryConstraint which serializes to Summary
-"""
-
-
 class ComplexSummaryConstraint(SummaryConstraints):
     def __init__(self, name=None, constraints: Mapping[str, SummaryConstraint] = None):
         super(ComplexSummaryConstraint, self).__init__(constraints)
@@ -477,8 +473,24 @@ class ComplexSummaryConstraint(SummaryConstraints):
 
         return [(self._name, max_total, max_failed)]
 
+    def to_protobuf(self) -> ComplexSummaryConstraintMsg:
+        v = [c.to_protobuf() for c in self.constraints.values()]
+        if len(v) > 0:
+            cscmsg = ComplexSummaryConstraintMsg()
+            cscmsg.constraints.extend(v)
+            cscmsg.name = self.name
+            return cscmsg
+        return None
 
-def stddev_between_constraint(min_value: "float", max_value: "float", verbose: "bool" = False):
+    @staticmethod
+    def from_protobuf(msg: ComplexSummaryConstraintMsg) -> "ComplexSummaryConstraint":
+        constraints = [SummaryConstraint.from_protobuf(c) for c in msg.constraints]
+        if len(constraints) > 0:
+            return ComplexSummaryConstraint(name=msg.name, constraints={v.name: v for v in constraints})
+        return None
+
+
+def StddevBetweenConstraint(min_value: "float", max_value: "float", verbose: "bool" = False):
     stddev_ge_constraint = SummaryConstraint("stddev", Op.GE, min_value, None, "stddev>=min_value", verbose)
     stddev_le_constraint = SummaryConstraint("stddev", Op.LE, max_value, None, "stddev<=max_value", verbose)
 

@@ -54,8 +54,14 @@ message ValueConstraintMsgs {
   repeated ValueConstraintMsg constraints = 1;
 }
 
+message ComplexSummaryConstraintMsg {
+  string name = 1;
+  repeated SummaryConstraintMsg constraints = 2;
+}
+
 message SummaryConstraintMsgs {
   repeated SummaryConstraintMsg constraints = 1;
+  repeated ComplexSummaryConstraintMsg complex_constraints = 2;
 }
 
 message DatasetConstraintMsg {
