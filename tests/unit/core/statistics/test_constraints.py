@@ -29,6 +29,8 @@ def test_value_summary_serialization():
         assert json_value["verbose"] == False
 
     for each_op, _ in _summary_funcs1.items():
+        if each_op == Op.BTWN:
+            continue
         # constraints may have an optional name
         sum_constraint = SummaryConstraint("min", each_op, 300000, name="< 30K")
         msg_sum_const = sum_constraint.to_protobuf()
@@ -163,3 +165,163 @@ def test_value_constraints_merge_empty():
     constraint2 = None
     merged = constraint1.merge(constraint2)
     assert merged == constraint1, "merging empty constraints should preserve left hand side"
+
+#############################
+def test_summary_between_serialization_deserialization():
+
+    # constraints may have an optional name
+    sum_constraint = SummaryConstraint("min", Op.BTWN, 0.1, 2.4)
+    msg_sum_const = sum_constraint.to_protobuf()
+    json_summary = json.loads(message_to_json(msg_sum_const))
+
+    assert json_summary["name"] == "summary min BTWN 0.1 and 2.4"
+    assert pytest.approx(json_summary["between"]["lowerValue"], 0.1) == 0.1
+    assert pytest.approx(json_summary["between"]["upperValue"], 0.1) == 2.4
+    assert json_summary["firstField"] == "min"
+    assert json_summary["op"] == str(Op.Name(Op.BTWN))
+    assert json_summary["verbose"] == False
+
+    sum_deser_constraint = SummaryConstraint.from_protobuf(sum_constraint.to_protobuf())
+
+    json_deser_summary = json.loads(message_to_json(sum_deser_constraint.to_protobuf()))
+
+    assert json_summary["name"] == json_deser_summary["name"]
+    assert pytest.approx(json_summary["between"]["lowerValue"], 0.001) == pytest.approx(json_deser_summary["between"]["lowerValue"], 0.001)
+    assert pytest.approx(json_summary["between"]["upperValue"], 0.001) == pytest.approx(json_deser_summary["between"]["upperValue"], 0.001)
+    assert json_summary["firstField"] == json_deser_summary["firstField"]
+    assert json_summary["op"] == json_deser_summary["op"]
+    assert json_summary["verbose"] == json_deser_summary["verbose"]
+
+
+def test_summary_between_constraint_incompatible_parameters():
+    with pytest.raises(TypeError):
+        SummaryConstraint("min", Op.BTWN, 0.1, "stddev")
+    
+    with pytest.raises(ValueError):
+        SummaryConstraint("min", Op.BTWN, 0.1, second_field = "stddev")
+    
+    with pytest.raises(ValueError):
+        SummaryConstraint("min", Op.BTWN, 0.1, 2.4, "stddev")
+
+    with pytest.raises(ValueError):
+        SummaryConstraint("min", Op.BTWN, 0.1, 2.4, third_field="stddev")
+
+    with pytest.raises(ValueError):
+        SummaryConstraint("min", Op.BTWN, 0.1, 2.4, "stddev", "mean")
+
+    
+def test_summary_between_constraints(df_lending_club, local_config_path):
+    std_dev_between = SummaryConstraint("stddev", Op.BTWN, value=100, upper_value=200)
+
+    random_min = SummaryConstraint("min", Op.GT, value=100)
+    mean_between = SummaryConstraint("mean", Op.BTWN, value=2, upper_value=500)
+
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [std_dev_between], "loan_amnt": [random_min, mean_between]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = r = profile.apply_summary_constraints()
+
+    assert len(report) == 2
+    print (report)
+    # make sure it checked every value
+    for each_feat in report:
+        for each_constraint in each_feat[1]:
+            assert each_constraint[1] == 1
+################################
+    std_dev_between = SummaryConstraint("stddev", Op.BTWN, second_field="mean", third_field='max')
+
+    random_min = SummaryConstraint("min", Op.GT, value=100)
+    mean_between = SummaryConstraint("mean", Op.BTWN, second_field="min", third_field='max')
+
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [std_dev_between], "loan_amnt": [random_min, mean_between]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = r = profile.apply_summary_constraints()
+
+    assert len(report) == 2
+    # make sure it checked every value
+    for each_feat in report:
+        for each_constraint in each_feat[1]:
+            assert each_constraint[1] == 1
+
+
+def test_summary_between_constraints_no_merge_different_values_fields():
+
+    std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=200)
+    std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, value=0.2, upper_value=200)
+
+    with pytest.raises(AssertionError):
+        std_dev_between1.merge(std_dev_between2)
+
+    std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=200)
+    std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=300)
+
+    with pytest.raises(AssertionError):
+        std_dev_between1.merge(std_dev_between2)
+
+    std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, value=0.5, upper_value=301)
+    std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=300)
+
+    with pytest.raises(AssertionError):
+        std_dev_between1.merge(std_dev_between2)
+
+    std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, second_field="min", third_field="max")
+    std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, second_field="mean", third_field="max")
+
+    with pytest.raises(AssertionError):
+        std_dev_between1.merge(std_dev_between2)
+
+    std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, second_field="min", third_field="mean")
+    std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, second_field="min", third_field="max")
+
+    with pytest.raises(AssertionError):
+        std_dev_between1.merge(std_dev_between2)
+
+    std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, second_field="min", third_field="count")
+    std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, second_field="mean", third_field="max")
+
+    with pytest.raises(AssertionError):
+        std_dev_between1.merge(std_dev_between2)
+
+
+def test_summary_between_constraints_no_merge_different_names():
+    std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=200, name="std dev between 1")
+    std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=200, name="std dev between 2")
+
+    with pytest.raises(AssertionError):
+        std_dev_between1.merge(std_dev_between2)
+
+
+def test_summary_between_constraints_merge(df_lending_club, local_config_path):
+    std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=200)
+    std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=200)
+
+
+    merged = std_dev_between1.merge(std_dev_between2)
+
+    pre_merge_json = json.loads(message_to_json(std_dev_between1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json['name'] == merge_json['name']
+    assert pytest.approx(pre_merge_json["between"]["lowerValue"], 0.001) == pytest.approx(merge_json["between"]["lowerValue"], 0.001)
+    assert pytest.approx(pre_merge_json["between"]["upperValue"], 0.001) == pytest.approx(merge_json["between"]["upperValue"], 0.001)
+    assert pre_merge_json["firstField"] == merge_json["firstField"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+    
+
+    
+
+
+
+
+
+
+
+
+

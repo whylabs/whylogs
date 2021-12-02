@@ -17,6 +17,7 @@ enum Op {
     GT = 6;
     MATCH = 7;
     NOMATCH = 8;
+    BTWN = 9;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -31,9 +32,22 @@ message SummaryConstraintMsg {
   oneof second {
      string second_field = 3;
      double value = 4;
+     SummaryBetweenConstraintMsg between = 5;
   }
-  Op op = 5;
-  bool verbose = 6;
+  Op op = 6;
+  bool verbose = 7;
+}
+
+message SummaryBetweenConstraintMsg {
+  oneof lower {
+     string second_field = 1;
+     double lower_value = 2;
+  }
+  oneof upper {
+     string third_field = 3;
+     double upper_value = 4;
+  }
+
 }
 
 /* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal, or between a string value and a regex pattern.
