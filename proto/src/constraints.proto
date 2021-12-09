@@ -32,10 +32,10 @@ message SummaryConstraintMsg {
   oneof second {
      string second_field = 3;
      double value = 4;
-     SummaryBetweenConstraintMsg between = 5;
+     SummaryBetweenConstraintMsg between = 7;
   }
-  Op op = 6;
-  bool verbose = 7;
+  Op op = 5;
+  bool verbose = 6;
 }
 
 message SummaryBetweenConstraintMsg {
