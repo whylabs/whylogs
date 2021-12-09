@@ -1,5 +1,6 @@
 import json
 
+import pandas as pd
 import pytest
 
 from whylogs.app.config import load_config
@@ -15,6 +16,7 @@ from whylogs.core.statistics.constraints import (
     meanBetweenConstraint,
     minBetweenConstraint,
     stddevBetweenConstraint,
+    emailConstraint,
 )
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
@@ -401,3 +403,37 @@ def test_max_between_constraint_invalid():
         maxBetweenConstraint(lower_value="2", upper_value=2)
     with pytest.raises(TypeError):
         maxBetweenConstraint(lower_field="max", upper_field=2)
+
+
+def _report_email_value_constraint_on_data_set(local_config_path, pattern=None):
+    df = pd.DataFrame([
+        {'email': r"abc's@gmail.com"},
+        {'email': r'"avrrr test \@"@gmail.com'},
+        {'email': r'abc..q12@example.us'},
+        {'email': r'"sdsss\d"@gmail.com'},
+        {'email': r'customer/department=shipping?@example-another.some-other.us'},
+        {'email': r'.should_fail@yahoo.com'}
+    ])
+
+    email_constraint = emailConstraint(regex_pattern=pattern)
+    dc = DatasetConstraints(None, value_constraints={"email": [email_constraint]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+    return report
+
+
+def test_email_constraint(local_config_path):
+    report = _report_email_value_constraint_on_data_set(local_config_path)
+
+    assert report[0][1][0][1] == 6
+    assert report[0][1][0][2] == 2
+
+
+def test_email_constraint_supply_regex_pattern(local_config_path):
+    report = _report_email_value_constraint_on_data_set(local_config_path, r'\S+@\S+')
+    assert report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} \S+@\S+'
+    assert report[0][1][0][1] == 6
+    assert report[0][1][0][2] == 1
