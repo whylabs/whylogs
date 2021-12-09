@@ -112,6 +112,7 @@ class ValueConstraint:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
 
     def update(self, v) -> bool:
+        v = str.lower(v) if isinstance(v, str) else v
         self.total += 1
         if self.op in [Op.MATCH, Op.NOMATCH] and not isinstance(v, str):
             self.failures += 1
@@ -212,15 +213,15 @@ class SummaryConstraint:
     """
 
     def __init__(
-        self,
-        first_field: str,
-        op: Op,
-        value=None,
-        upper_value=None,
-        second_field: str = None,
-        third_field: str = None,
-        name: str = None,
-        verbose=False,
+            self,
+            first_field: str,
+            op: Op,
+            value=None,
+            upper_value=None,
+            second_field: str = None,
+            third_field: str = None,
+            name: str = None,
+            verbose=False,
     ):
         self._verbose = verbose
         self._name = name
@@ -238,23 +239,28 @@ class SummaryConstraint:
             if value is not None and upper_value is not None and (second_field, third_field) == (None, None):
                 # field-value summary comparison
                 if not isinstance(value, (int, float)) or not isinstance(upper_value, (int, float)):
-                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower value must be of type (int, float)")
+                    raise TypeError(
+                        "When creating Summary constraint with BETWEEN operation, upper and lower value must be of type (int, float)")
                 if value >= upper_value:
-                    raise ValueError("Summary constraint with BETWEEN operation must specify lower value to be less than upper value")
+                    raise ValueError(
+                        "Summary constraint with BETWEEN operation must specify lower value to be less than upper value")
 
                 self.func = _summary_funcs1[self.op](first_field, value, upper_value)
 
             elif second_field is not None and third_field is not None and (value, upper_value) == (None, None):
                 # field-field summary comparison
                 if not isinstance(second_field, str) or not isinstance(third_field, str):
-                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower field must be of type string")
+                    raise TypeError(
+                        "When creating Summary constraint with BETWEEN operation, upper and lower field must be of type string")
 
                 self.func = _summary_funcs2[self.op](first_field, second_field, third_field)
             else:
-                raise ValueError("Summary constraint with BETWEEN operation must specify lower and upper value OR lower and third field name, but not both")
+                raise ValueError(
+                    "Summary constraint with BETWEEN operation must specify lower and upper value OR lower and third field name, but not both")
         else:
             if upper_value is not None or third_field is not None:
-                raise ValueError("Summary constraint with other than BETWEEN operation must NOT specify upper value NOR third field name")
+                raise ValueError(
+                    "Summary constraint with other than BETWEEN operation must NOT specify upper value NOR third field name")
 
             if value is not None and second_field is None:
                 # field-value summary comparison
@@ -308,7 +314,8 @@ class SummaryConstraint:
             )
         else:
             merged_constraint = SummaryConstraint(
-                first_field=self.first_field, op=self.op, value=self.value, second_field=self.second_field, name=self.name, verbose=self._verbose
+                first_field=self.first_field, op=self.op, value=self.value, second_field=self.second_field,
+                name=self.name, verbose=self._verbose
             )
 
         merged_constraint.total = self.total + other.total
@@ -336,10 +343,10 @@ class SummaryConstraint:
             )
         elif msg.HasField("between") and not msg.HasField("value") and not msg.HasField("second_field"):
             if (
-                msg.between.HasField("lower_value")
-                and msg.between.HasField("upper_value")
-                and not msg.between.HasField("second_field")
-                and not msg.between.HasField("third_field")
+                    msg.between.HasField("lower_value")
+                    and msg.between.HasField("upper_value")
+                    and not msg.between.HasField("second_field")
+                    and not msg.between.HasField("third_field")
             ):
                 return SummaryConstraint(
                     msg.first_field,
@@ -350,10 +357,10 @@ class SummaryConstraint:
                     verbose=msg.verbose,
                 )
             elif (
-                msg.between.HasField("second_field")
-                and msg.between.HasField("third_field")
-                and not msg.between.HasField("lower_value")
-                and not msg.between.HasField("upper_value")
+                    msg.between.HasField("second_field")
+                    and msg.between.HasField("third_field")
+                    and not msg.between.HasField("lower_value")
+                    and not msg.between.HasField("upper_value")
             ):
                 return SummaryConstraint(
                     msg.first_field,
@@ -364,16 +371,19 @@ class SummaryConstraint:
                     verbose=msg.verbose,
                 )
         else:
-            raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg, but only one of them")
+            raise ValueError(
+                "SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg, but only one of them")
 
     def to_protobuf(self) -> SummaryConstraintMsg:
         if self.op == Op.BTWN:
 
             summary_between_constraint_msg = None
             if self.second_field is None and self.third_field is None:
-                summary_between_constraint_msg = SummaryBetweenConstraintMsg(lower_value=self.value, upper_value=self.upper_value)
+                summary_between_constraint_msg = SummaryBetweenConstraintMsg(lower_value=self.value,
+                                                                             upper_value=self.upper_value)
             else:
-                summary_between_constraint_msg = SummaryBetweenConstraintMsg(second_field=self.second_field, third_field=self.third_field)
+                summary_between_constraint_msg = SummaryBetweenConstraintMsg(second_field=self.second_field,
+                                                                             third_field=self.third_field)
 
             msg = SummaryConstraintMsg(
                 name=self.name,
@@ -511,10 +521,10 @@ class SummaryConstraints:
 
 class DatasetConstraints:
     def __init__(
-        self,
-        props: DatasetProperties,
-        value_constraints: Optional[ValueConstraints] = None,
-        summary_constraints: Optional[SummaryConstraints] = None,
+            self,
+            props: DatasetProperties,
+            value_constraints: Optional[ValueConstraints] = None,
+            summary_constraints: Optional[SummaryConstraints] = None,
     ):
         self.dataset_properties = props
         # repackage lists of constraints if necessary
@@ -568,15 +578,18 @@ class DatasetConstraints:
 
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
-    return SummaryConstraint("stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+    return SummaryConstraint("stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field,
+                             third_field=upper_field, verbose=verbose)
 
 
 def meanBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
-    return SummaryConstraint("mean", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+    return SummaryConstraint("mean", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field,
+                             third_field=upper_field, verbose=verbose)
 
 
 def minBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
-    return SummaryConstraint("min", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+    return SummaryConstraint("min", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field,
+                             third_field=upper_field, verbose=verbose)
 
 
 def minGreaterThanEqualConstraint(value=None, field=None, verbose=False):
@@ -584,7 +597,8 @@ def minGreaterThanEqualConstraint(value=None, field=None, verbose=False):
 
 
 def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
-    return SummaryConstraint("max", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+    return SummaryConstraint("max", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field,
+                             third_field=upper_field, verbose=verbose)
 
 
 def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
@@ -598,3 +612,17 @@ def columnValuesInSetConstraint(value_set: "set", verbose=False):
         raise TypeError("The value set should be an iterable data type")
 
     return ValueConstraint(Op.IN, value=value_set, verbose=verbose)
+
+
+def emailConstraint(regex_pattern: 'str' = None, verbose=False):
+    if regex_pattern is not None:
+        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the emailConstraint,"
+                       " depending on its complexity.")
+        email_pattern = regex_pattern
+    else:
+        email_pattern = r'^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*' \
+                        r'|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|[\x01-\x09\x0b\x0c\x0e-\x7f])*")' \
+                        r'@' \
+                        r'(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)$'
+
+    return ValueConstraint(Op.MATCH, regex_pattern=email_pattern, verbose=verbose)
