@@ -687,7 +687,12 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
-                constraints.update(summ.number_summary)
+                update_dict = {"number_summary": summ.number_summary, 
+                    "string_theta": colprof.string_tracker.theta_sketch.theta_sketch, 
+                    "number_theta": colprof.number_tracker.theta_sketch.theta_sketch}
+                
+                # constraints.update(summ.number_summary)
+                constraints.update(update_dict)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
