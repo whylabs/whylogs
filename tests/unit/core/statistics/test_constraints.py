@@ -58,7 +58,7 @@ def test_value_summary_serialization():
         assert json_value["verbose"] == False
 
     for each_op, _ in _summary_funcs1.items():
-        if each_op == Op.BTWN:
+        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
             continue
         # constraints may have an optional name
         sum_constraint = SummaryConstraint("min", each_op, 300000, name="< 30K")
@@ -437,24 +437,32 @@ def test_max_between_constraint_invalid():
         maxBetweenConstraint(lower_field="max", upper_field=2)
 
 
-def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
-
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": constraints})
-
-
 def test_column_values_in_set_constraint(df_lending_club, local_config_path):
     cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
     ltc = ValueConstraint(Op.LT, 1)
     dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
+
+
+def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
+
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": constraints})
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
-    report = dc.report()
+    report = profile.apply_summary_constraints()
 
-    # check if all of the rows have been reported
-    assert report[0][1][0][1] == len(df_lending_club)
-    assert report[0][1][1][1] == len(df_lending_club)
+    print(report)
+    assert len(report) == 1
+
+    # make sure it checked every value
+    for each_feat in report:
+        for each_constraint in each_feat[1]:
+            assert each_constraint[1] == 1
+            if "True" in each_constraint[0]:
+                assert each_constraint[2] == 0
+            else:
+                assert each_constraint[2] == 1
 
 
 def test_set_summary_constraints(df_lending_club, local_config_path):
@@ -823,7 +831,6 @@ def test_apply_func_merge():
 
 
 def _apply_string_length_constraints(local_config_path, length_constraints):
-    import pandas as pd
 
     df = pd.DataFrame(
         [

@@ -242,6 +242,8 @@ class ValueConstraint:
     def merge(self, other) -> "ValueConstraint":
         if not other:
             return self
+        val = None
+        pattern = None
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
         assert (
@@ -445,7 +447,15 @@ class SummaryConstraint:
 
     @property
     def name(self):
-        if self.op == Op.BTWN:
+        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+            reference_set_str = ""
+            if len(self.reference_set) > 20:
+                tmp_set = set(list(self.reference_set)[:20])
+                reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
+            else:
+                reference_set_str = str(self.reference_set)
+            return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {reference_set_str}"
+        elif self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
             return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {lower_target} and {upper_target}"
@@ -525,7 +535,15 @@ class SummaryConstraint:
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
 
-        if msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
+        if msg.HasField("reference_set") and not msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
+            return SummaryConstraint(
+                msg.first_field,
+                msg.op,
+                reference_set=set(msg.reference_set),
+                name=msg.name,
+                verbose=msg.verbose,
+            )
+        elif msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between") and not msg.HasField("reference_set"):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -533,7 +551,7 @@ class SummaryConstraint:
                 name=msg.name,
                 verbose=msg.verbose,
             )
-        elif msg.HasField("second_field") and not msg.HasField("value") and not msg.HasField("between"):
+        elif msg.HasField("second_field") and not msg.HasField("value") and not msg.HasField("between") and not msg.HasField("reference_set"):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -541,7 +559,7 @@ class SummaryConstraint:
                 name=msg.name,
                 verbose=msg.verbose,
             )
-        elif msg.HasField("between") and not msg.HasField("value") and not msg.HasField("second_field"):
+        elif msg.HasField("between") and not msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("reference_set"):
             if (
                 msg.between.HasField("lower_value")
                 and msg.between.HasField("upper_value")
@@ -576,7 +594,18 @@ class SummaryConstraint:
             )
 
     def to_protobuf(self) -> SummaryConstraintMsg:
-        if self.op == Op.BTWN:
+        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+            reference_set_msg = ListValue()
+            reference_set_msg.extend(self.reference_set)
+
+            msg = SummaryConstraintMsg(
+                name=self.name,
+                first_field=self.first_field,
+                op=self.op,
+                reference_set=reference_set_msg,
+                verbose=self._verbose,
+            )
+        elif self.op == Op.BTWN:
 
             summary_between_constraint_msg = None
             if self.second_field is None and self.third_field is None:
