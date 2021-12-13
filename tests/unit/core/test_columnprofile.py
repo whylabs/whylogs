@@ -50,7 +50,7 @@ def test_string_as_arrays_does_not_throw():
     data = "[0,0]"  # this string will be parsed as an array
     c.track(data)
     summary: ColumnSummary = c.to_summary()
-    assert summary.schema.inferred_type.type == InferredType.Type.NULL
+    assert summary.schema.inferred_type.type == InferredType.Type.UNKNOWN
 
 
 def test_mostly_nulls_inferred_type_not_null():
