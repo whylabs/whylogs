@@ -2,7 +2,6 @@ import json
 
 import pandas as pd
 import pytest
-import time
 
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
@@ -28,7 +27,6 @@ from whylogs.util.protobuf import message_to_json
 
 
 def test_value_summary_serialization():
-
     for each_op, _ in _value_funcs.items():
         if each_op == Op.IN_SET:
             value = ValueConstraint(each_op, {3.6})
@@ -61,13 +59,13 @@ def test_value_summary_serialization():
 
 
 def test_value_constraints(df_lending_club, local_config_path):
-
     conforming_loan = ValueConstraint(Op.LT, 548250)
     smallest_loan = ValueConstraint(Op.GT, 2500.0, verbose=True)
 
     high_fico = ValueConstraint(Op.GT, 4000)
 
-    dc = DatasetConstraints(None, value_constraints={"loan_amnt": [conforming_loan, smallest_loan], "fico_range_high": [high_fico]})
+    dc = DatasetConstraints(None, value_constraints={"loan_amnt": [conforming_loan, smallest_loan],
+                                                     "fico_range_high": [high_fico]})
 
     config = load_config(local_config_path)
     session = session_from_config(config)
@@ -87,7 +85,6 @@ def test_value_constraints(df_lending_club, local_config_path):
 
 
 def test_value_constraints_pattern_match(df_lending_club, local_config_path):
-
     regex_state_abbreviation = r"^[a-zA-Z]{2}$"
     contains_state = ValueConstraint(Op.MATCH, regex_pattern=regex_state_abbreviation)
 
@@ -98,7 +95,8 @@ def test_value_constraints_pattern_match(df_lending_club, local_config_path):
     contains_state_loan_amnt = ValueConstraint(Op.MATCH, regex_pattern=regex_state_abbreviation)
 
     dc = DatasetConstraints(
-        None, value_constraints={"addr_state": [contains_state], "earliest_cr_line": [not_contains_date], "loan_amnt": [contains_state_loan_amnt]}
+        None, value_constraints={"addr_state": [contains_state], "earliest_cr_line": [not_contains_date],
+                                 "loan_amnt": [contains_state_loan_amnt]}
     )
 
     config = load_config(local_config_path)
@@ -174,7 +172,8 @@ def test_value_constraints_merge():
     constraint1 = ValueConstraint(Op.LT, 1)
     constraint2 = ValueConstraint(Op.LT, 1)
     merged = constraint1.merge(constraint2)
-    assert merged.report() == ("value LT 1", 0, 0), "merging unlogged constraints should not change them from initiat state"
+    assert merged.report() == (
+    "value LT 1", 0, 0), "merging unlogged constraints should not change them from initiat state"
 
 
 def test_value_constraints_merge_empty():
@@ -184,8 +183,16 @@ def test_value_constraints_merge_empty():
     assert merged == constraint1, "merging empty constraints should preserve left hand side"
 
 
-def test_summary_between_serialization_deserialization():
+def test_value_constraints_with_zero_as_value():
+    c1 = ValueConstraint(Op.LT, 0)
+    json_value = json.loads(message_to_json(c1.to_protobuf()))
+    assert json_value['name'] == f'value {Op.Name(Op.LT)} 0'
+    assert pytest.approx(json_value['value'], 0.01) == 0.0
+    assert json_value['op'] == Op.Name(Op.LT)
+    assert json_value['verbose'] is False
 
+
+def test_summary_between_serialization_deserialization():
     # constraints may have an optional name
     sum_constraint = SummaryConstraint("min", Op.BTWN, 0.1, 2.4)
     msg_sum_const = sum_constraint.to_protobuf()
@@ -203,8 +210,10 @@ def test_summary_between_serialization_deserialization():
     json_deser_summary = json.loads(message_to_json(sum_deser_constraint.to_protobuf()))
 
     assert json_summary["name"] == json_deser_summary["name"]
-    assert pytest.approx(json_summary["between"]["lowerValue"], 0.001) == pytest.approx(json_deser_summary["between"]["lowerValue"], 0.001)
-    assert pytest.approx(json_summary["between"]["upperValue"], 0.001) == pytest.approx(json_deser_summary["between"]["upperValue"], 0.001)
+    assert pytest.approx(json_summary["between"]["lowerValue"], 0.001) == pytest.approx(
+        json_deser_summary["between"]["lowerValue"], 0.001)
+    assert pytest.approx(json_summary["between"]["upperValue"], 0.001) == pytest.approx(
+        json_deser_summary["between"]["upperValue"], 0.001)
     assert json_summary["firstField"] == json_deser_summary["firstField"]
     assert json_summary["op"] == json_deser_summary["op"]
     assert json_summary["verbose"] == json_deser_summary["verbose"]
@@ -234,7 +243,8 @@ def _apply_between_summary_constraint_on_dataset(df_lending_club, local_config_p
     min_gt_constraint = SummaryConstraint("min", Op.GT, value=100)
     max_le_constraint = SummaryConstraint("max", Op.LE, value=5)
 
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [between_constraint, max_le_constraint], "loan_amnt": [min_gt_constraint]})
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [between_constraint, max_le_constraint],
+                                                       "loan_amnt": [min_gt_constraint]})
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
@@ -261,7 +271,6 @@ def test_summary_between_constraints_fields(df_lending_club, local_config_path):
 
 
 def test_summary_between_constraints_no_merge_different_values_fields():
-
     std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=200)
     std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, value=0.2, upper_value=200)
 
@@ -305,8 +314,10 @@ def test_summary_between_constraints_merge():
     merge_json = json.loads(message_to_json(merged.to_protobuf()))
 
     assert pre_merge_json["name"] == merge_json["name"]
-    assert pytest.approx(pre_merge_json["between"]["lowerValue"], 0.001) == pytest.approx(merge_json["between"]["lowerValue"], 0.001)
-    assert pytest.approx(pre_merge_json["between"]["upperValue"], 0.001) == pytest.approx(merge_json["between"]["upperValue"], 0.001)
+    assert pytest.approx(pre_merge_json["between"]["lowerValue"], 0.001) == pytest.approx(
+        merge_json["between"]["lowerValue"], 0.001)
+    assert pytest.approx(pre_merge_json["between"]["upperValue"], 0.001) == pytest.approx(
+        merge_json["between"]["upperValue"], 0.001)
     assert pre_merge_json["firstField"] == merge_json["firstField"]
     assert pre_merge_json["op"] == merge_json["op"]
     assert pre_merge_json["verbose"] == merge_json["verbose"]
