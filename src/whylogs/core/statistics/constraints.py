@@ -106,7 +106,7 @@ class ValueConstraint:
 
     @property
     def name(self):
-        if getattr(self, "value", None):
+        if getattr(self, "value", None) is not None:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.value}"
         else:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
