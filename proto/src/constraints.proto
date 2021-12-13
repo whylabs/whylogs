@@ -19,9 +19,13 @@ enum Op {
     MATCH = 7;
     NOMATCH = 8;
     BTWN = 9;
+<<<<<<< HEAD
     IN_SET = 10;
     CONTAINS_SET = 11;
     EQ_SET = 12;
+=======
+    IN = 10;
+>>>>>>> dev/loka/milena
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -64,6 +68,7 @@ message ValueConstraintMsg {
   oneof second_field {
     double value = 2;
     string regex_pattern = 5;
+    google.protobuf.ListValue value_set = 6;
   }
   Op op = 3;
   bool verbose = 4;

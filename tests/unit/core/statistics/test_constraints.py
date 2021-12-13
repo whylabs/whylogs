@@ -1,6 +1,8 @@
 import json
 
+import pandas as pd
 import pytest
+import time
 
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
@@ -16,7 +18,7 @@ from whylogs.core.statistics.constraints import (
     minBetweenConstraint,
     stddevBetweenConstraint,
     stringLengthEqualConstraint,
-    stringLengthBetweenConstraint,
+    stringLengthBetweenConstraint
 )
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
@@ -25,12 +27,18 @@ from whylogs.util.protobuf import message_to_json
 def test_value_summary_serialization():
 
     for each_op, _ in _value_funcs.items():
-
-        value = ValueConstraint(each_op, 3.6)
+        if each_op == Op.IN:
+            value = ValueConstraint(each_op, {3.6})
+        else:
+            value = ValueConstraint(each_op, 3.6)
         msg_value = value.to_protobuf()
         json_value = json.loads(message_to_json(msg_value))
-        assert json_value["name"] == "value " + Op.Name(each_op) + " 3.6"
-        assert pytest.approx(json_value["value"], 0.001) == 3.6
+        if each_op == Op.IN:
+            assert json_value["name"] == "value " + Op.Name(each_op) + " {3.6}"
+            assert json_value["valueSet"][0] == [3.6]
+        else:
+            assert json_value["name"] == "value " + Op.Name(each_op) + " 3.6"
+            assert pytest.approx(json_value["value"], 0.001) == 3.6
         assert json_value["op"] == Op.Name(each_op)
         assert json_value["verbose"] == False
 
@@ -407,6 +415,11 @@ def test_max_between_constraint_invalid():
 def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
     
     dc = DatasetConstraints(None, summary_constraints={"annual_inc": constraints})
+
+def test_column_values_in_set_constraint(df_lending_club, local_config_path):
+    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8})
+    ltc = ValueConstraint(Op.LT, 1)
+    dc = DatasetConstraints(None, value_constraints={"annual_inc": [cvisc, ltc]})
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
@@ -485,7 +498,61 @@ def test_set_summary_merge():
     assert pre_merge_json["firstField"] == merge_json["firstField"]
     assert pre_merge_json["op"] == merge_json["op"]
     assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+
+def test_merge_values_in_set_constraint_different_value_set():
+    cvisc1 = columnValuesInSetConstraint(value_set={1, 2, 3})
+    cvisc2 = columnValuesInSetConstraint(value_set={3, 4, 5})
+    with pytest.raises(AssertionError):
+        cvisc1.merge(cvisc2)
+
+
+def test_merge_values_in_set_constraint_same_value_set():
+    cvisc1 = columnValuesInSetConstraint(value_set={"abc", "b", "c"})
+    cvisc2 = columnValuesInSetConstraint(value_set={"abc", "b", "c"})
+    merged = cvisc1.merge(cvisc2)
+    print(merged.report())
+
+
+def test_serialization_deserialization_values_in_set_constraint():
+    val_set = {"abc", 1, 2}
+    cvisc = columnValuesInSetConstraint(value_set=val_set)
+
+    cvisc.from_protobuf(cvisc.to_protobuf())
+    json_value = json.loads(message_to_json(cvisc.to_protobuf()))
+
+    print(json_value)
+    assert json_value["name"] == "value IN " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN)
+    assert json_value["valueSet"][0] == list(val_set)
+
+
+def test_column_values_in_set_wrong_datatype():
+    with pytest.raises(TypeError):
+        cvisc = columnValuesInSetConstraint(value_set=1)
+
+
+def _report_email_value_constraint_on_data_set(local_config_path, pattern=None):
+    df = pd.DataFrame([
+        {'email': r"abc's@gmail.com"},
+        {'email': r'"avrrr test \@"@gmail.com'},
+        {'email': r'abc..q12@example.us'},
+        {'email': r'"sdsss\d"@gmail.com'},
+        {'email': r'customer/department=shipping?@example-another.some-other.us'},
+        {'email': r'.should_fail@yahoo.com'}
+    ])
+
+    email_constraint = emailConstraint(regex_pattern=pattern)
+    dc = DatasetConstraints(None, value_constraints={"email": [email_constraint]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
     
+    return report
+
+
 def _apply_string_length_constraints(local_config_path, length_constraints):
     import pandas as pd
     df = pd.DataFrame([
@@ -500,13 +567,10 @@ def _apply_string_length_constraints(local_config_path, length_constraints):
 
     
     dc = DatasetConstraints(None, value_constraints={"str1": length_constraints})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df, "test.data", constraints=dc)
-    session.close()
     report = dc.report()
-    
+
     return report
+    
 
 def test_string_length_constraints(local_config_path):
 
@@ -521,3 +585,26 @@ def test_string_length_constraints(local_config_path):
     assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} ^.{{7}}$'
     assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == rf'value {Op.Name(Op.MATCH)} ^.{{24}}$'
     assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == rf'value {Op.Name(Op.MATCH)} ^.{{7,10}}$'
+    return report
+
+
+def test_email_constraint(local_config_path):
+    report = _report_email_value_constraint_on_data_set(local_config_path)
+
+    assert report[0][1][0][1] == 6
+    assert report[0][1][0][2] == 2
+
+
+def test_email_constraint_supply_regex_pattern(local_config_path):
+    report = _report_email_value_constraint_on_data_set(local_config_path, r'\S+@\S+')
+    assert report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} \S+@\S+'
+    assert report[0][1][0][1] == 6
+    assert report[0][1][0][2] == 1
+
+
+#fails
+# def test_email_constraint_merge_valid():
+#     ec1 = emailConstraint(regex_pattern=r'\S+@\S+')
+#     ec2 = emailConstraint(regex_pattern=r'\S+@\S+')
+#     merged = ec1.merge(ec2)
+#     print(merged.to_protobuf())

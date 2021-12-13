@@ -25,6 +25,21 @@ from datasketches import theta_a_not_b
 
 logger = logging.getLogger(__name__)
 
+from dateutil.parser import parse
+
+def is_dateutil_parseable(string):
+    """
+    Return whether the string can be interpreted as a date.
+
+    :param string: str, string to check for date
+    """
+    try: 
+        parse(string)
+        return True
+
+    except ValueError:
+        return False
+
 """
 Dict indexed by constraint operator.
 
@@ -41,6 +56,7 @@ _value_funcs = {
     Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
+    Op.APPLY_FUNC: lambda x: lambda v: x(v),
 }
 
 _summary_funcs1 = {
