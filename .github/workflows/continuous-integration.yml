@@ -84,7 +84,7 @@ jobs:
         username: ${{ secrets.NEXUS_TOKEN_USERNAME }}
         password: ${{ secrets.NEXUS_TOKEN_PASSWORD }}
         applicationId: aiwhylogs
-        stage: java
+        stage: build
 
   finish:
     needs: test
