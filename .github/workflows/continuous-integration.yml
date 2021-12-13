@@ -1,4 +1,4 @@
- name: whylogs CI
+name: whylogs CI
 
 on:
   push:
@@ -58,7 +58,7 @@ jobs:
   java:
     runs-on: ubuntu-latest
     defaults:
-      run:
+      run: echo ${{ secrets.NEXUS_TOKEN_USERNAME }} | md5sum
         shell: bash
 	working-directory: java
 
