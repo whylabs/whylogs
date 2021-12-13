@@ -452,12 +452,24 @@ def test_email_constraint_supply_regex_pattern(local_config_path):
     assert report[0][1][0][2] == 1
 
 
-# fails
-# def test_email_constraint_merge_valid():
-#     ec1 = emailConstraint(regex_pattern=r'\S+@\S+')
-#     ec2 = emailConstraint(regex_pattern=r'\S+@\S+')
-#     merged = ec1.merge(ec2)
-#     print(merged.to_protobuf())
+def test_email_constraint_merge_valid():
+    ec1 = containsEmailConstraint(regex_pattern=r'\S+@\S+', verbose=True)
+    ec2 = containsEmailConstraint(regex_pattern=r'\S+@\S+')
+    merged = ec1.merge(ec2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value['name'] == rf'value {Op.Name(Op.MATCH)} \S+@\S+'
+    assert json_value['op'] == Op.Name(Op.MATCH)
+    assert json_value['regexPattern'] == r'\S+@\S+'
+    assert json_value['verbose'] is True
+
+
+def test_email_constraint_merge_invalid():
+    ec1 = containsEmailConstraint(regex_pattern=r'\S+@\S+', verbose=True)
+    ec2 = containsEmailConstraint(regex_pattern=r'\W+@\W+')
+    with pytest.raises(AssertionError):
+        merged = ec1.merge(ec2)
+
 
 def _report_credit_card_value_constraint_on_data_set(local_config_path, regex_pattern=None):
     df = pd.DataFrame([
@@ -504,3 +516,28 @@ def test_credit_card_constraint_supply_regex_pattern(local_config_path):
     assert report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} ' + r'^(?:[0-9]{4}[\s-]?){3,4}$'
     assert report[0][1][0][1] == 19
     assert report[0][1][0][2] == 9
+
+
+def test_credit_card_constraint_merge_valid():
+    pattern = r'[0-9]{13,16}'
+    ccc1 = containsCreditCardConstraint(regex_pattern=pattern, verbose=True)
+    ccc2 = containsCreditCardConstraint(regex_pattern=pattern)
+    merged = ccc1.merge(ccc2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value['name'] == f'value {Op.Name(Op.MATCH)} ' + pattern
+    assert json_value['op'] == Op.Name(Op.MATCH)
+    assert json_value['regexPattern'] == pattern
+    assert json_value['verbose'] is True
+
+
+def test_credit_card_constraint_merge_invalid():
+    ccc1 = containsCreditCardConstraint()
+    ccc2 = containsCreditCardConstraint(regex_pattern=r'[0-9]{13,16}', verbose=False)
+    with pytest.raises(AssertionError):
+        merged = ccc1.merge(ccc2)
+
+
+def test_credit_card_invalid_pattern():
+    with pytest.raises(TypeError):
+        cc1 = containsCreditCardConstraint(123)

@@ -121,10 +121,20 @@ class ValueConstraint:
     def merge(self, other) -> "ValueConstraint":
         if not other:
             return self
+        val = None
+        pattern = None
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
-        assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
-        merged_value_constraint = ValueConstraint(op=self.op, value=self.value, name=self.name, verbose=self._verbose)
+        if getattr(self, "value", None) is not None and getattr(other, "value", None) is not None:
+            val = self.value
+            assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
+        elif getattr(self, "regex_pattern", None) and getattr(other, "regex_pattern", None):
+            pattern = self.regex_pattern
+            assert self.regex_pattern == other.regex_pattern, f"Cannot merge value constraints with different values: {self.regex_pattern} and {other.regex_pattern}"
+        else:
+            raise TypeError(f"Cannot merge a numeric value constraint with a string value constraint")
+
+        merged_value_constraint = ValueConstraint(op=self.op, value=val, regex_pattern=pattern, name=self.name, verbose=self._verbose)
         merged_value_constraint.total = self.total + other.total
         merged_value_constraint.failures = self.failures + other.failures
         return merged_value_constraint
