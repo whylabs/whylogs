@@ -71,7 +71,7 @@ jobs:
       with:
         java-version: 8
     - name: Test secret
-       run: echo $NEXUS_USERNAME | md5sum
+       run: /bin/bash -c "echo $NEXUS_USERNAME | md5sum"
        env:
          NEXUS_USERNAME: ${{ secrets.NEXUS_TOKEN_USERNAME }}
     - name: Run build and tests
