@@ -625,3 +625,15 @@ def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
         raise TypeError("The value set should be an iterable data type")
 
     return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
+
+    
+def stringLengthEqualConstraint(length: int, verbose = False):
+
+    length_pattern = f'^.{{{length}}}$'
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
+
+
+def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose = False):
+
+    length_pattern = rf'^.{{{lower_value},{upper_value}}}$'
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
