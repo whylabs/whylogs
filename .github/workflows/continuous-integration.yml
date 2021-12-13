@@ -58,7 +58,7 @@ jobs:
   java:
     runs-on: ubuntu-latest
     defaults:
-      run: echo ${{ secrets.NEXUS_TOKEN_USERNAME }} | md5sum
+      run:
         shell: bash
 	working-directory: java
 
@@ -70,6 +70,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 8
+    - name: Test secret
+       run: echo ${{ secrets.NEXUS_TOKEN_USERNAME }} | md5sum
     - name: Run build and tests
       run: |
         ./gradlew build
