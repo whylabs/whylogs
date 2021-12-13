@@ -44,6 +44,15 @@ def test_all_nulls_inferred_type_null(data, nulls_expected, expected_type):
     assert summary.schema.inferred_type.type == expected_type
 
 
+def test_string_as_arrays_does_not_throw():
+    InferredType.Type
+    c = ColumnProfile("col")
+    data = "[0,0]"  # this string will be parsed as an array
+    c.track(data)
+    summary: ColumnSummary = c.to_summary()
+    assert summary.schema.inferred_type.type == InferredType.Type.UNKNOWN
+
+
 def test_mostly_nulls_inferred_type_not_null():
     Type = InferredType.Type
     c = ColumnProfile("col")

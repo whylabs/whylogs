@@ -125,6 +125,9 @@ class ColumnProfile:
             # for bool type first
             self.counters.increment_bool()
 
+        if TypedDataConverter._is_array_like(typed_data):
+            return
+
         self.number_tracker.track(typed_data)
 
         self.constraints.update(typed_data)
