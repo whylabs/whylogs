@@ -2,7 +2,6 @@ import json
 
 import pandas as pd
 import pytest
-import time
 
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
@@ -17,7 +16,9 @@ from whylogs.core.statistics.constraints import (
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
-    stddevBetweenConstraint, emailConstraint,
+    stddevBetweenConstraint,
+    containsEmailConstraint,
+    containsCreditCardConstraint
 )
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
@@ -468,7 +469,7 @@ def _report_email_value_constraint_on_data_set(local_config_path, pattern=None):
         {'email': r'.should_fail@yahoo.com'}
     ])
 
-    email_constraint = emailConstraint(regex_pattern=pattern)
+    email_constraint = containsEmailConstraint(regex_pattern=pattern)
     dc = DatasetConstraints(None, value_constraints={"email": [email_constraint]})
     config = load_config(local_config_path)
     session = session_from_config(config)
@@ -498,3 +499,49 @@ def test_email_constraint_supply_regex_pattern(local_config_path):
 #     ec2 = emailConstraint(regex_pattern=r'\S+@\S+')
 #     merged = ec1.merge(ec2)
 #     print(merged.to_protobuf())
+
+def _report_credit_card_value_constraint_on_data_set(local_config_path, regex_pattern=None):
+    df = pd.DataFrame([
+        {'credit_card': '3714-496353-98431'},
+        {'credit_card': '3787 344936 71000'},
+        {'credit_card': '3056 930902 5904'},
+        {'credit_card': '3065 133242 2899'},
+        {'credit_card': '3852-000002-3237'},
+        {'credit_card': '6011 1111 1111 1117'},
+        {'credit_card': '6011-0009-9013-9424'},
+        {'credit_card': '3530 1113 3330 0000'},
+        {'credit_card': '3566-0020-2036-0505'},
+        {'credit_card': '5555 5555 5555 4444'},
+        {'credit_card': '5105 1051 0510 5100'},
+        {'credit_card': '4111 1111 1111 1111'},
+        {'credit_card': '4012 8888 8888 1881'},
+        {'credit_card': '4222-2222-2222-2222'},
+        {'credit_card': '1111-1111-1111-1111'},
+        {'credit_card': 'a4111 1111 1111 1111b'},
+        {'credit_card': '4111111111111111'},
+        # maybe this should pass in a normal scenario, currently it is converted to integer
+        {'credit_card': 12345},
+        {'credit_card': 'absfcvs'}
+    ])
+
+    credit_card_constraint = containsCreditCardConstraint(regex_pattern=regex_pattern)
+    dc = DatasetConstraints(None, value_constraints={"credit_card": [credit_card_constraint]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    return dc.report()
+
+
+def test_credit_card_constraint(local_config_path):
+    report = _report_credit_card_value_constraint_on_data_set(local_config_path)
+    assert report[0][1][0][1] == 19
+    assert report[0][1][0][2] == 6
+
+
+def test_credit_card_constraint_supply_regex_pattern(local_config_path):
+    report = _report_credit_card_value_constraint_on_data_set(local_config_path, r'^(?:[0-9]{4}[\s-]?){3,4}$')
+    print(report)
+    assert report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} ' + r'^(?:[0-9]{4}[\s-]?){3,4}$'
+    assert report[0][1][0][1] == 19
+    assert report[0][1][0][2] == 9
