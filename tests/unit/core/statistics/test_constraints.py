@@ -13,12 +13,15 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
+    columnValuesInSetConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
     stddevBetweenConstraint,
     stringLengthEqualConstraint,
-    stringLengthBetweenConstraint
+    stringLengthBetweenConstraint,
+    containsEmailConstraint,
+    containsCreditCardConstraint
 )
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
@@ -27,13 +30,13 @@ from whylogs.util.protobuf import message_to_json
 def test_value_summary_serialization():
 
     for each_op, _ in _value_funcs.items():
-        if each_op == Op.IN:
+        if each_op == Op.IN_SET:
             value = ValueConstraint(each_op, {3.6})
         else:
             value = ValueConstraint(each_op, 3.6)
         msg_value = value.to_protobuf()
         json_value = json.loads(message_to_json(msg_value))
-        if each_op == Op.IN:
+        if each_op == Op.IN_SET:
             assert json_value["name"] == "value " + Op.Name(each_op) + " {3.6}"
             assert json_value["valueSet"][0] == [3.6]
         else:
@@ -424,19 +427,10 @@ def test_column_values_in_set_constraint(df_lending_club, local_config_path):
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
-    report = profile.apply_summary_constraints()
+    report = dc.report()
 
-    print(report)
-    assert len(report) == 1
-
-    # make sure it checked every value
-    for each_feat in report:
-        for each_constraint in each_feat[1]:
-            assert each_constraint[1] == 1
-            if "True" in each_constraint[0]:
-                assert each_constraint[2] == 0
-            else:
-                assert each_constraint[2] == 1
+    assert report[0][1][0][1] == len(df_lending_club)
+    assert report[0][1][1][1] == len(df_lending_club)
 
 
 def test_set_summary_constraints(df_lending_club, local_config_path):
@@ -522,8 +516,8 @@ def test_serialization_deserialization_values_in_set_constraint():
     json_value = json.loads(message_to_json(cvisc.to_protobuf()))
 
     print(json_value)
-    assert json_value["name"] == "value IN " + str(val_set)
-    assert json_value["op"] == Op.Name(Op.IN)
+    assert json_value["name"] == "value IN_SET " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN_SET)
     assert json_value["valueSet"][0] == list(val_set)
 
 
@@ -542,19 +536,17 @@ def _report_email_value_constraint_on_data_set(local_config_path, pattern=None):
         {'email': r'.should_fail@yahoo.com'}
     ])
 
-    email_constraint = emailConstraint(regex_pattern=pattern)
+    email_constraint = containsEmailConstraint(regex_pattern=pattern)
     dc = DatasetConstraints(None, value_constraints={"email": [email_constraint]})
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df, "test.data", constraints=dc)
     session.close()
     report = dc.report()
-    
     return report
 
 
 def _apply_string_length_constraints(local_config_path, length_constraints):
-    import pandas as pd
     df = pd.DataFrame([
         {'str1': 'length7'},
         {'str1': 'length_8'},
@@ -567,6 +559,10 @@ def _apply_string_length_constraints(local_config_path, length_constraints):
 
     
     dc = DatasetConstraints(None, value_constraints={"str1": length_constraints})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
     report = dc.report()
 
     return report
@@ -585,7 +581,6 @@ def test_string_length_constraints(local_config_path):
     assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} ^.{{7}}$'
     assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == rf'value {Op.Name(Op.MATCH)} ^.{{24}}$'
     assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == rf'value {Op.Name(Op.MATCH)} ^.{{7,10}}$'
-    return report
 
 
 def test_email_constraint(local_config_path):
@@ -602,9 +597,93 @@ def test_email_constraint_supply_regex_pattern(local_config_path):
     assert report[0][1][0][2] == 1
 
 
-#fails
-# def test_email_constraint_merge_valid():
-#     ec1 = emailConstraint(regex_pattern=r'\S+@\S+')
-#     ec2 = emailConstraint(regex_pattern=r'\S+@\S+')
-#     merged = ec1.merge(ec2)
-#     print(merged.to_protobuf())
+def test_email_constraint_merge_valid():
+    ec1 = containsEmailConstraint(regex_pattern=r'\S+@\S+', verbose=True)
+    ec2 = containsEmailConstraint(regex_pattern=r'\S+@\S+')
+    merged = ec1.merge(ec2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value['name'] == rf'value {Op.Name(Op.MATCH)} \S+@\S+'
+    assert json_value['op'] == Op.Name(Op.MATCH)
+    assert json_value['regexPattern'] == r'\S+@\S+'
+    assert json_value['verbose'] is True
+
+
+def test_email_constraint_merge_invalid():
+    ec1 = containsEmailConstraint(regex_pattern=r'\S+@\S+', verbose=True)
+    ec2 = containsEmailConstraint(regex_pattern=r'\W+@\W+')
+    with pytest.raises(AssertionError):
+        merged = ec1.merge(ec2)
+
+
+def _report_credit_card_value_constraint_on_data_set(local_config_path, regex_pattern=None):
+    df = pd.DataFrame([
+        {'credit_card': '3714-496353-98431'},
+        {'credit_card': '3787 344936 71000'},
+        {'credit_card': '3056 930902 5904'},
+        {'credit_card': '3065 133242 2899'},
+        {'credit_card': '3852-000002-3237'},
+        {'credit_card': '6011 1111 1111 1117'},
+        {'credit_card': '6011-0009-9013-9424'},
+        {'credit_card': '3530 1113 3330 0000'},
+        {'credit_card': '3566-0020-2036-0505'},
+        {'credit_card': '5555 5555 5555 4444'},
+        {'credit_card': '5105 1051 0510 5100'},
+        {'credit_card': '4111 1111 1111 1111'},
+        {'credit_card': '4012 8888 8888 1881'},
+        {'credit_card': '4222-2222-2222-2222'},
+        {'credit_card': '1111-1111-1111-1111'},
+        {'credit_card': 'a4111 1111 1111 1111b'},
+        {'credit_card': '4111111111111111'},
+        # maybe this should pass in a normal scenario, currently it is converted to integer
+        {'credit_card': 12345},
+        {'credit_card': 'absfcvs'}
+    ])
+
+    credit_card_constraint = containsCreditCardConstraint(regex_pattern=regex_pattern)
+    dc = DatasetConstraints(None, value_constraints={"credit_card": [credit_card_constraint]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    return dc.report()
+
+
+def test_credit_card_constraint(local_config_path):
+    report = _report_credit_card_value_constraint_on_data_set(local_config_path)
+    assert report[0][1][0][1] == 19
+    assert report[0][1][0][2] == 6
+
+
+def test_credit_card_constraint_supply_regex_pattern(local_config_path):
+    report = _report_credit_card_value_constraint_on_data_set(local_config_path, r'^(?:[0-9]{4}[\s-]?){3,4}$')
+    print(report)
+    assert report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} ' + r'^(?:[0-9]{4}[\s-]?){3,4}$'
+    assert report[0][1][0][1] == 19
+    assert report[0][1][0][2] == 9
+
+
+def test_credit_card_constraint_merge_valid():
+    pattern = r'[0-9]{13,16}'
+    ccc1 = containsCreditCardConstraint(regex_pattern=pattern, verbose=True)
+    ccc2 = containsCreditCardConstraint(regex_pattern=pattern)
+    merged = ccc1.merge(ccc2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value['name'] == f'value {Op.Name(Op.MATCH)} ' + pattern
+    assert json_value['op'] == Op.Name(Op.MATCH)
+    assert json_value['regexPattern'] == pattern
+    assert json_value['verbose'] is True
+
+
+def test_credit_card_constraint_merge_invalid():
+    ccc1 = containsCreditCardConstraint()
+    ccc2 = containsCreditCardConstraint(regex_pattern=r'[0-9]{13,16}', verbose=False)
+    with pytest.raises(AssertionError):
+        merged = ccc1.merge(ccc2)
+
+
+def test_credit_card_invalid_pattern():
+    with pytest.raises(TypeError):
+        cc1 = containsCreditCardConstraint(123)
+        
