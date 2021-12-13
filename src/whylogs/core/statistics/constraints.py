@@ -661,3 +661,15 @@ def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, u
 
 def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
+
+
+def stringLengthEqualConstraint(length: int, verbose = False):
+
+    length_pattern = f'^.{{{length}}}$'
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
+
+
+def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose = False):
+
+    length_pattern = rf'^.{{{lower_value},{upper_value}}}$'
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
