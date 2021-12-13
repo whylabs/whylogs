@@ -77,6 +77,14 @@ jobs:
     - name: Run build and tests
       run: |
         ./gradlew build
+    - name: publish to Nexus
+      uses: sonatype-nexus-community/iq-github-action@master
+      with:
+        serverUrl: https://oss.sonatype.org
+        username: ${{ secrets.NEXUS_TOKEN_USERNAME }}
+        password: ${{ secrets.NEXUS_TOKEN_PASSWORD }}
+        applicationId: aiwhylogs
+        stage: java
 
   finish:
     needs: test
