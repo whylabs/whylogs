@@ -132,7 +132,7 @@ class ValueConstraint:
             pattern = self.regex_pattern
             assert self.regex_pattern == other.regex_pattern, f"Cannot merge value constraints with different values: {self.regex_pattern} and {other.regex_pattern}"
         else:
-            raise TypeError(f"Cannot merge a numeric value constraint with a string value constraint")
+            raise TypeError("Cannot merge a numeric value constraint with a string value constraint")
 
         merged_value_constraint = ValueConstraint(op=self.op, value=val, regex_pattern=pattern, name=self.name, verbose=self._verbose)
         merged_value_constraint.total = self.total + other.total
@@ -600,15 +600,55 @@ def containsEmailConstraint(regex_pattern: 'str' = None, verbose=False):
 
 def containsCreditCardConstraint(regex_pattern: 'str' = None, verbose=False):
     if regex_pattern is not None:
-        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the"
-                       " creditCardConstraint, depending on its complexity.")
+        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the " +
+                       "containsCreditCardConstraint, depending on its complexity.")
         credit_card_pattern = regex_pattern
     else:
-        credit_card_pattern = r'^(?:(4[0-9]{3}([\s-][0-9]{4}){2}[\s-][0-9]{1,4})' \
-                              r'|(5[1-5][0-9]{2}([\s-][0-9]{4}){3})' \
-                              r'|(6(?:011|5[0-9]{2})([\s-][0-9]{4}){3})' \
-                              r'|(3[47][0-9]{2}[\s-][0-9]{6}[\s-][0-9]{5})' \
-                              r'|(3(?:0[0-5]|[68][0-9])[0-9][\s-][0-9]{6}[\s-][0-9]{4})' \
-                              r'|(?:2131|1800|35[0-9]{2,3})([\s-][0-9]{4}){3})$'
+        credit_card_pattern = (
+            r"^(?:(4[0-9]{3}([\s-]?[0-9]{4}){2}[\s-]?[0-9]{1,4})"
+            r"|(5[1-5][0-9]{2}([\s-]?[0-9]{4}){3})"
+            r"|(6(?:011|5[0-9]{2})([\s-]?[0-9]{4}){3})"
+            r"|(3[47][0-9]{2}[\s-]?[0-9]{6}[\s-]?[0-9]{5})"
+            r"|(3(?:0[0-5]|[68][0-9])[0-9][\s-]?[0-9]{6}[\s-]?[0-9]{4})"
+            r"|(?:2131|1800|35[0-9]{2,3})([\s-]?[0-9]{4}){3})$"
+        )
 
     return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, verbose=verbose)
+
+
+def containsSSNConstraint(regex_pattern: "str" = None, verbose=False):
+    if regex_pattern is not None:
+        logger.warning(
+            "Warning: supplying your own regex pattern might cause slower evaluation of the " + "containsSSNConstraint, depending on its complexity."
+        )
+        ssn_pattern = regex_pattern
+    else:
+        ssn_pattern = r"^(?!000|666|9[0-9]{2})[0-9]{3}[\s-]?(?!00)[0-9]{2}[\s-]?(?!0000)[0-9]{4}$"
+
+    return ValueConstraint(Op.MATCH, regex_pattern=ssn_pattern, verbose=verbose)
+
+
+def containsURLConstraint(regex_pattern: "str" = None, verbose=False):
+    if regex_pattern is not None:
+        logger.warning(
+            "Warning: supplying your own regex pattern might cause slower evaluation of the " + "containsURLConstraint, depending on its complexity."
+        )
+        url_pattern = regex_pattern
+    else:
+        url_pattern = (
+            r"^(?:http(s)?:\/\/)?((www)|([a-zA-z0-9-]+)\.)" r"(?:[-a-zA-Z0-9@:%._\+~#=]{1,256}\." r"[a-zA-Z0-9()]{1,6}\b" r"([-a-zA-Z0-9()@:%_\+.~#?&//=]*))$"
+        )
+
+    return ValueConstraint(Op.MATCH, regex_pattern=url_pattern, verbose=verbose)
+
+
+def stringLengthEqualConstraint(length: int, verbose=False):
+
+    length_pattern = f"^.{{{length}}}$"
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
+
+
+def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose=False):
+
+    length_pattern = rf"^.{{{lower_value},{upper_value}}}$"
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
