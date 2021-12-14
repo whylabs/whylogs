@@ -63,6 +63,8 @@ jobs:
 
     - name: Set up Java
       uses: actions/setup-java@v1
+      with:
+        java-version: 8
     - name: Build and publish Java
       run: ./gradlew publish -PossrhUsername=${{ secrets.NEXUS_TOKEN_USERNAME }} -PossrhPassword=${{ secrets.NEXUS_TOKEN_PASSWORD }}
       working-directory: java
