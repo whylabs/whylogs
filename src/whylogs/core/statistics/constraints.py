@@ -1,16 +1,15 @@
 import logging
+import numbers
 import re
 from typing import List, Mapping, Optional
 
-import numbers
+from datasketches import theta_a_not_b, update_theta_sketch
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
-from whylogs.core.statistics.thetasketch import numbers_summary
 
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
-    NumberSummary,
     Op,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
@@ -20,12 +19,10 @@ from whylogs.proto import (
 )
 from whylogs.util.protobuf import message_to_json
 
-from datasketches import update_theta_sketch
-from datasketches import theta_a_not_b
-
 logger = logging.getLogger(__name__)
 
 from dateutil.parser import parse
+
 
 def _is_dateutil_parseable(string):
     """
@@ -33,12 +30,13 @@ def _is_dateutil_parseable(string):
 
     :param string: str, string to check for date
     """
-    try: 
+    try:
         parse(string)
         return True
 
     except ValueError:
         return False
+
 
 """
 Dict indexed by constraint operator.
@@ -69,9 +67,19 @@ _summary_funcs1 = {
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
     Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
-    Op.IN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1) == 0.0,
-    Op.CONTAINS_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1) == 0.0,
-    Op.EQ_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1) == round(theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1) == 0.0,
+    Op.IN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+        theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1
+    )
+    == 0.0,
+    Op.CONTAINS_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+        theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1
+    )
+    == 0.0,
+    Op.EQ_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+        theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1
+    )
+    == round(theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1)
+    == 0.0,
 }
 
 _summary_funcs2 = {
@@ -113,7 +121,7 @@ class ValueConstraint:
         self.total = 0
         self.failures = 0
 
-        if (self.op != Op.APPLY_FUNC and hasattr(value, '__call__')) or (self.op == Op.APPLY_FUNC and not hasattr(value, '__call__')):
+        if (self.op != Op.APPLY_FUNC and hasattr(value, "__call__")) or (self.op == Op.APPLY_FUNC and not hasattr(value, "__call__")):
             raise ValueError("Value constraint must provide a function if and only if using the APPLY_FUNC operator")
 
         if (isinstance(value, set) and op != Op.IN_SET) or (not isinstance(value, set) and op == Op.IN_SET):
@@ -163,7 +171,9 @@ class ValueConstraint:
             assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
         elif getattr(self, "regex_pattern", None) and getattr(other, "regex_pattern", None):
             pattern = self.regex_pattern
-            assert self.regex_pattern == other.regex_pattern, f"Cannot merge value constraints with different values: {self.regex_pattern} and {other.regex_pattern}"
+            assert (
+                self.regex_pattern == other.regex_pattern
+            ), f"Cannot merge value constraints with different values: {self.regex_pattern} and {other.regex_pattern}"
         else:
             raise TypeError(f"Cannot merge a numeric value constraint with a string value constraint")
 
@@ -195,7 +205,7 @@ class ValueConstraint:
                     value_set=set_vals_message,
                     verbose=self._verbose,
                 )
-            elif hasattr(self.value, '__call__'):
+            elif hasattr(self.value, "__call__"):
                 return ValueConstraintMsg(
                     name=self.name,
                     op=self.op,
@@ -251,7 +261,7 @@ class SummaryConstraint:
          to be compared against summary field specified in `first_field`.
         Only one of `upper_value` or `third_field` should be supplied.
     reference_set : (one-of)
-        Only to be supplied when using set operations. Used as a reference set to be compared with the column 
+        Only to be supplied when using set operations. Used as a reference set to be compared with the column
         distinct values.
     name : str
         Name of the constraint used for reporting
@@ -261,6 +271,7 @@ class SummaryConstraint:
 
 
     """
+
     def __init__(
         self,
         first_field: str,
@@ -269,7 +280,7 @@ class SummaryConstraint:
         upper_value=None,
         second_field: str = None,
         third_field: str = None,
-        reference_set = None,
+        reference_set=None,
         name: str = None,
         verbose=False,
     ):
@@ -289,13 +300,14 @@ class SummaryConstraint:
             if value is not None or upper_value is not None or second_field is not None or third_field is not None or reference_set is None:
                 raise ValueError("When using set operations only set should be provided and not values or field names!")
 
-
             if not isinstance(reference_set, set):
                 try:
                     logger.warning(f"Trying to cast provided value of {type(reference_set)} to type set!")
                     reference_set = set(reference_set)
                 except TypeError:
-                    raise TypeError(f"When using set operations, provided value must be set or set castable, instead type: '{reference_set.__class__.__name__}' was provided!")
+                    raise TypeError(
+                        f"When using set operations, provided value must be set or set castable, instead type: '{reference_set.__class__.__name__}' was provided!"
+                    )
             self.reference_set = reference_set
             self.ref_string_set = self.get_string_set()
             self.ref_numbers_set = self.get_numbers_set()
@@ -303,7 +315,6 @@ class SummaryConstraint:
             self.reference_theta_sketch = self.create_theta_sketch()
             self.string_theta_sketch = self.create_theta_sketch(self.ref_string_set)
             self.numbers_theta_sketch = self.create_theta_sketch(self.ref_numbers_set)
-
 
         elif self.op == Op.BTWN:
             if value is not None and upper_value is not None and (second_field, third_field) == (None, None):
@@ -356,11 +367,11 @@ class SummaryConstraint:
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
     def get_string_set(self):
-        return set( [item for item in self.reference_set if isinstance(item, str)]  )
+        return set([item for item in self.reference_set if isinstance(item, str)])
 
     def get_numbers_set(self):
-        return set( [item for item in self.reference_set if isinstance(item, numbers.Real) and not isinstance(item, bool)]  )
-    
+        return set([item for item in self.reference_set if isinstance(item, numbers.Real) and not isinstance(item, bool)])
+
     def create_theta_sketch(self, ref_set: set = None):
         theta = update_theta_sketch()
         target_set = self.reference_set if ref_set is None else ref_set
@@ -377,10 +388,11 @@ class SummaryConstraint:
 
         if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
             # if ( ( len(self.ref_string_set) == 0 and len(self.ref_numbers_set) == 0 and not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) )
-            #     or ( len(self.ref_string_set) > 0 and not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) ) 
+            #     or ( len(self.ref_string_set) > 0 and not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) )
             #     or ( len(self.ref_numbers_set) > 0 and not _summary_funcs1[self.op](self.numbers_theta_sketch)(column_number_theta) ) ):
-            if ( not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) or 
-                not _summary_funcs1[self.op](self.numbers_theta_sketch)(column_number_theta) ):
+            if not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) or not _summary_funcs1[self.op](self.numbers_theta_sketch)(
+                column_number_theta
+            ):
                 self.failures += 1
                 if self._verbose:
                     logger.info(f"summary constraint {self.name} failed")
@@ -485,7 +497,9 @@ class SummaryConstraint:
                     verbose=msg.verbose,
                 )
         else:
-            raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg OR reference set, but only one of them")
+            raise ValueError(
+                "SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg OR reference set, but only one of them"
+            )
 
     def to_protobuf(self) -> SummaryConstraintMsg:
         if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
@@ -723,14 +737,15 @@ def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
 
 
-def stringLengthEqualConstraint(length: int, verbose = False):
-    length_pattern = f'^.{{{length}}}$'
+def stringLengthEqualConstraint(length: int, verbose=False):
+    length_pattern = f"^.{{{length}}}$"
     return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
 
 
-def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose = False):
-    length_pattern = rf'^.{{{lower_value},{upper_value}}}$'
+def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose=False):
+    length_pattern = rf"^.{{{lower_value},{upper_value}}}$"
     return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
+
 
 def columnValuesInSetConstraint(value_set: "set", verbose=False):
     try:
@@ -741,31 +756,39 @@ def columnValuesInSetConstraint(value_set: "set", verbose=False):
     return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
 
 
-def containsEmailConstraint(regex_pattern: 'str' = None, verbose=False):
+def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
     if regex_pattern is not None:
-        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the "
-                       "containsEmailConstraint, depending on its complexity.")
+        logger.warning(
+            "Warning: supplying your own regex pattern might cause slower evaluation of the " "containsEmailConstraint, depending on its complexity."
+        )
         email_pattern = regex_pattern
     else:
-        email_pattern = r'^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*' \
-                        r'|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|[\x01-\x09\x0b\x0c\x0e-\x7f])*")' \
-                        r'@' \
-                        r'(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)$'
+        email_pattern = (
+            r"^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*"
+            r'|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|[\x01-\x09\x0b\x0c\x0e-\x7f])*")'
+            r"@"
+            r"(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)$"
+        )
 
     return ValueConstraint(Op.MATCH, regex_pattern=email_pattern, verbose=verbose)
 
 
-def containsCreditCardConstraint(regex_pattern: 'str' = None, verbose=False):
+def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
     if regex_pattern is not None:
-        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the"
-                       " creditCardConstraint, depending on its complexity.")
+        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the" " creditCardConstraint, depending on its complexity.")
         credit_card_pattern = regex_pattern
     else:
-        credit_card_pattern = r'^(?:(4[0-9]{3}([\s-][0-9]{4}){2}[\s-][0-9]{1,4})' \
-                              r'|(5[1-5][0-9]{2}([\s-][0-9]{4}){3})' \
-                              r'|(6(?:011|5[0-9]{2})([\s-][0-9]{4}){3})' \
-                              r'|(3[47][0-9]{2}[\s-][0-9]{6}[\s-][0-9]{5})' \
-                              r'|(3(?:0[0-5]|[68][0-9])[0-9][\s-][0-9]{6}[\s-][0-9]{4})' \
-                              r'|(?:2131|1800|35[0-9]{2,3})([\s-][0-9]{4}){3})$'
+        credit_card_pattern = (
+            r"^(?:(4[0-9]{3}([\s-][0-9]{4}){2}[\s-][0-9]{1,4})"
+            r"|(5[1-5][0-9]{2}([\s-][0-9]{4}){3})"
+            r"|(6(?:011|5[0-9]{2})([\s-][0-9]{4}){3})"
+            r"|(3[47][0-9]{2}[\s-][0-9]{6}[\s-][0-9]{5})"
+            r"|(3(?:0[0-5]|[68][0-9])[0-9][\s-][0-9]{6}[\s-][0-9]{4})"
+            r"|(?:2131|1800|35[0-9]{2,3})([\s-][0-9]{4}){3})$"
+        )
 
     return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, verbose=verbose)
+
+
+def dateUtilParseableConstraint(verbose=False):
+    return ValueConstraint(Op.APPLY_FUNC, _is_dateutil_parseable, verbose=verbose)
