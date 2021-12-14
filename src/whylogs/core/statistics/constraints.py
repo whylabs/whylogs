@@ -20,6 +20,21 @@ from whylogs.util.protobuf import message_to_json
 
 logger = logging.getLogger(__name__)
 
+from dateutil.parser import parse
+
+def _is_dateutil_parseable(string):
+    """
+    Return whether the string can be interpreted as a date.
+
+    :param string: str, string to check for date
+    """
+    try: 
+        parse(string)
+        return True
+
+    except ValueError:
+        return False
+
 """
 Dict indexed by constraint operator.
 
@@ -89,7 +104,10 @@ class ValueConstraint:
         self.total = 0
         self.failures = 0
 
-        if isinstance(value, set) != (op == Op.IN_SET):
+        if (self.op != Op.APPLY_FUNC and hasattr(value, '__call__')) or (self.op == Op.APPLY_FUNC and not hasattr(value, '__call__')):
+            raise ValueError("Value constraint must provide a function if and only if using the APPLY_FUNC operator")
+
+        if (isinstance(value, set) and op != Op.IN_SET) or (not isinstance(value, set) and op == Op.IN_SET):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
         if value is not None and regex_pattern is None:
@@ -135,7 +153,9 @@ class ValueConstraint:
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
-        if msg.regex_pattern != "":
+        if msg.HasField("function"):
+            return ValueConstraint(msg.op, locals()[msg.function], name=msg.name, verbose=msg.verbose)
+        elif msg.regex_pattern != "":
             return ValueConstraint(msg.op, regex_pattern=msg.regex_pattern, name=msg.name, verbose=msg.verbose)
         elif len(msg.value_set.values) != 0:
             val_set = set(msg.value_set.values[0].list_value)
@@ -152,6 +172,13 @@ class ValueConstraint:
                     name=self.name,
                     op=self.op,
                     value_set=set_vals_message,
+                    verbose=self._verbose,
+                )
+            elif hasattr(self.value, '__call__'):
+                return ValueConstraintMsg(
+                    name=self.name,
+                    op=self.op,
+                    function=self.value.__name__,
                     verbose=self._verbose,
                 )
             else:
