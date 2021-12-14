@@ -1,4 +1,4 @@
-name: Upload Python Package
+name: Upload Whylogs Packages
 
 
 on:
@@ -52,7 +52,7 @@ jobs:
         branch: ${{ github.ref }}
         force: true
 
-    - name: Build and publish
+    - name: Build and publish Python
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
@@ -60,6 +60,13 @@ jobs:
         make clean
         make dist
         poetry run twine upload dist/*
+
+    - name: Set up Java
+      uses: actions/setup-java@v1
+    - name: Build and publish Java
+      run: ./gradlew publish -PossrhUsername=${{ secrets.NEXUS_TOKEN_USERNAME }} -PossrhPassword=${{ secrets.NEXUS_TOKEN_PASSWORD }}
+      working-directory: java
+
   bump_mainline:
     runs-on: ubuntu-latest
     needs: deploy
@@ -90,7 +97,7 @@ jobs:
       uses: peter-evans/create-pull-request@v3
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: Update version
+        commit-message: Update version ${{ env.VERSION }}
         committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
         signoff: false
