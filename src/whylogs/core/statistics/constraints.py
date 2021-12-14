@@ -9,6 +9,7 @@ from whylogs.proto import (
     DatasetProperties,
     NumberSummary,
     Op,
+    SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
     SummaryConstraintMsgs,
     ValueConstraintMsg,
@@ -44,6 +45,7 @@ _summary_funcs1 = {
     Op.NE: lambda f, v: lambda s: getattr(s, f) != v,
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
+    Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
 }
 
 _summary_funcs2 = {
@@ -54,6 +56,7 @@ _summary_funcs2 = {
     Op.NE: lambda f, f2: lambda s: getattr(s, f) != getattr(s, f2),
     Op.GE: lambda f, f2: lambda s: getattr(s, f) >= getattr(s, f2),
     Op.GT: lambda f, f2: lambda s: getattr(s, f) > getattr(s, f2),
+    Op.BTWN: lambda f, f2, f3: lambda s: getattr(s, f2) <= getattr(s, f) <= getattr(s, f3),
 }
 
 
@@ -167,9 +170,17 @@ class SummaryConstraint:
     value :  (one-of)
         Static value to be compared against summary field specified in `first_field`.
         Only one of `value` or `second_field` should be supplied.
+    upper_value :  (one-of)
+        Only to be supplied when using Op.BTWN.
+        Static upper boundary value to be compared against summary field specified in `first_field`.
+        Only one of `upper_value` or `third_field` should be supplied.
     second_field :  (one-of)
         Name of second field in NumberSummary to be compared against summary field specified in `first_field`.
         Only one of `value` or `second_field` should be supplied.
+    third_field :  (one-of)
+        Only to be supplied when op == Op.BTWN. Name of third field in NumberSummary, used as an upper boundary,
+         to be compared against summary field specified in `first_field`.
+        Only one of `upper_value` or `third_field` should be supplied.
     name : str
         Name of the constraint used for reporting
     verbose : bool
@@ -184,7 +195,9 @@ class SummaryConstraint:
         first_field: str,
         op: Op,
         value=None,
+        upper_value=None,
         second_field: str = None,
+        third_field: str = None,
         name: str = None,
         verbose=False,
     ):
@@ -193,21 +206,53 @@ class SummaryConstraint:
         self.op = op
         self.first_field = first_field
         self.second_field = second_field
+        self.third_field = third_field
         self.total = 0
         self.failures = 0
-        if value is not None and second_field is None:
-            # field-value summary comparison
-            self.value = value
-            self.func = _summary_funcs1[op](first_field, value)
-        elif second_field is not None and value is None:
-            # field-field summary comparison
-            self.second_field = second_field
-            self.func = _summary_funcs2[op](first_field, second_field)
+
+        self.value = value
+        self.upper_value = upper_value
+
+        if self.op == Op.BTWN:
+            if value is not None and upper_value is not None and (second_field, third_field) == (None, None):
+                # field-value summary comparison
+                if not isinstance(value, (int, float)) or not isinstance(upper_value, (int, float)):
+                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower value must be of type (int, float)")
+                if value >= upper_value:
+                    raise ValueError("Summary constraint with BETWEEN operation must specify lower value to be less than upper value")
+
+                self.func = _summary_funcs1[self.op](first_field, value, upper_value)
+
+            elif second_field is not None and third_field is not None and (value, upper_value) == (None, None):
+                # field-field summary comparison
+                if not isinstance(second_field, str) or not isinstance(third_field, str):
+                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower field must be of type string")
+
+                self.func = _summary_funcs2[self.op](first_field, second_field, third_field)
+            else:
+                raise ValueError("Summary constraint with BETWEEN operation must specify lower and upper value OR lower and third field name, but not both")
         else:
-            raise ValueError("Summary constraint must specify a second value or field name, but not both")
+            if upper_value is not None or third_field is not None:
+                raise ValueError("Summary constraint with other than BETWEEN operation must NOT specify upper value NOR third field name")
+
+            if value is not None and second_field is None:
+                # field-value summary comparison
+
+                self.func = _summary_funcs1[op](first_field, value)
+            elif second_field is not None and value is None:
+                # field-field summary comparison
+
+                self.func = _summary_funcs2[op](first_field, second_field)
+            else:
+                raise ValueError("Summary constraint must specify a second value or field name, but not both")
 
     @property
     def name(self):
+        if self.op == Op.BTWN:
+            lower_target = self.value if self.value is not None else self.second_field
+            upper_target = self.upper_value if self.upper_value is not None else self.third_field
+            return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {lower_target} and {upper_target}"
+
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
     def update(self, summ: NumberSummary) -> bool:
@@ -220,15 +265,30 @@ class SummaryConstraint:
     def merge(self, other) -> "SummaryConstraint":
         if not other:
             return self
+
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
         assert self.value == other.value, f"Cannot merge constraints with different values: {self.value} and {other.value}"
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
 
-        merged_constraint = SummaryConstraint(
-            first_field=self.first_field, op=self.op, value=self.value, second_field=self.second_field, name=self.name, verbose=self._verbose
-        )
+        if self.op == Op.BTWN:
+            assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
+            assert self.third_field == other.third_field, f"Cannot merge constraints with different third_field: {self.third_field} and {other.third_field}"
+            merged_constraint = SummaryConstraint(
+                first_field=self.first_field,
+                op=self.op,
+                value=self.value,
+                upper_value=self.upper_value,
+                second_field=self.second_field,
+                third_field=self.third_field,
+                name=self.name,
+                verbose=self._verbose,
+            )
+        else:
+            merged_constraint = SummaryConstraint(
+                first_field=self.first_field, op=self.op, value=self.value, second_field=self.second_field, name=self.name, verbose=self._verbose
+            )
 
         merged_constraint.total = self.total + other.total
         merged_constraint.failures = self.failures + other.failures
@@ -236,7 +296,8 @@ class SummaryConstraint:
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
-        if msg.HasField("value") and not msg.HasField("second_field"):
+
+        if msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -244,7 +305,7 @@ class SummaryConstraint:
                 name=msg.name,
                 verbose=msg.verbose,
             )
-        elif msg.HasField("second_field") and not msg.HasField("value"):
+        elif msg.HasField("second_field") and not msg.HasField("value") and not msg.HasField("between"):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -252,11 +313,56 @@ class SummaryConstraint:
                 name=msg.name,
                 verbose=msg.verbose,
             )
+        elif msg.HasField("between") and not msg.HasField("value") and not msg.HasField("second_field"):
+            if (
+                msg.between.HasField("lower_value")
+                and msg.between.HasField("upper_value")
+                and not msg.between.HasField("second_field")
+                and not msg.between.HasField("third_field")
+            ):
+                return SummaryConstraint(
+                    msg.first_field,
+                    msg.op,
+                    value=msg.between.lower_value,
+                    upper_value=msg.between.upper_value,
+                    name=msg.name,
+                    verbose=msg.verbose,
+                )
+            elif (
+                msg.between.HasField("second_field")
+                and msg.between.HasField("third_field")
+                and not msg.between.HasField("lower_value")
+                and not msg.between.HasField("upper_value")
+            ):
+                return SummaryConstraint(
+                    msg.first_field,
+                    msg.op,
+                    second_field=msg.between.second_field,
+                    third_field=msg.between.third_field,
+                    name=msg.name,
+                    verbose=msg.verbose,
+                )
         else:
-            raise ValueError("SummaryConstraintMsg must specify a value or second field name, but not both")
+            raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg, but only one of them")
 
     def to_protobuf(self) -> SummaryConstraintMsg:
-        if self.second_field is None:
+        if self.op == Op.BTWN:
+
+            summary_between_constraint_msg = None
+            if self.second_field is None and self.third_field is None:
+                summary_between_constraint_msg = SummaryBetweenConstraintMsg(lower_value=self.value, upper_value=self.upper_value)
+            else:
+                summary_between_constraint_msg = SummaryBetweenConstraintMsg(second_field=self.second_field, third_field=self.third_field)
+
+            msg = SummaryConstraintMsg(
+                name=self.name,
+                first_field=self.first_field,
+                op=self.op,
+                between=summary_between_constraint_msg,
+                verbose=self._verbose,
+            )
+
+        elif self.second_field is None:
             msg = SummaryConstraintMsg(
                 name=self.name,
                 first_field=self.first_field,
@@ -438,3 +544,27 @@ class DatasetConstraints:
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
         return l1 + l2
+
+
+def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
+    return SummaryConstraint("stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+
+
+def meanBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
+    return SummaryConstraint("mean", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+
+
+def minBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
+    return SummaryConstraint("min", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+
+
+def minGreaterThanEqualConstraint(value=None, field=None, verbose=False):
+    return SummaryConstraint("min", Op.GE, value=value, second_field=field, verbose=verbose)
+
+
+def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
+    return SummaryConstraint("max", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+
+
+def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
+    return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
