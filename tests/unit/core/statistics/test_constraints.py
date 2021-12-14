@@ -20,7 +20,8 @@ from whylogs.core.statistics.constraints import (
     stringLengthEqualConstraint,
     stringLengthBetweenConstraint,
     containsEmailConstraint,
-    containsCreditCardConstraint
+    containsCreditCardConstraint,
+    _is_dateutil_parseable
 )
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
@@ -28,6 +29,8 @@ from whylogs.util.protobuf import message_to_json
 
 def test_value_summary_serialization():
     for each_op, _ in _value_funcs.items():
+        if each_op == Op.APPLY_FUNC:
+            continue
         if each_op == Op.IN_SET:
             value = ValueConstraint(each_op, {3.6})
         else:
@@ -697,4 +700,57 @@ def test_credit_card_constraint_merge_invalid():
 def test_credit_card_invalid_pattern():
     with pytest.raises(TypeError):
         cc1 = containsCreditCardConstraint(123)
-        
+
+
+def _apply_apply_func_constraints(local_config_path, apply_func_constraints):
+    df = pd.DataFrame([
+        {'str1': '1990-12-1'},
+        {'str1': '2005/3'},
+        {'str1': 'Jan 19, 1990'},
+        {'str1': 'today is 2019-03-27'},
+        {'str1': 'Monday at 12:01am'},
+        {'str1': 'xyz_not_a_date'},
+        {'str1': 'yesterday'}
+    ])
+
+    
+    dc = DatasetConstraints(None, value_constraints={"str1": apply_func_constraints})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    return report
+
+
+def test_apply_func_value_constraints(local_config_path):
+
+    apply1 = ValueConstraint(Op.APPLY_FUNC, _is_dateutil_parseable)
+
+    report = _apply_apply_func_constraints(local_config_path, [apply1])
+
+    # report[column_n][report_list][report][name total or failure]
+    assert report[0][1][0][1] == 7 and report[0][1][0][2] == 3 and report[0][1][0][0] == f'value {Op.Name(Op.APPLY_FUNC)} {_is_dateutil_parseable}'
+
+
+def test_apply_func_merge():
+    apply1 = ValueConstraint(Op.APPLY_FUNC, _is_dateutil_parseable)
+    apply2 = ValueConstraint(Op.APPLY_FUNC, lambda x:x)
+
+    with pytest.raises(AssertionError):
+        apply1.merge(apply2)
+    
+    apply3 = ValueConstraint(Op.APPLY_FUNC, _is_dateutil_parseable)
+
+    merged = apply1.merge(apply3)
+
+    pre_merge_json = json.loads(message_to_json(apply1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pre_merge_json["function"] == merge_json["function"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+
