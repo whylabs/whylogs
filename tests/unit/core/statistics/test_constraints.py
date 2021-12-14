@@ -726,3 +726,22 @@ def test_string_length_constraints(local_config_path):
     assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} ^.{{7}}$'
     assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == rf'value {Op.Name(Op.MATCH)} ^.{{24}}$'
     assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == rf'value {Op.Name(Op.MATCH)} ^.{{7,10}}$'
+    
+def test_apply_func_serialization():
+    apply1 = ValueConstraint(Op.APPLY_FUNC, _is_dateutil_parseable)
+
+    apply2 = ValueConstraint.from_protobuf(apply1.to_protobuf())
+
+    apply1_json = json.loads(message_to_json(apply1.to_protobuf()))
+    apply2_json = json.loads(message_to_json(apply2.to_protobuf()))
+
+    apply1.merge(apply2)
+    apply2.merge(apply1)
+
+    assert apply1_json["name"] == apply2_json["name"]
+    assert apply1_json["function"] == apply2_json["function"]
+    assert apply1_json["op"] == apply2_json["op"]
+    assert apply1_json["verbose"] == apply2_json["verbose"]
+
+
+

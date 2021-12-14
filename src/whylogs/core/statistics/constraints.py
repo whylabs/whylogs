@@ -154,7 +154,7 @@ class ValueConstraint:
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
         if msg.HasField("function"):
-            return ValueConstraint(msg.op, locals()[msg.function], name=msg.name, verbose=msg.verbose)
+            return ValueConstraint(msg.op, globals()[msg.function], name=msg.name, verbose=msg.verbose)
         elif msg.regex_pattern != "":
             return ValueConstraint(msg.op, regex_pattern=msg.regex_pattern, name=msg.name, verbose=msg.verbose)
         elif len(msg.value_set.values) != 0:
