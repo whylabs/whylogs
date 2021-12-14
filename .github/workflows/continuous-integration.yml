@@ -55,37 +55,6 @@ jobs:
         flag-name: run-${{ matrix.os }}-${{matrix.python-version}}
         parallel: true
         github-token : ${{ secrets.GITHUB_TOKEN}}
-  java:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: java
-
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Setup JDK
-      uses: actions/setup-java@v1
-      with:
-        java-version: 8
-    - name: Test secret
-      env:
-        NEXUS_USERNAME: ${{ secrets.NEXUS_TOKEN_USERNAME }}
-      run: /bin/bash -c "echo $NEXUS_USERNAME | md5sum"
-    - name: Run build and tests
-      run: |
-        ./gradlew build
-    - name: publish to Nexus
-      uses: sonatype-nexus-community/iq-github-action@master
-      with:
-        serverUrl: https://oss.sonatype.org
-        username: ${{ secrets.NEXUS_TOKEN_USERNAME }}
-        password: ${{ secrets.NEXUS_TOKEN_PASSWORD }}
-        applicationId: aiwhylogs
-        stage: build
-
   finish:
     needs: test
     runs-on: ubuntu-latest
