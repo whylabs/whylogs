@@ -1,6 +1,9 @@
 import logging
 import numbers
 import re
+import json
+import jsonschema
+from jsonschema import validate
 from typing import Any, List, Mapping, Optional, Set
 
 from datasketches import theta_a_not_b, update_theta_sketch
@@ -37,6 +40,33 @@ def _is_dateutil_parseable(string):
     except ValueError:
         return False
 
+
+def _is_json_parseable(string):
+    """
+    Return whether the string can be interpreted as json.
+
+    :param string: str, string to check for json
+    """
+    try:
+        json.loads(string)
+        return True
+
+    except ValueError:
+        return False
+
+
+def _matches_json_schema(data_schema_dict):
+    """
+    Return whether the provided json matches the provided schema.
+
+    :param data_schema_dict: dict with keys 'data' and 'schema'
+    """
+    try:
+        validate(instance=data_schema_dict['data'], schema=data_schema_dict['schema'])
+        return True
+
+    except ValueError:
+        return False
 
 """
 Dict indexed by constraint operator.
@@ -764,3 +794,7 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
 
 def dateUtilParseableConstraint(verbose=False):
     return ValueConstraint(Op.APPLY_FUNC, _is_dateutil_parseable, verbose=verbose)
+
+
+def jsonParseableConstraint(verbose=False):
+    return ValueConstraint(Op.APPLY_FUNC, _is_json_parseable, verbose=verbose)
