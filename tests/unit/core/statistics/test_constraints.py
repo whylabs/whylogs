@@ -754,3 +754,21 @@ def test_apply_func_merge():
     assert pre_merge_json["verbose"] == merge_json["verbose"]
 
 
+def test_apply_func_serialization():
+    apply1 = ValueConstraint(Op.APPLY_FUNC, _is_dateutil_parseable)
+
+    apply2 = ValueConstraint.from_protobuf(apply1.to_protobuf())
+
+    apply1_json = json.loads(message_to_json(apply1.to_protobuf()))
+    apply2_json = json.loads(message_to_json(apply2.to_protobuf()))
+
+    apply1.merge(apply2)
+    apply2.merge(apply1)
+
+    assert apply1_json["name"] == apply2_json["name"]
+    assert apply1_json["function"] == apply2_json["function"]
+    assert apply1_json["op"] == apply2_json["op"]
+    assert apply1_json["verbose"] == apply2_json["verbose"]
+
+
+
