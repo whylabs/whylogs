@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import List, Mapping, Optional
+from typing import Any, List, Mapping, Optional, Set
 
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
@@ -89,7 +89,7 @@ class ValueConstraint:
         self.total = 0
         self.failures = 0
 
-        if (isinstance(value, set) and op != Op.IN) or (not isinstance(value, set) and op == Op.IN):
+        if isinstance(value, set) != (op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
         if value is not None and regex_pattern is None:
@@ -591,7 +591,7 @@ def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
 
 
-def columnValuesInSetConstraint(value_set: "set", verbose=False):
+def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
     try:
         value_set = set(value_set)
     except Exception:
