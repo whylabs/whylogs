@@ -418,7 +418,7 @@ def _report_email_value_constraint_on_data_set(local_config_path, pattern=None):
     df = pd.DataFrame(
         [
             {"email": r"abc's@gmail.com"},  # valid
-            {"email": r'"avrrr test \@"@gmail.com'},  # valid
+            {"email": r'"aVrrR Test \@"@gmail.com'},  # valid
             {"email": r"abc..q12@example.us"},  # invalid
             {"email": r'"sdsss\d"@gmail.com'},  # valid
             {"email": r"customer/department=shipping?@example-another.some-other.us"},  # valid

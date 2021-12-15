@@ -107,7 +107,6 @@ class ValueConstraint:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
 
     def update(self, v) -> bool:
-        v = str.lower(v) if isinstance(v, str) else v
         self.total += 1
         if self.op in [Op.MATCH, Op.NOMATCH] and not isinstance(v, str):
             self.failures += 1
@@ -588,13 +587,11 @@ def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
 
 def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
     if regex_pattern is not None:
-        logger.warning(
-            "Warning: supplying your own regex pattern might cause slower evaluation of the containsEmailConstraint, depending on its complexity."
-        )
+        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsEmailConstraint, depending on its complexity.")
         email_pattern = regex_pattern
     else:
         email_pattern = (
-            r"^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*"
+            r"^(?i)(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*"
             r'|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|[\x01-\x09\x0b\x0c\x0e-\x7f])*")'
             r"@"
             r"(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)$"
