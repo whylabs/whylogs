@@ -1,16 +1,15 @@
 import logging
-import re
-from typing import List, Mapping, Optional
-
 import numbers
+import re
+from typing import Any, List, Mapping, Optional, Set
+
+from datasketches import theta_a_not_b, update_theta_sketch
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
-from whylogs.core.statistics.thetasketch import numbers_summary
 
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
-    NumberSummary,
     Op,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
@@ -19,9 +18,6 @@ from whylogs.proto import (
     ValueConstraintMsgs,
 )
 from whylogs.util.protobuf import message_to_json
-
-from datasketches import update_theta_sketch
-from datasketches import theta_a_not_b
 
 logger = logging.getLogger(__name__)
 
@@ -52,9 +48,19 @@ _summary_funcs1 = {
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
     Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
-    Op.IN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1) == 0.0,
-    Op.CONTAINS_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1) == 0.0,
-    Op.EQ_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1) == round(theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1) == 0.0,
+    Op.IN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+        theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1
+    )
+    == 0.0,
+    Op.CONTAIN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+        theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1
+    )
+    == 0.0,
+    Op.EQ_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+        theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1
+    )
+    == round(theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1)
+    == 0.0,
 }
 
 _summary_funcs2 = {
@@ -191,7 +197,7 @@ class SummaryConstraint:
          to be compared against summary field specified in `first_field`.
         Only one of `upper_value` or `third_field` should be supplied.
     reference_set : (one-of)
-        Only to be supplied when using set operations. Used as a reference set to be compared with the column 
+        Only to be supplied when using set operations. Used as a reference set to be compared with the column
         distinct values.
     name : str
         Name of the constraint used for reporting
@@ -201,6 +207,7 @@ class SummaryConstraint:
 
 
     """
+
     def __init__(
         self,
         first_field: str,
@@ -209,7 +216,7 @@ class SummaryConstraint:
         upper_value=None,
         second_field: str = None,
         third_field: str = None,
-        reference_set = None,
+        reference_set=None,
         name: str = None,
         verbose=False,
     ):
@@ -225,25 +232,24 @@ class SummaryConstraint:
         self.value = value
         self.upper_value = upper_value
 
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             if value is not None or upper_value is not None or second_field is not None or third_field is not None or reference_set is None:
                 raise ValueError("When using set operations only set should be provided and not values or field names!")
-
 
             if not isinstance(reference_set, set):
                 try:
                     logger.warning(f"Trying to cast provided value of {type(reference_set)} to type set!")
                     reference_set = set(reference_set)
                 except TypeError:
-                    raise TypeError(f"When using set operations, provided value must be set or set castable, instead type: '{reference_set.__class__.__name__}' was provided!")
+                    raise TypeError(
+                        f"When using set operations, provided value must be set or set castable, instead type: '{reference_set.__class__.__name__}' was provided!"
+                    )
             self.reference_set = reference_set
-            self.ref_string_set = self.get_string_set()
-            self.ref_numbers_set = self.get_numbers_set()
+            self.ref_string_set, self.ref_numbers_set = self.get_string_and_numbers_sets()
 
             self.reference_theta_sketch = self.create_theta_sketch()
             self.string_theta_sketch = self.create_theta_sketch(self.ref_string_set)
             self.numbers_theta_sketch = self.create_theta_sketch(self.ref_numbers_set)
-
 
         elif self.op == Op.BTWN:
             if value is not None and upper_value is not None and (second_field, third_field) == (None, None):
@@ -280,7 +286,7 @@ class SummaryConstraint:
 
     @property
     def name(self):
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             reference_set_str = ""
             if len(self.reference_set) > 20:
                 tmp_set = set(list(self.reference_set)[:20])
@@ -295,12 +301,17 @@ class SummaryConstraint:
 
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
-    def get_string_set(self):
-        return set( [item for item in self.reference_set if isinstance(item, str)]  )
+    def get_string_and_numbers_sets(self):
+        string_set = set()
+        numbers_set = set()
+        for item in self.reference_set:
+            if isinstance(item, str):
+                string_set.add(item)
+            elif isinstance(item, numbers.Real) and not isinstance(item, bool):
+                numbers_set.add(item)
 
-    def get_numbers_set(self):
-        return set( [item for item in self.reference_set if isinstance(item, numbers.Real) and not isinstance(item, bool)]  )
-    
+        return string_set, numbers_set
+
     def create_theta_sketch(self, ref_set: set = None):
         theta = update_theta_sketch()
         target_set = self.reference_set if ref_set is None else ref_set
@@ -315,12 +326,10 @@ class SummaryConstraint:
         column_string_theta = update_dict["string_theta"]
         column_number_theta = update_dict["number_theta"]
 
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
-            # if ( ( len(self.ref_string_set) == 0 and len(self.ref_numbers_set) == 0 and not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) )
-            #     or ( len(self.ref_string_set) > 0 and not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) ) 
-            #     or ( len(self.ref_numbers_set) > 0 and not _summary_funcs1[self.op](self.numbers_theta_sketch)(column_number_theta) ) ):
-            if ( not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) or 
-                not _summary_funcs1[self.op](self.numbers_theta_sketch)(column_number_theta) ):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+            if not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) or not _summary_funcs1[self.op](self.numbers_theta_sketch)(
+                column_number_theta
+            ):
                 self.failures += 1
                 if self._verbose:
                     logger.info(f"summary constraint {self.name} failed")
@@ -340,9 +349,8 @@ class SummaryConstraint:
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
 
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             assert self.reference_set == other.reference_set
-            # assert theta_a_not_b().compute(self.reference_theta_sketch, other.reference_theta_sketch).get_result() == theta_a_not_b().compute(other.reference_theta_sketch, self.reference_theta_sketch).get_result() == 0.0 # A-B=B-A=0 --> A==B
             merged_constraint = SummaryConstraint(
                 first_field=self.first_field, op=self.op, reference_set=self.reference_set, name=self.name, verbose=self._verbose
             )
@@ -425,10 +433,12 @@ class SummaryConstraint:
                     verbose=msg.verbose,
                 )
         else:
-            raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg OR reference set, but only one of them")
+            raise ValueError(
+                "SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg OR reference set, but only one of them"
+            )
 
     def to_protobuf(self) -> SummaryConstraintMsg:
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             reference_set_msg = ListValue()
             reference_set_msg.extend(self.reference_set)
 
@@ -661,3 +671,15 @@ def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, u
 
 def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
+
+
+def distinctValuesInSetConstraint(reference_set: Set[Any], name=None, verbose=False):
+    return SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=reference_set, name=name, verbose=False)
+
+
+def distinctValuesEqualSetConstraint(reference_set: Set[Any], name=None, verbose=False):
+    return SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=reference_set, name=name, verbose=False)
+
+
+def distinctValuesContainSetConstraint(reference_set: Set[Any], name=None, verbose=False):
+    return SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=reference_set, name=name, verbose=False)
