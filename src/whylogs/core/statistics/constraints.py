@@ -130,7 +130,9 @@ class ValueConstraint:
             assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
         elif getattr(self, "regex_pattern", None) and getattr(other, "regex_pattern", None):
             pattern = self.regex_pattern
-            assert self.regex_pattern == other.regex_pattern, f"Cannot merge value constraints with different values: {self.regex_pattern} and {other.regex_pattern}"
+            assert (
+                self.regex_pattern == other.regex_pattern
+            ), f"Cannot merge value constraints with different values: {self.regex_pattern} and {other.regex_pattern}"
         else:
             raise TypeError("Cannot merge a numeric value constraint with a string value constraint")
 
@@ -584,33 +586,37 @@ def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
 
 
-def containsEmailConstraint(regex_pattern: 'str' = None, verbose=False):
+def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
     if regex_pattern is not None:
-        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the "
-                       "containsEmailConstraint, depending on its complexity.")
+        logger.warning(
+            "Warning: supplying your own regex pattern might cause slower evaluation of the containsEmailConstraint, depending on its complexity."
+        )
         email_pattern = regex_pattern
     else:
-        email_pattern = r'^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*' \
-                        r'|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|[\x01-\x09\x0b\x0c\x0e-\x7f])*")' \
-                        r'@' \
-                        r'(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)$'
+        email_pattern = (
+            r"^(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*"
+            r'|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|[\x01-\x09\x0b\x0c\x0e-\x7f])*")'
+            r"@"
+            r"(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)$"
+        )
 
     return ValueConstraint(Op.MATCH, regex_pattern=email_pattern, verbose=verbose)
 
 
-def containsCreditCardConstraint(regex_pattern: 'str' = None, verbose=False):
+def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
     if regex_pattern is not None:
-        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the " +
-                       "containsCreditCardConstraint, depending on its complexity.")
+        logger.warning(
+            "Warning: supplying your own regex pattern might cause slower evaluation of the containsCreditCardConstraint, depending on its complexity."
+        )
         credit_card_pattern = regex_pattern
     else:
         credit_card_pattern = (
             r"^(?:(4[0-9]{3}([\s-]?[0-9]{4}){2}[\s-]?[0-9]{1,4})"
-            r"|(5[1-5][0-9]{2}([\s-]?[0-9]{4}){3})"
-            r"|(6(?:011|5[0-9]{2})([\s-]?[0-9]{4}){3})"
-            r"|(3[47][0-9]{2}[\s-]?[0-9]{6}[\s-]?[0-9]{5})"
-            r"|(3(?:0[0-5]|[68][0-9])[0-9][\s-]?[0-9]{6}[\s-]?[0-9]{4})"
-            r"|(?:2131|1800|35[0-9]{2,3})([\s-]?[0-9]{4}){3})$"
+            r"|(?:(5[1-5][0-9]{2}([\s-]?[0-9]{4}){3}))"
+            r"|(?:(6(?:011|5[0-9]{2})([\s-]?[0-9]{4}){3}))"
+            r"|(?:(3[47][0-9]{2}[\s-]?[0-9]{6}[\s-]?[0-9]{5}))"
+            r"|(?:(3(?:0[0-5]|[68][0-9])[0-9][\s-]?[0-9]{6}[\s-]?[0-9]{4}))"
+            r"|(?:2131|1800|35[0-9]{2,3}([\s-]?[0-9]{4}){3}))$"
         )
 
     return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, verbose=verbose)
@@ -618,9 +624,7 @@ def containsCreditCardConstraint(regex_pattern: 'str' = None, verbose=False):
 
 def containsSSNConstraint(regex_pattern: "str" = None, verbose=False):
     if regex_pattern is not None:
-        logger.warning(
-            "Warning: supplying your own regex pattern might cause slower evaluation of the " + "containsSSNConstraint, depending on its complexity."
-        )
+        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsSSNConstraint, depending on its complexity.")
         ssn_pattern = regex_pattern
     else:
         ssn_pattern = r"^(?!000|666|9[0-9]{2})[0-9]{3}[\s-]?(?!00)[0-9]{2}[\s-]?(?!0000)[0-9]{4}$"
@@ -630,13 +634,14 @@ def containsSSNConstraint(regex_pattern: "str" = None, verbose=False):
 
 def containsURLConstraint(regex_pattern: "str" = None, verbose=False):
     if regex_pattern is not None:
-        logger.warning(
-            "Warning: supplying your own regex pattern might cause slower evaluation of the " + "containsURLConstraint, depending on its complexity."
-        )
+        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsURLConstraint, depending on its complexity.")
         url_pattern = regex_pattern
     else:
         url_pattern = (
-            r"^(?:http(s)?:\/\/)?((www)|([a-zA-z0-9-]+)\.)" r"(?:[-a-zA-Z0-9@:%._\+~#=]{1,256}\." r"[a-zA-Z0-9()]{1,6}\b" r"([-a-zA-Z0-9()@:%_\+.~#?&//=]*))$"
+            r"^(?:http(s)?:\/\/)?((www)|(?:[a-zA-z0-9-]+)\.)"
+            r"(?:[-a-zA-Z0-9@:%._\+~#=]{1,256}\."
+            r"(?:[a-zA-Z0-9]{1,6})\b"
+            r"(?:[-a-zA-Z0-9@:%_\+.~#?&//=]*))$"
         )
 
     return ValueConstraint(Op.MATCH, regex_pattern=url_pattern, verbose=verbose)
