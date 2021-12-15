@@ -58,7 +58,10 @@ message SummaryBetweenConstraintMsg {
 
 /* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal, or between a string value and a regex pattern.
    These are applied to every incoming value that is processed by whylogs.  */
-
+message ApplyFunctionMsg {
+  string function = 1;
+  string reference_value = 2;
+}
 
 message ValueConstraintMsg {
   string name = 1;
@@ -66,7 +69,8 @@ message ValueConstraintMsg {
     double value = 2;
     string regex_pattern = 5;
     google.protobuf.ListValue value_set = 6;
-    string function = 7;
+    ApplyFunctionMsg function = 7;
+    
   }
   Op op = 3;
   bool verbose = 4;

@@ -1,16 +1,18 @@
+import json
 import logging
 import numbers
 import re
-import json
-import jsonschema
-from jsonschema import validate
 from typing import List, Mapping, Optional
 
+import jsonschema
 from datasketches import theta_a_not_b, update_theta_sketch
+from dateutil.parser import parse
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
+from jsonschema import validate
 
 from whylogs.proto import (
+    ApplyFunctionMsg,
     DatasetConstraintMsg,
     DatasetProperties,
     Op,
@@ -24,49 +26,49 @@ from whylogs.util.protobuf import message_to_json
 
 logger = logging.getLogger(__name__)
 
-from dateutil.parser import parse
 
-
-def _is_dateutil_parseable(string):
+def _is_dateutil_parseable(string, ref_val=None):
     """
     Return whether the string can be interpreted as a date.
 
     :param string: str, string to check for date
+    :param ref_val: any, not used, architecture design requirement
+
     """
     try:
         parse(string)
-        return True
-
-    except ValueError:
+    except (ValueError, TypeError):
         return False
+    return True
 
 
-def _is_json_parseable(string):
+def _is_json_parseable(string, ref_val=None):
     """
     Return whether the string can be interpreted as json.
 
     :param string: str, string to check for json
+    :param ref_val: any, not used, architecture design requirement
     """
     try:
         json.loads(string)
-        return True
-
-    except ValueError:
+    except (ValueError, TypeError):
         return False
+    return True
 
 
-def _matches_json_schema(data_schema_dict):
+def _matches_json_schema(json_data, json_schema):
     """
     Return whether the provided json matches the provided schema.
 
-    :param data_schema_dict: dict with keys 'data' and 'schema'
+    :param json_data: json object to check
+    :param json_schema: schema to check if the json object matches it
     """
     try:
-        validate(instance=data_schema_dict['data'], schema=data_schema_dict['schema'])
-        return True
-
-    except ValueError:
+        validate(instance=json_data, schema=json_schema)
+    except (jsonschema.exceptions.ValidationError, jsonschema.exceptions.SchemaError):
         return False
+    return True
+
 
 """
 Dict indexed by constraint operator.
@@ -85,7 +87,7 @@ _value_funcs = {
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
     Op.IN_SET: lambda x: lambda v: v in x,
-    Op.APPLY_FUNC: lambda x: lambda v: x(v),
+    Op.APPLY_FUNC: lambda apply_function, reference_value: lambda v: apply_function(v, reference_value),
 }
 
 _summary_funcs1 = {
@@ -134,8 +136,15 @@ class ValueConstraint:
     op : whylogs.proto.Op (required)
         Enumeration of binary comparison operator applied between static value and incoming stream.
         Enum values are mapped to operators like '==', '<', and '<=', etc.
-    value :  (required)
+    value : (one-of)
+        When value is provided, regex_pattern must be None.
         Static value to compare against incoming stream using operator specified in `op`.
+    regex_pattern : (one-of)
+        When regex_pattern is provided, value must be None.
+        Regex pattern to use when MATCH or NOMATCH operations are used.
+    apply_function:
+        To be supplied only when using APPLY_FUNC operation.
+        In case when the apply_function requires argument, to be supplied in the value param.
     name : str
         Name of the constraint used for reporting
     verbose : bool
@@ -144,20 +153,25 @@ class ValueConstraint:
 
     """
 
-    def __init__(self, op: Op, value=None, regex_pattern: str = None, name: str = None, verbose=False):
+    def __init__(self, op: Op, value=None, regex_pattern: str = None, apply_function=None, name: str = None, verbose=False):
         self._name = name
         self._verbose = verbose
         self.op = op
+        self.apply_function = apply_function
         self.total = 0
         self.failures = 0
 
-        if (self.op != Op.APPLY_FUNC and hasattr(value, "__call__")) or (self.op == Op.APPLY_FUNC and not hasattr(value, "__call__")):
-            raise ValueError("Value constraint must provide a function if and only if using the APPLY_FUNC operator")
+        if (apply_function is not None) != (self.op == Op.APPLY_FUNC):
+            raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator")
 
         if (isinstance(value, set) and op != Op.IN_SET) or (not isinstance(value, set) and op == Op.IN_SET):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
-        if value is not None and regex_pattern is None:
+        if self.op == Op.APPLY_FUNC:
+            if value is not None:
+                self.value = value
+            self.func = _value_funcs[op](apply_function, value)
+        elif value is not None and regex_pattern is None:
             # numeric value
             self.value = value
             self.func = _value_funcs[op](value)
@@ -172,7 +186,9 @@ class ValueConstraint:
 
     @property
     def name(self):
-        if getattr(self, "value", None) is not None:
+        if self.op == Op.APPLY_FUNC:
+            return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.apply_function.__name__}"
+        elif getattr(self, "value", None) is not None:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.value}"
         else:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
@@ -196,7 +212,16 @@ class ValueConstraint:
         pattern = None
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
-        if getattr(self, "value", None) is not None and getattr(other, "value", None) is not None:
+        assert (
+            self.apply_function == other.apply_function
+        ), f"Cannot merge constraints with different apply_function: {self.apply_function} and {other.apply_function}"
+        if self.apply_function is not None:
+            if hasattr(self, "value") != hasattr(other, "value"):
+                raise TypeError("Cannot merge one constraint with provided value and one without")
+            elif hasattr(self, "value") and hasattr(other, "value"):
+                val = self.value
+                assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
+        elif getattr(self, "value", None) is not None and getattr(other, "value", None) is not None:
             val = self.value
             assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
         elif getattr(self, "regex_pattern", None) and getattr(other, "regex_pattern", None):
@@ -205,9 +230,11 @@ class ValueConstraint:
                 self.regex_pattern == other.regex_pattern
             ), f"Cannot merge value constraints with different values: {self.regex_pattern} and {other.regex_pattern}"
         else:
-            raise TypeError(f"Cannot merge a numeric value constraint with a string value constraint")
+            raise TypeError("Cannot merge a numeric value constraint with a string value constraint")
 
-        merged_value_constraint = ValueConstraint(op=self.op, value=val, regex_pattern=pattern, name=self.name, verbose=self._verbose)
+        merged_value_constraint = ValueConstraint(
+            op=self.op, value=val, regex_pattern=pattern, apply_function=self.apply_function, name=self.name, verbose=self._verbose
+        )
         merged_value_constraint.total = self.total + other.total
         merged_value_constraint.failures = self.failures + other.failures
         return merged_value_constraint
@@ -215,7 +242,8 @@ class ValueConstraint:
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
         if msg.HasField("function"):
-            return ValueConstraint(msg.op, globals()[msg.function], name=msg.name, verbose=msg.verbose)
+            val = None if msg.function.reference_value == "" else json.loads(msg.function.reference_value)
+            return ValueConstraint(msg.op, value=val, apply_function=globals()[msg.function.function], name=msg.name, verbose=msg.verbose)
         elif msg.regex_pattern != "":
             return ValueConstraint(msg.op, regex_pattern=msg.regex_pattern, name=msg.name, verbose=msg.verbose)
         elif len(msg.value_set.values) != 0:
@@ -225,7 +253,17 @@ class ValueConstraint:
             return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
-        if hasattr(self, "value"):
+        if self.op == Op.APPLY_FUNC:
+            func_msg = ApplyFunctionMsg(function=self.apply_function.__name__)
+            if hasattr(self, "value"):
+                func_msg = ApplyFunctionMsg(function=self.apply_function.__name__, reference_value=json.dumps(self.value))
+            return ValueConstraintMsg(
+                name=self.name,
+                op=self.op,
+                function=func_msg,
+                verbose=self._verbose,
+            )
+        elif hasattr(self, "value"):
             if isinstance(self.value, set):
                 set_vals_message = ListValue()
                 set_vals_message.append(list(self.value))
@@ -233,13 +271,6 @@ class ValueConstraint:
                     name=self.name,
                     op=self.op,
                     value_set=set_vals_message,
-                    verbose=self._verbose,
-                )
-            elif hasattr(self.value, "__call__"):
-                return ValueConstraintMsg(
-                    name=self.name,
-                    op=self.op,
-                    function=self.value.__name__,
                     verbose=self._verbose,
                 )
             else:
@@ -417,9 +448,6 @@ class SummaryConstraint:
         column_number_theta = update_dict["number_theta"]
 
         if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
-            # if ( ( len(self.ref_string_set) == 0 and len(self.ref_numbers_set) == 0 and not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) )
-            #     or ( len(self.ref_string_set) > 0 and not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) )
-            #     or ( len(self.ref_numbers_set) > 0 and not _summary_funcs1[self.op](self.numbers_theta_sketch)(column_number_theta) ) ):
             if not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) or not _summary_funcs1[self.op](self.numbers_theta_sketch)(
                 column_number_theta
             ):
@@ -444,7 +472,6 @@ class SummaryConstraint:
 
         if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
             assert self.reference_set == other.reference_set
-            # assert theta_a_not_b().compute(self.reference_theta_sketch, other.reference_theta_sketch).get_result() == theta_a_not_b().compute(other.reference_theta_sketch, self.reference_theta_sketch).get_result() == 0.0 # A-B=B-A=0 --> A==B
             merged_constraint = SummaryConstraint(
                 first_field=self.first_field, op=self.op, reference_set=self.reference_set, name=self.name, verbose=self._verbose
             )
@@ -821,8 +848,12 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
 
 
 def dateUtilParseableConstraint(verbose=False):
-    return ValueConstraint(Op.APPLY_FUNC, _is_dateutil_parseable, verbose=verbose)
+    return ValueConstraint(Op.APPLY_FUNC, apply_function=_is_dateutil_parseable, verbose=verbose)
 
 
 def jsonParseableConstraint(verbose=False):
-    return ValueConstraint(Op.APPLY_FUNC, _is_json_parseable, verbose=verbose)
+    return ValueConstraint(Op.APPLY_FUNC, apply_function=_is_json_parseable, verbose=verbose)
+
+
+def matchesJsonSchemaConstraint(json_schema, verbose=False):
+    return ValueConstraint(Op.APPLY_FUNC, json_schema, apply_function=_matches_json_schema, verbose=verbose)
