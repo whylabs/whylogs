@@ -36,7 +36,7 @@ _value_funcs = {
     Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
-    Op.IN: lambda x: lambda v: v in x,
+    Op.IN_SET: lambda x: lambda v: v in x,
 }
 
 _summary_funcs1 = {
@@ -89,7 +89,7 @@ class ValueConstraint:
         self.total = 0
         self.failures = 0
 
-        if isinstance(value, set) != (op == Op.IN):
+        if isinstance(value, set) != (op == Op.IN_SET):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
         if value is not None and regex_pattern is None:
@@ -597,4 +597,4 @@ def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
     except Exception:
         raise TypeError("The value set should be an iterable data type")
 
-    return ValueConstraint(Op.IN, value=value_set, verbose=verbose)
+    return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)

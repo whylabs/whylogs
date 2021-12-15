@@ -27,13 +27,13 @@ TEST_LOGGER = getLogger(__name__)
 def test_value_summary_serialization():
 
     for each_op, _ in _value_funcs.items():
-        if each_op == Op.IN:
+        if each_op == Op.IN_SET:
             value = ValueConstraint(each_op, {3.6})
         else:
             value = ValueConstraint(each_op, 3.6)
         msg_value = value.to_protobuf()
         json_value = json.loads(message_to_json(msg_value))
-        if each_op == Op.IN:
+        if each_op == Op.IN_SET:
             assert json_value["name"] == "value " + Op.Name(each_op) + " {3.6}"
             assert json_value["valueSet"][0] == [3.6]
         else:
@@ -446,8 +446,8 @@ def test_merge_values_in_set_constraint_same_value_set():
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == "value IN " + str(val_set)
-    assert json_value["op"] == Op.Name(Op.IN)
+    assert json_value["name"] == f"value {Op.Name(Op.IN_SET)} " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN_SET)
     assert json_value["valueSet"][0] == list(val_set)
 
 
@@ -460,8 +460,8 @@ def test_serialization_deserialization_values_in_set_constraint():
 
     TEST_LOGGER.info(f"Serialize columnValuesInSetConstraint from deserialized representation:\n {cvisc.to_protobuf()}")
 
-    assert json_value["name"] == "value IN " + str(val_set)
-    assert json_value["op"] == Op.Name(Op.IN)
+    assert json_value["name"] == f"value {Op.Name(Op.IN_SET)} " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN_SET)
     assert json_value["valueSet"][0] == list(val_set)
 
 

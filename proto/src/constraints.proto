@@ -19,7 +19,7 @@ enum Op {
     MATCH = 7;
     NOMATCH = 8;
     BTWN = 9;
-    IN = 10;
+    IN_SET = 10;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
