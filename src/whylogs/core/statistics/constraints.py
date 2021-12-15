@@ -241,8 +241,9 @@ class SummaryConstraint:
                     logger.warning(f"Trying to cast provided value of {type(reference_set)} to type set!")
                     reference_set = set(reference_set)
                 except TypeError:
+                    provided_type_name = reference_set.__class__.__name__
                     raise TypeError(
-                        f"When using set operations, provided value must be set or set castable, instead type: '{reference_set.__class__.__name__}' was provided!"
+                        f"When using set operations, provided value must be set or set castable, instead type: '{provided_type_name}' was provided!"
                     )
             self.reference_set = reference_set
             self.ref_string_set, self.ref_numbers_set = self.get_string_and_numbers_sets()
