@@ -12,12 +12,16 @@ from whylogs.core.statistics.constraints import (
     SummaryConstraint,
     ValueConstraint,
     _is_dateutil_parseable,
+    _is_json_parseable,
+    _matches_json_schema,
     _summary_funcs1,
     _value_funcs,
     columnValuesInSetConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
     dateUtilParseableConstraint,
+    jsonParseableConstraint,
+    matchesJsonSchemaConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
@@ -727,12 +731,23 @@ def _apply_apply_func_constraints(local_config_path, apply_func_constraints):
     df = pd.DataFrame(
         [
             {"str1": "1990-12-1"},
+            {"str1": "1990/12/1"},
             {"str1": "2005/3"},
             {"str1": "Jan 19, 1990"},
-            {"str1": "today is 2019-03-27"},
+            {"str1": "today is 2019-03-27"},  # invalid
             {"str1": "Monday at 12:01am"},
-            {"str1": "xyz_not_a_date"},
-            {"str1": "yesterday"},
+            {"str1": "xyz_not_a_date"},  # invalid
+            {"str1": "yesterday"},  # invalid
+            {"str1": {"name": "s", "w2w2": "dgsg", "years": 232, "abc": 1}},  # valid
+            {"str1": {"name": "s", "w2w2": 12.38, "years": 232, "abc": 1}},  # valid
+            {"str1": {"name": "s", "years": 232, "abc": 1}},  # valid
+            {"str1": {"name": "s", "abc": 1}},  # valid
+            {"str1": {"name": "s", "w2w2": "dgsg", "years": 232}},  # invalid
+            {"str1": {"name": "s", "w2w2": "dgsg", "years": "232", "abc": 1}},  # invalid
+            {"str1": {"name": 14, "w2w2": "dgsg", "years": "232", "abc": 1}},  # invalid
+            {"str1": {"name": "14", "w2w2": "dgsg", "years": 232.44, "abc": 1}},  # invalid
+            {"str1": {"w2w2": "dgsg", "years": 232, "abc": 1}},  # invalid
+            {"str1": {"years": 232}},  # invalid
         ]
     )
 
@@ -748,17 +763,32 @@ def _apply_apply_func_constraints(local_config_path, apply_func_constraints):
 
 def test_apply_func_value_constraints(local_config_path):
 
-    apply1 = dateUtilParseableConstraint()
+    dateutil_parseable = dateUtilParseableConstraint()
+    json_parseable = jsonParseableConstraint()
 
-    report = _apply_apply_func_constraints(local_config_path, [apply1])
+    json_schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "years": {"type": "integer"},
+        },
+        "required": ["name", "abc"],
+    }
+    matches_json_schema = matchesJsonSchemaConstraint(json_schema=json_schema)
+
+    apply_constraints = [dateutil_parseable, json_parseable, matches_json_schema]
+
+    report = _apply_apply_func_constraints(local_config_path, apply_constraints)
 
     # report[column_n][report_list][report][name total or failure]
-    assert report[0][1][0][1] == 7 and report[0][1][0][2] == 3 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_dateutil_parseable}"
+    assert report[0][1][0][1] == 18 and report[0][1][0][2] == 13 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_dateutil_parseable.__name__}"
+    assert report[0][1][1][1] == 18 and report[0][1][1][2] == 18 and report[0][1][1][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_json_parseable.__name__}"
+    assert report[0][1][2][1] == 18 and report[0][1][2][2] == 14 and report[0][1][2][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_matches_json_schema.__name__}"
 
 
 def test_apply_func_merge():
     apply1 = dateUtilParseableConstraint()
-    apply2 = ValueConstraint(Op.APPLY_FUNC, lambda x: x)
+    apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=lambda x: x)
 
     with pytest.raises(AssertionError):
         apply1.merge(apply2)
@@ -805,6 +835,35 @@ def test_string_length_constraints(local_config_path):
     length_constraints = [length_constraint7, length_constraint24, length_constraint7to10]
 
     report = _apply_string_length_constraints(local_config_path, length_constraints)
+    json_schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "years": {"type": "integer"},
+        },
+        "required": ["name", "abc"],
+    }
+    apply1 = matchesJsonSchemaConstraint(json_schema)
+    apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=lambda x: x)
+    apply3 = ValueConstraint(Op.APPLY_FUNC, apply_function=_matches_json_schema)
+
+    with pytest.raises(AssertionError):
+        apply1.merge(apply2)
+    with pytest.raises(TypeError):
+        apply1.merge(apply3)
+
+    apply4 = ValueConstraint(Op.APPLY_FUNC, json_schema, apply_function=_matches_json_schema)
+
+    merged = apply1.merge(apply4)
+
+    pre_merge_json = json.loads(message_to_json(apply1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pre_merge_json["function"] == merge_json["function"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
 
     # report[column_n][report_list][report][name total or failure]
     assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} ^.{{7}}$'
@@ -821,6 +880,25 @@ def test_apply_func_serialization():
 
     apply1.merge(apply2)
     apply2.merge(apply1)
+
+    assert apply1_json["name"] == apply2_json["name"]
+    assert apply1_json["function"] == apply2_json["function"]
+    assert apply1_json["op"] == apply2_json["op"]
+    assert apply1_json["verbose"] == apply2_json["verbose"]
+
+    json_schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "years": {"type": "integer"},
+        },
+        "required": ["name", "abc"],
+    }
+    apply1 = matchesJsonSchemaConstraint(json_schema)
+    apply2 = ValueConstraint.from_protobuf(apply1.to_protobuf())
+
+    apply1_json = json.loads(message_to_json(apply1.to_protobuf()))
+    apply2_json = json.loads(message_to_json(apply2.to_protobuf()))
 
     assert apply1_json["name"] == apply2_json["name"]
     assert apply1_json["function"] == apply2_json["function"]
