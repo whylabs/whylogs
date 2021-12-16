@@ -490,3 +490,17 @@ def test_set_summary_merge():
     assert pre_merge_json["firstField"] == merge_json["firstField"]
     assert pre_merge_json["op"] == merge_json["op"]
     assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+
+def test_set_summary_serialization():
+    set1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+    set2 = SummaryConstraint.from_protobuf(set1.to_protobuf())
+
+    set1_json = json.loads(message_to_json(set1.to_protobuf()))
+    set2_json = json.loads(message_to_json(set2.to_protobuf()))
+
+    assert set1_json["name"] == set2_json["name"]
+    assert set1_json["referenceSet"] == set2_json["referenceSet"]
+    assert set1_json["firstField"] == set2_json["firstField"]
+    assert set1_json["op"] == set2_json["op"]
+    assert set1_json["verbose"] == set2_json["verbose"]

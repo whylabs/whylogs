@@ -20,7 +20,7 @@ enum Op {
     NOMATCH = 8;
     BTWN = 9;
     IN_SET = 10;
-    CONTAINS_SET = 11;
+    CONTAIN_SET = 11;
     EQ_SET = 12;
   }
 
