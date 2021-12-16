@@ -36,6 +36,7 @@ message SummaryConstraintMsg {
   }
   Op op = 6;
   bool verbose = 7;
+  double quantile_value = 8;
 }
 
 message SummaryBetweenConstraintMsg {

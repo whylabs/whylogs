@@ -196,6 +196,7 @@ class SummaryConstraint:
         op: Op,
         value=None,
         upper_value=None,
+        quantile_value: Union[int, float] = None,
         second_field: str = None,
         third_field: str = None,
         name: str = None,
@@ -212,6 +213,13 @@ class SummaryConstraint:
 
         self.value = value
         self.upper_value = upper_value
+        self.quantile_value = quantile_value
+
+        if self.first_field == "quantile" and not self.quantile_value:
+            raise ValueError("Summary quantile constraint must specify quantile value")
+
+        if self.first_field != "quantile" and self.quantile_value is not None:
+            raise ValueError("Summary constraint applied on non-quantile field should not specify quantile value")
 
         if self.op == Op.BTWN:
             if value is not None and upper_value is not None and (second_field, third_field) == (None, None):
@@ -252,8 +260,8 @@ class SummaryConstraint:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
             field_name = self.first_field
-            if self.first_field.replace(".", "", 1).isnumeric():
-                field_name = f"quantile {self.first_field}"
+            if self.first_field == "quantile":
+                field_name = f"{self.first_field} {self.quantile_value}"
             return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {lower_target} and {upper_target}"
 
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
@@ -263,10 +271,10 @@ class SummaryConstraint:
         summ = update_dict["number_summary"]
         column_number_kll_sketch = update_dict["number_kll_sketch"]
 
-        if self.first_field.replace(".", "", 1).isnumeric():
-            quantile_summary = quantiles_from_sketch(column_number_kll_sketch, [float(self.first_field)])
-            obj = type("Object", (), {self.first_field: quantile_summary.quantile_values[0]})
-            result = self.func(obj)
+        if self.first_field == "quantile":
+            quantile_summary = quantiles_from_sketch(column_number_kll_sketch, [self.quantile_value])
+            quantile_val = type("Object", (), {self.first_field: quantile_summary.quantile_values[0]})
+            result = self.func(quantile_val)
         else:
             result = self.func(summ)
 
@@ -284,6 +292,9 @@ class SummaryConstraint:
         assert self.value == other.value, f"Cannot merge constraints with different values: {self.value} and {other.value}"
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
+        assert (
+            self.quantile_value == other.quantile_value
+        ), f"Cannot merge constraints with different quantile_value: {self.quantile_value} and {other.quantile_value}"
 
         if self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
@@ -293,6 +304,7 @@ class SummaryConstraint:
                 op=self.op,
                 value=self.value,
                 upper_value=self.upper_value,
+                quantile_value=self.quantile_value,
                 second_field=self.second_field,
                 third_field=self.third_field,
                 name=self.name,
@@ -300,7 +312,13 @@ class SummaryConstraint:
             )
         else:
             merged_constraint = SummaryConstraint(
-                first_field=self.first_field, op=self.op, value=self.value, second_field=self.second_field, name=self.name, verbose=self._verbose
+                first_field=self.first_field,
+                op=self.op,
+                value=self.value,
+                quantile_value=self.quantile_value,
+                second_field=self.second_field,
+                name=self.name,
+                verbose=self._verbose,
             )
 
         merged_constraint.total = self.total + other.total
@@ -309,12 +327,18 @@ class SummaryConstraint:
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
+        if msg.first_field == "quantile":
+            quantile_val = msg.quantile_value
+        else:
+            quantile_val = None
 
         if msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
+
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
                 value=msg.value,
+                quantile_value=quantile_val,
                 name=msg.name,
                 verbose=msg.verbose,
             )
@@ -324,6 +348,7 @@ class SummaryConstraint:
                 msg.op,
                 second_field=msg.second_field,
                 name=msg.name,
+                quantile_value=quantile_val,
                 verbose=msg.verbose,
             )
         elif msg.HasField("between") and not msg.HasField("value") and not msg.HasField("second_field"):
@@ -338,6 +363,7 @@ class SummaryConstraint:
                     msg.op,
                     value=msg.between.lower_value,
                     upper_value=msg.between.upper_value,
+                    quantile_value=quantile_val,
                     name=msg.name,
                     verbose=msg.verbose,
                 )
@@ -352,6 +378,7 @@ class SummaryConstraint:
                     msg.op,
                     second_field=msg.between.second_field,
                     third_field=msg.between.third_field,
+                    quantile_value=quantile_val,
                     name=msg.name,
                     verbose=msg.verbose,
                 )
@@ -371,6 +398,7 @@ class SummaryConstraint:
                 name=self.name,
                 first_field=self.first_field,
                 op=self.op,
+                quantile_value=self.quantile_value,
                 between=summary_between_constraint_msg,
                 verbose=self._verbose,
             )
@@ -381,6 +409,7 @@ class SummaryConstraint:
                 first_field=self.first_field,
                 op=self.op,
                 value=self.value,
+                quantile_value=self.quantile_value,
                 verbose=self._verbose,
             )
         else:
@@ -388,6 +417,7 @@ class SummaryConstraint:
                 name=self.name,
                 first_field=self.first_field,
                 op=self.op,
+                quantile_value=self.quantile_value,
                 second_field=self.second_field,
                 verbose=self._verbose,
             )
@@ -590,4 +620,4 @@ def quantileBetweenConstraint(quantile_value: Union[int, float], lower_value: Un
     if lower_value > upper_value:
         raise ValueError("The lower value must be less than or equal to the upper value")
 
-    return SummaryConstraint(str(quantile_value), value=lower_value, upper_value=upper_value, op=Op.BTWN, verbose=verbose)
+    return SummaryConstraint("quantile", value=lower_value, upper_value=upper_value, quantile_value=quantile_value, op=Op.BTWN, verbose=verbose)

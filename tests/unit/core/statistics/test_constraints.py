@@ -404,6 +404,13 @@ def test_max_between_constraint_invalid():
         maxBetweenConstraint(lower_field="max", upper_field=2)
 
 
+def test_summary_constraint_quantile_invalid():
+    with pytest.raises(ValueError):
+        SummaryConstraint("stddev", op=Op.LT, value=2, quantile_value=0.2)
+    with pytest.raises(ValueError):
+        SummaryConstraint("quantile", op=Op.GT, value=2)
+
+
 def test_quantile_between_constraint_apply(local_config_path, df_lending_club):
     qc = quantileBetweenConstraint(quantile_value=0.25, lower_value=13308, upper_value=241001)
     dc = DatasetConstraints(None, summary_constraints={"annual_inc": [qc]})
@@ -432,7 +439,7 @@ def test_merge_quantile_between_constraint_same_values():
     message = json.loads(message_to_json(merged.to_protobuf()))
 
     assert message["name"] == f"summary quantile 0.5 {Op.Name(Op.BTWN)} 0 and 5"
-    assert message["firstField"] == "0.5"
+    assert message["firstField"] == "quantile"
     assert message["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.0
     assert pytest.approx(message["between"]["upperValue"], 0.001) == 5.0
@@ -447,7 +454,7 @@ def test_serialization_deserialization_quantile_between_constraint():
 
     print(json_value)
     assert json_value["name"] == f"summary quantile 0.5 {Op.Name(Op.BTWN)} 1.24 and 6.63"
-    assert json_value["firstField"] == "0.5"
+    assert json_value["firstField"] == "quantile"
     assert json_value["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 1.24
     assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 6.63
