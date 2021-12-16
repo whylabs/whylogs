@@ -1,13 +1,13 @@
 import logging
 import re
-from typing import List, Mapping, Optional
+from typing import List, Mapping, Optional, Union
 
 from google.protobuf.json_format import Parse
 
+from whylogs.core.summaryconverters import quantiles_from_sketch
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
-    NumberSummary,
     Op,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
@@ -101,7 +101,7 @@ class ValueConstraint:
 
     @property
     def name(self):
-        if getattr(self, "value", None):
+        if getattr(self, "value", None) is not None:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.value}"
         else:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
@@ -251,13 +251,26 @@ class SummaryConstraint:
         if self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
-            return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {lower_target} and {upper_target}"
+            field_name = self.first_field
+            if self.first_field.replace(".", "", 1).isnumeric():
+                field_name = f"quantile {self.first_field}"
+            return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {lower_target} and {upper_target}"
 
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
-    def update(self, summ: NumberSummary) -> bool:
+    def update(self, update_dict: dict) -> bool:
         self.total += 1
-        if not self.func(summ):
+        summ = update_dict["number_summary"]
+        column_number_kll_sketch = update_dict["number_kll_sketch"]
+
+        if self.first_field.replace(".", "", 1).isnumeric():
+            quantile_summary = quantiles_from_sketch(column_number_kll_sketch, [float(self.first_field)])
+            obj = type("Object", (), {self.first_field: quantile_summary.quantile_values[0]})
+            result = self.func(obj)
+        else:
+            result = self.func(summ)
+
+        if not result:
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -568,3 +581,13 @@ def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, u
 
 def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
+
+
+def quantileBetweenConstraint(quantile_value: Union[int, float], lower_value: Union[int, float], upper_value: Union[int, float], verbose: "bool" = False):
+    if not all([isinstance(v, (int, float)) for v in (quantile_value, upper_value, lower_value)]):
+        raise TypeError("The quantile, lower and upper values must be of type int or float")
+
+    if lower_value > upper_value:
+        raise ValueError("The lower value must be less than or equal to the upper value")
+
+    return SummaryConstraint(str(quantile_value), value=lower_value, upper_value=upper_value, op=Op.BTWN, verbose=verbose)
