@@ -233,7 +233,7 @@ class SummaryConstraint:
         self.upper_value = upper_value
 
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
-            if value is not None or upper_value is not None or second_field is not None or third_field is not None or reference_set is None:
+            if any([value, upper_value, second_field, third_field, not reference_set]):
                 raise ValueError("When using set operations only set should be provided and not values or field names!")
 
             if not isinstance(reference_set, set):
@@ -328,8 +328,11 @@ class SummaryConstraint:
         column_number_theta = update_dict["number_theta"]
 
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
-            if not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) or not _summary_funcs1[self.op](self.numbers_theta_sketch)(
-                column_number_theta
+            if not all(
+                [
+                    _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta),
+                    _summary_funcs1[self.op](self.numbers_theta_sketch)(column_number_theta),
+                ]
             ):
                 self.failures += 1
                 if self._verbose:
