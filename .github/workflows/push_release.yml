@@ -35,7 +35,7 @@ jobs:
     - name: Install dependencies
       run: make install
 
-    - name: Autobump version
+    - name: Autobump Python version
       run: |
         # from refs/tags/v1.2.3 get 1.2.3
         VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')
@@ -43,6 +43,15 @@ jobs:
         git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         poetry run bump2version patch --verbose --commit --no-tag --new-version $VERSION
+
+    - name: Autobump Java version
+      run: |
+        VERSION=$(echo $GITHUB_REF | sed 's#.*/v##')
+        echo $VERSION
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        poetry run bump2version patch --verbose --commit --no-tag --new-version $VERSION
+      working-directory: java
 
     #push version bump to tagged branch so new version is included in pypi
     - name: Push changes
