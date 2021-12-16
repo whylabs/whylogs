@@ -124,10 +124,10 @@ class ValueConstraint:
         pattern = None
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
-        if getattr(self, "value", None) is not None and getattr(other, "value", None) is not None:
+        if all([getattr(v, "value", None) is not None for v in (self, other)]):
             val = self.value
             assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
-        elif getattr(self, "regex_pattern", None) and getattr(other, "regex_pattern", None):
+        elif all([getattr(v, "regex_pattern", None) for v in (self, other)]):
             pattern = self.regex_pattern
             assert (
                 self.regex_pattern == other.regex_pattern
