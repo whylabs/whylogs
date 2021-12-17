@@ -6,6 +6,7 @@ from typing import List, Mapping, Optional
 
 import jsonschema
 from datasketches import theta_a_not_b, update_theta_sketch
+import datetime
 from dateutil.parser import parse
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
@@ -22,36 +23,51 @@ from whylogs.proto import (
     ValueConstraintMsg,
     ValueConstraintMsgs,
 )
+from whylogs.proto.constraints_pb2 import APPLY_FUNC
 from whylogs.util.protobuf import message_to_json
 
 logger = logging.getLogger(__name__)
 
-
-def _is_dateutil_parseable(string, ref_val=None):
+def _is_strftime_format(strftime_val, format):
     """
-    Return whether the string can be interpreted as a date.
+    Return whether the string is in a strftime format.
 
-    :param string: str, string to check for date
-    :param ref_val: any, not used, architecture design requirement
+    :param strftime_val: str, string to check for date
+    :param format: format to check if strftime_val can be parsed
 
     """
     try:
-        parse(string)
-    except (ValueError, TypeError):
+        datetime.datetime.strptime(strftime_val, format)
+    except:
         return False
     return True
 
 
-def _is_json_parseable(string, ref_val=None):
+def _is_dateutil_parseable(dateutil_val, ref_val=None):
+    """
+    Return whether the string can be interpreted as a date.
+
+    :param dateutil_val: str, string to check for date
+    :param ref_val: any, not used, architecture design requirement
+
+    """
+    try:
+        parse(dateutil_val)
+    except:
+        return False
+    return True
+
+
+def _is_json_parseable(json_string, ref_val=None):
     """
     Return whether the string can be interpreted as json.
 
-    :param string: str, string to check for json
+    :param json_string: str, string to check for json
     :param ref_val: any, not used, architecture design requirement
     """
     try:
-        json.loads(string)
-    except (ValueError, TypeError):
+        json.loads(json_string)
+    except:
         return False
     return True
 
@@ -63,6 +79,18 @@ def _matches_json_schema(json_data, json_schema):
     :param json_data: json object to check
     :param json_schema: schema to check if the json object matches it
     """
+    if isinstance(json_schema, str):
+        try:
+            json_schema = json.loads(json_schema)
+        except:
+            return False
+
+    if isinstance(json_data, str):
+        try:
+            json_data = json.loads(json_data)
+        except:
+            return False
+
     try:
         validate(instance=json_data, schema=json_schema)
     except (jsonschema.exceptions.ValidationError, jsonschema.exceptions.SchemaError):
@@ -169,6 +197,14 @@ class ValueConstraint:
 
         if self.op == Op.APPLY_FUNC:
             if value is not None:
+                if not isinstance(value, str):
+                    if apply_function == globals()['_matches_json_schema']:
+                        try:
+                            value = json.dumps(value)
+                        except (ValueError, TypeError):
+                            raise ValueError("Json schema ivalid. When matching json schema, the schema provided must be valid")
+                    else:
+                        value = str(value)
                 self.value = value
             self.func = _value_funcs[op](apply_function, value)
         elif value is not None and regex_pattern is None:
@@ -242,7 +278,7 @@ class ValueConstraint:
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
         if msg.HasField("function"):
-            val = None if msg.function.reference_value == "" else json.loads(msg.function.reference_value)
+            val = None if msg.function.reference_value == "" else msg.function.reference_value
             return ValueConstraint(msg.op, value=val, apply_function=globals()[msg.function.function], name=msg.name, verbose=msg.verbose)
         elif msg.regex_pattern != "":
             return ValueConstraint(msg.op, regex_pattern=msg.regex_pattern, name=msg.name, verbose=msg.verbose)
@@ -256,7 +292,7 @@ class ValueConstraint:
         if self.op == Op.APPLY_FUNC:
             func_msg = ApplyFunctionMsg(function=self.apply_function.__name__)
             if hasattr(self, "value"):
-                func_msg = ApplyFunctionMsg(function=self.apply_function.__name__, reference_value=json.dumps(self.value))
+                func_msg = ApplyFunctionMsg(function=self.apply_function.__name__, reference_value=self.value)
             return ValueConstraintMsg(
                 name=self.name,
                 op=self.op,
@@ -638,9 +674,12 @@ class ValueConstraints:
             return vcmsg
         return None
 
-    def update(self, v):
+    def update(self, value, typed_data):
         for c in self.constraints.values():
-            c.update(v)
+            if c.op in (Op.MATCH, Op.NOMATCH, Op.APPLY_FUNC):
+                c.update(value)    
+            else:
+                c.update(typed_data)
 
     def merge(self, other) -> "ValueConstraints":
         if not other or not other.constraints:
@@ -857,3 +896,7 @@ def jsonParseableConstraint(verbose=False):
 
 def matchesJsonSchemaConstraint(json_schema, verbose=False):
     return ValueConstraint(Op.APPLY_FUNC, json_schema, apply_function=_matches_json_schema, verbose=verbose)
+
+
+def strftimeFormatConstraint(format, verbose=False):
+    return ValueConstraint(Op.APPLY_FUNC, format, apply_function=_is_strftime_format, verbose=verbose)
