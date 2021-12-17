@@ -1,8 +1,9 @@
 import logging
 import re
-from typing import List, Mapping, Optional
+from typing import Any, List, Mapping, Optional, Set
 
 from google.protobuf.json_format import Parse
+from google.protobuf.struct_pb2 import ListValue
 
 from whylogs.proto import (
     DatasetConstraintMsg,
@@ -35,6 +36,7 @@ _value_funcs = {
     Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
+    Op.IN_SET: lambda x: lambda v: v in x,
 }
 
 _summary_funcs1 = {
@@ -86,6 +88,10 @@ class ValueConstraint:
         self.op = op
         self.total = 0
         self.failures = 0
+
+        if isinstance(value, set) != (op == Op.IN_SET):
+            raise ValueError("Value constraint must provide a set of values for using the IN operator")
+
         if value is not None and regex_pattern is None:
             # numeric value
             self.value = value
@@ -95,7 +101,6 @@ class ValueConstraint:
             # Regex pattern
             self.regex_pattern = regex_pattern
             self.func = _value_funcs[op](re.compile(self.regex_pattern))
-
         else:
             raise ValueError("Value constraint must specify a numeric value or regex pattern, but not both")
 
@@ -130,16 +135,32 @@ class ValueConstraint:
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
-        return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
+        if msg.regex_pattern != "":
+            return ValueConstraint(msg.op, regex_pattern=msg.regex_pattern, name=msg.name, verbose=msg.verbose)
+        elif len(msg.value_set.values) != 0:
+            val_set = set(msg.value_set.values[0].list_value)
+            return ValueConstraint(msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
+        else:
+            return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
         if hasattr(self, "value"):
-            return ValueConstraintMsg(
-                name=self.name,
-                op=self.op,
-                value=self.value,
-                verbose=self._verbose,
-            )
+            if isinstance(self.value, set):
+                set_vals_message = ListValue()
+                set_vals_message.append(list(self.value))
+                return ValueConstraintMsg(
+                    name=self.name,
+                    op=self.op,
+                    value_set=set_vals_message,
+                    verbose=self._verbose,
+                )
+            else:
+                return ValueConstraintMsg(
+                    name=self.name,
+                    op=self.op,
+                    value=self.value,
+                    verbose=self._verbose,
+                )
         else:
             return ValueConstraintMsg(
                 name=self.name,
@@ -568,3 +589,12 @@ def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, u
 
 def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
+
+
+def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
+    try:
+        value_set = set(value_set)
+    except Exception:
+        raise TypeError("The value set should be an iterable data type")
+
+    return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
