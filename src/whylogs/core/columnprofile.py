@@ -130,7 +130,7 @@ class ColumnProfile:
 
         self.number_tracker.track(typed_data)
 
-        self.constraints.update(typed_data)
+        self.constraints.update(value, typed_data)
 
     def _unique_count_summary(self) -> UniqueCountSummary:
         cardinality_summary = self.cardinality_tracker.to_summary(_UNIQUE_COUNT_BOUNDS_STD)

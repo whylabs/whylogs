@@ -14,6 +14,7 @@ from whylogs.core.statistics.constraints import (
     _is_dateutil_parseable,
     _is_json_parseable,
     _matches_json_schema,
+    _is_strftime_format,
     _summary_funcs1,
     _value_funcs,
     columnValuesInSetConstraint,
@@ -22,6 +23,7 @@ from whylogs.core.statistics.constraints import (
     dateUtilParseableConstraint,
     jsonParseableConstraint,
     matchesJsonSchemaConstraint,
+    strftimeFormatConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
@@ -656,26 +658,25 @@ def test_email_constraint_merge_invalid():
 def _report_credit_card_value_constraint_on_data_set(local_config_path, regex_pattern=None):
     df = pd.DataFrame(
         [
-            {"credit_card": "3714-496353-98431"},
-            {"credit_card": "3787 344936 71000"},
-            {"credit_card": "3056 930902 5904"},
-            {"credit_card": "3065 133242 2899"},
-            {"credit_card": "3852-000002-3237"},
-            {"credit_card": "6011 1111 1111 1117"},
-            {"credit_card": "6011-0009-9013-9424"},
-            {"credit_card": "3530 1113 3330 0000"},
-            {"credit_card": "3566-0020-2036-0505"},
-            {"credit_card": "5555 5555 5555 4444"},
-            {"credit_card": "5105 1051 0510 5100"},
-            {"credit_card": "4111 1111 1111 1111"},
-            {"credit_card": "4012 8888 8888 1881"},
-            {"credit_card": "4222-2222-2222-2222"},
-            {"credit_card": "1111-1111-1111-1111"},
-            {"credit_card": "a4111 1111 1111 1111b"},
-            {"credit_card": "4111111111111111"},
-            # maybe this should pass in a normal scenario, currently it is converted to integer
-            {"credit_card": 12345},
-            {"credit_card": "absfcvs"},
+            {"credit_card": "3714-496353-98431"},  # amex
+            {"credit_card": "3787 344936 71000"},  # amex
+            {"credit_card": "3056 930902 5904"},  # diners club
+            {"credit_card": "3065 133242 2899"},  # invalid
+            {"credit_card": "3852-000002-3237"},  # invalid
+            {"credit_card": "6011 1111 1111 1117"},  # discover
+            {"credit_card": "6011-0009-9013-9424"},  # discover
+            {"credit_card": "3530 1113 3330 0000"},  # jcb
+            {"credit_card": "3566-0020-2036-0505"},  # jcb
+            {"credit_card": "5555 5555 5555 4444"},  # master card
+            {"credit_card": "5105 1051 0510 5100"},  # master card
+            {"credit_card": "4111 1111 1111 1111"},  # visa
+            {"credit_card": "4012 8888 8888 1881"},  # visa
+            {"credit_card": "4222-2222-2222-2222"},  # visa
+            {"credit_card": "1111-1111-1111-1111"},  # invalid
+            {"credit_card": "a4111 1111 1111 1111b"},  # invalid
+            {"credit_card": "4111111111111111"},  # visa
+            {"credit_card": 12345},  # invalid
+            {"credit_card": "absfcvs"},  # invalid
         ]
     )
 
@@ -699,7 +700,7 @@ def test_credit_card_constraint_supply_regex_pattern(local_config_path):
     print(report)
     assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + r"^(?:[0-9]{4}[\s-]?){3,4}$"
     assert report[0][1][0][1] == 19
-    assert report[0][1][0][2] == 9
+    assert report[0][1][0][2] == 8
 
 
 def test_credit_card_constraint_merge_valid():
@@ -730,24 +731,36 @@ def test_credit_card_invalid_pattern():
 def _apply_apply_func_constraints(local_config_path, apply_func_constraints):
     df = pd.DataFrame(
         [
-            {"str1": "1990-12-1"},
+            {"str1": "1990-12-1"}, #dateutil valid; strftime valid
             {"str1": "1990/12/1"},
             {"str1": "2005/3"},
+            {"str1": "2005.3.5"},
             {"str1": "Jan 19, 1990"},
-            {"str1": "today is 2019-03-27"},  # invalid
+            {"str1": "today is 2019-03-27"},  # dateutil invalid
             {"str1": "Monday at 12:01am"},
-            {"str1": "xyz_not_a_date"},  # invalid
-            {"str1": "yesterday"},  # invalid
-            {"str1": {"name": "s", "w2w2": "dgsg", "years": 232, "abc": 1}},  # valid
-            {"str1": {"name": "s", "w2w2": 12.38, "years": 232, "abc": 1}},  # valid
-            {"str1": {"name": "s", "years": 232, "abc": 1}},  # valid
-            {"str1": {"name": "s", "abc": 1}},  # valid
-            {"str1": {"name": "s", "w2w2": "dgsg", "years": 232}},  # invalid
-            {"str1": {"name": "s", "w2w2": "dgsg", "years": "232", "abc": 1}},  # invalid
-            {"str1": {"name": 14, "w2w2": "dgsg", "years": "232", "abc": 1}},  # invalid
-            {"str1": {"name": "14", "w2w2": "dgsg", "years": 232.44, "abc": 1}},  # invalid
-            {"str1": {"w2w2": "dgsg", "years": 232, "abc": 1}},  # invalid
-            {"str1": {"years": 232}},  # invalid
+            {"str1": "xyz_not_a_date"},  # dateutil invalid
+            {"str1": "yesterday"},  # dateutil invalid
+            {"str1": {"name": "s", "w2w2": "dgsg", "years": 232, "abc": 1}},  # schema valid
+            {"str1": {"name": "s", "w2w2": 12.38, "years": 232, "abc": 1}},  # schema valid
+            {"str1": {"name": "s", "years": 232, "abc": 1}},  # schema valid
+            {"str1": {"name": "s", "abc": 1}},  # schema valid
+            {"str1": {"name": "s", "w2w2": "dgsg", "years": 232}},  # schema invalid
+            {"str1": {"name": "s", "w2w2": "dgsg", "years": "232", "abc": 1}},  # schema invalid
+            {"str1": {"name": 14, "w2w2": "dgsg", "years": "232", "abc": 1}},  # schema invalid
+            {"str1": {"name": "14", "w2w2": "dgsg", "years": 232.44, "abc": 1}},  # schema invalid
+            {"str1": {"w2w2": "dgsg", "years": 232, "abc": 1}},  # schema invalid
+            {"str1": {"years": 232}},  # schema invalid
+            {"str1": json.dumps({"name": "s", "w2w2": "dgsg", "years": 232, "abc": 1})},  # json valid, schema valid
+            {"str1": json.dumps({"name": "s", "w2w2": 12.38, "years": 232, "abc": 1})},  # json valid, schema valid
+            {"str1": json.dumps({"name": "s", "years": 232, "abc": 1})},  # json valid, schema valid
+            {"str1": json.dumps({"name": "s", "abc": 1})},  # json valid, schema valid
+            {"str1": json.dumps({"name": "s", "w2w2": "dgsg", "years": "232", "abc": 1})}, # json valid
+            {"str1": "random str : fail everything"},
+            {"str1": '2003-12-23'}, # strftime valid
+            {"str1": '2010-10-18'}, # strftime valid
+            {"str1": '2003-15-23'}, # strftime invalid
+            {"str1": '2003-12-32'}, # strftime invalid
+            {"str1": '10-12-32'}, # strftime invalid, dateutil valid
         ]
     )
 
@@ -776,14 +789,17 @@ def test_apply_func_value_constraints(local_config_path):
     }
     matches_json_schema = matchesJsonSchemaConstraint(json_schema=json_schema)
 
-    apply_constraints = [dateutil_parseable, json_parseable, matches_json_schema]
+    is_strftime = strftimeFormatConstraint(format='%Y-%m-%d')
+
+    apply_constraints = [dateutil_parseable, json_parseable, matches_json_schema, is_strftime]
 
     report = _apply_apply_func_constraints(local_config_path, apply_constraints)
 
     # report[column_n][report_list][report][name total or failure]
-    assert report[0][1][0][1] == 18 and report[0][1][0][2] == 13 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_dateutil_parseable.__name__}"
-    assert report[0][1][1][1] == 18 and report[0][1][1][2] == 18 and report[0][1][1][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_json_parseable.__name__}"
-    assert report[0][1][2][1] == 18 and report[0][1][2][2] == 14 and report[0][1][2][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_matches_json_schema.__name__}"
+    assert report[0][1][0][1] == 30 and report[0][1][0][2] == 21 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_dateutil_parseable.__name__}"
+    assert report[0][1][1][1] == 30 and report[0][1][1][2] == 25 and report[0][1][1][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_json_parseable.__name__}"
+    assert report[0][1][2][1] == 30 and report[0][1][2][2] == 22 and report[0][1][2][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_matches_json_schema.__name__}"
+    assert report[0][1][3][1] == 30 and report[0][1][3][2] == 27 and report[0][1][3][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_strftime_format.__name__}"
 
 
 def test_apply_func_merge():
