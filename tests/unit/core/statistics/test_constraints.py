@@ -432,6 +432,23 @@ def test_max_between_constraint_invalid():
 def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
 
     dc = DatasetConstraints(None, summary_constraints={"annual_inc": constraints})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    print(report)
+    assert len(report) == 1
+
+    # make sure it checked every value
+    for each_feat in report:
+        for each_constraint in each_feat[1]:
+            assert each_constraint[1] == 1
+            if "True" in each_constraint[0]:
+                assert each_constraint[2] == 0
+            else:
+                assert each_constraint[2] == 1
 
 
 def test_column_values_in_set_constraint(df_lending_club, local_config_path):
