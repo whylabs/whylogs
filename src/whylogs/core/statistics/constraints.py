@@ -38,7 +38,7 @@ def _is_strftime_format(strftime_val, format):
     """
     try:
         datetime.datetime.strptime(strftime_val, format)
-    except:  # bad practice, but if it throws an exception of any kind, can not be parsed
+    except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
         return False
     return True
 
@@ -53,7 +53,7 @@ def _is_dateutil_parseable(dateutil_val, ref_val=None):
     """
     try:
         parse(dateutil_val)
-    except:  # bad practice, but if it throws an exception of any kind, can not be parsed
+    except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
         return False
     return True
 
@@ -67,7 +67,7 @@ def _is_json_parseable(json_string, ref_val=None):
     """
     try:
         json.loads(json_string)
-    except:  # bad practice, but if it throws an exception of any kind, can not be parsed
+    except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
         return False
     return True
 
@@ -82,13 +82,13 @@ def _matches_json_schema(json_data, json_schema):
     if isinstance(json_schema, str):
         try:
             json_schema = json.loads(json_schema)
-        except:  # bad practice, but if it throws an exception of any kind, can not be parsed
+        except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
             return False
 
     if isinstance(json_data, str):
         try:
             json_data = json.loads(json_data)
-        except:  # bad practice, but if it throws an exception of any kind, can not be parsed
+        except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
             return False
 
     try:
