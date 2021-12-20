@@ -12,6 +12,7 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
+    columnMostCommonValueInSetConstraint,
     columnValuesInSetConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
@@ -27,13 +28,13 @@ TEST_LOGGER = getLogger(__name__)
 def test_value_summary_serialization():
 
     for each_op, _ in _value_funcs.items():
-        if each_op == Op.IN_SET:
+        if each_op == Op.IN:
             value = ValueConstraint(each_op, {3.6})
         else:
             value = ValueConstraint(each_op, 3.6)
         msg_value = value.to_protobuf()
         json_value = json.loads(message_to_json(msg_value))
-        if each_op == Op.IN_SET:
+        if each_op == Op.IN:
             assert json_value["name"] == "value " + Op.Name(each_op) + " {3.6}"
             assert json_value["valueSet"][0] == [3.6]
         else:
@@ -43,7 +44,7 @@ def test_value_summary_serialization():
         assert json_value["verbose"] == False
 
     for each_op, _ in _summary_funcs1.items():
-        if each_op == Op.BTWN:
+        if each_op in (Op.BTWN, Op.IN):
             continue
         # constraints may have an optional name
         sum_constraint = SummaryConstraint("min", each_op, 300000, name="< 30K")
@@ -446,8 +447,8 @@ def test_merge_values_in_set_constraint_same_value_set():
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == f"value {Op.Name(Op.IN_SET)} " + str(val_set)
-    assert json_value["op"] == Op.Name(Op.IN_SET)
+    assert json_value["name"] == f"value {Op.Name(Op.IN)} " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"][0] == list(val_set)
 
 
@@ -460,11 +461,72 @@ def test_serialization_deserialization_values_in_set_constraint():
 
     TEST_LOGGER.info(f"Serialize columnValuesInSetConstraint from deserialized representation:\n {cvisc.to_protobuf()}")
 
-    assert json_value["name"] == f"value {Op.Name(Op.IN_SET)} " + str(val_set)
-    assert json_value["op"] == Op.Name(Op.IN_SET)
+    assert json_value["name"] == f"value {Op.Name(Op.IN)} " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"][0] == list(val_set)
 
 
 def test_column_values_in_set_wrong_datatype():
     with pytest.raises(TypeError):
         cvisc = columnValuesInSetConstraint(value_set=1)
+
+
+def test_most_common_value_in_set_constraint_apply(local_config_path, df_lending_club):
+    val_set1 = {2, 3.5, 1000, 52000.0}
+    val_set2 = {1, 2.3, "abc"}
+    mcvc1 = columnMostCommonValueInSetConstraint(value_set=val_set1)
+    mcvc2 = columnMostCommonValueInSetConstraint(value_set=val_set2)
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [mcvc1], "funded_amnt": [mcvc2]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+    print(report)
+    assert report[0][1][0][0] == f"summary most common value {Op.Name(Op.IN)} {val_set1}"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+    assert report[1][1][0][0] == f"summary most common value {Op.Name(Op.IN)} {val_set2}"
+    assert report[1][1][0][1] == 1
+    assert report[1][1][0][2] == 1
+
+
+def test_merge_most_common_value_in_set_constraint_different_values():
+    c1 = columnMostCommonValueInSetConstraint(value_set={1, 3})
+    c2 = columnMostCommonValueInSetConstraint(value_set={1, 5.0})
+    with pytest.raises(AssertionError):
+        c1.merge(c2)
+
+
+def test_merge_most_common_value_in_set_constraint_same_values():
+    val_set = {1, 2, 3}
+    u1 = columnMostCommonValueInSetConstraint(value_set=val_set)
+    u2 = columnMostCommonValueInSetConstraint(value_set=val_set)
+    merged = u1.merge(u2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == f"summary most common value {Op.Name(Op.IN)} {val_set}"
+    assert message["firstField"] == "most common value"
+    assert message["op"] == Op.Name(Op.IN)
+    assert message["referenceSet"] == list(val_set)
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_most_common_value_in_set_constraint():
+    val_set = {1, "a", "abc"}
+    u1 = columnMostCommonValueInSetConstraint(value_set=val_set, verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    assert json_value["name"] == f"summary most common value {Op.Name(Op.IN)} {val_set}"
+    assert json_value["firstField"] == "most common value"
+    assert json_value["op"] == Op.Name(Op.IN)
+    assert json_value["referenceSet"] == list(val_set)
+    assert json_value["verbose"] is True
+
+
+def test_most_common_value_in_set_constraint_wrong_datatype():
+    with pytest.raises(TypeError):
+        columnMostCommonValueInSetConstraint(value_set=2.3, verbose=True)

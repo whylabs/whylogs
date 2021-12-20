@@ -17,6 +17,7 @@ from whylogs.core import ColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
 from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
+from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
     ColumnsChunkSegment,
     DatasetMetadataSegment,
@@ -687,7 +688,15 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
-                constraints.update(summ.number_summary)
+                frequent_itmes_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
+                most_common_val = frequent_itmes_summ.items[0].json_value if frequent_itmes_summ else None
+
+                update_dict = {
+                    "number_summary": summ.number_summary,
+                    "most_common_val": TypedDataConverter.convert(most_common_val),
+                }
+
+                constraints.update(update_dict)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
