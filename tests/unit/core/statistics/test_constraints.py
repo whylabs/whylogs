@@ -13,6 +13,8 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
+    columnUniqueValueCountBetweenConstraint,
+    columnUniqueValueProportionBetweenConstraint,
     columnValuesInSetConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
@@ -781,3 +783,119 @@ def test_url_constraint_merge_invalid():
 def test_url_invalid_pattern():
     with pytest.raises(TypeError):
         containsURLConstraint(2124)
+
+
+def test_unique_value_count_between_constraint_apply(local_config_path, df_lending_club):
+    uc = columnUniqueValueCountBetweenConstraint(lower_value=5, upper_value=50)
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [uc]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+    print(report)
+    assert report[0][1][0][0] == f"summary unique count {Op.Name(Op.BTWN)} 5 and 50"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_merge_unique_value_count_between_constraint_different_values():
+    u1 = columnUniqueValueCountBetweenConstraint(lower_value=0, upper_value=2)
+    u2 = columnUniqueValueCountBetweenConstraint(lower_value=1, upper_value=2)
+    with pytest.raises(AssertionError):
+        u1.merge(u2)
+
+
+def test_merge_unique_value_count_between_constraint_same_values():
+    u1 = columnUniqueValueCountBetweenConstraint(lower_value=0, upper_value=5)
+    u2 = columnUniqueValueCountBetweenConstraint(lower_value=0, upper_value=5)
+    merged = u1.merge(u2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == f"summary unique count {Op.Name(Op.BTWN)} 0 and 5"
+    assert message["firstField"] == "unique count"
+    assert message["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.0
+    assert pytest.approx(message["between"]["upperValue"], 0.001) == 5.0
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_unique_value_count_between_constraint():
+    u1 = columnUniqueValueCountBetweenConstraint(lower_value=15, upper_value=50, verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    assert json_value["name"] == f"summary unique count {Op.Name(Op.BTWN)} 15 and 50"
+    assert json_value["firstField"] == "unique count"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 15
+    assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 50
+    assert json_value["verbose"] is True
+
+
+def test_unique_count_between_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        columnUniqueValueCountBetweenConstraint(lower_value="0", upper_value=1, verbose=True)
+    with pytest.raises(ValueError):
+        columnUniqueValueCountBetweenConstraint(lower_value=5, upper_value=6.63, verbose=True)
+    with pytest.raises(ValueError):
+        columnUniqueValueCountBetweenConstraint(lower_value=1, upper_value=0)
+
+
+def test_unique_value_proportion_between_constraint_apply(local_config_path, df_lending_club):
+    uc = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.6, upper_fraction=0.9)
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [uc]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+    print(report)
+    assert report[0][1][0][0] == f"summary unique proportion {Op.Name(Op.BTWN)} 0.6 and 0.9"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_merge_unique_value_proportion_between_constraint_different_values():
+    u1 = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.2, upper_fraction=0.3)
+    u2 = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.1, upper_fraction=0.3)
+    with pytest.raises(AssertionError):
+        u1.merge(u2)
+
+
+def test_merge_unique_value_proportion_between_constraint_same_values():
+    u1 = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.1, upper_fraction=0.5)
+    u2 = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.1, upper_fraction=0.5)
+    merged = u1.merge(u2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == f"summary unique proportion {Op.Name(Op.BTWN)} 0.1 and 0.5"
+    assert message["firstField"] == "unique proportion"
+    assert message["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.1
+    assert pytest.approx(message["between"]["upperValue"], 0.001) == 0.5
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_unique_value_proportion_between_constraint():
+    u1 = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.6, upper_fraction=0.7, verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    assert json_value["name"] == f"summary unique proportion {Op.Name(Op.BTWN)} 0.6 and 0.7"
+    assert json_value["firstField"] == "unique proportion"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 0.6
+    assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 0.7
+    assert json_value["verbose"] is True
+
+
+def test_unique_proportion_between_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        columnUniqueValueProportionBetweenConstraint(lower_fraction=0, upper_fraction=1.0, verbose=True)
+    with pytest.raises(ValueError):
+        columnUniqueValueProportionBetweenConstraint(lower_fraction=0.2, upper_fraction=0.1, verbose=True)
+    with pytest.raises(ValueError):
+        columnUniqueValueProportionBetweenConstraint(lower_fraction=0.4, upper_fraction=2)

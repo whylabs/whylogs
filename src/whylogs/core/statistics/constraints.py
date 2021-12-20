@@ -8,7 +8,6 @@ from google.protobuf.struct_pb2 import ListValue
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
-    NumberSummary,
     Op,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
@@ -288,9 +287,22 @@ class SummaryConstraint:
 
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
-    def update(self, summ: NumberSummary) -> bool:
+    def update(self, update_dict: dict) -> bool:
         self.total += 1
-        if not self.func(summ):
+        summ = update_dict["number_summary"]
+        num_values = update_dict["counters"].count
+        unique_count_estimate = update_dict["unique_count"].estimate
+
+        if self.first_field == "unique count":
+            unique_count = type("Object", (), {self.first_field: unique_count_estimate})
+            result = self.func(unique_count)
+        elif self.first_field == "unique proportion":
+            unique_proportion_estimate = type("Object", (), {self.first_field: 0 if num_values == 0 else unique_count_estimate / num_values})
+            result = self.func(unique_proportion_estimate)
+        else:
+            result = self.func(summ)
+
+        if not result:
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -687,3 +699,23 @@ def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose=Fa
 
     length_pattern = rf"^.{{{lower_value},{upper_value}}}$"
     return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
+
+
+def columnUniqueValueCountBetweenConstraint(lower_value: int, upper_value: int, verbose: bool = False):
+    if not all([isinstance(v, int) and v >= 0 for v in (lower_value, upper_value)]):
+        raise ValueError("The lower and upper values should be non-negative integers")
+
+    if lower_value > upper_value:
+        raise ValueError("The lower value should be less than or equal to the upper value")
+
+    return SummaryConstraint("unique count", op=Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)
+
+
+def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fraction: float, verbose: bool = False):
+    if not all([isinstance(v, float) and 0 <= v <= 1 for v in (lower_fraction, upper_fraction)]):
+        raise ValueError("The lower and upper fractions should be between 0 and 1")
+
+    if lower_fraction > upper_fraction:
+        raise ValueError("The lower fraction should be decimal values less than or equal to the upper fraction")
+
+    return SummaryConstraint("unique proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
