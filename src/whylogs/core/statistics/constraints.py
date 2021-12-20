@@ -3,9 +3,6 @@ import json
 import logging
 import numbers
 import re
-import json
-import jsonschema
-from jsonschema import validate
 from typing import Any, List, Mapping, Optional, Set
 
 import jsonschema
@@ -118,10 +115,7 @@ _value_funcs = {
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
     Op.IN_SET: lambda x: lambda v: v in x,
-<<<<<<< HEAD
-=======
     Op.APPLY_FUNC: lambda apply_function, reference_value: lambda v: apply_function(v, reference_value),
->>>>>>> a2d895e... Assert dateutil parseable, json parseable, match json schema
 }
 
 _summary_funcs1 = {
@@ -227,13 +221,9 @@ class ValueConstraint:
 
     @property
     def name(self):
-<<<<<<< HEAD
-        if getattr(self, "value", None):
-=======
         if self.op == Op.APPLY_FUNC:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.apply_function.__name__}"
         elif getattr(self, "value", None) is not None:
->>>>>>> a2d895e... Assert dateutil parseable, json parseable, match json schema
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.value}"
         else:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
@@ -505,16 +495,12 @@ class SummaryConstraint:
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
 
-<<<<<<< HEAD
-        if self.op == Op.BTWN:
-=======
         if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
             assert self.reference_set == other.reference_set
             merged_constraint = SummaryConstraint(
                 first_field=self.first_field, op=self.op, reference_set=self.reference_set, name=self.name, verbose=self._verbose
             )
         elif self.op == Op.BTWN:
->>>>>>> a2d895e... Assert dateutil parseable, json parseable, match json schema
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
             assert self.third_field == other.third_field, f"Cannot merge constraints with different third_field: {self.third_field} and {other.third_field}"
             merged_constraint = SummaryConstraint(
@@ -817,6 +803,15 @@ def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
 
 
+def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
+    try:
+        value_set = set(value_set)
+    except Exception:
+        raise TypeError("The value set should be an iterable data type")
+
+    return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
+
+
 def stringLengthEqualConstraint(length: int, verbose=False):
     length_pattern = f"^.{{{length}}}$"
     return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
@@ -827,25 +822,6 @@ def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose=Fa
     return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
 
 
-def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
-    try:
-        value_set = set(value_set)
-    except Exception:
-        raise TypeError("The value set should be an iterable data type")
-
-    return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
-
-    
-def stringLengthEqualConstraint(length: int, verbose = False):
-    length_pattern = f'^.{{{length}}}$'
-    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
-
-
-def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose = False):
-    length_pattern = rf'^.{{{lower_value},{upper_value}}}$'
-    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
-
-    
 def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
     if regex_pattern is not None:
         logger.warning(

@@ -1,8 +1,8 @@
 import json
 from logging import getLogger
 
-import pytest
 import pandas as pd
+import pytest
 
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
@@ -820,28 +820,32 @@ def test_apply_func_merge():
     assert pre_merge_json["function"] == merge_json["function"]
     assert pre_merge_json["op"] == merge_json["op"]
     assert pre_merge_json["verbose"] == merge_json["verbose"]
-    
+
+
 def _apply_string_length_constraints(local_config_path, length_constraints):
     import pandas as pd
-    df = pd.DataFrame([
-        {'str1': 'length7'},
-        {'str1': 'length_8'},
-        {'str1': 'length__9'},
-        {'str1': 'a       10'},
-        {'str1': '11        b'},
-        {'str1': '(*&^%^&*(24!@_+>:|}?><"\\'},
-        {'str1': '1b34567'}
-    ])
 
-    
+    df = pd.DataFrame(
+        [
+            {"str1": "length7"},
+            {"str1": "length_8"},
+            {"str1": "length__9"},
+            {"str1": "a       10"},
+            {"str1": "11        b"},
+            {"str1": '(*&^%^&*(24!@_+>:|}?><"\\'},
+            {"str1": "1b34567"},
+        ]
+    )
+
     dc = DatasetConstraints(None, value_constraints={"str1": length_constraints})
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df, "test.data", constraints=dc)
     session.close()
     report = dc.report()
-    
+
     return report
+
 
 def test_string_length_constraints(local_config_path):
 
@@ -880,12 +884,12 @@ def test_string_length_constraints(local_config_path):
     assert pre_merge_json["op"] == merge_json["op"]
     assert pre_merge_json["verbose"] == merge_json["verbose"]
 
-
     # report[column_n][report_list][report][name total or failure]
-    assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf'value {Op.Name(Op.MATCH)} ^.{{7}}$'
-    assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == rf'value {Op.Name(Op.MATCH)} ^.{{24}}$'
-    assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == rf'value {Op.Name(Op.MATCH)} ^.{{7,10}}$'
-    
+    assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7}}$"
+    assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == rf"value {Op.Name(Op.MATCH)} ^.{{24}}$"
+    assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7,10}}$"
+
+
 def test_apply_func_serialization():
     apply1 = dateUtilParseableConstraint()
 
