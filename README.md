@@ -186,4 +186,4 @@ If you have any questions, comments, or just want to hang out with us, please jo
 
 ## Contribute
 
-We welcome contributions to whylogs. Please see our [contribution guide](https://github.com/whylabs/whylogs/blob/mainline/CONTRIBUTING.md) and our [developement guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
+We welcome contributions to whylogs. Please see our [contribution guide](https://github.com/whylabs/whylogs/blob/mainline/CONTRIBUTING.md) and our [development guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
