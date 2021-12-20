@@ -13,8 +13,8 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _is_dateutil_parseable,
     _is_json_parseable,
-    _matches_json_schema,
     _is_strftime_format,
+    _matches_json_schema,
     _summary_funcs1,
     _value_funcs,
     columnValuesInSetConstraint,
@@ -23,11 +23,11 @@ from whylogs.core.statistics.constraints import (
     dateUtilParseableConstraint,
     jsonParseableConstraint,
     matchesJsonSchemaConstraint,
-    strftimeFormatConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
     stddevBetweenConstraint,
+    strftimeFormatConstraint,
     stringLengthBetweenConstraint,
     stringLengthEqualConstraint,
 )
@@ -731,7 +731,7 @@ def test_credit_card_invalid_pattern():
 def _apply_apply_func_constraints(local_config_path, apply_func_constraints):
     df = pd.DataFrame(
         [
-            {"str1": "1990-12-1"}, #dateutil valid; strftime valid
+            {"str1": "1990-12-1"},  # dateutil valid; strftime valid
             {"str1": "1990/12/1"},
             {"str1": "2005/3"},
             {"str1": "2005.3.5"},
@@ -754,13 +754,13 @@ def _apply_apply_func_constraints(local_config_path, apply_func_constraints):
             {"str1": json.dumps({"name": "s", "w2w2": 12.38, "years": 232, "abc": 1})},  # json valid, schema valid
             {"str1": json.dumps({"name": "s", "years": 232, "abc": 1})},  # json valid, schema valid
             {"str1": json.dumps({"name": "s", "abc": 1})},  # json valid, schema valid
-            {"str1": json.dumps({"name": "s", "w2w2": "dgsg", "years": "232", "abc": 1})}, # json valid
+            {"str1": json.dumps({"name": "s", "w2w2": "dgsg", "years": "232", "abc": 1})},  # json valid
             {"str1": "random str : fail everything"},
-            {"str1": '2003-12-23'}, # strftime valid
-            {"str1": '2010-10-18'}, # strftime valid
-            {"str1": '2003-15-23'}, # strftime invalid
-            {"str1": '2003-12-32'}, # strftime invalid
-            {"str1": '10-12-32'}, # strftime invalid, dateutil valid
+            {"str1": "2003-12-23"},  # strftime valid
+            {"str1": "2010-10-18"},  # strftime valid
+            {"str1": "2003-15-23"},  # strftime invalid
+            {"str1": "2003-12-32"},  # strftime invalid
+            {"str1": "10-12-32"},  # strftime invalid, dateutil valid
         ]
     )
 
@@ -789,7 +789,7 @@ def test_apply_func_value_constraints(local_config_path):
     }
     matches_json_schema = matchesJsonSchemaConstraint(json_schema=json_schema)
 
-    is_strftime = strftimeFormatConstraint(format='%Y-%m-%d')
+    is_strftime = strftimeFormatConstraint(format="%Y-%m-%d")
 
     apply_constraints = [dateutil_parseable, json_parseable, matches_json_schema, is_strftime]
 
