@@ -1,4 +1,5 @@
 import json
+from logging import getLogger
 
 import pytest
 
@@ -11,6 +12,7 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
+    columnValuesInSetConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
@@ -19,16 +21,24 @@ from whylogs.core.statistics.constraints import (
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
 
+TEST_LOGGER = getLogger(__name__)
+
 
 def test_value_summary_serialization():
 
     for each_op, _ in _value_funcs.items():
-
-        value = ValueConstraint(each_op, 3.6)
+        if each_op == Op.IN_SET:
+            value = ValueConstraint(each_op, {3.6})
+        else:
+            value = ValueConstraint(each_op, 3.6)
         msg_value = value.to_protobuf()
         json_value = json.loads(message_to_json(msg_value))
-        assert json_value["name"] == "value " + Op.Name(each_op) + " 3.6"
-        assert pytest.approx(json_value["value"], 0.001) == 3.6
+        if each_op == Op.IN_SET:
+            assert json_value["name"] == "value " + Op.Name(each_op) + " {3.6}"
+            assert json_value["valueSet"][0] == [3.6]
+        else:
+            assert json_value["name"] == "value " + Op.Name(each_op) + " 3.6"
+            assert pytest.approx(json_value["value"], 0.001) == 3.6
         assert json_value["op"] == Op.Name(each_op)
         assert json_value["verbose"] == False
 
@@ -401,3 +411,60 @@ def test_max_between_constraint_invalid():
         maxBetweenConstraint(lower_value="2", upper_value=2)
     with pytest.raises(TypeError):
         maxBetweenConstraint(lower_field="max", upper_field=2)
+
+
+def test_column_values_in_set_constraint(df_lending_club, local_config_path):
+    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
+    ltc = ValueConstraint(Op.LT, 1)
+    dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == len(df_lending_club)
+    # the number of fails should equal the number of rows - 1 since the column id only has the value 90671227 in set
+    assert report[0][1][0][2] == len(df_lending_club) - 1
+
+
+def test_merge_values_in_set_constraint_different_value_set():
+    cvisc1 = columnValuesInSetConstraint(value_set={1, 2, 3})
+    cvisc2 = columnValuesInSetConstraint(value_set={3, 4, 5})
+    with pytest.raises(AssertionError):
+        cvisc1.merge(cvisc2)
+
+
+def test_merge_values_in_set_constraint_same_value_set():
+    val_set = {"abc", "b", "c"}
+    cvisc1 = columnValuesInSetConstraint(value_set=val_set)
+    cvisc2 = columnValuesInSetConstraint(value_set=val_set)
+    merged = cvisc1.merge(cvisc2)
+
+    TEST_LOGGER.info(f"Serialize the merged columnValuesInSetConstraint:\n {merged.to_protobuf()}")
+
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value["name"] == f"value {Op.Name(Op.IN_SET)} " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN_SET)
+    assert json_value["valueSet"][0] == list(val_set)
+
+
+def test_serialization_deserialization_values_in_set_constraint():
+    val_set = {"abc", 1, 2}
+    cvisc = columnValuesInSetConstraint(value_set=val_set)
+
+    cvisc.from_protobuf(cvisc.to_protobuf())
+    json_value = json.loads(message_to_json(cvisc.to_protobuf()))
+
+    TEST_LOGGER.info(f"Serialize columnValuesInSetConstraint from deserialized representation:\n {cvisc.to_protobuf()}")
+
+    assert json_value["name"] == f"value {Op.Name(Op.IN_SET)} " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN_SET)
+    assert json_value["valueSet"][0] == list(val_set)
+
+
+def test_column_values_in_set_wrong_datatype():
+    with pytest.raises(TypeError):
+        cvisc = columnValuesInSetConstraint(value_set=1)
