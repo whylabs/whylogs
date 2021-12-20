@@ -422,10 +422,18 @@ class ValueConstraints:
         if constraints is None:
             constraints = dict()
 
+        raw_values_operators = (Op.MATCH, Op.NOMATCH)
+        self.raw_value_constraints = {}
+        self.coerced_type_constraints = {}
+
         if isinstance(constraints, list):
-            self.constraints = {constraint.name: constraint for constraint in constraints}
-        else:
-            self.constraints = constraints
+            constraints = {constraint.name: constraint for constraint in constraints}
+
+        for name, constraint in constraints.items():
+            if constraint.op in raw_values_operators:
+                self.raw_value_constraints.update({name: constraint})
+            else:
+                self.coerced_type_constraints.update({name: constraint})
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsgs) -> "ValueConstraints":
@@ -435,12 +443,17 @@ class ValueConstraints:
         return None
 
     def __getitem__(self, name: str) -> Optional[ValueConstraint]:
-        if self.contraints:
-            return self.constraints.get(name)
+        if self.raw_value_constraints:
+            constraint = self.raw_value_constraints.get(name)
+            if constraint:
+                return constraint
+        if self.coerced_type_constraints:
+            return self.coerced_type_constraints.get(name)
         return None
 
     def to_protobuf(self) -> ValueConstraintMsgs:
-        v = [c.to_protobuf() for c in self.constraints.values()]
+        v = [c.to_protobuf() for c in self.raw_value_constraints.values()]
+        v.extend([c.to_protobuf() for c in self.coerced_type_constraints.values()])
         if len(v) > 0:
             vcmsg = ValueConstraintMsgs()
             vcmsg.constraints.extend(v)
@@ -448,27 +461,29 @@ class ValueConstraints:
         return None
 
     def update(self, v):
-        for c in self.constraints.values():
-            if c.op not in (Op.MATCH, Op.NOMATCH):
-                c.update(v)
+        for c in self.raw_value_constraints.values():
+            c.update(v)
 
     def update_typed(self, v):
-        for c in self.constraints.values():
-            if c.op in (Op.MATCH, Op.NOMATCH):
-                c.update(v)
+        for c in self.coerced_type_constraints.values():
+            c.update(v)
 
     def merge(self, other) -> "ValueConstraints":
-        if not other or not other.constraints:
+        if not other or not other.raw_value_constraints and not other.coerced_type_constraints:
             return self
 
-        merged_constraints = other.constraints.copy()
-        for name, constraint in self.constraints:
-            merged_constraints[name] = constraint.merge(other.constraints.get(name))
+        merged_constraints = other.raw_value_constraints.copy()
+        merged_constraints.update(other.coerced_type_constraints.copy())
+        for name, constraint in self.raw_value_constraints.items():
+            merged_constraints[name] = constraint.merge(other[name])
+        for name, constraint in self.coerced_type_constraints.items():
+            merged_constraints[name] = constraint.merge(other[name])
 
         return ValueConstraints(merged_constraints)
 
     def report(self) -> List[tuple]:
-        v = [c.report() for c in self.constraints.values()]
+        v = [c.report() for c in self.raw_value_constraints.values()]
+        v.extend([c.report() for c in self.coerced_type_constraints.values()])
         if len(v) > 0:
             return v
         return None

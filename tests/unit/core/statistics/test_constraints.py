@@ -11,6 +11,7 @@ from whylogs.core.statistics.constraints import (
     Op,
     SummaryConstraint,
     ValueConstraint,
+    ValueConstraints,
     _summary_funcs1,
     _value_funcs,
     columnValuesInSetConstraint,
@@ -195,6 +196,74 @@ def test_value_constraints_with_zero_as_value():
     assert pytest.approx(json_value["value"], 0.01) == 0.0
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["verbose"] is False
+
+
+def test_value_constraints_raw_and_coerced_types_serialize_deserialize():
+    pattern = r"\S+@\S+"
+    c1 = ValueConstraint(Op.GE, 0)
+    c2 = ValueConstraint(Op.MATCH, regex_pattern=pattern)
+    constraints = ValueConstraints([c1, c2])
+    constraints.update("abc")
+    constraints.update_typed(1)
+
+    constraints.from_protobuf(constraints.to_protobuf())
+    msg_const = constraints.to_protobuf()
+    json_val = json.loads(message_to_json(msg_const))
+
+    first_val_constraint = json_val["constraints"][0]
+    second_val_constraint = json_val["constraints"][1]
+
+    assert first_val_constraint["name"] == f"value {Op.Name(Op.MATCH)} {pattern}"
+    assert first_val_constraint["op"] == Op.Name(Op.MATCH)
+    assert first_val_constraint["regexPattern"] == pattern
+    assert first_val_constraint["verbose"] is False
+
+    assert second_val_constraint["name"] == f"value {Op.Name(Op.GE)} 0"
+    assert second_val_constraint["op"] == Op.Name(Op.GE)
+    assert pytest.approx(second_val_constraint["value"], 0.01) == 0
+    assert second_val_constraint["verbose"] is False
+
+
+def test_value_constraints_raw_and_coerced_types_merge():
+    pattern = r"\S+@\S+"
+    c1 = ValueConstraint(Op.GE, 0)
+    c2 = ValueConstraint(Op.MATCH, regex_pattern=pattern)
+    constraints = ValueConstraints([c1, c2])
+    c3 = ValueConstraint(Op.GE, 0)
+    c4 = ValueConstraint(Op.MATCH, regex_pattern=pattern)
+    constraints2 = ValueConstraints([c3, c4])
+
+    merged = constraints.merge(constraints2)
+    json_val = json.loads(message_to_json(merged.to_protobuf()))
+
+    first_val_constraint = json_val["constraints"][0]
+    second_val_constraint = json_val["constraints"][1]
+
+    assert first_val_constraint["name"] == f"value {Op.Name(Op.MATCH)} {pattern}"
+    assert first_val_constraint["op"] == Op.Name(Op.MATCH)
+    assert first_val_constraint["regexPattern"] == pattern
+    assert first_val_constraint["verbose"] is False
+
+    assert second_val_constraint["name"] == f"value {Op.Name(Op.GE)} 0"
+    assert second_val_constraint["op"] == Op.Name(Op.GE)
+    assert pytest.approx(second_val_constraint["value"], 0.01) == 0
+    assert second_val_constraint["verbose"] is False
+
+
+def test_value_constraints_raw_and_coerced_types_report():
+    pattern = r"\S+@\S+"
+    c1 = ValueConstraint(Op.GE, 0)
+    c2 = ValueConstraint(Op.MATCH, regex_pattern=pattern)
+    constraints = ValueConstraints({c1.name: c1, c2.name: c2})
+    report = constraints.report()
+
+    assert report[0][0] == f"value {Op.Name(Op.MATCH)} {pattern}"
+    assert report[0][1] == 0
+    assert report[0][2] == 0
+
+    assert report[1][0] == f"value {Op.Name(Op.GE)} 0"
+    assert report[1][1] == 0
+    assert report[1][2] == 0
 
 
 def test_summary_between_serialization_deserialization():
