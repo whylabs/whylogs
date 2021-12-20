@@ -475,9 +475,9 @@ class ValueConstraints:
         merged_constraints = other.raw_value_constraints.copy()
         merged_constraints.update(other.coerced_type_constraints.copy())
         for name, constraint in self.raw_value_constraints.items():
-            merged_constraints[name] = constraint.merge(other[name])
+            merged_constraints[name] = constraint.merge(other.raw_value_constraints.get(name))
         for name, constraint in self.coerced_type_constraints.items():
-            merged_constraints[name] = constraint.merge(other[name])
+            merged_constraints[name] = constraint.merge(other.coerced_type_constraints.get(name))
 
         return ValueConstraints(merged_constraints)
 
