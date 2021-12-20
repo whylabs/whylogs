@@ -431,7 +431,13 @@ class ValueConstraints:
 
     def update(self, v):
         for c in self.constraints.values():
-            c.update(v)
+            if c.op not in (Op.MATCH, Op.NOMATCH):
+                c.update(v)
+
+    def update_typed(self, v):
+        for c in self.constraints.values():
+            if c.op in (Op.MATCH, Op.NOMATCH):
+                c.update(v)
 
     def merge(self, other) -> "ValueConstraints":
         if not other or not other.constraints:
