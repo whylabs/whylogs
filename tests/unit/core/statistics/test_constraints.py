@@ -2,6 +2,7 @@ import json
 from logging import getLogger
 
 import pytest
+import pandas as pd
 
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
