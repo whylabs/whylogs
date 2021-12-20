@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import numbers
@@ -6,7 +7,6 @@ from typing import List, Mapping, Optional
 
 import jsonschema
 from datasketches import theta_a_not_b, update_theta_sketch
-import datetime
 from dateutil.parser import parse
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
@@ -23,10 +23,10 @@ from whylogs.proto import (
     ValueConstraintMsg,
     ValueConstraintMsgs,
 )
-from whylogs.proto.constraints_pb2 import APPLY_FUNC
 from whylogs.util.protobuf import message_to_json
 
 logger = logging.getLogger(__name__)
+
 
 def _is_strftime_format(strftime_val, format):
     """
@@ -38,7 +38,7 @@ def _is_strftime_format(strftime_val, format):
     """
     try:
         datetime.datetime.strptime(strftime_val, format)
-    except:
+    except:  # bad practice, but if it throws an exception of any kind, can not be parsed
         return False
     return True
 
@@ -53,7 +53,7 @@ def _is_dateutil_parseable(dateutil_val, ref_val=None):
     """
     try:
         parse(dateutil_val)
-    except:
+    except:  # bad practice, but if it throws an exception of any kind, can not be parsed
         return False
     return True
 
@@ -67,7 +67,7 @@ def _is_json_parseable(json_string, ref_val=None):
     """
     try:
         json.loads(json_string)
-    except:
+    except:  # bad practice, but if it throws an exception of any kind, can not be parsed
         return False
     return True
 
@@ -82,13 +82,13 @@ def _matches_json_schema(json_data, json_schema):
     if isinstance(json_schema, str):
         try:
             json_schema = json.loads(json_schema)
-        except:
+        except:  # bad practice, but if it throws an exception of any kind, can not be parsed
             return False
 
     if isinstance(json_data, str):
         try:
             json_data = json.loads(json_data)
-        except:
+        except:  # bad practice, but if it throws an exception of any kind, can not be parsed
             return False
 
     try:
@@ -198,7 +198,7 @@ class ValueConstraint:
         if self.op == Op.APPLY_FUNC:
             if value is not None:
                 if not isinstance(value, str):
-                    if apply_function == globals()['_matches_json_schema']:
+                    if apply_function == globals()["_matches_json_schema"]:
                         try:
                             value = json.dumps(value)
                         except (ValueError, TypeError):
@@ -402,8 +402,9 @@ class SummaryConstraint:
                     logger.warning(f"Trying to cast provided value of {type(reference_set)} to type set!")
                     reference_set = set(reference_set)
                 except TypeError:
+                    provided_type_name = reference_set.__class__.__name__
                     raise TypeError(
-                        f"When using set operations, provided value must be set or set castable, instead type: '{reference_set.__class__.__name__}' was provided!"
+                        f"When using set operations, provided value must be set or set castable, instead type: '{provided_type_name}' was provided!"
                     )
             self.reference_set = reference_set
             self.ref_string_set = self.get_string_set()
@@ -677,7 +678,7 @@ class ValueConstraints:
     def update(self, value, typed_data):
         for c in self.constraints.values():
             if c.op in (Op.MATCH, Op.NOMATCH, Op.APPLY_FUNC):
-                c.update(value)    
+                c.update(value)
             else:
                 c.update(typed_data)
 
