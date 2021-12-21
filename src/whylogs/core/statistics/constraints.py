@@ -8,7 +8,6 @@ from google.protobuf.struct_pb2 import ListValue
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
-    NumberSummary,
     Op,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
@@ -36,7 +35,7 @@ _value_funcs = {
     Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
-    Op.IN_SET: lambda x: lambda v: v in x,
+    Op.IN: lambda x: lambda v: v in x,
 }
 
 _summary_funcs1 = {
@@ -48,6 +47,7 @@ _summary_funcs1 = {
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
     Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
+    Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
 }
 
 _summary_funcs2 = {
@@ -89,7 +89,7 @@ class ValueConstraint:
         self.total = 0
         self.failures = 0
 
-        if isinstance(value, set) != (op == Op.IN_SET):
+        if (isinstance(value, set) and op != Op.IN) or (not isinstance(value, set) and op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
         if value is not None and regex_pattern is None:
@@ -276,9 +276,18 @@ class SummaryConstraint:
 
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
-    def update(self, summ: NumberSummary) -> bool:
+    def update(self, update_dict: dict) -> bool:
         self.total += 1
-        if not self.func(summ):
+        summ = update_dict["number_summary"]
+        null_values = update_dict["counters"].null_count.value
+
+        if self.first_field == "null count":
+            null_count = type("Object", (), {self.first_field: null_values})
+            result = self.func(null_count)
+        else:
+            result = self.func(summ)
+
+        if not result:
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -597,4 +606,8 @@ def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
     except Exception:
         raise TypeError("The value set should be an iterable data type")
 
-    return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
+    return ValueConstraint(Op.IN, value=value_set, verbose=verbose)
+
+
+def columnValuesNotNullConstraint(verbose=False):
+    return SummaryConstraint("null count", value=0, op=Op.EQ, verbose=verbose)
