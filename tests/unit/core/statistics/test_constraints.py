@@ -1,6 +1,7 @@
 import json
 from logging import getLogger
 
+import pandas as pd
 import pytest
 
 from whylogs.app.config import load_config
@@ -10,13 +11,20 @@ from whylogs.core.statistics.constraints import (
     Op,
     SummaryConstraint,
     ValueConstraint,
+    ValueConstraints,
     _summary_funcs1,
     _value_funcs,
     columnValuesInSetConstraint,
+    containsCreditCardConstraint,
+    containsEmailConstraint,
+    containsSSNConstraint,
+    containsURLConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
     stddevBetweenConstraint,
+    stringLengthBetweenConstraint,
+    stringLengthEqualConstraint,
 )
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
@@ -179,6 +187,83 @@ def test_value_constraints_merge_empty():
     constraint2 = None
     merged = constraint1.merge(constraint2)
     assert merged == constraint1, "merging empty constraints should preserve left hand side"
+
+
+def test_value_constraints_with_zero_as_value():
+    c1 = ValueConstraint(Op.LT, 0)
+    json_value = json.loads(message_to_json(c1.to_protobuf()))
+    assert json_value["name"] == f"value {Op.Name(Op.LT)} 0"
+    assert pytest.approx(json_value["value"], 0.01) == 0.0
+    assert json_value["op"] == Op.Name(Op.LT)
+    assert json_value["verbose"] is False
+
+
+def test_value_constraints_raw_and_coerced_types_serialize_deserialize():
+    pattern = r"\S+@\S+"
+    c1 = ValueConstraint(Op.GE, 0)
+    c2 = ValueConstraint(Op.MATCH, regex_pattern=pattern)
+    constraints = ValueConstraints([c1, c2])
+    constraints.update("abc")
+    constraints.update_typed(1)
+
+    constraints.from_protobuf(constraints.to_protobuf())
+    msg_const = constraints.to_protobuf()
+    json_val = json.loads(message_to_json(msg_const))
+
+    first_val_constraint = json_val["constraints"][0]
+    second_val_constraint = json_val["constraints"][1]
+
+    assert first_val_constraint["name"] == f"value {Op.Name(Op.MATCH)} {pattern}"
+    assert first_val_constraint["op"] == Op.Name(Op.MATCH)
+    assert first_val_constraint["regexPattern"] == pattern
+    assert first_val_constraint["verbose"] is False
+
+    assert second_val_constraint["name"] == f"value {Op.Name(Op.GE)} 0"
+    assert second_val_constraint["op"] == Op.Name(Op.GE)
+    assert pytest.approx(second_val_constraint["value"], 0.01) == 0
+    assert second_val_constraint["verbose"] is False
+
+
+def test_value_constraints_raw_and_coerced_types_merge():
+    pattern = r"\S+@\S+"
+    c1 = ValueConstraint(Op.GE, 0)
+    c2 = ValueConstraint(Op.MATCH, regex_pattern=pattern)
+    constraints = ValueConstraints([c1, c2])
+    c3 = ValueConstraint(Op.GE, 0)
+    c4 = ValueConstraint(Op.MATCH, regex_pattern=pattern)
+    constraints2 = ValueConstraints([c3, c4])
+
+    merged = constraints.merge(constraints2)
+    json_val = json.loads(message_to_json(merged.to_protobuf()))
+
+    first_val_constraint = json_val["constraints"][0]
+    second_val_constraint = json_val["constraints"][1]
+
+    assert first_val_constraint["name"] == f"value {Op.Name(Op.MATCH)} {pattern}"
+    assert first_val_constraint["op"] == Op.Name(Op.MATCH)
+    assert first_val_constraint["regexPattern"] == pattern
+    assert first_val_constraint["verbose"] is False
+
+    assert second_val_constraint["name"] == f"value {Op.Name(Op.GE)} 0"
+    assert second_val_constraint["op"] == Op.Name(Op.GE)
+    assert pytest.approx(second_val_constraint["value"], 0.01) == 0
+    assert second_val_constraint["verbose"] is False
+
+
+def test_value_constraints_raw_and_coerced_types_report():
+    pattern = r"\S+@\S+"
+    c1 = ValueConstraint(Op.GE, 0)
+    c2 = ValueConstraint(Op.MATCH, regex_pattern=pattern)
+    constraints = ValueConstraints({c1.name: c1, c2.name: c2})
+    report = constraints.report()
+
+    assert report[0][0] == f"value {Op.Name(Op.MATCH)} {pattern}"
+    assert report[0][1] == 0
+    assert report[0][2] == 0
+
+    assert report[1][0] == f"value {Op.Name(Op.GE)} 0"
+    assert report[1][1] == 0
+    assert report[1][2] == 0
 
 
 def test_summary_between_serialization_deserialization():
@@ -468,3 +553,300 @@ def test_serialization_deserialization_values_in_set_constraint():
 def test_column_values_in_set_wrong_datatype():
     with pytest.raises(TypeError):
         cvisc = columnValuesInSetConstraint(value_set=1)
+
+
+def _report_email_value_constraint_on_data_set(local_config_path, pattern=None):
+    df = pd.DataFrame(
+        [
+            {"email": r"abc's@gmail.com"},  # valid
+            {"email": r'"aVrrR Test \@"@gmail.com'},  # valid
+            {"email": r"abc..q12@example.us"},  # invalid
+            {"email": r'"sdsss\d"@gmail.com'},  # valid
+            {"email": r"customer/department=shipping?@example-another.some-other.us"},  # valid
+            {"email": r".should_fail@yahoo.com"},  # invalid
+            {"email": r"some.@a.com"},  # invalid
+            {"email": r"abs@yahoo."},  # invalid
+        ]
+    )
+
+    email_constraint = containsEmailConstraint(regex_pattern=pattern)
+    dc = DatasetConstraints(None, value_constraints={"email": [email_constraint]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+    return report
+
+
+def test_email_constraint(local_config_path):
+    report = _report_email_value_constraint_on_data_set(local_config_path)
+
+    assert report[0][1][0][1] == 8
+    assert report[0][1][0][2] == 4
+
+
+def test_email_constraint_supply_regex_pattern(local_config_path):
+    report = _report_email_value_constraint_on_data_set(local_config_path, r"\S+@\S+")
+    assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} \S+@\S+"
+    assert report[0][1][0][1] == 8
+    assert report[0][1][0][2] == 1
+
+
+def test_email_constraint_merge_valid():
+    ec1 = containsEmailConstraint(regex_pattern=r"\S+@\S+", verbose=True)
+    ec2 = containsEmailConstraint(regex_pattern=r"\S+@\S+")
+    merged = ec1.merge(ec2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value["name"] == rf"value {Op.Name(Op.MATCH)} \S+@\S+"
+    assert json_value["op"] == Op.Name(Op.MATCH)
+    assert json_value["regexPattern"] == r"\S+@\S+"
+    assert json_value["verbose"] is True
+
+
+def test_email_constraint_merge_invalid():
+    ec1 = containsEmailConstraint(regex_pattern=r"\S+@\S+", verbose=True)
+    ec2 = containsEmailConstraint(regex_pattern=r"\W+@\W+")
+    with pytest.raises(AssertionError):
+        ec1.merge(ec2)
+
+
+def _report_credit_card_value_constraint_on_data_set(local_config_path, regex_pattern=None):
+    df = pd.DataFrame(
+        [
+            {"credit_card": "3714-496353-98431"},  # amex
+            {"credit_card": "3787 344936 71000"},  # amex
+            {"credit_card": "3056 930902 5904"},  # diners club
+            {"credit_card": "3065 133242 2899"},  # invalid
+            {"credit_card": "3852-000002-3237"},  # invalid
+            {"credit_card": "6011 1111 1111 1117"},  # discover
+            {"credit_card": "6011-0009-9013-9424"},  # discover
+            {"credit_card": "3530 1113 3330 0000"},  # jcb
+            {"credit_card": "3566-0020-2036-0505"},  # jcb
+            {"credit_card": "5555 5555 5555 4444"},  # master card
+            {"credit_card": "5105 1051 0510 5100"},  # master card
+            {"credit_card": "4111 1111 1111 1111"},  # visa
+            {"credit_card": "4012 8888 8888 1881"},  # visa
+            {"credit_card": "4222-2222-2222-2222"},  # visa
+            {"credit_card": "1111-1111-1111-1111"},  # invalid
+            {"credit_card": "a4111 1111 1111 1111b"},  # invalid
+            {"credit_card": "4111111111111111"},  # visa
+            {"credit_card": 12345},  # invalid
+            {"credit_card": "absfcvs"},  # invalid
+        ]
+    )
+
+    credit_card_constraint = containsCreditCardConstraint(regex_pattern=regex_pattern)
+    dc = DatasetConstraints(None, value_constraints={"credit_card": [credit_card_constraint]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    return dc.report()
+
+
+def test_credit_card_constraint(local_config_path):
+    report = _report_credit_card_value_constraint_on_data_set(local_config_path)
+    assert report[0][1][0][1] == 19
+    assert report[0][1][0][2] == 5
+
+
+def test_credit_card_constraint_supply_regex_pattern(local_config_path):
+    report = _report_credit_card_value_constraint_on_data_set(local_config_path, r"^(?:[0-9]{4}[\s-]?){3,4}$")
+    print(report)
+    assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + r"^(?:[0-9]{4}[\s-]?){3,4}$"
+    assert report[0][1][0][1] == 19
+    assert report[0][1][0][2] == 8
+
+
+def test_credit_card_constraint_merge_valid():
+    pattern = r"[0-9]{13,16}"
+    ccc1 = containsCreditCardConstraint(regex_pattern=pattern, verbose=True)
+    ccc2 = containsCreditCardConstraint(regex_pattern=pattern)
+    merged = ccc1.merge(ccc2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value["name"] == f"value {Op.Name(Op.MATCH)} " + pattern
+    assert json_value["op"] == Op.Name(Op.MATCH)
+    assert json_value["regexPattern"] == pattern
+    assert json_value["verbose"] is True
+
+
+def test_credit_card_constraint_merge_invalid():
+    ccc1 = containsCreditCardConstraint()
+    ccc2 = containsCreditCardConstraint(regex_pattern=r"[0-9]{13,16}", verbose=False)
+    with pytest.raises(AssertionError):
+        ccc1.merge(ccc2)
+
+
+def test_credit_card_invalid_pattern():
+    with pytest.raises(TypeError):
+        containsCreditCardConstraint(123)
+
+
+def _apply_string_length_constraints(local_config_path, length_constraints):
+
+    df = pd.DataFrame(
+        [
+            {"str1": "length7"},
+            {"str1": "length_8"},
+            {"str1": "length__9"},
+            {"str1": "a       10"},
+            {"str1": "11        b"},
+            {"str1": '(*&^%^&*(24!@_+>:|}?><"\\'},
+            {"str1": "1b34567"},
+        ]
+    )
+
+    dc = DatasetConstraints(None, value_constraints={"str1": length_constraints})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    return report
+
+
+def test_string_length_constraints(local_config_path):
+
+    length_constraint7 = stringLengthEqualConstraint(length=7)
+    length_constraint24 = stringLengthEqualConstraint(length=24)
+    length_constraint7to10 = stringLengthBetweenConstraint(lower_value=7, upper_value=10)
+    length_constraints = [length_constraint7, length_constraint24, length_constraint7to10]
+
+    report = _apply_string_length_constraints(local_config_path, length_constraints)
+
+    # report[column_n][report_list][report][name total or failure]
+    assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7}}$"
+    assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == rf"value {Op.Name(Op.MATCH)} ^.{{24}}$"
+    assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7,10}}$"
+
+
+def _report_ssn_value_constraint_on_data_set(local_config_path, regex_pattern=None):
+    df = pd.DataFrame(
+        [
+            {"ssn": "123-01-2335"},  # valid
+            {"ssn": "039780012"},  # valid
+            {"ssn": "000231324"},  # invalid
+            {"ssn": "666781132"},  # invalid
+            {"ssn": "926-89-1234"},  # invalid
+            {"ssn": "001-01-0001"},  # valid
+            {"ssn": "122 23 0001"},  # valid
+            {"ssn": "1234-12-123"},  # invalid
+        ]
+    )
+
+    ssn_constraint = containsSSNConstraint(regex_pattern=regex_pattern)
+    dc = DatasetConstraints(None, value_constraints={"ssn": [ssn_constraint]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    return dc.report()
+
+
+def test_contains_ssn_constraint(local_config_path):
+    report = _report_ssn_value_constraint_on_data_set(local_config_path)
+    assert report[0][1][0][1] == 8
+    assert report[0][1][0][2] == 4
+
+
+def test_ssn_constraint_supply_regex_pattern(local_config_path):
+    pattern = r"^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
+    report = _report_ssn_value_constraint_on_data_set(local_config_path, pattern)
+    print(report)
+    assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + pattern
+    assert report[0][1][0][1] == 8
+    assert report[0][1][0][2] == 5
+
+
+def test_ssn_constraint_merge_valid():
+    pattern = r"^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
+    ccc1 = containsSSNConstraint(regex_pattern=pattern, verbose=True)
+    ccc2 = containsSSNConstraint(regex_pattern=pattern)
+    merged = ccc1.merge(ccc2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value["name"] == f"value {Op.Name(Op.MATCH)} " + pattern
+    assert json_value["op"] == Op.Name(Op.MATCH)
+    assert json_value["regexPattern"] == pattern
+    assert json_value["verbose"] is True
+
+
+def test_ssn_constraint_merge_invalid():
+    ccc1 = containsSSNConstraint()
+    ccc2 = containsSSNConstraint(regex_pattern=r"[0-9]{13,16}", verbose=False)
+    with pytest.raises(AssertionError):
+        ccc1.merge(ccc2)
+
+
+def test_ssn_invalid_pattern():
+    with pytest.raises(TypeError):
+        containsSSNConstraint(123)
+
+
+def _report_url_value_constraint_on_data_set(local_config_path, regex_pattern=None):
+    df = pd.DataFrame(
+        [
+            {"url": "http://www.example.com"},  # valid
+            {"url": "abc.test.com"},  # valid (without protocol)
+            {"url": "abc.w23w.asb#abc?a=2"},  # valid (without protocol)
+            {"url": "https://ab.abc.bc"},  # valid
+            {"url": "a.b.c"},  # valid
+            {"url": "abcd"},  # invalid
+            {"url": "123.w23.235"},  # valid
+            {"url": "asf://saf.we.12"},  # invalid
+            {"url": "12345"},  # invalid
+            {"url": "1.2"},  # invalid
+        ]
+    )
+
+    url_constraint = containsURLConstraint(regex_pattern=regex_pattern)
+    dc = DatasetConstraints(None, value_constraints={"url": [url_constraint]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    return dc.report()
+
+
+def test_contains_url_constraint(local_config_path):
+    report = _report_url_value_constraint_on_data_set(local_config_path)
+    assert report[0][1][0][1] == 10
+    assert report[0][1][0][2] == 4
+
+
+def test_url_constraint_supply_regex_pattern(local_config_path):
+    pattern = r"^http(s)?:\/\/(www\.)?.+\..+$"
+    report = _report_url_value_constraint_on_data_set(local_config_path, pattern)
+    print(report)
+    assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + pattern
+    assert report[0][1][0][1] == 10
+    assert report[0][1][0][2] == 8
+
+
+def test_url_constraint_merge_valid():
+    pattern = r"^http(s)?://(www)?\..*\..*$"
+    ccc1 = containsURLConstraint(regex_pattern=pattern, verbose=False)
+    ccc2 = containsURLConstraint(regex_pattern=pattern)
+    merged = ccc1.merge(ccc2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value["name"] == f"value {Op.Name(Op.MATCH)} " + pattern
+    assert json_value["op"] == Op.Name(Op.MATCH)
+    assert json_value["regexPattern"] == pattern
+    assert json_value["verbose"] is False
+
+
+def test_url_constraint_merge_invalid():
+    ccc1 = containsURLConstraint()
+    ccc2 = containsURLConstraint(regex_pattern=r"http(s)?://.+", verbose=False)
+    with pytest.raises(AssertionError):
+        ccc1.merge(ccc2)
+
+
+def test_url_invalid_pattern():
+    with pytest.raises(TypeError):
+        containsURLConstraint(2124)
