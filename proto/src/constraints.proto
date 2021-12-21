@@ -22,7 +22,9 @@ enum Op {
     IN_SET = 10;
     CONTAIN_SET = 11;
     EQ_SET = 12;
-    APPLY_FUNC = 13;
+    IN = 13;
+    IN2 = 14;
+    APPLY_FUNC = 15;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
