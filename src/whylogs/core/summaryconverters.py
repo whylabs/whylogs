@@ -3,6 +3,8 @@ Library module defining function for generating summaries
 """
 import math
 
+import datasketches
+import numpy as np
 from datasketches import (
     frequent_items_error_type,
     frequent_strings_sketch,
@@ -11,8 +13,10 @@ from datasketches import (
 )
 
 from whylogs.proto import (
+    ColumnSummary,
     FrequentStringsSummary,
     HistogramSummary,
+    InferredType,
     QuantileSummary,
     UniqueCountSummary,
 )
@@ -143,3 +147,51 @@ def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int = None, av
         bins=bins,
         n=n,
     )
+
+
+def entropy_from_column_summary(summary: ColumnSummary, histogram: datasketches.kll_floats_sketch):
+    """
+
+    Parameters
+    ----------
+    self
+    summary : ColumnSummary
+        Protobuf summary message
+
+    Returns
+    -------
+    entropy : Object
+        Anonymous object containing one field: entropy = estimated_entropy_value
+    """
+
+    frequent_items = summary.frequent_items
+    unique_count = summary.unique_count.estimate
+    inferred_type = summary.schema.inferred_type.type
+    total_count = summary.counters.count
+
+    if inferred_type == InferredType.Type.FRACTIONAL:
+        bins = np.linspace(histogram.get_min_value(), histogram.get_max_value(), 100)
+        pmf = histogram.get_pmf(bins)
+        pmf = list(filter(lambda x: x > 0, pmf))
+        entropy = -np.sum(pmf * np.log(pmf))
+        return type("Object", (), {"entropy": entropy})
+
+    elif inferred_type in (InferredType.Type.INTEGRAL, InferredType.Type.STRING, InferredType.Type.BOOLEAN):
+        if total_count <= 0:
+            return None
+
+        entropy = 0
+        for item in frequent_items.items:
+            i_frequency = item.estimate / total_count
+            entropy += i_frequency * np.log(i_frequency)
+
+        frequent_items_count = len(frequent_items.items)
+        n_singles = unique_count - frequent_items_count
+        if math.isclose(n_singles, 0.0, abs_tol=10e-3):
+            return type("Object", (), {"entropy": -entropy})
+
+        n_singles_frequency = n_singles / total_count
+        entropy += n_singles_frequency * np.log(n_singles_frequency)
+        return type("Object", (), {"entropy": -entropy})
+
+    return None

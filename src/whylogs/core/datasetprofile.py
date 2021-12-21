@@ -17,6 +17,7 @@ from whylogs.core import ColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
 from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
+from whylogs.core.summaryconverters import entropy_from_column_summary
 from whylogs.proto import (
     ColumnsChunkSegment,
     DatasetMetadataSegment,
@@ -687,7 +688,13 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
-                constraints.update(summ.number_summary)
+
+                update_dict = {
+                    "number_summary": summ.number_summary,
+                    "entropy": entropy_from_column_summary(summ, colprof.number_tracker.histogram),
+                }
+
+                constraints.update(update_dict)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 

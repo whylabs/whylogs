@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Any, List, Mapping, Optional, Set
+from typing import Any, List, Mapping, Optional, Set, Union
 
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
@@ -276,9 +276,17 @@ class SummaryConstraint:
 
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
-    def update(self, summ: NumberSummary) -> bool:
+    def update(self, update_dict: dict) -> bool:
         self.total += 1
-        if not self.func(summ):
+        summ = update_dict["number_summary"]
+        entropy = update_dict["entropy"]
+
+        if self.first_field == "entropy":
+            result = self.func(entropy) if entropy is not None else None
+        else:
+            result = self.func(summ)
+
+        if not result:
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -598,3 +606,14 @@ def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
         raise TypeError("The value set should be an iterable data type")
 
     return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
+
+
+def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_value: float, verbose=False):
+    if not all([isinstance(v, (int, float)) for v in (lower_value, upper_value)]):
+        raise TypeError("The lower and upper values should be of type int or float")
+    if not all([v >= 0 for v in (lower_value, upper_value)]):
+        raise ValueError("The value of the entropy cannot be a negative number")
+    if lower_value > upper_value:
+        raise ValueError("The supplied lower bound should be less than or equal to the supplied upper bound")
+
+    return SummaryConstraint("entropy", op=Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)

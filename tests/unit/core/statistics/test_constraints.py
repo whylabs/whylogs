@@ -12,6 +12,7 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
+    approximateEntropyBetweenConstraint,
     columnValuesInSetConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
@@ -468,3 +469,91 @@ def test_serialization_deserialization_values_in_set_constraint():
 def test_column_values_in_set_wrong_datatype():
     with pytest.raises(TypeError):
         cvisc = columnValuesInSetConstraint(value_set=1)
+
+
+def test_entropy_between_constraint_numeric_apply(local_config_path, df_lending_club):
+    ec = approximateEntropyBetweenConstraint(lower_value=0.4, upper_value=0.5)
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [ec]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+    # numeric
+    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.4 and 0.5"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 1
+
+
+def test_entropy_between_constraint_categorical_apply(local_config_path, df_lending_club):
+    ec = approximateEntropyBetweenConstraint(lower_value=0.6, upper_value=1.5)
+    dc = DatasetConstraints(None, summary_constraints={"grade": [ec]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # categorical
+    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_entropy_between_constraint_null_apply(local_config_path, df_lending_club):
+    ec = approximateEntropyBetweenConstraint(lower_value=0.6, upper_value=1.5)
+    dc = DatasetConstraints(None, summary_constraints={"member_id": [ec]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # categorical
+    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 1
+
+
+def test_merge_entropy_between_constraint_different_values():
+    e1 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=2.4)
+    e2 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=2.6)
+    with pytest.raises(AssertionError):
+        e1.merge(e2)
+
+
+def test_merge_entropy_between_constraint_same_values():
+    e1 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=3.2)
+    e2 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=3.2)
+    merged = e1.merge(e2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == f"summary entropy {Op.Name(Op.BTWN)} 1 and 3.2"
+    assert message["firstField"] == "entropy"
+    assert message["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(message["between"]["lowerValue"], 0.01) == 1
+    assert pytest.approx(message["between"]["upperValue"], 0.01) == 3.2
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_entropy_between_constraint():
+    e1 = approximateEntropyBetweenConstraint(lower_value=0.3, upper_value=1.2, verbose=True)
+
+    e1.from_protobuf(e1.to_protobuf())
+    json_value = json.loads(message_to_json(e1.to_protobuf()))
+
+    assert json_value["name"] == f"summary entropy {Op.Name(Op.BTWN)} 0.3 and 1.2"
+    assert json_value["firstField"] == "entropy"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.01) == 0.3
+    assert pytest.approx(json_value["between"]["upperValue"], 0.01) == 1.2
+    assert json_value["verbose"] is True
+
+
+def test_entropy_between_constraint_wrong_datatype():
+    with pytest.raises(TypeError):
+        approximateEntropyBetweenConstraint(lower_value="2", upper_value=4, verbose=True)
+    with pytest.raises(ValueError):
+        approximateEntropyBetweenConstraint(lower_value=-2, upper_value=3, verbose=True)
+    with pytest.raises(ValueError):
+        approximateEntropyBetweenConstraint(lower_value=1, upper_value=0.9)
