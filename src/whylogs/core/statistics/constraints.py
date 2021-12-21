@@ -3,7 +3,7 @@ import json
 import logging
 import numbers
 import re
-from typing import List, Mapping, Optional
+from typing import Any, List, Mapping, Optional, Set, Union
 
 import jsonschema
 from datasketches import theta_a_not_b, update_theta_sketch
@@ -140,6 +140,8 @@ _summary_funcs1 = {
     )
     == round(theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1)
     == 0.0,
+    Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
+    Op.IN2: lambda f, v: lambda s: v in getattr(s, f),
 }
 
 _summary_funcs2 = {
@@ -758,6 +760,7 @@ class DatasetConstraints:
         props: DatasetProperties,
         value_constraints: Optional[ValueConstraints] = None,
         summary_constraints: Optional[SummaryConstraints] = None,
+        table_shape_constraints: Optional[SummaryConstraints] = None,
     ):
         self.dataset_properties = props
         # repackage lists of constraints if necessary
@@ -773,6 +776,7 @@ class DatasetConstraints:
             if isinstance(v, list):
                 summary_constraints[k] = SummaryConstraints(v)
         self.summary_constraint_map = summary_constraints
+        self.table_shape_constraints = table_shape_constraints
 
     def __getitem__(self, key):
         if key in self.value_constraint_map:
@@ -809,6 +813,58 @@ class DatasetConstraints:
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
         return l1 + l2
 
+class TableShapeConstraint(SummaryConstraint):
+    
+    def __init__(self, first_field, op, value, name = None, verbose = None):
+    
+        # column exists: value in columns.keys() ; op=Op.IN2
+        # N of rows: value == N of rows ; op=Op.EQ
+        # columns match set: columns_set == value(set) ; op=Op.EQ
+        self._verbose = verbose
+        self._name = name
+        self.first_field = first_field
+        self.op = op
+        self.value = value
+        self.total = 0
+        self.failures = 0
+
+        if not isinstance(value, set):
+            try:
+                reference_set = set(value)
+            except TypeError:
+                pass
+
+        if (op == Op.IN2 and not isinstance(value, str)) or (op==op.EQ and not isinstance(value, (int, set))):
+            raise ValueError("Table shape constraints require value of type string or string set for columns and type int for number of rows!")
+        
+        self.func = _summary_funcs1[self.op](first_field, value)
+
+    @property
+    def name(self):
+        return self._name if self._name is not None else f"summary {self.value} {Op.Name(self.op)} {self.first_field}"
+    
+    def update(self, update_dict: dict):
+        self.total += 1
+        update_object = update_dict[self.first_field]
+
+        if not self.func(update_object):
+            self.failures += 1
+            if self._verbose:
+                logger.info(f"summary constraint {self.name} failed")
+
+    
+def columnExistsConstraint(column: str, verbose = False):
+    return TableShapeConstraint("columns", Op.IN2, value = column, verbose=verbose)
+
+def numberOfRowsConstraint(n_rows: int, verbose = False):
+    return TableShapeConstraint("total_row_number", Op.EQ, value = n_rows, verbose=verbose)
+
+def columnsMatchSetConstraint(reference_set: Set[str], verbose = False):
+    return TableShapeConstraint("columns", Op.EQ, value = reference_set, verbose=verbose)
+
+    
+    
+        
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
     return SummaryConstraint("stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)

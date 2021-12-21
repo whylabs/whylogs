@@ -277,7 +277,8 @@ class DatasetProfile:
         # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
         if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
             df = df.to_pandas()
-        element_count = df.size
+        self.element_count = df.size
+        element_count = self.element_count
         large_df = element_count > 200000
         if large_df:
             logger.warning(f"About to log a dataframe with {element_count} elements, logging might take some time to complete.")
@@ -698,7 +699,20 @@ class DatasetProfile:
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
+        self.constraints.table_shape_constraints.update(self.get_table_shape_summary())
+
         return [(k, s.report()) for k, s in summary_constraints.items()]
+
+    def get_table_shape_update_object(self):
+        column_names = self.columns.keys()
+        n_columns = len(column_names)
+
+        table_shape_update = type('TableShapeUpdate',(object,),{"columns": self.columns.keys(), "total_row_number": })()
+        # return TableShapeSummary(
+        #     column_names=self.columns.keys(),
+        #     table_rows = n_columns
+        # )
+
 
 
 def columns_chunk_iterator(iterator, marker: str):
