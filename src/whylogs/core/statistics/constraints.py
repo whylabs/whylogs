@@ -358,22 +358,21 @@ class SummaryConstraint:
         summ = update_dict["number_summary"]
         column_string_theta = update_dict["string_theta"]
         column_number_theta = update_dict["number_theta"]
-
+        result = False
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
-            if not all(
+            result = all(
                 [
                     _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta),
                     _summary_funcs1[self.op](self.numbers_theta_sketch)(column_number_theta),
                 ]
-            ):
-                self.failures += 1
-                if self._verbose:
-                    logger.info(f"summary constraint {self.name} failed")
+            )
         else:
-            if not self.func(summ):
-                self.failures += 1
-                if self._verbose:
-                    logger.info(f"summary constraint {self.name} failed")
+            result = self.func(summ)
+
+        if not result:
+            self.failures += 1
+            if self._verbose:
+                logger.info(f"summary constraint {self.name} failed")
 
     def merge(self, other) -> "SummaryConstraint":
         if not other:
