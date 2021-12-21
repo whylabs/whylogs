@@ -693,7 +693,6 @@ class DatasetProfile:
                     "number_theta": colprof.number_tracker.theta_sketch.theta_sketch,
                 }
 
-                # constraints.update(summ.number_summary)
                 constraints.update(update_dict)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
