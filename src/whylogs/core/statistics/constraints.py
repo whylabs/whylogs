@@ -89,7 +89,7 @@ class ValueConstraint:
         self.total = 0
         self.failures = 0
 
-        if (isinstance(value, set) and op != Op.IN) or (not isinstance(value, set) and op == Op.IN):
+        if isinstance(value, set) != (op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
         if value is not None and regex_pattern is None:
