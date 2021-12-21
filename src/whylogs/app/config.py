@@ -294,7 +294,9 @@ class SessionConfig:
         config : SessionConfig
             Generated config
         """
-        return SessionConfigSchema().load(yaml.safe_load(stream=stream))
+
+        data = yaml.safe_load(stream)
+        return SessionConfigSchema().load(data)
 
 
 class WriterConfigSchema(Schema):
@@ -390,11 +392,13 @@ def load_config(path_to_config: str = None):
         for k, f_path in cfg_candidates.items():
             logger.debug(f"Attempting to load config file: {f_path}")
             if f_path is None or not os.path.isfile(f_path):
+                logger.debug(f"Skipping: [{f_path}] is not a file")
                 continue
-
+            logger.info(f"[{f_path}] is a file, attempting to load as SessionConfig yaml")
             try:
                 with open(f_path, "rt") as f:
                     session_config = SessionConfig.from_yaml(f)
+                    logger.debug(f"Success opening and loading: [{f_path}]")
                     return session_config
             except IOError as e:
                 logger.warning("Failed to load YAML config", e)
@@ -405,4 +409,5 @@ def load_config(path_to_config: str = None):
                 return session_config
         except IOError as e:
             logger.warning("Failed to load YAML config", e)
+    logger.info("No config file loaded")
     return None

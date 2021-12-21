@@ -64,6 +64,7 @@ message ValueConstraintMsg {
   oneof second_field {
     double value = 2;
     string regex_pattern = 5;
+    google.protobuf.ListValue value_set = 6;
   }
   Op op = 3;
   bool verbose = 4;
