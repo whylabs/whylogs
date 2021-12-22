@@ -1,8 +1,9 @@
 import logging
 import re
-from typing import List, Mapping, Optional, Union
+from typing import Any, List, Mapping, Optional, Set, Union
 
 from google.protobuf.json_format import Parse
+from google.protobuf.struct_pb2 import ListValue
 
 from whylogs.core.summaryconverters import single_quantile_from_sketch
 from whylogs.proto import (
@@ -35,6 +36,7 @@ _value_funcs = {
     Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
+    Op.IN_SET: lambda x: lambda v: v in x,
 }
 
 _summary_funcs1 = {
@@ -86,6 +88,10 @@ class ValueConstraint:
         self.op = op
         self.total = 0
         self.failures = 0
+
+        if isinstance(value, set) != (op == Op.IN_SET):
+            raise ValueError("Value constraint must provide a set of values for using the IN operator")
+
         if value is not None and regex_pattern is None:
             # numeric value
             self.value = value
@@ -95,7 +101,6 @@ class ValueConstraint:
             # Regex pattern
             self.regex_pattern = regex_pattern
             self.func = _value_funcs[op](re.compile(self.regex_pattern))
-
         else:
             raise ValueError("Value constraint must specify a numeric value or regex pattern, but not both")
 
@@ -120,26 +125,54 @@ class ValueConstraint:
     def merge(self, other) -> "ValueConstraint":
         if not other:
             return self
+        val = None
+        pattern = None
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
-        assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
-        merged_value_constraint = ValueConstraint(op=self.op, value=self.value, name=self.name, verbose=self._verbose)
+        if all([getattr(v, "value", None) is not None for v in (self, other)]):
+            val = self.value
+            assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
+        elif all([getattr(v, "regex_pattern", None) for v in (self, other)]):
+            pattern = self.regex_pattern
+            assert (
+                self.regex_pattern == other.regex_pattern
+            ), f"Cannot merge value constraints with different values: {self.regex_pattern} and {other.regex_pattern}"
+        else:
+            raise TypeError("Cannot merge a numeric value constraint with a string value constraint")
+
+        merged_value_constraint = ValueConstraint(op=self.op, value=val, regex_pattern=pattern, name=self.name, verbose=self._verbose)
         merged_value_constraint.total = self.total + other.total
         merged_value_constraint.failures = self.failures + other.failures
         return merged_value_constraint
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
-        return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
+        if msg.regex_pattern != "":
+            return ValueConstraint(msg.op, regex_pattern=msg.regex_pattern, name=msg.name, verbose=msg.verbose)
+        elif len(msg.value_set.values) != 0:
+            val_set = set(msg.value_set.values[0].list_value)
+            return ValueConstraint(msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
+        else:
+            return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
         if hasattr(self, "value"):
-            return ValueConstraintMsg(
-                name=self.name,
-                op=self.op,
-                value=self.value,
-                verbose=self._verbose,
-            )
+            if isinstance(self.value, set):
+                set_vals_message = ListValue()
+                set_vals_message.append(list(self.value))
+                return ValueConstraintMsg(
+                    name=self.name,
+                    op=self.op,
+                    value_set=set_vals_message,
+                    verbose=self._verbose,
+                )
+            else:
+                return ValueConstraintMsg(
+                    name=self.name,
+                    op=self.op,
+                    value=self.value,
+                    verbose=self._verbose,
+                )
         else:
             return ValueConstraintMsg(
                 name=self.name,
@@ -289,9 +322,7 @@ class SummaryConstraint:
         assert self.value == other.value, f"Cannot merge constraints with different values: {self.value} and {other.value}"
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
-        assert (
-            self.quantile_value == other.quantile_value
-        ), f"Cannot merge constraints with different quantile_value: {self.quantile_value} and {other.quantile_value}"
+        assert (self.quantile_value == other.quantile_value), f"Cannot merge constraints with different quantile_value: {self.quantile_value} and {other.quantile_value}"
 
         if self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
@@ -429,10 +460,18 @@ class ValueConstraints:
         if constraints is None:
             constraints = dict()
 
+        raw_values_operators = (Op.MATCH, Op.NOMATCH)
+        self.raw_value_constraints = {}
+        self.coerced_type_constraints = {}
+
         if isinstance(constraints, list):
-            self.constraints = {constraint.name: constraint for constraint in constraints}
-        else:
-            self.constraints = constraints
+            constraints = {constraint.name: constraint for constraint in constraints}
+
+        for name, constraint in constraints.items():
+            if constraint.op in raw_values_operators:
+                self.raw_value_constraints.update({name: constraint})
+            else:
+                self.coerced_type_constraints.update({name: constraint})
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsgs) -> "ValueConstraints":
@@ -442,12 +481,17 @@ class ValueConstraints:
         return None
 
     def __getitem__(self, name: str) -> Optional[ValueConstraint]:
-        if self.contraints:
-            return self.constraints.get(name)
+        if self.raw_value_constraints:
+            constraint = self.raw_value_constraints.get(name)
+            if constraint:
+                return constraint
+        if self.coerced_type_constraints:
+            return self.coerced_type_constraints.get(name)
         return None
 
     def to_protobuf(self) -> ValueConstraintMsgs:
-        v = [c.to_protobuf() for c in self.constraints.values()]
+        v = [c.to_protobuf() for c in self.raw_value_constraints.values()]
+        v.extend([c.to_protobuf() for c in self.coerced_type_constraints.values()])
         if len(v) > 0:
             vcmsg = ValueConstraintMsgs()
             vcmsg.constraints.extend(v)
@@ -455,21 +499,29 @@ class ValueConstraints:
         return None
 
     def update(self, v):
-        for c in self.constraints.values():
+        for c in self.raw_value_constraints.values():
+            c.update(v)
+
+    def update_typed(self, v):
+        for c in self.coerced_type_constraints.values():
             c.update(v)
 
     def merge(self, other) -> "ValueConstraints":
-        if not other or not other.constraints:
+        if not other or not other.raw_value_constraints and not other.coerced_type_constraints:
             return self
 
-        merged_constraints = other.constraints.copy()
-        for name, constraint in self.constraints:
-            merged_constraints[name] = constraint.merge(other.constraints.get(name))
+        merged_constraints = other.raw_value_constraints.copy()
+        merged_constraints.update(other.coerced_type_constraints.copy())
+        for name, constraint in self.raw_value_constraints.items():
+            merged_constraints[name] = constraint.merge(other.raw_value_constraints.get(name))
+        for name, constraint in self.coerced_type_constraints.items():
+            merged_constraints[name] = constraint.merge(other.coerced_type_constraints.get(name))
 
         return ValueConstraints(merged_constraints)
 
     def report(self) -> List[tuple]:
-        v = [c.report() for c in self.constraints.values()]
+        v = [c.report() for c in self.raw_value_constraints.values()]
+        v.extend([c.report() for c in self.coerced_type_constraints.values()])
         if len(v) > 0:
             return v
         return None
@@ -608,6 +660,86 @@ def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, u
 
 def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
+
+
+def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
+    try:
+        value_set = set(value_set)
+    except Exception:
+        raise TypeError("The value set should be an iterable data type")
+
+    return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
+
+
+def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
+    if regex_pattern is not None:
+        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsEmailConstraint, depending on its complexity.")
+        email_pattern = regex_pattern
+    else:
+        email_pattern = (
+            r"^(?i)(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*"
+            r'|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|[\x01-\x09\x0b\x0c\x0e-\x7f])*")'
+            r"@"
+            r"(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)$"
+        )
+
+    return ValueConstraint(Op.MATCH, regex_pattern=email_pattern, verbose=verbose)
+
+
+def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
+    if regex_pattern is not None:
+        logger.warning(
+            "Warning: supplying your own regex pattern might cause slower evaluation of the containsCreditCardConstraint, depending on its complexity."
+        )
+        credit_card_pattern = regex_pattern
+    else:
+        credit_card_pattern = (
+            r"^(?:(4[0-9]{3}([\s-]?[0-9]{4}){2}[\s-]?[0-9]{1,4})"
+            r"|(?:(5[1-5][0-9]{2}([\s-]?[0-9]{4}){3}))"
+            r"|(?:(6(?:011|5[0-9]{2})([\s-]?[0-9]{4}){3}))"
+            r"|(?:(3[47][0-9]{2}[\s-]?[0-9]{6}[\s-]?[0-9]{5}))"
+            r"|(?:(3(?:0[0-5]|[68][0-9])[0-9][\s-]?[0-9]{6}[\s-]?[0-9]{4}))"
+            r"|(?:2131|1800|35[0-9]{2,3}([\s-]?[0-9]{4}){3}))$"
+        )
+
+    return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, verbose=verbose)
+
+
+def containsSSNConstraint(regex_pattern: "str" = None, verbose=False):
+    if regex_pattern is not None:
+        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsSSNConstraint, depending on its complexity.")
+        ssn_pattern = regex_pattern
+    else:
+        ssn_pattern = r"^(?!000|666|9[0-9]{2})[0-9]{3}[\s-]?(?!00)[0-9]{2}[\s-]?(?!0000)[0-9]{4}$"
+
+    return ValueConstraint(Op.MATCH, regex_pattern=ssn_pattern, verbose=verbose)
+
+
+def containsURLConstraint(regex_pattern: "str" = None, verbose=False):
+    if regex_pattern is not None:
+        logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsURLConstraint, depending on its complexity.")
+        url_pattern = regex_pattern
+    else:
+        url_pattern = (
+            r"^(?:http(s)?:\/\/)?((www)|(?:[a-zA-z0-9-]+)\.)"
+            r"(?:[-a-zA-Z0-9@:%._\+~#=]{1,256}\."
+            r"(?:[a-zA-Z0-9]{1,6})\b"
+            r"(?:[-a-zA-Z0-9@:%_\+.~#?&//=]*))$"
+        )
+
+    return ValueConstraint(Op.MATCH, regex_pattern=url_pattern, verbose=verbose)
+
+
+def stringLengthEqualConstraint(length: int, verbose=False):
+
+    length_pattern = f"^.{{{length}}}$"
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
+
+
+def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose=False):
+
+    length_pattern = rf"^.{{{lower_value},{upper_value}}}$"
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
 
 
 def quantileBetweenConstraint(quantile_value: Union[int, float], lower_value: Union[int, float], upper_value: Union[int, float], verbose: "bool" = False):
