@@ -322,7 +322,9 @@ class SummaryConstraint:
         assert self.value == other.value, f"Cannot merge constraints with different values: {self.value} and {other.value}"
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
-        assert (self.quantile_value == other.quantile_value), f"Cannot merge constraints with different quantile_value: {self.quantile_value} and {other.quantile_value}"
+        assert (
+            self.quantile_value == other.quantile_value
+        ), f"Cannot merge constraints with different quantile_value: {self.quantile_value} and {other.quantile_value}"
 
         if self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
