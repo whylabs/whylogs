@@ -4,7 +4,7 @@ from typing import List, Mapping, Optional, Union
 
 from google.protobuf.json_format import Parse
 
-from whylogs.core.summaryconverters import quantiles_from_sketch
+from whylogs.core.summaryconverters import single_quantile_from_sketch
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
@@ -256,29 +256,26 @@ class SummaryConstraint:
 
     @property
     def name(self):
+        if self.first_field == "quantile":
+            field_name = f"{self.first_field} {self.quantile_value}"
+        else:
+            field_name = self.first_field
+
         if self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
-            field_name = self.first_field
-            if self.first_field == "quantile":
-                field_name = f"{self.first_field} {self.quantile_value}"
             return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {lower_target} and {upper_target}"
 
-        return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
+        return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
     def update(self, update_dict: dict) -> bool:
         self.total += 1
-        summ = update_dict["number_summary"]
-        column_number_kll_sketch = update_dict["number_kll_sketch"]
 
         if self.first_field == "quantile":
-            quantile_summary = quantiles_from_sketch(column_number_kll_sketch, [self.quantile_value])
-            quantile_val = type("Object", (), {self.first_field: quantile_summary.quantile_values[0]})
-            result = self.func(quantile_val)
-        else:
-            result = self.func(summ)
+            kll_sketch = getattr(update_dict, self.first_field)
+            update_dict = single_quantile_from_sketch(kll_sketch, self.quantile_value)
 
-        if not result:
+        if not self.func(update_dict):
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")

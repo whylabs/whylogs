@@ -89,6 +89,28 @@ def quantiles_from_sketch(sketch: kll_floats_sketch, quantiles=None):
     )
 
 
+def single_quantile_from_sketch(sketch: kll_floats_sketch, quantile: float):
+    """
+    Calculate the specified quantile from a data sketch
+
+    Parameters
+    ----------
+    sketch : kll_floats_sketch
+        Data sketch
+    quantile : float
+        Override the default quantiles to a single quantile.  Should be a value from
+        0 to 1 inclusive.
+
+    Returns
+    ----------
+    Anonymous object with one filed equal to the quantile value
+    """
+    if quantile is None:
+        raise ValueError("The quantile value is required and should be of type float")
+    qval = sketch.get_quantiles([quantile])
+    return type("Object", (), {"quantile": qval[0]})
+
+
 def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int = None, avg_per_bucket: int = None):
     """
     Generate a summary of a kll_floats_sketch, including a histogram

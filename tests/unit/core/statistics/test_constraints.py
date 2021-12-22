@@ -65,7 +65,6 @@ def test_value_constraints(df_lending_club, local_config_path):
     report = dc.report()
 
     assert len(report) == 2
-    print(report)
     # make sure it checked every value
     for each_feat in report:
         for each_constraint in each_feat[1]:
@@ -97,7 +96,6 @@ def test_value_constraints_pattern_match(df_lending_club, local_config_path):
     report = dc.report()
     # checks there are constraints for 3 features
     assert len(report) == 3
-    print(report)
     # make sure it checked every value
     for each_feat in report:
         for each_constraint in each_feat[1]:
@@ -229,7 +227,6 @@ def _apply_between_summary_constraint_on_dataset(df_lending_club, local_config_p
     session.close()
     report = profile.apply_summary_constraints()
 
-    print(report)
     assert len(report) == 2
 
     # make sure it checked every value
@@ -452,7 +449,6 @@ def test_serialization_deserialization_quantile_between_constraint():
     qc1.from_protobuf(qc1.to_protobuf())
     json_value = json.loads(message_to_json(qc1.to_protobuf()))
 
-    print(json_value)
     assert json_value["name"] == f"summary quantile 0.5 {Op.Name(Op.BTWN)} 1.24 and 6.63"
     assert json_value["firstField"] == "quantile"
     assert json_value["op"] == Op.Name(Op.BTWN)
