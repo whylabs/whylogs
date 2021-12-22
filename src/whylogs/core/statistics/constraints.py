@@ -3,7 +3,7 @@ import json
 import logging
 import numbers
 import re
-from typing import Any, List, Mapping, Optional, Set
+from typing import Any, List, Mapping, Optional, Set, Union
 
 import jsonschema
 from datasketches import theta_a_not_b, update_theta_sketch
@@ -28,67 +28,74 @@ from whylogs.util.protobuf import message_to_json
 logger = logging.getLogger(__name__)
 
 
-def _is_strftime_format(strftime_val, format):
+def _try_parse_strftime_format(strftime_val: str, format: str) -> Optional[datetime.datetime]:
     """
     Return whether the string is in a strftime format.
 
     :param strftime_val: str, string to check for date
     :param format: format to check if strftime_val can be parsed
+    :return None if not parseable, otherwise the parsed datetime.datetime object
 
     """
+    parsed = None
     try:
-        datetime.datetime.strptime(strftime_val, format)
-    except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
-        return False
-    return True
+        parsed = datetime.datetime.strptime(strftime_val, format)
+    except (ValueError, TypeError):
+        pass
+    return parsed
 
 
-def _is_dateutil_parseable(dateutil_val, ref_val=None):
+def _try_parse_dateutil(dateutil_val: str, ref_val=None) -> Optional[datetime.datetime]:
     """
     Return whether the string can be interpreted as a date.
 
     :param dateutil_val: str, string to check for date
-    :param ref_val: any, not used, architecture design requirement
+    :param ref_val: any, not used, interface design requirement
+    :return None if not parseable, otherwise the parsed datetime.datetime object
 
     """
+    parsed = None
     try:
-        parse(dateutil_val)
-    except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
-        return False
-    return True
+        parsed = parse(dateutil_val)
+    except (ValueError, TypeError):
+        pass
+    return parsed
 
 
-def _is_json_parseable(json_string, ref_val=None):
+def _try_parse_json(json_string: str, ref_val=None) -> Optional[dict]:
     """
     Return whether the string can be interpreted as json.
 
     :param json_string: str, string to check for json
-    :param ref_val: any, not used, architecture design requirement
+    :param ref_val: any, not used, interface design requirement
+    :return None if not parseable, otherwise the parsed json object
     """
+    parsed = None
     try:
-        json.loads(json_string)
-    except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
-        return False
-    return True
+        parsed = json.loads(json_string)
+    except (ValueError, TypeError):
+        pass
+    return parsed
 
 
-def _matches_json_schema(json_data, json_schema):
+def _matches_json_schema(json_data: Union[str, dict], json_schema: Union[str, dict]) -> bool:
     """
     Return whether the provided json matches the provided schema.
 
     :param json_data: json object to check
     :param json_schema: schema to check if the json object matches it
+    :return True if the json data matches the schema, False otherwise
     """
     if isinstance(json_schema, str):
         try:
             json_schema = json.loads(json_schema)
-        except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
+        except (ValueError, TypeError):
             return False
 
     if isinstance(json_data, str):
         try:
             json_data = json.loads(json_data)
-        except (ValueError, TypeError):  # bad practice, but if it throws an exception of any kind, can not be parsed
+        except (ValueError, TypeError):
             return False
 
     try:
@@ -197,16 +204,10 @@ class ValueConstraint:
 
         if self.op == Op.APPLY_FUNC:
             if value is not None:
-                if not isinstance(value, str):
-                    if apply_function == globals()["_matches_json_schema"]:
-                        try:
-                            value = json.dumps(value)
-                        except (ValueError, TypeError):
-                            raise ValueError("Json schema ivalid. When matching json schema, the schema provided must be valid")
-                    else:
-                        value = str(value)
+                value = self.apply_func_validate(value)
                 self.value = value
             self.func = _value_funcs[op](apply_function, value)
+
         elif value is not None and regex_pattern is None:
             # numeric value
             self.value = value
@@ -238,6 +239,17 @@ class ValueConstraint:
             self.failures += 1
             if self._verbose:
                 logger.info(f"value constraint {self.name} failed on value {v}")
+
+    def apply_func_validate(self, value) -> str:
+        if not isinstance(value, str):
+            if self.apply_function == _matches_json_schema:
+                try:
+                    value = json.dumps(value)
+                except (ValueError, TypeError):
+                    raise ValueError("Json schema invalid. When matching json schema, the schema provided must be valid.")
+            else:
+                value = str(value)
+        return value
 
     def merge(self, other) -> "ValueConstraint":
         if not other:
@@ -886,11 +898,11 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
 
 
 def dateUtilParseableConstraint(verbose=False):
-    return ValueConstraint(Op.APPLY_FUNC, apply_function=_is_dateutil_parseable, verbose=verbose)
+    return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_dateutil, verbose=verbose)
 
 
 def jsonParseableConstraint(verbose=False):
-    return ValueConstraint(Op.APPLY_FUNC, apply_function=_is_json_parseable, verbose=verbose)
+    return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_json, verbose=verbose)
 
 
 def matchesJsonSchemaConstraint(json_schema, verbose=False):
@@ -898,4 +910,4 @@ def matchesJsonSchemaConstraint(json_schema, verbose=False):
 
 
 def strftimeFormatConstraint(format, verbose=False):
-    return ValueConstraint(Op.APPLY_FUNC, format, apply_function=_is_strftime_format, verbose=verbose)
+    return ValueConstraint(Op.APPLY_FUNC, format, apply_function=_try_parse_strftime_format, verbose=verbose)

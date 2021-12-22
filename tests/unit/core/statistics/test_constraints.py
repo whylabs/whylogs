@@ -11,11 +11,11 @@ from whylogs.core.statistics.constraints import (
     Op,
     SummaryConstraint,
     ValueConstraint,
-    _is_dateutil_parseable,
-    _is_json_parseable,
-    _is_strftime_format,
     _matches_json_schema,
     _summary_funcs1,
+    _try_parse_dateutil,
+    _try_parse_json,
+    _try_parse_strftime_format,
     _value_funcs,
     columnValuesInSetConstraint,
     containsCreditCardConstraint,
@@ -804,10 +804,12 @@ def test_apply_func_value_constraints(local_config_path):
     report = _apply_apply_func_constraints(local_config_path, apply_constraints)
 
     # report[column_n][report_list][report][name total or failure]
-    assert report[0][1][0][1] == 30 and report[0][1][0][2] == 21 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_dateutil_parseable.__name__}"
-    assert report[0][1][1][1] == 30 and report[0][1][1][2] == 25 and report[0][1][1][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_json_parseable.__name__}"
+    assert report[0][1][0][1] == 30 and report[0][1][0][2] == 21 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_dateutil.__name__}"
+    assert report[0][1][1][1] == 30 and report[0][1][1][2] == 25 and report[0][1][1][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_json.__name__}"
     assert report[0][1][2][1] == 30 and report[0][1][2][2] == 22 and report[0][1][2][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_matches_json_schema.__name__}"
-    assert report[0][1][3][1] == 30 and report[0][1][3][2] == 27 and report[0][1][3][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_strftime_format.__name__}"
+    assert (
+        report[0][1][3][1] == 30 and report[0][1][3][2] == 27 and report[0][1][3][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_strftime_format.__name__}"
+    )
 
 
 def test_apply_func_merge():
