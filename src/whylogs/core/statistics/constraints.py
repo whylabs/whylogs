@@ -368,10 +368,7 @@ class SummaryConstraint:
 
     def update(self, update_dict: dict) -> bool:
         self.total += 1
-        summ = update_dict["number_summary"]
-        column_string_theta = update_dict["string_theta"]
-        column_number_theta = update_dict["number_theta"]
-        result = False
+
         if self.first_field == "quantile":
             kll_sketch = getattr(update_dict, self.first_field)
             quantile_value = single_quantile_from_sketch(kll_sketch, self.quantile_value)
@@ -379,12 +376,12 @@ class SummaryConstraint:
         elif self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             result = all(
                 [
-                    _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta),
-                    _summary_funcs1[self.op](self.numbers_theta_sketch)(column_number_theta),
+                    _summary_funcs1[self.op](self.string_theta_sketch)(update_dict.string_theta),
+                    _summary_funcs1[self.op](self.numbers_theta_sketch)(update_dict.number_theta),
                 ]
             )
         else:
-            result = self.func(summ)
+            result = self.func(update_dict)
 
         if not result:
             self.failures += 1
