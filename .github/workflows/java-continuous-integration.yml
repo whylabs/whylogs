@@ -17,9 +17,7 @@ jobs:
         working-directory: java
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: true
-       - name: Change to Java dir
+      - name: Change to Java dir
         run: |
           echo $(pwd)
       - name: Setup Java 8
