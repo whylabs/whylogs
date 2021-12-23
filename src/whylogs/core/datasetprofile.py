@@ -691,6 +691,8 @@ class DatasetProfile:
 
                 update_dict = _create_update_summary_dictionary(
                     number_summary=summ.number_summary,
+                    string_theta=colprof.string_tracker.theta_sketch.theta_sketch,
+                    number_theta=colprof.number_tracker.theta_sketch.theta_sketch,
                     quantile=colprof.number_tracker.histogram,
                 )
 
