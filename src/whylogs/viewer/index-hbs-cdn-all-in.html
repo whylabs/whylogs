@@ -327,7 +327,6 @@
 
       .wl-table-cell,
       .wl-table-head {
-        border-right: 1px solid var(--brandSecondary200);
         border-bottom: 1px solid var(--brandSecondary200);
         display: table-cell;
         padding: 12px 18px;
@@ -438,7 +437,7 @@
       }
 
       .wl-property-panel__chart--single {
-        padding-bottom: 30px;
+        padding-bottom: 17px;
       }
 
       .wl-property-panel__chart-title {
@@ -666,6 +665,246 @@
         color: var(--brandSecondary900);
         line-height: 1.5;
       }
+
+      .wl__unlock-the-power {
+        padding: 15px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999999;
+        background: #F1F6F6;
+        margin-bottom: 0 !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        -webkit-box-shadow: 0px -6px 13px 0px rgba(0,0,0,0.32); 
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.05);
+        width: var(--SIDE-PANEL-WIDTH);
+      }
+
+      .wl__btn-signup {
+        font-size: 13px;
+      }
+
+      .wl__close-icon {
+        width: 15px;
+        height: 15px;
+      }
+  
+      .wl__close-icon img{
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+  
+      .count-color {
+        color: black;
+      }
+  
+      .wl__burger_icon {
+        width: 18px;
+        height: 16px;
+      }
+
+     .wl__burger_icon img{
+       width: 100%;
+       height: 100%;
+       cursor: pointer;
+     }
+  
+     .space-between {
+       display: flex;
+       justify-content: space-between;
+     }
+  
+     .align-items {
+       display: flex;
+       align-items: center;
+     }
+  
+     .display-flex{
+       display: flex;
+     }
+  
+     .feature-count-title {
+       font-size: 22px;
+     } 
+  
+     .wl_filter-options {
+       background: rgba(255, 255, 255, 0.5);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       padding: 10px;
+     }
+  
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+  
+     .form-check-input[type=checkbox] {
+       border-radius: 1.25em;
+     }
+  
+     .not-clickable {
+       pointer-events: none;
+     }
+  
+     .wl_arrow-icon {
+       width: 15px;
+       height: 15px;
+     }
+  
+     .arrow-icon-container {
+       height: 100%;
+       cursor: pointer;
+     }
+  
+     .wl_list-item-dot {
+       background: #b0d2d7;
+       width: 8px;
+       height: 8px;
+       border-radius: 50px;
+     }
+  
+     .wl_filter-list-item {
+       display: flex;
+       align-items: center;
+     }
+  
+     .wl_filter-list-item>span{
+       padding-left: 15px;
+     }
+  
+     .table-border-none {
+       border: none;
+     }
+  
+     .clickable-test-feature-wrap {
+       background: #F8FAFB;
+     }
+  
+     .clickable-test-feature-heading {
+       display: flex;
+       flex-direction: column;
+     }
+  
+     .clickable-test-feature-heading-wrap {
+       padding: 35px;
+       padding-bottom: 0;
+       border-bottom: 2px solid #EBF2F3;
+     }
+  
+     .pages-button-wrap {
+       display: flex;
+       align-items: flex-end;
+     }
+  
+     .page-button-wrap {
+      padding-right: 60px;
+     }
+  
+     .page-button{
+       border: none;
+       background: no-repeat;
+       color: #6C757D;
+       font-weight: 600;
+       font-size: 16px;
+       letter-spacing: -0.01em;
+       padding-bottom: 25px;
+     }
+  
+     .activ-pages-button{
+       color: #369BAC !important;
+       border-bottom: 4px solid #369BAC !important;
+       padding-bottom: 21px !important;
+     }
+  
+     .title p {
+      font-weight: 600;
+      font-size: 24px;
+      color: #313B3D;
+     }
+  
+     .info p {
+      font-weight: 600;
+      font-size: 12px;
+      color: #313B3D;
+     }
+  
+     .info div {
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 20px;
+      color: #0E7384;
+     }
+  
+     .chart, .info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding-right: 20px;
+     }
+  
+     .info:last-child {
+       padding: 0;
+     }
+  
+     .clickable-test-feature-body {
+       display: flex;
+       flex-direction: column;
+     }
+  
+     .chart-box-wrap {
+       display: flex;
+       justify-content: center;
+     }
+  
+     .chart-box {
+      width: 75%;
+      height: 310px;
+      border: 2px solid #EBF2F3;
+      background: #FFF;
+      border-radius: 4px;
+     }
+  
+     .chart-info-wrap {
+       display: flex;
+       align-items: flex-end;
+     }
+  
+     .chart-info {
+       display: flex;
+       align-items: flex-end;
+     }
+  
+ 
+     @media only screen and (min-width: 1350px) {
+       .clickable-test-feature-body {
+         display: flex;
+         flex-direction: row;
+         flex-wrap: wrap;
+         justify-content: center;
+         row-gap: 20px;
+         column-gap: 20px;
+       }
+ 
+       .chart-box-wrap {
+         width: 45%;
+         display: flex;
+         justify-content: center;
+         margin-bottom: 0 !important;
+       }
+ 
+       .chart-box {
+         width: 100%;
+         height: 310px;
+         border: 2px solid #EBF2F3;
+         background: #FFF;
+         border-radius: 4px;
+       }
+     } 
     </style>
   </head>
 
@@ -689,12 +928,12 @@
                       rel="noreferrer noopener"
                     >
                       <svg
-                        width="145"
-                        height="21.37"
-                        viewBox="0 0 145 21.37"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                          width="145"
+                          height="21.37"
+                          viewBox="0 0 145 21.37"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          xmlns:xlink="http://www.w3.org/1999/xlink"
                       >
                         <rect width="145" height="21.37" fill="url(#pattern0)"></rect>
                         <defs>
@@ -716,98 +955,163 @@
             </div>
           </div>
         </nav>
-
         <div class="container-fluid">
           <div class="row">
+          <div class="sidebar-wrap">
             <div class="sidebar">
               <div id="sidebar-content">
-                <div class="sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
-                  <strong>Unlock the power of WhyLabs:</strong>
-                  <ul class="small mt-1 mb-3">
-                    <li>Generate an API token to upload and save profiles to the platform</li>
-                    <li>Analyze and compare profiles to identify data drift and other anomalies</li>
-                    <li>Turn on monitoring with a single click, no manual set up required!</li>
-                    <li>Get alerted in real time when data and model health issues arise</li>
-                  </ul>
-                  <a
-                    class="btn btn-warning btn-signup"
-                    target="_blank"
-                    href="http://bit.ly/whylogs-to-whylabs-free-signup"
-                  >Get started for free</a>
+                <div id="total-feature-count">
+                  <div class="feature-count-title space-between">
+                    <div class="mb-3">
+                      <strong class="feature-count count-color mb-3 wl__feature-count">{{getTotalFeatureCount}}</strong>
+                      <strong>features</strong>
+                    </div>
+                    <div class="wl__burger_icon">
+                      <img onclick="openFilter()" src='./images/sliders-h.png'
+                        id="burger_icon"/>
+                      <img class="d-none not-clickable" src='./images/sliders-h (1).png' 
+                        id="not_clickable_burger_icon"/>
+                    </div>
+                  </div>
                 </div>
-                <div class="d-none sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
-                  <strong>Profile</strong>
-                  <h5 class="mt-1 wl__selected-profile">2020-02-26 12:23:32 PM PST</h5>
+                <div class="mb-4">
+                  <div class="mb-3 wl_filter-options filter-options d-none">
+                    <div class="space-between">
+                      <strong>Filter by type</strong>
+                    <div class="wl__close-icon" id="filter-close-icon">
+                      <img onclick="closeFilter()" src='./images/times (1).png'/>
+                    </div>
+                  </div>
+                  <div class="form-check mb-1 mt-2">
+                    <input
+                      class="form-check-input wl__feature-filter-input"
+                      type="checkbox"
+                      value="Discrete"
+                      id="inferredDiscrete"
+                      onclick="changeDiscreteValue()"
+                      checked
+                    />
+                    <label class="form-check-label" for="inferredDiscrete">
+                      Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                    </label>
+                  </div>
+                  <div class="form-check mb-1">
+                    <input
+                      class="form-check-input wl__feature-filter-input"
+                      type="checkbox"
+                      value="Non-discrete"
+                      id="inferredNonDiscrete"
+                      onclick="changeNonDiscreteValue()"
+                      checked
+                    />
+                    <label class="form-check-label" for="inferredNonDiscrete">
+                      Inferred non-discrete (<span
+                        class="wl__feature-count--non-discrete"
+                      >{{getNonDiscreteTypeCount}}</span>)
+                    </label>
+                  </div>
+                  <div class="form-check mb-1">
+                    <input
+                      class="form-check-input wl__feature-filter-input"
+                      type="checkbox"
+                      value="Unknown"
+                      id="inferredUnknown"
+                      onclick="changeUnknwonValue()"
+                      checked
+                    />
+                    <label class="form-check-label" for="inferredUnknown">
+                      Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                    </label>
+                  </div>
                 </div>
-
-                <div class="mb-3">
-                  <label for="wl__feature-search" class="form-label"><strong>Find feature</strong></label>
-                  <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
-                </div>
-
-                <strong>Total features</strong>
-                <h1 class="feature-count mb-3 wl__feature-count">{{getTotalFeatureCount}}</h1>
-
-                <strong>Filter features by type</strong>
-                <div class="form-check mb-1 mt-2">
-                  <input
-                    class="form-check-input wl__feature-filter-input"
-                    type="checkbox"
-                    value="Discrete"
-                    id="inferredDiscrete"
-                    onclick="changeDiscreteValue()"
-                    checked
-                  />
-                  <label class="form-check-label" for="inferredDiscrete">
-                    Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
-                  </label>
-                </div>
-
-                <div class="form-check mb-1">
-                  <input
-                    class="form-check-input wl__feature-filter-input"
-                    type="checkbox"
-                    value="Non-discrete"
-                    id="inferredNonDiscrete"
-                    onclick="changeNonDiscreteValue()"
-                    checked
-                  />
-                  <label class="form-check-label" for="inferredNonDiscrete">
-                    Inferred non-discrete (<span
-                      class="wl__feature-count--non-discrete"
-                    >{{getNonDiscreteTypeCount}}</span>)
-                  </label>
-                </div>
-                <div class="form-check mb-4">
-                  <input
-                    class="form-check-input wl__feature-filter-input"
-                    type="checkbox"
-                    value="Unknown"
-                    id="inferredUnknown"
-                    onclick="changeUnknwonValue()"
-                    checked
-                  />
-                  <label class="form-check-label" for="inferredUnknown">
-                    Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
-                  </label>
-                </div>
-                <strong>Feature list</strong>
-                <p class="small mt-1">Click on features to scroll into view</p>
-                <div class="mt-3">
-                  <ul
-                    id="feature-list"
-                    class="nav list-group list-group-flush wl__sidebar-feature-name-list"
-                  >{{{getFeatureList}}}</ul>
-                </div>
+                <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
+              </div>
+              <div class="mt-3">
+                <ul
+                  id="feature-list"
+                  class="nav list-group list-group-flush wl__sidebar-feature-name-list"
+                >{{{getFeatureList}}}</ul>
               </div>
             </div>
-
+          </div>
+          <div class="wl__unlock-the-power sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
+            <div class="sign-up-text">
+              <div class="space-between align-items">
+                <strong>Unlock the power of WhyLabs:</strong>
+                <div class="wl__close-icon" id="close-icon">
+                  <img onclick="closeSignUpText()" src="./images/times.png"/>
+                </div>
+              </div>
+              <ul class="small mt-1 mb-3">
+                <li>Generate an API token to upload and save profiles to the platform</li>
+                <li>Analyze and compare profiles to identify data drift and other anomalies</li>
+                <li>Turn on monitoring with a single click, no manual set up required!</li>
+                <li>Get alerted in real time when data and model health issues arise</li>
+              </ul>
+            </div>
+            <a
+              class="btn btn-warning wl__btn-signup btn-signup"
+              target="_blank"
+              href="http://bit.ly/whylogs-to-whylabs-free-signup"
+              >Sign up for a free WhyLabs account</a
+            >
+          </div>
+          </div>
             <div class="main">
+              <div class="d-none clickable-test-feature-wrap">
+                <div class="clickable-test-feature">
+                  <div class="clickable-test-feature-heading-wrap mb-5">
+                    <div class="clickable-test-feature-heading">
+                      <div class="title-wrap space-between">
+                        <div class="title">
+                          <p>Clickable test feature</p>
+                        </div>
+                        <div class="close-icon" onclick="closeFeatureHeading()">
+                          <img src="./images/times.png"/>
+                        </div>
+                      </div>
+                      <div class="clickable-test-feature-heading-pages-wrap space-between">
+                        <div class="pages-button-wrap display-flex">
+                          <div class="page-button-wrap">
+                            <button class="page-button">Compare to ref</button>
+                          </div>
+                          <div class="page-button-wrap">
+                            <button class="page-button">Frequent items</button>
+                          </div>
+                        </div>
+                        <div class="chart-info-wrap">
+                          <div class="chart" id="chart"></div>
+                          <div class="chart-info"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="clickable-test-feature-body-wrap">
+                    <div class="clickable-test-feature-body">
+                      <div class="chart-box-wrap mb-4">
+                        <div class="chart-box"></div>
+                      </div>
+                      <div class="chart-box-wrap mb-4">
+                        <div class="chart-box"></div>
+                      </div>
+                      <div class="chart-box-wrap mb-4">
+                        <div class="chart-box"></div>
+                      </div>
+                      <div class="chart-box-wrap mb-4">
+                        <div class="chart-box"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+               </div>
               <div class="wl-table-wrap" id="table-content">
                 <div class="wl-table">
                   <div class="wl-table-heading">
                     <div class="wl-table-row wl-table-row--bottom-shadow">
-                      <div class="wl-table-head">Feature</div>
+                      <div class="wl-table-head">
+                        <div class="wl-table-head table-border-none">Feature</div>
+                        <div class="wl-table-head table-border-none reference-table-head">Reference</div>
+                      </div>
                       <div class="wl-table-head">Frequent items</div>
                       <div class="wl-table-head">Inf. feature type</div>
                       <div class="wl-table-head text-end">Total count</div>
@@ -824,26 +1128,29 @@
                       <div class="wl-table-head text-end">Max</div>
                     </div>
                   </div>
-
                   <ul class="wl-table-body wl__table-body" id="table-body">
                     {{#each this.columns}}
                     <li
-
                     {{#if this.numberSummary}} class="wl-table-row wl-table-row--clickable" {{else}} class="wl-table-row" {{/if}}
-
                     data-feature-name={{@key}}
                     data-inferred-type={{inferredType this}}
                     data-scroll-to-feature-name={{@key}}
-                    >
+                  >
                       <div class="wl-table-cell">
                         <div class="wl-table-cell__title-wrap">
                           <h4 class="wl-table-cell__title">{{@key}}</h4>
-                          <button class="wl-table-cell__title-button" onclick="openPropertyPanel('{{json this}}', '{{inferredType this}}', '{{getPropertyPanelGraphHtml this}}')"
+                          <button class="wl-table-cell__title-button" onclick="openPropertyPanel('{{@key}}', '{{json this}}', '{{inferredType this}}', '{{getPropertyPanelGraphHtml this}}')"
                             type="button"
-                          >View details</button></div>
-                        <div class="wl-table-cell__graph-wrap"><div>
+                          >View details</button>
+                        </div>
+                        <div class="wl-table-cell__graph-wrap">
+                          <div class="display-flex">
                             {{{getGraphHtml this}}}
-                          </div></div></div><div
+                            {{{getReferenceGraphHtml this}}}
+                          </div>
+                        </div>
+                      </div>
+                      <div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle"
                         style="max-width: 270px; padding-right: 18px"
                       > <div class="wl-table-cell__bedge-wrap">{{{frequentItems this}}}</div></div><div
@@ -876,7 +1183,6 @@
                     </li>
                     {{/each}}
                   </ul>
-
                   <div class="wl-property-panel">
                     <button type="button" class="wl-property-panel__button btn-close" onclick="handleClosePropertyPanel()" aria-label="Close"></button>
 
@@ -903,7 +1209,6 @@
           </div>
         </div>
       </div>
-
       <div class="no-responsive">
         <div class="no-responsive__content">
           <h1 class="no-responsive__title">Hold on! :)</h1>
@@ -928,7 +1233,7 @@
         return parseFloat(number).toFixed(decimals);
       }
 
-      function generateChart(data, height = 75, width = 350) {
+      function generateChart(data, height = 75, width = 350, referenceProfile = false) {
         const MARGIN = {
           TOP: 5,
           RIGHT: 5,
@@ -955,10 +1260,12 @@
           .range([CHART_HEIGHT, 0]);
 
         // Add the y Axis
-        svgEl
-          .append("g")
-          .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
-          .call(d3.axisLeft(yScale).tickValues([0, maxYValue]));
+        if (!referenceProfile) {
+             svgEl
+            .append("g")
+            .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
+            .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]));
+        }
 
         const gChart = svgEl.append("g");
         gChart
@@ -975,6 +1282,48 @@
 
         return svgEl._groups[0][0].outerHTML;
       }
+
+      function graph(column, key, referenceColumn) {
+        let data = [];
+        const columnKey = key.data.key
+        let chartValue = false
+        if(!!referenceColumn){
+          column = referenceColumn.columns[columnKey]
+          chartValue = true
+        } else if (referenceColumn === undefined) {
+          column = ""
+        }
+
+        if (column.numberSummary) {
+          if (column.numberSummary.isDiscrete) {
+            column.frequentItems.items.forEach((item, index) => {
+              data.push({
+                axisY: item.estimate,
+                axisX: index,
+              });
+            });
+          } else {
+            column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+              data.push({
+                axisY: count,
+                axisX: index,
+              });
+            });
+          }
+        } else if (column.numberSummary === undefined && referenceColumn === null ) {
+            return '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>';
+        } else if (referenceColumn === undefined) {
+            $(document).ready(function() { 
+              $(".reference-table-head").addClass("d-none")
+            });
+            return ''
+        } else if (referenceColumn.frequentItems === undefined){
+            return '';
+        }
+        return generateChart(data, ...[,,], chartValue);
+      }
+
+      const profileFromCSVfile = {{{reference_profile}}}
 
       Handlebars.registerHelper("json", function (context) {
         return JSON.stringify(context);
@@ -1103,7 +1452,15 @@
             }
           }
 
-          featureListHTML += `<li class="list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${inferredType}"><span data-feature-name-id="${feature[0]}" >${feature[0]}</span></li>`;
+          featureListHTML += `   
+            <li id="filter-list-item" class="wl_filter-list-item list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${inferredType}">
+              <div class="arrow-icon-container">
+                <div class="wl_list-item-dot"></div>
+                <img class="d-none wl_arrow-icon" src="./images/arrow-circle-right.png"/>
+              </div>
+              <span data-feature-name-id="${feature[0]}" >${feature[0]}</span>
+            </li>
+          `;
         });
 
         return featureListHTML;
@@ -1142,41 +1499,30 @@
         return count;
       });
 
-      Handlebars.registerHelper("getGraphHtml", function (column) {
-        let data = [];
+      Handlebars.registerHelper("getGraphHtml",(column,key) => graph(column, key, null));
+      Handlebars.registerHelper("getReferenceGraphHtml",(column,key) => graph(column, key, profileFromCSVfile));
 
-        if (column.numberSummary) {
-          if (column.numberSummary.isDiscrete) {
-            column.frequentItems.items.forEach((item, index) => {
-              data.push({
-                axisY: item.estimate,
-                axisX: index,
-              });
-            });
-          } else {
-            column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
-              data.push({
-                axisY: count,
-                axisX: index,
-              });
-            });
-          }
-        } else {
-          return '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>';
-        }
-
-        return generateChart(data);
-      });
-
-      Handlebars.registerHelper("getPropertyPanelGraphHtml", function (column) {
+      Handlebars.registerHelper("getPropertyPanelGraphHtml", function (column, key) {
         let chartString = "";
-        const freqChart = (chart) =>
-          `<div class="wl-property-panel__chart--single"><div class="wl-property-panel__chart-title">Frequent Items Data</div>${chart}</div>`;
-        const histChart = (chart) =>
-          `<div class="wl-property-panel__chart--single"><div class="wl-property-panel__chart-title">Histogram Data</div>${chart}</div>`;
-
+        const columnKey = key.data.key
+        let chartValue = false;
+        let chartHeight = 130;
+        let chartWidth = undefined;
+        const chartTitle = `<div class="wl-property-panel__chart-title">Histogram Data</div>`
         const freqData = [];
         const histData = [];
+
+        if (!!profileFromCSVfile) {
+          column = profileFromCSVfile.columns[columnKey]
+          chartValue = true;
+          chartHeight = 50;
+          chartWidth = 280;
+        }
+
+        const freqChart = (chart) =>
+          `<div class="wl-property-panel__chart--single">${!chartValue ? chartTitle : ""}${chart}</div>`;
+        const histChart = (chart) =>
+          `<div class="wl-property-panel__chart--single"><div class="wl-property-panel__chart-title">Histogram Data</div>${chart}</div>`;
 
         if (column.numberSummary) {
           if (column.frequentItems && column.frequentItems.items) {
@@ -1198,17 +1544,24 @@
           }
 
           if (column.numberSummary.isDiscrete) {
-            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, 130));
-            if (histData.length > 0) chartString += histChart(generateChart(histData, 130));
+            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, chartValue));
+            if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130));
           } else {
-            if (histData.length > 0) chartString += histChart(generateChart(histData, 130));
-            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, 130));
+            if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130));
+            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, chartValue));
           }
         }
-
         return chartString;
       });
     }
+
+    function sidebarContentHeight(params) {
+        const $sidebarContentPadding = +$("#sidebar-content-single-profile").css("padding").replace('px','') * 2
+        const $sidebarContentHeight = $("#sidebar-content-single-profile").height() + $sidebarContentPadding
+        const $sidebar = $(".sidebar")
+        
+        $sidebar.css("margin-bottom", `${$sidebarContentHeight}px`)
+      }
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
@@ -1238,6 +1591,8 @@
         unknown: true,
       };
       let searchString = "";
+
+      sidebarContentHeight()
 
       function handleSearch() {
         const featureListChildren = $sidebarFeatureNameList.children;
@@ -1339,12 +1694,117 @@
       });
     }
 
-    function openPropertyPanel(column, infType, chart) {
-      $("#wl-property-panel__chart").html(chart);
+    function openFilter() {
+      const $notClickableBurgerIcon = $("#not_clickable_burger_icon")
+      const $filterOptions = $(".filter-options");
+      const $burgerIcon = $("#burger_icon")
+
+      $filterOptions.removeClass("d-none");
+      $burgerIcon.addClass("d-none");
+      $notClickableBurgerIcon.removeClass("d-none");
+    }
+
+    function closeFilter() {
+      const $notClickableBurgerIcon = $("#not_clickable_burger_icon")
+      const $filterOptions = $(".filter-options");
+      const $burgerIcon = $("#burger_icon")
+
+      $filterOptions.addClass("d-none");
+      $burgerIcon.removeClass("d-none");
+      $notClickableBurgerIcon.addClass("d-none");
+    }
+
+    function closeSignUpText() {
+      const $signUpText = $(".sign-up-text")
+
+      $signUpText.addClass("d-none");
+      sidebarContentHeight()
+    }
+    
+    $(document).on("click", ".js-list-group-item span", function (e) {
+      const listItem = $("li>span"),
+        listItemIndex = listItem.index(e.target),
+        $listItemDot = $(".wl_list-item-dot")[listItemIndex],
+        $arrowIcon = $(".wl_arrow-icon")[listItemIndex]
+      
+      listItem.css("padding-left", "15px")
+      $(".wl_list-item-dot").removeClass("d-none")
+      $(".wl_arrow-icon").addClass("d-none")
+      $($arrowIcon).removeClass("d-none")
+      $($listItemDot).addClass("d-none")
+      $(listItem[listItemIndex]).css("padding-left", "8px")
+    })
+
+    function fixNumberTo(number, decimals = 3) {
+      return parseFloat(number).toFixed(decimals);
+    }
+    
+    const getReferenceProfile = () => { return {{{reference_profile}}} }
+
+    function openReferencePropertyPanel(
+      chart, 
+      propertyPanelData,
+      infType
+    ) {
 
       const $propertyPanelTitle = $(".wl-property-panel__title");
       const $propertyPanelProfileName = $(".wl-property-panel__table-th-profile");
-      const feature = JSON.parse(column);
+      const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
+      const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
+      const chipElementEstimation = (count) =>
+        `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
+      let chipString = ""
+
+      $("#wl-property-panel__chart").html(chart);
+          propertyPanelData.forEach((item) => {
+          chipString += `
+            <tr class="wl-property-panel__table-tr">
+              ${chipElementTableData(item.value)}
+              ${chipElementEstimation(item.count)}
+            </tr>`;
+          });
+         $(".wl-property-panel__frequent-items").html(chipString);
+
+         if (infType === "Non-discrete") {
+           $propertyPanelTitle.html("Histogram data:");
+           $propertyPanelProfileName.html("Bin values");
+         } else if (infType === "Discrete") {
+           $propertyPanelTitle.html("Frequent items:");
+           $propertyPanelProfileName.html("Counts");
+         }
+
+         $(".wl-property-panel").addClass("wl-property-panel--open");
+         $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
+    }
+
+    function openProfilePropertyPanel(chart, feature) {
+      const chartInfoItem = (drift, driftName) => `    
+        <div class="info">
+            <div>${drift}</div>
+            <p>${driftName}</p>
+        </div>
+      `
+      const $tableContent = $("#table-content");
+      const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap");
+      const $pagesButtons = $(".page-button");
+      const $pagesButton = $pagesButtons[0];
+      let chipString = "";
+
+      $pagesButtons.removeClass("activ-pages-button")
+        $($pagesButton).addClass("activ-pages-button")
+        $tableContent.addClass("d-none")
+        $clickableTestFeatureWrap.removeClass("d-none")
+
+        $("#chart").html(chart);
+        chipString += `
+          ${chartInfoItem(fixNumberTo(feature.numberSummary.stddev), "Drift from ref")}
+          ${chartInfoItem(feature.numberSummary.count.toString(), "Total Count")}
+          ${chartInfoItem(fixNumberTo(feature.numberSummary.mean), "Mean")}
+        `
+        $(".chart-info").html(chipString);
+    }
+
+    function getPropertyPanelData(feature) {
       let propertyPanelData = [];
 
       if (feature.numberSummary) {
@@ -1366,32 +1826,48 @@
           }, []);
         }
       }
-      let chipString = "";
-      const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
-      const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
-      const chipElementEstimation = (count) =>
-        `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
+      return propertyPanelData
+    } 
 
-      propertyPanelData.forEach((item) => {
-        chipString += `
-      <tr class="wl-property-panel__table-tr">
-        ${chipElementTableData(item.value)}
-        ${chipElementEstimation(item.count)}
-      </tr>
-      `;
-      });
-      $(".wl-property-panel__frequent-items").html(chipString);
-      if (infType === "Non-discrete") {
-        $propertyPanelTitle.html("Histogram data:");
-        $propertyPanelProfileName.html("Bin values");
-      } else if (infType === "Discrete") {
-        $propertyPanelTitle.html("Frequent items:");
-        $propertyPanelProfileName.html("Counts");
+    function openPropertyPanel(key, column, infType, chart) {
+      let profileColumns = null;
+      let feature = JSON.parse(column);
+      const profileFromCSVfile = getReferenceProfile();
+      
+      if (profileFromCSVfile) {
+        profileColumns = profileFromCSVfile.columns[key] 
+        feature = profileColumns
       }
+      
+      let propertyPanelData = getPropertyPanelData(feature);
 
-      $(".wl-property-panel").addClass("wl-property-panel--open");
-      $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
+      if (profileFromCSVfile && feature.numberSummary) {
+        openProfilePropertyPanel(chart, feature)
+      } else {
+        openReferencePropertyPanel(
+          chart, 
+          propertyPanelData,
+          infType
+        )
+      }
     }
+
+    function closeFeatureHeading() {
+      const $tableContent = $("#table-content")
+      const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap")
+
+      $tableContent.removeClass("d-none")
+      $clickableTestFeatureWrap.addClass("d-none")
+    }
+
+    $(document).on("click", ".page-button", function(e) {
+      const $pagesButtons = $(".page-button"),
+        $pagesButtonIndex = $pagesButtons.index(e.target),
+        $pagesButton = $(".page-button")[$pagesButtonIndex]
+
+      $pagesButtons.removeClass("activ-pages-button")
+      $($pagesButton).addClass("activ-pages-button")
+    })
 
     function handleClosePropertyPanel() {
       $(".wl-property-panel").removeClass("wl-property-panel--open");
