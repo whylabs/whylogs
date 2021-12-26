@@ -74,196 +74,117 @@
               </fieldset>
             </form>
             <div class="d-none" id="sidebar-content">
-              <div class="d-none sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
-                <strong>Unlock the power of WhyLabs:</strong>
+              <div class="d-none sidebar-content__profile-dropdown-wrap mb-3" id="sidebar-content-multi-profile">
+
+              <div id="total-feature-count">
+              <div class="feature-count-title space-between">
+                <div class="mb-3">
+                  <strong class="feature-count count-color mb-3 wl__feature-count">0</strong>
+                  <strong>features</strong>
+                </div>
+                <div class="wl__burger_icon">
+                  <img src="./images/sliders-h.png" id="burger_icon"/>
+                  <img class="d-none not-clickable" src="./images/sliders-h (1).png" id="not_clickable_burger_icon"/>
+                </div>
+              </div>
+              </div>
+              <div class="mb-4">
+                <div class="mb-3 wl_filter-options filter-options d-none">
+                  <div class="space-between">
+                    <strong>Filter by type</strong>
+                  <div class="wl__close-icon" id="filter-close-icon">
+                    <img src="./images/times (1).png"/>
+                  </div>
+                 </div>
+                  <div class="form-check mb-1 mt-2">
+                    <input
+                      class="form-check-input wl__feature-filter-input"
+                      type="checkbox"
+                      value="Discrete"
+                      id="inferredDiscrete"
+                      checked
+                    />
+                    <label class="form-check-label" for="inferredDiscrete">
+                      Inferred discrete (<span class="wl__feature-count--discrete"></span>)
+                    </label>
+                  </div>
+                  <div class="form-check mb-1">
+                    <input
+                      class="form-check-input wl__feature-filter-input"
+                      type="checkbox"
+                      value="Non-discrete"
+                      id="inferredNonDiscrete"
+                      checked
+                    />
+                    <label class="form-check-label" for="inferredNonDiscrete">
+                      Inferred non-discrete (<span class="wl__feature-count--non-discrete"></span>)
+                    </label>
+                  </div>
+                  <div class="form-check mb-1">
+                    <input
+                      class="form-check-input wl__feature-filter-input"
+                      type="checkbox"
+                      value="Unknown"
+                      id="inferredUnknown"
+                      checked
+                    />
+                    <label class="form-check-label" for="inferredUnknown">
+                      Unknown (<span class="wl__feature-count--unknown"></span>)
+                    </label>
+                  </div>
+                </div>
+                <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
+              </div>
+              <div class="mt-3">
+                <ul id="filter-list" class="nav list-group list-group-flush wl__sidebar-feature-name-list"></ul>
+              </div>
+              <div class="wl__unlock-the-power sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
+                <div class="sign-up-text">
+                <div class="space-between ">
+                  <strong>Unlock the power of WhyLabs:</strong>
+                <div class="wl__close-icon" id="close-icon">
+                  <img src="./images/times.png"/>
+                </div>
+              </div>
                 <ul class="small mt-1 mb-3">
                   <li>Generate an API token to upload and save profiles to the platform</li>
                   <li>Analyze and compare profiles to identify data drift and other anomalies</li>
                   <li>Turn on monitoring with a single click, no manual set up required!</li>
                   <li>Get alerted in real time when data and model health issues arise</li>
                 </ul>
+                </div>
                 <a
-                  class="btn btn-warning btn-signup"
+                  class="btn btn-warning wl__btn-signup btn-signup"
                   target="_blank"
                   href="http://bit.ly/whylogs-to-whylabs-free-signup"
-                  >Get started for free</a
+                  >Sign up for a free WhyLabs account</a
                 >
-              </div>
-              <div class="d-none sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
-                <strong>Profile</strong>
-                <h5 class="mt-1 wl__selected-profile">2020-02-26 12:23:32 PM PST</h5>
-              </div>
-
-              <div class="d-none sidebar-content__profile-dropdown-wrap mb-3" id="sidebar-content-multi-profile">
-                <strong class="d-block">Profiles</strong>
-                <p class="small mt-1 mb-2">Select a profile from the dropdown below</p>
-                <div>
-                  <div class="sidebar-content__profile-dropdown-outer-container">
-                    <div class="div-select-0"></div>
-                    <div
-                      class="sidebar-content__profile-dropdown-inner-container"
-                      id="sidebar-content__profile-dropdown-inner-container-0"
-                    >
-                      <label class="label-select"> Profile 1:</label>
-                      <select
-                        class="form-control sidebar-content__profile-dropdown"
-                        id="sidebar-content-multi-profile-dropdown-0"
-                        data-id="0"
-                      >
-                        <option value="example-profile-1">Example profile 1</option>
-                        <option value="example-profile-2">Example profile 2</option>
-                        <option value="example-profile-3">Example profile 3</option>
-                      </select>
-
-                      <svg
-                        class="sidebar-content__profile-dropdown-chevron"
-                        width="24"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path d="M7 10l5 5 5-5z"></path>
-                      </svg>
-                    </div>
-                    <button class="d-none remove-button" id="remove-button-0">X</button>
-                  </div>
-                  <button class="add-profile-sidebar-button" disabled id="add-profile-sidebar-button-0">
-                    Add profile
-                  </button>
-                </div>
-
-                <div class="d-none compare-select" id="add-profile-wrap-1">
-                  <div class="sidebar-content__profile-dropdown-outer-container">
-                    <div class="div-select-1"></div>
-                    <div
-                      class="sidebar-content__profile-dropdown-inner-container"
-                      id="sidebar-content__profile-dropdown-inner-container-1"
-                    >
-                      <label class="label-select"> Profile 2:</label>
-                      <select
-                        class="form-control sidebar-content__profile-dropdown"
-                        id="sidebar-content-multi-profile-dropdown-1"
-                        data-id="1"
-                      >
-                        <option value="example-profile-1">Example profile 1</option>
-                        <option value="example-profile-2">Example profile 2</option>
-                        <option value="example-profile-3">Example profile 3</option>
-                      </select>
-
-                      <svg
-                        class="sidebar-content__profile-dropdown-chevron"
-                        width="24"
-                        focusable="false"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path d="M7 10l5 5 5-5z"></path>
-                      </svg>
-                    </div>
-                    <button class="d-none remove-button" id="remove-button-1">X</button>
-                  </div>
-                  <button class="add-profile-sidebar-button" disabled id="add-profile-sidebar-button-1">
-                    Add profile
-                  </button>
-                </div>
-              </div>
-
-              <div class="d-none compare-select" id="add-profile-wrap-2">
-                <div class="sidebar-content__profile-dropdown-outer-container">
-                  <div class="div-select-2"></div>
-                  <div
-                    class="sidebar-content__profile-dropdown-inner-container"
-                    id="sidebar-content__profile-dropdown-inner-container-2"
-                  >
-                    <label class="label-select"> Profile 3:</label>
-                    <select
-                      class="form-control sidebar-content__profile-dropdown"
-                      id="sidebar-content-multi-profile-dropdown-2"
-                      data-id="2"
-                    >
-                      <option value="example-profile-1">Example profile 1</option>
-                      <option value="example-profile-2">Example profile 2</option>
-                      <option value="example-profile-3">Example profile 3</option>
-                    </select>
-
-                    <svg
-                      class="sidebar-content__profile-dropdown-chevron"
-                      width="24"
-                      focusable="false"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path d="M7 10l5 5 5-5z"></path>
-                    </svg>
-                  </div>
-                  <button class="d-none remove-button" id="remove-button-2">X</button>
-                </div>
-              </div>
-
-              <div id="total-feature-count">
-                <strong>Total features</strong>
-                <h1 class="feature-count mb-3 wl__feature-count">0</h1>
-              </div>
-              <div class="mb-4">
-                <label for="wl__feature-search" class="form-label"><strong>Find feature</strong></label>
-                <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
-              </div>
-              <div class="filter-options d-none">
-                <strong>Filter features by type</strong>
-  
-                <div class="form-check mb-1 mt-2">
-                  <input
-                    class="form-check-input wl__feature-filter-input"
-                    type="checkbox"
-                    value="Discrete"
-                    id="inferredDiscrete"
-                    checked
-                  />
-                  <label class="form-check-label" for="inferredDiscrete">
-                    Inferred discrete (<span class="wl__feature-count--discrete"></span>)
-                  </label>
-                </div>
-                <div class="form-check mb-1">
-                  <input
-                    class="form-check-input wl__feature-filter-input"
-                    type="checkbox"
-                    value="Non-discrete"
-                    id="inferredNonDiscrete"
-                    checked
-                  />
-                  <label class="form-check-label" for="inferredNonDiscrete">
-                    Inferred non-discrete (<span class="wl__feature-count--non-discrete"></span>)
-                  </label>
-                </div>
-                <div class="form-check mb-4">
-                  <input
-                    class="form-check-input wl__feature-filter-input"
-                    type="checkbox"
-                    value="Unknown"
-                    id="inferredUnknown"
-                    checked
-                  />
-                  <label class="form-check-label" for="inferredUnknown">
-                    Unknown (<span class="wl__feature-count--unknown"></span>)
-                  </label>
-                </div>
-              </div>
-              <strong>Feature list</strong>
-              <p class="small mt-1">Click on features to scroll into view</p>
-              <div class="mt-3">
-                <ul class="nav list-group list-group-flush wl__sidebar-feature-name-list"></ul>
-              </div>
             </div>
-
+          </div>
             </div>
           </div>
 
           <div class="main">
             <div class="wl-table-wrap d-none" id="table-content">
+              <div class="wl-table-cell wl-compare-profile" id="compare-profile">
+                <h6 class="wl-select-reference-profile mt-1 mb-2">Compare profile to reference profile, such as training data</h6>
+                 <form id="reference-json-form" name="reference-json-form" enctype="multipart/form-data" method="post">
+                   <fieldset>
+                     <div class="reference-file-input">
+                       <input type="file" id="reference-file-input" class="wl__json-form-input" accept=".json" />
+                       <label for="reference-file-input" class="btn btn-primary cta-button cta-button--outline"
+                         >Add reference JSON profile</label>
+                     </div>
+                   </fieldset>
+                 </form>
+               </div>
               <div class="wl-table" id="table-content-wrapper">
                 <div class="wl-table-heading">
                   <div class="wl-table-row wl-table-row--bottom-shadow">
-                    <div class="wl-table-head">Feature</div>
+                    <div class="wl-table-head">
+                      <div class="wl-table-head table-border-none">Feature</div>
+                      <div class="wl-table-head table-border-none reference-table-head">Reference</div>
+                    </div>
                     <div class="wl-table-head">Frequent items</div>
                     <div class="wl-table-head">Inf. feature type</div>
                     <div class="wl-table-head text-end">Total count</div>
