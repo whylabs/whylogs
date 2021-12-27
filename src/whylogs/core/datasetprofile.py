@@ -25,6 +25,7 @@ from whylogs.proto import (
     DatasetSummary,
     MessageSegment,
     ModelType,
+    NumberSummary,
 )
 from whylogs.util import time
 from whylogs.util.time import from_utc_ms, to_utc_ms
@@ -277,8 +278,8 @@ class DatasetProfile:
         # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
         if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
             df = df.to_pandas()
-        self.element_count = df.size
-        element_count = self.element_count
+        self.total_row_number = len(df.index)
+        element_count = df.size
         large_df = element_count > 200000
         if large_df:
             logger.warning(f"About to log a dataframe with {element_count} elements, logging might take some time to complete.")
@@ -688,30 +689,28 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
-                update_dict = {
-                    "number_summary": summ.number_summary,
-                    "string_theta": colprof.string_tracker.theta_sketch.theta_sketch,
-                    "number_theta": colprof.number_tracker.theta_sketch.theta_sketch,
-                }
 
-                constraints.update(update_dict)
+                distinct_column_values_dict = dict()
+                distinct_column_values_dict["string_theta"] = colprof.string_tracker.theta_sketch.theta_sketch
+                distinct_column_values_dict["number_theta"] = colprof.number_tracker.theta_sketch.theta_sketch
+
+                update_obj = _create_update_summary_object(number_summary=summ.number_summary, distinct_column_values=distinct_column_values_dict)
+
+                constraints.update(update_obj)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
-        self.constraints.table_shape_constraints.update(self.get_table_shape_summary())
-
         return [(k, s.report()) for k, s in summary_constraints.items()]
 
-    def get_table_shape_update_object(self):
-        column_names = self.columns.keys()
-        n_columns = len(column_names)
+    def apply_table_shape_constraints(self, table_shape_constraints: Optional[SummaryConstraints] = None):
+        if table_shape_constraints is None:
+            table_shape_constraints = self.constraints.table_shape_constraints
 
-        table_shape_update = type('TableShapeUpdate',(object,),{"columns": self.columns.keys(), "total_row_number": })()
-        # return TableShapeSummary(
-        #     column_names=self.columns.keys(),
-        #     table_rows = n_columns
-        # )
+        update_obj = _create_update_summary_object(NumberSummary(), columns=self.columns.keys(), total_row_number=self.total_row_number)
 
+        table_shape_constraints.update(update_obj)
+
+        return table_shape_constraints.report()
 
 
 def columns_chunk_iterator(iterator, marker: str):
@@ -810,3 +809,32 @@ def array_profile(
     prof = DatasetProfile(name, timestamp)
     prof.track_array(x, columns)
     return prof
+
+
+def _create_update_summary_object(number_summary: NumberSummary, **kwargs):
+    """
+    Wrapper method for summary constraints update object creation
+    Parameters
+    ----------
+    number_summary : NumberSummary
+        Summary object generated from NumberTracker
+        Used to unpack the metrics as separate items in the dictionary
+    kwargs : Summary objects or datasketches objects
+        Used to update specific constraints that need additional calculations
+    Returns
+    -------
+    Anonymous object containing all of the metrics as fields with their coresponding values
+    """
+
+    update_dict = {}
+
+    update_dict.update(
+        {
+            field_name: getattr(number_summary, field_name)
+            for field_name in dir(number_summary)
+            if str.islower(field_name) and not str.startswith(field_name, "_") and not callable(getattr(number_summary, field_name))
+        }
+    )
+    update_dict.update({key: obj for key, obj in kwargs.items()})
+
+    return type("UpdateObject", (), update_dict)()

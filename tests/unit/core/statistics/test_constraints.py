@@ -10,12 +10,14 @@ from whylogs.core.statistics.constraints import (
     Op,
     SummaryConstraint,
     ValueConstraint,
-    _is_dateutil_parseable,
-    _is_json_parseable,
-    _is_strftime_format,
     _matches_json_schema,
     _summary_funcs1,
+    _try_parse_dateutil,
+    _try_parse_json,
+    _try_parse_strftime_format,
     _value_funcs,
+    columnExistsConstraint,
+    columnsMatchSetConstraint,
     columnValuesInSetConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
@@ -25,6 +27,7 @@ from whylogs.core.statistics.constraints import (
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
+    numberOfRowsConstraint,
     stddevBetweenConstraint,
     strftimeFormatConstraint,
     stringLengthBetweenConstraint,
@@ -38,13 +41,13 @@ def test_value_summary_serialization():
     for each_op, _ in _value_funcs.items():
         if each_op == Op.APPLY_FUNC:
             continue
-        if each_op == Op.IN_SET:
+        if each_op == Op.IN:
             value = ValueConstraint(each_op, {3.6})
         else:
             value = ValueConstraint(each_op, 3.6)
         msg_value = value.to_protobuf()
         json_value = json.loads(message_to_json(msg_value))
-        if each_op == Op.IN_SET:
+        if each_op == Op.IN:
             assert json_value["name"] == "value " + Op.Name(each_op) + " {3.6}"
             assert json_value["valueSet"][0] == [3.6]
         else:
@@ -54,7 +57,7 @@ def test_value_summary_serialization():
         assert json_value["verbose"] == False
 
     for each_op, _ in _summary_funcs1.items():
-        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET, Op.CONTAIN):
             continue
         # constraints may have an optional name
         sum_constraint = SummaryConstraint("min", each_op, 300000, name="< 30K")
@@ -551,8 +554,8 @@ def test_serialization_deserialization_values_in_set_constraint():
     json_value = json.loads(message_to_json(cvisc.to_protobuf()))
 
     print(json_value)
-    assert json_value["name"] == "value IN_SET " + str(val_set)
-    assert json_value["op"] == Op.Name(Op.IN_SET)
+    assert json_value["name"] == "value IN " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"][0] == list(val_set)
 
 
@@ -795,10 +798,12 @@ def test_apply_func_value_constraints(local_config_path):
     report = _apply_apply_func_constraints(local_config_path, apply_constraints)
 
     # report[column_n][report_list][report][name total or failure]
-    assert report[0][1][0][1] == 30 and report[0][1][0][2] == 21 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_dateutil_parseable.__name__}"
-    assert report[0][1][1][1] == 30 and report[0][1][1][2] == 25 and report[0][1][1][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_json_parseable.__name__}"
+    assert report[0][1][0][1] == 30 and report[0][1][0][2] == 21 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_dateutil.__name__}"
+    assert report[0][1][1][1] == 30 and report[0][1][1][2] == 25 and report[0][1][1][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_json.__name__}"
     assert report[0][1][2][1] == 30 and report[0][1][2][2] == 22 and report[0][1][2][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_matches_json_schema.__name__}"
-    assert report[0][1][3][1] == 30 and report[0][1][3][2] == 27 and report[0][1][3][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_is_strftime_format.__name__}"
+    assert (
+        report[0][1][3][1] == 30 and report[0][1][3][2] == 27 and report[0][1][3][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_strftime_format.__name__}"
+    )
 
 
 def test_apply_func_merge():
@@ -884,3 +889,284 @@ def test_apply_func_serialization():
     assert apply1_json["function"] == apply2_json["function"]
     assert apply1_json["op"] == apply2_json["op"]
     assert apply1_json["verbose"] == apply2_json["verbose"]
+
+
+def test_table_shape_constraints(df_lending_club, local_config_path):
+
+    rows = numberOfRowsConstraint(n_rows=10)
+    rows_2 = numberOfRowsConstraint(n_rows=len(df_lending_club.index))
+
+    column_exist = columnExistsConstraint("no_WAY")
+    column_exist2 = columnExistsConstraint("loan_amnt")
+
+    set1 = set(["col1", "col2"])
+    set2 = set(df_lending_club.columns)
+    columns_match = columnsMatchSetConstraint(set1)
+    columns_match2 = columnsMatchSetConstraint(set2)
+
+    table_shape_constraints = [rows, rows_2, column_exist, column_exist2, columns_match, columns_match2]
+
+    dc = DatasetConstraints(None, table_shape_constraints=table_shape_constraints)
+
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+
+    report = profile.apply_table_shape_constraints()
+
+    assert len(report) == 6
+    # table shape {self.value} {Op.Name(self.op)} {self.first_field}
+    assert report[0][0] == f"table total_row_number {Op.Name(Op.EQ)} 10"
+    assert report[0][1] == 1
+    assert report[0][2] == 1
+
+    assert report[1][0] == f"table total_row_number {Op.Name(Op.EQ)} {len(df_lending_club.index)}"
+    assert report[1][1] == 1
+    assert report[1][2] == 0
+
+    assert report[2][0] == f"table columns {Op.Name(Op.CONTAIN)} no_WAY"
+    assert report[2][1] == 1
+    assert report[2][2] == 1
+
+    assert report[3][0] == f"table columns {Op.Name(Op.CONTAIN)} loan_amnt"
+    assert report[3][1] == 1
+    assert report[3][2] == 0
+
+    assert report[4][0] == f"table columns {Op.Name(Op.EQ)} {set1}"
+    assert report[4][1] == 1
+    assert report[4][2] == 1
+
+    reference_set_str = ""
+    if len(set2) > 20:
+        tmp_set = set(list(set2)[:20])
+        reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
+    else:
+        reference_set_str = str(set2)
+    assert report[5][0] == f"table columns {Op.Name(Op.EQ)} {reference_set_str}"
+    assert report[5][1] == 1
+    assert report[5][2] == 0
+
+
+def test_table_shape_constraint_invalid_init():
+    with pytest.raises(TypeError):
+        SummaryConstraint("columns", Op.EQ, reference_set=1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("columns", Op.CONTAIN, reference_set=1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("total_row_number", Op.EQ, reference_set=1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("total_row_number", Op.CONTAIN, reference_set=1)
+
+    with pytest.raises(ValueError):
+        SummaryConstraint("columns", Op.CONTAIN, 1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("columns", Op.CONTAIN, second_field="aaa")
+    with pytest.raises(ValueError):
+        SummaryConstraint("columns", Op.EQ, 1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("columns", Op.EQ, second_field="aaa")
+
+    with pytest.raises(ValueError):
+        SummaryConstraint("total_row_number", Op.CONTAIN, 1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("total_row_number", Op.CONTAIN, second_field="aaa")
+    with pytest.raises(ValueError):
+        SummaryConstraint("total_row_number", Op.EQ, second_field="aaa")
+
+    with pytest.raises(ValueError):
+        SummaryConstraint("columns", Op.CONTAIN, third_field="aaa")
+    with pytest.raises(ValueError):
+        SummaryConstraint("columns", Op.EQ, third_field="aaa")
+    with pytest.raises(ValueError):
+        SummaryConstraint("total_row_number", Op.CONTAIN, third_field="aaa")
+    with pytest.raises(ValueError):
+        SummaryConstraint("total_row_number", Op.EQ, third_field="aaa")
+
+    with pytest.raises(ValueError):
+        SummaryConstraint("columns", Op.CONTAIN, upper_value=2)
+    with pytest.raises(ValueError):
+        SummaryConstraint("columns", Op.EQ, upper_value=2)
+    with pytest.raises(ValueError):
+        SummaryConstraint("total_row_number", Op.CONTAIN, upper_value=2)
+    with pytest.raises(ValueError):
+        SummaryConstraint("total_row_number", Op.EQ, upper_value=2)
+
+
+def test_table_shape_no_merge_different_set():
+
+    set_c_1 = SummaryConstraint("columns", Op.EQ, reference_set=[1, 2, 3])
+    set_c_2 = SummaryConstraint("columns", Op.EQ, reference_set=[2, 3, 4, 5])
+    with pytest.raises(AssertionError):
+        set_c_1.merge(set_c_2)
+
+
+def test_table_shape_merge():
+    set_c_1 = SummaryConstraint("columns", Op.EQ, reference_set=[1, 2, 3])
+    set_c_2 = columnsMatchSetConstraint(reference_set=[1, 2, 3])
+
+    merged = set_c_1.merge(set_c_2)
+
+    pre_merge_json = json.loads(message_to_json(set_c_1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pre_merge_json["referenceSet"] == merge_json["referenceSet"]
+    assert pre_merge_json["firstField"] == merge_json["firstField"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+    set_c_1 = SummaryConstraint("columns", Op.CONTAIN, "c1")
+    set_c_2 = columnExistsConstraint(column="c1")
+
+    merged = set_c_1.merge(set_c_2)
+
+    pre_merge_json = json.loads(message_to_json(set_c_1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pre_merge_json["valueStr"] == merge_json["valueStr"]
+    assert pre_merge_json["firstField"] == merge_json["firstField"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+    set_c_1 = SummaryConstraint("total_row_number", Op.EQ, 2)
+    set_c_2 = numberOfRowsConstraint(n_rows=2)
+
+    merged = set_c_1.merge(set_c_2)
+
+    pre_merge_json = json.loads(message_to_json(set_c_1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pre_merge_json["value"] == merge_json["value"]
+    assert pre_merge_json["firstField"] == merge_json["firstField"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+
+def test_table_shape_serialization():
+
+    ts1 = columnsMatchSetConstraint([1, 2, 3])
+
+    ts2 = SummaryConstraint.from_protobuf(ts1.to_protobuf())
+
+    ts1_json = json.loads(message_to_json(ts1.to_protobuf()))
+    ts2_json = json.loads(message_to_json(ts2.to_protobuf()))
+
+    ts1.merge(ts2)
+    ts2.merge(ts1)
+
+    assert ts1_json["name"] == ts2_json["name"]
+    assert ts1_json["referenceSet"] == ts2_json["referenceSet"]
+    assert ts1_json["firstField"] == ts2_json["firstField"]
+    assert ts1_json["op"] == ts2_json["op"]
+    assert ts1_json["verbose"] == ts2_json["verbose"]
+
+    ts1 = columnExistsConstraint("c1")
+
+    ts2 = SummaryConstraint.from_protobuf(ts1.to_protobuf())
+
+    ts1_json = json.loads(message_to_json(ts1.to_protobuf()))
+    ts2_json = json.loads(message_to_json(ts2.to_protobuf()))
+
+    ts1.merge(ts2)
+    ts2.merge(ts1)
+
+    assert ts1_json["name"] == ts2_json["name"]
+    assert ts1_json["valueStr"] == ts2_json["valueStr"]
+    assert ts1_json["firstField"] == ts2_json["firstField"]
+    assert ts1_json["op"] == ts2_json["op"]
+    assert ts1_json["verbose"] == ts2_json["verbose"]
+
+    ts1 = numberOfRowsConstraint(2)
+
+    ts2 = SummaryConstraint.from_protobuf(ts1.to_protobuf())
+
+    ts1_json = json.loads(message_to_json(ts1.to_protobuf()))
+    ts2_json = json.loads(message_to_json(ts2.to_protobuf()))
+
+    ts1.merge(ts2)
+    ts2.merge(ts1)
+
+    assert ts1_json["name"] == ts2_json["name"]
+    assert ts1_json["value"] == ts2_json["value"]
+    assert ts1_json["firstField"] == ts2_json["firstField"]
+    assert ts1_json["op"] == ts2_json["op"]
+    assert ts1_json["verbose"] == ts2_json["verbose"]
+
+
+def test_dataset_constraints_serialization():
+
+    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8})
+    ltc = ValueConstraint(Op.LT, 1)
+
+    min_gt_constraint = SummaryConstraint("min", Op.GT, value=100)
+    max_le_constraint = SummaryConstraint("max", Op.LE, value=5)
+
+    set1 = set(["col1", "col2"])
+    columns_match_constraint = columnsMatchSetConstraint(set1)
+
+    dc = DatasetConstraints(
+        None,
+        value_constraints={"annual_inc": [cvisc, ltc]},
+        summary_constraints={"annual_inc": [max_le_constraint, min_gt_constraint]},
+        table_shape_constraints=[columns_match_constraint],
+    )
+
+    dc_deser = DatasetConstraints.from_protobuf(dc.to_protobuf())
+
+    props = dc.dataset_properties
+    deser_props = dc_deser.dataset_properties
+
+    if all([props, deser_props]):
+        pm_json = json.loads(message_to_json(props))
+        deser_pm_json = json.loads(message_to_json(deser_props))
+
+        for (k, v), (k_deser, v_deser) in zip(pm_json.items(), deser_pm_json.items()):
+            assert k == k_deser
+            assert v == v_deser
+
+    value_constraints = dc.value_constraint_map
+    summary_constraints = dc.summary_constraint_map
+    table_shape_constraints = dc.table_shape_constraints
+
+    deser_v_c = dc_deser.value_constraint_map
+    deser_s_c = dc_deser.summary_constraint_map
+    deser_ts_c = dc_deser.table_shape_constraints
+
+    for (column, constraints), (deser_column, deser_constraints) in zip(value_constraints.items(), deser_v_c.items()):
+        assert column == deser_column
+
+        for (name, c), (deser_name, deser_c) in zip(constraints.constraints.items(), deser_constraints.constraints.items()):
+            assert name == deser_name
+
+            a = json.loads(message_to_json(c.to_protobuf()))
+            b = json.loads(message_to_json(deser_c.to_protobuf()))
+
+            for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+                assert k == k_deser
+                assert v == v_deser
+
+    for (column, constraints), (deser_column, deser_constraints) in zip(summary_constraints.items(), deser_s_c.items()):
+        assert column == deser_column
+
+        for (name, c), (deser_name, deser_c) in zip(constraints.constraints.items(), deser_constraints.constraints.items()):
+            assert name == deser_name
+
+            a = json.loads(message_to_json(c.to_protobuf()))
+            b = json.loads(message_to_json(deser_c.to_protobuf()))
+
+            for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+                assert k == k_deser
+                assert v == v_deser
+
+    for (name, c), (deser_name, deser_c) in zip(table_shape_constraints.constraints.items(), deser_ts_c.constraints.items()):
+        assert name == deser_name
+
+        a = json.loads(message_to_json(c.to_protobuf()))
+        b = json.loads(message_to_json(deser_c.to_protobuf()))
+
+        for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+            assert k == k_deser
+            assert v == v_deser
