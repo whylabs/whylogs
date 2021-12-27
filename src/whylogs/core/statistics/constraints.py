@@ -212,6 +212,9 @@ class SummaryConstraint:
         Only to be supplied when op == Op.BTWN. Name of third field in NumberSummary, used as an upper boundary,
          to be compared against summary field specified in `first_field`.
         Only one of `upper_value` or `third_field` should be supplied.
+    reference_distribution: (one-of)
+        Instance of CDFSummary or ReferenceDistributionDiscreteMessage. Only to be supplied for constraints
+        on distributional measures, such as KS test, KL divergence and Chi-Squared test
     name : str
         Name of the constraint used for reporting
     verbose : bool
