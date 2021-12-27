@@ -1,15 +1,23 @@
 import logging
 import re
-from typing import Any, List, Mapping, Optional, Set
+from typing import Any, List, Mapping, Optional, Set, Union
 
+import datasketches
+import numpy as np
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
 
+from whylogs.core.statistics.numbertracker import DEFAULT_HIST_K
+from whylogs.core.summaryconverters import cdf_from_sketch, ks_test_compute_p_value
+from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
+    CDFSummary,
     DatasetConstraintMsg,
     DatasetProperties,
-    NumberSummary,
+    InferredType,
     Op,
+    ReferenceDistributionContinuousMessage,
+    ReferenceDistributionDiscreteMessage,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
     SummaryConstraintMsgs,
@@ -17,6 +25,8 @@ from whylogs.proto import (
     ValueConstraintMsgs,
 )
 from whylogs.util.protobuf import message_to_json
+
+TYPES = InferredType.Type
 
 logger = logging.getLogger(__name__)
 
@@ -219,6 +229,7 @@ class SummaryConstraint:
         upper_value=None,
         second_field: str = None,
         third_field: str = None,
+        reference_distribution: Union[CDFSummary, ReferenceDistributionDiscreteMessage] = None,
         name: str = None,
         verbose=False,
     ):
@@ -233,6 +244,18 @@ class SummaryConstraint:
 
         self.value = value
         self.upper_value = upper_value
+        self.reference_distribution = reference_distribution
+
+        if self.reference_distribution:
+            if not isinstance(self.reference_distribution, (CDFSummary, ReferenceDistributionDiscreteMessage)):
+                raise TypeError(
+                    "The reference distribution should be an object of type CDFSummary," " or an object of type ReferenceDistributionDiscreteMessage"
+                )
+            if self.value is None or any([v is not None for v in (self.upper_value, self.second_field, self.third_field)]):
+                raise ValueError(
+                    "Summary constraint with reference_distribution must specify value for comparing with the p_value,"
+                    " and must not specify lower_value, second_field or third_field"
+                )
 
         if self.op == Op.BTWN:
             if value is not None and upper_value is not None and (second_field, third_field) == (None, None):
@@ -269,16 +292,20 @@ class SummaryConstraint:
 
     @property
     def name(self):
-        if self.op == Op.BTWN:
+        if self.reference_distribution:
+            return self._name if self._name is not None else f"summary {self.first_field} p-value {Op.Name(self.op)} {self.value}"
+        elif self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
             return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {lower_target} and {upper_target}"
 
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
-    def update(self, summ: NumberSummary) -> bool:
+    def update(self, update_dict) -> bool:
         self.total += 1
-        if not self.func(summ):
+        if self.first_field == "ks_test":
+            update_dict = ks_test_compute_p_value(update_dict.ks_test, self.reference_distribution)
+        if not self.func(update_dict):
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -292,6 +319,7 @@ class SummaryConstraint:
         assert self.value == other.value, f"Cannot merge constraints with different values: {self.value} and {other.value}"
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
+        assert self.reference_distribution == other.reference_distribution, "Cannot merge constraints with different reference_distribution"
 
         if self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
@@ -303,12 +331,19 @@ class SummaryConstraint:
                 upper_value=self.upper_value,
                 second_field=self.second_field,
                 third_field=self.third_field,
+                reference_distribution=self.reference_distribution,
                 name=self.name,
                 verbose=self._verbose,
             )
         else:
             merged_constraint = SummaryConstraint(
-                first_field=self.first_field, op=self.op, value=self.value, second_field=self.second_field, name=self.name, verbose=self._verbose
+                first_field=self.first_field,
+                op=self.op,
+                value=self.value,
+                second_field=self.second_field,
+                reference_distribution=self.reference_distribution,
+                name=self.name,
+                verbose=self._verbose,
             )
 
         merged_constraint.total = self.total + other.total
@@ -318,11 +353,20 @@ class SummaryConstraint:
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
 
+        if msg.HasField("continuous_distribution"):
+            ref_distribution = msg.continuous_distribution.cdf_summary
+        elif msg.HasField("discrete_distribution"):
+            ref_distribution = msg.discrete_distribution
+        else:
+            ref_distribution = None
+
         if msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
+
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
                 value=msg.value,
+                reference_distribution=ref_distribution,
                 name=msg.name,
                 verbose=msg.verbose,
             )
@@ -331,6 +375,7 @@ class SummaryConstraint:
                 msg.first_field,
                 msg.op,
                 second_field=msg.second_field,
+                reference_distribution=ref_distribution,
                 name=msg.name,
                 verbose=msg.verbose,
             )
@@ -346,6 +391,7 @@ class SummaryConstraint:
                     msg.op,
                     value=msg.between.lower_value,
                     upper_value=msg.between.upper_value,
+                    reference_distribution=ref_distribution,
                     name=msg.name,
                     verbose=msg.verbose,
                 )
@@ -360,6 +406,7 @@ class SummaryConstraint:
                     msg.op,
                     second_field=msg.between.second_field,
                     third_field=msg.between.third_field,
+                    reference_distribution=ref_distribution,
                     name=msg.name,
                     verbose=msg.verbose,
                 )
@@ -367,6 +414,14 @@ class SummaryConstraint:
             raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg, but only one of them")
 
     def to_protobuf(self) -> SummaryConstraintMsg:
+        continuous_dist = None
+        discrete_dist = None
+        if self.reference_distribution is not None:
+            if isinstance(self.reference_distribution, CDFSummary):
+                continuous_dist = ReferenceDistributionContinuousMessage(cdf_summary=self.reference_distribution)
+            elif isinstance(self.reference_distribution, ReferenceDistributionContinuousMessage):
+                discrete_dist = self.reference_distribution
+
         if self.op == Op.BTWN:
 
             summary_between_constraint_msg = None
@@ -380,15 +435,19 @@ class SummaryConstraint:
                 first_field=self.first_field,
                 op=self.op,
                 between=summary_between_constraint_msg,
+                continuous_distribution=continuous_dist,
+                discrete_distribution=discrete_dist,
                 verbose=self._verbose,
             )
-
+            #
         elif self.second_field is None:
             msg = SummaryConstraintMsg(
                 name=self.name,
                 first_field=self.first_field,
                 op=self.op,
                 value=self.value,
+                continuous_distribution=continuous_dist,
+                discrete_distribution=discrete_dist,
                 verbose=self._verbose,
             )
         else:
@@ -397,6 +456,8 @@ class SummaryConstraint:
                 first_field=self.first_field,
                 op=self.op,
                 second_field=self.second_field,
+                continuous_distribution=continuous_dist,
+                discrete_distribution=discrete_dist,
                 verbose=self._verbose,
             )
         return msg
@@ -598,3 +659,25 @@ def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
         raise TypeError("The value set should be an iterable data type")
 
     return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
+
+
+def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[List[float], np.ndarray], p_value=0.05, verbose=False):
+
+    if not isinstance(p_value, float):
+        raise TypeError("The p_value should be a of type float")
+
+    if not 0 <= p_value <= 1:
+        raise ValueError("The p_value should be a float value between 0 and 1 inclusive")
+
+    if not isinstance(reference_distribution, (list, np.ndarray)):
+        raise TypeError("The reference distribution must be a list or numpy array with float values")
+
+    kll_floats = datasketches.kll_floats_sketch(DEFAULT_HIST_K)
+    for value in reference_distribution:
+        if TypedDataConverter.get_type(value) != TYPES.FRACTIONAL:
+            raise ValueError("The reference distribution should be a continuous distribution")
+        kll_floats.update(value)
+
+    cdf_summary = cdf_from_sketch(kll_floats)
+
+    return SummaryConstraint("ks_test", op=Op.GT, reference_distribution=cdf_summary, value=p_value, verbose=verbose)

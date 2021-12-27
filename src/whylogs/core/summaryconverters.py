@@ -3,6 +3,8 @@ Library module defining function for generating summaries
 """
 import math
 
+import numpy as np
+import scipy.special
 from datasketches import (
     frequent_items_error_type,
     frequent_strings_sketch,
@@ -11,6 +13,7 @@ from datasketches import (
 )
 
 from whylogs.proto import (
+    CDFSummary,
     FrequentStringsSummary,
     HistogramSummary,
     QuantileSummary,
@@ -143,3 +146,44 @@ def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int = None, av
         bins=bins,
         n=n,
     )
+
+
+def cdf_from_sketch(sketch: kll_floats_sketch, quantiles=None):
+    """
+    Calculate cdf from a data sketch
+
+    Parameters
+    ----------
+    sketch : kll_floats_sketch
+        Data sketch
+    quantiles : list-like
+        Override the default quantiles.  Should be a list of values from
+        0 to 1 inclusive.
+    """
+
+    if quantiles is not None:
+        quantile_values = sketch.get_quantiles(quantiles)
+    else:
+        quantile_values = sketch.get_quantiles(QUANTILES)
+
+    cdf_values = []
+    for qval in quantile_values:
+        cdf_value = sketch.get_cdf([qval])[0]
+        cdf_values.append(cdf_value)
+
+    return CDFSummary(
+        quantile_values=quantile_values,
+        cdf_values=cdf_values,
+    )
+
+
+def ks_test_compute_p_value(target_distribution: kll_floats_sketch, reference_distribution: CDFSummary):
+    D_max = 0
+    for quant, cdf_ref in zip(reference_distribution.quantile_values, reference_distribution.cdf_values):
+        cdf_target = target_distribution.get_cdf([quant])[0]
+        D = abs(cdf_target - cdf_ref)
+        if D > D_max:
+            D_max = D
+    n_samples = target_distribution.get_n()
+    p_value = scipy.special.kolmogorov(np.sqrt(n_samples) * D_max)
+    return type("Object", (), {"ks_test": p_value})

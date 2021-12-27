@@ -1,6 +1,7 @@
 import json
 from logging import getLogger
 
+import numpy as np
 import pytest
 
 from whylogs.app.config import load_config
@@ -16,6 +17,7 @@ from whylogs.core.statistics.constraints import (
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
+    parametrizedKSTestPValueGreaterThanConstraint,
     stddevBetweenConstraint,
 )
 from whylogs.proto import Op
@@ -468,3 +470,87 @@ def test_serialization_deserialization_values_in_set_constraint():
 def test_column_values_in_set_wrong_datatype():
     with pytest.raises(TypeError):
         cvisc = columnValuesInSetConstraint(value_set=1)
+
+
+def test_ks_test_p_value_greater_than_constraint_false(df_lending_club, local_config_path):
+    norm_values = np.random.normal(loc=10000, scale=2.0, size=15000)
+    kspval = parametrizedKSTestPValueGreaterThanConstraint(norm_values, p_value=0.1)
+    dc = DatasetConstraints(None, summary_constraints={"loan_amnt": [kspval]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint failed once
+    assert report[0][1][0][2] == 1
+
+
+def test_ks_test_p_value_greater_than_constraint_true(df_lending_club, local_config_path):
+    kspval = parametrizedKSTestPValueGreaterThanConstraint(df_lending_club["loan_amnt"].values, p_value=0.1)
+    dc = DatasetConstraints(None, summary_constraints={"loan_amnt": [kspval]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was successfully executed
+    assert report[0][1][0][2] == 0
+
+
+def test_ks_test_p_value_greater_than_constraint_merge_different_values():
+    ks1 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0])
+    ks2 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 4.0])
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+    ks1 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0], p_value=0.1)
+    ks2 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0], p_value=0.5)
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+
+def test_ks_test_p_value_greater_than_constraint_merge_same_values():
+    ks1 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0])
+    ks2 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0])
+    merged = ks1.merge(ks2)
+
+    TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
+
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.05"
+    assert json_value["op"] == Op.Name(Op.GT)
+    assert json_value["firstField"] == "ks_test"
+    assert pytest.approx(json_value["value"], 0.01) == 0.05
+    assert json_value["continuousDistribution"]["cdfSummary"]["quantileValues"] == [1.0, 1.0, 1.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0]
+    assert json_value["verbose"] is False
+
+
+def test_serialization_deserialization_ks_test_p_value_greater_than_constraint():
+    ks1 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0], p_value=0.15, verbose=True)
+    ks1.from_protobuf(ks1.to_protobuf())
+    json_value = json.loads(message_to_json(ks1.to_protobuf()))
+
+    TEST_LOGGER.info(f"Serialize parametrizedKSTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
+
+    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.15"
+    assert json_value["op"] == Op.Name(Op.GT)
+    assert json_value["firstField"] == "ks_test"
+    assert pytest.approx(json_value["value"], 0.01) == 0.15
+    assert json_value["continuousDistribution"]["cdfSummary"]["quantileValues"] == [1.0, 1.0, 1.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0]
+    assert json_value["verbose"] is True
+
+
+def test_ks_test_p_value_greater_than_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        ks1 = parametrizedKSTestPValueGreaterThanConstraint([1, 2, 3], p_value=0.15, verbose=True)
+    with pytest.raises(TypeError):
+        ks1 = parametrizedKSTestPValueGreaterThanConstraint("abc", p_value=0.15, verbose=True)
+    with pytest.raises(ValueError):
+        ks1 = parametrizedKSTestPValueGreaterThanConstraint([1, 2, 3], p_value=1.2, verbose=True)
