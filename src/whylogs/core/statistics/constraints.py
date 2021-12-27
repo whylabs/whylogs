@@ -32,11 +32,9 @@ logger = logging.getLogger(__name__)
 def _try_parse_strftime_format(strftime_val: str, format: str) -> Optional[datetime.datetime]:
     """
     Return whether the string is in a strftime format.
-
     :param strftime_val: str, string to check for date
     :param format: format to check if strftime_val can be parsed
     :return None if not parseable, otherwise the parsed datetime.datetime object
-
     """
     parsed = None
     try:
@@ -49,11 +47,9 @@ def _try_parse_strftime_format(strftime_val: str, format: str) -> Optional[datet
 def _try_parse_dateutil(dateutil_val: str, ref_val=None) -> Optional[datetime.datetime]:
     """
     Return whether the string can be interpreted as a date.
-
     :param dateutil_val: str, string to check for date
     :param ref_val: any, not used, interface design requirement
     :return None if not parseable, otherwise the parsed datetime.datetime object
-
     """
     parsed = None
     try:
@@ -66,7 +62,6 @@ def _try_parse_dateutil(dateutil_val: str, ref_val=None) -> Optional[datetime.da
 def _try_parse_json(json_string: str, ref_val=None) -> Optional[dict]:
     """
     Return whether the string can be interpreted as json.
-
     :param json_string: str, string to check for json
     :param ref_val: any, not used, interface design requirement
     :return None if not parseable, otherwise the parsed json object
@@ -82,7 +77,6 @@ def _try_parse_json(json_string: str, ref_val=None) -> Optional[dict]:
 def _matches_json_schema(json_data: Union[str, dict], json_schema: Union[str, dict]) -> bool:
     """
     Return whether the provided json matches the provided schema.
-
     :param json_data: json object to check
     :param json_schema: schema to check if the json object matches it
     :return True if the json data matches the schema, False otherwise
@@ -122,7 +116,7 @@ _value_funcs = {
     Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
-    Op.IN_SET: lambda x: lambda v: v in x,
+    Op.IN: lambda x: lambda v: v in x,
     Op.APPLY_FUNC: lambda apply_function, reference_value: lambda v: apply_function(v, reference_value),
 }
 
@@ -153,7 +147,10 @@ _summary_funcs1 = {
     == round(theta_a_not_b().compute(ref_num_sketch, getattr(update_obj, f)["number_theta"]).get_estimate(), 1)
     == 0.0,
     Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
-    Op.IN2: lambda f, v: lambda s: v in getattr(s, f),
+    Op.CONTAIN: lambda f, v: lambda s: v in getattr(s, f),
+    # Op.QUANTILE_BETWEEN: lambda first_field, lower, upper, quantile_value: lambda update_object: lower <=
+    #     getattr(update_object, first_field).get_quantiles([quantile_value])[0]
+    #     <= upper,
 }
 
 _summary_funcs2 = {
@@ -206,7 +203,7 @@ class ValueConstraint:
         if (apply_function is not None) != (self.op == Op.APPLY_FUNC):
             raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator")
 
-        if (isinstance(value, set) and op != Op.IN_SET) or (not isinstance(value, set) and op == Op.IN_SET):
+        if (isinstance(value, set) and op != Op.IN) or (not isinstance(value, set) and op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
         if self.op == Op.APPLY_FUNC:
@@ -418,7 +415,28 @@ class SummaryConstraint:
         if self.first_field != "quantile" and self.quantile_value is not None:
             raise ValueError("Summary constraint applied on non-quantile field should not specify quantile value")
 
-        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+        if self.first_field in ("columns", "total_row_number"):  # table shape constraint
+
+            if self.first_field == "columns":
+                if op == Op.EQ:
+                    if any([value, upper_value, second_field, third_field, not reference_set]):
+                        raise ValueError("When using set operations only set should be provided and not values or field names!")
+                    self.reference_set = reference_set
+                    reference_set = self.try_cast_set()
+                else:
+                    if any([not value, upper_value, second_field, third_field, reference_set]):
+                        raise ValueError("When using table shape columns constraint only value should be provided and no fields or reference set!")
+
+            if isinstance(value, (float)):
+                value = int(value)
+
+            if (op == Op.CONTAIN and not isinstance(value, str)) or (op == Op.EQ and not isinstance(value, int) and not isinstance(reference_set, set)):
+                raise ValueError("Table shape constraints require value of type string or string set for columns and type int for number of rows!")
+
+            target_val = self.value if self.value else self.reference_set
+            self.func = _summary_funcs1[self.op](first_field, target_val)
+
+        elif self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
             if any([value, upper_value, second_field, third_field, not reference_set]):
                 raise ValueError("When using set operations only set should be provided and not values or field names!")
 
@@ -472,20 +490,29 @@ class SummaryConstraint:
             field_name = f"{self.first_field} {self.quantile_value}"
         else:
             field_name = self.first_field
-        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
-            reference_set_str = ""
-            if len(self.reference_set) > 20:
-                tmp_set = set(list(self.reference_set)[:20])
-                reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
-            else:
-                reference_set_str = str(self.reference_set)
-            return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {reference_set_str}"
+
+        constraint_type_str = "table" if self.first_field in ("columns, total_row_number") else "summary"
+        if hasattr(self, "reference_set"):
+            reference_set_str = self.get_str_from_ref_set()
+            return self._name if self._name is not None else f"{constraint_type_str} {self.first_field} {Op.Name(self.op)} {reference_set_str}"
         elif self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
             return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {lower_target} and {upper_target}"
+        elif self.first_field in ("columns, total_row_number"):
+            return self._name if self._name is not None else f"table {self.first_field} {Op.Name(self.op)} {self.value}"
 
-        return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {self.value}/{self.second_field}"
+        return self._name if self._name is not None else f"{constraint_type_str} {field_name} {Op.Name(self.op)} {self.value}/{self.second_field}"
+
+    def get_str_from_ref_set(self) -> str:
+        reference_set_str = ""
+        if len(self.reference_set) > 20:
+            tmp_set = set(list(self.reference_set)[:20])
+            reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
+        else:
+            reference_set_str = str(self.reference_set)
+
+        return reference_set_str
 
     def try_cast_set(self) -> Set[Any]:
         if not isinstance(self.reference_set, set):
@@ -516,7 +543,7 @@ class SummaryConstraint:
             theta.update(item)
         return theta
 
-    def update(self, update_dict: dict) -> bool:
+    def update(self, update_dict: object) -> bool:
         self.total += 1
 
         if self.first_field == "quantile":
@@ -544,7 +571,8 @@ class SummaryConstraint:
             self.quantile_value == other.quantile_value
         ), f"Cannot merge constraints with different quantile_value: {self.quantile_value} and {other.quantile_value}"
 
-        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+        if hasattr(self, "reference_set"):
+            assert hasattr(other, "reference_set"), "Cannot merge constraint that doesn't have reference set with one that does."
             assert self.reference_set == other.reference_set
             merged_constraint = SummaryConstraint(
                 first_field=self.first_field, op=self.op, reference_set=self.reference_set, name=self.name, verbose=self._verbose
@@ -593,11 +621,16 @@ class SummaryConstraint:
                 name=msg.name,
                 verbose=msg.verbose,
             )
-        elif msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between") and not msg.HasField("reference_set"):
+        elif (
+            (msg.HasField("value") or msg.HasField("value_str"))
+            and not msg.HasField("second_field")
+            and not msg.HasField("between")
+            and not msg.HasField("reference_set")
+        ):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
-                value=msg.value,
+                value=msg.value if msg.HasField("value") else msg.value_str,
                 quantile_value=quantile_val,
                 name=msg.name,
                 verbose=msg.verbose,
@@ -648,7 +681,7 @@ class SummaryConstraint:
             )
 
     def to_protobuf(self) -> SummaryConstraintMsg:
-        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+        if hasattr(self, "reference_set"):
             reference_set_msg = ListValue()
             reference_set_msg.extend(self.reference_set)
 
@@ -677,14 +710,12 @@ class SummaryConstraint:
             )
 
         elif self.second_field is None:
-            msg = SummaryConstraintMsg(
-                name=self.name,
-                first_field=self.first_field,
-                op=self.op,
-                value=self.value,
-                quantile_value=self.quantile_value,
-                verbose=self._verbose,
-            )
+            s_msg_opts = dict(name=self.name, first_field=self.first_field, op=self.op, quantile_value=self.quantile_value, verbose=self._verbose)
+            if isinstance(self.value, str):
+                s_msg_opts.update(dict(value_str=self.value))
+            else:
+                s_msg_opts.update(dict(value=self.value))
+            msg = SummaryConstraintMsg(**s_msg_opts)
         else:
             msg = SummaryConstraintMsg(
                 name=self.name,
@@ -847,6 +878,10 @@ class DatasetConstraints:
             if isinstance(v, list):
                 summary_constraints[k] = SummaryConstraints(v)
         self.summary_constraint_map = summary_constraints
+
+        if isinstance(table_shape_constraints, list):
+            table_shape_constraints = SummaryConstraints(table_shape_constraints)
+
         self.table_shape_constraints = table_shape_constraints
 
     def __getitem__(self, key):
@@ -858,7 +893,8 @@ class DatasetConstraints:
     def from_protobuf(msg: DatasetConstraintMsg) -> "DatasetConstraints":
         vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
         sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
-        return DatasetConstraints(msg.properties, vm, sm)
+        table_shape_m = SummaryConstraints.from_protobuf(msg.table_shape_constraints)
+        return DatasetConstraints(msg.properties, vm, sm, table_shape_m)
 
     @staticmethod
     def from_json(data: str) -> "DatasetConstraints":
@@ -870,10 +906,12 @@ class DatasetConstraints:
         # turn that into a map indexed by column name
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
         sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
+        table_shape_constraints_message = self.table_shape_constraints.to_protobuf()
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,
             summary_constraints=sm,
+            table_shape_constraints=table_shape_constraints_message,
         )
 
     def to_json(self) -> str:
@@ -884,58 +922,6 @@ class DatasetConstraints:
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
         return l1 + l2
 
-class TableShapeConstraint(SummaryConstraint):
-    
-    def __init__(self, first_field, op, value, name = None, verbose = None):
-    
-        # column exists: value in columns.keys() ; op=Op.IN2
-        # N of rows: value == N of rows ; op=Op.EQ
-        # columns match set: columns_set == value(set) ; op=Op.EQ
-        self._verbose = verbose
-        self._name = name
-        self.first_field = first_field
-        self.op = op
-        self.value = value
-        self.total = 0
-        self.failures = 0
-
-        if not isinstance(value, set):
-            try:
-                reference_set = set(value)
-            except TypeError:
-                pass
-
-        if (op == Op.IN2 and not isinstance(value, str)) or (op==op.EQ and not isinstance(value, (int, set))):
-            raise ValueError("Table shape constraints require value of type string or string set for columns and type int for number of rows!")
-        
-        self.func = _summary_funcs1[self.op](first_field, value)
-
-    @property
-    def name(self):
-        return self._name if self._name is not None else f"summary {self.value} {Op.Name(self.op)} {self.first_field}"
-    
-    def update(self, update_dict: dict):
-        self.total += 1
-        update_object = update_dict[self.first_field]
-
-        if not self.func(update_object):
-            self.failures += 1
-            if self._verbose:
-                logger.info(f"summary constraint {self.name} failed")
-
-    
-def columnExistsConstraint(column: str, verbose = False):
-    return TableShapeConstraint("columns", Op.IN2, value = column, verbose=verbose)
-
-def numberOfRowsConstraint(n_rows: int, verbose = False):
-    return TableShapeConstraint("total_row_number", Op.EQ, value = n_rows, verbose=verbose)
-
-def columnsMatchSetConstraint(reference_set: Set[str], verbose = False):
-    return TableShapeConstraint("columns", Op.EQ, value = reference_set, verbose=verbose)
-
-    
-    
-        
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
     return SummaryConstraint("stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
@@ -979,7 +965,7 @@ def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
     except Exception:
         raise TypeError("The value set should be an iterable data type")
 
-    return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
+    return ValueConstraint(Op.IN, value=value_set, verbose=verbose)
 
 
 def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
@@ -1095,3 +1081,13 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
         raise ValueError("The lower fraction should be decimal values less than or equal to the upper fraction")
 
     return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
+def columnExistsConstraint(column: str, verbose=False):
+    return SummaryConstraint("columns", Op.CONTAIN, value=column, verbose=verbose)
+
+
+def numberOfRowsConstraint(n_rows: int, verbose=False):
+    return SummaryConstraint("total_row_number", Op.EQ, value=n_rows, verbose=verbose)
+
+
+def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
+    return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, verbose=verbose)

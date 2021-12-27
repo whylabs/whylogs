@@ -23,7 +23,7 @@ enum Op {
     CONTAIN_SET = 11;
     EQ_SET = 12;
     IN = 13;
-    IN2 = 14;
+    CONTAIN = 14;
     APPLY_FUNC = 15;
   }
 
@@ -41,6 +41,7 @@ message SummaryConstraintMsg {
      double value = 4;
      SummaryBetweenConstraintMsg between = 7;
      google.protobuf.ListValue reference_set = 8;
+     string value_str = 9;
   }
   Op op = 5;
   bool verbose = 6;
@@ -91,5 +92,6 @@ message DatasetConstraintMsg {
   DatasetProperties properties = 1;
   map<string, ValueConstraintMsgs> value_constraints = 2;
   map<string, SummaryConstraintMsgs> summary_constraints = 3;
+  SummaryConstraintMsgs table_shape_constraints = 4;
 }
 
