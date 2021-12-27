@@ -154,9 +154,10 @@ def entropy_from_column_summary(summary: ColumnSummary, histogram: datasketches.
 
     Parameters
     ----------
-    self
     summary : ColumnSummary
         Protobuf summary message
+    histogram: datasketches.kll_floats_sketch
+        Data sketch for quantiles
 
     Returns
     -------
