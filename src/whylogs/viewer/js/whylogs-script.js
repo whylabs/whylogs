@@ -14,7 +14,6 @@
   };
 
   // HTML Elements
-  const $filterListItem = $("#filter-list-item");
   const $notClickableBurgerIcon = $("#not_clickable_burger_icon");
   const $filterCloseIcon = $("#filter-close-icon");
   const $closeIcon = $("#close-icon");
@@ -37,7 +36,6 @@
   const $tableMessage = $("#table-message");
   const $sidebarContent = $("#sidebar-content");
   const $multiProfileWrap = $("#sidebar-content-multi-profile");
-  const $profileDropdown = $(".sidebar-content__profile-dropdown");
   const $propertyPanelTitle = $(".wl-property-panel__title");
   const $propertyPanelProfileName = $(".wl-property-panel__table-th-profile");
   const $filterOptions = $(".filter-options");
@@ -46,7 +44,7 @@
   let featureSearchValue = "";
   let isActiveInferredType = {};
   let propertyPanelData = [];
-  let profiles = [];
+  let referencePropertyPanelData = [];
   let jsonData = {};
   let referenceJsonData = {};
   let dataForRead = {};
@@ -56,11 +54,6 @@
   selectedProfiles.push("0");
   // Util functions
 
-  const colors = {
-    0: "#0e7384",
-    1: "#2683c9",
-    2: "#44c0e7",
-  };
   function debounce(func, wait, immediate) {
     let timeout;
 
@@ -138,36 +131,132 @@
     );
   }
 
-  function openPropertyPanel(items, infType, infTypeSecond = null) {
-    const types = [infType, infTypeSecond];
-    $(".wl-property-panel__table-th-profile").addClass("d-none");
-    $("#property-panel-0").removeClass("d-none");
+  function getGraphHtml(data, height = 75, width = 350, referenceProfile = false) {
+    const MARGIN = {
+      TOP: 5,
+      RIGHT: 5,
+      BOTTOM: 5,
+      LEFT: 55,
+    };
+    const SVG_WIDTH = width;
+    const SVG_HEIGHT = height;
+    const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
+    const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
+    let PRIMARY_COLOR_HEX = "#369BAC";
+
+    const svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
+
+    const maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+
+    const xScale = d3
+      .scaleBand()
+      .domain(data.map((d) => d.axisX))
+      .range([MARGIN.LEFT, MARGIN.LEFT + CHART_WIDTH]);
+    const yScale = d3
+      .scaleLinear()
+      .domain([0, maxYValue * 1.02]) // so that chart's height has 102% height of the maximum value
+      .range([CHART_HEIGHT, 0]);
+
+    // Add the y Axis
+    if (!referenceProfile) {
+      svgEl
+        .append("g")
+        .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
+        .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]));
+    } else {
+      PRIMARY_COLOR_HEX = '#2683C9'
+    }
+
+    const gChart = svgEl.append("g");
+    gChart
+      .selectAll(".bar")
+      .data(data)
+      .enter()
+      .append("rect")
+      .classed("bar", true)
+      .attr("width", xScale.bandwidth() - 1)
+      .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+      .attr("x", (d) => xScale(d.axisX))
+      .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+      .attr("fill", PRIMARY_COLOR_HEX);
+
+    return svgEl._groups[0][0].outerHTML;
+  }
+
+  function openReferencePropertyPanel(items, chart) {
+
+    const chartInfoItem = (drift, driftName) => `    
+      <div class="info">
+          <div>${drift}</div>
+          <p>${driftName}</p>
+     </div>
+    `
+    const $tableContent = $("#table-content");
+    const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap");
+    const $pagesButtons = $(".page-button");
+    const $pagesButton = $pagesButtons[0];
+    let chipString = "";
+    
+    $pagesButtons.removeClass("activ-pages-button")
+    $($pagesButton).addClass("activ-pages-button")
+    $tableContent.addClass("d-none")
+    $clickableTestFeatureWrap.removeClass("d-none")
+
+    $("#chart").html(chart);
+    chipString += `
+      ${chartInfoItem(fixNumberTo(items.numberSummary.stddev), "Drift from ref")}
+      ${chartInfoItem(items.numberSummary.count.toString(), "Total Count")}
+      ${chartInfoItem(fixNumberTo(items.numberSummary.mean), "Mean")}
+    `
+    $(".chart-info").html(chipString);
+  }
+
+  function openProfilePropertyPanel(items, infType, chart) {
+    $("#wl-property-panel__chart").html(chart);
+    let chipString = "";
+    const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
+    const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
+    const chipElementEstimation = (count) =>
+      `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
+    items.forEach((item) => {
+      chipString += `
+    <tr class="wl-property-panel__table-tr">
+      ${chipElementTableData(item.value)}
+      ${chipElementEstimation(item.count)}
+    </tr>
+    `;
+    });
+    $(".wl-property-panel__frequent-items").html(chipString);
+    if (infType === "non-discrete") {
+      $propertyPanelTitle.html("Histogram data:");
+      $propertyPanelProfileName.html("Bin values");
+    } else if (infType === "discrete") {
+      $propertyPanelTitle.html("Frequent items:");
+      $propertyPanelProfileName.html("Counts");
+    }
+
+    $(".wl-property-panel").addClass("wl-property-panel--open");
+    $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
+  }
+
+  function openPropertyPanel(items, infType, feature) {
+    let getGraph = null;
+
+    if (referencePropertyPanelData[feature[0]][0]) {
+      items = referencePropertyPanelData[feature[0]][0]
+      getGraph = getGraphHtml(feature[1].chartData[1], 50, 280, true)
+    }
+    const getPropertyPanelGraph = getPropertyPanelGraphHtml(jsonData.columns[feature[0]], feature[0])
+
     if (checkJSONValidityForMultiProfile(jsonData) || checkJSONValidityForSingleProfile(jsonData)) {
       if (items.length > 0 && items !== "undefined") {
-        let chipString = "";
-        const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
-        const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
-        const chipElementEstimation = (count) =>
-          `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
-        items.forEach((item) => {
-          chipString += `
-        <tr class="wl-property-panel__table-tr">
-          ${chipElementTableData(item.value)}
-          ${chipElementEstimation(item.count)}
-        </tr>
-        `;
-        });
-        $(".wl-property-panel__frequent-items").html(chipString);
-        if (infType === "non-discrete") {
-          $propertyPanelTitle.html("Histogram data:");
-          $propertyPanelProfileName.html("Bin values");
-        } else if (infType === "discrete") {
-          $propertyPanelTitle.html("Frequent items:");
-          $propertyPanelProfileName.html("Counts");
+        if (referencePropertyPanelData[feature[0]][0]) {
+          openReferencePropertyPanel(referenceJsonData.columns[feature[0]], getGraph)
+        } else {
+          openProfilePropertyPanel(items, infType, getPropertyPanelGraph)
         }
-
-        $(".wl-property-panel").addClass("wl-property-panel--open");
-        $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
+      } else {
+        
       }
     }
   }
@@ -178,73 +267,73 @@
     $(".wl-property-panel__frequent-items").html("");
   }
 
+  function getPropertyPanelGraphHtml (column) {
+    let chartString = "";
+    const freqData = [];
+    const histData = [];
+
+    const freqChart = (chart) =>
+      `<div class="wl-property-panel__chart--single"><div class="wl-property-panel__chart-title">Frequent Items Data</div>${chart}</div>`;
+    const histChart = (chart) =>
+      `<div class="wl-property-panel__chart--single"><div class="wl-property-panel__chart-title">Histogram Data</div>${chart}</div>`;
+
+    if (column.numberSummary) {
+      if (column.frequentItems && column.frequentItems.items) {
+        column.frequentItems.items.forEach((item, index) => {
+          freqData.push({
+            axisY: item.estimate,
+            axisX: index,
+          });
+        });
+      }
+
+      if (column.numberSummary.histogram && column.numberSummary.histogram.counts) {
+        column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+          histData.push({
+            axisY: count,
+            axisX: index,
+          });
+        });
+      }
+      if (column.numberSummary.isDiscrete) {
+        if (freqData.length > 0) chartString += freqChart(getGraphHtml(freqData, 130));
+        if (histData.length > 0) chartString += histChart(getGraphHtml(histData, 130));
+      } else {
+        if (histData.length > 0) chartString += histChart(getGraphHtml(histData, 130));
+        if (freqData.length > 0) chartString += freqChart(getGraphHtml(freqData, 130));
+      }
+    }
+    return chartString;
+  }
+
+  function sidebarContentHeight() {
+    const $sidebarContentPadding = +$("#sidebar-content-single-profile").css("padding").replace('px','') * 2
+    const $sidebarContentHeight = $("#sidebar-content-single-profile").height() + $sidebarContentPadding
+    const $sidebar = $(".sidebar")
+    
+    $sidebar.css("margin-bottom", `${$sidebarContentHeight}px`)
+  }
+
   // Override and populate HTML element values
   function updateHtmlElementValues() {
+    sidebarContentHeight()
     $sidebarFeatureNameList.html("");
     $tableMessage.addClass("d-none");
     Object.entries(featureDataForTableForAllProfiles).forEach((feature) => {
-      function getGraphHtml(data, index) {
-        const SINGLE_PROFILE_JSON = !profiles.length;
-        const MARGIN = {
-          TOP: 5,
-          RIGHT: 5,
-          BOTTOM: 5,
-          LEFT: 55,
-        };
-        const SVG_WIDTH = 350;
-        const SVG_HEIGHT = SINGLE_PROFILE_JSON ? 75 : 35;
-        const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
-        const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
-
-        const svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
-
-        const maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
-
-        const xScale = d3
-          .scaleBand()
-          .domain(data.map((d) => d.axisX))
-          .range([MARGIN.LEFT, MARGIN.LEFT + CHART_WIDTH]);
-        const yScale = d3
-          .scaleLinear()
-          .domain([0, maxYValue * 1.02]) // so that chart's height has 102% height of the maximum value
-          .range([CHART_HEIGHT, 0]);
-
-        // Add the y Axis
-        svgEl
-          .append("g")
-          .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
-          .call(d3.axisLeft(yScale).tickValues([0, maxYValue]));
-
-        const gChart = svgEl.append("g");
-        gChart
-          .selectAll(".bar")
-          .data(data)
-          .enter()
-          .append("rect")
-          .classed("bar", true)
-          .attr("width", xScale.bandwidth() - 1)
-          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
-          .attr("x", (d) => xScale(d.axisX))
-          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-          .attr("fill", colors[index]);
-
-        return svgEl._groups[0][0].outerHTML;
-      }
       // strings for tableToShow
       let tempChartDataString = "";
       let referenceTempChartDataString = "";
       feature[1].chartData.forEach((chartData, index) => {
         if (selectedProfiles.includes(String(index))) {
-          let profileSelected = selectedProfiles.indexOf(String(index));
           tempChartDataString += `<div>${
             chartData.length > 0
-              ? getGraphHtml(feature[1].chartData[0], profileSelected)
+              ? getGraphHtml(feature[1].chartData[0])
               : '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>'
           }</div>`;
           if (feature[1].chartData[1] && feature[1].chartData[1].length > 0) {
             referenceTempChartDataString+= `<div>${
               chartData.length > 0
-                ? getGraphHtml(feature[1].chartData[1], profileSelected)
+                ? getGraphHtml(feature[1].chartData[1], ...[,,], true)
                 : '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>'
             }</div>`;
           }
@@ -402,7 +491,12 @@
         const $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
         $tableRowButton.on(
           "click",
-          openPropertyPanel.bind(this, propertyPanelData[feature[0]][0], feature[1].inferredType[0].toLowerCase()),
+          openPropertyPanel.bind(
+            this, 
+            propertyPanelData[feature[0]][0],
+            feature[1].inferredType[0].toLowerCase(), 
+            feature
+          ),
         );
         $tableRow.find(".wl-table-cell__title-wrap").append($tableRowButton);
       }
@@ -414,7 +508,10 @@
           <li id="filter-list-item" class="wl_filter-list-item list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${feature[1].inferredType}">
             <div class="arrow-icon-container">
               <div class="wl_list-item-dot"></div>
-              <img class="d-none wl_arrow-icon" src="./images/arrow-circle-right.png"/>
+              <img 
+                class="d-none wl_arrow-icon" 
+                src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCAxMiAxMyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC44IiBkPSJNNiAwLjY4NzVDMi43ODkwNiAwLjY4NzUgMC4xODc1IDMuMjg5MDYgMC4xODc1IDYuNUMwLjE4NzUgOS43MTA5NCAyLjc4OTA2IDEyLjMxMjUgNiAxMi4zMTI1QzkuMjEwOTQgMTIuMzEyNSAxMS44MTI1IDkuNzEwOTQgMTEuODEyNSA2LjVDMTEuODEyNSAzLjI4OTA2IDkuMjEwOTQgMC42ODc1IDYgMC42ODc1Wk01LjMyMDMxIDQuMDYyNUM1LjA4NTk0IDMuODUxNTYgNS4wODU5NCAzLjQ3NjU2IDUuMjk2ODggMy4yNjU2Mkw1LjU1NDY5IDMuMDA3ODFDNS43ODkwNiAyLjc3MzQ0IDYuMTQwNjIgMi43NzM0NCA2LjM1MTU2IDMuMDA3ODFMOS40Njg3NSA2LjEyNUM5LjY3OTY5IDYuMzM1OTQgOS42Nzk2OSA2LjY4NzUgOS40Njg3NSA2Ljg5ODQ0TDYuMzUxNTYgMTAuMDE1NkM2LjE0MDYyIDEwLjIyNjYgNS43ODkwNiAxMC4yMjY2IDUuNTU0NjkgMTAuMDE1Nkw1LjI5Njg4IDkuNzU3ODFDNS4wODU5NCA5LjU0Njg4IDUuMDg1OTQgOS4xNzE4OCA1LjMyMDMxIDguOTYwOTRMNy4wNzgxMiA3LjI1SDIuODEyNUMyLjQ4NDM4IDcuMjUgMi4yNSA3LjAxNTYyIDIuMjUgNi42ODc1VjYuMzEyNUMyLjI1IDYuMDA3ODEgMi40ODQzOCA1Ljc1IDIuODEyNSA1Ljc1SDcuMDc4MTJMNS4zMjAzMSA0LjA2MjVaIiBmaWxsPSIjMEU3Mzg0Ii8+Cjwvc3ZnPgo="
+              />
             </div>
             <span data-feature-name-id="${feature[0]}" >${feature[0]}</span>
           </li>
@@ -450,7 +547,6 @@
     });
 
     for (let i = 0; i < tableBodyChildrens.length; i++) {
-      const name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
       const type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
 
       if (isActiveInferredType[type]) {
@@ -459,7 +555,6 @@
       }
     }
     for (let i = 0; i < featureListChildren.length; i++) {
-      const name = featureListChildren[i].dataset.featureName.toLowerCase();
       const type = featureListChildren[i].dataset.inferredType.toLowerCase();
 
       if (isActiveInferredType[type]) {
@@ -550,6 +645,7 @@
           unknown: [],
         };
         propertyPanelData[feature[0]] = [];
+        referencePropertyPanelData[feature[0]] = [];
       }
       let iteration = 0;
       feature[1].forEach((tempFeatureValues) => {
@@ -662,6 +758,17 @@
             propertyPanelData[feature[0]] = [];
           }
           if (tempFeatureValues.referenceNumberSummary) {
+            referencePropertyPanelData[feature[0]][0] = tempFeatureValues.referenceNumberSummary.histogram.counts.reduce(
+              (acc, value, index) => {
+                acc.push({
+                  value: value,
+                  count: tempFeatureValues.referenceNumberSummary.histogram.bins[index],
+                });
+                return acc;
+              },
+              [],
+            );
+
             tempFeatureValues.referenceNumberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
               featureDataForTableForAllProfiles[feature[0]].chartData[1].push({
                 axisY: count,
@@ -691,7 +798,6 @@
         return false;
       }
     }
-
     return true;
   }
 
@@ -730,7 +836,6 @@
   }
 
   function loadFile(inputId, jsonForm) {
-    profiles = [];
     isActiveInferredType = {};
     $featureFilterInput.html("");
     $sidebarFeatureNameList.html("");
@@ -766,8 +871,10 @@
     if (inputId === "file-input") {
       jsonData = data;
       referenceJsonData = undefined
+      $(".reference-table-head").addClass("d-none")
     } else {
       referenceJsonData = data
+      $(".reference-table-head").removeClass("d-none")
     }
 
     mapProfileDataToReadData(jsonData, dataForRead, referenceJsonData);
@@ -788,6 +895,23 @@
     }
   }
 
+  $(document).on("click", ".page-button", function(e) {
+    const $pagesButtons = $(".page-button"),
+      $pagesButtonIndex = $pagesButtons.index(e.target),
+      $pagesButton = $(".page-button")[$pagesButtonIndex]
+
+    $pagesButtons.removeClass("activ-pages-button")
+    $($pagesButton).addClass("activ-pages-button")
+  })
+
+  $("#property-panel-close-icon").on("click", function (e) {
+    const $tableContent = $("#table-content")
+    const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap")
+
+    $tableContent.removeClass("d-none")
+    $clickableTestFeatureWrap.addClass("d-none")
+  });
+
   $burgerIcon.on("click", function () {
     $filterOptions.removeClass("d-none");
     $burgerIcon.addClass("d-none");
@@ -802,18 +926,21 @@
 
   $closeIcon.on("click", function () {
     $signUpText.addClass("d-none");
+    sidebarContentHeight()
   });
 
   $(document).on("click", ".js-list-group-item span", function (e) {
     const listItem = $("li>span"),
       listItemIndex = listItem.index(e.target),
       $listItemDot = $(".wl_list-item-dot")[listItemIndex],
-      $arrowIcon = $(".wl_arrow-icon")[listItemIndex];
-
-    $(".wl_list-item-dot").removeClass("d-none");
-    $(".wl_arrow-icon").addClass("d-none");
-    $($arrowIcon).removeClass("d-none");
-    $($listItemDot).addClass("d-none");
+      $arrowIcon = $(".wl_arrow-icon")[listItemIndex]
+  
+    listItem.css("padding-left", "15px")
+    $(".wl_list-item-dot").removeClass("d-none")
+    $(".wl_arrow-icon").addClass("d-none")
+    $($arrowIcon).removeClass("d-none")
+    $($listItemDot).addClass("d-none")
+    $(listItem[listItemIndex]).css("padding-left", "8px")
   });
 
   // Bind event listeners
