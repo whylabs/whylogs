@@ -1589,6 +1589,9 @@ def test_dataset_constraints_serialization():
 
         for (k, v), (k_deser, v_deser) in zip(pm_json.items(), deser_pm_json.items()):
             assert k == k_deser
+            if all([v, v_deser]):
+                v = v.sort() if isinstance(v, list) else v
+                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
             assert v == v_deser
 
     value_constraints = dc.value_constraint_map
@@ -1610,6 +1613,9 @@ def test_dataset_constraints_serialization():
 
             for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
                 assert k == k_deser
+                if all([v, v_deser]):
+                    v = v.sort() if isinstance(v, list) else v
+                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
                 assert v == v_deser
 
     for (column, constraints), (deser_column, deser_constraints) in zip(summary_constraints.items(), deser_s_c.items()):
@@ -1623,6 +1629,9 @@ def test_dataset_constraints_serialization():
 
             for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
                 assert k == k_deser
+                if all([v, v_deser]):
+                    v = v.sort() if isinstance(v, list) else v
+                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
                 assert v == v_deser
 
     for (name, c), (deser_name, deser_c) in zip(table_shape_constraints.constraints.items(), deser_ts_c.constraints.items()):
@@ -1633,4 +1642,12 @@ def test_dataset_constraints_serialization():
 
         for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
             assert k == k_deser
+            if all([v, v_deser]):
+                v = v.sort() if isinstance(v, list) else v
+                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
             assert v == v_deser
+
+    report = dc.report()
+    report_deser = dc_deser.report()
+
+    assert report == report_deser

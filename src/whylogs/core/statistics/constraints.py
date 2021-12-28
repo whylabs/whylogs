@@ -879,6 +879,8 @@ class DatasetConstraints:
                 summary_constraints[k] = SummaryConstraints(v)
         self.summary_constraint_map = summary_constraints
 
+        if table_shape_constraints is None:
+            table_shape_constraints = SummaryConstraints()
         if isinstance(table_shape_constraints, list):
             table_shape_constraints = SummaryConstraints(table_shape_constraints)
 
@@ -920,7 +922,8 @@ class DatasetConstraints:
     def report(self):
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
-        return l1 + l2
+        l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
+        return l1 + l2 + l3
 
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
