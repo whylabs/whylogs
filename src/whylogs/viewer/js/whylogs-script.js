@@ -133,7 +133,8 @@
     );
   }
 
-  function getGraphHtml(data, height = 75, width = 350, referenceProfile = false) {
+  function getGraphHtml(data, height = 75, width = 350, index = 0, referenceProfile = false) {
+    const color = ["#369BAC", '#2683C9']
     const MARGIN = {
       TOP: 5,
       RIGHT: 5,
@@ -144,7 +145,6 @@
     const SVG_HEIGHT = height;
     const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
     const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
-    let PRIMARY_COLOR_HEX = "#369BAC";
 
     const svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
 
@@ -165,8 +165,6 @@
         .append("g")
         .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
         .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]));
-    } else {
-      PRIMARY_COLOR_HEX = '#2683C9'
     }
 
     const gChart = svgEl.append("g");
@@ -180,7 +178,7 @@
       .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
       .attr("x", (d) => xScale(d.axisX))
       .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-      .attr("fill", PRIMARY_COLOR_HEX);
+      .attr("fill", color[index]);
 
     return svgEl._groups[0][0].outerHTML;
   }
@@ -246,7 +244,7 @@
 
     if (referencePropertyPanelData[feature[0]][0]) {
       items = referencePropertyPanelData[feature[0]][0]
-      getGraph = getGraphHtml(feature[1].chartData[1], 50, 280, true)
+      getGraph = getGraphHtml(feature[1].chartData[1], 50, 280, 0, true)
     }
     const getPropertyPanelGraph = getPropertyPanelGraphHtml(jsonData.columns[feature[0]], feature[0])
 
@@ -335,7 +333,7 @@
           if (feature[1].chartData[1] && feature[1].chartData[1].length > 0) {
             referenceTempChartDataString+= `<div>${
               chartData.length > 0
-                ? getGraphHtml(feature[1].chartData[1], ...[,,], true)
+                ? getGraphHtml(feature[1].chartData[1], ...[,,], 1, true)
                 : '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>'
             }</div>`;
           }
