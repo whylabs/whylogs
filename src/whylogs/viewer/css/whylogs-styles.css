@@ -758,15 +758,43 @@ a .wl-table-row--bottom-shadow {
 .count-color {
   color: black;
 }
-.wl__burger_icon {
+
+.wl__burger_icon_container {
   width: 18px;
   height: 16px;
 }
 
-.wl__burger_icon img{
+.wl__burger_icon_container img{
   width: 100%;
   height: 100%;
   cursor: pointer;
+}
+
+.wl__burger_icon {
+  position: relative;
+}
+
+.notif-circle-container {
+  position: absolute;
+  top: 7px;
+  right: -5px;
+  padding: 5.3px;
+  border-radius: 50%;
+  background-color: var(--brandSecondary100);
+  cursor: pointer;
+}
+
+.notif-circle {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  padding: 3.3px;
+  border-radius: 50%;
+  background-color: #F2994A;
+}
+
+.not-clickable-notif {
+  background: #FAC79A;
 }
 
 .space-between {

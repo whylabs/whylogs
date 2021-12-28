@@ -14,6 +14,8 @@
   };
 
   // HTML Elements
+  const $notifCircleContainer = $(".notif-circle-container")
+  const $boxes = $('input[name=checkbox]:checked');
   const $notClickableBurgerIcon = $("#not_clickable_burger_icon");
   const $filterCloseIcon = $("#filter-close-icon");
   const $closeIcon = $("#close-icon");
@@ -956,6 +958,12 @@
     }, 300),
   );
   $featureFilterInput.on("change", (event) => {
+    const item = Object.values($boxes).find(function(value) { return $('#' + $(value)[0].id).is(":checked") });
+    if (item) {
+      $notifCircleContainer.removeClass("d-none")
+    } else {
+      $notifCircleContainer.addClass("d-none")
+    }
     const filterType = event.target.value.toLowerCase();
     const isChecked = event.target.checked;
 
