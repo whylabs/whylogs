@@ -163,6 +163,16 @@ _summary_funcs2 = {
     Op.BTWN: lambda f, f2, f3: lambda s: getattr(s, f2) <= getattr(s, f) <= getattr(s, f3),
 }
 
+_multi_column_funcs = {
+    Op.LT: lambda v1, v2: v1 < v2,
+    Op.LE: lambda v1, v2: v1 <= v2,
+    Op.EQ: lambda v1, v2: v1 == v2,
+    Op.NE: lambda v1, v2: v1 != v2,
+    Op.GE: lambda v1, v2: v1 >= v2,
+    Op.GT: lambda v1, v2: v1 > v2,  # assert incoming value 'v' is greater than some fixed value 'x'
+    Op.IN: lambda x: lambda v1, v2: (v1, v2) in x,
+}
+
 
 class ValueConstraint:
     """
@@ -804,6 +814,7 @@ class DatasetConstraints:
         value_constraints: Optional[ValueConstraints] = None,
         summary_constraints: Optional[SummaryConstraints] = None,
         table_shape_constraints: Optional[SummaryConstraints] = None,
+        multi_column_constraints: Optional[ValueConstraints] = None,
     ):
         self.dataset_properties = props
         # repackage lists of constraints if necessary
@@ -813,6 +824,7 @@ class DatasetConstraints:
             if isinstance(v, list):
                 value_constraints[k] = ValueConstraints(v)
         self.value_constraint_map = value_constraints
+
         if summary_constraints is None:
             summary_constraints = dict()
         for k, v in summary_constraints.items():
@@ -825,6 +837,14 @@ class DatasetConstraints:
 
         self.table_shape_constraints = table_shape_constraints
 
+        if multi_column_constraints is None:
+            multi_column_constraints = dict()
+        for k, v in multi_column_constraints.items():
+            # k: (col1, col2)
+            if isinstance(v, list):
+                multi_column_constraints[k] = ValueConstraints(v)
+        self.multi_column_constraint_map = multi_column_constraints
+
     def __getitem__(self, key):
         if key in self.value_constraint_map:
             return self.value_constraint_map[key]
@@ -835,7 +855,8 @@ class DatasetConstraints:
         vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
         sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
         table_shape_m = SummaryConstraints.from_protobuf(msg.table_shape_constraints)
-        return DatasetConstraints(msg.properties, vm, sm, table_shape_m)
+        multi_column_m = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.multi_column_constraints.items()])
+        return DatasetConstraints(msg.properties, vm, sm, table_shape_m, multi_column_m)
 
     @staticmethod
     def from_json(data: str) -> "DatasetConstraints":
@@ -848,11 +869,13 @@ class DatasetConstraints:
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
         sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
         table_shape_constraints_message = self.table_shape_constraints.to_protobuf()
+        multi_column_m = dict([(k, v.to_protobuf()) for k, v in self.multi_column_constraints_map.items()])
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,
             summary_constraints=sm,
             table_shape_constraints=table_shape_constraints_message,
+            multi_column_constraints = multi_column_m
         )
 
     def to_json(self) -> str:
@@ -861,7 +884,63 @@ class DatasetConstraints:
     def report(self):
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
-        return l1 + l2
+        l3 = self.table_shape_constraints.report()
+        l4 = [(k, mc.report()) for k, mc in self.multi_column_constraint_map.items()]
+        return l1 + l2 + l3 + l4
+
+
+class MultiColumnConstraint(ValueConstraint):
+
+    def __init__(self, op: Op, value=None, name: str = None, verbose=False):
+        super().__init__(op, value=value, name=name, verbose=verbose)
+        self.func = _value_funcs[op]
+
+    @property
+    def name(self):
+        if hasattr(self, "value"):
+            return self._name if self._name is not None else f"multi column {Op.Name(self.op)} {self.value}"
+        return self._name if self._name is not None else f"multi column {Op.Name(self.op)}"
+        
+    
+    def update(self, v1, v2) -> bool:
+        self.total += 1
+
+        if not self.func(v1, v2):
+            self.failures += 1
+            if self._verbose:
+                logger.info(f"multi column constraint {self.name} failed on values: {v1}, {v2}")
+
+    @staticmethod
+    def from_protobuf(msg: ValueConstraintMsg) -> "MultiColumnConstraint":
+        if len(msg.value_set.values) != 0:
+            val_set = set(msg.value_set.values[0].list_value)
+            return MultiColumnConstraint(msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
+        elif msg.value:
+            return MultiColumnConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
+        return MultiColumnConstraint(msg.op, name=msg.name, verbose=msg.verbose)
+    
+    def to_protobuf(self) -> ValueConstraintMsg:
+        
+        if hasattr(self, "value"):
+            if isinstance(self.value, set):
+                set_vals_message = ListValue()
+                set_vals_message.append(list(self.value))
+                return ValueConstraintMsg(
+                    name=self.name,
+                    op=self.op,
+                    value_set=set_vals_message,
+                    verbose=self._verbose,
+                )
+        else:
+            return ValueConstraintMsg(
+                name=self.name,
+                op=self.op,
+                verbose=self._verbose,
+            )
+
+def column_values_A_greater_than_B():
+    return MultiColumnConstraint(Op.GT)
+        
 
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
