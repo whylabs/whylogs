@@ -1291,7 +1291,8 @@
 
     function registerHandlebarHelperFunctions() {
       //helper fun
-      function generateChart(data, height = 75, width = 350, referenceProfile = false) {
+      function generateChart(data, height = 75, width = 350, index = 0, referenceProfile = false) {
+        const color = ["#369BAC", '#2683C9']
         const MARGIN = {
           TOP: 5,
           RIGHT: 5,
@@ -1302,7 +1303,6 @@
         const SVG_HEIGHT = height;
         const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
         const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
-        let PRIMARY_COLOR_HEX = "#369BAC";
 
         const svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
 
@@ -1323,9 +1323,7 @@
           .append("g")
           .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
           .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]));
-        } else {
-          PRIMARY_COLOR_HEX = '#2683C9'
-        }
+        } 
 
         const gChart = svgEl.append("g");
         gChart
@@ -1338,7 +1336,7 @@
           .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
           .attr("x", (d) => xScale(d.axisX))
           .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-          .attr("fill", PRIMARY_COLOR_HEX);
+          .attr("fill", color[index]);
 
         return svgEl._groups[0][0].outerHTML;
       }
@@ -1367,9 +1365,11 @@
         let data = [];
         const columnKey = key.data.key
         let chartValue = false
+        let chartColor = undefined
         if(!!referenceColumn){
           column = referenceColumn.columns[columnKey]
           chartValue = true
+          chartColor = 1
         } else if (referenceColumn === undefined) {
           column = ""
         }
@@ -1386,7 +1386,7 @@
         } else if (referenceColumn.frequentItems === undefined){
             return '';
         }
-        return generateChart(data, ...[,,], chartValue);
+        return generateChart(data, ...[,,], chartColor, chartValue);
       }
 
       const profileFromCSVfile = {{{reference_profile}}}
@@ -1610,15 +1610,15 @@
           }
 
           if (column.numberSummary.isDiscrete) {
-            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, chartValue));
+            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, undefined, chartValue));
             if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130));
           } else {
             if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130));
-            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, chartValue));
+            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, undefined, chartValue));
           }
           if (!!profileFromCSVfile) {
             chartString = '';
-            chartString += generateChart(data, 50, 280, true);
+            chartString += generateChart(data, 50, 280, 0, true);
           }
         }
         return chartString;
