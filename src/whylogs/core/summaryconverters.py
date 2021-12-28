@@ -223,3 +223,30 @@ def _compute_kl_divergence_discrete_distributions(
     ref_n_singles_frequency = ref_n_singles / ref_freq_items_count
     kl_divergence += target_n_singles_frequency * np.log(target_n_singles_frequency / ref_n_singles_frequency)
     return type("Object", (), {"kl_divergence": kl_divergence})
+
+
+def compute_chi_squared_test_p_value(target_distribution: ReferenceDistributionDiscreteMessage, reference_distribution: ReferenceDistributionDiscreteMessage):
+    target_freq_items = target_distribution.frequent_items
+    target_total_count = target_distribution.total_count
+    target_unique_count = target_distribution.unique_count.estimate
+    ref_total_count = reference_distribution.total_count
+
+    if ref_total_count <= 0 or target_total_count <= 0:
+        return None
+
+    ref_dist_items = dict()
+    for item in reference_distribution.frequent_items.items:
+        ref_dist_items[item.json_value] = item.estimate
+
+    chi_sq = 0
+    for item in target_freq_items.items:
+        i_frequency = item.estimate / target_total_count
+        ref_frequency = ref_dist_items[item.json_value] / ref_total_count if item.json_value in ref_dist_items.keys() else 0
+        if ref_frequency == 0:
+            chi_sq = np.inf
+        else:
+            chi_sq += (i_frequency - ref_frequency) ** 2 / ref_frequency
+
+    degrees_of_freedom = target_unique_count - 1
+    p_value = scipy.stats.chi2.sf(chi_sq, degrees_of_freedom)
+    return type("Object", (), {"chi_squared_test": p_value})

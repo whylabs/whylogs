@@ -697,13 +697,22 @@ class DatasetProfile:
                     kl_divergence_summary = kll_sketch
                 elif inferred_type in (InferredType.STRING, InferredType.INTEGRAL, InferredType.BOOLEAN):
                     kl_divergence_summary = ReferenceDistributionDiscreteMessage(
-                        frequent_items=summ.frequent_items, unique_count=summ.unique_count, total_count=summ.counters.count
+                        frequent_items=summ.frequent_items,
+                        unique_count=summ.unique_count,
+                        total_count=summ.counters.count,
                     )
+
+                chi_squared_summary = ReferenceDistributionDiscreteMessage(
+                    frequent_items=summ.frequent_items,
+                    unique_count=summ.unique_count,
+                    total_count=summ.counters.count,
+                )
 
                 update_dict = _create_update_summary_dictionary(
                     number_summary=summ.number_summary,
                     ks_test=kll_sketch,
                     kl_divergence=kl_divergence_summary,
+                    chi_squared_test=chi_squared_summary,
                 )
 
                 constraints.update(update_dict)

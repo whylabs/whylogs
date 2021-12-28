@@ -13,6 +13,7 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
+    columnChiSquaredTestPValueGreaterThanConstraint,
     columnKLDivergenceLessThanConstraint,
     columnValuesInSetConstraint,
     maxBetweenConstraint,
@@ -606,7 +607,7 @@ def test_column_kl_divergence_less_than_constraint_discrete_true(df_lending_club
 
 def test_column_kl_divergence_less_than_constraint_discrete_false(df_lending_club, local_config_path):
     np.random.seed(2)
-    dist_data = np.random.choice(list(set(df_lending_club["grade"].values)), 100, p=[0.05, 0.05, 0.21, 0.3, 0.19, 0.2])
+    dist_data = np.random.choice(list(set(df_lending_club["grade"].values)), 1000, p=[0.05, 0.05, 0.05, 0.3, 0.19, 0.36])
     kld = columnKLDivergenceLessThanConstraint(dist_data, threshold=0.4)
     dc = DatasetConstraints(None, summary_constraints={"grade": [kld]})
     config = load_config(local_config_path)
@@ -689,3 +690,88 @@ def test_column_kl_divergence_less_than_constraint_wrong_datatype():
         columnKLDivergenceLessThanConstraint("abc", threshold=0.5, verbose=True)
     with pytest.raises(TypeError):
         columnKLDivergenceLessThanConstraint([1, 2, 3], threshold="1.2", verbose=True)
+
+
+def test_chi_squared_test_p_value_greater_than_constraint_true(df_lending_club, local_config_path):
+    test_values = ["A", "A", "B", "C", "C", "C", "C", "D", "D", "E", "F"]
+    kspval = columnChiSquaredTestPValueGreaterThanConstraint(test_values, p_value=0.1)
+    dc = DatasetConstraints(None, summary_constraints={"grade": [kspval]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was successful
+    assert report[0][1][0][2] == 0
+
+
+def test_chi_squared_test_p_value_greater_than_constraint_false(df_lending_club, local_config_path):
+    test_values = {"C": 1, "B": 5, "A": 2, "D": 18, "E": 32, "F": 1}
+    chi = columnChiSquaredTestPValueGreaterThanConstraint(test_values, p_value=0.05)
+    dc = DatasetConstraints(None, summary_constraints={"grade": [chi]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint failed
+    assert report[0][1][0][2] == 1
+
+
+def test_chi_squared_test_p_value_greater_than_constraint_merge_different_values():
+    ks1 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, 3])
+    ks2 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, 4])
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+    ks1 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, 3], p_value=0.1)
+    ks2 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, 3], p_value=0.5)
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+
+def test_column_chi_squared_test_p_value_greater_than_constraint_merge_same_values():
+    ks1 = columnChiSquaredTestPValueGreaterThanConstraint([1, 3, "A"])
+    ks2 = columnChiSquaredTestPValueGreaterThanConstraint([1, "A", 3])
+    merged = ks1.merge(ks2)
+
+    TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
+
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.05"
+    assert json_value["op"] == Op.Name(Op.GT)
+    assert json_value["firstField"] == "chi_squared_test"
+    assert pytest.approx(json_value["value"], 0.01) == 0.05
+    assert len(json_value["discreteDistribution"]["frequentItems"]["items"]) == 3
+    assert json_value["verbose"] is False
+
+
+def test_serialization_deserialization_chi_squared_test_p_value_greater_than_constraint():
+    ks1 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, "A", "B"], p_value=0.15, verbose=True)
+    ks1.from_protobuf(ks1.to_protobuf())
+    json_value = json.loads(message_to_json(ks1.to_protobuf()))
+
+    TEST_LOGGER.info(f"Serialize columnChiSquaredTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
+    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.15"
+    assert json_value["op"] == Op.Name(Op.GT)
+    assert json_value["firstField"] == "chi_squared_test"
+    assert pytest.approx(json_value["value"], 0.01) == 0.15
+    assert len(json_value["discreteDistribution"]["frequentItems"]["items"]) == 4
+    assert json_value["verbose"] is True
+
+
+def test_chi_squared_test_p_value_greater_than_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        columnChiSquaredTestPValueGreaterThanConstraint([1.0, 2, 3], p_value=0.15, verbose=True)
+    with pytest.raises(TypeError):
+        columnChiSquaredTestPValueGreaterThanConstraint("abc", p_value=0.15, verbose=True)
+    with pytest.raises(ValueError):
+        columnChiSquaredTestPValueGreaterThanConstraint({"A": 0.3, "B": 1, "C": 12}, p_value=0.2, verbose=True)
+    with pytest.raises(TypeError):
+        columnChiSquaredTestPValueGreaterThanConstraint(["a", "b", "c"], p_value=1.2, verbose=True)

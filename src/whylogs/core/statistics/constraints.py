@@ -4,13 +4,13 @@ from typing import Any, List, Mapping, Optional, Set, Union
 
 import datasketches
 import numpy as np
-import pandas as pd
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
 
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.statistics.numbertracker import DEFAULT_HIST_K
 from whylogs.core.summaryconverters import (
+    compute_chi_squared_test_p_value,
     compute_kl_divergence,
     ks_test_compute_p_value,
 )
@@ -312,12 +312,16 @@ class SummaryConstraint:
 
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
-    def update(self, update_dict) -> bool:
+    def update(self, update_dict):
         self.total += 1
+
         if self.first_field == "ks_test":
             update_dict = ks_test_compute_p_value(update_dict.ks_test, self.reference_distribution)
         elif self.first_field == "kl_divergence":
             update_dict = compute_kl_divergence(update_dict.kl_divergence, self.reference_distribution)
+        elif self.first_field == "chi_squared_test":
+            update_dict = compute_chi_squared_test_p_value(update_dict.chi_squared_test, self.reference_distribution)
+
         if not self.func(update_dict):
             self.failures += 1
             if self._verbose:
@@ -333,12 +337,13 @@ class SummaryConstraint:
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
         if self.reference_distribution and other.reference_distribution:
-            if all([isinstance(dist, datasketches.kll_floats_sketch)] for dist in (self.reference_distribution, other.reference_distribution)):
+
+            if all([isinstance(dist, ReferenceDistributionDiscreteMessage) for dist in (self.reference_distribution, other.reference_distribution)]):
+                assert self.reference_distribution == other.reference_distribution, "Cannot merge constraints with different reference_distribution"
+            elif all([isinstance(dist, datasketches.kll_floats_sketch)] for dist in (self.reference_distribution, other.reference_distribution)):
                 assert (
                     self.reference_distribution.serialize() == other.reference_distribution.serialize()
                 ), "Cannot merge constraints with different reference_distribution"
-            elif all([isinstance(dist, ReferenceDistributionDiscreteMessage) for dist in (self.reference_distribution, other.reference_distribution)]):
-                assert self.reference_distribution == other.reference_distribution, "Cannot merge constraints with different reference_distribution"
             else:
                 raise AssertionError("Cannot merge constraints with different reference_distribution")
 
@@ -682,6 +687,25 @@ def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
 
 
 def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[List[float], np.ndarray], p_value=0.05, verbose=False):
+    """
+
+    Parameters
+    ----------
+    reference_distribution: Array-like
+        Represents the reference distribution for calculating the KS Test p_value of the column,
+        should be an array-like object with floating point numbers,
+        Only numeric distributions are accepted
+    p_value: float
+        Represents the reference p_value value to compare with the p_value of the test
+        Should be between 0 and 1, inclusive
+    verbose: bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint
+    """
 
     if not isinstance(p_value, float):
         raise TypeError("The p_value should be a of type float")
@@ -701,13 +725,33 @@ def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[
     return SummaryConstraint("ks_test", op=Op.GT, reference_distribution=kll_floats, value=p_value, verbose=verbose)
 
 
-def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any], np.ndarray, pd.Series], threshold: float = 0.5, verbose: bool = False):
-    if not isinstance(reference_distribution, (list, np.ndarray, pd.Series)):
+def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any], np.ndarray], threshold: float = 0.5, verbose: bool = False):
+    """
+
+    Parameters
+    ----------
+    reference_distribution: Array-like
+        Represents the reference distribution for calculating the KL Divergence of the column,
+        should be an array-like object with floating point numbers, or integers, strings and booleans, but not both
+        Both numeric and categorical distributions are accepted
+    threshold: float
+        Represents the threshold value which if exceeded from the KL Divergence, the constraint would fail
+    verbose: bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint
+    """
+    if not isinstance(reference_distribution, (list, np.ndarray)):
         raise TypeError("The reference distribution should be an array-like instance of values")
     if not isinstance(threshold, float):
         raise TypeError("The threshold value should be of type float")
 
-    type_error_message = "The provided reference distribution should have only categorical (int, string, bool) or only numeric types (float, double) of values, but not both"
+    type_error_message = (
+        "The provided reference distribution should have only categorical (int, string, bool) or only numeric types (float, double) of values, but not both"
+    )
 
     cardinality_sketch = HllSketch()
     frequent_items_sketch = FrequentItemsSketch()
@@ -742,3 +786,54 @@ def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any]
         )
 
     return SummaryConstraint("kl_divergence", op=Op.LT, reference_distribution=ref_summary, value=threshold, verbose=verbose)
+
+
+def columnChiSquaredTestPValueGreaterThanConstraint(
+    reference_distribution: Union[List[Any], np.ndarray, Mapping[str, int]], p_value: float = 0.05, verbose: bool = False
+):
+    """
+
+    Parameters
+    ----------
+    reference_distribution: Array-like
+        Represents the reference distribution for calculating the Chi-Squared test,
+        should be an array-like object with integer, string or boolean values
+        or a mapping of type key: value where the keys are the items and the values are the per-item counts
+        Only categorical distributions are accepted
+    p_value: float
+         Represents the reference p_value value to compare with the p_value of the test
+         Should be between 0 and 1, inclusive
+    verbose: bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint
+    """
+
+    if not isinstance(reference_distribution, (list, np.ndarray, dict)):
+        raise TypeError("The reference distribution should be an array-like instance of float values, or a mapping of the counts of the expected items")
+    if not isinstance(p_value, float) or not 0 <= p_value <= 1:
+        raise TypeError("The p-value should be a float value between 0 and 1 inclusive")
+
+    categorical_types = (TYPES.INTEGRAL, TYPES.STRING, TYPES.BOOLEAN)
+    frequent_items_sketch = FrequentItemsSketch()
+
+    if isinstance(reference_distribution, dict):
+        frequency_sum = 0
+        for item, frequency in reference_distribution.items():
+            if TypedDataConverter.get_type(item) not in categorical_types or not isinstance(frequency, int):
+                raise ValueError("The provided frequent items mapping should contain only str, int or bool values as items and int values as counts per item")
+            frequent_items_sketch.update(item, frequency)
+            frequency_sum += frequency
+    else:
+        frequency_sum = len(reference_distribution)
+        for value in reference_distribution:
+            if TypedDataConverter.get_type(value) not in categorical_types:
+                raise ValueError("The provided values in the reference distribution should all be of categorical type (str, int or bool)")
+            frequent_items_sketch.update(value)
+
+    ref_dist = ReferenceDistributionDiscreteMessage(frequent_items=frequent_items_sketch.to_summary(), total_count=frequency_sum)
+
+    return SummaryConstraint("chi_squared_test", op=Op.GT, reference_distribution=ref_dist, value=p_value, verbose=verbose)
