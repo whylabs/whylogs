@@ -4,17 +4,22 @@ from typing import Any, List, Mapping, Optional, Set, Union
 
 import datasketches
 import numpy as np
+import pandas as pd
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
 
+from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.statistics.numbertracker import DEFAULT_HIST_K
-from whylogs.core.summaryconverters import cdf_from_sketch, ks_test_compute_p_value
+from whylogs.core.summaryconverters import (
+    compute_kl_divergence,
+    ks_test_compute_p_value,
+)
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
-    CDFSummary,
     DatasetConstraintMsg,
     DatasetProperties,
     InferredType,
+    KllFloatsSketchMessage,
     Op,
     ReferenceDistributionContinuousMessage,
     ReferenceDistributionDiscreteMessage,
@@ -24,6 +29,7 @@ from whylogs.proto import (
     ValueConstraintMsg,
     ValueConstraintMsgs,
 )
+from whylogs.util.dsketch import FrequentItemsSketch
 from whylogs.util.protobuf import message_to_json
 
 TYPES = InferredType.Type
@@ -213,7 +219,7 @@ class SummaryConstraint:
          to be compared against summary field specified in `first_field`.
         Only one of `upper_value` or `third_field` should be supplied.
     reference_distribution: (one-of)
-        Instance of CDFSummary or ReferenceDistributionDiscreteMessage. Only to be supplied for constraints
+        Instance of datasketches.kll_floats_sketch or ReferenceDistributionDiscreteMessage. Only to be supplied for constraints
         on distributional measures, such as KS test, KL divergence and Chi-Squared test
     name : str
         Name of the constraint used for reporting
@@ -232,7 +238,7 @@ class SummaryConstraint:
         upper_value=None,
         second_field: str = None,
         third_field: str = None,
-        reference_distribution: Union[CDFSummary, ReferenceDistributionDiscreteMessage] = None,
+        reference_distribution: Union[datasketches.kll_floats_sketch, ReferenceDistributionDiscreteMessage] = None,
         name: str = None,
         verbose=False,
     ):
@@ -250,13 +256,11 @@ class SummaryConstraint:
         self.reference_distribution = reference_distribution
 
         if self.reference_distribution:
-            if not isinstance(self.reference_distribution, (CDFSummary, ReferenceDistributionDiscreteMessage)):
-                raise TypeError(
-                    "The reference distribution should be an object of type CDFSummary," " or an object of type ReferenceDistributionDiscreteMessage"
-                )
+            if not isinstance(self.reference_distribution, (datasketches.kll_floats_sketch, ReferenceDistributionDiscreteMessage)):
+                raise TypeError("The reference distribution should be an object of type datasketches.kll_floats_sketch or ReferenceDistributionDiscreteMessage")
             if self.value is None or any([v is not None for v in (self.upper_value, self.second_field, self.third_field)]):
                 raise ValueError(
-                    "Summary constraint with reference_distribution must specify value for comparing with the p_value,"
+                    "Summary constraint with reference_distribution must specify value for comparing with the p_value or threshold,"
                     " and must not specify lower_value, second_field or third_field"
                 )
 
@@ -296,7 +300,11 @@ class SummaryConstraint:
     @property
     def name(self):
         if self.reference_distribution:
-            return self._name if self._name is not None else f"summary {self.first_field} p-value {Op.Name(self.op)} {self.value}"
+            if self.first_field == "kl_divergence":
+                value = "threshold"
+            else:
+                value = "p-value"
+            return self._name if self._name is not None else f"summary {self.first_field} {value} {Op.Name(self.op)} {self.value}"
         elif self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
@@ -308,6 +316,8 @@ class SummaryConstraint:
         self.total += 1
         if self.first_field == "ks_test":
             update_dict = ks_test_compute_p_value(update_dict.ks_test, self.reference_distribution)
+        elif self.first_field == "kl_divergence":
+            update_dict = compute_kl_divergence(update_dict.kl_divergence, self.reference_distribution)
         if not self.func(update_dict):
             self.failures += 1
             if self._verbose:
@@ -322,7 +332,15 @@ class SummaryConstraint:
         assert self.value == other.value, f"Cannot merge constraints with different values: {self.value} and {other.value}"
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
-        assert self.reference_distribution == other.reference_distribution, "Cannot merge constraints with different reference_distribution"
+        if self.reference_distribution and other.reference_distribution:
+            if all([isinstance(dist, datasketches.kll_floats_sketch)] for dist in (self.reference_distribution, other.reference_distribution)):
+                assert (
+                    self.reference_distribution.serialize() == other.reference_distribution.serialize()
+                ), "Cannot merge constraints with different reference_distribution"
+            elif all([isinstance(dist, ReferenceDistributionDiscreteMessage) for dist in (self.reference_distribution, other.reference_distribution)]):
+                assert self.reference_distribution == other.reference_distribution, "Cannot merge constraints with different reference_distribution"
+            else:
+                raise AssertionError("Cannot merge constraints with different reference_distribution")
 
         if self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
@@ -355,13 +373,11 @@ class SummaryConstraint:
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
-
-        if msg.HasField("continuous_distribution"):
-            ref_distribution = msg.continuous_distribution.cdf_summary
+        ref_distribution = None
+        if msg.HasField("continuous_distribution") and msg.continuous_distribution.HasField("sketch"):
+            ref_distribution = datasketches.kll_floats_sketch.deserialize(msg.continuous_distribution.sketch.sketch)
         elif msg.HasField("discrete_distribution"):
             ref_distribution = msg.discrete_distribution
-        else:
-            ref_distribution = None
 
         if msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
 
@@ -420,9 +436,10 @@ class SummaryConstraint:
         continuous_dist = None
         discrete_dist = None
         if self.reference_distribution is not None:
-            if isinstance(self.reference_distribution, CDFSummary):
-                continuous_dist = ReferenceDistributionContinuousMessage(cdf_summary=self.reference_distribution)
-            elif isinstance(self.reference_distribution, ReferenceDistributionContinuousMessage):
+            if isinstance(self.reference_distribution, datasketches.kll_floats_sketch):
+                kll_floats_sketch = KllFloatsSketchMessage(sketch=self.reference_distribution.serialize())
+                continuous_dist = ReferenceDistributionContinuousMessage(sketch=kll_floats_sketch)
+            elif isinstance(self.reference_distribution, ReferenceDistributionDiscreteMessage):
                 discrete_dist = self.reference_distribution
 
         if self.op == Op.BTWN:
@@ -681,6 +698,47 @@ def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[
             raise ValueError("The reference distribution should be a continuous distribution")
         kll_floats.update(value)
 
-    cdf_summary = cdf_from_sketch(kll_floats)
+    return SummaryConstraint("ks_test", op=Op.GT, reference_distribution=kll_floats, value=p_value, verbose=verbose)
 
-    return SummaryConstraint("ks_test", op=Op.GT, reference_distribution=cdf_summary, value=p_value, verbose=verbose)
+
+def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any], np.ndarray, pd.Series], threshold: float = 0.5, verbose: bool = False):
+    if not isinstance(reference_distribution, (list, np.ndarray, pd.Series)):
+        raise TypeError("The reference distribution should be an array-like instance of values")
+    if not isinstance(threshold, float):
+        raise TypeError("The threshold value should be of type float")
+
+    type_error_message = "The provided reference distribution should have only categorical (int, string, bool) or only numeric types (float, double) of values, but not both"
+
+    cardinality_sketch = HllSketch()
+    frequent_items_sketch = FrequentItemsSketch()
+    quantiles_sketch = datasketches.kll_floats_sketch(DEFAULT_HIST_K)
+    data_type = TYPES.UNKNOWN
+    categorical_types = (TYPES.INTEGRAL, TYPES.STRING, TYPES.BOOLEAN)
+    numeric_types = (TYPES.FRACTIONAL,)
+    total_count = 0
+
+    for value in reference_distribution:
+        value_type = TypedDataConverter.get_type(value)
+        if value_type in numeric_types:
+            if data_type not in (TYPES.UNKNOWN,) + numeric_types:
+                raise TypeError(type_error_message)
+            quantiles_sketch.update(value)
+            data_type = value_type
+        elif value_type in categorical_types:
+            if data_type not in (TYPES.UNKNOWN,) + categorical_types:
+                raise TypeError(type_error_message)
+            cardinality_sketch.update(value)
+            frequent_items_sketch.update(value)
+            total_count += 1
+            data_type = value_type
+        else:
+            raise TypeError(type_error_message)
+
+    if data_type in numeric_types:
+        ref_summary = quantiles_sketch
+    else:
+        ref_summary = ReferenceDistributionDiscreteMessage(
+            frequent_items=frequent_items_sketch.to_summary(), unique_count=cardinality_sketch.to_summary(), total_count=total_count
+        )
+
+    return SummaryConstraint("kl_divergence", op=Op.LT, reference_distribution=ref_summary, value=threshold, verbose=verbose)

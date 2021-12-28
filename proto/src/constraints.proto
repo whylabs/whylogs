@@ -47,12 +47,13 @@ message SummaryConstraintMsg {
 
 
 message ReferenceDistributionContinuousMessage {
-  CDFSummary cdf_summary = 1;
+  KllFloatsSketchMessage sketch = 1;
 }
 
 message ReferenceDistributionDiscreteMessage {
-  FrequentStringsSummary frequent_strings = 1;
+  FrequentItemsSummary frequent_items = 1;
   UniqueCountSummary unique_count = 2;
+  float total_count = 3;
 }
 
 message SummaryBetweenConstraintMsg {

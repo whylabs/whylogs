@@ -13,6 +13,7 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
+    columnKLDivergenceLessThanConstraint,
     columnValuesInSetConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
@@ -523,12 +524,11 @@ def test_ks_test_p_value_greater_than_constraint_merge_same_values():
     TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
-
     assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.05"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "ks_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.05
-    assert json_value["continuousDistribution"]["cdfSummary"]["quantileValues"] == [1.0, 1.0, 1.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0]
+    assert len(json_value["continuousDistribution"]["sketch"]["sketch"]) > 0
     assert json_value["verbose"] is False
 
 
@@ -543,14 +543,149 @@ def test_serialization_deserialization_ks_test_p_value_greater_than_constraint()
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "ks_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
-    assert json_value["continuousDistribution"]["cdfSummary"]["quantileValues"] == [1.0, 1.0, 1.0, 1.0, 2.0, 3.0, 3.0, 3.0, 3.0]
+    assert len(json_value["continuousDistribution"]["sketch"]["sketch"]) > 0
     assert json_value["verbose"] is True
 
 
 def test_ks_test_p_value_greater_than_constraint_wrong_datatype():
     with pytest.raises(ValueError):
-        ks1 = parametrizedKSTestPValueGreaterThanConstraint([1, 2, 3], p_value=0.15, verbose=True)
+        parametrizedKSTestPValueGreaterThanConstraint([1, 2, 3], p_value=0.15, verbose=True)
     with pytest.raises(TypeError):
-        ks1 = parametrizedKSTestPValueGreaterThanConstraint("abc", p_value=0.15, verbose=True)
+        parametrizedKSTestPValueGreaterThanConstraint("abc", p_value=0.15, verbose=True)
     with pytest.raises(ValueError):
-        ks1 = parametrizedKSTestPValueGreaterThanConstraint([1, 2, 3], p_value=1.2, verbose=True)
+        parametrizedKSTestPValueGreaterThanConstraint([1, 2, 3], p_value=1.2, verbose=True)
+
+
+def test_column_kl_divergence_less_than_constraint_continuous_false(df_lending_club, local_config_path):
+    norm_values = np.random.normal(loc=10000, scale=2.0, size=15000)
+    kld = columnKLDivergenceLessThanConstraint(norm_values, threshold=2.1)
+    dc = DatasetConstraints(None, summary_constraints={"loan_amnt": [kld]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint failed once
+    assert report[0][1][0][2] == 1
+
+
+def test_column_kl_divergence_less_than_constraint_continuous_true(df_lending_club, local_config_path):
+    kld = columnKLDivergenceLessThanConstraint(df_lending_club["loan_amnt"].values, threshold=0.1)
+    dc = DatasetConstraints(None, summary_constraints={"loan_amnt": [kld]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was successfully executed
+    assert report[0][1][0][2] == 0
+
+
+def test_column_kl_divergence_less_than_constraint_discrete_true(df_lending_club, local_config_path):
+    np.random.seed(2)
+    dist_data = np.random.choice(list(set(df_lending_club["grade"].values)), 100)
+    kld = columnKLDivergenceLessThanConstraint(dist_data, threshold=0.5)
+    dc = DatasetConstraints(None, summary_constraints={"grade": [kld]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was successfully executed
+    assert report[0][1][0][2] == 0
+
+
+def test_column_kl_divergence_less_than_constraint_discrete_false(df_lending_club, local_config_path):
+    np.random.seed(2)
+    dist_data = np.random.choice(list(set(df_lending_club["grade"].values)), 100, p=[0.05, 0.05, 0.21, 0.3, 0.19, 0.2])
+    kld = columnKLDivergenceLessThanConstraint(dist_data, threshold=0.4)
+    dc = DatasetConstraints(None, summary_constraints={"grade": [kld]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was not successfully executed
+    assert report[0][1][0][2] == 1
+
+
+def test_column_kl_divergence_less_than_constraint_merge_different_values():
+    ks1 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0])
+    ks2 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 4.0])
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+    ks1 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0], threshold=0.1)
+    ks2 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0], threshold=0.5)
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+
+def test_column_kl_divergence_less_than_constraint_merge_same_values():
+    ks1 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0])
+    ks2 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0])
+    merged = ks1.merge(ks2)
+
+    TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
+
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    print(json_value)
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.5"
+    assert json_value["op"] == Op.Name(Op.LT)
+    assert json_value["firstField"] == "kl_divergence"
+    assert pytest.approx(json_value["value"], 0.01) == 0.5
+    assert len(json_value["continuousDistribution"]["sketch"]["sketch"]) > 0
+    assert json_value["verbose"] is False
+
+
+def test_serialization_deserialization_column_kl_divergence_less_than_constraint_discrete():
+    ks1 = columnKLDivergenceLessThanConstraint([1, 2, 3], threshold=0.15, verbose=True)
+    ks1.from_protobuf(ks1.to_protobuf())
+    json_value = json.loads(message_to_json(ks1.to_protobuf()))
+
+    TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
+
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15"
+    assert json_value["op"] == Op.Name(Op.LT)
+    assert json_value["firstField"] == "kl_divergence"
+    assert pytest.approx(json_value["value"], 0.01) == 0.15
+    assert len(json_value["discreteDistribution"]["frequentItems"]["items"]) == 3
+    assert json_value["discreteDistribution"]["totalCount"] == 3
+    assert json_value["verbose"] is True
+
+
+def test_serialization_deserialization_column_kl_divergence_less_than_constraint_continuous():
+    ks1 = columnKLDivergenceLessThanConstraint([2.0, 2.0, 3.0], threshold=0.15, verbose=True)
+    ks1.from_protobuf(ks1.to_protobuf())
+    json_value = json.loads(message_to_json(ks1.to_protobuf()))
+
+    TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
+
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15"
+    assert json_value["op"] == Op.Name(Op.LT)
+    assert json_value["firstField"] == "kl_divergence"
+    assert pytest.approx(json_value["value"], 0.01) == 0.15
+    assert len(json_value["continuousDistribution"]["sketch"]["sketch"]) > 0
+    assert json_value["verbose"] is True
+
+
+def test_column_kl_divergence_less_than_constraint_wrong_datatype():
+    with pytest.raises(TypeError):
+        columnKLDivergenceLessThanConstraint([1.0, "abc", 3], threshold=0.15, verbose=True)
+    with pytest.raises(TypeError):
+        columnKLDivergenceLessThanConstraint("abc", threshold=0.5, verbose=True)
+    with pytest.raises(TypeError):
+        columnKLDivergenceLessThanConstraint([1, 2, 3], threshold="1.2", verbose=True)

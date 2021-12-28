@@ -23,9 +23,11 @@ from whylogs.proto import (
     DatasetProfileMessage,
     DatasetProperties,
     DatasetSummary,
+    InferredType,
     MessageSegment,
     ModelType,
     NumberSummary,
+    ReferenceDistributionDiscreteMessage,
 )
 from whylogs.util import time
 from whylogs.util.time import from_utc_ms, to_utc_ms
@@ -689,8 +691,20 @@ class DatasetProfile:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
                 kll_sketch = colprof.number_tracker.histogram
+                inferred_type = summ.schema.inferred_type.type
+                kl_divergence_summary = None
+                if inferred_type == InferredType.Type.FRACTIONAL:
+                    kl_divergence_summary = kll_sketch
+                elif inferred_type in (InferredType.STRING, InferredType.INTEGRAL, InferredType.BOOLEAN):
+                    kl_divergence_summary = ReferenceDistributionDiscreteMessage(
+                        frequent_items=summ.frequent_items, unique_count=summ.unique_count, total_count=summ.counters.count
+                    )
 
-                update_dict = _create_update_summary_dictionary(number_summary=summ.number_summary, ks_test=kll_sketch)
+                update_dict = _create_update_summary_dictionary(
+                    number_summary=summ.number_summary,
+                    ks_test=kll_sketch,
+                    kl_divergence=kl_divergence_summary,
+                )
 
                 constraints.update(update_dict)
             else:

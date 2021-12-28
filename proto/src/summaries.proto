@@ -83,11 +83,6 @@ message QuantileSummary {
   repeated double quantile_values = 2;
 }
 
-message CDFSummary {
-  repeated double quantile_values = 1;
-  repeated double cdf_values = 2;
-}
-
 message NumberSummary {
   uint64 count = 1;
   double min = 2;

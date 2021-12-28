@@ -2,6 +2,7 @@
 Library module defining function for generating summaries
 """
 import math
+from typing import Union
 
 import numpy as np
 import scipy.special
@@ -13,10 +14,10 @@ from datasketches import (
 )
 
 from whylogs.proto import (
-    CDFSummary,
     FrequentStringsSummary,
     HistogramSummary,
     QuantileSummary,
+    ReferenceDistributionDiscreteMessage,
     UniqueCountSummary,
 )
 
@@ -148,42 +149,77 @@ def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int = None, av
     )
 
 
-def cdf_from_sketch(sketch: kll_floats_sketch, quantiles=None):
-    """
-    Calculate cdf from a data sketch
-
-    Parameters
-    ----------
-    sketch : kll_floats_sketch
-        Data sketch
-    quantiles : list-like
-        Override the default quantiles.  Should be a list of values from
-        0 to 1 inclusive.
-    """
-
-    if quantiles is not None:
-        quantile_values = sketch.get_quantiles(quantiles)
-    else:
-        quantile_values = sketch.get_quantiles(QUANTILES)
-
-    cdf_values = []
-    for qval in quantile_values:
-        cdf_value = sketch.get_cdf([qval])[0]
-        cdf_values.append(cdf_value)
-
-    return CDFSummary(
-        quantile_values=quantile_values,
-        cdf_values=cdf_values,
-    )
-
-
-def ks_test_compute_p_value(target_distribution: kll_floats_sketch, reference_distribution: CDFSummary):
+def ks_test_compute_p_value(target_distribution: kll_floats_sketch, reference_distribution: kll_floats_sketch):
     D_max = 0
-    for quant, cdf_ref in zip(reference_distribution.quantile_values, reference_distribution.cdf_values):
+    quantile_values = reference_distribution.get_quantiles(QUANTILES)
+    for quant in quantile_values:
         cdf_target = target_distribution.get_cdf([quant])[0]
+        cdf_ref = reference_distribution.get_cdf([quant])[0]
         D = abs(cdf_target - cdf_ref)
         if D > D_max:
             D_max = D
-    n_samples = target_distribution.get_n()
+    n_samples = min(target_distribution.get_n(), reference_distribution.get_n())
     p_value = scipy.special.kolmogorov(np.sqrt(n_samples) * D_max)
     return type("Object", (), {"ks_test": p_value})
+
+
+def compute_kl_divergence(
+    target_distribution: Union[kll_floats_sketch, ReferenceDistributionDiscreteMessage],
+    reference_distribution: Union[kll_floats_sketch, ReferenceDistributionDiscreteMessage],
+):
+    if isinstance(target_distribution, kll_floats_sketch) and isinstance(reference_distribution, kll_floats_sketch):
+        return _compute_kl_divergence_continuous_distributions(target_distribution, reference_distribution)
+    elif all([isinstance(v, ReferenceDistributionDiscreteMessage) for v in (target_distribution, reference_distribution)]):
+        return _compute_kl_divergence_discrete_distributions(target_distribution, reference_distribution)
+    else:
+        raise ValueError("Both provided distributions should be categorical or numeric, but not from mixed type")
+
+
+def _compute_kl_divergence_continuous_distributions(target_distribution: kll_floats_sketch, reference_distribution: kll_floats_sketch):
+    bins_target = np.linspace(target_distribution.get_min_value(), target_distribution.get_max_value(), 100)
+    pmf_target = np.array(target_distribution.get_pmf(bins_target))
+
+    pmf_reference = np.array(reference_distribution.get_pmf(bins_target))
+
+    kl_divergence = np.sum(np.where(pmf_target != 0, pmf_target * np.log(pmf_target / pmf_reference), 0))
+    return type("Object", (), {"kl_divergence": kl_divergence})
+
+
+def _compute_kl_divergence_discrete_distributions(
+    target_distribution: ReferenceDistributionDiscreteMessage, reference_distribution: ReferenceDistributionDiscreteMessage
+):
+    target_frequent_items = target_distribution.frequent_items
+    target_unique_count = target_distribution.unique_count.estimate
+    target_total_count = target_distribution.total_count
+
+    ref_frequent_items = reference_distribution.frequent_items
+    ref_unique_count = reference_distribution.unique_count.estimate
+    ref_total_count = reference_distribution.total_count
+
+    if any([c <= 0 for c in (target_total_count, ref_total_count)]):
+        return None
+
+    ref_freq_items_map = {}
+    for item in ref_frequent_items.items:
+        ref_freq_items_map[item.json_value] = item.estimate
+
+    kl_divergence = 0
+    for item in target_frequent_items.items:
+        i_frequency = item.estimate / target_total_count
+        if i_frequency == 0:
+            continue
+        ref_frequency = ref_freq_items_map[item.json_value] / ref_total_count if item.json_value in ref_freq_items_map.keys() else 0
+        kl_divergence += i_frequency * np.log(i_frequency / ref_frequency)
+
+    target_frequent_items_count = len(target_frequent_items.items)
+    target_n_singles = target_unique_count - target_frequent_items_count
+
+    ref_freq_items_count = len(ref_frequent_items.items)
+    ref_n_singles = ref_unique_count - ref_freq_items_count
+    if math.isclose(target_n_singles, 0.0, abs_tol=10e-3):
+        return type("Object", (), {"kl_divergence": kl_divergence})
+
+    target_n_singles_frequency = target_n_singles / target_frequent_items_count
+    ref_n_singles_frequency = ref_n_singles / ref_freq_items_count
+    kl_divergence += target_n_singles_frequency * np.log(target_n_singles_frequency / ref_n_singles_frequency)
+    return type("Object", (), {"kl_divergence": kl_divergence})
