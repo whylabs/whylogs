@@ -18,11 +18,8 @@ FLOAT_TYPES = (float, np.float)
 class TypedDataConverter:
     """
     A class to coerce types on data.
-
     To see available types:
-
     .. code-block:: python
-
         >>> from whylogs.core.types.typeddataconverter import TYPES
         >>> print("\\n".join(sorted(TYPES.keys())))
     """
@@ -31,10 +28,8 @@ class TypedDataConverter:
     def convert(data):
         """
         Convert `data` to a typed value
-
         If a `data` is a string, parse `data` with yaml.  Else, return `data`
         unchanged
-
         Note: this method is very slow, since it relies on the complex and
         python-based implementation of yaml.
         """
@@ -49,22 +44,31 @@ class TypedDataConverter:
         return data
 
     @staticmethod
+    def _is_array_like(value):
+        return isinstance(value, list) or isinstance(value, np.ndarray) or isinstance(value, pd.Series)
+
+    @staticmethod
+    def _are_nulls(value):
+        if TypedDataConverter._is_array_like(value):
+            return all(pd.isnull(value))
+        else:
+            return pd.isnull(value)
+
+    @staticmethod
     def get_type(typed_data):
         """
         Extract the data type of a value.  See `typeddataconvert.TYPES` for
         available types.
-
         Parameters
         ----------
         typed_data
             Data processed by TypedDataConverter.convert
-
         Returns
         -------
         dtype : TYPES
         """
         dtype = TYPES.UNKNOWN
-        if pd.isnull(typed_data):
+        if typed_data is None:
             dtype = TYPES.NULL
         elif isinstance(typed_data, bool):
             dtype = TYPES.BOOLEAN
@@ -74,4 +78,7 @@ class TypedDataConverter:
             dtype = TYPES.INTEGRAL
         elif isinstance(typed_data, str):
             dtype = TYPES.STRING
+        elif TypedDataConverter._are_nulls(typed_data):
+            dtype = TYPES.NULL
+
         return dtype

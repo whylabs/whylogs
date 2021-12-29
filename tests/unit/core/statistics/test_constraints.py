@@ -16,6 +16,7 @@ from whylogs.core.statistics.constraints import (
     _try_parse_json,
     _try_parse_strftime_format,
     _value_funcs,
+    column_values_A_greater_than_B,
     columnExistsConstraint,
     columnsMatchSetConstraint,
     columnValuesInSetConstraint,
@@ -1125,6 +1126,9 @@ def test_dataset_constraints_serialization():
 
         for (k, v), (k_deser, v_deser) in zip(pm_json.items(), deser_pm_json.items()):
             assert k == k_deser
+            if all([v, v_deser]):
+                v = v.sort() if isinstance(v, list) else v
+                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
             assert v == v_deser
 
     value_constraints = dc.value_constraint_map
@@ -1138,7 +1142,15 @@ def test_dataset_constraints_serialization():
     for (column, constraints), (deser_column, deser_constraints) in zip(value_constraints.items(), deser_v_c.items()):
         assert column == deser_column
 
-        for (name, c), (deser_name, deser_c) in zip(constraints.constraints.items(), deser_constraints.constraints.items()):
+        tmp_val_constraints = dict()
+        tmp_val_constraints.update(constraints.raw_value_constraints)
+        tmp_val_constraints.update(constraints.coerced_type_constraints)
+
+        tmp_val_constraints_deser = dict()
+        tmp_val_constraints_deser.update(deser_constraints.raw_value_constraints)
+        tmp_val_constraints_deser.update(deser_constraints.coerced_type_constraints)
+
+        for (name, c), (deser_name, deser_c) in zip(tmp_val_constraints.items(), tmp_val_constraints_deser.items()):
             assert name == deser_name
 
             a = json.loads(message_to_json(c.to_protobuf()))
@@ -1146,6 +1158,9 @@ def test_dataset_constraints_serialization():
 
             for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
                 assert k == k_deser
+                if all([v, v_deser]):
+                    v = v.sort() if isinstance(v, list) else v
+                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
                 assert v == v_deser
 
     for (column, constraints), (deser_column, deser_constraints) in zip(summary_constraints.items(), deser_s_c.items()):
@@ -1159,6 +1174,9 @@ def test_dataset_constraints_serialization():
 
             for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
                 assert k == k_deser
+                if all([v, v_deser]):
+                    v = v.sort() if isinstance(v, list) else v
+                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
                 assert v == v_deser
 
     for (name, c), (deser_name, deser_c) in zip(table_shape_constraints.constraints.items(), deser_ts_c.constraints.items()):
@@ -1169,4 +1187,32 @@ def test_dataset_constraints_serialization():
 
         for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
             assert k == k_deser
+            if all([v, v_deser]):
+                v = v.sort() if isinstance(v, list) else v
+                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
             assert v == v_deser
+
+    report = dc.report()
+    report_deser = dc_deser.report()
+
+    assert report == report_deser
+
+
+def test_multi_column_logical_operation(local_config_path):
+    a_gt_b = column_values_A_greater_than_B()
+
+    df = pd.DataFrame({"col1": [4, 5, 6, 7], "col2": [0, 1, 2, 3]})
+    # df = pd.DataFrame({"col1": [0, 1, 2, 3], "col2": [4, 5, 6, 7]})
+
+    dc = DatasetConstraints(None, multi_column_value_constraints={("col1", "col2"): [a_gt_b]})
+
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    assert len(report[0]) == 2
+
+    assert report[0][1][0][1] == 4 and report[0][1][0][2] == 0 and report[0][1][0][0] == f"multi column value {Op.Name(Op.GT)}"

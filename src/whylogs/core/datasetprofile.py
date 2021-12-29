@@ -13,7 +13,7 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 from smart_open import open
 
-from whylogs.core import ColumnProfile
+from whylogs.core import ColumnProfile, MultiColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
 from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
@@ -82,6 +82,7 @@ class DatasetProfile:
         dataset_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
         columns: dict = None,
+        multi_columns: dict = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
@@ -91,6 +92,8 @@ class DatasetProfile:
         # Default values
         if columns is None:
             columns = {}
+        if multi_columns is None:
+            multi_columns = {}
         if tags is None:
             tags = {}
         if metadata is None:
@@ -106,6 +109,7 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
+        self.multi_columns = multi_columns
         self.constraints = constraints
 
         self.model_profile = model_profile
@@ -247,6 +251,24 @@ class DatasetProfile:
 
         prof.track(data, character_list=None, token_method=None)
 
+    def track_multi_column(self, columns):
+        c1_val_pair = columns["C1"]
+        c2_val_pair = columns["C2"]
+
+        column_pair = c1_val_pair[0], c2_val_pair[0]
+
+        try:
+            multi_column_profile = self.multi_columns[column_pair]
+        except KeyError:
+            multi_column_value_constraints = None
+            if self.constraints:
+                if column_pair in self.constraints.multi_column_value_constraint_map:
+                    multi_column_value_constraints = self.constraints.multi_column_value_constraint_map[column_pair]
+            multi_column_profile = MultiColumnProfile(column_pair, multi_column_value_constraints)
+            self.multi_columns[column_pair] = multi_column_profile
+
+        multi_column_profile.track(c1_val_pair[1], c2_val_pair[1])
+
     def track_array(self, x: np.ndarray, columns=None):
         """
         Track statistics for a numpy array
@@ -284,15 +306,79 @@ class DatasetProfile:
         if large_df:
             logger.warning(f"About to log a dataframe with {element_count} elements, logging might take some time to complete.")
         count = 0
-        for col in df.columns:
-            col_str = str(col)
+        # for col in df.columns:
+        #     col_str = str(col)
 
-            x = df[col].values
-            for xi in x:
-                count = count + 1
-                if large_df and (count % 200000 == 0):
-                    logger.warning(f"Logged {count} elements out of {element_count}")
-                self.track(col_str, xi, character_list=None, token_method=None)
+        #     x = df[col].values
+        #     for xi in x:
+        #         count = count + 1
+        #         if large_df and (count % 200000 == 0):
+        #             logger.warning(f"Logged {count} elements out of {element_count}")
+        #         self.track(col_str, xi, character_list=None, token_method=None)
+        tracked_columns = set()
+        columns_len = len(df.columns)
+        for col1_idx in range(columns_len):
+            col1 = df.columns[col1_idx]
+            col1_str = str(col1)
+            col1_values = df[col1].values
+
+            if col1_idx + 1 >= columns_len:
+                # track the single column as no next column exists
+                if col1_str not in tracked_columns:
+                    for c1_val in col1_values:
+                        count = count + 1
+                        self.track(col1_str, c1_val, character_list=None, token_method=None)  # first single column track
+                        if large_df and (count % 200000 == 0):
+                            logger.warning(f"Logged {count} elements out of {element_count}")
+                    tracked_columns.add(col1_str)
+
+            currently_tracked = set()
+            for col2_idx in range(col1_idx + 1, columns_len):
+
+                col2 = df.columns[col2_idx]
+
+                col2_str = str(col2)
+
+                col2_values = df[col2].values
+
+                for c1_val, c2_val in zip(col1_values, col2_values):
+
+                    # try to track the both columns here, and note that we tracked them, as not to track them later again
+                    # self.track can be used with "columns" attr being a dict with column_name:data as it is an existing functionality
+                    # or call it separately, but here should be the thing of simultaneously iterating both the column
+                    # values and UPDATE the multi_column_constraints
+                    if col1_str not in tracked_columns:
+                        count = count + 1
+                        self.track(col1_str, c1_val, character_list=None, token_method=None)  # first single column track
+                        currently_tracked.add(col1_str)
+                    if col2_str not in tracked_columns:
+                        count = count + 1
+                        self.track(col2_str, c2_val, character_list=None, token_method=None)  # second single column track
+                        currently_tracked.add(col2_str)
+
+                    if large_df and (count % 200000 == 0) and any([col1_str not in tracked_columns, col2_str not in tracked_columns]):
+                        logger.warning(f"Logged {count} elements out of {element_count}")
+
+                    if not self.constraints:
+                        continue
+                    if col1 in self.constraints.column_pairs and col2 in self.constraints.column_pairs[col1]:
+                        # do what needs be done for the multi column ones
+                        # created a MultiColumnProfile that holds the multi column trackers and MultiColumnValueConstraints
+
+                        col1_val_pair = (col1_str, c1_val)
+                        col2_val_pair = (col2_str, c2_val)
+                        track_dict = {"C1": col1_val_pair, "C2": col2_val_pair}
+
+                        self.track_multi_column(track_dict)  # track the pair of columns with MultiColumnProfile
+                    if col2 in self.constraints.column_pairs and col1 in self.constraints.column_pairs[col2]:
+                        # do what needs be done for the multi column ones
+                        # created a MultiColumnProfile that holds the multi column trackers and MultiColumnValueConstraints
+                        col1_val_pair = (col1_str, c1_val)
+                        col2_val_pair = (col2_str, c2_val)
+                        track_dict = {"C1": col2_val_pair, "C2": col1_val_pair}  # reversed
+                        self.track_multi_column(track_dict)  # track the pair of columns with MultiColumnProfile
+
+                tracked_columns = tracked_columns.union(currently_tracked)
 
     def to_properties(self):
         """

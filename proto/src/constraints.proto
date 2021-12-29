@@ -92,5 +92,6 @@ message DatasetConstraintMsg {
   map<string, ValueConstraintMsgs> value_constraints = 2;
   map<string, SummaryConstraintMsgs> summary_constraints = 3;
   SummaryConstraintMsgs table_shape_constraints = 4;
+  map<string, ValueConstraintMsgs> multi_column_value_constraints = 5;
 }
 
