@@ -794,7 +794,7 @@ def test_unique_value_count_between_constraint_apply(local_config_path, df_lendi
     session.close()
     report = profile.apply_summary_constraints()
     print(report)
-    assert report[0][1][0][0] == f"summary unique count {Op.Name(Op.BTWN)} 5 and 50"
+    assert report[0][1][0][0] == f"summary unique_count {Op.Name(Op.BTWN)} 5 and 50"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -812,8 +812,8 @@ def test_merge_unique_value_count_between_constraint_same_values():
     merged = u1.merge(u2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary unique count {Op.Name(Op.BTWN)} 0 and 5"
-    assert message["firstField"] == "unique count"
+    assert message["name"] == f"summary unique_count {Op.Name(Op.BTWN)} 0 and 5"
+    assert message["firstField"] == "unique_count"
     assert message["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.0
     assert pytest.approx(message["between"]["upperValue"], 0.001) == 5.0
@@ -826,8 +826,8 @@ def test_serialization_deserialization_unique_value_count_between_constraint():
     u1.from_protobuf(u1.to_protobuf())
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
-    assert json_value["name"] == f"summary unique count {Op.Name(Op.BTWN)} 15 and 50"
-    assert json_value["firstField"] == "unique count"
+    assert json_value["name"] == f"summary unique_count {Op.Name(Op.BTWN)} 15 and 50"
+    assert json_value["firstField"] == "unique_count"
     assert json_value["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 15
     assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 50
@@ -852,7 +852,7 @@ def test_unique_value_proportion_between_constraint_apply(local_config_path, df_
     session.close()
     report = profile.apply_summary_constraints()
     print(report)
-    assert report[0][1][0][0] == f"summary unique proportion {Op.Name(Op.BTWN)} 0.6 and 0.9"
+    assert report[0][1][0][0] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.6 and 0.9"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -870,8 +870,8 @@ def test_merge_unique_value_proportion_between_constraint_same_values():
     merged = u1.merge(u2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary unique proportion {Op.Name(Op.BTWN)} 0.1 and 0.5"
-    assert message["firstField"] == "unique proportion"
+    assert message["name"] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.1 and 0.5"
+    assert message["firstField"] == "unique_proportion"
     assert message["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.1
     assert pytest.approx(message["between"]["upperValue"], 0.001) == 0.5
@@ -884,8 +884,8 @@ def test_serialization_deserialization_unique_value_proportion_between_constrain
     u1.from_protobuf(u1.to_protobuf())
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
-    assert json_value["name"] == f"summary unique proportion {Op.Name(Op.BTWN)} 0.6 and 0.7"
-    assert json_value["firstField"] == "unique proportion"
+    assert json_value["name"] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.6 and 0.7"
+    assert json_value["firstField"] == "unique_proportion"
     assert json_value["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 0.6
     assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 0.7

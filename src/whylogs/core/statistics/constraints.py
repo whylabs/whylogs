@@ -289,20 +289,8 @@ class SummaryConstraint:
 
     def update(self, update_dict: dict) -> bool:
         self.total += 1
-        summ = update_dict["number_summary"]
-        num_values = update_dict["counters"].count
-        unique_count_estimate = update_dict["unique_count"].estimate
 
-        if self.first_field == "unique count":
-            unique_count = type("Object", (), {self.first_field: unique_count_estimate})
-            result = self.func(unique_count)
-        elif self.first_field == "unique proportion":
-            unique_proportion_estimate = type("Object", (), {self.first_field: 0 if num_values == 0 else unique_count_estimate / num_values})
-            result = self.func(unique_proportion_estimate)
-        else:
-            result = self.func(summ)
-
-        if not result:
+        if not self.func(update_dict):
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -708,7 +696,7 @@ def columnUniqueValueCountBetweenConstraint(lower_value: int, upper_value: int, 
     if lower_value > upper_value:
         raise ValueError("The lower value should be less than or equal to the upper value")
 
-    return SummaryConstraint("unique count", op=Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)
+    return SummaryConstraint("unique_count", op=Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)
 
 
 def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fraction: float, verbose: bool = False):
@@ -718,4 +706,4 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
     if lower_fraction > upper_fraction:
         raise ValueError("The lower fraction should be decimal values less than or equal to the upper fraction")
 
-    return SummaryConstraint("unique proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
+    return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
