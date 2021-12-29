@@ -1049,7 +1049,7 @@ class DatasetConstraints:
         props: DatasetProperties,
         value_constraints: Optional[ValueConstraints] = None,
         summary_constraints: Optional[SummaryConstraints] = None,
-        multi_column_value_constraints: Union[MultiColumnValueConstraints, List] = None,
+        multi_column_value_constraints: Optional[MultiColumnValueConstraints] = None,
     ):
         self.dataset_properties = props
         # repackage lists of constraints if necessary
@@ -1184,12 +1184,12 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
         credit_card_pattern = regex_pattern
     else:
         credit_card_pattern = (
-            r"^(?:(4[0-9]{3}([\s-][0-9]{4}){2}[\s-][0-9]{1,4})"
-            r"|(5[1-5][0-9]{2}([\s-][0-9]{4}){3})"
-            r"|(6(?:011|5[0-9]{2})([\s-][0-9]{4}){3})"
-            r"|(3[47][0-9]{2}[\s-][0-9]{6}[\s-][0-9]{5})"
-            r"|(3(?:0[0-5]|[68][0-9])[0-9][\s-][0-9]{6}[\s-][0-9]{4})"
-            r"|(?:2131|1800|35[0-9]{2,3})([\s-][0-9]{4}){3})$"
+            r"^(?:(4[0-9]{3}([\s-]?[0-9]{4}){2}[\s-]?[0-9]{1,4})"
+            r"|(?:(5[1-5][0-9]{2}([\s-]?[0-9]{4}){3}))"
+            r"|(?:(6(?:011|5[0-9]{2})([\s-]?[0-9]{4}){3}))"
+            r"|(?:(3[47][0-9]{2}[\s-]?[0-9]{6}[\s-]?[0-9]{5}))"
+            r"|(?:(3(?:0[0-5]|[68][0-9])[0-9][\s-]?[0-9]{6}[\s-]?[0-9]{4}))"
+            r"|(?:2131|1800|35[0-9]{2,3}([\s-]?[0-9]{4}){3}))$"
         )
 
     return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, verbose=verbose)
