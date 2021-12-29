@@ -298,7 +298,7 @@ class SummaryConstraint:
 
     @property
     def name(self):
-        if self.first_field == "column values type":
+        if self.first_field == "column_values_type":
             if self.value:
                 v = InferredType.Type.Name(self.value)
             else:
@@ -321,16 +321,8 @@ class SummaryConstraint:
 
     def update(self, update_dict: dict) -> bool:
         self.total += 1
-        summ = update_dict["number_summary"]
-        inferred_type = update_dict["schema"].inferred_type.type
 
-        if self.first_field == "column values type":
-            type_obj = type("Object", (), {self.first_field: inferred_type})
-            result = self.func(type_obj)
-        else:
-            result = self.func(summ)
-
-        if not result:
+        if not self.func(update_dict):
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -704,7 +696,7 @@ def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], ve
     if isinstance(expected_type, InferredType):
         expected_type = expected_type.type
 
-    return SummaryConstraint("column values type", op=Op.EQ, value=expected_type, verbose=verbose)
+    return SummaryConstraint("column_values_type", op=Op.EQ, value=expected_type, verbose=verbose)
 
 
 def columnValuesTypeInSetConstraint(type_set: Set[int], verbose: bool = False):
@@ -738,4 +730,4 @@ def columnValuesTypeInSetConstraint(type_set: Set[int], verbose: bool = False):
     if not all([isinstance(t, int) for t in type_set]):
         raise TypeError("All of the elements of the type_set parameter should be of type int")
 
-    return SummaryConstraint("column values type", op=Op.IN, reference_set=type_set, verbose=verbose)
+    return SummaryConstraint("column_values_type", op=Op.IN, reference_set=type_set, verbose=verbose)

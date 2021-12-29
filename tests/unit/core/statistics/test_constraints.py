@@ -481,7 +481,7 @@ def test_column_values_type_equals_constraint_apply(local_config_path, df_lendin
     session.close()
     report = profile.apply_summary_constraints()
 
-    assert report[0][1][0][0] == f"summary column values type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.FRACTIONAL)}"
+    assert report[0][1][0][0] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.FRACTIONAL)}"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -499,8 +499,8 @@ def test_merge_column_values_type_equals_constraint_same_values():
     merged = u1.merge(u2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary column values type {Op.Name(Op.EQ)} {InferredType.Type.Name(1)}"
-    assert message["firstField"] == "column values type"
+    assert message["name"] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(1)}"
+    assert message["firstField"] == "column_values_type"
     assert message["op"] == Op.Name(Op.EQ)
     assert message["value"] == 1
     assert message["verbose"] is False
@@ -512,8 +512,8 @@ def test_serialization_deserialization_column_values_type_equals_constraint():
     u1.from_protobuf(u1.to_protobuf())
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
-    assert json_value["name"] == f"summary column values type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.STRING)}"
-    assert json_value["firstField"] == "column values type"
+    assert json_value["name"] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.STRING)}"
+    assert json_value["firstField"] == "column_values_type"
     assert json_value["op"] == Op.Name(Op.EQ)
     assert json_value["value"] == InferredType.Type.STRING
     assert json_value["verbose"] is True
@@ -538,7 +538,7 @@ def test_column_values_type_in_set_constraint_apply(local_config_path, df_lendin
 
     print(report)
     type_names = {InferredType.Type.Name(t) for t in type_set}
-    assert report[0][1][0][0] == f"summary column values type {Op.Name(Op.IN)} {type_names}"
+    assert report[0][1][0][0] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -558,8 +558,8 @@ def test_merge_column_values_type_in_set_constraint_same_values():
     message = json.loads(message_to_json(merged.to_protobuf()))
 
     type_names = {InferredType.Type.Name(t) for t in type_set}
-    assert message["name"] == f"summary column values type {Op.Name(Op.IN)} {type_names}"
-    assert message["firstField"] == "column values type"
+    assert message["name"] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert message["firstField"] == "column_values_type"
     assert message["op"] == Op.Name(Op.IN)
     assert message["referenceSet"] == list(type_set)
     assert message["verbose"] is False
@@ -573,8 +573,8 @@ def test_serialization_deserialization_column_values_type_in_set_constraint():
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
     type_names = {InferredType.Type.Name(t) if isinstance(t, int) else InferredType.Type.Name(t.type) for t in type_set}
-    assert json_value["name"] == f"summary column values type {Op.Name(Op.IN)} {type_names}"
-    assert json_value["firstField"] == "column values type"
+    assert json_value["name"] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert json_value["firstField"] == "column_values_type"
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["referenceSet"] == list(type_set)
     assert json_value["verbose"] is True
