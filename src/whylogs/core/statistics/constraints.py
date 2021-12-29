@@ -278,16 +278,8 @@ class SummaryConstraint:
 
     def update(self, update_dict: dict) -> bool:
         self.total += 1
-        summ = update_dict["number_summary"]
-        null_values = update_dict["counters"].null_count.value
 
-        if self.first_field == "null count":
-            null_count = type("Object", (), {self.first_field: null_values})
-            result = self.func(null_count)
-        else:
-            result = self.func(summ)
-
-        if not result:
+        if not self.func(update_dict):
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -610,4 +602,4 @@ def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
 
 
 def columnValuesNotNullConstraint(verbose=False):
-    return SummaryConstraint("null count", value=0, op=Op.EQ, verbose=verbose)
+    return SummaryConstraint("null_count", value=0, op=Op.EQ, verbose=verbose)

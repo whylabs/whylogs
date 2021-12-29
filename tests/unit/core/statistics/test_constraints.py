@@ -485,7 +485,7 @@ def test_column_values_not_null_constraint_apply(local_config_path, df_lending_c
 
     TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
 
-    assert report[0][1][0][0] == f"summary null count {Op.Name(Op.EQ)} 0/None"
+    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -498,7 +498,7 @@ def test_column_values_not_null_constraint_apply(local_config_path, df_lending_c
 
     TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report2}")
 
-    assert report2[0][1][0][0] == f"summary null count {Op.Name(Op.EQ)} 0/None"
+    assert report2[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
     assert report2[0][1][0][1] == 1
     assert report2[0][1][0][2] == 1
 
@@ -520,11 +520,11 @@ def test_merge_column_values_not_null_constraint_different_values(local_config_p
     session.close()
     report2 = profile2.apply_summary_constraints()
 
-    assert report1[0][1][0][0] == f"summary null count {Op.Name(Op.EQ)} 0/None"
+    assert report1[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
     assert report1[0][1][0][1] == 1
     assert report1[0][1][0][2] == 0
 
-    assert report2[0][1][0][0] == f"summary null count {Op.Name(Op.EQ)} 0/None"
+    assert report2[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
     assert report2[0][1][0][1] == 1
     assert report2[0][1][0][2] == 0
 
@@ -543,8 +543,8 @@ def test_serialization_deserialization_column_values_not_null_constraint():
     nnc.from_protobuf(nnc.to_protobuf())
     json_value = json.loads(message_to_json(nnc.to_protobuf()))
 
-    assert json_value["name"] == f"summary null count {Op.Name(Op.EQ)} 0/None"
-    assert json_value["firstField"] == "null count"
+    assert json_value["name"] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert json_value["firstField"] == "null_count"
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 0
     assert json_value["verbose"] is True
