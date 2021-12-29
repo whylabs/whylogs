@@ -8,7 +8,6 @@ from google.protobuf.struct_pb2 import ListValue
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
-    NumberSummary,
     Op,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
@@ -278,15 +277,8 @@ class SummaryConstraint:
 
     def update(self, update_dict: dict) -> bool:
         self.total += 1
-        summ = update_dict["number_summary"]
-        entropy = update_dict["entropy"]
 
-        if self.first_field == "entropy":
-            result = self.func(entropy) if entropy is not None else None
-        else:
-            result = self.func(summ)
-
-        if not result:
+        if not self.func(update_dict):
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")

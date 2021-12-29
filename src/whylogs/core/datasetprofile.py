@@ -26,6 +26,7 @@ from whylogs.proto import (
     DatasetSummary,
     MessageSegment,
     ModelType,
+    NumberSummary,
 )
 from whylogs.util import time
 from whylogs.util.time import from_utc_ms, to_utc_ms
@@ -689,10 +690,10 @@ class DatasetProfile:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
 
-                update_dict = {
-                    "number_summary": summ.number_summary,
-                    "entropy": entropy_from_column_summary(summ, colprof.number_tracker.histogram),
-                }
+                update_dict = _create_update_summary_dictionary(
+                    number_summary=summ.number_summary,
+                    entropy=entropy_from_column_summary(summ, colprof.number_tracker.histogram),
+                )
 
                 constraints.update(update_dict)
             else:
@@ -797,3 +798,32 @@ def array_profile(
     prof = DatasetProfile(name, timestamp)
     prof.track_array(x, columns)
     return prof
+
+
+def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
+    """
+    Wrapper method for summary constraints update object creation
+    Parameters
+    ----------
+    number_summary : NumberSummary
+        Summary object generated from NumberTracker
+        Used to unpack the metrics as separate items in the dictionary
+    kwargs : Summary objects or datasketches objects
+        Used to update specific constraints that need additional calculations
+    Returns
+    -------
+    Anonymous object containing all of the metrics as fields with their coresponding values
+    """
+
+    update_dict = {}
+
+    update_dict.update(
+        {
+            field_name: getattr(number_summary, field_name)
+            for field_name in dir(number_summary)
+            if str.islower(field_name) and not str.startswith(field_name, "_") and not callable(getattr(number_summary, field_name))
+        }
+    )
+    update_dict.update({key: obj for key, obj in kwargs.items()})
+
+    return type("Object", (), update_dict)

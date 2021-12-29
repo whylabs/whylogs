@@ -161,8 +161,9 @@ def entropy_from_column_summary(summary: ColumnSummary, histogram: datasketches.
 
     Returns
     -------
-    entropy : Object
-        Anonymous object containing one field: entropy = estimated_entropy_value
+    entropy : float
+        Estimated entropy value,
+        np.nan if the inferred data type of the column is not categorical or numeric
     """
 
     frequent_items = summary.frequent_items
@@ -175,11 +176,11 @@ def entropy_from_column_summary(summary: ColumnSummary, histogram: datasketches.
         pmf = histogram.get_pmf(bins)
         pmf = list(filter(lambda x: x > 0, pmf))
         entropy = -np.sum(pmf * np.log(pmf))
-        return type("Object", (), {"entropy": entropy})
+        return entropy
 
     elif inferred_type in (InferredType.Type.INTEGRAL, InferredType.Type.STRING, InferredType.Type.BOOLEAN):
-        if total_count <= 0:
-            return None
+        if total_count == 0:
+            return 0
 
         entropy = 0
         for item in frequent_items.items:
@@ -189,10 +190,10 @@ def entropy_from_column_summary(summary: ColumnSummary, histogram: datasketches.
         frequent_items_count = len(frequent_items.items)
         n_singles = unique_count - frequent_items_count
         if math.isclose(n_singles, 0.0, abs_tol=10e-3):
-            return type("Object", (), {"entropy": -entropy})
+            return -entropy
 
         n_singles_frequency = n_singles / total_count
         entropy += n_singles_frequency * np.log(n_singles_frequency)
-        return type("Object", (), {"entropy": -entropy})
+        return -entropy
 
-    return None
+    return np.nan
