@@ -306,16 +306,8 @@ class SummaryConstraint:
 
     def update(self, update_dict: dict) -> bool:
         self.total += 1
-        summ = update_dict["number_summary"]
-        most_common_value = update_dict["most_common_val"]
 
-        if self.first_field == "most common value":
-            most_common = type("Object", (), {self.first_field: most_common_value})
-            result = self.func(most_common)
-        else:
-            result = self.func(summ)
-
-        if not result:
+        if not self.func(update_dict):
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -667,4 +659,4 @@ def columnMostCommonValueInSetConstraint(value_set: Set[Any], verbose=False):
     except Exception:
         raise TypeError("The value set should be an iterable data type")
 
-    return SummaryConstraint("most common value", op=Op.IN, reference_set=value_set, verbose=verbose)
+    return SummaryConstraint("most_common_value", op=Op.IN, reference_set=value_set, verbose=verbose)

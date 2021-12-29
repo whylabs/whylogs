@@ -483,11 +483,11 @@ def test_most_common_value_in_set_constraint_apply(local_config_path, df_lending
     session.close()
     report = profile.apply_summary_constraints()
     print(report)
-    assert report[0][1][0][0] == f"summary most common value {Op.Name(Op.IN)} {val_set1}"
+    assert report[0][1][0][0] == f"summary most_common_value {Op.Name(Op.IN)} {val_set1}"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
-    assert report[1][1][0][0] == f"summary most common value {Op.Name(Op.IN)} {val_set2}"
+    assert report[1][1][0][0] == f"summary most_common_value {Op.Name(Op.IN)} {val_set2}"
     assert report[1][1][0][1] == 1
     assert report[1][1][0][2] == 1
 
@@ -506,8 +506,8 @@ def test_merge_most_common_value_in_set_constraint_same_values():
     merged = u1.merge(u2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary most common value {Op.Name(Op.IN)} {val_set}"
-    assert message["firstField"] == "most common value"
+    assert message["name"] == f"summary most_common_value {Op.Name(Op.IN)} {val_set}"
+    assert message["firstField"] == "most_common_value"
     assert message["op"] == Op.Name(Op.IN)
     assert message["referenceSet"] == list(val_set)
     assert message["verbose"] is False
@@ -520,8 +520,8 @@ def test_serialization_deserialization_most_common_value_in_set_constraint():
     u1.from_protobuf(u1.to_protobuf())
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
-    assert json_value["name"] == f"summary most common value {Op.Name(Op.IN)} {val_set}"
-    assert json_value["firstField"] == "most common value"
+    assert json_value["name"] == f"summary most_common_value {Op.Name(Op.IN)} {val_set}"
+    assert json_value["firstField"] == "most_common_value"
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["referenceSet"] == list(val_set)
     assert json_value["verbose"] is True
