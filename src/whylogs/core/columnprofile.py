@@ -9,6 +9,7 @@ from whylogs.core.statistics import (
     StringTracker,
 )
 from whylogs.core.statistics.constraints import (
+    MultiColumnValueConstraints,
     SummaryConstraint,
     SummaryConstraints,
     ValueConstraints,
@@ -23,6 +24,7 @@ from whylogs.proto import (
     UniqueCountSummary,
 )
 from whylogs.util.dsketch import FrequentItemsSketch
+from whylogs.util.util_functions import column_tuple_to_string
 
 _TYPES = InferredType.Type
 _NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}
@@ -249,4 +251,107 @@ class ColumnProfile:
             string_tracker=StringTracker.from_protobuf(message.strings),
             frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),
             cardinality_tracker=HllSketch.from_protobuf(message.cardinality_tracker),
+        )
+
+
+class MultiColumnProfile:
+    """
+    Statistics tracking for a column (i.e. a feature)
+
+    The primary method for
+
+    Parameters
+    ----------
+    name : str (required)
+        Name of the column profile
+    constraints : MultiColumnValueConstraints
+        Static assertions to be applied to data tracked between the columns
+
+    """
+
+    def __init__(
+        self,
+        column_pair: tuple[str],
+        constraints: MultiColumnValueConstraints = None,
+    ):
+        # Handle default values
+        if constraints is None:
+            constraints = MultiColumnValueConstraints()
+
+        # Assign values
+        self.column_name = column_tuple_to_string(column_pair)
+        self.constraints = constraints
+
+    def track(self, col1_value, col2_value, character_list=None, token_method=None):
+        """
+        Add `value` to tracking statistics.
+        """
+
+        # update the MultiColumnTrackers
+
+        col1_typed_data = TypedDataConverter.convert(col1_value)
+        col2_typed_data = TypedDataConverter.convert(col2_value)
+
+        TypedDataConverter.get_type(col1_value)
+        TypedDataConverter.get_type(col2_value)
+
+        self.constraints.update(col1_typed_data, col2_typed_data)
+
+    def to_summary(self):
+        """
+        Generate a summary of the statistics
+
+        Returns
+        -------
+        summary : (Multi)ColumnSummary
+            Protobuf summary message.
+        """
+
+        opts = dict(
+            # summaries for the multi column trackers and statistics
+        )
+
+        return ColumnSummary(**opts)  # Potentially MultiColumnSummary
+
+    def merge(self, other) -> "MultiColumnProfile":
+        """
+        Merge this columnprofile with another.
+
+        Parameters
+        ----------
+        other : MultiColumnProfile
+
+        Returns
+        -------
+        merged : MultiColumnProfile
+            A new, merged multi column profile.
+        """
+        assert self.column_name == other.column_name
+        return MultiColumnProfile(self.column_name)
+
+    def to_protobuf(self):
+        """
+        Return the object serialized as a protobuf message
+
+        Returns
+        -------
+        message : ColumnMessage
+        """
+
+        return ColumnMessage(
+            name=self.column_name,
+        )
+
+    @staticmethod
+    def from_protobuf(message):
+        """
+        Load from a protobuf message
+
+        Returns
+        -------
+        column_profile : MultiColumnProfile
+        """
+
+        return MultiColumnProfile(
+            message.name,
         )

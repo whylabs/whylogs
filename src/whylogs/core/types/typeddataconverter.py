@@ -18,11 +18,8 @@ FLOAT_TYPES = (float, np.float)
 class TypedDataConverter:
     """
     A class to coerce types on data.
-
     To see available types:
-
     .. code-block:: python
-
         >>> from whylogs.core.types.typeddataconverter import TYPES
         >>> print("\\n".join(sorted(TYPES.keys())))
     """
@@ -31,10 +28,8 @@ class TypedDataConverter:
     def convert(data):
         """
         Convert `data` to a typed value
-
         If a `data` is a string, parse `data` with yaml.  Else, return `data`
         unchanged
-
         Note: this method is very slow, since it relies on the complex and
         python-based implementation of yaml.
         """
@@ -64,12 +59,10 @@ class TypedDataConverter:
         """
         Extract the data type of a value.  See `typeddataconvert.TYPES` for
         available types.
-
         Parameters
         ----------
         typed_data
             Data processed by TypedDataConverter.convert
-
         Returns
         -------
         dtype : TYPES

@@ -14,6 +14,9 @@ from whylogs.core.statistics.constraints import (
     ValueConstraints,
     _summary_funcs1,
     _value_funcs,
+    column_values_A_greater_than_B,
+    columnExistsConstraint,
+    columnsMatchSetConstraint,
     columnValuesInSetConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
@@ -1018,3 +1021,121 @@ def test_quantile_between_wrong_datatype():
         quantileBetweenConstraint(quantile_value=0.3, lower_value=1.24, upper_value=[6.63], verbose=True)
     with pytest.raises(ValueError):
         quantileBetweenConstraint(quantile_value=0.3, lower_value=2.3, upper_value=1.5, verbose=True)
+
+
+def test_dataset_constraints_serialization():
+
+    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8})
+    ltc = ValueConstraint(Op.LT, 1)
+
+    min_gt_constraint = SummaryConstraint("min", Op.GT, value=100)
+    max_le_constraint = SummaryConstraint("max", Op.LE, value=5)
+
+    set1 = set(["col1", "col2"])
+    columns_match_constraint = columnsMatchSetConstraint(set1)
+
+    dc = DatasetConstraints(
+        None,
+        value_constraints={"annual_inc": [cvisc, ltc]},
+        summary_constraints={"annual_inc": [max_le_constraint, min_gt_constraint]},
+        table_shape_constraints=[columns_match_constraint],
+    )
+
+    dc_deser = DatasetConstraints.from_protobuf(dc.to_protobuf())
+
+    props = dc.dataset_properties
+    deser_props = dc_deser.dataset_properties
+
+    if all([props, deser_props]):
+        pm_json = json.loads(message_to_json(props))
+        deser_pm_json = json.loads(message_to_json(deser_props))
+
+        for (k, v), (k_deser, v_deser) in zip(pm_json.items(), deser_pm_json.items()):
+            assert k == k_deser
+            if all([v, v_deser]):
+                v = v.sort() if isinstance(v, list) else v
+                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
+            assert v == v_deser
+
+    value_constraints = dc.value_constraint_map
+    summary_constraints = dc.summary_constraint_map
+    table_shape_constraints = dc.table_shape_constraints
+
+    deser_v_c = dc_deser.value_constraint_map
+    deser_s_c = dc_deser.summary_constraint_map
+    deser_ts_c = dc_deser.table_shape_constraints
+
+    for (column, constraints), (deser_column, deser_constraints) in zip(value_constraints.items(), deser_v_c.items()):
+        assert column == deser_column
+
+        tmp_val_constraints = dict()
+        tmp_val_constraints.update(constraints.raw_value_constraints)
+        tmp_val_constraints.update(constraints.coerced_type_constraints)
+
+        tmp_val_constraints_deser = dict()
+        tmp_val_constraints_deser.update(deser_constraints.raw_value_constraints)
+        tmp_val_constraints_deser.update(deser_constraints.coerced_type_constraints)
+
+        for (name, c), (deser_name, deser_c) in zip(tmp_val_constraints.items(), tmp_val_constraints_deser.items()):
+            assert name == deser_name
+
+            a = json.loads(message_to_json(c.to_protobuf()))
+            b = json.loads(message_to_json(deser_c.to_protobuf()))
+
+            for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+                assert k == k_deser
+                if all([v, v_deser]):
+                    v = v.sort() if isinstance(v, list) else v
+                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
+                assert v == v_deser
+
+    for (column, constraints), (deser_column, deser_constraints) in zip(summary_constraints.items(), deser_s_c.items()):
+        assert column == deser_column
+
+        for (name, c), (deser_name, deser_c) in zip(constraints.constraints.items(), deser_constraints.constraints.items()):
+            assert name == deser_name
+
+            a = json.loads(message_to_json(c.to_protobuf()))
+            b = json.loads(message_to_json(deser_c.to_protobuf()))
+
+            for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+                assert k == k_deser
+                if all([v, v_deser]):
+                    v = v.sort() if isinstance(v, list) else v
+                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
+                assert v == v_deser
+
+    for (name, c), (deser_name, deser_c) in zip(table_shape_constraints.constraints.items(), deser_ts_c.constraints.items()):
+        assert name == deser_name
+
+        for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+            assert k == k_deser
+            if all([v, v_deser]):
+                v = v.sort() if isinstance(v, list) else v
+                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
+            assert v == v_deser
+
+    report = dc.report()
+    report_deser = dc_deser.report()
+
+    assert report == report_deser
+
+
+def test_multi_column_logical_operation(local_config_path):
+    a_gt_b = column_values_A_greater_than_B()
+
+    df = pd.DataFrame({"col1": [4, 5, 6, 7], "col2": [0, 1, 2, 3]})
+    # df = pd.DataFrame({"col1": [0, 1, 2, 3], "col2": [4, 5, 6, 7]})
+
+    dc = DatasetConstraints(None, multi_column_value_constraints={("col1", "col2"): [a_gt_b]})
+
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    assert len(report[0]) == 2
+
+    assert report[0][1][0][1] == 4 and report[0][1][0][2] == 0 and report[0][1][0][0] == f"multi column value {Op.Name(Op.GT)}"
