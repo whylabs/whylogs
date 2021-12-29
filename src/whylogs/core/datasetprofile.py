@@ -823,6 +823,6 @@ def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
             if str.islower(field_name) and not str.startswith(field_name, "_") and not callable(getattr(number_summary, field_name))
         }
     )
-    update_dict.update({key: obj for key, obj in kwargs.items()})
+    update_dict.update(kwargs)
 
     return type("Object", (), update_dict)
