@@ -1199,12 +1199,11 @@ def test_dataset_constraints_serialization():
 
 
 def test_multi_column_logical_operation(local_config_path):
-    a_gt_b = column_values_A_greater_than_B()
+    a_gt_b = column_values_A_greater_than_B("col1", "col2")
 
     df = pd.DataFrame({"col1": [4, 5, 6, 7], "col2": [0, 1, 2, 3]})
-    # df = pd.DataFrame({"col1": [0, 1, 2, 3], "col2": [4, 5, 6, 7]})
 
-    dc = DatasetConstraints(None, multi_column_value_constraints={("col1", "col2"): [a_gt_b]})
+    dc = DatasetConstraints(None, multi_column_value_constraints=[a_gt_b])
 
     config = load_config(local_config_path)
     session = session_from_config(config)
@@ -1213,6 +1212,6 @@ def test_multi_column_logical_operation(local_config_path):
     session.close()
     report = dc.report()
 
-    assert len(report[0]) == 2
+    assert len(report[0]) == 3
 
-    assert report[0][1][0][1] == 4 and report[0][1][0][2] == 0 and report[0][1][0][0] == f"multi column value {Op.Name(Op.GT)}"
+    assert report[0][1] == 4 and report[0][2] == 0 and report[0][0] == f"multi column value col1 {Op.Name(Op.GT)} col2"
