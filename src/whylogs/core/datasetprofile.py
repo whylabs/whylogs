@@ -25,6 +25,7 @@ from whylogs.proto import (
     DatasetSummary,
     MessageSegment,
     ModelType,
+    NumberSummary,
 )
 from whylogs.util import time
 from whylogs.util.time import from_utc_ms, to_utc_ms
@@ -687,11 +688,17 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
-                update_dict = {
-                    "number_summary": summ.number_summary,
-                    "string_theta": colprof.string_tracker.theta_sketch.theta_sketch,
-                    "number_theta": colprof.number_tracker.theta_sketch.theta_sketch,
-                }
+
+                distinct_column_values_dict = dict()
+                distinct_column_values_dict["string_theta"] = colprof.string_tracker.theta_sketch.theta_sketch
+                distinct_column_values_dict["number_theta"] = colprof.number_tracker.theta_sketch.theta_sketch
+
+                update_dict = _create_update_summary_dictionary(
+                    number_summary=summ.number_summary,
+                    distinct_column_values=distinct_column_values_dict,
+                    quantile=colprof.number_tracker.histogram,
+                )
+
                 constraints.update(update_dict)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
@@ -795,3 +802,34 @@ def array_profile(
     prof = DatasetProfile(name, timestamp)
     prof.track_array(x, columns)
     return prof
+
+
+def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
+    """
+    Wrapper method for summary constraints update object creation
+
+    Parameters
+    ----------
+    number_summary : NumberSummary
+        Summary object generated from NumberTracker
+        Used to unpack the metrics as separate items in the dictionary
+    kwargs : Summary objects or datasketches objects
+        Used to update specific constraints that need additional calculations
+
+    Returns
+    -------
+    Anonymous object containing all of the metrics as fields with their coresponding values
+    """
+
+    update_dict = {}
+
+    update_dict.update(
+        {
+            field_name: getattr(number_summary, field_name)
+            for field_name in dir(number_summary)
+            if str.islower(field_name) and not str.startswith(field_name, "_") and not callable(getattr(number_summary, field_name))
+        }
+    )
+    update_dict.update(kwargs)
+
+    return type("Object", (), update_dict)
