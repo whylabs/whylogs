@@ -14,6 +14,7 @@
   };
 
   // HTML Elements
+  const $featureFileName = $(".feature-file-name")
   const $notifCircleContainer = $(".notif-circle-container")
   const $boxes = $('input[name=checkbox]:checked');
   const $notClickableBurgerIcon = $("#not_clickable_burger_icon");
@@ -833,6 +834,13 @@
     $sidebarContent.addClass("d-none");
     $tableContent.addClass("d-none");
     $compareProfile.removeClass("d-none");
+  }
+
+  function addFileName() {
+    const fileName = $fileInput.val().split('\\').pop();
+    if (fileName) {
+      $featureFileName.html(fileName.split('.json'))
+    }
   }
 
   function loadFile(inputId, jsonForm) {

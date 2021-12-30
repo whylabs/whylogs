@@ -972,6 +972,15 @@ a .wl-table-row--bottom-shadow {
   padding-right: 30px;
 }
 
+.flex-direction-colum {
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-file-name {
+  font-size: 17px;
+  color: #6C757D;
+}
 @media only screen and (min-width: 1350px) {
   .clickable-test-feature-body {
     display: flex;
