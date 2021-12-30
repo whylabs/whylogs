@@ -138,7 +138,7 @@ _summary_funcs1 = {
         theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1
     )
     == 0.0,
-    Op.CONTAINS_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+    Op.CONTAIN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
         theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1
     )
     == 0.0,
@@ -403,7 +403,7 @@ class SummaryConstraint:
         self.value = value
         self.upper_value = upper_value
 
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             if value is not None or upper_value is not None or second_field is not None or third_field is not None or reference_set is None:
                 raise ValueError("When using set operations only set should be provided and not values or field names!")
 
@@ -459,7 +459,7 @@ class SummaryConstraint:
 
     @property
     def name(self):
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             reference_set_str = ""
             if len(self.reference_set) > 20:
                 tmp_set = set(list(self.reference_set)[:20])
@@ -494,7 +494,7 @@ class SummaryConstraint:
         column_string_theta = update_dict["string_theta"]
         column_number_theta = update_dict["number_theta"]
 
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             if not _summary_funcs1[self.op](self.string_theta_sketch)(column_string_theta) or not _summary_funcs1[self.op](self.numbers_theta_sketch)(
                 column_number_theta
             ):
@@ -517,7 +517,7 @@ class SummaryConstraint:
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
 
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             assert self.reference_set == other.reference_set
             merged_constraint = SummaryConstraint(
                 first_field=self.first_field, op=self.op, reference_set=self.reference_set, name=self.name, verbose=self._verbose
@@ -606,7 +606,7 @@ class SummaryConstraint:
             )
 
     def to_protobuf(self) -> SummaryConstraintMsg:
-        if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             reference_set_msg = ListValue()
             reference_set_msg.extend(self.reference_set)
 

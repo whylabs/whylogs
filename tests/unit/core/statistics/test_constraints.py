@@ -58,7 +58,7 @@ def test_value_summary_serialization():
         assert json_value["verbose"] == False
 
     for each_op, _ in _summary_funcs1.items():
-        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             continue
         # constraints may have an optional name
         sum_constraint = SummaryConstraint("min", each_op, 300000, name="< 30K")
@@ -480,12 +480,12 @@ def test_set_summary_constraints(df_lending_club, local_config_path):
     eq_set2 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list2, name="False2")
     eq_set3 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list[:-1], name="False3")
 
-    contains_set = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[org_list[2]], name="True4")
-    contains_set2 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=org_list, name="True5")
-    contains_set3 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=org_list[:-1], name="True6")
-    contains_set4 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[str(org_list[2])], name="False4")
-    contains_set5 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[2.3456], name="False5")
-    contains_set6 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=org_list2, name="False6")
+    contains_set = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[org_list[2]], name="True4")
+    contains_set2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list, name="True5")
+    contains_set3 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list[:-1], name="True6")
+    contains_set4 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[str(org_list[2])], name="False4")
+    contains_set5 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2.3456], name="False5")
+    contains_set6 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list2, name="False6")
 
     list(df_lending_club["annual_inc"])
     constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
@@ -494,28 +494,28 @@ def test_set_summary_constraints(df_lending_club, local_config_path):
 
 def test_set_summary_constraint_invalid_init():
     with pytest.raises(TypeError):
-        SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=1)
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=1)
     with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, 1)
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, 1)
     with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, second_field="aaa")
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, second_field="aaa")
     with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, third_field="aaa")
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, third_field="aaa")
     with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, upper_value=2)
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, upper_value=2)
 
 
 def test_set_summary_no_merge_different_set():
 
-    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[1, 2, 3])
-    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[2, 3, 4, 5])
+    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2, 3, 4, 5])
     with pytest.raises(AssertionError):
         set_c_1.merge(set_c_2)
 
 
 def test_set_summary_merge():
-    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[1, 2, 3])
-    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[1, 2, 3])
+    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
 
     merged = set_c_1.merge(set_c_2)
 
