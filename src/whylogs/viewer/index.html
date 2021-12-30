@@ -254,6 +254,32 @@
                    </fieldset>
                  </form>
                </div>
+               <div class="wl-table-cell wl-selected-profile display-flex d-none" id="selected-profile">
+                <h6 class="wl-selected-reference-profile mt-1 mb-2">Reference profile</h6>
+                <div class="reference-profile-buttons space-between align-items">
+                  <div class="edit-button-wrap">
+                    <div class="edit-button">
+                      <form id="reference-json-form" name="reference-json-form" enctype="multipart/form-data" method="post">
+                        <fieldset>
+                          <div class="reference-file-input">
+                            <label for="reference-file-input">
+                              Edit
+                            </label>
+                            <input type="file" id="reference-file-input" class="wl__json-form-input" accept=".json" />
+                          </div>
+                        </fieldset>
+                      </form>
+                    </div>
+                  </div>
+                  <div class="remove-reference-profile-button-wrap">
+                    <div class="remove-reference-profile-button" id="remove-reference-profile-button">
+                      <img 
+                        src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTEiIGhlaWdodD0iMTEiIHZpZXdCb3g9IjAgMCAxMSAxMSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC41IiBkPSJNNi42NTQzIDUuMzc1TDkuNjcxODggMi4zODY3MkwxMC4yODcxIDEuNzcxNDhDMTAuMzc1IDEuNjgzNTkgMTAuMzc1IDEuNTM3MTEgMTAuMjg3MSAxLjQxOTkyTDkuNjQyNTggMC43NzUzOTFDOS41MjUzOSAwLjY4NzUgOS4zNzg5MSAwLjY4NzUgOS4yOTEwMiAwLjc3NTM5MUw1LjY4NzUgNC40MDgyTDIuMDU0NjkgMC43NzUzOTFDMS45NjY4IDAuNjg3NSAxLjgyMDMxIDAuNjg3NSAxLjcwMzEyIDAuNzc1MzkxTDEuMDU4NTkgMS40MTk5MkMwLjk3MDcwMyAxLjUzNzExIDAuOTcwNzAzIDEuNjgzNTkgMS4wNTg1OSAxLjc3MTQ4TDQuNjkxNDEgNS4zNzVMMS4wNTg1OSA5LjAwNzgxQzAuOTcwNzAzIDkuMDk1NyAwLjk3MDcwMyA5LjI0MjE5IDEuMDU4NTkgOS4zNTkzOEwxLjcwMzEyIDEwLjAwMzlDMS44MjAzMSAxMC4wOTE4IDEuOTY2OCAxMC4wOTE4IDIuMDU0NjkgMTAuMDAzOUw1LjY4NzUgNi4zNzEwOUw4LjY3NTc4IDkuMzg4NjdMOS4yOTEwMiAxMC4wMDM5QzkuMzc4OTEgMTAuMDkxOCA5LjUyNTM5IDEwLjA5MTggOS42NDI1OCAxMC4wMDM5TDEwLjI4NzEgOS4zNTkzOEMxMC4zNzUgOS4yNDIxOSAxMC4zNzUgOS4wOTU3IDEwLjI4NzEgOS4wMDc4MUw2LjY1NDMgNS4zNzVaIiBmaWxsPSIjNkM3NTdEIi8+Cjwvc3ZnPgo='
+                      />
+                    </div>
+                  </div>
+                </div>
+               </div>
               <div class="wl-table" id="table-content-wrapper">
                 <div class="wl-table-heading">
                   <div class="wl-table-row wl-table-row--bottom-shadow">

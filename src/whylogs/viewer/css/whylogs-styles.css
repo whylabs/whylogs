@@ -1026,6 +1026,38 @@ a .wl-table-row--bottom-shadow {
   pointer-events: none;
 }
 
+.reference-profile-buttons {
+  padding-left: 20px;
+}
+
+.edit-button-wrap {
+  padding-right: 5px;
+  cursor: pointer;
+}
+
+.edit-button {
+  border: 1px solid #369BAC;
+  box-sizing: border-box;
+  border-radius: 3px;
+  width: 33px;
+  text-align: center;
+}
+
+.edit-button label{
+  color: #369BAC;
+  font-family: Asap;
+  font-weight: 500;
+  line-height: 11px;
+  cursor: pointer;
+}
+
+.remove-reference-profile-button {
+  border: 1px solid #6C757D;
+  border-radius: 3px;
+  text-align: center;
+  width: 20px;
+  cursor: pointer;
+}
 
 input::placeholder {
   color: var(--secondaryLight1000);;

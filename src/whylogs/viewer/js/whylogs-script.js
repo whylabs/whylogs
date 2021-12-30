@@ -14,6 +14,7 @@
   };
 
   // HTML Elements
+  const $removeReferenceProfileButton = $("#remove-reference-profile-button")
   const $featureFileName = $(".feature-file-name")
   const $notifCircleContainer = $(".notif-circle-container")
   const $boxes = $('input[name=checkbox]:checked');
@@ -190,7 +191,6 @@
           <p>${driftName}</p>
      </div>
     `
-    const $tableContent = $("#table-content");
     const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap");
     const $pagesButtons = $(".page-button");
     const $pagesButton = $pagesButtons[0];
@@ -824,7 +824,6 @@
     $tableMessage.addClass("d-none");
     $sidebarContent.removeClass("d-none");
     $tableContent.removeClass("d-none");
-    $compareProfile.removeClass("d-none");
   }
 
   function hideDataVisibility() {
@@ -879,9 +878,13 @@
       jsonData = data;
       referenceJsonData = undefined
       $(".reference-table-head").addClass("d-none")
+      $(".wl-selected-profile").addClass("d-none") 
+      $compareProfile.removeClass("d-none");
     } else {
       referenceJsonData = data
-      $(".reference-table-head").removeClass("d-none")
+      $(".reference-table-head").removeClass("d-none")    
+      $(".wl-selected-profile").removeClass("d-none") 
+      $(".wl-compare-profile").addClass("d-none")
     }
 
     mapProfileDataToReadData(jsonData, dataForRead, referenceJsonData);
@@ -913,6 +916,24 @@
       $notifCircleContainer.removeClass("d-none")
     }
   }
+
+  $removeReferenceProfileButton.on("click", function () {
+    referenceJsonData = undefined
+    dataForRead = {};
+    featureDataForTableForAllProfiles = {};
+    numOfProfilesBasedOnType = {};
+
+    $(".reference-table-head").addClass("d-none")
+
+    mapProfileDataToReadData(jsonData, dataForRead, referenceJsonData);
+    $tableBody.html("");
+    updateHtmlElementValues();
+    renderList();
+    $(".wl-selected-profile").addClass("d-none") 
+    $(".wl-compare-profile").removeClass("d-none")
+
+  })
+
   $(document).on("click", ".page-button", function(e) {
     const $pagesButtons = $(".page-button"),
       $pagesButtonIndex = $pagesButtons.index(e.target),
@@ -923,7 +944,6 @@
   })
 
   $("#property-panel-close-icon").on("click", function (e) {
-    const $tableContent = $("#table-content")
     const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap")
 
     $tableContent.removeClass("d-none")
@@ -950,6 +970,7 @@
     $signUpText.addClass("d-none");
     sidebarContentHeight()
   });
+  
 
   $(document).on("click", ".js-list-group-item span", function (e) {
     const listItem = $("li>span"),
