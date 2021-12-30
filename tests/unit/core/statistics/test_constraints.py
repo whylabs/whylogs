@@ -25,6 +25,7 @@ from whylogs.core.statistics.constraints import (
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
+    quantileBetweenConstraint,
     stddevBetweenConstraint,
     stringLengthBetweenConstraint,
     stringLengthEqualConstraint,
@@ -85,7 +86,6 @@ def test_value_constraints(df_lending_club, local_config_path):
     report = dc.report()
 
     assert len(report) == 2
-    print(report)
     # make sure it checked every value
     for each_feat in report:
         for each_constraint in each_feat[1]:
@@ -117,7 +117,6 @@ def test_value_constraints_pattern_match(df_lending_club, local_config_path):
     report = dc.report()
     # checks there are constraints for 3 features
     assert len(report) == 3
-    print(report)
     # make sure it checked every value
     for each_feat in report:
         for each_constraint in each_feat[1]:
@@ -326,7 +325,6 @@ def _apply_between_summary_constraint_on_dataset(df_lending_club, local_config_p
     session.close()
     report = profile.apply_summary_constraints()
 
-    print(report)
     assert len(report) == 2
 
     # make sure it checked every value
@@ -953,3 +951,70 @@ def test_url_constraint_merge_invalid():
 def test_url_invalid_pattern():
     with pytest.raises(TypeError):
         containsURLConstraint(2124)
+
+
+def test_summary_constraint_quantile_invalid():
+    with pytest.raises(ValueError):
+        SummaryConstraint("stddev", op=Op.LT, value=2, quantile_value=0.2)
+    with pytest.raises(ValueError):
+        SummaryConstraint("quantile", op=Op.GT, value=2)
+
+
+def test_quantile_between_constraint_apply(local_config_path, df_lending_club):
+    qc = quantileBetweenConstraint(quantile_value=0.25, lower_value=13308, upper_value=241001)
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [qc]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    assert report[0][1][0][0] == f"summary quantile {0.25} {Op.Name(Op.BTWN)} 13308 and 241001"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_merge_quantile_between_constraint_different_values():
+    qc1 = quantileBetweenConstraint(quantile_value=0.25, lower_value=0, upper_value=2)
+    qc2 = quantileBetweenConstraint(quantile_value=0.25, lower_value=1, upper_value=2)
+    with pytest.raises(AssertionError):
+        qc1.merge(qc2)
+
+
+def test_merge_quantile_between_constraint_same_values():
+    qc1 = quantileBetweenConstraint(quantile_value=0.5, lower_value=0, upper_value=5)
+    qc2 = quantileBetweenConstraint(quantile_value=0.5, lower_value=0, upper_value=5)
+    merged = qc1.merge(qc2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == f"summary quantile 0.5 {Op.Name(Op.BTWN)} 0 and 5"
+    assert message["firstField"] == "quantile"
+    assert message["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.0
+    assert pytest.approx(message["between"]["upperValue"], 0.001) == 5.0
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_quantile_between_constraint():
+    qc1 = quantileBetweenConstraint(quantile_value=0.5, lower_value=1.24, upper_value=6.63, verbose=True)
+
+    qc1.from_protobuf(qc1.to_protobuf())
+    json_value = json.loads(message_to_json(qc1.to_protobuf()))
+
+    assert json_value["name"] == f"summary quantile 0.5 {Op.Name(Op.BTWN)} 1.24 and 6.63"
+    assert json_value["firstField"] == "quantile"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 1.24
+    assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 6.63
+    assert json_value["verbose"] is True
+
+
+def test_quantile_between_wrong_datatype():
+    with pytest.raises(TypeError):
+        quantileBetweenConstraint(quantile_value=[0.5], lower_value=1.24, upper_value=6.63, verbose=True)
+    with pytest.raises(TypeError):
+        quantileBetweenConstraint(quantile_value=0.5, lower_value="1.24", upper_value=6.63, verbose=True)
+    with pytest.raises(TypeError):
+        quantileBetweenConstraint(quantile_value=0.3, lower_value=1.24, upper_value=[6.63], verbose=True)
+    with pytest.raises(ValueError):
+        quantileBetweenConstraint(quantile_value=0.3, lower_value=2.3, upper_value=1.5, verbose=True)
