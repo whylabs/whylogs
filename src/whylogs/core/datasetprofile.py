@@ -13,10 +13,14 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 from smart_open import open
 
-from whylogs.core import ColumnProfile
+from whylogs.core import ColumnProfile, MultiColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
-from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
+from whylogs.core.statistics.constraints import (
+    DatasetConstraints,
+    MultiColumnValueConstraints,
+    SummaryConstraints,
+)
 from whylogs.proto import (
     ColumnsChunkSegment,
     DatasetMetadataSegment,
@@ -82,6 +86,7 @@ class DatasetProfile:
         dataset_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
         columns: dict = None,
+        multi_columns: MultiColumnProfile = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
@@ -91,6 +96,9 @@ class DatasetProfile:
         # Default values
         if columns is None:
             columns = {}
+        if multi_columns is None:
+            multi_column_constraints = MultiColumnValueConstraints(constraints.multi_column_value_constraints) if constraints else None
+            multi_columns = MultiColumnProfile(multi_column_constraints)
         if tags is None:
             tags = {}
         if metadata is None:
@@ -106,6 +114,7 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
+        self.multi_columns = multi_columns
         self.constraints = constraints
 
         self.model_profile = model_profile
@@ -247,6 +256,10 @@ class DatasetProfile:
 
         prof.track(data, character_list=None, token_method=None)
 
+    def track_multi_column(self, columns):
+        multi_column_profile = self.multi_columns
+        multi_column_profile.track(columns)
+
     def track_array(self, x: np.ndarray, columns=None):
         """
         Track statistics for a numpy array
@@ -283,15 +296,20 @@ class DatasetProfile:
         if large_df:
             logger.warning(f"About to log a dataframe with {element_count} elements, logging might take some time to complete.")
         count = 0
-        for col in df.columns:
-            col_str = str(col)
 
-            x = df[col].values
-            for xi in x:
-                count = count + 1
+        columns_len = len(df.columns)
+        num_records = len(df)
+        for idx in range(num_records):
+            row_values = df.iloc[idx].values
+            count += 1
+            for col_idx in range(columns_len):
+                col = df.columns[col_idx]
+                col_str = str(col)
+                self.track(col_str, row_values[col_idx], character_list=None, token_method=None)
                 if large_df and (count % 200000 == 0):
                     logger.warning(f"Logged {count} elements out of {element_count}")
-                self.track(col_str, xi, character_list=None, token_method=None)
+
+            self.track_multi_column({str(col): val for col, val in zip(df.columns, row_values)})
 
     def to_properties(self):
         """
@@ -693,7 +711,7 @@ class DatasetProfile:
                 distinct_column_values_dict["string_theta"] = colprof.string_tracker.theta_sketch.theta_sketch
                 distinct_column_values_dict["number_theta"] = colprof.number_tracker.theta_sketch.theta_sketch
 
-                update_dict = _create_update_summary_dictionary(
+                update_obj = _create_update_summary_dictionary(
                     number_summary=summ.number_summary,
                     distinct_column_values=distinct_column_values_dict,
                     quantile=colprof.number_tracker.histogram,
@@ -701,7 +719,7 @@ class DatasetProfile:
                     unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
                 )
 
-                constraints.update(update_dict)
+                constraints.update(update_obj)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
@@ -806,7 +824,7 @@ def array_profile(
     return prof
 
 
-def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
+def _create_update_summary_object(number_summary: NumberSummary, **kwargs):
     """
     Wrapper method for summary constraints update object creation
 
