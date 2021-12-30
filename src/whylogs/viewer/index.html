@@ -90,56 +90,74 @@
                     </div>
                   </div>
                   <div class="mb-4">
-                    <div class="mb-3 wl_filter-options filter-options d-none">
-                      <div class="space-between">
-                        <strong>Filter by type</strong>
-                      <div class="wl__close-icon" id="filter-close-icon">
-                        <img
-                          src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTcuNDY4NzUgNkwxMC44NDM4IDIuNjU2MjVDMTEuMDMxMiAyLjQ2ODc1IDExLjAzMTIgMi4xMjUgMTAuODQzOCAxLjkzNzVMMTAuMDYyNSAxLjE1NjI1QzkuODc1IDAuOTY4NzUgOS41MzEyNSAwLjk2ODc1IDkuMzQzNzUgMS4xNTYyNUw2IDQuNTMxMjVMMi42MjUgMS4xNTYyNUMyLjQzNzUgMC45Njg3NSAyLjA5Mzc1IDAuOTY4NzUgMS45MDYyNSAxLjE1NjI1TDEuMTI1IDEuOTM3NUMwLjkzNzUgMi4xMjUgMC45Mzc1IDIuNDY4NzUgMS4xMjUgMi42NTYyNUw0LjUgNkwxLjEyNSA5LjM3NUMwLjkzNzUgOS41NjI1IDAuOTM3NSA5LjkwNjI1IDEuMTI1IDEwLjA5MzhMMS45MDYyNSAxMC44NzVDMi4wOTM3NSAxMS4wNjI1IDIuNDM3NSAxMS4wNjI1IDIuNjI1IDEwLjg3NUw2IDcuNUw5LjM0Mzc1IDEwLjg3NUM5LjUzMTI1IDExLjA2MjUgOS44NzUgMTEuMDYyNSAxMC4wNjI1IDEwLjg3NUwxMC44NDM4IDEwLjA5MzhDMTEuMDMxMiA5LjkwNjI1IDExLjAzMTIgOS41NjI1IDEwLjg0MzggOS4zNzVMNy40Njg3NSA2WiIgZmlsbD0iIzM2OUJBQyIvPgo8L3N2Zz4K'
+                    <div class="flex-direction-colum">
+                      <div class="form-control dropdown-container dropdown space-between search-input mb-2">
+                        <input type="text" id="wl__feature-search" placeholder="Quick search..." />
+                        <img 
+                          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC44IiBkPSJNMTQuODgyOCAxNC42MTUyTDExLjMzNzkgMTEuMDcwM0MxMS4yNSAxMS4wMTE3IDExLjE2MjEgMTAuOTUzMSAxMS4wNzQyIDEwLjk1MzFIMTAuNjkzNEMxMS42MDE2IDkuODk4NDQgMTIuMTg3NSA4LjQ5MjE5IDEyLjE4NzUgNi45Njg3NUMxMi4xODc1IDMuNjI4OTEgOS40MzM1OSAwLjg3NSA2LjA5Mzc1IDAuODc1QzIuNzI0NjEgMC44NzUgMCAzLjYyODkxIDAgNi45Njg3NUMwIDEwLjMzNzkgMi43MjQ2MSAxMy4wNjI1IDYuMDkzNzUgMTMuMDYyNUM3LjYxNzE5IDEzLjA2MjUgOC45OTQxNCAxMi41MDU5IDEwLjA3ODEgMTEuNTk3N1YxMS45Nzg1QzEwLjA3ODEgMTIuMDY2NCAxMC4xMDc0IDEyLjE1NDMgMTAuMTY2IDEyLjI0MjJMMTMuNzEwOSAxNS43ODcxQzEzLjg1NzQgMTUuOTMzNiAxNC4wOTE4IDE1LjkzMzYgMTQuMjA5IDE1Ljc4NzFMMTQuODgyOCAxNS4xMTMzQzE1LjAyOTMgMTQuOTk2MSAxNS4wMjkzIDE0Ljc2MTcgMTQuODgyOCAxNC42MTUyWk02LjA5Mzc1IDExLjY1NjJDMy40ODYzMyAxMS42NTYyIDEuNDA2MjUgOS41NzYxNyAxLjQwNjI1IDYuOTY4NzVDMS40MDYyNSA0LjM5MDYyIDMuNDg2MzMgMi4yODEyNSA2LjA5Mzc1IDIuMjgxMjVDOC42NzE4OCAyLjI4MTI1IDEwLjc4MTIgNC4zOTA2MiAxMC43ODEyIDYuOTY4NzVDMTAuNzgxMiA5LjU3NjE3IDguNjcxODggMTEuNjU2MiA2LjA5Mzc1IDExLjY1NjJaIiBmaWxsPSIjMzY5QkFDIi8+Cjwvc3ZnPgo="
                         />
                       </div>
-                     </div>
-                      <div class="form-check mb-1 mt-2">
-                        <input
-                          class="form-check-input wl__feature-filter-input"
-                          type="checkbox"
-                          name="checkbox"
-                          value="Discrete"
-                          id="inferredDiscrete"
-                          checked
-                        />
-                        <label class="form-check-label" for="inferredDiscrete">
-                          Inferred discrete (<span class="wl__feature-count--discrete"></span>)
-                        </label>
-                      </div>
-                      <div class="form-check mb-1">
-                        <input
-                          class="form-check-input wl__feature-filter-input"
-                          type="checkbox"
-                          name="checkbox"
-                          value="Non-discrete"
-                          id="inferredNonDiscrete"
-                          checked
-                        />
-                        <label class="form-check-label" for="inferredNonDiscrete">
-                          Inferred non-discrete (<span class="wl__feature-count--non-discrete"></span>)
-                        </label>
-                      </div>
-                      <div class="form-check mb-1">
-                        <input
-                          class="form-check-input wl__feature-filter-input"
-                          type="checkbox"
-                          name="checkbox"
-                          value="Unknown"
-                          id="inferredUnknown"
-                          checked
-                        />
-                        <label class="form-check-label" for="inferredUnknown">
-                          Unknown (<span class="wl__feature-count--unknown"></span>)
-                        </label>
+                      <div class="wl__dropdown_arrow-icon">
+                        <div class="form-control dropdown-container flex-direction-colum mb-2" id="dropdown-container">
+                          <div class="space-between dropdown">
+                            <p>Filter by type</p>
+                            <img 
+                              id="dropdown-arrow-icon"
+                              src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTMiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEzIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMi4wNTg2IDEuMzQzNzVMMTEuNTM5MSAwLjc5Njg3NUMxMS40MDIzIDAuNjYwMTU2IDExLjE4MzYgMC42NjAxNTYgMTEuMDc0MiAwLjc5Njg3NUw2LjEyNSA1Ljc0NjA5TDEuMTQ4NDQgMC43OTY4NzVDMS4wMzkwNiAwLjY2MDE1NiAwLjgyMDMxMiAwLjY2MDE1NiAwLjY4MzU5NCAwLjc5Njg3NUwwLjE2NDA2MiAxLjM0Mzc1QzAuMDI3MzQzOCAxLjQ1MzEyIDAuMDI3MzQzOCAxLjY3MTg4IDAuMTY0MDYyIDEuODA4NTlMNS44Nzg5MSA3LjUyMzQ0QzYuMDE1NjIgNy42NjAxNiA2LjIwNzAzIDcuNjYwMTYgNi4zNDM3NSA3LjUyMzQ0TDEyLjA1ODYgMS44MDg1OUMxMi4xOTUzIDEuNjcxODggMTIuMTk1MyAxLjQ1MzEyIDEyLjA1ODYgMS4zNDM3NVoiIGZpbGw9IiMzNjlCQUMiLz4KPC9zdmc+Cg=="
+                            />
+                          </div>
+                          <div class="filter-options d-none">
+                            <div class="form-check mb-1 mt-2">
+                              <input
+                                class="form-check-input wl__feature-filter-input"
+                                type="checkbox"
+                                name="checkbox"
+                                value="Discrete"
+                                id="inferredDiscrete"
+                                onclick="changeDiscreteValue()"
+                                checked
+                              />
+                              <label class="form-check-label" for="inferredDiscrete">
+                                Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                              </label>
+                            </div>
+                            <div class="form-check mb-1">
+                              <input
+                                class="form-check-input wl__feature-filter-input"
+                                type="checkbox"
+                                name="checkbox"
+                                value="Non-discrete"
+                                id="inferredNonDiscrete"
+                                onclick="changeNonDiscreteValue()"
+                                checked
+                              />
+                              <label class="form-check-label" for="inferredNonDiscrete">
+                                Inferred non-discrete (<span
+                                  class="wl__feature-count--non-discrete"
+                                >{{getNonDiscreteTypeCount}}</span>)
+                              </label>
+                            </div>
+                            <div class="form-check mb-1">
+                              <input
+                                class="form-check-input wl__feature-filter-input"
+                                type="checkbox"
+                                name="checkbox"
+                                value="Unknown"
+                                id="inferredUnknown"
+                                onclick="changeUnknwonValue()"
+                                checked
+                              />
+                              <label class="form-check-label" for="inferredUnknown">
+                                Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <span class="notif-circle-container">
+                          <span class="notif-circle"></span>
+                        </span>
                       </div>
                     </div>
-                    <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
                   </div>
                   <div class="mt-3">
                     <ul id="filter-list" class="nav list-group list-group-flush wl__sidebar-feature-name-list"></ul>

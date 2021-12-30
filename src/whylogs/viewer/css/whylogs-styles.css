@@ -981,6 +981,56 @@ a .wl-table-row--bottom-shadow {
   font-size: 17px;
   color: #6C757D;
 }
+
+.dropdown-container {
+  background: rgba(255, 255, 255, 0.5) !important;
+  padding: 10px !important;
+  border: none !important;
+}
+
+.dropdown {
+  align-items: center;
+}
+
+.align-items {
+  align-items: center;
+}
+
+.dropdown p {
+  font-family: Asap;
+  font-size: 15px;
+  line-height: 150%; 
+  margin: 0;
+}
+.dropdown img {
+  height: 10px;
+  cursor: pointer;
+}
+
+.search-input{
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.search-input input{
+  border: none;
+  background: none;
+  width: 100%;
+  outline: none;
+  height: 40px;
+  width: 100%;
+}
+
+.search-input img{
+  height: 19px;
+  pointer-events: none;
+}
+
+
+input::placeholder {
+  color: var(--secondaryLight1000);;
+}
+
 @media only screen and (min-width: 1350px) {
   .clickable-test-feature-body {
     display: flex;

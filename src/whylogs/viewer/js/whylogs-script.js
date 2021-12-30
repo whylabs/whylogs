@@ -17,11 +17,9 @@
   const $featureFileName = $(".feature-file-name")
   const $notifCircleContainer = $(".notif-circle-container")
   const $boxes = $('input[name=checkbox]:checked');
-  const $notClickableBurgerIcon = $("#not_clickable_burger_icon");
-  const $filterCloseIcon = $("#filter-close-icon");
   const $closeIcon = $("#close-icon");
   const $signUpText = $(".sign-up-text");
-  const $burgerIcon = $("#burger_icon");
+  const $dropdownArrowIcon = $("#dropdown-arrow-icon");
   const $referenceJsonForm = $("#reference-json-form");
   const $referencefileInput = $("#reference-file-input");
   const $compareProfile = $("#compare-profile");
@@ -904,6 +902,17 @@
     }
   }
 
+  function checkedBoxes() {
+    const item = Object.values($boxes).find(
+      function(value) { 
+        return $('#' + $(value)[0].id).is(":checked") 
+      }
+    );
+
+    if (item) {
+      $notifCircleContainer.removeClass("d-none")
+    }
+  }
   $(document).on("click", ".page-button", function(e) {
     const $pagesButtons = $(".page-button"),
       $pagesButtonIndex = $pagesButtons.index(e.target),
@@ -921,16 +930,20 @@
     $clickableTestFeatureWrap.addClass("d-none")
   });
 
-  $burgerIcon.on("click", function () {
-    $filterOptions.removeClass("d-none");
-    $burgerIcon.addClass("d-none");
-    $notClickableBurgerIcon.removeClass("d-none");
-  });
+  $dropdownArrowIcon.on("click", function () {
+    const filterClass = $filterOptions.attr("class");
 
-  $filterCloseIcon.on("click", function () {
-    $filterOptions.addClass("d-none");
-    $burgerIcon.removeClass("d-none");
-    $notClickableBurgerIcon.addClass("d-none");
+    if (filterClass.indexOf("d-none") > 0) {
+      $notifCircleContainer.addClass("d-none")
+      $filterOptions.removeClass("d-none");
+      $("#dropdown-container").css("background-color", '#FFF')
+      $dropdownArrowIcon.css("transform","rotate(180deg)")
+    } else {
+      $filterOptions.addClass("d-none");
+      checkedBoxes()
+      $("#dropdown-container").css("background-color", 'none')
+      $dropdownArrowIcon.css("transform","rotate(0)")
+    }
   });
 
   $closeIcon.on("click", function () {
@@ -965,12 +978,6 @@
     }, 300),
   );
   $featureFilterInput.on("change", (event) => {
-    const item = Object.values($boxes).find(function(value) { return $('#' + $(value)[0].id).is(":checked") });
-    if (item) {
-      $notifCircleContainer.removeClass("d-none")
-    } else {
-      $notifCircleContainer.addClass("d-none")
-    }
     const filterType = event.target.value.toLowerCase();
     const isChecked = event.target.checked;
 
