@@ -19,6 +19,7 @@
   const $notifCircleContainer = $(".notif-circle-container")
   const $boxes = $('input[name=checkbox]:checked');
   const $closeIcon = $("#close-icon");
+  const $openSignUpText = $("#open-sign-up-text")
   const $signUpText = $(".sign-up-text");
   const $dropdownArrowIcon = $("#dropdown-arrow-icon");
   const $referenceJsonForm = $("#reference-json-form");
@@ -943,6 +944,11 @@
     $($pagesButton).addClass("activ-pages-button")
   })
 
+  $(document).ready(function() {
+    $signUpText.addClass("d-none");
+    sidebarContentHeight()
+  })
+
   $("#property-panel-close-icon").on("click", function (e) {
     const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap")
 
@@ -969,6 +975,13 @@
   $closeIcon.on("click", function () {
     $signUpText.addClass("d-none");
     sidebarContentHeight()
+    $(".open-sign-up-text-notif-container").removeClass("d-none")
+  });
+ 
+  $openSignUpText.on("click", function () {
+    $signUpText.removeClass("d-none");
+    sidebarContentHeight()
+    $(".open-sign-up-text-notif-container").addClass("d-none")
   });
   
 
