@@ -849,6 +849,7 @@
     $sidebarFeatureNameList.html("");
     $tableBody.html("");
     $(".form-check-input").prop("checked", true);
+    addFileName()
     if (typeof window.FileReader !== "function") {
       updateTableMessage(MESSAGES.error.fileAPINotSupported);
       return;
