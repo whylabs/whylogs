@@ -69,7 +69,7 @@ def test_value_summary_serialization():
         assert json_value["verbose"] == False
 
     for each_op, _ in _summary_funcs1.items():
-        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET, Op.CONTAIN):
+        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.CONTAIN):
             continue
         # constraints may have an optional name
         sum_constraint = SummaryConstraint("min", each_op, 300000, name="< 30K")
@@ -642,12 +642,21 @@ def test_set_summary_constraints(df_lending_club, local_config_path):
     eq_set2 = distinctValuesEqualSetConstraint(reference_set=org_list2, name="False2")
     eq_set3 = distinctValuesEqualSetConstraint(reference_set=org_list[:-1], name="False3")
 
+<<<<<<< HEAD
     contains_set = distinctValuesContainSetConstraint(reference_set=[org_list[2]], name="True4")
     contains_set2 = distinctValuesContainSetConstraint(reference_set=org_list, name="True5")
     contains_set3 = distinctValuesContainSetConstraint(reference_set=org_list[:-1], name="True6")
     contains_set4 = distinctValuesContainSetConstraint(reference_set=[str(org_list[2])], name="False4")
     contains_set5 = distinctValuesContainSetConstraint(reference_set=[2.3456], name="False5")
     contains_set6 = distinctValuesContainSetConstraint(reference_set=org_list2, name="False6")
+=======
+    contains_set = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[org_list[2]], name="True4")
+    contains_set2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list, name="True5")
+    contains_set3 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list[:-1], name="True6")
+    contains_set4 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[str(org_list[2])], name="False4")
+    contains_set5 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2.3456], name="False5")
+    contains_set6 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list2, name="False6")
+>>>>>>> f8d0e74... Change OP CONTAINS_SET to CONTAIN_SET. Add function to simplify SummaryConstraint.from_protobuf.
 
     list(df_lending_club["annual_inc"])
     constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]

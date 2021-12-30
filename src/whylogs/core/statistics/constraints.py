@@ -3,7 +3,7 @@ import json
 import logging
 import numbers
 import re
-from typing import Any, List, Mapping, Optional, Set, Union
+from typing import Any, Callable, Iterable, List, Mapping, Optional, Set, Union
 
 import jsonschema
 from datasketches import theta_a_not_b, update_theta_sketch
@@ -436,7 +436,7 @@ class SummaryConstraint:
             target_val = self.value if self.value else self.reference_set
             self.func = _summary_funcs1[self.op](first_field, target_val)
 
-        elif self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
+        elif self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             if any([value, upper_value, second_field, third_field, not reference_set]):
                 raise ValueError("When using set operations only set should be provided and not values or field names!")
 
@@ -607,13 +607,49 @@ class SummaryConstraint:
         return merged_constraint
 
     @staticmethod
+    def check_protobuf_message(
+        msg: SummaryConstraintMsg,
+        to_check: Union[str, List[str]],
+        all_fields: Union[List[str], Set[str]] = None,
+        check_type: Callable[[Iterable[object]], bool] = all,
+    ) -> bool:
+        """
+        Check if the message contains the fields specified in to_check.
+
+        :param msg: The protobuf message containing the SummaryConstraint
+        :param to_check: str representing the field_name or list with field names to check if they exist in the message.
+        :param all_field: set to specify all the field names. If provided, the default message field names are overwritten by it.
+        :param check_type: all or any builtin functions, if all: check if every field_name in 'to_check' exists in the message.
+            If any: check if only one of the field_names in 'to_check' exist in the message.
+        """
+        if isinstance(to_check, str):
+            to_check = [to_check]
+
+        all_field_names = set(msg.DESCRIPTOR.fields_by_name.keys())
+        if all_fields:
+            all_field_names = all_fields if isinstance(all_fields, set) else set(all_fields)
+
+        all_field_names.difference_update(set(to_check))
+
+        if check_type([msg.HasField(field_name) for field_name in to_check]):
+            if all([not msg.HasField(field_name) for field_name in all_field_names]):
+                return True
+        return False
+
+    @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
         if msg.first_field == "quantile":
             quantile_val = msg.quantile_value
         else:
             quantile_val = None
 
-        if msg.HasField("reference_set") and not msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
+        if not msg.DESCRIPTOR.oneofs_by_name["second"]:
+            raise ValueError(
+                "SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg OR reference set, but only one of them"
+            )
+
+        msg_oneof_fields = [field.name for field in msg.DESCRIPTOR.oneofs_by_name["second"].fields]
+        if SummaryConstraint.check_protobuf_message(msg, to_check="reference_set", all_fields=msg_oneof_fields):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -621,12 +657,7 @@ class SummaryConstraint:
                 name=msg.name,
                 verbose=msg.verbose,
             )
-        elif (
-            (msg.HasField("value") or msg.HasField("value_str"))
-            and not msg.HasField("second_field")
-            and not msg.HasField("between")
-            and not msg.HasField("reference_set")
-        ):
+        elif SummaryConstraint.check_protobuf_message(msg, to_check=["value", "value_str"], all_fields=msg_oneof_fields, check_type=any):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -635,7 +666,7 @@ class SummaryConstraint:
                 name=msg.name,
                 verbose=msg.verbose,
             )
-        elif msg.HasField("second_field") and not msg.HasField("value") and not msg.HasField("between") and not msg.HasField("reference_set"):
+        elif SummaryConstraint.check_protobuf_message(msg, to_check="second_field", all_fields=msg_oneof_fields):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -644,13 +675,11 @@ class SummaryConstraint:
                 quantile_value=quantile_val,
                 verbose=msg.verbose,
             )
-        elif msg.HasField("between") and not msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("reference_set"):
-            if (
-                msg.between.HasField("lower_value")
-                and msg.between.HasField("upper_value")
-                and not msg.between.HasField("second_field")
-                and not msg.between.HasField("third_field")
-            ):
+        elif SummaryConstraint.check_protobuf_message(msg, to_check="between", all_fields=msg_oneof_fields):
+            between_value_to_check = ["lower_value", "upper_value"]
+            between_field_to_check = ["second_field", "third_field"]
+            between_all_fields = SummaryBetweenConstraintMsg.DESCRIPTOR.fields_by_name.keys()
+            if SummaryConstraint.check_protobuf_message(msg.between, to_check=between_value_to_check, all_fields=between_all_fields):
                 return SummaryConstraint(
                     msg.first_field,
                     msg.op,
@@ -660,12 +689,7 @@ class SummaryConstraint:
                     name=msg.name,
                     verbose=msg.verbose,
                 )
-            elif (
-                msg.between.HasField("second_field")
-                and msg.between.HasField("third_field")
-                and not msg.between.HasField("lower_value")
-                and not msg.between.HasField("upper_value")
-            ):
+            elif SummaryConstraint.check_protobuf_message(msg.between, to_check=between_field_to_check, all_fields=between_all_fields):
                 return SummaryConstraint(
                     msg.first_field,
                     msg.op,
