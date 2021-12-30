@@ -71,8 +71,21 @@ message ValueConstraintMsg {
   bool verbose = 4;
 }
 
+message MultiColumnValueConstraintMsg {
+  string name = 1;
+  google.protobuf.ListValue dependent_columns = 2;
+  oneof second_field {
+    double value = 5;
+    google.protobuf.ListValue value_set = 6;
+    google.protobuf.ListValue reference_columns = 7;
+  }
+  Op op = 3;
+  bool verbose = 4;
+}
+
 message ValueConstraintMsgs {
   repeated ValueConstraintMsg constraints = 1;
+  repeated MultiColumnValueConstraintMsg multi_column_constraints = 2;
 }
 
 message SummaryConstraintMsgs {

@@ -24,7 +24,6 @@ from whylogs.proto import (
     UniqueCountSummary,
 )
 from whylogs.util.dsketch import FrequentItemsSketch
-from whylogs.util.util_functions import column_tuple_to_string
 
 _TYPES = InferredType.Type
 _NUMERIC_TYPES = {_TYPES.FRACTIONAL, _TYPES.INTEGRAL}
@@ -271,7 +270,7 @@ class MultiColumnProfile:
 
     def __init__(
         self,
-        column_pair: tuple[str],
+        # column_pair: tuple[str],
         constraints: MultiColumnValueConstraints = None,
     ):
         # Handle default values
@@ -279,23 +278,24 @@ class MultiColumnProfile:
             constraints = MultiColumnValueConstraints()
 
         # Assign values
-        self.column_name = column_tuple_to_string(column_pair)
+        # self.column_name = column_tuple_to_string(column_pair)
         self.constraints = constraints
 
-    def track(self, col1_value, col2_value, character_list=None, token_method=None):
+    def track(self, column_dict, character_list=None, token_method=None):
         """
         Add `value` to tracking statistics.
         """
 
         # update the MultiColumnTrackers
 
-        col1_typed_data = TypedDataConverter.convert(col1_value)
-        col2_typed_data = TypedDataConverter.convert(col2_value)
+        # col1_typed_data = TypedDataConverter.convert(col1_value)
+        # col2_typed_data = TypedDataConverter.convert(col2_value)
+        #
+        # TypedDataConverter.get_type(col1_value)
+        # TypedDataConverter.get_type(col2_value)
 
-        TypedDataConverter.get_type(col1_value)
-        TypedDataConverter.get_type(col2_value)
-
-        self.constraints.update(col1_typed_data, col2_typed_data)
+        self.constraints.update(column_dict)
+        self.constraints.update_typed(column_dict)
 
     def to_summary(self):
         """

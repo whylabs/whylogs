@@ -11,6 +11,7 @@ from whylogs.core.summaryconverters import single_quantile_from_sketch
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
+    MultiColumnValueConstraintMsg,
     Op,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
@@ -19,7 +20,7 @@ from whylogs.proto import (
     ValueConstraintMsgs,
 )
 from whylogs.util.protobuf import message_to_json
-from whylogs.util.util_functions import column_tuple_to_string, string_to_column_tuple
+from whylogs.util.util_functions import string_to_column_tuple
 
 logger = logging.getLogger(__name__)
 
@@ -694,12 +695,28 @@ class SummaryConstraints:
 
 
 class MultiColumnValueConstraint(ValueConstraint):
-    def __init__(self, op: Op, value=None, name: str = None, verbose=False):
+    def __init__(
+        self, dependent_columns: Union[str, Set[str]], op: Op, reference_columns: Union[str, Set[str]] = None, value=None, name: str = None, verbose=False
+    ):
         self._name = name
         self._verbose = verbose
         self.op = op
         self.total = 0
         self.failures = 0
+
+        if dependent_columns is None:
+            raise ValueError("The dependent_columns attribute must be provided when creating a MultiColumnValueConstraint")
+        if not isinstance(dependent_columns, (str, set)):
+            raise TypeError("The dependent_columns attribute should be a str indicating a column name in the dataframe, or a set of column names")
+
+        self.dependent_columns = dependent_columns
+
+        if (reference_columns is None) == (value is None):
+            raise ValueError("One of value and reference_columns attributes should be provided when creating a MultiColumnValueConstraint, but noth both")
+        if reference_columns and not isinstance(reference_columns, (str, set)):
+            raise TypeError("The reference_columns attribute should be a str indicating a column name in the dataframe, or a set of column names")
+
+        self.reference_columns = reference_columns
 
         self.func = _multi_column_value_funcs[op]
         if value:
@@ -708,11 +725,22 @@ class MultiColumnValueConstraint(ValueConstraint):
     @property
     def name(self):
         if hasattr(self, "value"):
-            return self._name if self._name is not None else f"multi column value {Op.Name(self.op)} {self.value}"
-        return self._name if self._name is not None else f"multi column value {Op.Name(self.op)}"
+            return self._name if self._name is not None else f"multi column value {self.dependent_columns} {Op.Name(self.op)} {self.value}"
+        return self._name if self._name is not None else f"multi column value {self.dependent_columns} {Op.Name(self.op)} {self.reference_columns}"
 
-    def update(self, v1, v2):
+    def update(self, columns):
         self.total += 1
+        if isinstance(self.dependent_columns, str):
+            v1 = columns[self.dependent_columns]
+        else:
+            v1 = [columns[col] for col in self.dependent_columns]  # apply internal OP here
+        if self.reference_columns:
+            if isinstance(self.reference_columns, str):
+                v2 = columns[self.reference_columns]
+            else:
+                v2 = [columns[col] for col in self.reference_columns]
+        else:
+            v2 = self.value
 
         if not self.func(v1, v2):
             self.failures += 1
@@ -737,39 +765,41 @@ class MultiColumnValueConstraint(ValueConstraint):
         return merged_value_constraint
 
     @staticmethod
-    def from_protobuf(msg: ValueConstraintMsg) -> "MultiColumnValueConstraint":
+    def from_protobuf(msg: MultiColumnValueConstraintMsg) -> "MultiColumnValueConstraint":
         if len(msg.value_set.values) != 0:
             val_set = set(msg.value_set.values[0].list_value)
-            return MultiColumnValueConstraint(msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
+            return MultiColumnValueConstraint(msg.dependent_columns, msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
         elif msg.value:
-            return MultiColumnValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
-        return MultiColumnValueConstraint(msg.op, name=msg.name, verbose=msg.verbose)
+            return MultiColumnValueConstraint(msg.dependent_columns, msg.op, msg.value, name=msg.name, verbose=msg.verbose)
+        elif msg.reference_columns:
+            return MultiColumnValueConstraint(msg.dependent_columns, msg.op, reference_columns=msg.reference_columns, name=msg.name, verbose=msg.verbose)
+        else:
+            raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
 
     def to_protobuf(self) -> ValueConstraintMsg:
+        value = None
+        set_vals_message = None
+        ref_cols = None
 
         if hasattr(self, "value"):
             if isinstance(self.value, set):
                 set_vals_message = ListValue()
                 set_vals_message.append(list(self.value))
-                return ValueConstraintMsg(
-                    name=self.name,
-                    op=self.op,
-                    value_set=set_vals_message,
-                    verbose=self._verbose,
-                )
             else:
-                return ValueConstraintMsg(
-                    name=self.name,
-                    op=self.op,
-                    value=self.value,
-                    verbose=self._verbose,
-                )
+                value = self.value
         else:
-            return ValueConstraintMsg(
-                name=self.name,
-                op=self.op,
-                verbose=self._verbose,
-            )
+            ref_cols = ListValue()
+            ref_cols.append(self.reference_columns)
+
+        return ValueConstraintMsg(  # create new message
+            dependent_columns=self.dependent_columns,
+            name=self.name,
+            op=self.op,
+            value=value,
+            value_set=set_vals_message,
+            reference_columns=ref_cols,
+            verbose=self._verbose,
+        )
 
 
 class MultiColumnValueConstraints(ValueConstraints):
@@ -788,36 +818,6 @@ class MultiColumnValueConstraints(ValueConstraints):
             return self.constraints.get(name)
         return None
 
-    # def to_protobuf(self) -> ValueConstraintMsgs:
-    #     v = [c.to_protobuf() for c in self.constraints.values()]
-    #     if len(v) > 0:
-    #         vcmsg = ValueConstraintMsgs()
-    #         vcmsg.constraints.extend(v)
-    #         return vcmsg
-    #     return None
-
-    def update(self, col1_v, col2_v):
-        for c in self.raw_value_constraints.values():
-            c.update(col1_v, col2_v)
-        for c in self.coerced_type_constraints.values():
-            c.update(col1_v, col2_v)
-
-    def merge(self, other) -> "MultiColumnValueConstraints":
-        if not other or not other.constraints:
-            return self
-
-        merged_constraints = other.constraints.copy()
-        for name, constraint in self.constraints:
-            merged_constraints[name] = constraint.merge(other.constraints.get(name))
-
-        return MultiColumnValueConstraints(merged_constraints)
-
-    # def report(self) -> List[tuple]:
-    #     v = [c.report() for c in self.constraints.values()]
-    #     if len(v) > 0:
-    #         return v
-    #     return None
-
 
 class DatasetConstraints:
     def __init__(
@@ -826,7 +826,7 @@ class DatasetConstraints:
         value_constraints: Optional[ValueConstraints] = None,
         summary_constraints: Optional[SummaryConstraints] = None,
         table_shape_constraints: Optional[SummaryConstraints] = None,
-        multi_column_value_constraints: Optional[MultiColumnValueConstraints] = None,
+        multi_column_value_constraints: Union[MultiColumnValueConstraints, List] = None,
     ):
         self.dataset_properties = props
         # repackage lists of constraints if necessary
@@ -852,21 +852,12 @@ class DatasetConstraints:
 
         self.column_pairs = dict()  # {col: set(dependent columns from multi_column_constraints)}
         if multi_column_value_constraints is None:
-            multi_column_value_constraints = dict()
-        for k, v in multi_column_value_constraints.items():
-            # k: (col1, col2)
-            if not isinstance(k, tuple) or len(k) != 2:
-                raise TypeError("When creating a DatasetProfile with multi column constraints, the dict key should be a tuple representing a pair of columns!")
-
-            if k[0] in self.column_pairs:
-                self.column_pairs[k[0]].add(k[1])
-            else:
-                self.column_pairs[k[0]] = set([k[1]])
-
+            multi_column_value_constraints = list()
+        for i, v in enumerate(multi_column_value_constraints):
             if isinstance(v, list):
-                multi_column_value_constraints[k] = MultiColumnValueConstraints(v)
+                multi_column_value_constraints[i] = MultiColumnValueConstraints(v)
 
-        self.multi_column_value_constraint_map = multi_column_value_constraints
+        self.multi_column_value_constraints = multi_column_value_constraints
 
     def __getitem__(self, key):
         if key in self.value_constraint_map:
@@ -894,7 +885,7 @@ class DatasetConstraints:
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
         sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
         table_shape_constraints_message = self.table_shape_constraints.to_protobuf()
-        multi_column_value_m = dict([(column_tuple_to_string(k), v.to_protobuf()) for k, v in self.multi_column_value_constraint_map.items()])
+        multi_column_value_m = [v.to_protobuf() for v in self.multi_column_value_constraints]
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,
@@ -910,12 +901,15 @@ class DatasetConstraints:
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
         l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
-        l4 = [(k, mc.report()) for k, mc in self.multi_column_value_constraint_map.items()]
+        l4 = [mc.report() for mc in self.multi_column_value_constraints]
         return l1 + l2 + l3 + l4
 
 
-def column_values_A_greater_than_B():
-    return MultiColumnValueConstraint(Op.GT)
+def column_values_A_greater_than_B(dependent_column: str, reference_column: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (dependent_column, reference_column)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(dependent_column, op=Op.GT, reference_columns=reference_column, verbose=verbose)
 
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
