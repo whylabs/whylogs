@@ -38,9 +38,11 @@ message SummaryConstraintMsg {
      string second_field = 3;
      double value = 4;
      SummaryBetweenConstraintMsg between = 7;
+     google.protobuf.ListValue reference_set = 8;
   }
   Op op = 5;
   bool verbose = 6;
+  double quantile_value = 9;
 }
 
 message SummaryBetweenConstraintMsg {
