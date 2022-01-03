@@ -689,8 +689,8 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
-                frequent_itmes_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
-                most_common_val = frequent_itmes_summ.items[0].json_value if frequent_itmes_summ else None
+                frequent_items_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
+                most_common_val = frequent_items_summ.items[0].json_value if frequent_items_summ else None
 
                 update_dict = _create_update_summary_dictionary(
                     number_summary=summ.number_summary,
