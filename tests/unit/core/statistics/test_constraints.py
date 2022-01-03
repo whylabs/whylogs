@@ -643,7 +643,7 @@ def test_merge_values_in_set_constraint_same_value_set():
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == f"value {Op.Name(Op.IN_SET)} " + str(val_set)
+    assert json_value["name"] == f"value {Op.Name(Op.IN)} " + str(val_set)
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"][0] == list(val_set)
 
