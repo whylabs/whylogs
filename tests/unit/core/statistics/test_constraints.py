@@ -16,8 +16,8 @@ from whylogs.core.statistics.constraints import (
     _try_parse_json,
     _try_parse_strftime_format,
     _value_funcs,
-    column_values_A_greater_than_B,
     columnExistsConstraint,
+    columnPairValuesInSetConstraint,
     columnsMatchSetConstraint,
     columnValuesInSetConstraint,
     containsCreditCardConstraint,
@@ -442,7 +442,6 @@ def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path
     session.close()
     report = profile.apply_summary_constraints()
 
-    print(report)
     assert len(report) == 1
 
     # make sure it checked every value
@@ -554,7 +553,6 @@ def test_serialization_deserialization_values_in_set_constraint():
     cvisc.from_protobuf(cvisc.to_protobuf())
     json_value = json.loads(message_to_json(cvisc.to_protobuf()))
 
-    print(json_value)
     assert json_value["name"] == "value IN " + str(val_set)
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"][0] == list(val_set)
@@ -700,7 +698,6 @@ def test_credit_card_constraint(local_config_path):
 
 def test_credit_card_constraint_supply_regex_pattern(local_config_path):
     report = _report_credit_card_value_constraint_on_data_set(local_config_path, r"^(?:[0-9]{4}[\s-]?){3,4}$")
-    print(report)
     assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + r"^(?:[0-9]{4}[\s-]?){3,4}$"
     assert report[0][1][0][1] == 19
     assert report[0][1][0][2] == 8
@@ -1198,20 +1195,85 @@ def test_dataset_constraints_serialization():
     assert report == report_deser
 
 
-def test_multi_column_logical_operation(local_config_path):
-    a_gt_b = column_values_A_greater_than_B("col1", "col2")
+def test_column_pair_values_in_valid_set_constraint_apply(local_config_path, df_lending_club):
+    val_set = {("B", "B2"), ("C", "C2"), ("D", "D1")}  # the second pair is found in the data set
+    cpvis = columnPairValuesInSetConstraint(column_A="grade", column_B="sub_grade", value_set=val_set)
 
-    df = pd.DataFrame({"col1": [4, 5, 6, 7], "col2": [0, 1, 2, 3]})
-
-    dc = DatasetConstraints(None, multi_column_value_constraints=[a_gt_b])
-
+    dc = DatasetConstraints(None, multi_column_value_constraints=[cpvis])
     config = load_config(local_config_path)
     session = session_from_config(config)
-
-    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = dc.report()
 
-    assert len(report[0]) == 3
+    col_set = ["grade", "sub_grade"]
+    assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set}"
+    assert report[0][1] == 50
+    assert report[0][2] == 45  # 5 values are in the set
 
-    assert report[0][1] == 4 and report[0][2] == 0 and report[0][0] == f"multi column value col1 {Op.Name(Op.GT)} col2"
+
+def test_merge_column_pair_values_in_valid_set_constraint_different_values():
+    val_set1 = {(12345, "B"), (41000.0, "C"), (42333, "D")}
+    cpvis1 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set1)
+    val_set2 = {(12345, "B"), (1111, "C"), (42333, "D")}
+    cpvis2 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set2)
+    cpvis3 = columnPairValuesInSetConstraint(column_A="some", column_B="grade", value_set=val_set2)
+    cpvis4 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="b", value_set=val_set1)
+
+    with pytest.raises(AssertionError):
+        cpvis1.merge(cpvis2)
+    with pytest.raises(AssertionError):
+        cpvis2.merge(cpvis3)
+    with pytest.raises(AssertionError):
+        cpvis1.merge(cpvis4)
+
+
+def test_merge_column_pair_values_in_valid_set_constraint_valid():
+    val_set1 = {(12345, "B"), (41000.0, "C"), (42333, "D")}
+    cpvis1 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set1)
+    cpvis1.total = 5
+    cpvis1.failures = 1
+    cpvis2 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set1)
+    cpvis2.total = 3
+    cpvis2.failures = 2
+
+    cpvis_merged = cpvis1.merge(cpvis2)
+    json_value = json.loads(message_to_json(cpvis_merged.to_protobuf()))
+
+    col_set = ["annual_inc", "grade"]
+    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set1}"
+    assert json_value["dependentColumns"][0] == list(col_set)
+    assert json_value["op"] == Op.Name(Op.IN)
+    assert json_value["valueSet"] == [[list(t)] for t in val_set1]
+    assert json_value["verbose"] is False
+
+    report = cpvis_merged.report()
+    assert report[1] == 8
+    assert report[2] == 3
+
+
+def test_serialization_deserialization_column_pair_values_in_valid_set_constraint():
+    val_set1 = [(12345, "B"), (41000.0, "C"), (42333, "D")]
+    c = columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=val_set1, verbose=True)
+
+    c.from_protobuf(c.to_protobuf())
+    json_value = json.loads(message_to_json(c.to_protobuf()))
+
+    val_set1 = set(val_set1)
+    col_set = ["A", "B"]
+    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set1}"
+    assert json_value["dependentColumns"][0] == list(col_set)
+    assert json_value["op"] == Op.Name(Op.IN)
+    assert json_value["valueSet"] == [[list(t)] for t in val_set1]
+    assert json_value["verbose"] is True
+
+
+def test_column_pair_values_in_set_constraint_invalid_params():
+    with pytest.raises(TypeError):
+        columnPairValuesInSetConstraint(column_A=1, column_B="B", value_set={("A", "B")})
+    with pytest.raises(TypeError):
+        columnPairValuesInSetConstraint(column_A="A", column_B=["A"], value_set={("A", "B")})
+    with pytest.raises(TypeError):
+        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=1.0)
+    with pytest.raises(TypeError):
+        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set="ABC")
