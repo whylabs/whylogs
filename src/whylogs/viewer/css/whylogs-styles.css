@@ -811,10 +811,6 @@ a .wl-table-row--bottom-shadow {
   background-color: #5CAEBC;
 }
 
-.not-clickable-notif {
-  background: #FAC79A;
-}
-
 .space-between {
   display: flex;
   justify-content: space-between;
@@ -1033,7 +1029,6 @@ a .wl-table-row--bottom-shadow {
 .search-input input{
   border: none;
   background: none;
-  width: 100%;
   outline: none;
   height: 40px;
   width: 100%;
@@ -1078,7 +1073,12 @@ a .wl-table-row--bottom-shadow {
 }
 
 input::placeholder {
-  color: var(--secondaryLight1000);;
+  color: var(--secondaryLight1000);
+}
+
+.wl-selected-profile {
+  position: sticky;
+  left: 0;
 }
 
 @media only screen and (min-width: 1350px) {
