@@ -909,7 +909,7 @@ class MultiColumnValueConstraint(ValueConstraint):
         else:
             raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
 
-    def to_protobuf(self) -> ValueConstraintMsg:
+    def to_protobuf(self) -> MultiColumnValueConstraintMsg:
         value = None
         set_vals_message = None
         ref_cols = None
@@ -924,7 +924,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             ref_cols = ListValue()
             ref_cols.append(self.reference_columns)
 
-        return ValueConstraintMsg(  # create new message
+        return MultiColumnValueConstraintMsg(
             dependent_columns=self.dependent_columns,
             name=self.name,
             op=self.op,
@@ -1038,13 +1038,6 @@ class DatasetConstraints:
         return l1 + l2 + l3 + l4
 
 
-def column_values_A_greater_than_B(dependent_column: str, reference_column: str, verbose: bool = False):
-    if not all([isinstance(col, str)] for col in (dependent_column, reference_column)):
-        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
-
-    return MultiColumnValueConstraint(dependent_column, op=Op.GT, reference_columns=reference_column, verbose=verbose)
-
-
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
     return SummaryConstraint("stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
 
@@ -1148,3 +1141,10 @@ def numberOfRowsConstraint(n_rows: int, verbose=False):
 
 def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
     return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, verbose=verbose)
+
+
+def column_values_A_greater_than_B(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.GT, reference_columns=column_B, verbose=verbose)
