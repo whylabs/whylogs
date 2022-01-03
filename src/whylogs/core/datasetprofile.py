@@ -695,7 +695,6 @@ class DatasetProfile:
                     number_theta=colprof.number_tracker.theta_sketch.theta_sketch,
                     quantile=colprof.number_tracker.histogram,
                     null_count=summ.counters.null_count.value,
-
                 )
 
                 constraints.update(update_dict)
