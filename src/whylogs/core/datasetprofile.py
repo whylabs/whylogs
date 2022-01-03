@@ -695,8 +695,7 @@ class DatasetProfile:
                     number_theta=colprof.number_tracker.theta_sketch.theta_sketch,
                     quantile=colprof.number_tracker.histogram,
                     unique_count=summ.unique_count.estimate,
-                    unique_proportion=(
-                        0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
+                    unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
                 )
 
                 constraints.update(update_dict)
