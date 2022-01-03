@@ -422,7 +422,6 @@ class SummaryConstraint:
 
         self.value = value
         self.upper_value = upper_value
-        self.quantile_value = quantile_value
 
         if self.first_field == "quantile" and not self.quantile_value:
             raise ValueError("Summary quantile constraint must specify quantile value")
@@ -915,7 +914,7 @@ class MultiColumnValueConstraint(ValueConstraint):
         else:
             raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
 
-    def to_protobuf(self) -> ValueConstraintMsg:
+    def to_protobuf(self) -> MultiColumnValueConstraintMsg:
         value = None
         set_vals_message = None
         ref_cols = None
@@ -930,7 +929,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             ref_cols = ListValue()
             ref_cols.append(self.reference_columns)
 
-        return ValueConstraintMsg(  # create new message
+        return MultiColumnValueConstraintMsg(
             dependent_columns=self.dependent_columns,
             name=self.name,
             op=self.op,
@@ -1101,12 +1100,12 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
         credit_card_pattern = regex_pattern
     else:
         credit_card_pattern = (
-            r"^(?:(4[0-9]{3}([\s-]?[0-9]{4}){2}[\s-]?[0-9]{1,4})"
-            r"|(?:(5[1-5][0-9]{2}([\s-]?[0-9]{4}){3}))"
-            r"|(?:(6(?:011|5[0-9]{2})([\s-]?[0-9]{4}){3}))"
-            r"|(?:(3[47][0-9]{2}[\s-]?[0-9]{6}[\s-]?[0-9]{5}))"
-            r"|(?:(3(?:0[0-5]|[68][0-9])[0-9][\s-]?[0-9]{6}[\s-]?[0-9]{4}))"
-            r"|(?:2131|1800|35[0-9]{2,3}([\s-]?[0-9]{4}){3}))$"
+            r"^(?:(4[0-9]{3}([\s-][0-9]{4}){2}[\s-][0-9]{1,4})"
+            r"|(5[1-5][0-9]{2}([\s-][0-9]{4}){3})"
+            r"|(6(?:011|5[0-9]{2})([\s-][0-9]{4}){3})"
+            r"|(3[47][0-9]{2}[\s-][0-9]{6}[\s-][0-9]{5})"
+            r"|(3(?:0[0-5]|[68][0-9])[0-9][\s-][0-9]{6}[\s-][0-9]{4})"
+            r"|(?:2131|1800|35[0-9]{2,3})([\s-][0-9]{4}){3})$"
         )
 
     return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, verbose=verbose)
@@ -1193,8 +1192,8 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
     return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
 
 
-def column_values_A_greater_than_B(dependent_column: str, reference_column: str, verbose: bool = False):
-    if not all([isinstance(col, str)] for col in (dependent_column, reference_column)):
+def column_values_A_greater_than_B(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
-    return MultiColumnValueConstraint(dependent_column, op=Op.GT, reference_columns=reference_column, verbose=verbose)
+    return MultiColumnValueConstraint(column_A, op=Op.GT, reference_columns=column_B, verbose=verbose)
