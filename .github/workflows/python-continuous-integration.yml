@@ -1,4 +1,4 @@
-name: whylogs CI
+name: whylogs Python CI
 
 on:
   push:

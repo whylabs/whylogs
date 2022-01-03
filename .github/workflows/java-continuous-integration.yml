@@ -1,7 +1,9 @@
-name: Run Gradle on PRs
+name: whylogs Java CI
 on:
+  push:
+    branches: [ mainline, release]
   pull_request:
-    branches: [ mainline ]
+    branches: [ mainline, release]
 
 jobs:
   build:

@@ -47,19 +47,16 @@ Install whylogs using the pip package manager by running
 pip install whylogs
 ```
 
-### From the source 
+### From source 
 
 - Download the source code by cloning the repository or by pressing [Download ZIP](https://github.com/whylabs/whylogs-python/archive/master.zip) on this page. 
-
 - You'll need to install poetry in order to install dependencies using the lock file in this project. Follow [their docs](https://python-poetry.org/docs/) to get it set up.
-
-- Run the following comand at the root of the source code:
+- Run the following command at the root of the source code:
 
 ```
-make install
-make
+make install # installs dependencies
+make         # builds the wheel
 ```
-
 
 ## Quickly Logging Data
 
@@ -189,4 +186,4 @@ If you have any questions, comments, or just want to hang out with us, please jo
 
 ## Contribute
 
-We welcome contributions to whylogs. Please see our [contribution guide](https://github.com/whylabs/whylogs/blob/mainline/CONTRIBUTING.md) and our [developement guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
+We welcome contributions to whylogs. Please see our [contribution guide](https://github.com/whylabs/whylogs/blob/mainline/CONTRIBUTING.md) and our [development guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.

@@ -149,9 +149,6 @@ _summary_funcs1 = {
     == 0.0,
     Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
     Op.CONTAIN: lambda f, v: lambda s: v in getattr(s, f),
-    # Op.QUANTILE_BETWEEN: lambda first_field, lower, upper, quantile_value: lambda update_object: lower <=
-    #     getattr(update_object, first_field).get_quantiles([quantile_value])[0]
-    #     <= upper,
 }
 
 _summary_funcs2 = {
@@ -238,7 +235,6 @@ class ValueConstraint:
             # Regex pattern
             self.regex_pattern = regex_pattern
             self.func = _value_funcs[op](re.compile(self.regex_pattern))
-
         else:
             raise ValueError("Value constraint must specify a numeric value or regex pattern, but not both")
 
@@ -252,7 +248,6 @@ class ValueConstraint:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
 
     def update(self, v) -> bool:
-        v = str.lower(v) if isinstance(v, str) else v
         self.total += 1
         if self.op in [Op.MATCH, Op.NOMATCH] and not isinstance(v, str):
             self.failures += 1
@@ -486,7 +481,6 @@ class SummaryConstraint:
 
     @property
     def name(self):
-        # if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
         constraint_type_str = "table" if self.first_field in ("columns, total_row_number") else "summary"
         if hasattr(self, "reference_set"):
             reference_set_str = self.get_str_from_ref_set()
@@ -557,7 +551,6 @@ class SummaryConstraint:
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
 
-        # if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
         if hasattr(self, "reference_set"):
             assert hasattr(other, "reference_set"), "Cannot merge constraint that doesn't have reference set with one that does."
             assert self.reference_set == other.reference_set
@@ -653,7 +646,6 @@ class SummaryConstraint:
             )
 
     def to_protobuf(self) -> SummaryConstraintMsg:
-        # if self.op in (Op.IN_SET, Op.CONTAINS_SET, Op.EQ_SET):
         if hasattr(self, "reference_set"):
             reference_set_msg = ListValue()
             reference_set_msg.extend(self.reference_set)

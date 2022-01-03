@@ -73,7 +73,7 @@ message ValueConstraintMsg {
     string regex_pattern = 5;
     google.protobuf.ListValue value_set = 6;
     ApplyFunctionMsg function = 7;
-    
+
   }
   Op op = 3;
   bool verbose = 4;
