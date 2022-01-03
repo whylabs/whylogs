@@ -719,7 +719,7 @@ class MultiColumnValueConstraint(ValueConstraint):
         self.reference_columns = reference_columns
 
         self.func = _multi_column_value_funcs[op]
-        if value:
+        if value is not None:
             self.value = value
 
     @property
@@ -759,20 +759,31 @@ class MultiColumnValueConstraint(ValueConstraint):
             val = self.value
             assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
 
-        merged_value_constraint = MultiColumnValueConstraint(op=self.op, value=val, name=self.name, verbose=self._verbose)
+        assert (
+            self.dependent_columns == other.dependent_columns
+        ), f"Cannot merge constraints with different dependent_columns: {self.dependent_columns} and {other.dependent_columns}"
+        assert (
+            self.reference_columns == other.reference_columns
+        ), f"Cannot merge constraints with different reference_columns: {self.reference_columns} and {other.reference_columns}"
+
+        merged_value_constraint = MultiColumnValueConstraint(
+            dependent_columns=self.dependent_columns, op=self.op, reference_columns=self.reference_columns, value=val, name=self.name, verbose=self._verbose
+        )
         merged_value_constraint.total = self.total + other.total
         merged_value_constraint.failures = self.failures + other.failures
         return merged_value_constraint
 
     @staticmethod
     def from_protobuf(msg: MultiColumnValueConstraintMsg) -> "MultiColumnValueConstraint":
-        if len(msg.value_set.values) != 0:
-            val_set = set(msg.value_set.values[0].list_value)
-            return MultiColumnValueConstraint(msg.dependent_columns, msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
-        elif msg.value:
-            return MultiColumnValueConstraint(msg.dependent_columns, msg.op, msg.value, name=msg.name, verbose=msg.verbose)
-        elif msg.reference_columns:
-            return MultiColumnValueConstraint(msg.dependent_columns, msg.op, reference_columns=msg.reference_columns, name=msg.name, verbose=msg.verbose)
+        if msg.HasField("value_set"):
+            val_set = set(msg.value_set)
+            return MultiColumnValueConstraint(set(msg.dependent_columns), msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
+        elif msg.HasField("value"):
+            return MultiColumnValueConstraint(set(msg.dependent_columns), msg.op, value=msg.value, name=msg.name, verbose=msg.verbose)
+        elif msg.HasField("reference_columns"):
+            return MultiColumnValueConstraint(
+                set(msg.dependent_columns), msg.op, reference_columns=set(msg.reference_columns), name=msg.name, verbose=msg.verbose
+            )
         else:
             raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
 
@@ -781,18 +792,21 @@ class MultiColumnValueConstraint(ValueConstraint):
         set_vals_message = None
         ref_cols = None
 
+        dep_cols = ListValue()
+        dep_cols.extend(self.dependent_columns)
+
         if hasattr(self, "value"):
             if isinstance(self.value, set):
                 set_vals_message = ListValue()
-                set_vals_message.append(list(self.value))
+                set_vals_message.extend(list(self.value))
             else:
                 value = self.value
         else:
             ref_cols = ListValue()
-            ref_cols.append(self.reference_columns)
+            ref_cols.extend(self.reference_columns)
 
         return MultiColumnValueConstraintMsg(
-            dependent_columns=self.dependent_columns,
+            dependent_columns=dep_cols,
             name=self.name,
             op=self.op,
             value=value,
@@ -1034,8 +1048,43 @@ def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
     return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, verbose=verbose)
 
 
-def column_values_A_greater_than_B(column_A: str, column_B: str, verbose: bool = False):
+def column_values_A_greater_than_B_constraint(column_A: str, column_B: str, verbose: bool = False):
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
     return MultiColumnValueConstraint(column_A, op=Op.GT, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_greater_than_equal_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.GE, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_less_than_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.LT, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_less_than_equal_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.LE, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_equal_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.EQ, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_not_equal_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.NE, reference_columns=column_B, verbose=verbose)
