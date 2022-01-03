@@ -264,21 +264,18 @@ class MultiColumnProfile:
     name : str (required)
         Name of the column profile
     constraints : MultiColumnValueConstraints
-        Static assertions to be applied to data tracked between the columns
+        Static assertions to be applied to data tracked between all columns
 
     """
 
     def __init__(
         self,
-        # column_pair: tuple[str],
         constraints: MultiColumnValueConstraints = None,
     ):
-        # Handle default values
+
         if constraints is None:
             constraints = MultiColumnValueConstraints()
 
-        # Assign values
-        # self.column_name = column_tuple_to_string(column_pair)
         self.constraints = constraints
 
     def track(self, column_dict, character_list=None, token_method=None):
@@ -286,13 +283,7 @@ class MultiColumnProfile:
         Add `value` to tracking statistics.
         """
 
-        # update the MultiColumnTrackers
-
-        # col1_typed_data = TypedDataConverter.convert(col1_value)
-        # col2_typed_data = TypedDataConverter.convert(col2_value)
-        #
-        # TypedDataConverter.get_type(col1_value)
-        # TypedDataConverter.get_type(col2_value)
+        # update the MultiColumnTrackers code
 
         self.constraints.update(column_dict)
         self.constraints.update_typed(column_dict)
