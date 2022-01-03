@@ -684,6 +684,9 @@
 
       .wl__btn-signup {
         font-size: 13px;
+        padding: 13px;
+        padding-left: 20px;
+        padding-right: 20px;
       }
 
       .wl__close-icon {
@@ -701,49 +704,60 @@
         color: black;
       }
   
-     .wl__burger_icon_container {
-       width: 18px;
-       height: 16px;
-     }
-     
-     .wl__burger_icon_container img{
-       width: 100%;
-       height: 100%;
-       cursor: pointer;
-     }
-     
-     .wl__burger_icon {
-       position: relative;
-     }
-     
-     .notif-circle-container {
-       position: absolute;
-       top: 7px;
-       right: -5px;
-       padding: 5.3px;
-       border-radius: 50%;
-       background-color: var(--brandSecondary100);
-       cursor: pointer;
-     }
-     
-     .notif-circle {
-       position: absolute;
-       top: 2px;
-       right: 2px;
-       padding: 3.3px;
-       border-radius: 50%;
-       background-color: #F2994A;
-     }
-     
-     .not-clickable-notif {
-       background: #FAC79A;
-     }
-  
-     .space-between {
-       display: flex;
-       justify-content: space-between;
-     }
-  
+      .wl__dropdown_arrow-icon_container {
+        width: 18px;
+        height: 16px;
+      }
+      
+      .wl__dropdown_arrow-icon_container img{
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+      
+      .wl__dropdown_arrow-icon, .open-sign-up-text{
+        position: relative;
+      }
+      
+      .notif-circle-container, .open-sign-up-text-notif-container{
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: var(--brandSecondary100);
+        cursor: pointer;
+      }
+      
+      .open-sign-up-text-notif-container {
+        padding: 10.3px;
+      }
+      
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+      
+      .open-sign-up-text-notif {
+        display: flex;
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 2.5px 6px;
+        color: #FFF;
+        border-radius: 50%;
+        background-color: #5CAEBC;
+      }
+        
+      .space-between {
+        display: flex;
+        justify-content: space-between;
+      }
+        
      .align-items {
        display: flex;
        align-items: center;
@@ -1105,12 +1119,25 @@
                 <li>Get alerted in real time when data and model health issues arise</li>
               </ul>
             </div>
-            <a
-              class="btn btn-warning wl__btn-signup btn-signup"
-              target="_blank"
-              href="http://bit.ly/whylogs-to-whylabs-free-signup"
-              >Sign up for a free WhyLabs account</a
+            <div class="wl__dropdown_arrow-icon open-sign-up-text" id="open-sign-up-text">
+              <a
+                class="btn btn-warning wl__btn-signup btn-signup"
+                target="_blank"
+                href="http://bit.ly/whylogs-to-whylabs-free-signup"
+              >
+                Sign up for a free WhyLabs account
+              </a>
+            <span 
+              onclick="openSignUpText()"
+              class="open-sign-up-text-notif-container"
             >
+              <span class="open-sign-up-text-notif">
+                <img 
+                  src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSIxMSIgdmlld0JveD0iMCAwIDQgMTEiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wLjUxNTYyNSA4LjU1MDc4QzAuMjgxMjUgOC41NTA3OCAwLjEyNSA4LjcyNjU2IDAuMTI1IDguOTQxNDFWOS44NTkzOEMwLjEyNSAxMC4wOTM4IDAuMjgxMjUgMTAuMjUgMC41MTU2MjUgMTAuMjVIMy40ODQzOEMzLjY5OTIyIDEwLjI1IDMuODc1IDEwLjA5MzggMy44NzUgOS44NTkzOFY4Ljk0MTQxQzMuODc1IDguNzI2NTYgMy42OTkyMiA4LjU1MDc4IDMuNDg0MzggOC41NTA3OEgzLjA5Mzc1VjQuMzkwNjJDMy4wOTM3NSA0LjE3NTc4IDIuOTE3OTcgNCAyLjcwMzEyIDRIMC41MTU2MjVDMC4yODEyNSA0IDAuMTI1IDQuMTc1NzggMC4xMjUgNC4zOTA2MlY1LjMyODEyQzAuMTI1IDUuNTQyOTcgMC4yODEyNSA1LjcxODc1IDAuNTE1NjI1IDUuNzE4NzVIMC45MDYyNVY4LjU1MDc4SDAuNTE1NjI1Wk0yIDAuMjVDMS4yMTg3NSAwLjI1IDAuNTkzNzUgMC44OTQ1MzEgMC41OTM3NSAxLjY1NjI1QzAuNTkzNzUgMi40Mzc1IDEuMjE4NzUgMy4wNjI1IDIgMy4wNjI1QzIuNzYxNzIgMy4wNjI1IDMuNDA2MjUgMi40Mzc1IDMuNDA2MjUgMS42NTYyNUMzLjQwNjI1IDAuODk0NTMxIDIuNzYxNzIgMC4yNSAyIDAuMjVaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K"
+                />
+              </span>
+            </span>
+          </div>
           </div>
           </div>
             <div class="main">
@@ -1803,7 +1830,21 @@
 
       $signUpText.addClass("d-none");
       sidebarContentHeight()
+      $(".open-sign-up-text-notif-container").removeClass("d-none")
     }
+
+    function openSignUpText() {
+      const $signUpText = $(".sign-up-text");
+      $signUpText.removeClass("d-none");
+      sidebarContentHeight()
+      $(".open-sign-up-text-notif-container").addClass("d-none")
+    };
+
+    $(document).ready(function() {
+      const $signUpText = $(".sign-up-text");
+      $signUpText.addClass("d-none");
+      sidebarContentHeight()
+    })
     
     $(document).on("click", ".js-list-group-item span", function (e) {
       const listItem = $("li>span"),
