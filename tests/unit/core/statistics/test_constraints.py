@@ -8,6 +8,7 @@ from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
 from whylogs.core.statistics.constraints import (
     DatasetConstraints,
+    MultiColumnValueConstraint,
     Op,
     SummaryConstraint,
     ValueConstraint,
@@ -20,6 +21,8 @@ from whylogs.core.statistics.constraints import (
     _value_funcs,
     columnUniqueValueCountBetweenConstraint,
     columnUniqueValueProportionBetweenConstraint,
+    column_values_A_equal_B_constraint,
+    column_values_A_greater_than_B_constraint,
     columnValuesInSetConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
@@ -1208,7 +1211,6 @@ def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_pat
     session.close()
     report = dc.report()
 
-    print(report)
     assert report[0][0] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
     assert report[0][1] == 50
     assert report[0][2] == 50
@@ -1295,3 +1297,130 @@ def test_sum_of_row_values_constraint_invalid_params():
         sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=[1, 2], value="B")
     with pytest.raises(TypeError):
         sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=1, value=["b"])
+
+
+def test_multi_column_value_constraints_logical_operation(local_config_path):
+    a_gt_b = column_values_A_greater_than_B_constraint("col1", "col2")
+
+    df = pd.DataFrame({"col1": [4, 5, 6, 7], "col2": [0, 1, 2, 3]})
+
+    dc = DatasetConstraints(None, multi_column_value_constraints=[a_gt_b])
+
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    assert len(report[0]) == 3
+
+    assert report[0][1] == 4 and report[0][2] == 0 and report[0][0] == f"multi column value col1 {Op.Name(Op.GT)} col2"
+
+
+def test_multi_column_value_constraints_merge():
+    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, reference_columns="col5")
+
+    with pytest.raises(AssertionError):
+        mcvc1.merge(mcvc2)
+
+    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc2 = MultiColumnValueConstraint("col4", op=Op.GT, reference_columns="col2")
+
+    with pytest.raises(AssertionError):
+        mcvc1.merge(mcvc2)
+
+    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc2 = MultiColumnValueConstraint("col1", op=Op.EQ, reference_columns="col2")
+
+    with pytest.raises(AssertionError):
+        mcvc1.merge(mcvc2)
+
+    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, value=2)
+
+    with pytest.raises(AssertionError):
+        mcvc1.merge(mcvc2)
+
+    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, reference_columns="col2")
+
+    merged = mcvc1.merge(mcvc1)
+
+    pre_merge_json = json.loads(message_to_json(mcvc1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pre_merge_json["dependentColumns"] == merge_json["dependentColumns"]
+    assert pre_merge_json["referenceColumns"] == merge_json["referenceColumns"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+
+def test_multi_column_value_constraints_invalid_init():
+    with pytest.raises(ValueError):
+        mcvc = MultiColumnValueConstraint(None, op=Op.GT, reference_columns="col2")
+
+    with pytest.raises(TypeError):
+        mcvc = MultiColumnValueConstraint(["a"], op=Op.GT, reference_columns="col2")
+
+    with pytest.raises(ValueError):
+        mcvc = MultiColumnValueConstraint("a", op=Op.GT, reference_columns="col2", value=2)
+
+    with pytest.raises(ValueError):
+        mcvc = MultiColumnValueConstraint("a", op=Op.GT)
+
+    with pytest.raises(TypeError):
+        mcvc = MultiColumnValueConstraint("a", op=Op.GT, reference_columns=["b"])
+
+
+def test_multi_column_value_constraints_serialization():
+
+    mcvc1 = column_values_A_equal_B_constraint(set(["col1", "col2"]), set(["col5", "col6"]))
+
+    mcvc2 = MultiColumnValueConstraint.from_protobuf(mcvc1.to_protobuf())
+
+    mcvc1_json = json.loads(message_to_json(mcvc1.to_protobuf()))
+    mcvc2_json = json.loads(message_to_json(mcvc2.to_protobuf()))
+
+    mcvc1.merge(mcvc2)
+    mcvc2.merge(mcvc1)
+
+    assert mcvc1_json["name"] == mcvc2_json["name"]
+    assert set(mcvc1.to_protobuf().dependent_columns) == set(mcvc2.to_protobuf().dependent_columns)
+    assert set(mcvc1.to_protobuf().reference_columns) == set(mcvc2.to_protobuf().reference_columns)
+    assert mcvc1_json["op"] == mcvc2_json["op"]
+    assert mcvc1_json["verbose"] == mcvc2_json["verbose"]
+
+    mcvc1 = MultiColumnValueConstraint(set(["col1", "col2"]), op=Op.GT, value=2)
+
+    mcvc2 = MultiColumnValueConstraint.from_protobuf(mcvc1.to_protobuf())
+
+    mcvc1_json = json.loads(message_to_json(mcvc1.to_protobuf()))
+    mcvc2_json = json.loads(message_to_json(mcvc2.to_protobuf()))
+
+    mcvc1.merge(mcvc2)
+    mcvc2.merge(mcvc1)
+
+    assert mcvc1_json["name"] == mcvc2_json["name"]
+    assert set(mcvc1.to_protobuf().dependent_columns) == set(mcvc2.to_protobuf().dependent_columns)
+    assert mcvc1_json["value"] == mcvc2_json["value"]
+    assert mcvc1_json["op"] == mcvc2_json["op"]
+    assert mcvc1_json["verbose"] == mcvc2_json["verbose"]
+
+    mcvc1 = MultiColumnValueConstraint(set(["col1", "col2"]), op=Op.GT, value=set([1, 2]))
+
+    mcvc2 = MultiColumnValueConstraint.from_protobuf(mcvc1.to_protobuf())
+
+    mcvc1_json = json.loads(message_to_json(mcvc1.to_protobuf()))
+    mcvc2_json = json.loads(message_to_json(mcvc2.to_protobuf()))
+
+    mcvc1.merge(mcvc2)
+    mcvc2.merge(mcvc1)
+
+    assert mcvc1_json["name"] == mcvc2_json["name"]
+    assert set(mcvc1.to_protobuf().dependent_columns) == set(mcvc2.to_protobuf().dependent_columns)
+    assert set(mcvc1.to_protobuf().value_set) == set(mcvc2.to_protobuf().value_set)
+    assert mcvc1_json["op"] == mcvc2_json["op"]
+    assert mcvc1_json["verbose"] == mcvc2_json["verbose"]

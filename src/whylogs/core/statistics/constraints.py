@@ -871,7 +871,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             self.internal_dependent_cols_func = _multi_column_value_funcs[internal_dependent_cols_op]
 
         self.func = _multi_column_value_funcs[op]
-        if value:
+        if value is not None:
             self.value = value
 
     @property
@@ -1314,3 +1314,45 @@ def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], np
     return MultiColumnValueConstraint(
         dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op=Op.SUM, verbose=verbose
     )
+
+
+def column_values_A_greater_than_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.GT, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_greater_than_equal_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.GE, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_less_than_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.LT, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_less_than_equal_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.LE, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_equal_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.EQ, reference_columns=column_B, verbose=verbose)
+
+
+def column_values_A_not_equal_B_constraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.NE, reference_columns=column_B, verbose=verbose)
