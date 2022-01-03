@@ -20,6 +20,8 @@ enum Op {
     NOMATCH = 8;
     BTWN = 9;
     IN_SET = 10;
+    CONTAIN_SET = 11;
+    EQ_SET = 12;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -35,9 +37,11 @@ message SummaryConstraintMsg {
      string second_field = 3;
      double value = 4;
      SummaryBetweenConstraintMsg between = 7;
+     google.protobuf.ListValue reference_set = 8;
   }
   Op op = 5;
   bool verbose = 6;
+  double quantile_value = 9;
 }
 
 message SummaryBetweenConstraintMsg {

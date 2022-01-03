@@ -1,10 +1,13 @@
 import logging
+import numbers
 import re
-from typing import Any, List, Mapping, Optional, Set
+from typing import Any, List, Mapping, Optional, Set, Union
 
+from datasketches import theta_a_not_b, update_theta_sketch
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
 
+from whylogs.core.summaryconverters import single_quantile_from_sketch
 from whylogs.proto import (
     DatasetConstraintMsg,
     DatasetProperties,
@@ -47,6 +50,19 @@ _summary_funcs1 = {
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
     Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
+    Op.IN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+        theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1
+    )
+    == 0.0,
+    Op.CONTAIN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+        theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1
+    )
+    == 0.0,
+    Op.EQ_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
+        theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1
+    )
+    == round(theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1)
+    == 0.0,
 }
 
 _summary_funcs2 = {
@@ -213,6 +229,9 @@ class SummaryConstraint:
         Only to be supplied when op == Op.BTWN. Name of third field in NumberSummary, used as an upper boundary,
          to be compared against summary field specified in `first_field`.
         Only one of `upper_value` or `third_field` should be supplied.
+    reference_set : (one-of)
+        Only to be supplied when using set operations. Used as a reference set to be compared with the column
+        distinct values.
     name : str
         Name of the constraint used for reporting
     verbose : bool
@@ -228,8 +247,10 @@ class SummaryConstraint:
         op: Op,
         value=None,
         upper_value=None,
+        quantile_value: Union[int, float] = None,
         second_field: str = None,
         third_field: str = None,
+        reference_set=None,
         name: str = None,
         verbose=False,
     ):
@@ -244,8 +265,35 @@ class SummaryConstraint:
 
         self.value = value
         self.upper_value = upper_value
+        self.quantile_value = quantile_value
 
-        if self.op == Op.BTWN:
+        if self.first_field == "quantile" and not self.quantile_value:
+            raise ValueError("Summary quantile constraint must specify quantile value")
+
+        if self.first_field != "quantile" and self.quantile_value is not None:
+            raise ValueError("Summary constraint applied on non-quantile field should not specify quantile value")
+
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+            if any([value, upper_value, second_field, third_field, not reference_set]):
+                raise ValueError("When using set operations only set should be provided and not values or field names!")
+
+            if not isinstance(reference_set, set):
+                try:
+                    logger.warning(f"Trying to cast provided value of {type(reference_set)} to type set!")
+                    reference_set = set(reference_set)
+                except TypeError:
+                    provided_type_name = reference_set.__class__.__name__
+                    raise TypeError(
+                        f"When using set operations, provided value must be set or set castable, instead type: '{provided_type_name}' was provided!"
+                    )
+            self.reference_set = reference_set
+            self.ref_string_set, self.ref_numbers_set = self.get_string_and_numbers_sets()
+
+            self.reference_theta_sketch = self.create_theta_sketch()
+            self.string_theta_sketch = self.create_theta_sketch(self.ref_string_set)
+            self.numbers_theta_sketch = self.create_theta_sketch(self.ref_numbers_set)
+
+        elif self.op == Op.BTWN:
             if value is not None and upper_value is not None and (second_field, third_field) == (None, None):
                 # field-value summary comparison
                 if not isinstance(value, (int, float)) or not isinstance(upper_value, (int, float)):
@@ -280,17 +328,62 @@ class SummaryConstraint:
 
     @property
     def name(self):
-        if self.op == Op.BTWN:
+        if self.first_field == "quantile":
+            field_name = f"{self.first_field} {self.quantile_value}"
+        else:
+            field_name = self.first_field
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+            reference_set_str = ""
+            if len(self.reference_set) > 20:
+                tmp_set = set(list(self.reference_set)[:20])
+                reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
+            else:
+                reference_set_str = str(self.reference_set)
+            return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {reference_set_str}"
+        elif self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
-            return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {lower_target} and {upper_target}"
+            return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {lower_target} and {upper_target}"
 
-        return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
+        return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {self.value}/{self.second_field}"
+
+    def get_string_and_numbers_sets(self):
+        string_set = set()
+        numbers_set = set()
+        for item in self.reference_set:
+            if isinstance(item, str):
+                string_set.add(item)
+            elif isinstance(item, numbers.Real) and not isinstance(item, bool):
+                numbers_set.add(item)
+
+        return string_set, numbers_set
+
+    def create_theta_sketch(self, ref_set: set = None):
+        theta = update_theta_sketch()
+        target_set = self.reference_set if ref_set is None else ref_set
+
+        for item in target_set:
+            theta.update(item)
+        return theta
 
     def update(self, update_dict: dict) -> bool:
         self.total += 1
 
-        if not self.func(update_dict):
+        if self.first_field == "quantile":
+            kll_sketch = getattr(update_dict, self.first_field)
+            quantile_value = single_quantile_from_sketch(kll_sketch, self.quantile_value)
+            result = self.func(quantile_value)
+        elif self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+            result = all(
+                [
+                    _summary_funcs1[self.op](self.string_theta_sketch)(update_dict.string_theta),
+                    _summary_funcs1[self.op](self.numbers_theta_sketch)(update_dict.number_theta),
+                ]
+            )
+        else:
+            result = self.func(update_dict)
+
+        if not result:
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -304,8 +397,16 @@ class SummaryConstraint:
         assert self.value == other.value, f"Cannot merge constraints with different values: {self.value} and {other.value}"
         assert self.first_field == other.first_field, f"Cannot merge constraints with different first_field: {self.first_field} and {other.first_field}"
         assert self.second_field == other.second_field, f"Cannot merge constraints with different second_field: {self.second_field} and {other.second_field}"
+        assert (
+            self.quantile_value == other.quantile_value
+        ), f"Cannot merge constraints with different quantile_value: {self.quantile_value} and {other.quantile_value}"
 
-        if self.op == Op.BTWN:
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+            assert self.reference_set == other.reference_set
+            merged_constraint = SummaryConstraint(
+                first_field=self.first_field, op=self.op, reference_set=self.reference_set, name=self.name, verbose=self._verbose
+            )
+        elif self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
             assert self.third_field == other.third_field, f"Cannot merge constraints with different third_field: {self.third_field} and {other.third_field}"
             merged_constraint = SummaryConstraint(
@@ -313,6 +414,7 @@ class SummaryConstraint:
                 op=self.op,
                 value=self.value,
                 upper_value=self.upper_value,
+                quantile_value=self.quantile_value,
                 second_field=self.second_field,
                 third_field=self.third_field,
                 name=self.name,
@@ -320,7 +422,13 @@ class SummaryConstraint:
             )
         else:
             merged_constraint = SummaryConstraint(
-                first_field=self.first_field, op=self.op, value=self.value, second_field=self.second_field, name=self.name, verbose=self._verbose
+                first_field=self.first_field,
+                op=self.op,
+                value=self.value,
+                quantile_value=self.quantile_value,
+                second_field=self.second_field,
+                name=self.name,
+                verbose=self._verbose,
             )
 
         merged_constraint.total = self.total + other.total
@@ -329,24 +437,38 @@ class SummaryConstraint:
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
+        if msg.first_field == "quantile":
+            quantile_val = msg.quantile_value
+        else:
+            quantile_val = None
 
-        if msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
+        if msg.HasField("reference_set") and not msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
+            return SummaryConstraint(
+                msg.first_field,
+                msg.op,
+                reference_set=set(msg.reference_set),
+                name=msg.name,
+                verbose=msg.verbose,
+            )
+        elif msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between") and not msg.HasField("reference_set"):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
                 value=msg.value,
+                quantile_value=quantile_val,
                 name=msg.name,
                 verbose=msg.verbose,
             )
-        elif msg.HasField("second_field") and not msg.HasField("value") and not msg.HasField("between"):
+        elif msg.HasField("second_field") and not msg.HasField("value") and not msg.HasField("between") and not msg.HasField("reference_set"):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
                 second_field=msg.second_field,
                 name=msg.name,
+                quantile_value=quantile_val,
                 verbose=msg.verbose,
             )
-        elif msg.HasField("between") and not msg.HasField("value") and not msg.HasField("second_field"):
+        elif msg.HasField("between") and not msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("reference_set"):
             if (
                 msg.between.HasField("lower_value")
                 and msg.between.HasField("upper_value")
@@ -358,6 +480,7 @@ class SummaryConstraint:
                     msg.op,
                     value=msg.between.lower_value,
                     upper_value=msg.between.upper_value,
+                    quantile_value=quantile_val,
                     name=msg.name,
                     verbose=msg.verbose,
                 )
@@ -372,14 +495,28 @@ class SummaryConstraint:
                     msg.op,
                     second_field=msg.between.second_field,
                     third_field=msg.between.third_field,
+                    quantile_value=quantile_val,
                     name=msg.name,
                     verbose=msg.verbose,
                 )
         else:
-            raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg, but only one of them")
+            raise ValueError(
+                "SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg OR reference set, but only one of them"
+            )
 
     def to_protobuf(self) -> SummaryConstraintMsg:
-        if self.op == Op.BTWN:
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+            reference_set_msg = ListValue()
+            reference_set_msg.extend(self.reference_set)
+
+            msg = SummaryConstraintMsg(
+                name=self.name,
+                first_field=self.first_field,
+                op=self.op,
+                reference_set=reference_set_msg,
+                verbose=self._verbose,
+            )
+        elif self.op == Op.BTWN:
 
             summary_between_constraint_msg = None
             if self.second_field is None and self.third_field is None:
@@ -391,6 +528,7 @@ class SummaryConstraint:
                 name=self.name,
                 first_field=self.first_field,
                 op=self.op,
+                quantile_value=self.quantile_value,
                 between=summary_between_constraint_msg,
                 verbose=self._verbose,
             )
@@ -401,6 +539,7 @@ class SummaryConstraint:
                 first_field=self.first_field,
                 op=self.op,
                 value=self.value,
+                quantile_value=self.quantile_value,
                 verbose=self._verbose,
             )
         else:
@@ -408,6 +547,7 @@ class SummaryConstraint:
                 name=self.name,
                 first_field=self.first_field,
                 op=self.op,
+                quantile_value=self.quantile_value,
                 second_field=self.second_field,
                 verbose=self._verbose,
             )
@@ -422,10 +562,18 @@ class ValueConstraints:
         if constraints is None:
             constraints = dict()
 
+        raw_values_operators = (Op.MATCH, Op.NOMATCH)
+        self.raw_value_constraints = {}
+        self.coerced_type_constraints = {}
+
         if isinstance(constraints, list):
-            self.constraints = {constraint.name: constraint for constraint in constraints}
-        else:
-            self.constraints = constraints
+            constraints = {constraint.name: constraint for constraint in constraints}
+
+        for name, constraint in constraints.items():
+            if constraint.op in raw_values_operators:
+                self.raw_value_constraints.update({name: constraint})
+            else:
+                self.coerced_type_constraints.update({name: constraint})
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsgs) -> "ValueConstraints":
@@ -435,12 +583,17 @@ class ValueConstraints:
         return None
 
     def __getitem__(self, name: str) -> Optional[ValueConstraint]:
-        if self.contraints:
-            return self.constraints.get(name)
+        if self.raw_value_constraints:
+            constraint = self.raw_value_constraints.get(name)
+            if constraint:
+                return constraint
+        if self.coerced_type_constraints:
+            return self.coerced_type_constraints.get(name)
         return None
 
     def to_protobuf(self) -> ValueConstraintMsgs:
-        v = [c.to_protobuf() for c in self.constraints.values()]
+        v = [c.to_protobuf() for c in self.raw_value_constraints.values()]
+        v.extend([c.to_protobuf() for c in self.coerced_type_constraints.values()])
         if len(v) > 0:
             vcmsg = ValueConstraintMsgs()
             vcmsg.constraints.extend(v)
@@ -448,27 +601,29 @@ class ValueConstraints:
         return None
 
     def update(self, v):
-        for c in self.constraints.values():
-            if c.op not in (Op.MATCH, Op.NOMATCH):
-                c.update(v)
+        for c in self.raw_value_constraints.values():
+            c.update(v)
 
     def update_typed(self, v):
-        for c in self.constraints.values():
-            if c.op in (Op.MATCH, Op.NOMATCH):
-                c.update(v)
+        for c in self.coerced_type_constraints.values():
+            c.update(v)
 
     def merge(self, other) -> "ValueConstraints":
-        if not other or not other.constraints:
+        if not other or not other.raw_value_constraints and not other.coerced_type_constraints:
             return self
 
-        merged_constraints = other.constraints.copy()
-        for name, constraint in self.constraints:
-            merged_constraints[name] = constraint.merge(other.constraints.get(name))
+        merged_constraints = other.raw_value_constraints.copy()
+        merged_constraints.update(other.coerced_type_constraints.copy())
+        for name, constraint in self.raw_value_constraints.items():
+            merged_constraints[name] = constraint.merge(other.raw_value_constraints.get(name))
+        for name, constraint in self.coerced_type_constraints.items():
+            merged_constraints[name] = constraint.merge(other.coerced_type_constraints.get(name))
 
         return ValueConstraints(merged_constraints)
 
     def report(self) -> List[tuple]:
-        v = [c.report() for c in self.constraints.values()]
+        v = [c.report() for c in self.raw_value_constraints.values()]
+        v.extend([c.report() for c in self.coerced_type_constraints.values()])
         if len(v) > 0:
             return v
         return None
@@ -609,6 +764,18 @@ def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
 
 
+def distinctValuesInSetConstraint(reference_set: Set[Any], name=None, verbose=False):
+    return SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=reference_set, name=name, verbose=False)
+
+
+def distinctValuesEqualSetConstraint(reference_set: Set[Any], name=None, verbose=False):
+    return SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=reference_set, name=name, verbose=False)
+
+
+def distinctValuesContainSetConstraint(reference_set: Set[Any], name=None, verbose=False):
+    return SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=reference_set, name=name, verbose=False)
+
+
 def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
     try:
         value_set = set(value_set)
@@ -687,6 +854,16 @@ def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose=Fa
 
     length_pattern = rf"^.{{{lower_value},{upper_value}}}$"
     return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
+
+
+def quantileBetweenConstraint(quantile_value: Union[int, float], lower_value: Union[int, float], upper_value: Union[int, float], verbose: "bool" = False):
+    if not all([isinstance(v, (int, float)) for v in (quantile_value, upper_value, lower_value)]):
+        raise TypeError("The quantile, lower and upper values must be of type int or float")
+
+    if lower_value > upper_value:
+        raise ValueError("The lower value must be less than or equal to the upper value")
+
+    return SummaryConstraint("quantile", value=lower_value, upper_value=upper_value, quantile_value=quantile_value, op=Op.BTWN, verbose=verbose)
 
 
 def columnUniqueValueCountBetweenConstraint(lower_value: int, upper_value: int, verbose: bool = False):

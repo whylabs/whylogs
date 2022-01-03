@@ -688,10 +688,15 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
+
                 update_dict = _create_update_summary_dictionary(
                     number_summary=summ.number_summary,
+                    string_theta=colprof.string_tracker.theta_sketch.theta_sketch,
+                    number_theta=colprof.number_tracker.theta_sketch.theta_sketch,
+                    quantile=colprof.number_tracker.histogram,
                     unique_count=summ.unique_count.estimate,
-                    unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
+                    unique_proportion=(
+                        0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
                 )
 
                 constraints.update(update_dict)
@@ -802,6 +807,7 @@ def array_profile(
 def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
     """
     Wrapper method for summary constraints update object creation
+
     Parameters
     ----------
     number_summary : NumberSummary
@@ -809,6 +815,7 @@ def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
         Used to unpack the metrics as separate items in the dictionary
     kwargs : Summary objects or datasketches objects
         Used to update specific constraints that need additional calculations
+
     Returns
     -------
     Anonymous object containing all of the metrics as fields with their coresponding values
