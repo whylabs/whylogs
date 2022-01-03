@@ -928,6 +928,64 @@
      .property-panel-close-icon {
        cursor: pointer;
      }
+
+     .flex-direction-colum {
+       display: flex;
+       flex-direction: column;
+     }
+     
+     .feature-file-name {
+       font-size: 17px;
+       color: #6C757D;
+     }
+     
+     .dropdown-container {
+       background: rgba(255, 255, 255, 0.5) !important;
+       padding: 10px !important;
+       border: none !important;
+     }
+     
+     .dropdown {
+       align-items: center;
+     }
+     
+     .align-items {
+       align-items: center;
+     }
+     
+     .dropdown p {
+       font-family: Asap;
+       font-size: 15px;
+       line-height: 150%; 
+       margin: 0;
+     }
+     .dropdown img {
+       height: 10px;
+       cursor: pointer;
+     }
+     
+     .search-input{
+       padding-top: 0 !important;
+       padding-bottom: 0 !important;
+     }
+     
+     .search-input input{
+       border: none;
+       background: none;
+       outline: none;
+       height: 40px;
+       width: 100%;
+       font-size: 17px;
+     }
+     
+     .search-input img{
+       height: 19px;
+       pointer-events: none;
+     }
+    
+     input::placeholder {
+       color: var(--secondaryLight1000);
+     }
   
      @media only screen and (min-width: 1350px) {
        .clickable-test-feature-body {
@@ -1015,80 +1073,76 @@
                       <strong class="feature-count count-color mb-3 wl__feature-count">{{getTotalFeatureCount}}</strong>
                       <strong>features</strong>
                     </div>
-                    <div class="wl__burger_icon_container">
-                      <div onclick="openFilter()" class="wl__burger_icon">
-                        <img src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTUiIHZpZXdCb3g9IjAgMCAxNiAxNSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE1LjUgMS43NUg5VjFDOSAwLjc1IDguNzUgMC41IDguNSAwLjVINy41QzcuMjE4NzUgMC41IDcgMC43NSA3IDFWMS43NUgwLjVDMC4yMTg3NSAxLjc1IDAgMiAwIDIuMjVWMi43NUMwIDMuMDMxMjUgMC4yMTg3NSAzLjI1IDAuNSAzLjI1SDdWNEM3IDQuMjgxMjUgNy4yMTg3NSA0LjUgNy41IDQuNUg4LjVDOC43NSA0LjUgOSA0LjI4MTI1IDkgNFYzLjI1SDE1LjVDMTUuNzUgMy4yNSAxNiAzLjAzMTI1IDE2IDIuNzVWMi4yNUMxNiAyIDE1Ljc1IDEuNzUgMTUuNSAxLjc1Wk0xNS41IDExLjc1SDVWMTFDNSAxMC43NSA0Ljc1IDEwLjUgNC41IDEwLjVIMy41QzMuMjE4NzUgMTAuNSAzIDEwLjc1IDMgMTFWMTEuNzVIMC41QzAuMjE4NzUgMTEuNzUgMCAxMiAwIDEyLjI1VjEyLjc1QzAgMTMuMDMxMiAwLjIxODc1IDEzLjI1IDAuNSAxMy4yNUgzVjE0QzMgMTQuMjgxMiAzLjIxODc1IDE0LjUgMy41IDE0LjVINC41QzQuNzUgMTQuNSA1IDE0LjI4MTIgNSAxNFYxMy4yNUgxNS41QzE1Ljc1IDEzLjI1IDE2IDEzLjAzMTIgMTYgMTIuNzVWMTIuMjVDMTYgMTIgMTUuNzUgMTEuNzUgMTUuNSAxMS43NVpNMTUuNSA2Ljc1SDEzVjZDMTMgNS43NSAxMi43NSA1LjUgMTIuNSA1LjVIMTEuNUMxMS4yMTg4IDUuNSAxMSA1Ljc1IDExIDZWNi43NUgwLjVDMC4yMTg3NSA2Ljc1IDAgNyAwIDcuMjVWNy43NUMwIDguMDMxMjUgMC4yMTg3NSA4LjI1IDAuNSA4LjI1SDExVjlDMTEgOS4yODEyNSAxMS4yMTg4IDkuNSAxMS41IDkuNUgxMi41QzEyLjc1IDkuNSAxMyA5LjI4MTI1IDEzIDlWOC4yNUgxNS41QzE1Ljc1IDguMjUgMTYgOC4wMzEyNSAxNiA3Ljc1VjcuMjVDMTYgNyAxNS43NSA2Ljc1IDE1LjUgNi43NVoiIGZpbGw9IiMzNjlCQUMiLz4KPC9zdmc+Cg==' 
-                          id="burger_icon"/>
-                        <span class="notif-circle-container">
-                          <span class="notif-circle"></span>
-                        </span>
-                      </div>
-                      <div class="d-none wl__burger_icon" id="not_clickable_burger_icon">
-                        <img 
-                          class="not-clickable" 
-                          src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTUiIHZpZXdCb3g9IjAgMCAxNiAxNSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC4zIiBkPSJNMTUuNSAxLjc1SDlWMUM5IDAuNzUgOC43NSAwLjUgOC41IDAuNUg3LjVDNy4yMTg3NSAwLjUgNyAwLjc1IDcgMVYxLjc1SDAuNUMwLjIxODc1IDEuNzUgMCAyIDAgMi4yNVYyLjc1QzAgMy4wMzEyNSAwLjIxODc1IDMuMjUgMC41IDMuMjVIN1Y0QzcgNC4yODEyNSA3LjIxODc1IDQuNSA3LjUgNC41SDguNUM4Ljc1IDQuNSA5IDQuMjgxMjUgOSA0VjMuMjVIMTUuNUMxNS43NSAzLjI1IDE2IDMuMDMxMjUgMTYgMi43NVYyLjI1QzE2IDIgMTUuNzUgMS43NSAxNS41IDEuNzVaTTE1LjUgMTEuNzVINVYxMUM1IDEwLjc1IDQuNzUgMTAuNSA0LjUgMTAuNUgzLjVDMy4yMTg3NSAxMC41IDMgMTAuNzUgMyAxMVYxMS43NUgwLjVDMC4yMTg3NSAxMS43NSAwIDEyIDAgMTIuMjVWMTIuNzVDMCAxMy4wMzEyIDAuMjE4NzUgMTMuMjUgMC41IDEzLjI1SDNWMTRDMyAxNC4yODEyIDMuMjE4NzUgMTQuNSAzLjUgMTQuNUg0LjVDNC43NSAxNC41IDUgMTQuMjgxMiA1IDE0VjEzLjI1SDE1LjVDMTUuNzUgMTMuMjUgMTYgMTMuMDMxMiAxNiAxMi43NVYxMi4yNUMxNiAxMiAxNS43NSAxMS43NSAxNS41IDExLjc1Wk0xNS41IDYuNzVIMTNWNkMxMyA1Ljc1IDEyLjc1IDUuNSAxMi41IDUuNUgxMS41QzExLjIxODggNS41IDExIDUuNzUgMTEgNlY2Ljc1SDAuNUMwLjIxODc1IDYuNzUgMCA3IDAgNy4yNVY3Ljc1QzAgOC4wMzEyNSAwLjIxODc1IDguMjUgMC41IDguMjVIMTFWOUMxMSA5LjI4MTI1IDExLjIxODggOS41IDExLjUgOS41SDEyLjVDMTIuNzUgOS41IDEzIDkuMjgxMjUgMTMgOVY4LjI1SDE1LjVDMTUuNzUgOC4yNSAxNiA4LjAzMTI1IDE2IDcuNzVWNy4yNUMxNiA3IDE1Ljc1IDYuNzUgMTUuNSA2Ljc1WiIgZmlsbD0iIzM2OUJBQyIvPgo8L3N2Zz4K' 
-                        />
-                        <span class="notif-circle-container">
-                          <span class="notif-circle not-clickable-notif"></span>
-                        </span>
-                      </div>
-                    </div>
                   </div>
                 </div>
-                <div class="mb-4">
-                  <div class="mb-3 wl_filter-options filter-options d-none">
-                    <div class="space-between">
-                      <strong>Filter by type</strong>
-                    <div class="wl__close-icon" id="filter-close-icon">
-                      <img 
-                        onclick="closeFilter()" 
-                        src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxMiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTcuNDY4NzUgNkwxMC44NDM4IDIuNjU2MjVDMTEuMDMxMiAyLjQ2ODc1IDExLjAzMTIgMi4xMjUgMTAuODQzOCAxLjkzNzVMMTAuMDYyNSAxLjE1NjI1QzkuODc1IDAuOTY4NzUgOS41MzEyNSAwLjk2ODc1IDkuMzQzNzUgMS4xNTYyNUw2IDQuNTMxMjVMMi42MjUgMS4xNTYyNUMyLjQzNzUgMC45Njg3NSAyLjA5Mzc1IDAuOTY4NzUgMS45MDYyNSAxLjE1NjI1TDEuMTI1IDEuOTM3NUMwLjkzNzUgMi4xMjUgMC45Mzc1IDIuNDY4NzUgMS4xMjUgMi42NTYyNUw0LjUgNkwxLjEyNSA5LjM3NUMwLjkzNzUgOS41NjI1IDAuOTM3NSA5LjkwNjI1IDEuMTI1IDEwLjA5MzhMMS45MDYyNSAxMC44NzVDMi4wOTM3NSAxMS4wNjI1IDIuNDM3NSAxMS4wNjI1IDIuNjI1IDEwLjg3NUw2IDcuNUw5LjM0Mzc1IDEwLjg3NUM5LjUzMTI1IDExLjA2MjUgOS44NzUgMTEuMDYyNSAxMC4wNjI1IDEwLjg3NUwxMC44NDM4IDEwLjA5MzhDMTEuMDMxMiA5LjkwNjI1IDExLjAzMTIgOS41NjI1IDEwLjg0MzggOS4zNzVMNy40Njg3NSA2WiIgZmlsbD0iIzM2OUJBQyIvPgo8L3N2Zz4K'
+              <div class="mb-4">
+                <div class="flex-direction-colum">
+                  <div class="form-control dropdown-container dropdown space-between search-input mb-2">
+                    <input type="text" id="wl__feature-search" placeholder="Quick search..." />
+                    <img 
+                      src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC44IiBkPSJNMTQuODgyOCAxNC42MTUyTDExLjMzNzkgMTEuMDcwM0MxMS4yNSAxMS4wMTE3IDExLjE2MjEgMTAuOTUzMSAxMS4wNzQyIDEwLjk1MzFIMTAuNjkzNEMxMS42MDE2IDkuODk4NDQgMTIuMTg3NSA4LjQ5MjE5IDEyLjE4NzUgNi45Njg3NUMxMi4xODc1IDMuNjI4OTEgOS40MzM1OSAwLjg3NSA2LjA5Mzc1IDAuODc1QzIuNzI0NjEgMC44NzUgMCAzLjYyODkxIDAgNi45Njg3NUMwIDEwLjMzNzkgMi43MjQ2MSAxMy4wNjI1IDYuMDkzNzUgMTMuMDYyNUM3LjYxNzE5IDEzLjA2MjUgOC45OTQxNCAxMi41MDU5IDEwLjA3ODEgMTEuNTk3N1YxMS45Nzg1QzEwLjA3ODEgMTIuMDY2NCAxMC4xMDc0IDEyLjE1NDMgMTAuMTY2IDEyLjI0MjJMMTMuNzEwOSAxNS43ODcxQzEzLjg1NzQgMTUuOTMzNiAxNC4wOTE4IDE1LjkzMzYgMTQuMjA5IDE1Ljc4NzFMMTQuODgyOCAxNS4xMTMzQzE1LjAyOTMgMTQuOTk2MSAxNS4wMjkzIDE0Ljc2MTcgMTQuODgyOCAxNC42MTUyWk02LjA5Mzc1IDExLjY1NjJDMy40ODYzMyAxMS42NTYyIDEuNDA2MjUgOS41NzYxNyAxLjQwNjI1IDYuOTY4NzVDMS40MDYyNSA0LjM5MDYyIDMuNDg2MzMgMi4yODEyNSA2LjA5Mzc1IDIuMjgxMjVDOC42NzE4OCAyLjI4MTI1IDEwLjc4MTIgNC4zOTA2MiAxMC43ODEyIDYuOTY4NzVDMTAuNzgxMiA5LjU3NjE3IDguNjcxODggMTEuNjU2MiA2LjA5Mzc1IDExLjY1NjJaIiBmaWxsPSIjMzY5QkFDIi8+Cjwvc3ZnPgo="
+                    />
+                  </div>
+                  <div class="wl__dropdown_arrow-icon">
+                    <div class="form-control dropdown-container flex-direction-colum mb-2" id="dropdown-container">
+                      <div class="space-between dropdown">
+                        <p>Filter by type</p>
+                        <img 
+                          onclick="openFilter()"
+                          id="dropdown-arrow-icon"
+                          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTMiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEzIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMi4wNTg2IDEuMzQzNzVMMTEuNTM5MSAwLjc5Njg3NUMxMS40MDIzIDAuNjYwMTU2IDExLjE4MzYgMC42NjAxNTYgMTEuMDc0MiAwLjc5Njg3NUw2LjEyNSA1Ljc0NjA5TDEuMTQ4NDQgMC43OTY4NzVDMS4wMzkwNiAwLjY2MDE1NiAwLjgyMDMxMiAwLjY2MDE1NiAwLjY4MzU5NCAwLjc5Njg3NUwwLjE2NDA2MiAxLjM0Mzc1QzAuMDI3MzQzOCAxLjQ1MzEyIDAuMDI3MzQzOCAxLjY3MTg4IDAuMTY0MDYyIDEuODA4NTlMNS44Nzg5MSA3LjUyMzQ0QzYuMDE1NjIgNy42NjAxNiA2LjIwNzAzIDcuNjYwMTYgNi4zNDM3NSA3LjUyMzQ0TDEyLjA1ODYgMS44MDg1OUMxMi4xOTUzIDEuNjcxODggMTIuMTk1MyAxLjQ1MzEyIDEyLjA1ODYgMS4zNDM3NVoiIGZpbGw9IiMzNjlCQUMiLz4KPC9zdmc+Cg=="
                         />
+                      </div>
+                      <div class="filter-options d-none">
+                        <div class="form-check mb-1 mt-2">
+                          <input
+                            class="form-check-input wl__feature-filter-input"
+                            type="checkbox"
+                            name="checkbox"
+                            value="Discrete"
+                            id="inferredDiscrete"
+                            onclick="changeDiscreteValue()"
+                            checked
+                          />
+                          <label class="form-check-label" for="inferredDiscrete">
+                            Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                          </label>
+                        </div>
+                        <div class="form-check mb-1">
+                          <input
+                            class="form-check-input wl__feature-filter-input"
+                            type="checkbox"
+                            name="checkbox"
+                            value="Non-discrete"
+                            id="inferredNonDiscrete"
+                            onclick="changeNonDiscreteValue()"
+                            checked
+                          />
+                          <label class="form-check-label" for="inferredNonDiscrete">
+                            Inferred non-discrete (<span
+                              class="wl__feature-count--non-discrete"
+                            >{{getNonDiscreteTypeCount}}</span>)
+                          </label>
+                        </div>
+                        <div class="form-check mb-1">
+                          <input
+                            class="form-check-input wl__feature-filter-input"
+                            type="checkbox"
+                            name="checkbox"
+                            value="Unknown"
+                            id="inferredUnknown"
+                            onclick="changeUnknwonValue()"
+                            checked
+                          />
+                          <label class="form-check-label" for="inferredUnknown">
+                            Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                          </label>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div class="form-check mb-1 mt-2">
-                    <input
-                      class="form-check-input wl__feature-filter-input"
-                      type="checkbox"
-                      name="checkbox"
-                      value="Discrete"
-                      id="inferredDiscrete"
-                      onclick="changeDiscreteValue()"
-                      checked
-                    />
-                    <label class="form-check-label" for="inferredDiscrete">
-                      Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
-                    </label>
-                  </div>
-                  <div class="form-check mb-1">
-                    <input
-                      class="form-check-input wl__feature-filter-input"
-                      type="checkbox"
-                      name="checkbox"
-                      value="Non-discrete"
-                      id="inferredNonDiscrete"
-                      onclick="changeNonDiscreteValue()"
-                      checked
-                    />
-                    <label class="form-check-label" for="inferredNonDiscrete">
-                      Inferred non-discrete (<span
-                        class="wl__feature-count--non-discrete"
-                      >{{getNonDiscreteTypeCount}}</span>)
-                    </label>
-                  </div>
-                  <div class="form-check mb-1">
-                    <input
-                      class="form-check-input wl__feature-filter-input"
-                      type="checkbox"
-                      name="checkbox"
-                      value="Unknown"
-                      id="inferredUnknown"
-                      onclick="changeUnknwonValue()"
-                      checked
-                    />
-                    <label class="form-check-label" for="inferredUnknown">
-                      Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
-                    </label>
+                    <span class="notif-circle-container">
+                      <span class="notif-circle"></span>
+                    </span>
                   </div>
                 </div>
                 <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
@@ -1805,23 +1859,42 @@
       });
     }
 
-    function openFilter() {
-      const $notClickableBurgerIcon = $("#not_clickable_burger_icon")
-      const $filterOptions = $(".filter-options");
-      const $burgerIcon = $("#burger_icon")
+    function checkedBoxes() {
+      const $boxes = $('input[name=checkbox]:checked');
+      const $notifCircleContainer = $(".notif-circle-container")
+  
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass("d-none")
+      }
+    }
 
-      $filterOptions.removeClass("d-none");
-      $burgerIcon.addClass("d-none");
-      $notClickableBurgerIcon.removeClass("d-none");
+    function openFilter() {
+      const $notClickableBurgerIcon = $("#not_clickable_dropdown_arrow-icon")
+      const $filterOptions = $(".filter-options");
+      const $dropdownArrowIcon = $("#dropdown-arrow-icon")
+      const $notifCircleContainer = $(".notif-circle-container")
+      const filterClass = $filterOptions.attr("class");
+
+      if (filterClass.indexOf("d-none") > 0) {
+        $notifCircleContainer.addClass("d-none")
+        $filterOptions.removeClass("d-none");
+        $("#dropdown-container").css("background-color", '#FFF')
+        $dropdownArrowIcon.css("transform","rotate(180deg)")
+      } else {
+        $filterOptions.addClass("d-none");
+        $("#dropdown-container").css("background-color", 'none')
+        $dropdownArrowIcon.css("transform","rotate(0)")
+        checkedBoxes()
+      }
     }
 
     function closeFilter() {
-      const $notClickableBurgerIcon = $("#not_clickable_burger_icon")
+      const $notClickableBurgerIcon = $("#not_clickable_dropdown_arrow-icon")
       const $filterOptions = $(".filter-options");
-      const $burgerIcon = $("#burger_icon")
+      const $dropdownArrowIcon = $("#dropdown-arrow-icon")
 
       $filterOptions.addClass("d-none");
-      $burgerIcon.removeClass("d-none");
+      $dropdownArrowIcon.removeClass("d-none");
       $notClickableBurgerIcon.addClass("d-none");
     }
 
