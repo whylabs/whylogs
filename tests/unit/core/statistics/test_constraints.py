@@ -1,7 +1,6 @@
 import json
 from logging import getLogger
 
-import pandas as pd
 import pytest
 
 from whylogs.app.config import load_config
@@ -11,29 +10,9 @@ from whylogs.core.statistics.constraints import (
     Op,
     SummaryConstraint,
     ValueConstraint,
-    _matches_json_schema,
     _summary_funcs1,
-    _try_parse_dateutil,
-    _try_parse_json,
-    _try_parse_strftime_format,
     _value_funcs,
-    columnExistsConstraint,
     columnPairValuesInSetConstraint,
-    columnsMatchSetConstraint,
-    columnValuesInSetConstraint,
-    containsCreditCardConstraint,
-    containsEmailConstraint,
-    dateUtilParseableConstraint,
-    jsonParseableConstraint,
-    matchesJsonSchemaConstraint,
-    maxBetweenConstraint,
-    meanBetweenConstraint,
-    minBetweenConstraint,
-    numberOfRowsConstraint,
-    stddevBetweenConstraint,
-    strftimeFormatConstraint,
-    stringLengthBetweenConstraint,
-    stringLengthEqualConstraint,
     columnValuesInSetConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
@@ -467,8 +446,8 @@ def test_merge_values_in_set_constraint_same_value_set():
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == f"value {Op.Name(Op.IN_SET)} " + str(val_set)
-    assert json_value["op"] == Op.Name(Op.IN_SET)
+    assert json_value["name"] == f"value {Op.Name(Op.IN)} " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"][0] == list(val_set)
 
 
@@ -481,8 +460,8 @@ def test_serialization_deserialization_values_in_set_constraint():
 
     TEST_LOGGER.info(f"Serialize columnValuesInSetConstraint from deserialized representation:\n {cvisc.to_protobuf()}")
 
-    assert json_value["name"] == f"value {Op.Name(Op.IN_SET)} " + str(val_set)
-    assert json_value["op"] == Op.Name(Op.IN_SET)
+    assert json_value["name"] == f"value {Op.Name(Op.IN)} " + str(val_set)
+    assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"][0] == list(val_set)
 
 
