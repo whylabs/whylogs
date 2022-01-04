@@ -1034,10 +1034,6 @@ def quantileBetweenConstraint(quantile_value: Union[int, float], lower_value: Un
     return SummaryConstraint("quantile", value=lower_value, upper_value=upper_value, quantile_value=quantile_value, op=Op.BTWN, verbose=verbose)
 
 
-def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
-    return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, verbose=verbose)
-
-
 def column_values_A_greater_than_B_constraint(column_A: str, column_B: str, verbose: bool = False):
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
