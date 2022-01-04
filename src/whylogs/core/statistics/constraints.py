@@ -3,7 +3,7 @@ import json
 import logging
 import numbers
 import re
-from typing import Any, List, Mapping, Optional, Set, Tuple, Union
+from typing import Any, List, Mapping, Optional, Set, Union
 
 import jsonschema
 from datasketches import theta_a_not_b, update_theta_sketch
@@ -170,6 +170,7 @@ _multi_column_value_funcs = {
     Op.GE: lambda v2: lambda v1: v1 >= v2,
     Op.GT: lambda v2: lambda v1: v1 > v2,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.IN: lambda v2: lambda v1: v1 in v2,
+    Op.NOT_IN: lambda v2: lambda v1: v1 not in v2,
 }
 
 
@@ -840,6 +841,12 @@ class MultiColumnValueConstraint(ValueConstraint):
             raise ValueError("One of value and reference_columns attributes should be provided when creating a MultiColumnValueConstraint, but noth both")
         if reference_columns and not isinstance(reference_columns, (str, list)):
             raise TypeError("The reference_columns attribute should be a str indicating a column name in the dataframe, or a list of column names")
+        if reference_columns == "all" and not isinstance(dependent_columns, str):
+            raise ValueError(
+                "When comparing a column value with all of the other values in a row, "
+                "the dependent_columns argument should be a string value indicating the column name, "
+                "not an array-like value of column names"
+            )
 
         self.reference_columns = reference_columns
 
@@ -861,7 +868,11 @@ class MultiColumnValueConstraint(ValueConstraint):
             v1 = tuple([columns[col] for col in self.dependent_columns])  # apply internal OP here
         if self.reference_columns:
             if isinstance(self.reference_columns, str):
-                v2 = columns[self.reference_columns]
+                if self.reference_columns == "all":
+                    columns.pop(self.dependent_columns)  # remove the dependent column key
+                    v2 = columns.values()  # get all other values to compare the dependent column to
+                else:
+                    v2 = columns[self.reference_columns]
             else:
                 v2 = tuple([columns[col] for col in self.reference_columns])
         else:
@@ -908,11 +919,10 @@ class MultiColumnValueConstraint(ValueConstraint):
     @staticmethod
     def from_protobuf(msg: MultiColumnValueConstraintMsg) -> "MultiColumnValueConstraint":
         dependent_cols = None
-        list_values = msg.dependent_columns.values[0].list_value
-        if len(list_values) == 1:
-            dependent_cols = str(list_values)
+        if msg.HasField("dependent_columns"):
+            dependent_cols = msg.dependent_columns
         else:
-            dependent_cols = list(list_values)
+            dependent_cols = msg.dependent_column
 
         if len(msg.value_set.values) != 0:
             internal_values = msg.value_set.values
@@ -928,7 +938,10 @@ class MultiColumnValueConstraint(ValueConstraint):
         elif msg.value:
             return MultiColumnValueConstraint(dependent_cols, msg.op, msg.value, name=msg.name, verbose=msg.verbose)
         elif msg.reference_columns:
-            return MultiColumnValueConstraint(dependent_cols, msg.op, reference_columns=msg.reference_columns, name=msg.name, verbose=msg.verbose)
+            ref_cols = list(msg.reference_columns)
+            if ref_cols == ["all"]:
+                ref_cols = "all"
+            return MultiColumnValueConstraint(dependent_cols, msg.op, reference_columns=ref_cols, name=msg.name, verbose=msg.verbose)
         else:
             raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
 
@@ -936,13 +949,14 @@ class MultiColumnValueConstraint(ValueConstraint):
         value = None
         set_vals_message = None
         ref_cols = None
-        dependent_cols = None
+        dependent_single_col = None
+        dependent_multiple_cols = None
 
         if isinstance(self.dependent_columns, str):
-            dependent_cols = self.dependent_columns
+            dependent_single_col = self.dependent_columns
         else:
-            dependent_cols = ListValue()
-            dependent_cols.append(self.dependent_columns)
+            dependent_multiple_cols = ListValue()
+            dependent_multiple_cols.append(self.dependent_columns)
 
         if hasattr(self, "value"):
             if isinstance(self.value, set):
@@ -961,7 +975,8 @@ class MultiColumnValueConstraint(ValueConstraint):
             ref_cols.append(self.reference_columns)
 
         return MultiColumnValueConstraintMsg(
-            dependent_columns=dependent_cols,
+            dependent_columns=dependent_multiple_cols,
+            dependent_column=dependent_single_col,
             name=self.name,
             op=self.op,
             value=value,
@@ -1179,15 +1194,8 @@ def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
     return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, verbose=verbose)
 
 
-def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set[Tuple[Any, Any]], verbose: bool = False):
-    if not all([isinstance(col, str) for col in (column_A, column_B)]):
-        raise TypeError("The provided column_A and column_B should be of type str, indicating the name of the columns to be compared")
-    if isinstance(value_set, str):
-        raise TypeError("The value_set should be an array-like data type of tuple values")
+def columnValuesUniqueWithinRow(column_A: str, verbose: bool = False):
+    if not isinstance(column_A, str):
+        raise TypeError("The provided column_A should be of type str, indicating the name of the column to be checked")
 
-    try:
-        value_set = set(value_set)
-    except Exception:
-        raise TypeError("The value_set should be an array-like data type of tuple values")
-
-    return MultiColumnValueConstraint(dependent_columns=[column_A, column_B], op=Op.IN, value=value_set, verbose=verbose)
+    return MultiColumnValueConstraint(dependent_columns=column_A, op=Op.NOT_IN, reference_columns="all", verbose=verbose)

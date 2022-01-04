@@ -25,6 +25,7 @@ enum Op {
     IN = 13;
     CONTAIN = 14;
     APPLY_FUNC = 15;
+    NOT_IN = 16;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -81,14 +82,18 @@ message ValueConstraintMsg {
 
 message MultiColumnValueConstraintMsg {
   string name = 1;
-  google.protobuf.ListValue dependent_columns = 2;
-  oneof second_field {
-    double value = 5;
-    google.protobuf.ListValue value_set = 6;
-    google.protobuf.ListValue reference_columns = 7;
+  oneof dependent {
+    google.protobuf.ListValue dependent_columns = 2;
+    string dependent_column = 3;
   }
-  Op op = 3;
-  bool verbose = 4;
+
+  oneof reference {
+    double value = 6;
+    google.protobuf.ListValue value_set = 7;
+    google.protobuf.ListValue reference_columns = 8;
+  }
+  Op op = 4;
+  bool verbose = 5;
 }
 
 message ValueConstraintMsgs {

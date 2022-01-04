@@ -12,8 +12,8 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
-    columnPairValuesInSetConstraint,
     columnValuesInSetConstraint,
+    columnValuesUniqueWithinRow,
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
@@ -470,85 +470,66 @@ def test_column_values_in_set_wrong_datatype():
         cvisc = columnValuesInSetConstraint(value_set=1)
 
 
-def test_column_pair_values_in_valid_set_constraint_apply(local_config_path, df_lending_club):
-    val_set = {("B", "B2"), ("C", "C2"), ("D", "D1")}  # the second pair is found in the data set
-    cpvis = columnPairValuesInSetConstraint(column_A="grade", column_B="sub_grade", value_set=val_set)
+def test_column_values_unique_within_row_constraint_apply(local_config_path, df_lending_club):
+    cvu = columnValuesUniqueWithinRow(column_A="grade", verbose=True)
 
-    dc = DatasetConstraints(None, multi_column_value_constraints=[cpvis])
+    dc = DatasetConstraints(None, multi_column_value_constraints=[cvu])
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = dc.report()
 
-    col_set = ["grade", "sub_grade"]
-    assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set}"
+    assert report[0][0] == f"multi column value grade {Op.Name(Op.NOT_IN)} all"
     assert report[0][1] == 50
-    assert report[0][2] == 45  # 5 values are in the set
+    assert report[0][2] == 0
 
 
-def test_merge_column_pair_values_in_valid_set_constraint_different_values():
-    val_set1 = {(12345, "B"), (41000.0, "C"), (42333, "D")}
-    cpvis1 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set1)
-    val_set2 = {(12345, "B"), (1111, "C"), (42333, "D")}
-    cpvis2 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set2)
-    cpvis3 = columnPairValuesInSetConstraint(column_A="some", column_B="grade", value_set=val_set2)
-    cpvis4 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="b", value_set=val_set1)
+def test_merge_column_values_unique_within_row_constraint_different_values():
+    cvu1 = columnValuesUniqueWithinRow(column_A="A")
+    cvu2 = columnValuesUniqueWithinRow(column_A="A1", verbose=True)
 
     with pytest.raises(AssertionError):
-        cpvis1.merge(cpvis2)
-    with pytest.raises(AssertionError):
-        cpvis2.merge(cpvis3)
-    with pytest.raises(AssertionError):
-        cpvis1.merge(cpvis4)
+        cvu1.merge(cvu2)
 
 
-def test_merge_column_pair_values_in_valid_set_constraint_valid():
-    val_set1 = {(12345, "B"), (41000.0, "C"), (42333, "D")}
-    cpvis1 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set1)
-    cpvis1.total = 5
-    cpvis1.failures = 1
-    cpvis2 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set1)
-    cpvis2.total = 3
-    cpvis2.failures = 2
+def test_merge_column_values_unique_within_row_constraint_valid():
+    cvu1 = columnValuesUniqueWithinRow(column_A="A")
+    cvu1.total = 5
+    cvu1.failures = 1
+    cvu2 = columnValuesUniqueWithinRow(column_A="A", verbose=True)
+    cvu2.total = 3
+    cvu2.failures = 2
 
-    cpvis_merged = cpvis1.merge(cpvis2)
-    json_value = json.loads(message_to_json(cpvis_merged.to_protobuf()))
+    merged = cvu1.merge(cvu2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    col_set = ["annual_inc", "grade"]
-    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set1}"
-    assert json_value["dependentColumns"][0] == list(col_set)
-    assert json_value["op"] == Op.Name(Op.IN)
-    assert json_value["valueSet"] == [[list(t)] for t in val_set1]
+    assert json_value["name"] == f"multi column value A {Op.Name(Op.NOT_IN)} all"
+    assert json_value["dependentColumn"] == "A"
+    assert json_value["op"] == Op.Name(Op.NOT_IN)
+    assert json_value["referenceColumns"] == ["all"]
     assert json_value["verbose"] is False
 
-    report = cpvis_merged.report()
+    report = merged.report()
     assert report[1] == 8
     assert report[2] == 3
 
 
-def test_serialization_deserialization_column_pair_values_in_valid_set_constraint():
-    val_set1 = [(12345, "B"), (41000.0, "C"), (42333, "D")]
-    c = columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=val_set1, verbose=True)
+def test_serialization_deserialization_column_values_unique_within_row_constraint():
+    c = columnValuesUniqueWithinRow(column_A="A", verbose=True)
 
     c.from_protobuf(c.to_protobuf())
     json_value = json.loads(message_to_json(c.to_protobuf()))
 
-    val_set1 = set(val_set1)
-    col_set = ["A", "B"]
-    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set1}"
-    assert json_value["dependentColumns"][0] == list(col_set)
-    assert json_value["op"] == Op.Name(Op.IN)
-    assert json_value["valueSet"] == [[list(t)] for t in val_set1]
+    assert json_value["name"] == f"multi column value A {Op.Name(Op.NOT_IN)} all"
+    assert json_value["dependentColumn"] == "A"
+    assert json_value["op"] == Op.Name(Op.NOT_IN)
+    assert json_value["referenceColumns"] == ["all"]
     assert json_value["verbose"] is True
 
 
-def test_column_pair_values_in_set_constraint_invalid_params():
+def test_column_values_unique_within_row_constraint_invalid_params():
     with pytest.raises(TypeError):
-        columnPairValuesInSetConstraint(column_A=1, column_B="B", value_set={("A", "B")})
+        columnValuesUniqueWithinRow(column_A=1)
     with pytest.raises(TypeError):
-        columnPairValuesInSetConstraint(column_A="A", column_B=["A"], value_set={("A", "B")})
-    with pytest.raises(TypeError):
-        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=1.0)
-    with pytest.raises(TypeError):
-        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set="ABC")
+        columnValuesUniqueWithinRow(column_A=["A"])
