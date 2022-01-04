@@ -697,6 +697,8 @@ class DatasetProfile:
                     number_summary=summ.number_summary,
                     distinct_column_values=distinct_column_values_dict,
                     quantile=colprof.number_tracker.histogram,
+                    unique_count=summ.unique_count.estimate,
+                    unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
                 )
 
                 constraints.update(update_dict)
