@@ -691,12 +691,12 @@ class DatasetProfile:
                 frequent_itmes_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
                 frequent_itmes_summ.items[0].json_value if frequent_itmes_summ else None
 
-                update_dict = _create_update_summary_dictionary(
+                update_summary = _create_column_profile_summary_object(
                     number_summary=summ.number_summary,
                     column_values_type=summ.schema.inferred_type.type,
                 )
 
-                constraints.update(update_dict)
+                constraints.update(update_summary)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
@@ -801,7 +801,7 @@ def array_profile(
     return prof
 
 
-def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
+def _create_column_profile_summary_object(number_summary: NumberSummary, **kwargs):
     """
     Wrapper method for summary constraints update object creation
     Parameters
@@ -813,18 +813,18 @@ def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
         Used to update specific constraints that need additional calculations
     Returns
     -------
-    Anonymous object containing all of the metrics as fields with their coresponding values
+    Anonymous object containing all of the metrics as fields with their corresponding values
     """
 
-    update_dict = {}
+    column_summary = {}
 
-    update_dict.update(
+    column_summary.update(
         {
             field_name: getattr(number_summary, field_name)
             for field_name in dir(number_summary)
             if str.islower(field_name) and not str.startswith(field_name, "_") and not callable(getattr(number_summary, field_name))
         }
     )
-    update_dict.update(kwargs)
+    column_summary.update(kwargs)
 
-    return type("Object", (), update_dict)
+    return type("Object", (), column_summary)

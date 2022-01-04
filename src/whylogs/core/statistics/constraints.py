@@ -62,6 +62,9 @@ _summary_funcs2 = {
     Op.BTWN: lambda f, f2, f3: lambda s: getattr(s, f2) <= getattr(s, f) <= getattr(s, f3),
 }
 
+# restrict the set length for printing the name of the constraint which contains a reference set
+MAX_SET_DISPLAY_MESSAGE_LENGTH = 20
+
 
 class ValueConstraint:
     """
@@ -145,30 +148,27 @@ class ValueConstraint:
             return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
+        set_vals_message = None
+        regex_pattern = None
+        value = None
+
         if hasattr(self, "value"):
             if isinstance(self.value, set):
                 set_vals_message = ListValue()
                 set_vals_message.append(list(self.value))
-                return ValueConstraintMsg(
-                    name=self.name,
-                    op=self.op,
-                    value_set=set_vals_message,
-                    verbose=self._verbose,
-                )
             else:
-                return ValueConstraintMsg(
-                    name=self.name,
-                    op=self.op,
-                    value=self.value,
-                    verbose=self._verbose,
-                )
-        else:
-            return ValueConstraintMsg(
-                name=self.name,
-                op=self.op,
-                regex_pattern=self.regex_pattern,
-                verbose=self._verbose,
-            )
+                value = self.value
+        elif hasattr(self, "regex_pattern"):
+            regex_pattern = self.regex_pattern
+
+        return ValueConstraintMsg(
+            name=self.name,
+            op=self.op,
+            value=value,
+            value_set=set_vals_message,
+            regex_pattern=regex_pattern,
+            verbose=self._verbose,
+        )
 
     def report(self):
         return (self.name, self.total, self.failures)
@@ -302,12 +302,12 @@ class SummaryConstraint:
             if self.value:
                 v = InferredType.Type.Name(self.value)
             else:
-                v = {InferredType.Type.Name(element) for element in list(self.reference_set)[:20]}
+                v = {InferredType.Type.Name(element) for element in list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH]}
             return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {v}"
         elif self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
             reference_set_str = ""
-            if len(self.reference_set) > 20:
-                tmp_set = set(list(self.reference_set)[:20])
+            if len(self.reference_set) > MAX_SET_DISPLAY_MESSAGE_LENGTH:
+                tmp_set = set(list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])
                 reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
             else:
                 reference_set_str = str(self.reference_set)
@@ -319,10 +319,10 @@ class SummaryConstraint:
 
         return self._name if self._name is not None else f"summary {self.first_field} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
-    def update(self, update_dict: dict) -> bool:
+    def update(self, update_summary: dict) -> bool:
         self.total += 1
 
-        if not self.func(update_dict):
+        if not self.func(update_summary):
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -330,6 +330,11 @@ class SummaryConstraint:
     def merge(self, other) -> "SummaryConstraint":
         if not other:
             return self
+
+        reference_set = None
+        second_field = None
+        third_field = None
+        upper_value = None
 
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
@@ -339,135 +344,110 @@ class SummaryConstraint:
 
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
             assert self.reference_set == other.reference_set
-            merged_constraint = SummaryConstraint(
-                first_field=self.first_field, op=self.op, reference_set=self.reference_set, name=self.name, verbose=self._verbose
-            )
+            reference_set = self.reference_set
         elif self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
             assert self.third_field == other.third_field, f"Cannot merge constraints with different third_field: {self.third_field} and {other.third_field}"
-            merged_constraint = SummaryConstraint(
-                first_field=self.first_field,
-                op=self.op,
-                value=self.value,
-                upper_value=self.upper_value,
-                second_field=self.second_field,
-                third_field=self.third_field,
-                name=self.name,
-                verbose=self._verbose,
-            )
-        else:
-            merged_constraint = SummaryConstraint(
-                first_field=self.first_field, op=self.op, value=self.value, second_field=self.second_field, name=self.name, verbose=self._verbose
-            )
+            third_field = self.third_field
+            upper_value = self.upper_value
+
+        merged_constraint = SummaryConstraint(
+            first_field=self.first_field,
+            op=self.op,
+            value=self.value,
+            upper_value=upper_value,
+            second_field=second_field,
+            third_field=third_field,
+            reference_set=reference_set,
+            name=self.name,
+            verbose=self._verbose,
+        )
 
         merged_constraint.total = self.total + other.total
         merged_constraint.failures = self.failures + other.failures
         return merged_constraint
 
     @staticmethod
-    def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
+    def check_if_summary_constraint_message_is_valid(msg: SummaryConstraintMsg):
+        if msg.HasField("reference_set") and not any([msg.HasField(f) for f in ("value", "second_field", "between")]):
+            return True
+        elif msg.HasField("value") and not any([msg.HasField(f) for f in ("second_field", "between", "reference_set")]):
+            return True
+        elif msg.HasField("second_field") and not any([msg.HasField(f) for f in ("value", "between", "reference_set")]):
+            return True
+        elif msg.HasField("between") and not any([msg.HasField(f) for f in ("value", "second_field", "reference_set")]):
+            if all([msg.between.HasField(f) for f in ("lower_value", "upper_value")]) and not any(
+                [msg.between.HasField(f) for f in ("second_field", "third_field")]
+            ):
+                return True
+            elif all([msg.between.HasField(f) for f in ("second_field", "third_field")]) and not any(
+                [msg.between.HasField(f) for f in ("lower_value", "upper_value")]
+            ):
+                return True
 
-        if msg.HasField("reference_set") and not msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between"):
-            return SummaryConstraint(
-                msg.first_field,
-                msg.op,
-                reference_set=set(msg.reference_set),
-                name=msg.name,
-                verbose=msg.verbose,
-            )
-        elif msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("between") and not msg.HasField("reference_set"):
-            return SummaryConstraint(
-                msg.first_field,
-                msg.op,
-                value=msg.value,
-                name=msg.name,
-                verbose=msg.verbose,
-            )
-        elif msg.HasField("second_field") and not msg.HasField("value") and not msg.HasField("between") and not msg.HasField("reference_set"):
-            return SummaryConstraint(
-                msg.first_field,
-                msg.op,
-                second_field=msg.second_field,
-                name=msg.name,
-                verbose=msg.verbose,
-            )
-        elif msg.HasField("between") and not msg.HasField("value") and not msg.HasField("second_field") and not msg.HasField("reference_set"):
-            if (
-                msg.between.HasField("lower_value")
-                and msg.between.HasField("upper_value")
-                and not msg.between.HasField("second_field")
-                and not msg.between.HasField("third_field")
-            ):
-                return SummaryConstraint(
-                    msg.first_field,
-                    msg.op,
-                    value=msg.between.lower_value,
-                    upper_value=msg.between.upper_value,
-                    name=msg.name,
-                    verbose=msg.verbose,
-                )
-            elif (
-                msg.between.HasField("second_field")
-                and msg.between.HasField("third_field")
-                and not msg.between.HasField("lower_value")
-                and not msg.between.HasField("upper_value")
-            ):
-                return SummaryConstraint(
-                    msg.first_field,
-                    msg.op,
-                    second_field=msg.between.second_field,
-                    third_field=msg.between.third_field,
-                    name=msg.name,
-                    verbose=msg.verbose,
-                )
-        else:
+        return False
+
+    @staticmethod
+    def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
+        if not SummaryConstraint.check_if_summary_constraint_message_is_valid(msg):
             raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg, but only one of them")
 
+        reference_set = None
+        value = None
+        second_field = None
+        lower_value = None
+        upper_value = None
+        third_field = None
+
+        if msg.HasField("reference_set"):
+            reference_set = set(msg.reference_set)
+        if msg.HasField("value"):
+            value = msg.value
+        if msg.HasField("second_field"):
+            second_field = msg.second_field
+        if msg.HasField("between"):
+            if all([msg.between.HasField(f) for f in ("lower_value", "upper_value")]):
+                lower_value = msg.between.lower_value
+                upper_value = msg.between.upper_value
+            elif all([msg.between.HasField(f) for f in ("second_field", "third_field")]):
+                second_field = msg.between.second_field
+                third_field = msg.between.third_field
+
+        return SummaryConstraint(
+            msg.first_field,
+            msg.op,
+            value=value if value is not None else lower_value,
+            upper_value=upper_value,
+            second_field=second_field,
+            third_field=third_field,
+            reference_set=reference_set,
+            name=msg.name,
+            verbose=msg.verbose,
+        )
+
     def to_protobuf(self) -> SummaryConstraintMsg:
+        reference_set_msg = None
+        summary_between_constraint_msg = None
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
             reference_set_msg = ListValue()
             reference_set_msg.extend(self.reference_set)
 
-            msg = SummaryConstraintMsg(
-                name=self.name,
-                first_field=self.first_field,
-                op=self.op,
-                reference_set=reference_set_msg,
-                verbose=self._verbose,
-            )
         elif self.op == Op.BTWN:
-
-            summary_between_constraint_msg = None
             if self.second_field is None and self.third_field is None:
                 summary_between_constraint_msg = SummaryBetweenConstraintMsg(lower_value=self.value, upper_value=self.upper_value)
             else:
                 summary_between_constraint_msg = SummaryBetweenConstraintMsg(second_field=self.second_field, third_field=self.third_field)
 
-            msg = SummaryConstraintMsg(
-                name=self.name,
-                first_field=self.first_field,
-                op=self.op,
-                between=summary_between_constraint_msg,
-                verbose=self._verbose,
-            )
-
-        elif self.second_field is None:
-            msg = SummaryConstraintMsg(
-                name=self.name,
-                first_field=self.first_field,
-                op=self.op,
-                value=self.value,
-                verbose=self._verbose,
-            )
-        else:
-            msg = SummaryConstraintMsg(
-                name=self.name,
-                first_field=self.first_field,
-                op=self.op,
-                second_field=self.second_field,
-                verbose=self._verbose,
-            )
-        return msg
+        return SummaryConstraintMsg(
+            name=self.name,
+            first_field=self.first_field,
+            second_field=self.second_field,
+            value=self.value,
+            between=summary_between_constraint_msg,
+            reference_set=reference_set_msg,
+            op=self.op,
+            verbose=self._verbose,
+        )
 
     def report(self):
         return (self.name, self.total, self.failures)
