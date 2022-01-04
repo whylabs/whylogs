@@ -668,15 +668,6 @@ a .wl-table-row--bottom-shadow {
   justify-content: center;
 }
 
-@media screen and (min-width: 1000px) {
-  .desktop-content {
-    display: block;
-  }
-  .no-responsive {
-    display: none;
-  }
-}
-
 .no-responsive__content {
   max-width: 600px;
   width: 100%;
@@ -729,7 +720,7 @@ a .wl-table-row--bottom-shadow {
   position: fixed;
   bottom: 0;
   left: 0;
-  z-index: 999999;
+  z-index: 0;
   background: #F1F6F6;
   margin-bottom: 0 !important;
   display: flex;
@@ -1082,6 +1073,18 @@ input::placeholder {
 .wl-selected-profile {
   position: sticky;
   left: 0;
+}
+
+@media screen and (min-width: 1000px) {
+  .desktop-content {
+    display: block;
+  }
+  .no-responsive {
+    display: none;
+  }
+  .wl__unlock-the-power {
+    z-index: 999999;
+  }
 }
 
 @media only screen and (min-width: 1350px) {
