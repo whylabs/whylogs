@@ -918,9 +918,8 @@ class MultiColumnValueConstraint(ValueConstraint):
 
     @staticmethod
     def from_protobuf(msg: MultiColumnValueConstraintMsg) -> "MultiColumnValueConstraint":
-        dependent_cols = None
         if msg.HasField("dependent_columns"):
-            dependent_cols = msg.dependent_columns
+            dependent_cols = list(msg.dependent_columns.values[0].list_value)
         else:
             dependent_cols = msg.dependent_column
 
