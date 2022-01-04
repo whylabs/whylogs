@@ -961,6 +961,9 @@ a .wl-table-row--bottom-shadow {
 }
 
 .chart-box {
+ display: flex;
+ align-items: center;
+ justify-content: center;
  width: 75%;
  height: 310px;
  border: 2px solid #EBF2F3;

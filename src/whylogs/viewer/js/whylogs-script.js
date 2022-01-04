@@ -184,7 +184,79 @@
     return svgEl._groups[0][0].outerHTML;
   }
 
-  function openReferencePropertyPanel(items, chart) {
+  function generateDoubleHistogramChart(histogramData, overlappedHistogramData) {
+    // set the dimensions and margins of the graph
+    var margin = {top: 10, right: 30, bottom: 30, left: 40},
+    width = 650 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+    
+    // append the svg object to the body of the page
+    var svg = d3.select("#chart-box")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+    // X axis: scale and draw:
+    var x = d3.scaleLinear()
+      .domain([-1, 35])     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
+      .range([0, width]);
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+    
+    // set the parameters for the histogram
+    var histogram = d3.histogram()
+      .value(function(d) { return +d.value; })   // I need to give the vector of value
+      .domain(x.domain())  // then the domain of the graphic
+      .thresholds(x.ticks(40)); // then the numbers of bins
+    
+    // And apply twice this function to data to get the bins.
+    var bins1 = histogram(histogramData.map(({axisY, axisX}) => { return {type: "variable 1", value: axisY} }));
+    var bins2 = histogram(overlappedHistogramData.map(({axisY, axisX}) => { return {type: "variable 2", value: axisY} }));
+    console.log(histogramData, overlappedHistogramData);
+    // Y axis: scale and draw:
+    var y = d3.scaleLinear()
+      .range([height, 0]);
+      y.domain([0, d3.max(bins1, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
+    svg.append("g")
+      .call(d3.axisLeft(y));
+    
+    // append the bars for series 1
+    svg.selectAll("rect")
+      .data(bins1)
+      .enter()
+      .append("rect")
+        .attr("x", 1)
+        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+        .attr("width", function(d) { return x(d.x1) - x(d.x0); })
+        .attr("height", function(d) { return height - y(d.length); })
+        .style("fill", "#369BAC")
+        .style("opacity", 0.6)
+    
+    // append the bars for series 2
+    svg.selectAll("rect2")
+      .data(bins2)
+      .enter()
+      .append("rect")
+        .attr("x", 1)
+        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+        .attr("width", function(d) { return x(d.x1) - x(d.x0); })
+        .attr("height", function(d) { console.log(d, d.length, y(d.length)); return height - y(d.length); })
+        .style("fill", "#2683C9")
+        .style("opacity", 0.6)
+
+    // Handmade legend
+    svg.append("circle").attr("cx",500).attr("cy",30).attr("r", 6).style("fill", "#369BAC")
+    svg.append("circle").attr("cx",500).attr("cy",60).attr("r", 6).style("fill", "#2683C9")
+    svg.append("text").attr("x", 520).attr("y", 30).text("Current").style("font-size", "15px").attr("alignment-baseline","middle")
+    svg.append("text").attr("x", 520).attr("y", 60).text("Reference").style("font-size", "15px").attr("alignment-baseline","middle")
+
+  }
+
+  function openReferencePropertyPanel(items, chart, getDoubleHistogramChart) {
 
     const chartInfoItem = (drift, driftName) => `    
       <div class="info">
@@ -203,6 +275,7 @@
     $clickableTestFeatureWrap.removeClass("d-none")
 
     $("#chart").html(chart);
+    // $("#chart-box").html(getDoubleHistogramChart);
     chipString += `
       ${chartInfoItem(fixNumberTo(items.numberSummary.stddev), "Drift from ref")}
       ${chartInfoItem(items.numberSummary.count.toString(), "Total Count")}
@@ -240,18 +313,20 @@
   }
 
   function openPropertyPanel(items, infType, feature) {
-    let getGraph = null;
+    let getGraph = null,
+        getDoubleHistogramChart = null;
 
     if (referencePropertyPanelData[feature[0]][0]) {
       items = referencePropertyPanelData[feature[0]][0]
       getGraph = getGraphHtml(feature[1].chartData[1], 50, 280, 0, true)
+      getDoubleHistogramChart = generateDoubleHistogramChart(feature[1].chartData[0], feature[1].chartData[1])
     }
     const getPropertyPanelGraph = getPropertyPanelGraphHtml(jsonData.columns[feature[0]], feature[0])
 
     if (checkJSONValidityForMultiProfile(jsonData) || checkJSONValidityForSingleProfile(jsonData)) {
       if (items.length > 0 && items !== "undefined") {
         if (referencePropertyPanelData[feature[0]][0]) {
-          openReferencePropertyPanel(referenceJsonData.columns[feature[0]], getGraph)
+          openReferencePropertyPanel(referenceJsonData.columns[feature[0]], getGraph, getDoubleHistogramChart)
         } else {
           openProfilePropertyPanel(items, infType, getPropertyPanelGraph)
         }
