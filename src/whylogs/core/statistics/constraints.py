@@ -40,7 +40,7 @@ _value_funcs = {
     Op.GT: lambda x: lambda v: v > x,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
-    Op.IN_SET: lambda x: lambda v: v in x,
+    Op.IN: lambda x: lambda v: v in x,
 }
 
 _summary_funcs1 = {
@@ -116,7 +116,7 @@ class ValueConstraint:
         self.total = 0
         self.failures = 0
 
-        if isinstance(value, set) != (op == Op.IN_SET):
+        if isinstance(value, set) != (op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
         if value is not None and regex_pattern is None:
@@ -574,7 +574,7 @@ class ValueConstraints:
         if constraints is None:
             constraints = dict()
 
-        raw_values_operators = (Op.MATCH, Op.NOMATCH, Op.APPLY_FUNC)
+        raw_values_operators = (Op.MATCH, Op.NOMATCH)
         self.raw_value_constraints = {}
         self.coerced_type_constraints = {}
 
@@ -839,7 +839,6 @@ class DatasetConstraints:
         props: DatasetProperties,
         value_constraints: Optional[ValueConstraints] = None,
         summary_constraints: Optional[SummaryConstraints] = None,
-        table_shape_constraints: Optional[SummaryConstraints] = None,
         multi_column_value_constraints: Union[MultiColumnValueConstraints, List] = None,
     ):
         self.dataset_properties = props
@@ -857,12 +856,6 @@ class DatasetConstraints:
             if isinstance(v, list):
                 summary_constraints[k] = SummaryConstraints(v)
         self.summary_constraint_map = summary_constraints
-
-        if table_shape_constraints is None:
-            table_shape_constraints = SummaryConstraints()
-        if isinstance(table_shape_constraints, list):
-            table_shape_constraints = SummaryConstraints(table_shape_constraints)
-        self.table_shape_constraints = table_shape_constraints
 
         self.column_pairs = dict()  # {col: set(dependent columns from multi_column_constraints)}
         if multi_column_value_constraints is None:
@@ -882,11 +875,10 @@ class DatasetConstraints:
     def from_protobuf(msg: DatasetConstraintMsg) -> "DatasetConstraints":
         vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
         sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
-        table_shape_m = SummaryConstraints.from_protobuf(msg.table_shape_constraints)
         multi_column_value_m = dict(
             [(string_to_column_tuple(k), MultiColumnValueConstraints.from_protobuf(v)) for k, v in msg.multi_column_value_constraints.items()]
         )
-        return DatasetConstraints(msg.properties, vm, sm, table_shape_m, multi_column_value_m)
+        return DatasetConstraints(msg.properties, vm, sm, multi_column_value_m)
 
     @staticmethod
     def from_json(data: str) -> "DatasetConstraints":
@@ -898,13 +890,11 @@ class DatasetConstraints:
         # turn that into a map indexed by column name
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
         sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
-        table_shape_constraints_message = self.table_shape_constraints.to_protobuf()
         multi_column_value_m = [v.to_protobuf() for v in self.multi_column_value_constraints]
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,
             summary_constraints=sm,
-            table_shape_constraints=table_shape_constraints_message,
             multi_column_value_constraints=multi_column_value_m,
         )
 
@@ -914,9 +904,8 @@ class DatasetConstraints:
     def report(self):
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
-        l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
         l4 = [mc.report() for mc in self.multi_column_value_constraints]
-        return l1 + l2 + l3 + l4
+        return l1 + l2 + l4
 
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
@@ -961,7 +950,7 @@ def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
     except Exception:
         raise TypeError("The value set should be an iterable data type")
 
-    return ValueConstraint(Op.IN_SET, value=value_set, verbose=verbose)
+    return ValueConstraint(Op.IN, value=value_set, verbose=verbose)
 
 
 def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
@@ -1043,6 +1032,7 @@ def quantileBetweenConstraint(quantile_value: Union[int, float], lower_value: Un
         raise ValueError("The lower value must be less than or equal to the upper value")
 
     return SummaryConstraint("quantile", value=lower_value, upper_value=upper_value, quantile_value=quantile_value, op=Op.BTWN, verbose=verbose)
+
 
 def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
     return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, verbose=verbose)

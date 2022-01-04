@@ -22,6 +22,7 @@ enum Op {
     IN_SET = 10;
     CONTAIN_SET = 11;
     EQ_SET = 12;
+    IN = 13;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -96,7 +97,6 @@ message DatasetConstraintMsg {
   DatasetProperties properties = 1;
   map<string, ValueConstraintMsgs> value_constraints = 2;
   map<string, SummaryConstraintMsgs> summary_constraints = 3;
-  SummaryConstraintMsgs table_shape_constraints = 4;
   map<string, ValueConstraintMsgs> multi_column_value_constraints = 5;
 }
 
