@@ -12,21 +12,29 @@ from whylogs.core.statistics.constraints import (
     SummaryConstraint,
     ValueConstraint,
     ValueConstraints,
+    _matches_json_schema,
     _summary_funcs1,
+    _try_parse_dateutil,
+    _try_parse_json,
+    _try_parse_strftime_format,
     _value_funcs,
     columnValuesInSetConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
     containsSSNConstraint,
     containsURLConstraint,
+    dateUtilParseableConstraint,
     distinctValuesContainSetConstraint,
     distinctValuesEqualSetConstraint,
     distinctValuesInSetConstraint,
+    jsonParseableConstraint,
+    matchesJsonSchemaConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
     quantileBetweenConstraint,
     stddevBetweenConstraint,
+    strftimeFormatConstraint,
     stringLengthBetweenConstraint,
     stringLengthEqualConstraint,
 )
@@ -39,6 +47,8 @@ TEST_LOGGER = getLogger(__name__)
 def test_value_summary_serialization():
 
     for each_op, _ in _value_funcs.items():
+        if each_op == Op.APPLY_FUNC:
+            continue
         if each_op == Op.IN_SET:
             value = ValueConstraint(each_op, {3.6})
         else:
@@ -503,16 +513,92 @@ def test_column_values_in_set_constraint(df_lending_club, local_config_path):
     cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
     ltc = ValueConstraint(Op.LT, 1)
     dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
+
+
+def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
+
+    dc = DatasetConstraints(None, summary_constraints={"annual_inc": constraints})
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
-    report = dc.report()
+    report = profile.apply_summary_constraints()
 
-    # check if all of the rows have been reported
-    assert report[0][1][0][1] == len(df_lending_club)
-    # the number of fails should equal the number of rows - 1 since the column id only has the value 90671227 in set
-    assert report[0][1][0][2] == len(df_lending_club) - 1
+    print(report)
+    assert len(report) == 1
+
+    # make sure it checked every value
+    for each_feat in report:
+        for each_constraint in each_feat[1]:
+            assert each_constraint[1] == 1
+            if "True" in each_constraint[0]:
+                assert each_constraint[2] == 0
+            else:
+                assert each_constraint[2] == 1
+
+
+def test_set_summary_constraints(df_lending_club, local_config_path):
+
+    org_list = list(df_lending_club["annual_inc"])
+
+    org_list2 = list(df_lending_club["annual_inc"])
+    org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
+
+    in_set = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list2, name="True")
+    in_set2 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list, name="True2")
+    in_set3 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list[:-1], name="False")
+
+    eq_set = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list, name="True3")
+    eq_set2 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list2, name="False2")
+    eq_set3 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list[:-1], name="False3")
+
+    contains_set = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[org_list[2]], name="True4")
+    contains_set2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list, name="True5")
+    contains_set3 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list[:-1], name="True6")
+    contains_set4 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[str(org_list[2])], name="False4")
+    contains_set5 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2.3456], name="False5")
+    contains_set6 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list2, name="False6")
+
+    list(df_lending_club["annual_inc"])
+    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
+    _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints)
+
+
+def test_set_summary_constraint_invalid_init():
+    with pytest.raises(TypeError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, 1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, second_field="aaa")
+    with pytest.raises(ValueError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, third_field="aaa")
+    with pytest.raises(ValueError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, upper_value=2)
+
+
+def test_set_summary_no_merge_different_set():
+
+    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2, 3, 4, 5])
+    with pytest.raises(AssertionError):
+        set_c_1.merge(set_c_2)
+
+
+def test_set_summary_merge():
+    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+
+    merged = set_c_1.merge(set_c_2)
+
+    pre_merge_json = json.loads(message_to_json(set_c_1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pre_merge_json["referenceSet"] == merge_json["referenceSet"]
+    assert pre_merge_json["firstField"] == merge_json["firstField"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
 
 
 def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
@@ -680,6 +766,44 @@ def _report_email_value_constraint_on_data_set(local_config_path, pattern=None):
     return report
 
 
+def _apply_string_length_constraints(local_config_path, length_constraints):
+    df = pd.DataFrame(
+        [
+            {"str1": "length7"},
+            {"str1": "length_8"},
+            {"str1": "length__9"},
+            {"str1": "a       10"},
+            {"str1": "11        b"},
+            {"str1": '(*&^%^&*(24!@_+>:|}?><"\\'},
+            {"str1": "1b34567"},
+        ]
+    )
+
+    dc = DatasetConstraints(None, value_constraints={"str1": length_constraints})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    return report
+
+
+def test_string_length_constraints(local_config_path):
+
+    length_constraint7 = stringLengthEqualConstraint(length=7)
+    length_constraint24 = stringLengthEqualConstraint(length=24)
+    length_constraint7to10 = stringLengthBetweenConstraint(lower_value=7, upper_value=10)
+    length_constraints = [length_constraint7, length_constraint24, length_constraint7to10]
+
+    report = _apply_string_length_constraints(local_config_path, length_constraints)
+
+    # report[column_n][report_list][report][name total or failure]
+    assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7}}$"
+    assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == rf"value {Op.Name(Op.MATCH)} ^.{{24}}$"
+    assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7,10}}$"
+
+
 def test_email_constraint(local_config_path):
     report = _report_email_value_constraint_on_data_set(local_config_path)
 
@@ -786,21 +910,43 @@ def test_credit_card_invalid_pattern():
         containsCreditCardConstraint(123)
 
 
-def _apply_string_length_constraints(local_config_path, length_constraints):
-
+def _apply_apply_func_constraints(local_config_path, apply_func_constraints):
     df = pd.DataFrame(
         [
-            {"str1": "length7"},
-            {"str1": "length_8"},
-            {"str1": "length__9"},
-            {"str1": "a       10"},
-            {"str1": "11        b"},
-            {"str1": '(*&^%^&*(24!@_+>:|}?><"\\'},
-            {"str1": "1b34567"},
+            {"str1": "1990-12-1"},  # dateutil valid; strftime valid
+            {"str1": "1990/12/1"},
+            {"str1": "2005/3"},
+            {"str1": "2005.3.5"},
+            {"str1": "Jan 19, 1990"},
+            {"str1": "today is 2019-03-27"},  # dateutil invalid
+            {"str1": "Monday at 12:01am"},
+            {"str1": "xyz_not_a_date"},  # dateutil invalid
+            {"str1": "yesterday"},  # dateutil invalid
+            {"str1": {"name": "s", "w2w2": "dgsg", "years": 232, "abc": 1}},  # schema valid
+            {"str1": {"name": "s", "w2w2": 12.38, "years": 232, "abc": 1}},  # schema valid
+            {"str1": {"name": "s", "years": 232, "abc": 1}},  # schema valid
+            {"str1": {"name": "s", "abc": 1}},  # schema valid
+            {"str1": {"name": "s", "w2w2": "dgsg", "years": 232}},  # schema invalid
+            {"str1": {"name": "s", "w2w2": "dgsg", "years": "232", "abc": 1}},  # schema invalid
+            {"str1": {"name": 14, "w2w2": "dgsg", "years": "232", "abc": 1}},  # schema invalid
+            {"str1": {"name": "14", "w2w2": "dgsg", "years": 232.44, "abc": 1}},  # schema invalid
+            {"str1": {"w2w2": "dgsg", "years": 232, "abc": 1}},  # schema invalid
+            {"str1": {"years": 232}},  # schema invalid
+            {"str1": json.dumps({"name": "s", "w2w2": "dgsg", "years": 232, "abc": 1})},  # json valid, schema valid
+            {"str1": json.dumps({"name": "s", "w2w2": 12.38, "years": 232, "abc": 1})},  # json valid, schema valid
+            {"str1": json.dumps({"name": "s", "years": 232, "abc": 1})},  # json valid, schema valid
+            {"str1": json.dumps({"name": "s", "abc": 1})},  # json valid, schema valid
+            {"str1": json.dumps({"name": "s", "w2w2": "dgsg", "years": "232", "abc": 1})},  # json valid
+            {"str1": "random str : fail everything"},
+            {"str1": "2003-12-23"},  # strftime valid
+            {"str1": "2010-10-18"},  # strftime valid
+            {"str1": "2003-15-23"},  # strftime invalid
+            {"str1": "2003-12-32"},  # strftime invalid
+            {"str1": "10-12-32"},  # strftime invalid, dateutil valid
         ]
     )
 
-    dc = DatasetConstraints(None, value_constraints={"str1": length_constraints})
+    dc = DatasetConstraints(None, value_constraints={"str1": apply_func_constraints})
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df, "test.data", constraints=dc)
@@ -810,19 +956,90 @@ def _apply_string_length_constraints(local_config_path, length_constraints):
     return report
 
 
-def test_string_length_constraints(local_config_path):
+def test_apply_func_value_constraints(local_config_path):
 
-    length_constraint7 = stringLengthEqualConstraint(length=7)
-    length_constraint24 = stringLengthEqualConstraint(length=24)
-    length_constraint7to10 = stringLengthBetweenConstraint(lower_value=7, upper_value=10)
-    length_constraints = [length_constraint7, length_constraint24, length_constraint7to10]
+    dateutil_parseable = dateUtilParseableConstraint()
+    json_parseable = jsonParseableConstraint()
 
-    report = _apply_string_length_constraints(local_config_path, length_constraints)
+    json_schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "years": {"type": "integer"},
+        },
+        "required": ["name", "abc"],
+    }
+    matches_json_schema = matchesJsonSchemaConstraint(json_schema=json_schema)
+
+    is_strftime = strftimeFormatConstraint(format="%Y-%m-%d")
+
+    apply_constraints = [dateutil_parseable, json_parseable, matches_json_schema, is_strftime]
+
+    report = _apply_apply_func_constraints(local_config_path, apply_constraints)
 
     # report[column_n][report_list][report][name total or failure]
-    assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7}}$"
-    assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == rf"value {Op.Name(Op.MATCH)} ^.{{24}}$"
-    assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7,10}}$"
+    assert report[0][1][0][1] == 30 and report[0][1][0][2] == 21 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_dateutil.__name__}"
+    assert report[0][1][1][1] == 30 and report[0][1][1][2] == 25 and report[0][1][1][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_json.__name__}"
+    assert report[0][1][2][1] == 30 and report[0][1][2][2] == 22 and report[0][1][2][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_matches_json_schema.__name__}"
+    assert (
+        report[0][1][3][1] == 30 and report[0][1][3][2] == 27 and report[0][1][3][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_strftime_format.__name__}"
+    )
+
+
+def test_apply_func_merge():
+    apply1 = dateUtilParseableConstraint()
+    apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=lambda x: x)
+
+    with pytest.raises(AssertionError):
+        apply1.merge(apply2)
+
+    apply3 = dateUtilParseableConstraint()
+
+    merged = apply1.merge(apply3)
+
+    pre_merge_json = json.loads(message_to_json(apply1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pre_merge_json["function"] == merge_json["function"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+
+def test_apply_func_serialization():
+    apply1 = dateUtilParseableConstraint()
+
+    apply2 = ValueConstraint.from_protobuf(apply1.to_protobuf())
+
+    apply1_json = json.loads(message_to_json(apply1.to_protobuf()))
+    apply2_json = json.loads(message_to_json(apply2.to_protobuf()))
+
+    apply1.merge(apply2)
+    apply2.merge(apply1)
+
+    assert apply1_json["name"] == apply2_json["name"]
+    assert apply1_json["function"] == apply2_json["function"]
+    assert apply1_json["op"] == apply2_json["op"]
+    assert apply1_json["verbose"] == apply2_json["verbose"]
+
+    json_schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "years": {"type": "integer"},
+        },
+        "required": ["name", "abc"],
+    }
+    apply1 = matchesJsonSchemaConstraint(json_schema)
+    apply2 = ValueConstraint.from_protobuf(apply1.to_protobuf())
+
+    apply1_json = json.loads(message_to_json(apply1.to_protobuf()))
+    apply2_json = json.loads(message_to_json(apply2.to_protobuf()))
+
+    assert apply1_json["name"] == apply2_json["name"]
+    assert apply1_json["function"] == apply2_json["function"]
+    assert apply1_json["op"] == apply2_json["op"]
+    assert apply1_json["verbose"] == apply2_json["verbose"]
 
 
 def _report_ssn_value_constraint_on_data_set(local_config_path, regex_pattern=None):
