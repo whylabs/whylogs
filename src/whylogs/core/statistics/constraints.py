@@ -920,12 +920,10 @@ class MultiColumnValueConstraint(ValueConstraint):
 
     @staticmethod
     def from_protobuf(msg: MultiColumnValueConstraintMsg) -> "MultiColumnValueConstraint":
-        dependent_cols = None
-        list_values = msg.dependent_columns.values[0].list_value
-        if len(list_values) == 1:
-            dependent_cols = str(list_values)
+        if msg.HasField("dependent_columns"):
+            dependent_cols = list(msg.dependent_columns.values[0].list_value)
         else:
-            dependent_cols = list(list_values)
+            dependent_cols = msg.dependent_column
 
         if len(msg.value_set.values) != 0:
             internal_values = msg.value_set.values
@@ -941,7 +939,10 @@ class MultiColumnValueConstraint(ValueConstraint):
         elif msg.value:
             return MultiColumnValueConstraint(dependent_cols, msg.op, msg.value, name=msg.name, verbose=msg.verbose)
         elif msg.reference_columns:
-            return MultiColumnValueConstraint(dependent_cols, msg.op, reference_columns=msg.reference_columns, name=msg.name, verbose=msg.verbose)
+            ref_cols = list(msg.reference_columns)
+            if ref_cols == ["all"]:
+                ref_cols = "all"
+            return MultiColumnValueConstraint(dependent_cols, msg.op, reference_columns=ref_cols, name=msg.name, verbose=msg.verbose)
         else:
             raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
 
@@ -949,13 +950,14 @@ class MultiColumnValueConstraint(ValueConstraint):
         value = None
         set_vals_message = None
         ref_cols = None
-        dependent_cols = None
+        dependent_single_col = None
+        dependent_multiple_cols = None
 
         if isinstance(self.dependent_columns, str):
-            dependent_cols = self.dependent_columns
+            dependent_single_col = self.dependent_columns
         else:
-            dependent_cols = ListValue()
-            dependent_cols.append(self.dependent_columns)
+            dependent_multiple_cols = ListValue()
+            dependent_multiple_cols.append(self.dependent_columns)
 
         if hasattr(self, "value"):
             if isinstance(self.value, set):
@@ -974,7 +976,8 @@ class MultiColumnValueConstraint(ValueConstraint):
             ref_cols.append(self.reference_columns)
 
         return MultiColumnValueConstraintMsg(
-            dependent_columns=dependent_cols,
+            dependent_columns=dependent_multiple_cols,
+            dependent_column=dependent_single_col,
             name=self.name,
             op=self.op,
             value=value,
