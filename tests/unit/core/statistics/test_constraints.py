@@ -12,12 +12,12 @@ from whylogs.core.statistics.constraints import (
     ValueConstraint,
     _summary_funcs1,
     _value_funcs,
-    columnPairValuesInSetConstraint,
     columnValuesInSetConstraint,
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
     stddevBetweenConstraint,
+    sumOfRowValuesOfMultipleColumnsEqualsConstraint,
 )
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
@@ -470,85 +470,75 @@ def test_column_values_in_set_wrong_datatype():
         cvisc = columnValuesInSetConstraint(value_set=1)
 
 
-def test_column_pair_values_in_valid_set_constraint_apply(local_config_path, df_lending_club):
-    val_set = {("B", "B2"), ("C", "C2"), ("D", "D1")}  # the second pair is found in the data set
-    cpvis = columnPairValuesInSetConstraint(column_A="grade", column_B="sub_grade", value_set=val_set)
+def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_path, df_lending_club):
+    col_set = ["loan_amnt", "int_rate"]
+    srveq = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
 
-    dc = DatasetConstraints(None, multi_column_value_constraints=[cpvis])
+    dc = DatasetConstraints(None, multi_column_value_constraints=[srveq])
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = dc.report()
 
-    col_set = ["grade", "sub_grade"]
-    assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set}"
+    print(report)
+    assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
     assert report[0][1] == 50
-    assert report[0][2] == 45  # 5 values are in the set
+    assert report[0][2] == 50
 
 
 def test_merge_column_pair_values_in_valid_set_constraint_different_values():
-    val_set1 = {(12345, "B"), (41000.0, "C"), (42333, "D")}
-    cpvis1 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set1)
-    val_set2 = {(12345, "B"), (1111, "C"), (42333, "D")}
-    cpvis2 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set2)
-    cpvis3 = columnPairValuesInSetConstraint(column_A="some", column_B="grade", value_set=val_set2)
-    cpvis4 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="b", value_set=val_set1)
+    cpvis1 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "loan_amnt"], value="grade")
+    cpvis2 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "total_pymnt"], value="grade")
+    cpvis3 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "total_pymnt"], value="loan_amnt")
 
     with pytest.raises(AssertionError):
         cpvis1.merge(cpvis2)
     with pytest.raises(AssertionError):
         cpvis2.merge(cpvis3)
-    with pytest.raises(AssertionError):
-        cpvis1.merge(cpvis4)
 
 
 def test_merge_column_pair_values_in_valid_set_constraint_valid():
-    val_set1 = {(12345, "B"), (41000.0, "C"), (42333, "D")}
-    cpvis1 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set1)
-    cpvis1.total = 5
-    cpvis1.failures = 1
-    cpvis2 = columnPairValuesInSetConstraint(column_A="annual_inc", column_B="grade", value_set=val_set1)
-    cpvis2.total = 3
-    cpvis2.failures = 2
+    col_set = ["loan_amnt", "int_rate"]
+    srveq1 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
+    srveq1.total = 5
+    srveq1.failures = 1
+    srveq2 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
+    srveq2.total = 3
+    srveq2.failures = 2
 
-    cpvis_merged = cpvis1.merge(cpvis2)
-    json_value = json.loads(message_to_json(cpvis_merged.to_protobuf()))
+    srveq_merged = srveq1.merge(srveq2)
+    json_value = json.loads(message_to_json(srveq_merged.to_protobuf()))
 
-    col_set = ["annual_inc", "grade"]
-    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set1}"
+    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
     assert json_value["dependentColumns"][0] == list(col_set)
-    assert json_value["op"] == Op.Name(Op.IN)
-    assert json_value["valueSet"] == [[list(t)] for t in val_set1]
+    assert json_value["op"] == Op.Name(Op.EQ)
+    assert json_value["referenceColumns"][0][0] == "total_pymnt"
     assert json_value["verbose"] is False
 
-    report = cpvis_merged.report()
+    report = srveq_merged.report()
     assert report[1] == 8
     assert report[2] == 3
 
 
 def test_serialization_deserialization_column_pair_values_in_valid_set_constraint():
-    val_set1 = [(12345, "B"), (41000.0, "C"), (42333, "D")]
-    c = columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=val_set1, verbose=True)
+    columns = ["A", "B", "C"]
+    c = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=columns, value=6, verbose=True)
 
     c.from_protobuf(c.to_protobuf())
     json_value = json.loads(message_to_json(c.to_protobuf()))
 
-    val_set1 = set(val_set1)
-    col_set = ["A", "B"]
-    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set1}"
-    assert json_value["dependentColumns"][0] == list(col_set)
-    assert json_value["op"] == Op.Name(Op.IN)
-    assert json_value["valueSet"] == [[list(t)] for t in val_set1]
+    assert json_value["name"] == f"multi column value {columns} {Op.Name(Op.EQ)} 6"
+    assert json_value["dependentColumns"][0] == list(columns)
+    assert json_value["op"] == Op.Name(Op.EQ)
+    assert pytest.approx(json_value["value"], 0.01) == 6
     assert json_value["verbose"] is True
 
 
 def test_column_pair_values_in_set_constraint_invalid_params():
     with pytest.raises(TypeError):
-        columnPairValuesInSetConstraint(column_A=1, column_B="B", value_set={("A", "B")})
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=1, value="B")
     with pytest.raises(TypeError):
-        columnPairValuesInSetConstraint(column_A="A", column_B=["A"], value_set={("A", "B")})
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=[1, 2], value="B")
     with pytest.raises(TypeError):
-        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=1.0)
-    with pytest.raises(TypeError):
-        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set="ABC")
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=1, value=["b"])
