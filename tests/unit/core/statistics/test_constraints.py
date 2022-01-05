@@ -525,7 +525,7 @@ def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
-    report = dc.report()
+    dc.report()
 
     in_set = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list2, name="True")
     in_set2 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list, name="True2")
@@ -1213,13 +1213,9 @@ def test_quantile_between_wrong_datatype():
 
 def test_unique_value_count_between_constraint_apply(local_config_path, df_lending_club):
     uc = columnUniqueValueCountBetweenConstraint(lower_value=5, upper_value=50)
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [uc]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
-    print(report)
+    summary_constraints = {"annual_inc": [uc]}
+    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
+
     assert report[0][1][0][0] == f"summary unique_count {Op.Name(Op.BTWN)} 5 and 50"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
@@ -1271,13 +1267,9 @@ def test_unique_count_between_constraint_wrong_datatype():
 
 def test_unique_value_proportion_between_constraint_apply(local_config_path, df_lending_club):
     uc = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.6, upper_fraction=0.9)
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [uc]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
-    print(report)
+    summary_constraints = {"annual_inc": [uc]}
+    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
+
     assert report[0][1][0][0] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.6 and 0.9"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
