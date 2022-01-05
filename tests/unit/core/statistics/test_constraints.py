@@ -1,6 +1,7 @@
 import json
 from logging import getLogger
 
+import pandas as pd
 import pytest
 
 from whylogs.app.config import load_config
@@ -470,7 +471,7 @@ def test_column_values_in_set_wrong_datatype():
         cvisc = columnValuesInSetConstraint(value_set=1)
 
 
-def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_path, df_lending_club):
+def test_sum_of_row_values_of_multiple_columns_constraint_apply_false(local_config_path, df_lending_club):
     col_set = ["loan_amnt", "int_rate"]
     srveq = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
 
@@ -485,6 +486,31 @@ def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_pat
     assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
     assert report[0][1] == 50
     assert report[0][2] == 50
+
+
+def test_sum_of_row_values_of_multiple_columns_constraint_apply_true(local_config_path):
+    srveq = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["A", "B"], value=100, verbose=False)
+
+    dc = DatasetConstraints(None, multi_column_value_constraints=[srveq])
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    df = pd.DataFrame(
+        [
+            {"A": 1, "B": 2},  # fail
+            {"A": 99, "B": 1},  # pass
+            {"A": 32, "B": 68},  # pass
+            {"A": 100, "B": 2},  # fail
+            {"A": 83, "B": 18},  # fail
+        ]
+    )
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    print(report)
+    assert report[0][0] == f"multi column value ['A', 'B'] {Op.Name(Op.EQ)} 100"
+    assert report[0][1] == 5
+    assert report[0][2] == 3
 
 
 def test_merge_column_pair_values_in_valid_set_constraint_different_values():

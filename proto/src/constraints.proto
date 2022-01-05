@@ -25,6 +25,7 @@ enum Op {
     IN = 13;
     CONTAIN = 14;
     APPLY_FUNC = 15;
+    SUM = 16;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -93,7 +94,7 @@ message MultiColumnValueConstraintMsg {
   }
   Op op = 4;
   bool verbose = 5;
-  string internal_dependent_columns_op = 9;
+  Op internal_dependent_columns_op = 9;
 }
 
 message ValueConstraintMsgs {

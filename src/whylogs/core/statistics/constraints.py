@@ -171,6 +171,7 @@ _multi_column_value_funcs = {
     Op.GE: lambda v2: lambda v1: v1 >= v2,
     Op.GT: lambda v2: lambda v1: v1 > v2,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.IN: lambda v2: lambda v1: v1 in v2,
+    Op.SUM: lambda v: sum(v),
 }
 
 
@@ -826,7 +827,7 @@ class MultiColumnValueConstraint(ValueConstraint):
         dependent_columns: Union[str, List[str]],
         op: Op,
         reference_columns: Union[str, List[str]] = None,
-        internal_dependent_cols_op: str = None,
+        internal_dependent_cols_op: Op = None,
         value=None,
         name: str = None,
         verbose=False,
@@ -852,7 +853,7 @@ class MultiColumnValueConstraint(ValueConstraint):
         self.reference_columns = reference_columns
 
         if internal_dependent_cols_op:
-            self.internal_dependent_cols_op = internal_dependent_cols_op
+            self.internal_dependent_cols_func = _multi_column_value_funcs[internal_dependent_cols_op]
 
         self.func = _multi_column_value_funcs[op]
         if value:
@@ -872,8 +873,8 @@ class MultiColumnValueConstraint(ValueConstraint):
         if isinstance(self.dependent_columns, str):
             v1 = columns[self.dependent_columns]
         else:
-            if self.internal_dependent_cols_op and self.internal_dependent_cols_op == "sum":
-                v1 = sum([float(columns[col]) for col in self.dependent_columns])
+            if self.internal_dependent_cols_func:
+                v1 = self.internal_dependent_cols_func([columns[col] for col in self.dependent_columns])
             else:
                 v1 = tuple([columns[col] for col in self.dependent_columns])
         if self.reference_columns:
@@ -1245,5 +1246,5 @@ def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], np
         value = None
 
     return MultiColumnValueConstraint(
-        dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op="sum", verbose=verbose
+        dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op=Op.SUM, verbose=verbose
     )
