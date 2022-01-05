@@ -536,7 +536,7 @@ def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path
 
 
 def test_column_values_in_set_constraint(df_lending_club, local_config_path):
-    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8})
+    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
     ltc = ValueConstraint(Op.LT, 1)
     dc = DatasetConstraints(None, value_constraints={"annual_inc": [cvisc, ltc]})
     config = load_config(local_config_path)
@@ -545,8 +545,10 @@ def test_column_values_in_set_constraint(df_lending_club, local_config_path):
     session.close()
     report = dc.report()
 
+    # check if all of the rows have been reported
     assert report[0][1][0][1] == len(df_lending_club)
-    assert report[0][1][1][1] == len(df_lending_club)
+    # the number of fails should equal the number of rows - 1 since the column id only has the value 90671227 in set
+    assert report[0][1][0][2] == len(df_lending_club) - 1
 
 
 def test_set_summary_constraints(df_lending_club, local_config_path):
@@ -1376,6 +1378,31 @@ def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_pat
     assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
     assert report[0][1] == 50
     assert report[0][2] == 50
+
+
+def test_sum_of_row_values_of_multiple_columns_constraint_apply_true(local_config_path):
+    srveq = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["A", "B"], value=100, verbose=False)
+
+    dc = DatasetConstraints(None, multi_column_value_constraints=[srveq])
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    df = pd.DataFrame(
+        [
+            {"A": 1, "B": 2},  # fail
+            {"A": 99, "B": 1},  # pass
+            {"A": 32, "B": 68},  # pass
+            {"A": 100, "B": 2},  # fail
+            {"A": 83, "B": 18},  # fail
+        ]
+    )
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    print(report)
+    assert report[0][0] == f"multi column value ['A', 'B'] {Op.Name(Op.EQ)} 100"
+    assert report[0][1] == 5
+    assert report[0][2] == 3
 
 
 def test_merge_sum_of_row_values_of_multiple_columns_constraint_different_values():
