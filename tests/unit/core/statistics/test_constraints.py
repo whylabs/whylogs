@@ -516,26 +516,16 @@ def test_column_values_in_set_constraint(df_lending_club, local_config_path):
     assert report[0][1][0][2] == len(df_lending_club) - 1
 
 
-def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
+def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints):
 
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": constraints})
+    dc = DatasetConstraints(None, summary_constraints=summary_constraints)
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = profile.apply_summary_constraints()
 
-    print(report)
-    assert len(report) == 1
-
-    # make sure it checked every value
-    for each_feat in report:
-        for each_constraint in each_feat[1]:
-            assert each_constraint[1] == 1
-            if "True" in each_constraint[0]:
-                assert each_constraint[2] == 0
-            else:
-                assert each_constraint[2] == 1
+    return report
 
 
 def test_set_summary_constraints(df_lending_club, local_config_path):
@@ -562,7 +552,12 @@ def test_set_summary_constraints(df_lending_club, local_config_path):
 
     list(df_lending_club["annual_inc"])
     constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
-    _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints)
+    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
+    for r in report[0][1]:
+        if "True" in r[0]:
+            assert r[2] == 0
+        else:
+            assert r[2] == 1
 
 
 def test_set_summary_constraint_invalid_init():
@@ -963,12 +958,8 @@ def test_summary_constraint_quantile_invalid():
 
 def test_quantile_between_constraint_apply(local_config_path, df_lending_club):
     qc = quantileBetweenConstraint(quantile_value=0.25, lower_value=13308, upper_value=241001)
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [qc]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
+    summary_constraints = {"annual_inc": [qc]}
+    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
 
     assert report[0][1][0][0] == f"summary quantile {0.25} {Op.Name(Op.BTWN)} 13308 and 241001"
     assert report[0][1][0][1] == 1
@@ -1021,16 +1012,10 @@ def test_quantile_between_wrong_datatype():
         quantileBetweenConstraint(quantile_value=0.3, lower_value=2.3, upper_value=1.5, verbose=True)
 
 
-def test_column_values_not_null_constraint_apply(local_config_path, df_lending_club):
+def test_column_values_not_null_constraint_apply_pass(local_config_path, df_lending_club):
     nnc1 = columnValuesNotNullConstraint()
-    nnc2 = columnValuesNotNullConstraint()
-
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [nnc1]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
+    summary_constraints = {"annual_inc": [nnc1]}
+    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
 
     TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
 
@@ -1038,36 +1023,28 @@ def test_column_values_not_null_constraint_apply(local_config_path, df_lending_c
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
-    dc2 = DatasetConstraints(None, summary_constraints={"value": [nnc2]})
+
+def test_column_values_not_null_constraint_apply_fail(local_config_path):
+    nnc2 = columnValuesNotNullConstraint()
     df = pd.DataFrame([{"value": 1}, {"value": 5.2}, {"value": None}, {"value": 2.3}, {"value": None}])
-    session = session_from_config(config)
-    profile2 = session.log_dataframe(df, "test.data", constraints=dc2)
-    session.close()
-    report2 = profile2.apply_summary_constraints()
+    summary_constraints = {"value": [nnc2]}
+    report = _apply_set_summary_constraints_on_dataset(df, local_config_path, summary_constraints)
 
-    TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report2}")
+    TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
 
-    assert report2[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
-    assert report2[0][1][0][1] == 1
-    assert report2[0][1][0][2] == 1
+    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 1
 
 
 def test_merge_column_values_not_null_constraint_different_values(local_config_path, df_lending_club):
     nnc1 = columnValuesNotNullConstraint()
     nnc2 = columnValuesNotNullConstraint()
+    summary_constraints1 = {"annual_inc": [nnc1]}
+    summary_constraints2 = {"annual_inc": [nnc2]}
 
-    dc1 = DatasetConstraints(None, summary_constraints={"annual_inc": [nnc1]})
-    dc2 = DatasetConstraints(None, summary_constraints={"annual_inc": [nnc2]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile1 = session.log_dataframe(df_lending_club, "test.data", constraints=dc1)
-    session.close()
-    report1 = profile1.apply_summary_constraints()
-
-    session = session_from_config(config)
-    profile2 = session.log_dataframe(df_lending_club, "test2.data", constraints=dc2)
-    session.close()
-    report2 = profile2.apply_summary_constraints()
+    report1 = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints1)
+    report2 = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints2)
 
     assert report1[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
     assert report1[0][1][0][1] == 1
