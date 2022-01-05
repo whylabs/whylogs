@@ -35,6 +35,10 @@ tasks.compileJava {
     enabled = false
 }
 
+tasks.build {
+    dependsOn(shadowJar)
+}
+
 val shadowJar: ShadowJar by tasks
 shadowJar.dependsOn(":spark:build")
 shadowJar.apply {
