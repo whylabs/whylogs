@@ -41,6 +41,7 @@ from whylogs.core.statistics.constraints import (
     strftimeFormatConstraint,
     stringLengthBetweenConstraint,
     stringLengthEqualConstraint,
+    sumOfRowValuesOfMultipleColumnsEqualsConstraint,
 )
 from whylogs.proto import Op
 from whylogs.util.protobuf import message_to_json
@@ -1359,3 +1360,76 @@ def test_column_pair_values_in_set_constraint_invalid_params():
         columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=1.0)
     with pytest.raises(TypeError):
         columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set="ABC")
+
+def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_path, df_lending_club):
+    col_set = ["loan_amnt", "int_rate"]
+    srveq = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
+
+    dc = DatasetConstraints(None, multi_column_value_constraints=[srveq])
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    print(report)
+    assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
+    assert report[0][1] == 50
+    assert report[0][2] == 50
+
+
+def test_merge_sum_of_row_values_of_multiple_columns_constraint_different_values():
+    cpvis1 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "loan_amnt"], value="grade")
+    cpvis2 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "total_pymnt"], value="grade")
+    cpvis3 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "total_pymnt"], value="loan_amnt")
+
+    with pytest.raises(AssertionError):
+        cpvis1.merge(cpvis2)
+    with pytest.raises(AssertionError):
+        cpvis2.merge(cpvis3)
+
+
+def test_merge_sum_of_row_values_of_multiple_columns_constraint_valid():
+    col_set = ["loan_amnt", "int_rate"]
+    srveq1 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
+    srveq1.total = 5
+    srveq1.failures = 1
+    srveq2 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
+    srveq2.total = 3
+    srveq2.failures = 2
+
+    srveq_merged = srveq1.merge(srveq2)
+    json_value = json.loads(message_to_json(srveq_merged.to_protobuf()))
+
+    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
+    assert json_value["dependentColumns"][0] == list(col_set)
+    assert json_value["op"] == Op.Name(Op.EQ)
+    assert json_value["referenceColumns"][0][0] == "total_pymnt"
+    assert json_value["verbose"] is False
+
+    report = srveq_merged.report()
+    assert report[1] == 8
+    assert report[2] == 3
+
+
+def test_serialization_deserialization_sum_of_row_values_of_multiple_columns_constraint():
+    columns = ["A", "B", "C"]
+    c = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=columns, value=6, verbose=True)
+
+    c.from_protobuf(c.to_protobuf())
+    json_value = json.loads(message_to_json(c.to_protobuf()))
+
+    assert json_value["name"] == f"multi column value {columns} {Op.Name(Op.EQ)} 6"
+    assert json_value["dependentColumns"][0] == list(columns)
+    assert json_value["op"] == Op.Name(Op.EQ)
+    assert pytest.approx(json_value["value"], 0.01) == 6
+    assert json_value["verbose"] is True
+
+
+def test_sum_of_row_values_of_multiple_columns_constraint_invalid_params():
+    with pytest.raises(TypeError):
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=1, value="B")
+    with pytest.raises(TypeError):
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=[1, 2], value="B")
+    with pytest.raises(TypeError):
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=1, value=["b"])

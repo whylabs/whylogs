@@ -3,9 +3,10 @@ import json
 import logging
 import numbers
 import re
-from typing import Any, List, Mapping, Optional, Set, Tuple, Union
+from typing import Any, List, Mapping, Optional, Set, Union
 
 import jsonschema
+import numpy as np
 from datasketches import theta_a_not_b, update_theta_sketch
 from dateutil.parser import parse
 from google.protobuf.json_format import Parse
@@ -834,7 +835,14 @@ class SummaryConstraints:
 
 class MultiColumnValueConstraint(ValueConstraint):
     def __init__(
-        self, dependent_columns: Union[str, List[str]], op: Op, reference_columns: Union[str, List[str]] = None, value=None, name: str = None, verbose=False
+        self,
+        dependent_columns: Union[str, List[str]],
+        op: Op,
+        reference_columns: Union[str, List[str]] = None,
+        internal_dependent_cols_op: str = None,
+        value=None,
+        name: str = None,
+        verbose=False,
     ):
         self._name = name
         self._verbose = verbose
@@ -856,6 +864,9 @@ class MultiColumnValueConstraint(ValueConstraint):
 
         self.reference_columns = reference_columns
 
+        if internal_dependent_cols_op:
+            self.internal_dependent_cols_op = internal_dependent_cols_op
+
         self.func = _multi_column_value_funcs[op]
         if value:
             self.value = value
@@ -863,15 +874,21 @@ class MultiColumnValueConstraint(ValueConstraint):
     @property
     def name(self):
         if hasattr(self, "value"):
-            return self._name if self._name is not None else f"multi column value {self.dependent_columns} {Op.Name(self.op)} {self.value}"
-        return self._name if self._name is not None else f"multi column value {self.dependent_columns} {Op.Name(self.op)} {self.reference_columns}"
+            val_or_ref_columns = self.value
+        else:
+            val_or_ref_columns = self.reference_columns
+
+        return self._name if self._name is not None else f"multi column value {self.dependent_columns} {Op.Name(self.op)} {val_or_ref_columns}"
 
     def update(self, columns):
         self.total += 1
         if isinstance(self.dependent_columns, str):
             v1 = columns[self.dependent_columns]
         else:
-            v1 = tuple([columns[col] for col in self.dependent_columns])  # apply internal OP here
+            if self.internal_dependent_cols_op and self.internal_dependent_cols_op == "sum":
+                v1 = sum([float(columns[col]) for col in self.dependent_columns])
+            else:
+                v1 = tuple([columns[col] for col in self.dependent_columns])
         if self.reference_columns:
             if isinstance(self.reference_columns, str):
                 v2 = columns[self.reference_columns]
@@ -920,31 +937,41 @@ class MultiColumnValueConstraint(ValueConstraint):
 
     @staticmethod
     def from_protobuf(msg: MultiColumnValueConstraintMsg) -> "MultiColumnValueConstraint":
+        internal_op = None
+        value = None
+        ref_cols = None
+
         if msg.HasField("dependent_columns"):
             dependent_cols = list(msg.dependent_columns.values[0].list_value)
         else:
             dependent_cols = msg.dependent_column
 
+        if msg.internal_dependent_columns_op:
+            internal_op = msg.internal_dependent_columns_op
+
         if len(msg.value_set.values) != 0:
             internal_values = msg.value_set.values
-            val_set = list()
+            value = list()
             for val in internal_values:
                 if hasattr(val, "list_value"):
                     for in_val in val.list_value.values:
-                        val_set.append(tuple(in_val.list_value))
+                        value.append(tuple(in_val.list_value))
                 else:
-                    val_set.append(val)
+                    value.append(val)
 
-            return MultiColumnValueConstraint(dependent_cols, msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
         elif msg.value:
-            return MultiColumnValueConstraint(dependent_cols, msg.op, msg.value, name=msg.name, verbose=msg.verbose)
+            value = msg.value
+
         elif msg.reference_columns:
             ref_cols = list(msg.reference_columns)
             if ref_cols == ["all"]:
                 ref_cols = "all"
-            return MultiColumnValueConstraint(dependent_cols, msg.op, reference_columns=ref_cols, name=msg.name, verbose=msg.verbose)
         else:
             raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
+
+        return MultiColumnValueConstraint(
+            dependent_cols, msg.op, value=value, reference_columns=ref_cols, name=msg.name, internal_dependent_cols_op=internal_op, verbose=msg.verbose
+        )
 
     def to_protobuf(self) -> MultiColumnValueConstraintMsg:
         value = None
@@ -1239,15 +1266,41 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
     return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
 
 
-def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set[Tuple[Any, Any]], verbose: bool = False):
-    if not all([isinstance(col, str) for col in (column_A, column_B)]):
-        raise TypeError("The provided column_A and column_B should be of type str, indicating the name of the columns to be compared")
-    if isinstance(value_set, str):
-        raise TypeError("The value_set should be an array-like data type of tuple values")
+def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], np.array], value: Union[float, int, str], verbose: bool = False):
+    """
 
-    try:
-        value_set = set(value_set)
-    except Exception:
-        raise TypeError("The value_set should be an array-like data type of tuple values")
+    Parameters
+    ----------
+    columns : List[str]
+        List of columns for which the sum of row values should equal some value
+    value : Union[float, int, str]
+        Numeric value to compare with the sum of the column row values,
+        or a string indicating a column name for which the row value will be compared with the sum
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
 
-    return MultiColumnValueConstraint(dependent_columns=[column_A, column_B], op=Op.IN, value=value_set, verbose=verbose)
+    Returns
+    -------
+        MultiColumnValueConstraint
+    """
+
+    if not isinstance(columns, (list, np.array)) or not all(isinstance(col, str) for col in columns):
+        raise TypeError(
+            "The column list should be an array-like data type of only string values, indicating the column names, for which the values are going to be summed"
+        )
+
+    if not isinstance(value, (float, int, str)):
+        raise TypeError(
+            "The value should be a numeric value equal to the expected sum,"
+            " or a string indicating the column name for which the row value will be taken as the reference sum value"
+        )
+
+    reference_cols = None
+    if isinstance(value, str):
+        reference_cols = [value]
+        value = None
+
+    return MultiColumnValueConstraint(
+        dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op="sum", verbose=verbose
+    )

@@ -91,6 +91,7 @@ message MultiColumnValueConstraintMsg {
   }
   Op op = 4;
   bool verbose = 5;
+  string internal_dependent_columns_op = 9;
 }
 
 message ValueConstraintMsgs {
