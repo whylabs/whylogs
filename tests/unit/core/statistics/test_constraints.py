@@ -882,7 +882,6 @@ def test_credit_card_constraint(local_config_path):
 
 def test_credit_card_constraint_supply_regex_pattern(local_config_path):
     report = _report_credit_card_value_constraint_on_data_set(local_config_path, r"^(?:[0-9]{4}[\s-]?){3,4}$")
-    print(report)
     assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + r"^(?:[0-9]{4}[\s-]?){3,4}$"
     assert report[0][1][0][1] == 19
     assert report[0][1][0][2] == 8
@@ -1077,7 +1076,6 @@ def test_contains_ssn_constraint(local_config_path):
 def test_ssn_constraint_supply_regex_pattern(local_config_path):
     pattern = r"^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
     report = _report_ssn_value_constraint_on_data_set(local_config_path, pattern)
-    print(report)
     assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + pattern
     assert report[0][1][0][1] == 8
     assert report[0][1][0][2] == 5
@@ -1142,7 +1140,6 @@ def test_contains_url_constraint(local_config_path):
 def test_url_constraint_supply_regex_pattern(local_config_path):
     pattern = r"^http(s)?:\/\/(www\.)?.+\..+$"
     report = _report_url_value_constraint_on_data_set(local_config_path, pattern)
-    print(report)
     assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + pattern
     assert report[0][1][0][1] == 10
     assert report[0][1][0][2] == 8
@@ -1248,7 +1245,6 @@ def test_unique_value_count_between_constraint_apply(local_config_path, df_lendi
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = profile.apply_summary_constraints()
-    print(report)
     assert report[0][1][0][0] == f"summary unique_count {Op.Name(Op.BTWN)} 5 and 50"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
@@ -1306,7 +1302,6 @@ def test_unique_value_proportion_between_constraint_apply(local_config_path, df_
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = profile.apply_summary_constraints()
-    print(report)
     assert report[0][1][0][0] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.6 and 0.9"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
@@ -1357,17 +1352,19 @@ def test_unique_proportion_between_constraint_wrong_datatype():
 
 
 def test_most_common_value_in_set_constraint_apply(local_config_path, df_lending_club):
-    val_set1 = {2, 3.5, 1000, 52000.0}
+    val_set1 = {2, 3.5, 5000, 52000.0}
     val_set2 = {1, 2.3, "abc"}
     mcvc1 = columnMostCommonValueInSetConstraint(value_set=val_set1)
     mcvc2 = columnMostCommonValueInSetConstraint(value_set=val_set2)
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [mcvc1], "funded_amnt": [mcvc2]})
+    dc = DatasetConstraints(None, summary_constraints={"loan_amnt": [mcvc1], "funded_amnt": [mcvc2]})
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = profile.apply_summary_constraints()
-    print(report)
+
+    TEST_LOGGER.info(f"Summary most common value in set dataset constraints: {dc.to_protobuf()}")
+
     assert report[0][1][0][0] == f"summary most_common_value {Op.Name(Op.IN)} {val_set1}"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
