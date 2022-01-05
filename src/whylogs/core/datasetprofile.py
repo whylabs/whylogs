@@ -689,11 +689,19 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
+
+                distinct_column_values_dict = dict()
+                distinct_column_values_dict["string_theta"] = colprof.string_tracker.theta_sketch.theta_sketch
+                distinct_column_values_dict["number_theta"] = colprof.number_tracker.theta_sketch.theta_sketch
                 frequent_items_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
                 most_common_val = frequent_items_summ.items[0].json_value if frequent_items_summ else None
 
                 update_dict = _create_update_summary_dictionary(
                     number_summary=summ.number_summary,
+                    distinct_column_values=distinct_column_values_dict,
+                    quantile=colprof.number_tracker.histogram,
+                    unique_count=summ.unique_count.estimate,
+                    unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
                     most_common_value=TypedDataConverter.convert(most_common_val),
                 )
 
@@ -805,6 +813,7 @@ def array_profile(
 def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
     """
     Wrapper method for summary constraints update object creation
+
     Parameters
     ----------
     number_summary : NumberSummary
@@ -812,6 +821,7 @@ def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
         Used to unpack the metrics as separate items in the dictionary
     kwargs : Summary objects or datasketches objects
         Used to update specific constraints that need additional calculations
+
     Returns
     -------
     Anonymous object containing all of the metrics as fields with their coresponding values
