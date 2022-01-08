@@ -68,7 +68,7 @@ jobs:
     - name: Build and publish Java
       env:
         ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY_ASCII }}
-	ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
       run: ./gradlew publish -PossrhUsername=${{ secrets.NEXUS_TOKEN_USERNAME }} -PossrhPassword=${{ secrets.NEXUS_TOKEN_PASSWORD }}
       working-directory: java
 
