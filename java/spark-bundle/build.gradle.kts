@@ -17,9 +17,9 @@ plugins {
 val scalaVersion = project.properties.getOrDefault("scalaVersion", "2.12")
 val sparkVersion = project.properties.getOrDefault("sparkVersion", "3.1.1") as String
 val artifactBaseName = "whylogs-spark_${sparkVersion}-scala_$scalaVersion"
-val versionString = "0.0.0-b0" //rootProject.version
+val versionString = rootProject.version
 
-group = "com.whylabs"
+group = rootProject.group
 version = versionString
 
 dependencies {
@@ -37,6 +37,10 @@ tasks.compileJava {
 }
 
 tasks.build {
+    dependsOn(shadowJar)
+}
+
+tasks.publish {
     dependsOn(shadowJar)
 }
 
@@ -63,6 +67,9 @@ shadowJar.apply {
     archiveFileName.set("$artifactBaseName-${versionString}.jar")
 }
 
+artifacts {
+  add ("archives", shadowJar)
+}
 
 
 publishing {
@@ -87,14 +94,15 @@ publishing {
 
         create<MavenPublication>("mavenJava") {
             from(components["java"])
+            artifact(shadowJar)
 
-            artifactId = "spark-bundle" //artifactBaseName
+            artifactId = artifactBaseName
             groupId = project.group as String
             version = project.version as String
             description = "WhyLogs - a powerful data profiling library for your ML pipelines"
 
             pom {
-                name.set("spark-bundle")
+                name.set("whylogs-spark-bundle")
                 description.set("spark bundle library for WhyLogs")
                 url.set("https://github.com/whylabs/whylogs")
                 licenses {
@@ -122,6 +130,9 @@ publishing {
 }
 
 signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
     setRequired({
         (rootProject.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("uploadArchives")
     })
