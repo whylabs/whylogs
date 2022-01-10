@@ -518,35 +518,6 @@ def test_column_values_in_set_constraint(df_lending_club, local_config_path):
     dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
 
 
-def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
-
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": constraints})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    dc.report()
-
-    in_set = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list2, name="True")
-    in_set2 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list, name="True2")
-    in_set3 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list[:-1], name="False")
-
-    eq_set = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list, name="True3")
-    eq_set2 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list2, name="False2")
-    eq_set3 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list[:-1], name="False3")
-
-    contains_set = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[org_list[2]], name="True4")
-    contains_set2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list, name="True5")
-    contains_set3 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list[:-1], name="True6")
-    contains_set4 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[str(org_list[2])], name="False4")
-    contains_set5 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2.3456], name="False5")
-    contains_set6 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list2, name="False6")
-
-    list(df_lending_club["annual_inc"])
-    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
-    _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints)
-
-
 def test_set_summary_constraint_invalid_init():
     with pytest.raises(TypeError):
         SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=1)
@@ -584,7 +555,7 @@ def test_set_summary_merge():
     assert pre_merge_json["verbose"] == merge_json["verbose"]
 
 
-def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints):
+def _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints):
 
     dc = DatasetConstraints(None, summary_constraints=summary_constraints)
     config = load_config(local_config_path)
@@ -620,49 +591,12 @@ def test_set_summary_constraints(df_lending_club, local_config_path):
 
     list(df_lending_club["annual_inc"])
     constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
-    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
     for r in report[0][1]:
         if "True" in r[0]:
             assert r[2] == 0
         else:
             assert r[2] == 1
-
-
-def test_set_summary_constraint_invalid_init():
-    with pytest.raises(TypeError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=1)
-    with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, 1)
-    with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, second_field="aaa")
-    with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, third_field="aaa")
-    with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, upper_value=2)
-
-
-def test_set_summary_no_merge_different_set():
-
-    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
-    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2, 3, 4, 5])
-    with pytest.raises(AssertionError):
-        set_c_1.merge(set_c_2)
-
-
-def test_set_summary_merge():
-    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
-    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
-
-    merged = set_c_1.merge(set_c_2)
-
-    pre_merge_json = json.loads(message_to_json(set_c_1.to_protobuf()))
-    merge_json = json.loads(message_to_json(merged.to_protobuf()))
-
-    assert pre_merge_json["name"] == merge_json["name"]
-    assert pre_merge_json["referenceSet"] == merge_json["referenceSet"]
-    assert pre_merge_json["firstField"] == merge_json["firstField"]
-    assert pre_merge_json["op"] == merge_json["op"]
-    assert pre_merge_json["verbose"] == merge_json["verbose"]
 
 
 def test_set_summary_serialization():
@@ -1158,7 +1092,7 @@ def test_summary_constraint_quantile_invalid():
 def test_quantile_between_constraint_apply(local_config_path, df_lending_club):
     qc = quantileBetweenConstraint(quantile_value=0.25, lower_value=13308, upper_value=241001)
     summary_constraints = {"annual_inc": [qc]}
-    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
 
     assert report[0][1][0][0] == f"summary quantile {0.25} {Op.Name(Op.BTWN)} 13308 and 241001"
     assert report[0][1][0][1] == 1
@@ -1214,7 +1148,7 @@ def test_quantile_between_wrong_datatype():
 def test_unique_value_count_between_constraint_apply(local_config_path, df_lending_club):
     uc = columnUniqueValueCountBetweenConstraint(lower_value=5, upper_value=50)
     summary_constraints = {"annual_inc": [uc]}
-    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
 
     assert report[0][1][0][0] == f"summary unique_count {Op.Name(Op.BTWN)} 5 and 50"
     assert report[0][1][0][1] == 1
@@ -1268,7 +1202,7 @@ def test_unique_count_between_constraint_wrong_datatype():
 def test_unique_value_proportion_between_constraint_apply(local_config_path, df_lending_club):
     uc = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.6, upper_fraction=0.9)
     summary_constraints = {"annual_inc": [uc]}
-    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
 
     assert report[0][1][0][0] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.6 and 0.9"
     assert report[0][1][0][1] == 1
@@ -1322,7 +1256,7 @@ def test_unique_proportion_between_constraint_wrong_datatype():
 def test_column_values_not_null_constraint_apply_pass(local_config_path, df_lending_club):
     nnc1 = columnValuesNotNullConstraint()
     summary_constraints = {"annual_inc": [nnc1]}
-    report = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
 
     TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
 
@@ -1335,7 +1269,7 @@ def test_column_values_not_null_constraint_apply_fail(local_config_path):
     nnc2 = columnValuesNotNullConstraint()
     df = pd.DataFrame([{"value": 1}, {"value": 5.2}, {"value": None}, {"value": 2.3}, {"value": None}])
     summary_constraints = {"value": [nnc2]}
-    report = _apply_set_summary_constraints_on_dataset(df, local_config_path, summary_constraints)
+    report = _apply_summary_constraints_on_dataset(df, local_config_path, summary_constraints)
 
     TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
 
@@ -1350,8 +1284,8 @@ def test_merge_column_values_not_null_constraint_different_values(local_config_p
     summary_constraints1 = {"annual_inc": [nnc1]}
     summary_constraints2 = {"annual_inc": [nnc2]}
 
-    report1 = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints1)
-    report2 = _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints2)
+    report1 = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints1)
+    report2 = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints2)
 
     assert report1[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
     assert report1[0][1][0][1] == 1
