@@ -483,7 +483,7 @@ def test_sum_of_row_values_of_multiple_columns_constraint_apply_false(local_conf
     report = dc.report()
 
     print(report)
-    assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
+    assert report[0][0] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
     assert report[0][1] == 50
     assert report[0][2] == 50
 
@@ -508,12 +508,12 @@ def test_sum_of_row_values_of_multiple_columns_constraint_apply_true(local_confi
     report = dc.report()
 
     print(report)
-    assert report[0][0] == f"multi column value ['A', 'B'] {Op.Name(Op.EQ)} 100"
+    assert report[0][0] == f"multi column value SUM ['A', 'B'] {Op.Name(Op.EQ)} 100"
     assert report[0][1] == 5
     assert report[0][2] == 3
 
 
-def test_merge_column_pair_values_in_valid_set_constraint_different_values():
+def test_merge_sum_of_row_values_different_values():
     cpvis1 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "loan_amnt"], value="grade")
     cpvis2 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "total_pymnt"], value="grade")
     cpvis3 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "total_pymnt"], value="loan_amnt")
@@ -524,7 +524,7 @@ def test_merge_column_pair_values_in_valid_set_constraint_different_values():
         cpvis2.merge(cpvis3)
 
 
-def test_merge_column_pair_values_in_valid_set_constraint_valid():
+def test_merge_sum_of_row_values_constraint_valid():
     col_set = ["loan_amnt", "int_rate"]
     srveq1 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
     srveq1.total = 5
@@ -536,7 +536,7 @@ def test_merge_column_pair_values_in_valid_set_constraint_valid():
     srveq_merged = srveq1.merge(srveq2)
     json_value = json.loads(message_to_json(srveq_merged.to_protobuf()))
 
-    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
+    assert json_value["name"] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
     assert json_value["dependentColumns"][0] == list(col_set)
     assert json_value["op"] == Op.Name(Op.EQ)
     assert json_value["referenceColumns"][0][0] == "total_pymnt"
@@ -547,21 +547,22 @@ def test_merge_column_pair_values_in_valid_set_constraint_valid():
     assert report[2] == 3
 
 
-def test_serialization_deserialization_column_pair_values_in_valid_set_constraint():
+def test_serialization_deserialization_sum_of_row_values_constraint():
     columns = ["A", "B", "C"]
     c = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=columns, value=6, verbose=True)
 
     c.from_protobuf(c.to_protobuf())
     json_value = json.loads(message_to_json(c.to_protobuf()))
 
-    assert json_value["name"] == f"multi column value {columns} {Op.Name(Op.EQ)} 6"
+    assert json_value["name"] == f"multi column value SUM {columns} {Op.Name(Op.EQ)} 6"
     assert json_value["dependentColumns"][0] == list(columns)
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 6
+    assert json_value["internalDependentColumnsOp"] == Op.Name(Op.SUM)
     assert json_value["verbose"] is True
 
 
-def test_column_pair_values_in_set_constraint_invalid_params():
+def test_sum_of_row_values_constraint_invalid_params():
     with pytest.raises(TypeError):
         sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=1, value="B")
     with pytest.raises(TypeError):
