@@ -404,6 +404,7 @@
         white-space: nowrap;
         overflow: hidden;
         font-style: italic;
+        text-align: center;
         color: var(--brandSecondary400);
       }
       .wl-table-cell__bedge {
@@ -434,6 +435,15 @@
 
       .wl-property-panel__chart {
         margin-bottom: 60px;
+      }
+
+      .wl-compare-profile {
+        position: sticky;
+        left: 0;
+        display: flex;
+        padding: 18px;
+        justify-content: flex-end;
+        flex-direction: row-reverse;
       }
 
       .wl-property-panel__chart--single {
@@ -1194,12 +1204,8 @@
                         <strong>features</strong>
                       </div>
                       <div class="flex-direction-colum mb-3">
-                        <strong class="feature-count count-color">Currently selected profile:</strong>
+                        <strong class="feature-count count-color">Profile time stamp:</strong>
                         <strong class="wl__feature-file-name feature-file-name count-color">{{getProfileTimeStamp this}}</strong>
-                      </div>
-                      <div class="flex-direction-colum mb-3">
-                        <strong id="reference-profile-time-stamp" class="feature-count count-color">Currently selected reference profile:</strong>
-                        <strong class="wl__feature-file-name feature-file-name count-color">{{getReferenceProfileTimeStamp}}</strong>
                       </div>
                     </div>
                   </div>
@@ -1358,6 +1364,12 @@
                   </div>
                 </div>
                </div>
+                 <div class="wl-table-cell wl-compare-profile" id="compare-profile">
+                   <div class="flex-direction-colum mb-3">
+                     <h5 id="reference-profile-time-stamp" class="feature-count count-color">Reference profile time stamp:</h5>
+                     <strong class="wl__feature-file-name feature-file-name count-color">{{getReferenceProfileTimeStamp}}</strong>
+                   </div>
+               </div>
               <div class="wl-table-wrap" id="table-content">
                 <div class="wl-table">
                   <div class="wl-table-heading">
@@ -1503,9 +1515,9 @@
       //helper fun
 
       class GenerateChartParams {
-        constructor(height, width, data, bottomMargin=20) {
+        constructor(height, width, data, bottomMargin=20, topMargin=5) {
           this.MARGIN = {
-            TOP: 5,
+            TOP: topMargin,
             RIGHT: 5,
             BOTTOM: bottomMargin,
             LEFT: 55,
@@ -1622,7 +1634,7 @@
         yFormat = yScale.tickFormat(100, yFormat);
 
         svgEl.append("g")
-          .attr("transform", `translate(${MARGIN.LEFT},0)`)
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
           .call(yAxis)
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick line")
@@ -1694,7 +1706,7 @@
           }
         }).slice(0, 20)
 
-        const sizes = new GenerateChartParams(230, 600, histogramData)
+        const sizes = new GenerateChartParams(230, 600, histogramData, undefined, 1)
         const {
           MARGIN,
           SVG_WIDTH,
@@ -1720,7 +1732,7 @@
         yFormat = yScale.tickFormat(100, yFormat);
 
         svgEl.append("g")
-          .attr("transform", `translate(${MARGIN.LEFT},0)`)
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
           .call(yAxis)
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick line")
@@ -1790,7 +1802,7 @@
         let yFormat,
             xFormat;
 
-        const sizes = new GenerateChartParams(230, 600, data)
+        const sizes = new GenerateChartParams(230, 600, histogramData, undefined, 1)
         const {
          MARGIN,
          SVG_WIDTH,
@@ -1803,7 +1815,7 @@
         const y0 = Math.max(Math.abs(d3.min(data)), Math.abs(d3.max(data)));
 
         const yScale = d3.scaleLinear()
-            .domain([-y0, y0])
+            .domain([-y0 * 1.02, y0 * 1.02])
             .range([CHART_HEIGHT,0])
 
         const xScale = d3.scaleBand()
@@ -1816,7 +1828,7 @@
         yFormat = yScale.tickFormat(100, yFormat);
 
           svgEl.append("g")
-          .attr("transform", `translate(${MARGIN.LEFT},0)`)
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
           .call(yAxis)
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick line")
@@ -2001,7 +2013,7 @@
       });
 
       Handlebars.registerHelper("thirdQuantile", function (column) {
-        if (column.numberSummary && column.numberSummary.quantiles.quantileValues) {
+        if (column.numberSummary && column.numberSummary.quantiles.quantileValueregisterHandlebarHelperFunctionss) {
           return fixNumberTo(column.numberSummary.quantiles.quantileValues[5]);
         }
         return "-";
@@ -2271,10 +2283,12 @@
         $("#diff-from-ref").addClass("d-none")
         $(".diff-from-ref-table-cell").addClass("d-none")
         $("#reference-profile-time-stamp").addClass("d-none");
+        $("#compare-profile").addClass("d-none");
       } else {
         $("#diff-from-ref").removeClass("d-none")
         $(".diff-from-ref-table-cell").removeClass("d-none")
         $("#reference-profile-time-stamp").removeClass("d-none");
+        $("#compare-profile").removeClass("d-none");
       }
 
       $( window ).resize(function() {
@@ -2518,6 +2532,7 @@
       const $pagesButton = $pagesButtons[0];
       let chipString = "";
 
+      $(".clickable-test-feature-wrap").css("height", $( window ).height())
       $pagesButtons.removeClass("activ-pages-button")
       $($pagesButton).addClass("activ-pages-button")
       $tableContent.addClass("d-none")

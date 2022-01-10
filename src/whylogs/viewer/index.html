@@ -86,6 +86,10 @@
                           <strong>Profile time stamp:</strong>
                           <h5 class="mt-1 feature-file-name wl__selected-profile">2020-02-26 12:23:32 PM PST</h5>
                         </div>
+                        <div class="flex-direction-colum mb-3">
+                          <strong class="feature-count count-color">Currently selected profile:</strong>
+                          <strong class="wl__feature-file-name feature-file-name count-color"></strong>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -246,9 +250,11 @@
                    </fieldset>
                  </form>
                </div>
-               <div class="wl-table-cell wl-selected-profile display-flex d-none" id="selected-profile">
+               <div class="wl-table-cell wl-selected-profile display-flex d-none flex-direction-colum" id="selected-profile">
+                 <div class="display-flex">
+                 <div class="flex-direction-colum">
                 <h6 class="wl-selected-reference-profile mt-1 mb-2">Reference profile</h6>
-                <div class="reference-profile-buttons space-between align-items">
+                <div class="reference-profile-buttons display-flex align-items">
                   <div class="edit-button-wrap">
                     <div class="edit-button">
                       <form id="reference-json-form" name="reference-json-form" enctype="multipart/form-data" method="post">
@@ -271,9 +277,25 @@
                     </div>
                   </div>
                 </div>
+              </div>
                 <div class="sidebar-content__single-profile reference-profile-time-stamp mb-4" id="sidebar-content-single-profile">
                  <strong>Reference profile time stamp:</strong>
                  <h5 class="mt-1 feature-file-name wl__selected-reference-profile">2020-02-26 12:23:32 PM PST</h5>
+               </div>
+             </div>
+               <div class="display-flex summary-statistic-wrap">
+                 <div class="display-flex summary-statistic">
+                   <p class="summary">58</p>
+                   <p class="summary-title">Summary</p>
+                 </div>
+                 <div class="display-flex summary-statistic">
+                  <p class="summary">54</p>
+                  <p class="summary-title">Summary</p>
+                </div>
+                <div class="display-flex summary-statistic">
+                  <p class="summary">131</p>
+                  <p class="summary-title">Summary</p>
+                </div>
                </div>
                </div>
               <div class="wl-table" id="table-content-wrapper">

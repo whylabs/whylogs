@@ -167,9 +167,9 @@
   `
 
   class GenerateChartParams {
-    constructor(height, width, data, bottomMargin=20) {
+    constructor(height, width, data, bottomMargin=20, topMargin=5) {
       this.MARGIN = {
-        TOP: 5,
+        TOP: topMargin,
         RIGHT: 5,
         BOTTOM: bottomMargin,
         LEFT: 55,
@@ -247,11 +247,11 @@
     } = sizes
 
     const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
-    const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+    const yAxis = d3.axisLeft(yScale).ticks(CHART_HEIGHT / 40, yFormat);
     yFormat = yScale.tickFormat(100, yFormat);
 
     svgEl.append("g")
-      .attr("transform", `translate(${MARGIN.LEFT},0)`)
+      .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
       .call(yAxis)
       .call(g => g.select(".domain").remove())
       .call(g => g.selectAll(".tick line")
@@ -316,7 +316,7 @@
       }
     }).slice(0, 20)
 
-    const sizes = new GenerateChartParams(230, 600, histogramData)
+    const sizes = new GenerateChartParams(230, 600, histogramData, undefined, 1)
     const {
       MARGIN,
       SVG_WIDTH,
@@ -339,7 +339,7 @@
     yFormat = yScale.tickFormat(100, yFormat);
 
     svgEl.append("g")
-      .attr("transform", `translate(${MARGIN.LEFT},0)`)
+      .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
       .call(yAxis)
       .call(g => g.select(".domain").remove())
       .call(g => g.selectAll(".tick line")
@@ -397,12 +397,12 @@
       const difference = value.axisY - overlappedHistogramData[index].axisY
       const negativeValues = difference < 0 ? difference : 0
       return [+value.axisY, negativeValues]
-    }).slice(0, 20).flat()
+    }).flat().slice(0, 20)
 
     let yFormat,
         xFormat;
 
-    const sizes = new GenerateChartParams(230, 600, data)
+    const sizes = new GenerateChartParams(230, 600, histogramData, undefined, 1)
     const {
      MARGIN,
      SVG_WIDTH,
@@ -415,7 +415,7 @@
     const y0 = Math.max(Math.abs(d3.min(data)), Math.abs(d3.max(data)));
 
     const yScale = d3.scaleLinear()
-        .domain([-y0, y0])
+        .domain([-y0 * 1.02, y0 * 1.02])
         .range([CHART_HEIGHT,0])
 
     const xScale = d3.scaleBand()
@@ -424,11 +424,11 @@
         .padding([0.1]);
 
     const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
-    const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+    const yAxis = d3.axisLeft(yScale).ticks(CHART_HEIGHT / 40, yFormat);
     yFormat = yScale.tickFormat(100, yFormat);
 
       svgEl.append("g")
-      .attr("transform", `translate(${MARGIN.LEFT},0)`)
+      .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
       .call(yAxis)
       .call(g => g.select(".domain").remove())
       .call(g => g.selectAll(".tick line")
@@ -568,7 +568,8 @@
     let getGraph = null,
         getDoubleHistogramChart = null,
         getBarChart = null,
-        getPositiveNegative = null;
+        getPositiveNegative = null,
+        getPropertyPanelGraph = null;
 
     if (referencePropertyPanelData[feature[0]][0]) {
       items = referencePropertyPanelData[feature[0]][0]
@@ -577,7 +578,8 @@
       getBarChart = generateBarChart(feature[1].chartData[0], feature[1].chartData[1]),
       getPositiveNegative = generatePositiveNegativeChart(feature[1].chartData[0], feature[1].chartData[1])
     }
-    const getPropertyPanelGraph = getPropertyPanelGraphHtml(jsonData.columns[feature[0]], feature[0])
+
+    getPropertyPanelGraph = getPropertyPanelGraphHtml(jsonData.columns[feature[0]], feature[0])
 
     if (checkJSONValidityForMultiProfile(jsonData) || checkJSONValidityForSingleProfile(jsonData)) {
       if (items.length > 0 && items !== "undefined") {
@@ -1249,13 +1251,21 @@
     const lines = e.target.result;
     let data = JSON.parse(lines);
     if (inputId === "file-input") {
-      jsonData = data;
+      if (checkJSONValidityForMultiProfile(data)) {
+        jsonData = data[Object.keys(data)[0]]
+      } else {
+        jsonData = data;
+      }
       referenceJsonData = undefined
       $(".reference-table-head").addClass("d-none")
       $(".wl-selected-profile").addClass("d-none")
       $compareProfile.removeClass("d-none");
     } else {
-      referenceJsonData = data
+      if (checkJSONValidityForMultiProfile(data)) {
+        referenceJsonData = data[Object.keys(data)[0]]
+      } else {
+        referenceJsonData = data;
+      }
       $(".reference-table-head").removeClass("d-none")
       $(".wl-selected-profile").removeClass("d-none")
       $(".wl-compare-profile").addClass("d-none")

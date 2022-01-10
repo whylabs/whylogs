@@ -452,6 +452,7 @@ a .wl-table-row--bottom-shadow {
   white-space: nowrap;
   overflow: hidden;
   font-style: italic;
+  text-align: center;
   color: var(--brandSecondary400);
 }
 .wl-table-cell__bedge {
@@ -1048,10 +1049,6 @@ a .wl-table-row--bottom-shadow {
   pointer-events: none;
 }
 
-.reference-profile-buttons {
-  padding-left: 20px;
-}
-
 .edit-button-wrap {
   padding-right: 5px;
   cursor: pointer;
@@ -1074,11 +1071,16 @@ a .wl-table-row--bottom-shadow {
 }
 
 .remove-reference-profile-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid #6C757D;
   border-radius: 3px;
-  text-align: center;
-  width: 20px;
   cursor: pointer;
+}
+
+.remove-reference-profile-button img {
+  padding: 3px
 }
 
 input::placeholder {
