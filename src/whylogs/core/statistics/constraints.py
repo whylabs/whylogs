@@ -1,14 +1,20 @@
+import datetime
+import json
 import logging
 import numbers
 import re
 from typing import Any, List, Mapping, Optional, Set, Union
 
+import jsonschema
 from datasketches import theta_a_not_b, update_theta_sketch
+from dateutil.parser import parse
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
+from jsonschema import validate
 
 from whylogs.core.summaryconverters import single_quantile_from_sketch
 from whylogs.proto import (
+    ApplyFunctionMsg,
     DatasetConstraintMsg,
     DatasetProperties,
     MultiColumnValueConstraintMsg,
@@ -23,6 +29,84 @@ from whylogs.util.protobuf import message_to_json
 from whylogs.util.util_functions import string_to_column_tuple
 
 logger = logging.getLogger(__name__)
+
+
+def _try_parse_strftime_format(strftime_val: str, format: str) -> Optional[datetime.datetime]:
+    """
+    Return whether the string is in a strftime format.
+
+    :param strftime_val: str, string to check for date
+    :param format: format to check if strftime_val can be parsed
+    :return None if not parseable, otherwise the parsed datetime.datetime object
+
+    """
+    parsed = None
+    try:
+        parsed = datetime.datetime.strptime(strftime_val, format)
+    except (ValueError, TypeError):
+        pass
+    return parsed
+
+
+def _try_parse_dateutil(dateutil_val: str, ref_val=None) -> Optional[datetime.datetime]:
+    """
+    Return whether the string can be interpreted as a date.
+
+    :param dateutil_val: str, string to check for date
+    :param ref_val: any, not used, interface design requirement
+    :return None if not parseable, otherwise the parsed datetime.datetime object
+
+    """
+    parsed = None
+    try:
+        parsed = parse(dateutil_val)
+    except (ValueError, TypeError):
+        pass
+    return parsed
+
+
+def _try_parse_json(json_string: str, ref_val=None) -> Optional[dict]:
+    """
+    Return whether the string can be interpreted as json.
+
+    :param json_string: str, string to check for json
+    :param ref_val: any, not used, interface design requirement
+    :return None if not parseable, otherwise the parsed json object
+    """
+    parsed = None
+    try:
+        parsed = json.loads(json_string)
+    except (ValueError, TypeError):
+        pass
+    return parsed
+
+
+def _matches_json_schema(json_data: Union[str, dict], json_schema: Union[str, dict]) -> bool:
+    """
+    Return whether the provided json matches the provided schema.
+
+    :param json_data: json object to check
+    :param json_schema: schema to check if the json object matches it
+    :return True if the json data matches the schema, False otherwise
+    """
+    if isinstance(json_schema, str):
+        try:
+            json_schema = json.loads(json_schema)
+        except (ValueError, TypeError):
+            return False
+
+    if isinstance(json_data, str):
+        try:
+            json_data = json.loads(json_data)
+        except (ValueError, TypeError):
+            return False
+
+    try:
+        validate(instance=json_data, schema=json_schema)
+    except (jsonschema.exceptions.ValidationError, jsonschema.exceptions.SchemaError):
+        return False
+    return True
+
 
 """
 Dict indexed by constraint operator.
@@ -41,6 +125,7 @@ _value_funcs = {
     Op.MATCH: lambda x: lambda v: x.match(v) is not None,
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
     Op.IN: lambda x: lambda v: v in x,
+    Op.APPLY_FUNC: lambda apply_function, reference_value: lambda v: apply_function(v, reference_value),
 }
 
 _summary_funcs1 = {
@@ -52,18 +137,22 @@ _summary_funcs1 = {
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
     Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
-    Op.IN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
-        theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1
+    Op.IN_SET: lambda f, ref_str_sketch, ref_num_sketch: lambda update_obj: round(
+        theta_a_not_b().compute(getattr(update_obj, f)["string_theta"], ref_str_sketch).get_estimate(), 1
     )
+    == round(theta_a_not_b().compute(getattr(update_obj, f)["number_theta"], ref_num_sketch).get_estimate(), 1)
     == 0.0,
-    Op.CONTAIN_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
-        theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1
+    Op.CONTAIN_SET: lambda f, ref_str_sketch, ref_num_sketch: lambda update_obj: round(
+        theta_a_not_b().compute(ref_str_sketch, getattr(update_obj, f)["string_theta"]).get_estimate(), 1
     )
+    == round(theta_a_not_b().compute(ref_num_sketch, getattr(update_obj, f)["number_theta"]).get_estimate(), 1)
     == 0.0,
-    Op.EQ_SET: lambda reference_theta_sketch: lambda column_theta_sketch: round(
-        theta_a_not_b().compute(column_theta_sketch, reference_theta_sketch).get_estimate(), 1
+    Op.EQ_SET: lambda f, ref_str_sketch, ref_num_sketch: lambda update_obj: round(
+        theta_a_not_b().compute(getattr(update_obj, f)["string_theta"], ref_str_sketch).get_estimate(), 1
     )
-    == round(theta_a_not_b().compute(reference_theta_sketch, column_theta_sketch).get_estimate(), 1)
+    == round(theta_a_not_b().compute(getattr(update_obj, f)["number_theta"], ref_num_sketch).get_estimate(), 1)
+    == round(theta_a_not_b().compute(ref_str_sketch, getattr(update_obj, f)["string_theta"]).get_estimate(), 1)
+    == round(theta_a_not_b().compute(ref_num_sketch, getattr(update_obj, f)["number_theta"]).get_estimate(), 1)
     == 0.0,
 }
 
@@ -99,8 +188,15 @@ class ValueConstraint:
     op : whylogs.proto.Op (required)
         Enumeration of binary comparison operator applied between static value and incoming stream.
         Enum values are mapped to operators like '==', '<', and '<=', etc.
-    value :  (required)
+    value : (one-of)
+        When value is provided, regex_pattern must be None.
         Static value to compare against incoming stream using operator specified in `op`.
+    regex_pattern : (one-of)
+        When regex_pattern is provided, value must be None.
+        Regex pattern to use when MATCH or NOMATCH operations are used.
+    apply_function:
+        To be supplied only when using APPLY_FUNC operation.
+        In case when the apply_function requires argument, to be supplied in the value param.
     name : str
         Name of the constraint used for reporting
     verbose : bool
@@ -109,17 +205,27 @@ class ValueConstraint:
 
     """
 
-    def __init__(self, op: Op, value=None, regex_pattern: str = None, name: str = None, verbose=False):
+    def __init__(self, op: Op, value=None, regex_pattern: str = None, apply_function=None, name: str = None, verbose=False):
         self._name = name
         self._verbose = verbose
         self.op = op
+        self.apply_function = apply_function
         self.total = 0
         self.failures = 0
+
+        if (apply_function is not None) != (self.op == Op.APPLY_FUNC):
+            raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator")
 
         if isinstance(value, set) != (op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
-        if value is not None and regex_pattern is None:
+        if self.op == Op.APPLY_FUNC:
+            if value is not None:
+                value = self.apply_func_validate(value)
+                self.value = value
+            self.func = _value_funcs[op](apply_function, value)
+
+        elif value is not None and regex_pattern is None:
             # numeric value
             self.value = value
             self.func = _value_funcs[op](value)
@@ -133,7 +239,9 @@ class ValueConstraint:
 
     @property
     def name(self):
-        if getattr(self, "value", None) is not None:
+        if self.op == Op.APPLY_FUNC:
+            return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.apply_function.__name__}"
+        elif getattr(self, "value", None) is not None:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.value}"
         else:
             return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
@@ -149,6 +257,17 @@ class ValueConstraint:
             if self._verbose:
                 logger.info(f"value constraint {self.name} failed on value {v}")
 
+    def apply_func_validate(self, value) -> str:
+        if not isinstance(value, str):
+            if self.apply_function == _matches_json_schema:
+                try:
+                    value = json.dumps(value)
+                except (ValueError, TypeError):
+                    raise ValueError("Json schema invalid. When matching json schema, the schema provided must be valid.")
+            else:
+                value = str(value)
+        return value
+
     def merge(self, other) -> "ValueConstraint":
         if not other:
             return self
@@ -156,7 +275,16 @@ class ValueConstraint:
         pattern = None
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
-        if all([getattr(v, "value", None) is not None for v in (self, other)]):
+        assert (
+            self.apply_function == other.apply_function
+        ), f"Cannot merge constraints with different apply_function: {self.apply_function} and {other.apply_function}"
+        if self.apply_function is not None:
+            if hasattr(self, "value") != hasattr(other, "value"):
+                raise TypeError("Cannot merge one constraint with provided value and one without")
+            elif hasattr(self, "value") and hasattr(other, "value"):
+                val = self.value
+                assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
+        elif all([getattr(v, "value", None) is not None for v in (self, other)]):
             val = self.value
             assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
         elif all([getattr(v, "regex_pattern", None) for v in (self, other)]):
@@ -167,14 +295,19 @@ class ValueConstraint:
         else:
             raise TypeError("Cannot merge a numeric value constraint with a string value constraint")
 
-        merged_value_constraint = ValueConstraint(op=self.op, value=val, regex_pattern=pattern, name=self.name, verbose=self._verbose)
+        merged_value_constraint = ValueConstraint(
+            op=self.op, value=val, regex_pattern=pattern, apply_function=self.apply_function, name=self.name, verbose=self._verbose
+        )
         merged_value_constraint.total = self.total + other.total
         merged_value_constraint.failures = self.failures + other.failures
         return merged_value_constraint
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
-        if msg.regex_pattern != "":
+        if msg.HasField("function"):
+            val = None if msg.function.reference_value == "" else msg.function.reference_value
+            return ValueConstraint(msg.op, value=val, apply_function=globals()[msg.function.function], name=msg.name, verbose=msg.verbose)
+        elif msg.regex_pattern != "":
             return ValueConstraint(msg.op, regex_pattern=msg.regex_pattern, name=msg.name, verbose=msg.verbose)
         elif len(msg.value_set.values) != 0:
             val_set = set(msg.value_set.values[0].list_value)
@@ -183,7 +316,17 @@ class ValueConstraint:
             return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
-        if hasattr(self, "value"):
+        if self.op == Op.APPLY_FUNC:
+            func_msg = ApplyFunctionMsg(function=self.apply_function.__name__)
+            if hasattr(self, "value"):
+                func_msg = ApplyFunctionMsg(function=self.apply_function.__name__, reference_value=self.value)
+            return ValueConstraintMsg(
+                name=self.name,
+                op=self.op,
+                function=func_msg,
+                verbose=self._verbose,
+            )
+        elif hasattr(self, "value"):
             if isinstance(self.value, set):
                 set_vals_message = ListValue()
                 set_vals_message.append(list(self.value))
@@ -289,21 +432,16 @@ class SummaryConstraint:
             if any([value, upper_value, second_field, third_field, not reference_set]):
                 raise ValueError("When using set operations only set should be provided and not values or field names!")
 
-            if not isinstance(reference_set, set):
-                try:
-                    logger.warning(f"Trying to cast provided value of {type(reference_set)} to type set!")
-                    reference_set = set(reference_set)
-                except TypeError:
-                    provided_type_name = reference_set.__class__.__name__
-                    raise TypeError(
-                        f"When using set operations, provided value must be set or set castable, instead type: '{provided_type_name}' was provided!"
-                    )
             self.reference_set = reference_set
+            reference_set = self.try_cast_set()
+
             self.ref_string_set, self.ref_numbers_set = self.get_string_and_numbers_sets()
 
             self.reference_theta_sketch = self.create_theta_sketch()
             self.string_theta_sketch = self.create_theta_sketch(self.ref_string_set)
             self.numbers_theta_sketch = self.create_theta_sketch(self.ref_numbers_set)
+
+            self.func = _summary_funcs1[self.op](first_field, self.string_theta_sketch, self.numbers_theta_sketch)
 
         elif self.op == Op.BTWN:
             if value is not None and upper_value is not None and (second_field, third_field) == (None, None):
@@ -359,6 +497,16 @@ class SummaryConstraint:
 
         return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
+    def try_cast_set(self) -> Set[Any]:
+        if not isinstance(self.reference_set, set):
+            try:
+                logger.warning(f"Trying to cast provided value of {type(self.reference_set)} to type set!")
+                self.reference_set = set(self.reference_set)
+            except TypeError:
+                provided_type_name = self.reference_set.__class__.__name__
+                raise TypeError(f"When using set operations, provided value must be set or set castable, instead type: '{provided_type_name}' was provided!")
+        return self.reference_set
+
     def get_string_and_numbers_sets(self):
         string_set = set()
         numbers_set = set()
@@ -385,13 +533,6 @@ class SummaryConstraint:
             kll_sketch = getattr(update_dict, self.first_field)
             quantile_value = single_quantile_from_sketch(kll_sketch, self.quantile_value)
             result = self.func(quantile_value)
-        elif self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
-            result = all(
-                [
-                    _summary_funcs1[self.op](self.string_theta_sketch)(update_dict.string_theta),
-                    _summary_funcs1[self.op](self.numbers_theta_sketch)(update_dict.number_theta),
-                ]
-            )
         else:
             result = self.func(update_dict)
 
@@ -574,7 +715,7 @@ class ValueConstraints:
         if constraints is None:
             constraints = dict()
 
-        raw_values_operators = (Op.MATCH, Op.NOMATCH)
+        raw_values_operators = (Op.MATCH, Op.NOMATCH, Op.APPLY_FUNC)
         self.raw_value_constraints = {}
         self.coerced_type_constraints = {}
 
@@ -987,6 +1128,22 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
     return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, verbose=verbose)
 
 
+def dateUtilParseableConstraint(verbose=False):
+    return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_dateutil, verbose=verbose)
+
+
+def jsonParseableConstraint(verbose=False):
+    return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_json, verbose=verbose)
+
+
+def matchesJsonSchemaConstraint(json_schema, verbose=False):
+    return ValueConstraint(Op.APPLY_FUNC, json_schema, apply_function=_matches_json_schema, verbose=verbose)
+
+
+def strftimeFormatConstraint(format, verbose=False):
+    return ValueConstraint(Op.APPLY_FUNC, format, apply_function=_try_parse_strftime_format, verbose=verbose)
+
+
 def containsSSNConstraint(regex_pattern: "str" = None, verbose=False):
     if regex_pattern is not None:
         logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsSSNConstraint, depending on its complexity.")
@@ -1013,13 +1170,11 @@ def containsURLConstraint(regex_pattern: "str" = None, verbose=False):
 
 
 def stringLengthEqualConstraint(length: int, verbose=False):
-
     length_pattern = f"^.{{{length}}}$"
     return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
 
 
 def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose=False):
-
     length_pattern = rf"^.{{{lower_value},{upper_value}}}$"
     return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
 
@@ -1074,3 +1229,23 @@ def column_values_A_not_equal_B_constraint(column_A: str, column_B: str, verbose
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
     return MultiColumnValueConstraint(column_A, op=Op.NE, reference_columns=column_B, verbose=verbose)
+
+
+def columnUniqueValueCountBetweenConstraint(lower_value: int, upper_value: int, verbose: bool = False):
+    if not all([isinstance(v, int) and v >= 0 for v in (lower_value, upper_value)]):
+        raise ValueError("The lower and upper values should be non-negative integers")
+
+    if lower_value > upper_value:
+        raise ValueError("The lower value should be less than or equal to the upper value")
+
+    return SummaryConstraint("unique_count", op=Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)
+
+
+def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fraction: float, verbose: bool = False):
+    if not all([isinstance(v, float) and 0 <= v <= 1 for v in (lower_fraction, upper_fraction)]):
+        raise ValueError("The lower and upper fractions should be between 0 and 1")
+
+    if lower_fraction > upper_fraction:
+        raise ValueError("The lower fraction should be decimal values less than or equal to the upper fraction")
+
+    return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
