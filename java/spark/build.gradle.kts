@@ -149,7 +149,7 @@ publishing {
             pom {
                 name.set("whylogs-spark")
                 description.set("Spark integration for WhyLogs")
-                url.set("https://github.com/whylabs/whylogs-java")
+                url.set("https://github.com/whylabs/whylogs")
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")
@@ -164,9 +164,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://github.com/whylabs/whylogs-java.git")
-                    developerConnection.set("scm:git:ssh://github.com/whylabs/whylogs-java.git")
-                    url.set("https://github.com/whylabs/whylogs-java")
+                    connection.set("scm:git:git://github.com/whylabs/whylogs.git")
+                    developerConnection.set("scm:git:ssh://github.com/whylabs/whylogs.git")
+                    url.set("https://github.com/whylabs/whylogs")
                 }
 
             }
@@ -175,6 +175,9 @@ publishing {
 }
 
 signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
     setRequired({
         (rootProject.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("uploadArchives")
     })

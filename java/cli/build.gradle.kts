@@ -29,8 +29,8 @@ dependencies {
     implementation(project(":core"))
 
     implementation("org.slf4j:slf4j-api:1.7.27")
-    implementation("org.apache.logging.log4j:log4j-core:2.16.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.16.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.17.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.17.0")
 
     implementation("org.apache.commons:commons-csv:1.8")
     implementation("commons-io:commons-io:2.6")
