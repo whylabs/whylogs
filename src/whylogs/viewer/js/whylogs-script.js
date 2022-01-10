@@ -14,8 +14,10 @@
   };
 
   // HTML Elements
+  const $selectedReferenceProfile = $(".wl__selected-reference-profile");
+  const $selectedProfile = $(".wl__selected-profile");
   const $removeReferenceProfileButton = $("#remove-reference-profile-button")
-  const $featureFileName = $(".feature-file-name")
+  const $featureFileName = $(".wl__feature-file-name")
   const $notifCircleContainer = $(".notif-circle-container")
   const $boxes = $('input[name=checkbox]:checked');
   const $closeIcon = $("#close-icon");
@@ -119,6 +121,12 @@
     };
   }
 
+  function formatLabelDate(timestamp) {
+    const date = new Date(timestamp);
+    const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
+    return format(date);
+  }
+
   function scrollToFeatureName(event) {
     const TABLE_HEADER_OFFSET = 90;
     const $tableWrap = $(".wl-table-wrap");
@@ -134,31 +142,69 @@
     );
   }
 
+  const chartBoxElement = (chartTitle, chart) => `
+    <div class="chart-box-wrap mb-4">
+      <div class="chart-box" id="chart-box">
+        <div class="chart-box-title display-flex">${chartTitle}</div>
+        <div class="chart-box-chart">${chart}</div>
+      </div>
+    </div>
+  `
+
+  const frequentItemBoxElement = (chartTitle) => `
+    <div class="frequent-item-box-wrap mb-4">
+      <div class="frequent-item-box" id="chart-box">
+        <div class="chart-box-title frequent-item-box-to-title display-flex">${chartTitle}</div>
+      </div>
+    </div>
+  `
+
+  const colorsForDistingushingCharts = (color, text) => `
+    <div class="colors-for-distingushing-charts">
+      <div class="circle-color" style="background: ${color};"></div>
+      <text alignment-baseline="middle" style="font-size: 15px;">${text}</text>
+    </div>
+  `
+
+  class GenerateChartParams {
+    constructor(height, width, data, bottomMargin=20) {
+      this.MARGIN = {
+        TOP: 5,
+        RIGHT: 5,
+        BOTTOM: bottomMargin,
+        LEFT: 55,
+      };
+      this.SVG_WIDTH = width;
+      this.SVG_HEIGHT = height;
+      this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
+      this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
+      this.svgEl = d3.create("svg").attr("width", this.SVG_WIDTH).attr("height", this.SVG_HEIGHT);
+      this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+      this.xScale = d3
+        .scaleBand()
+        .domain(data.map((d) => d.axisX))
+        .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
+      this.yScale = d3
+        .scaleLinear()
+        .domain([0, this.maxYValue * 1.02])
+        .range([this.CHART_HEIGHT, 0]);
+    }
+  }
+
   function getGraphHtml(data, height = 75, width = 350, index = 0, referenceProfile = false) {
+    const sizes = new GenerateChartParams(height, width, data, 5)
+    const {
+      MARGIN,
+      SVG_WIDTH,
+      SVG_HEIGHT,
+      CHART_WIDTH,
+      CHART_HEIGHT,
+      svgEl,
+      maxYValue,
+      xScale,
+      yScale
+    } = sizes
     const color = ["#369BAC", '#2683C9']
-    const MARGIN = {
-      TOP: 5,
-      RIGHT: 5,
-      BOTTOM: 5,
-      LEFT: 55,
-    };
-    const SVG_WIDTH = width;
-    const SVG_HEIGHT = height;
-    const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
-    const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
-
-    const svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
-
-    const maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
-
-    const xScale = d3
-      .scaleBand()
-      .domain(data.map((d) => d.axisX))
-      .range([MARGIN.LEFT, MARGIN.LEFT + CHART_WIDTH]);
-    const yScale = d3
-      .scaleLinear()
-      .domain([0, maxYValue * 1.02]) // so that chart's height has 102% height of the maximum value
-      .range([CHART_HEIGHT, 0]);
 
     // Add the y Axis
     if (!referenceProfile) {
@@ -185,80 +231,265 @@
   }
 
   function generateDoubleHistogramChart(histogramData, overlappedHistogramData) {
-    // set the dimensions and margins of the graph
-    var margin = {top: 10, right: 30, bottom: 30, left: 40},
-    width = 650 - margin.left - margin.right,
-    height = 300 - margin.top - margin.bottom;
-    
-    // append the svg object to the body of the page
-    var svg = d3.select("#chart-box")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
+    let yFormat,
+        xFormat;
+    const sizes = new GenerateChartParams(230, 600, histogramData)
+    const {
+      MARGIN,
+      SVG_WIDTH,
+      SVG_HEIGHT,
+      CHART_WIDTH,
+      CHART_HEIGHT,
+      svgEl,
+      maxYValue,
+      xScale,
+      yScale
+    } = sizes
 
-    // X axis: scale and draw:
-    var x = d3.scaleLinear()
-      .domain([-1, 35])     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
-      .range([0, width]);
-    svg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
-    
-    // set the parameters for the histogram
-    var histogram = d3.histogram()
-      .value(function(d) { return +d.value; })   // I need to give the vector of value
-      .domain(x.domain())  // then the domain of the graphic
-      .thresholds(x.ticks(40)); // then the numbers of bins
-    
-    // And apply twice this function to data to get the bins.
-    var bins1 = histogram(histogramData.map(({axisY, axisX}) => { return {type: "variable 1", value: axisY} }));
-    var bins2 = histogram(overlappedHistogramData.map(({axisY, axisX}) => { return {type: "variable 2", value: axisY} }));
-    console.log(histogramData, overlappedHistogramData);
-    // Y axis: scale and draw:
-    var y = d3.scaleLinear()
-      .range([height, 0]);
-      y.domain([0, d3.max(bins1, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
-    svg.append("g")
-      .call(d3.axisLeft(y));
-    
-    // append the bars for series 1
-    svg.selectAll("rect")
-      .data(bins1)
+    const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+    yFormat = yScale.tickFormat(100, yFormat);
+
+    svgEl.append("g")
+      .attr("transform", `translate(${MARGIN.LEFT},0)`)
+      .call(yAxis)
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll(".tick line")
+          .attr("x2", CHART_WIDTH)
+          .attr("stroke-opacity", 0.1))
+      .call(g => g.append("text")
+          .attr("x", -MARGIN.LEFT)
+          .attr("y", 10)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "start"));
+
+    svgEl.append("g")
+        .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+        .call(xAxis)
+        .call(g => g.select(".domain").remove())
+        .call(g => g.selectAll(".tick line").remove())
+        .call(g => g.append("text")
+            .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+            .attr("y", 27)
+            .attr("fill", "currentColor")
+            .attr("text-anchor", "end"));
+
+      const gChart = svgEl.append("g");
+      gChart
+      .selectAll(".bar")
+      .data(histogramData)
       .enter()
       .append("rect")
-        .attr("x", 1)
-        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
-        .attr("width", function(d) { return x(d.x1) - x(d.x0); })
-        .attr("height", function(d) { return height - y(d.length); })
-        .style("fill", "#369BAC")
-        .style("opacity", 0.6)
-    
-    // append the bars for series 2
-    svg.selectAll("rect2")
-      .data(bins2)
-      .enter()
-      .append("rect")
-        .attr("x", 1)
-        .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
-        .attr("width", function(d) { return x(d.x1) - x(d.x0); })
-        .attr("height", function(d) { console.log(d, d.length, y(d.length)); return height - y(d.length); })
-        .style("fill", "#2683C9")
-        .style("opacity", 0.6)
+      .classed("bar", true)
+      .attr("width", xScale.bandwidth())
+      .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+      .attr("x", (d) => xScale(d.axisX))
+      .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+      .attr("fill", "#369BAC")
+      .style("opacity","0.6");
 
-    // Handmade legend
-    svg.append("circle").attr("cx",500).attr("cy",30).attr("r", 6).style("fill", "#369BAC")
-    svg.append("circle").attr("cx",500).attr("cy",60).attr("r", 6).style("fill", "#2683C9")
-    svg.append("text").attr("x", 520).attr("y", 30).text("Current").style("font-size", "15px").attr("alignment-baseline","middle")
-    svg.append("text").attr("x", 520).attr("y", 60).text("Reference").style("font-size", "15px").attr("alignment-baseline","middle")
+      const gChart1 = svgEl.append("g");
+      gChart1
+        .selectAll(".bar")
+        .data(overlappedHistogramData)
+        .enter()
+        .append("rect")
+        .classed("bar", true)
+        .attr("width", xScale.bandwidth())
+        .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+        .attr("x", (d) => xScale(d.axisX))
+        .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+        .attr("fill", "#2683C9")
+        .style("opacity", "0.6");
 
+    return svgEl._groups[0][0].outerHTML;
   }
 
-  function openReferencePropertyPanel(items, chart, getDoubleHistogramChart) {
+  function generateBarChart(histogramData, overlappedHistogramData) {
+    let yFormat,
+        xFormat;
+    const data = histogramData.map((profile, index) => {
+      return {
+        group: index,
+        profile: profile.axisY,
+        reference_profile: overlappedHistogramData[index].axisY
+      }
+    }).slice(0, 20)
 
-    const chartInfoItem = (drift, driftName) => `    
+    const sizes = new GenerateChartParams(230, 600, histogramData)
+    const {
+      MARGIN,
+      SVG_WIDTH,
+      SVG_HEIGHT,
+      CHART_WIDTH,
+      CHART_HEIGHT,
+      svgEl,
+      maxYValue,
+      xScale,
+      yScale
+    } = sizes
+
+    const groups = d3.map(data, function(d){return(d.group)}).keys()
+    const subgroups = ['profile', 'reference_profile']
+
+    xScale.padding([0.3])
+
+    const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+    yFormat = yScale.tickFormat(100, yFormat);
+
+    svgEl.append("g")
+      .attr("transform", `translate(${MARGIN.LEFT},0)`)
+      .call(yAxis)
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll(".tick line")
+          .attr("x2", CHART_WIDTH)
+          .attr("stroke-opacity", 0.1))
+      .call(g => g.append("text")
+          .attr("x", -MARGIN.LEFT)
+          .attr("y", 10)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "start"));
+
+    svgEl.append("g")
+        .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+        .call(xAxis)
+        .call(g => g.select(".domain").remove())
+        .call(g => g.selectAll(".tick line").remove())
+        .call(g => g.append("text")
+            .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+            .attr("y", 27)
+            .attr("fill", "currentColor")
+            .attr("text-anchor", "end"));
+    // Another scale for subgroup position?
+    const xSubgroup = d3.scaleBand()
+      .domain(subgroups)
+      .range([0, xScale.bandwidth()])
+
+    // color palette = one color per subgroup
+    const color = d3.scaleOrdinal()
+      .domain(subgroups)
+      .range(['#369BAC', '#2683C9'])
+
+    svgEl.append("g")
+       .selectAll("g")
+       // Enter in data = loop group per group
+       .data(data)
+       .enter()
+       .append("g")
+         .attr("transform", function(d) { return "translate(" + xScale(d.group) + ",0)"; })
+       .selectAll("rect")
+       .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key]}; }); })
+       .enter().append("rect")
+         .attr("x", function(d) { return xSubgroup(d.key); })
+         .attr("y", function(d) { return yScale(d.value); })
+         .attr("width", xSubgroup.bandwidth())
+         .attr("height", function(d) { return (CHART_HEIGHT - yScale(d.value)); })
+         .attr("fill", function(d) { return color(d.key); })
+         .style("opacity", "0.6");
+
+
+     return svgEl._groups[0][0].outerHTML;
+  }
+
+  function generatePositiveNegativeChart(histogramData, overlappedHistogramData) {
+    const data = histogramData.map((value, index) => {
+      const difference = value.axisY - overlappedHistogramData[index].axisY
+      const negativeValues = difference < 0 ? difference : 0
+      return [+value.axisY, negativeValues]
+    }).slice(0, 20).flat()
+
+    let yFormat,
+        xFormat;
+
+    const sizes = new GenerateChartParams(230, 600, data)
+    const {
+     MARGIN,
+     SVG_WIDTH,
+     SVG_HEIGHT,
+     CHART_WIDTH,
+     CHART_HEIGHT,
+     svgEl
+    } = sizes
+
+    const y0 = Math.max(Math.abs(d3.min(data)), Math.abs(d3.max(data)));
+
+    const yScale = d3.scaleLinear()
+        .domain([-y0, y0])
+        .range([CHART_HEIGHT,0])
+
+    const xScale = d3.scaleBand()
+        .domain(d3.range(data.length)) // so that chart's height has 102% height of the maximum value
+        .rangeRound([MARGIN.LEFT, SVG_WIDTH])
+        .padding([0.1]);
+
+    const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+    yFormat = yScale.tickFormat(100, yFormat);
+
+      svgEl.append("g")
+      .attr("transform", `translate(${MARGIN.LEFT},0)`)
+      .call(yAxis)
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll(".tick line")
+      .attr("x2", CHART_WIDTH )
+      .attr("stroke-opacity", 0.1))
+      .call(g => g.append("text")
+      .attr("x", - MARGIN.LEFT)
+      .attr("y", 10)
+      .attr("fill", "currentColor")
+      .attr("text-anchor", "start"));
+
+      svgEl
+      .append("g")
+      .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+      .call(xAxis)
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll(".tick>line").remove())
+      .call(g => g.append("text")
+          .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+          .attr("y", 27)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "end"));
+
+    svgEl.selectAll(".bar")
+        .data(data)
+      .enter().append("rect")
+        .attr("class", function(d) { return d < 0 ? "bar negative" : "bar positive"; })
+        .attr("y", function(d) { return yScale(Math.max(0, d)); })
+        .attr("x", function(d, i) { return xScale(i); })
+        .attr("height", function(d) { return Math.abs(yScale(d) - yScale(0)); })
+        .attr("width", xScale.bandwidth());
+
+        return svgEl._groups[0][0].outerHTML;
+  }
+
+  function numericalDriftChart(getDoubleHistogramChart) {
+    let colorsForDistingushingChartHTMLElement = '';
+
+    colorsForDistingushingChartHTMLElement +=`
+      <p>Data Distribution Chart</p>
+      <div class="display-flex">
+        ${colorsForDistingushingCharts("#369BAC", "Current")}
+        ${colorsForDistingushingCharts("#2683C9", "Reference")}
+      </div>
+    `
+    $(".clickable-test-feature-body").html(`
+      ${chartBoxElement(colorsForDistingushingChartHTMLElement, getDoubleHistogramChart)}
+      ${chartBoxElement('', '')}
+    `);
+  }
+
+  function categoricalDriftChart(getBarChart, getPositiveNegative) {
+    $(".clickable-test-feature-body").html(`
+      ${chartBoxElement('<p>Bar Chart</p>', getBarChart)}
+      ${chartBoxElement('<p>Difference Bar Chart</p>', getPositiveNegative)}
+    `);
+  }
+
+  function openReferencePropertyPanel(items, key, chart, getDoubleHistogramChart, getBarChart, getPositiveNegative) {
+
+    const chartInfoItem = (drift, driftName) => `
       <div class="info">
           <div>${drift}</div>
           <p>${driftName}</p>
@@ -268,14 +499,35 @@
     const $pagesButtons = $(".page-button");
     const $pagesButton = $pagesButtons[0];
     let chipString = "";
-    
+
     $pagesButtons.removeClass("activ-pages-button")
     $($pagesButton).addClass("activ-pages-button")
     $tableContent.addClass("d-none")
     $clickableTestFeatureWrap.removeClass("d-none")
 
+    $("#page-button").on("click", function () {
+      if (jsonData.columns[key].numberSummary.isDiscrete) {
+        $("#page-button").text("Categorical Data")
+        categoricalDriftChart(getBarChart, getPositiveNegative)
+      } else {
+        $("#page-button").text("Numerical Data")
+        numericalDriftChart(getDoubleHistogramChart)
+      }
+
+      $(".frequent-items-body").html(``);
+    })
+
+    if (jsonData.columns[key].numberSummary.isDiscrete) {
+      $("#page-button").text("Categorical Data")
+      categoricalDriftChart(getBarChart, getPositiveNegative)
+    } else {
+      $("#page-button").text("Numerical Data")
+      numericalDriftChart(getDoubleHistogramChart)
+    }
+    $(".frequent-items-body").html(``);
+
     $("#chart").html(chart);
-    // $("#chart-box").html(getDoubleHistogramChart);
+
     chipString += `
       ${chartInfoItem(fixNumberTo(items.numberSummary.stddev), "Drift from ref")}
       ${chartInfoItem(items.numberSummary.count.toString(), "Total Count")}
@@ -314,24 +566,28 @@
 
   function openPropertyPanel(items, infType, feature) {
     let getGraph = null,
-        getDoubleHistogramChart = null;
+        getDoubleHistogramChart = null,
+        getBarChart = null,
+        getPositiveNegative = null;
 
     if (referencePropertyPanelData[feature[0]][0]) {
       items = referencePropertyPanelData[feature[0]][0]
       getGraph = getGraphHtml(feature[1].chartData[1], 50, 280, 0, true)
       getDoubleHistogramChart = generateDoubleHistogramChart(feature[1].chartData[0], feature[1].chartData[1])
+      getBarChart = generateBarChart(feature[1].chartData[0], feature[1].chartData[1]),
+      getPositiveNegative = generatePositiveNegativeChart(feature[1].chartData[0], feature[1].chartData[1])
     }
     const getPropertyPanelGraph = getPropertyPanelGraphHtml(jsonData.columns[feature[0]], feature[0])
 
     if (checkJSONValidityForMultiProfile(jsonData) || checkJSONValidityForSingleProfile(jsonData)) {
       if (items.length > 0 && items !== "undefined") {
         if (referencePropertyPanelData[feature[0]][0]) {
-          openReferencePropertyPanel(referenceJsonData.columns[feature[0]], getGraph, getDoubleHistogramChart)
+          openReferencePropertyPanel(referenceJsonData.columns[feature[0]], feature[0], getGraph, getDoubleHistogramChart, getBarChart, getPositiveNegative)
         } else {
           openProfilePropertyPanel(items, infType, getPropertyPanelGraph)
         }
       } else {
-        
+
       }
     }
   }
@@ -385,12 +641,28 @@
     const $sidebarContentPadding = +$("#sidebar-content-single-profile").css("padding").replace('px','') * 2
     const $sidebarContentHeight = $("#sidebar-content-single-profile").height() + $sidebarContentPadding
     const $sidebar = $(".sidebar")
-    
+
     $sidebar.css("margin-bottom", `${$sidebarContentHeight}px`)
+  }
+
+  function checkCurrentProfile(item, referenceItem) {
+    if (referenceJsonData && Object.values(referenceJsonData)) {
+      return referenceItem
+    } else {
+      return item
+    }
   }
 
   // Override and populate HTML element values
   function updateHtmlElementValues() {
+    $notifCircleContainer.addClass("d-none")
+    $dropdownArrowIcon.css("transform","rotate(180deg)")
+    $filterOptions.removeClass("d-none");
+
+    checkCurrentProfile(true, false) ?
+    $("#dif-from-ref").addClass("d-none"):
+    $("#dif-from-ref").removeClass("d-none")
+
     sidebarContentHeight()
     $sidebarFeatureNameList.html("");
     $tableMessage.addClass("d-none");
@@ -412,6 +684,13 @@
                 : '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>'
             }</div>`;
           }
+        }
+      });
+
+      let diffFromRef = "";
+      feature[1].frequentItemsElemString.forEach((frequentItemElemString, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          diffFromRef += ` <div class="wl-table-cell__bedge-wrap">${Math.floor(Math.random() * 10)}</div>`;
         }
       });
 
@@ -515,6 +794,7 @@
       const showButton = selectedProfiles.some(
         (profile) => profile !== null && feature[1].inferredType[profile].toLowerCase() !== "unknown",
       );
+
       const $tableRow = $(
         `
       <li class="wl-table-row${showButton ? " wl-table-row--clickable" : ""}" data-feature-name="${
@@ -532,7 +812,9 @@
             referenceTempChartDataString +
             `</div>
           </div></div>
-          <div class="wl-table-cell wl-table-cell--top-spacing align-middle" style="max-width: 270px; padding-right: 18px">` +
+          <div class="wl-table-cell wl-table-cell--top-spacing align-middle ${checkCurrentProfile(`d-none`, ``)}" style="max-width: 270px; padding-right: 18px">` +
+          checkCurrentProfile(``, diffFromRef) +
+          `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle ${checkCurrentProfile(`d-none`, ``)}">` +
           freaquentItemsElmString +
           `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle">` +
           inferredTypeString +
@@ -567,9 +849,9 @@
         $tableRowButton.on(
           "click",
           openPropertyPanel.bind(
-            this, 
+            this,
             propertyPanelData[feature[0]][0],
-            feature[1].inferredType[0].toLowerCase(), 
+            feature[1].inferredType[0].toLowerCase(),
             feature
           ),
         );
@@ -583,8 +865,8 @@
           <li id="filter-list-item" class="wl_filter-list-item list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${feature[1].inferredType}">
             <div class="arrow-icon-container">
               <div class="wl_list-item-dot"></div>
-              <img 
-                class="d-none wl_arrow-icon" 
+              <img
+                class="d-none wl_arrow-icon"
                 src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCAxMiAxMyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC44IiBkPSJNNiAwLjY4NzVDMi43ODkwNiAwLjY4NzUgMC4xODc1IDMuMjg5MDYgMC4xODc1IDYuNUMwLjE4NzUgOS43MTA5NCAyLjc4OTA2IDEyLjMxMjUgNiAxMi4zMTI1QzkuMjEwOTQgMTIuMzEyNSAxMS44MTI1IDkuNzEwOTQgMTEuODEyNSA2LjVDMTEuODEyNSAzLjI4OTA2IDkuMjEwOTQgMC42ODc1IDYgMC42ODc1Wk01LjMyMDMxIDQuMDYyNUM1LjA4NTk0IDMuODUxNTYgNS4wODU5NCAzLjQ3NjU2IDUuMjk2ODggMy4yNjU2Mkw1LjU1NDY5IDMuMDA3ODFDNS43ODkwNiAyLjc3MzQ0IDYuMTQwNjIgMi43NzM0NCA2LjM1MTU2IDMuMDA3ODFMOS40Njg3NSA2LjEyNUM5LjY3OTY5IDYuMzM1OTQgOS42Nzk2OSA2LjY4NzUgOS40Njg3NSA2Ljg5ODQ0TDYuMzUxNTYgMTAuMDE1NkM2LjE0MDYyIDEwLjIyNjYgNS43ODkwNiAxMC4yMjY2IDUuNTU0NjkgMTAuMDE1Nkw1LjI5Njg4IDkuNzU3ODFDNS4wODU5NCA5LjU0Njg4IDUuMDg1OTQgOS4xNzE4OCA1LjMyMDMxIDguOTYwOTRMNy4wNzgxMiA3LjI1SDIuODEyNUMyLjQ4NDM4IDcuMjUgMi4yNSA3LjAxNTYyIDIuMjUgNi42ODc1VjYuMzEyNUMyLjI1IDYuMDA3ODEgMi40ODQzOCA1Ljc1IDIuODEyNSA1Ljc1SDcuMDc4MTJMNS4zMjAzMSA0LjA2MjVaIiBmaWxsPSIjMEU3Mzg0Ii8+Cjwvc3ZnPgo="
               />
             </div>
@@ -610,6 +892,10 @@
       $featureCountDiscrete.html(countDiscrete);
       $featureCountNonDiscrete.html(countNonDiscrete);
       $featureCountUnknown.html(countUnknown);
+      $selectedProfile.html(formatLabelDate(+dataForRead.properties[0].dataTimestamp));
+      if (checkCurrentProfile(false, true)) {
+        $selectedReferenceProfile.html(formatLabelDate(+dataForRead.properties[1].dataTimestamp))
+      }
     }
   }
 
@@ -653,15 +939,16 @@
       if (!dataForRead.columns[tempFeatureName]) dataForRead.columns[tempFeatureName] = [];
         dataForRead.columns[tempFeatureName].push(feature[1]);
         if (
-          referneceData && 
+          referneceData &&
           referneceData.columns[tempFeatureName].numberSummary
         ) {
+          dataForRead.properties.push(referenceJsonData.properties)
           const {
-            numberSummary, 
+            numberSummary,
             frequentItems,
             ...referenceDataForRead
           } = dataForRead.columns[tempFeatureName][0]
-          dataForRead.columns[tempFeatureName].push({ 
+          dataForRead.columns[tempFeatureName].push({
             ...referenceDataForRead,
             referenceNumberSummary: referneceData.columns[tempFeatureName].numberSummary,
             referenceFrequentItems: referneceData.columns[tempFeatureName].frequentItems
@@ -685,7 +972,7 @@
       numOfProfilesBasedOnType,
     );
   }
-  
+
 
   function makeFeatureDataForAllProfilesToShowOnTable(
     featureDataForTableForAllProfiles,
@@ -778,7 +1065,9 @@
               axisX: index,
             });
           });
+          console.log("FrequentItems", tempFeatureValues);
           if (tempFeatureValues.referenceFrequentItems) {
+            console.log("referenceFrequentItems");
             tempFeatureValues.referenceFrequentItems.items.forEach((item, index) => {
               featureDataForTableForAllProfiles[feature[0]].chartData[1].push({
                 axisY: item.estimate,
@@ -850,8 +1139,19 @@
                 axisX: index,
               });
             });
-          } 
+          }
         }
+        if(tempFeatureValues.referenceFrequentItems &&
+           featureDataForTableForAllProfiles[feature[0]].inferredType[0] === "Discrete"
+        ){
+               featureDataForTableForAllProfiles[feature[0]].chartData[1] = []
+               tempFeatureValues.referenceFrequentItems.items.forEach((item, index) => {
+                 featureDataForTableForAllProfiles[feature[0]].chartData[1].push({
+                   axisY: item.estimate,
+                   axisX: index,
+                 });
+               });
+           }
         iteration += 1;
       });
     });
@@ -954,12 +1254,12 @@
       jsonData = data;
       referenceJsonData = undefined
       $(".reference-table-head").addClass("d-none")
-      $(".wl-selected-profile").addClass("d-none") 
+      $(".wl-selected-profile").addClass("d-none")
       $compareProfile.removeClass("d-none");
     } else {
       referenceJsonData = data
-      $(".reference-table-head").removeClass("d-none")    
-      $(".wl-selected-profile").removeClass("d-none") 
+      $(".reference-table-head").removeClass("d-none")
+      $(".wl-selected-profile").removeClass("d-none")
       $(".wl-compare-profile").addClass("d-none")
     }
 
@@ -983,8 +1283,8 @@
 
   function checkedBoxes() {
     const item = Object.values($boxes).find(
-      function(value) { 
-        return $('#' + $(value)[0].id).is(":checked") 
+      function(value) {
+        return $('#' + $(value)[0].id).is(":checked")
       }
     );
 
@@ -992,6 +1292,28 @@
       $notifCircleContainer.removeClass("d-none")
     }
   }
+
+  $( window ).resize(function() {
+    const windowHeight = $(window).width()
+    console.log(windowHeight);
+    if (windowHeight < 1350 || windowHeight > 1680) {
+      $(".chart-box-chart > svg").css("width", 600)
+    }
+    if (windowHeight < 1680) {
+      $(".chart-box-chart > svg").css("width", 450)
+    }
+  });
+
+  $("#frequent-item-button").on("click", function () {
+    $(".frequent-items-body").html(`
+    ${frequentItemBoxElement('item')}
+    ${frequentItemBoxElement('item')}
+    ${frequentItemBoxElement('item')}
+    ${frequentItemBoxElement('item')}
+  `);
+
+  $(".clickable-test-feature-body").html(``);
+  })
 
   $removeReferenceProfileButton.on("click", function () {
     referenceJsonData = undefined
@@ -1005,7 +1327,7 @@
     $tableBody.html("");
     updateHtmlElementValues();
     renderList();
-    $(".wl-selected-profile").addClass("d-none") 
+    $(".wl-selected-profile").addClass("d-none")
     $(".wl-compare-profile").removeClass("d-none")
 
   })
@@ -1052,20 +1374,20 @@
     sidebarContentHeight()
     $(".open-sign-up-text-notif-container").removeClass("d-none")
   });
- 
+
   $openSignUpText.on("click", function () {
     $signUpText.removeClass("d-none");
     sidebarContentHeight()
     $(".open-sign-up-text-notif-container").addClass("d-none")
   });
-  
+
 
   $(document).on("click", ".js-list-group-item span", function (e) {
     const listItem = $("li>span"),
       listItemIndex = listItem.index(e.target),
       $listItemDot = $(".wl_list-item-dot")[listItemIndex],
       $arrowIcon = $(".wl_arrow-icon")[listItemIndex]
-  
+
     listItem.css("padding-left", "15px")
     $(".wl_list-item-dot").removeClass("d-none")
     $(".wl_arrow-icon").addClass("d-none")
