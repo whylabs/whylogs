@@ -538,7 +538,7 @@ def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path
 def test_column_values_in_set_constraint(df_lending_club, local_config_path):
     cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
     ltc = ValueConstraint(Op.LT, 1)
-    dc = DatasetConstraints(None, value_constraints={"annual_inc": [cvisc, ltc]})
+    dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
@@ -549,84 +549,6 @@ def test_column_values_in_set_constraint(df_lending_club, local_config_path):
     assert report[0][1][0][1] == len(df_lending_club)
     # the number of fails should equal the number of rows - 1 since the column id only has the value 90671227 in set
     assert report[0][1][0][2] == len(df_lending_club) - 1
-
-
-def test_set_summary_constraints(df_lending_club, local_config_path):
-
-    org_list = list(df_lending_club["annual_inc"])
-
-    org_list2 = list(df_lending_club["annual_inc"])
-    org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
-
-    in_set = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list2, name="True")
-    in_set2 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list, name="True2")
-    in_set3 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list[:-1], name="False")
-
-    eq_set = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list, name="True3")
-    eq_set2 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list2, name="False2")
-    eq_set3 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list[:-1], name="False3")
-
-    contains_set = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[org_list[2]], name="True4")
-    contains_set2 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=org_list, name="True5")
-    contains_set3 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=org_list[:-1], name="True6")
-    contains_set4 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[str(org_list[2])], name="False4")
-    contains_set5 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=[2.3456], name="False5")
-    contains_set6 = SummaryConstraint("distinct_column_values", Op.CONTAINS_SET, reference_set=org_list2, name="False6")
-
-    list(df_lending_club["annual_inc"])
-    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
-    _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints)
-
-
-def test_set_summary_constraint_invalid_init():
-    with pytest.raises(TypeError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=1)
-    with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, 1)
-    with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, second_field="aaa")
-    with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, third_field="aaa")
-    with pytest.raises(ValueError):
-        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, upper_value=2)
-
-
-def test_set_summary_no_merge_different_set():
-
-    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
-    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2, 3, 4, 5])
-    with pytest.raises(AssertionError):
-        set_c_1.merge(set_c_2)
-
-
-def test_set_summary_merge():
-    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
-    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
-
-    merged = set_c_1.merge(set_c_2)
-
-    pre_merge_json = json.loads(message_to_json(set_c_1.to_protobuf()))
-    merge_json = json.loads(message_to_json(merged.to_protobuf()))
-
-    assert pre_merge_json["name"] == merge_json["name"]
-    assert pre_merge_json["referenceSet"] == merge_json["referenceSet"]
-    assert pre_merge_json["firstField"] == merge_json["firstField"]
-    assert pre_merge_json["op"] == merge_json["op"]
-    assert pre_merge_json["verbose"] == merge_json["verbose"]
-
-
-def test_set_summary_serialization():
-    set1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
-    set2 = SummaryConstraint.from_protobuf(set1.to_protobuf())
-
-    set1_json = json.loads(message_to_json(set1.to_protobuf()))
-    set2_json = json.loads(message_to_json(set2.to_protobuf()))
-
-    assert set1_json["name"] == set2_json["name"]
-    assert set1_json["referenceSet"] == set2_json["referenceSet"]
-    assert set1_json["firstField"] == set2_json["firstField"]
-    assert set1_json["op"] == set2_json["op"]
-    assert set1_json["verbose"] == set2_json["verbose"]
 
 
 def test_merge_values_in_set_constraint_different_value_set():
@@ -1375,7 +1297,7 @@ def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_pat
     report = dc.report()
 
     print(report)
-    assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
+    assert report[0][0] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
     assert report[0][1] == 50
     assert report[0][2] == 50
 
@@ -1400,12 +1322,12 @@ def test_sum_of_row_values_of_multiple_columns_constraint_apply_true(local_confi
     report = dc.report()
 
     print(report)
-    assert report[0][0] == f"multi column value ['A', 'B'] {Op.Name(Op.EQ)} 100"
+    assert report[0][0] == f"multi column value SUM ['A', 'B'] {Op.Name(Op.EQ)} 100"
     assert report[0][1] == 5
     assert report[0][2] == 3
 
 
-def test_merge_sum_of_row_values_of_multiple_columns_constraint_different_values():
+def test_merge_sum_of_row_values_different_values():
     cpvis1 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "loan_amnt"], value="grade")
     cpvis2 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "total_pymnt"], value="grade")
     cpvis3 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=["annual_inc", "total_pymnt"], value="loan_amnt")
@@ -1416,7 +1338,7 @@ def test_merge_sum_of_row_values_of_multiple_columns_constraint_different_values
         cpvis2.merge(cpvis3)
 
 
-def test_merge_sum_of_row_values_of_multiple_columns_constraint_valid():
+def test_merge_sum_of_row_values_constraint_valid():
     col_set = ["loan_amnt", "int_rate"]
     srveq1 = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
     srveq1.total = 5
@@ -1428,7 +1350,7 @@ def test_merge_sum_of_row_values_of_multiple_columns_constraint_valid():
     srveq_merged = srveq1.merge(srveq2)
     json_value = json.loads(message_to_json(srveq_merged.to_protobuf()))
 
-    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
+    assert json_value["name"] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
     assert json_value["dependentColumns"][0] == list(col_set)
     assert json_value["op"] == Op.Name(Op.EQ)
     assert json_value["referenceColumns"][0][0] == "total_pymnt"
@@ -1439,21 +1361,22 @@ def test_merge_sum_of_row_values_of_multiple_columns_constraint_valid():
     assert report[2] == 3
 
 
-def test_serialization_deserialization_sum_of_row_values_of_multiple_columns_constraint():
+def test_serialization_deserialization_sum_of_row_values_constraint():
     columns = ["A", "B", "C"]
     c = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=columns, value=6, verbose=True)
 
     c.from_protobuf(c.to_protobuf())
     json_value = json.loads(message_to_json(c.to_protobuf()))
 
-    assert json_value["name"] == f"multi column value {columns} {Op.Name(Op.EQ)} 6"
+    assert json_value["name"] == f"multi column value SUM {columns} {Op.Name(Op.EQ)} 6"
     assert json_value["dependentColumns"][0] == list(columns)
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 6
+    assert json_value["internalDependentColumnsOp"] == Op.Name(Op.SUM)
     assert json_value["verbose"] is True
 
 
-def test_sum_of_row_values_of_multiple_columns_constraint_invalid_params():
+def test_sum_of_row_values_constraint_invalid_params():
     with pytest.raises(TypeError):
         sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=1, value="B")
     with pytest.raises(TypeError):

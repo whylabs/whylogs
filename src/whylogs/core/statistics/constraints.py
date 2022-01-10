@@ -866,6 +866,7 @@ class MultiColumnValueConstraint(ValueConstraint):
         self.reference_columns = reference_columns
 
         if internal_dependent_cols_op:
+            self.internal_op = internal_dependent_cols_op
             self.internal_dependent_cols_func = _multi_column_value_funcs[internal_dependent_cols_op]
 
         self.func = _multi_column_value_funcs[op]
@@ -874,12 +875,14 @@ class MultiColumnValueConstraint(ValueConstraint):
 
     @property
     def name(self):
+        dependent_cols = str(self.dependent_columns)
         if hasattr(self, "value"):
             val_or_ref_columns = self.value
         else:
             val_or_ref_columns = self.reference_columns
-
-        return self._name if self._name is not None else f"multi column value {self.dependent_columns} {Op.Name(self.op)} {val_or_ref_columns}"
+        if hasattr(self, "internal_op"):
+            dependent_cols = Op.Name(self.internal_op) + " " + dependent_cols
+        return self._name if self._name is not None else f"multi column value {dependent_cols} {Op.Name(self.op)} {val_or_ref_columns}"
 
     def update(self, columns):
         self.total += 1
@@ -928,10 +931,21 @@ class MultiColumnValueConstraint(ValueConstraint):
             raise AssertionError(
                 "Cannot merge multicolumn value constraints from which one has a value attribute and the other has a reference_columns attribute"
             )
+        if hasattr(self, "internal_op") != hasattr(other, "internal_op"):
+            raise AssertionError("Cannot merge multicolumn value constraint that has an internal op, with one that does not")
+        elif hasattr(self, "internal_op"):
+            assert self.internal_op == other.internal_op, "Cannot merge multicolumn value constraints with different internal ops"
 
         merged_value_constraint = MultiColumnValueConstraint(
-            dependent_columns=self.dependent_columns, op=self.op, value=val, name=self.name, reference_columns=reference_columns, verbose=self._verbose
+            dependent_columns=self.dependent_columns,
+            op=self.op,
+            value=val,
+            name=self.name,
+            reference_columns=reference_columns,
+            internal_dependent_cols_op=self.internal_op,
+            verbose=self._verbose,
         )
+
         merged_value_constraint.total = self.total + other.total
         merged_value_constraint.failures = self.failures + other.failures
         return merged_value_constraint
@@ -1011,6 +1025,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             value=value,
             value_set=set_vals_message,
             reference_columns=ref_cols,
+            internal_dependent_columns_op=self.internal_op,
             verbose=self._verbose,
         )
 
