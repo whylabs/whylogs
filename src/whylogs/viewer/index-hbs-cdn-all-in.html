@@ -1198,7 +1198,7 @@
                         <strong class="wl__feature-file-name feature-file-name count-color">{{getProfileTimeStamp this}}</strong>
                       </div>
                       <div class="flex-direction-colum mb-3">
-                        <strong class="feature-count count-color">Currently selected reference profile:</strong>
+                        <strong id="reference-profile-time-stamp" class="feature-count count-color">Currently selected reference profile:</strong>
                         <strong class="wl__feature-file-name feature-file-name count-color">{{getReferenceProfileTimeStamp}}</strong>
                       </div>
                     </div>
@@ -1283,7 +1283,7 @@
             </div>
           </div>
           <div class="wl__unlock-the-power sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
-            <div class="sign-up-text">
+            <div class="sign-up-text d-none">
               <div class="space-between align-items">
                 <strong>Unlock the power of WhyLabs:</strong>
                 <div class="wl__close-icon" id="close-icon">
@@ -1366,6 +1366,7 @@
                         <div class="wl-table-head table-border-none">Feature</div>
                         <div class="wl-table-head table-border-none reference-table-head">Reference</div>
                       </div>
+                      <div class="wl-table-head" id="diff-from-ref">Diff from ref</div>
                       <div class="wl-table-head">Frequent items</div>
                       <div class="wl-table-head">Inf. feature type</div>
                       <div class="wl-table-head text-end">Total count</div>
@@ -1414,9 +1415,13 @@
                         </div>
                       </div>
                       <div
+                        class="diff-from-ref-table-cell wl-table-cell wl-table-cell--top-spacing align-middle"
+                        style="max-width: 270px; padding-right: 18px"
+                      ><div class="wl-table-cell__bedge-wrap">{{{getDiffFromRef this}}}</div></div>
+                      <div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle"
                         style="max-width: 270px; padding-right: 18px"
-                      > <div class="wl-table-cell__bedge-wrap">{{{frequentItems this}}}</div></div><div
+                      ><div class="wl-table-cell__bedge-wrap">{{{frequentItems this}}}</div></div><div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle"
                       ><div>{{inferredType this}}</div></div><div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
@@ -1597,7 +1602,6 @@
           histogramData = chartData(data)
           overlappedHistogramData = chartData(referenceData.columns[key.data.key])
         }
-        console.log(histogramData);
         let yFormat,
             xFormat;
         const sizes = new GenerateChartParams(230, 600, histogramData)
@@ -1680,7 +1684,6 @@
           histogramData = chartData(datas)
           overlappedHistogramData = chartData(referenceData.columns[key.data.key])
         }
-        console.log(histogramData);
         let yFormat,
             xFormat;
         const data = histogramData.map((profile, index) => {
@@ -1778,7 +1781,6 @@
           histogramData = chartData(datas)
           overlappedHistogramData = chartData(referenceData.columns[key.data.key])
         }
-        console.log(histogramData);
         const data = histogramData.map((value, index) => {
           const difference = value.axisY - overlappedHistogramData[index].axisY
           const negativeValues = difference < 0 ? difference : 0
@@ -1888,6 +1890,12 @@
 
       Handlebars.registerHelper("json", function (context) {
         return JSON.stringify(context);
+      });
+
+      Handlebars.registerHelper("getDiffFromRef", function () {
+        if (profileFromCSVfile && profileFromCSVfile.columns) {
+          return Math.floor(Math.random() * 10)
+        }
       });
 
       Handlebars.registerHelper("getReferenceProfileTimeStamp", function () {
@@ -2176,6 +2184,7 @@
       const $referencefileInput = $("#reference-file-input");
       const $filterOptions = $(".filter-options");
       const $dropdownArrowIcon = $("#dropdown-arrow-icon")
+      const $notifCircleContainer = $(".notif-circle-container")
 
       // Global variables
       const activeTypes = {
@@ -2188,6 +2197,7 @@
       sidebarContentHeight()
       $filterOptions.removeClass("d-none");
       $dropdownArrowIcon.css("transform","rotate(180deg)")
+      $notifCircleContainer.addClass("d-none")
 
       function handleSearch() {
         const featureListChildren = $sidebarFeatureNameList.children;
@@ -2246,12 +2256,29 @@
           500,
         );
       }
+      const getReferenceProfile = () => { return {{{reference_profile}}} }
 
+      function checkCurrentProfile(item, referenceItem) {
+        const refData = getReferenceProfile()
+        if (refData && Object.values(refData)) {
+          return referenceItem
+        } else {
+          return item
+        }
+      }
 
+      if(checkCurrentProfile(true, false)) {
+        $("#diff-from-ref").addClass("d-none")
+        $(".diff-from-ref-table-cell").addClass("d-none")
+        $("#reference-profile-time-stamp").addClass("d-none");
+      } else {
+        $("#diff-from-ref").removeClass("d-none")
+        $(".diff-from-ref-table-cell").removeClass("d-none")
+        $("#reference-profile-time-stamp").removeClass("d-none");
+      }
 
       $( window ).resize(function() {
         const windowHeight = $(window).width()
-        console.log(windowHeight);
         if (windowHeight < 1350 || windowHeight > 1680) {
           $(".chart-box-chart > svg").css("width", 600)
         }
@@ -2372,7 +2399,6 @@
 
     $(document).ready(function() {
       const $signUpText = $(".sign-up-text");
-      $signUpText.addClass("d-none");
       sidebarContentHeight()
     })
 
@@ -2513,7 +2539,6 @@
         $("#page-button").text("Categorical Data")
         categoricalDriftChart(getBarChart, getPositiveNegativeChart)
       } else {
-       console.log(getPositiveNegativeChart);
         $("#page-button").text("Numerical Data")
         numericalDriftChart(getDoubleHistogramChart)
       }
