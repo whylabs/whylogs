@@ -22,6 +22,7 @@ enum Op {
     IN_SET = 10;
     CONTAIN_SET = 11;
     EQ_SET = 12;
+    APPLY_FUNC = 13;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -58,7 +59,10 @@ message SummaryBetweenConstraintMsg {
 
 /* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal, or between a string value and a regex pattern.
    These are applied to every incoming value that is processed by whylogs.  */
-
+message ApplyFunctionMsg {
+  string function = 1;
+  string reference_value = 2;
+}
 
 message ValueConstraintMsg {
   string name = 1;
@@ -66,6 +70,8 @@ message ValueConstraintMsg {
     double value = 2;
     string regex_pattern = 5;
     google.protobuf.ListValue value_set = 6;
+    ApplyFunctionMsg function = 7;
+    
   }
   Op op = 3;
   bool verbose = 4;
