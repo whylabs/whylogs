@@ -1065,9 +1065,7 @@
               axisX: index,
             });
           });
-          console.log("FrequentItems", tempFeatureValues);
           if (tempFeatureValues.referenceFrequentItems) {
-            console.log("referenceFrequentItems");
             tempFeatureValues.referenceFrequentItems.items.forEach((item, index) => {
               featureDataForTableForAllProfiles[feature[0]].chartData[1].push({
                 axisY: item.estimate,
@@ -1295,7 +1293,6 @@
 
   $( window ).resize(function() {
     const windowHeight = $(window).width()
-    console.log(windowHeight);
     if (windowHeight < 1350 || windowHeight > 1680) {
       $(".chart-box-chart > svg").css("width", 600)
     }
@@ -1341,8 +1338,7 @@
     $($pagesButton).addClass("activ-pages-button")
   })
 
-  $(document).ready(function() {
-    $signUpText.addClass("d-none");
+  $(window).ready(function() {
     sidebarContentHeight()
   })
 
