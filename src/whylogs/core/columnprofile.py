@@ -261,8 +261,6 @@ class MultiColumnProfile:
 
     Parameters
     ----------
-    name : str (required)
-        Name of the column profile
     constraints : MultiColumnValueConstraints
         Static assertions to be applied to data tracked between all columns
 

@@ -28,7 +28,6 @@ from whylogs.proto import (
     ValueConstraintMsgs,
 )
 from whylogs.util.protobuf import message_to_json
-from whylogs.util.util_functions import string_to_column_tuple
 
 logger = logging.getLogger(__name__)
 
@@ -425,6 +424,7 @@ class SummaryConstraint:
 
         self.value = value
         self.upper_value = upper_value
+        self.quantile_value = quantile_value
 
         if self.first_field == "quantile" and not self.quantile_value:
             raise ValueError("Summary quantile constraint must specify quantile value")
@@ -1042,11 +1042,6 @@ class MultiColumnValueConstraints(ValueConstraints):
             return MultiColumnValueConstraints({v.name: v for v in value_constraints})
         return None
 
-    def __getitem__(self, name: str) -> Optional[MultiColumnValueConstraint]:
-        if self.contraints:
-            return self.constraints.get(name)
-        return None
-
 
 class DatasetConstraints:
     def __init__(
@@ -1089,10 +1084,8 @@ class DatasetConstraints:
     @staticmethod
     def from_protobuf(msg: DatasetConstraintMsg) -> "DatasetConstraints":
         vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
-        sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
-        multi_column_value_m = dict(
-            [(string_to_column_tuple(k), MultiColumnValueConstraints.from_protobuf(v)) for k, v in msg.multi_column_value_constraints.items()]
-        )
+        sm = [(SummaryConstraints.from_protobuf(v)) for v in msg.summary_constraints]
+        multi_column_value_m = dict([(k, MultiColumnValueConstraints.from_protobuf(v)) for k, v in msg.multi_column_value_constraints.items()])
         return DatasetConstraints(msg.properties, vm, sm, multi_column_value_m)
 
     @staticmethod
