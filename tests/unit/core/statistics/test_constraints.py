@@ -6,7 +6,6 @@ import pytest
 
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
-from whylogs.util.protobuf import message_to_json
 from whylogs.core.statistics.constraints import (
     DatasetConstraints,
     Op,
@@ -44,7 +43,7 @@ from whylogs.core.statistics.constraints import (
     stringLengthBetweenConstraint,
     stringLengthEqualConstraint,
 )
-
+from whylogs.util.protobuf import message_to_json
 
 TEST_LOGGER = getLogger(__name__)
 
