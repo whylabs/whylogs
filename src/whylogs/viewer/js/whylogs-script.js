@@ -500,6 +500,7 @@
     const $pagesButton = $pagesButtons[0];
     let chipString = "";
 
+    $(".clickable-test-feature-wrap").css("height", $( window ).height())
     $pagesButtons.removeClass("activ-pages-button")
     $($pagesButton).addClass("activ-pages-button")
     $tableContent.addClass("d-none")
@@ -699,7 +700,7 @@
       let freaquentItemsElmString = "";
       feature[1].frequentItemsElemString.forEach((frequentItemElemString, index) => {
         if (selectedProfiles.includes(String(index))) {
-          freaquentItemsElmString += ` <div class="wl-table-cell__bedge-wrap">${frequentItemElemString}</div>`;
+          freaquentItemsElmString += ` <div class="wl-table-cell__bedge-wrap text-align-center">${frequentItemElemString}</div>`;
         }
       });
       let inferredTypeString = "";
@@ -816,7 +817,7 @@
           </div></div>
           <div class="wl-table-cell wl-table-cell--top-spacing align-middle ${checkCurrentProfile(`d-none`, ``)}" style="max-width: 270px; padding-right: 18px">` +
           checkCurrentProfile(``, diffFromRef) +
-          `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle ${checkCurrentProfile(`d-none`, ``)}">` +
+          `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle">` +
           freaquentItemsElmString +
           `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle">` +
           inferredTypeString +
