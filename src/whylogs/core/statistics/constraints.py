@@ -7,6 +7,7 @@ from typing import Any, List, Mapping, Optional, Set, Union
 
 import jsonschema
 import numpy as np
+import pandas as pd
 from datasketches import theta_a_not_b, update_theta_sketch
 from dateutil.parser import parse
 from google.protobuf.json_format import Parse
@@ -957,7 +958,7 @@ class MultiColumnValueConstraint(ValueConstraint):
         ref_cols = None
 
         if msg.HasField("dependent_columns"):
-            dependent_cols = list(msg.dependent_columns.values[0].list_value)
+            dependent_cols = list(msg.dependent_columns)
         else:
             dependent_cols = msg.dependent_column
 
@@ -965,14 +966,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             internal_op = msg.internal_dependent_columns_op
 
         if len(msg.value_set.values) != 0:
-            internal_values = msg.value_set.values
-            value = list()
-            for val in internal_values:
-                if hasattr(val, "list_value"):
-                    for in_val in val.list_value.values:
-                        value.append(tuple(in_val.list_value))
-                else:
-                    value.append(val)
+            value = [tuple(v) if hasattr(v, "list_value") else v for v in msg.value_set]
 
         elif msg.value:
             value = msg.value
@@ -994,20 +988,21 @@ class MultiColumnValueConstraint(ValueConstraint):
         ref_cols = None
         dependent_single_col = None
         dependent_multiple_cols = None
+        internal_op = None
 
         if isinstance(self.dependent_columns, str):
             dependent_single_col = self.dependent_columns
         else:
             dependent_multiple_cols = ListValue()
-            dependent_multiple_cols.append(self.dependent_columns)
+            dependent_multiple_cols.extend(self.dependent_columns)
 
         if hasattr(self, "value"):
-            if isinstance(self.value, set):
+            if isinstance(self.value, (set, list, np.ndarray, pd.Series)):
                 set_vals_message = ListValue()
                 for val in self.value:
                     if isinstance(val, (set, list, tuple)):
                         internal_list_value = ListValue()
-                        internal_list_value.append(list(val))
+                        internal_list_value.extend(list(val))
                         set_vals_message.append(internal_list_value)
                     else:
                         set_vals_message.append(val)
@@ -1015,7 +1010,13 @@ class MultiColumnValueConstraint(ValueConstraint):
                 value = self.value
         else:
             ref_cols = ListValue()
-            ref_cols.append(self.reference_columns)
+            if isinstance(self.reference_columns, str):
+                ref_cols.append(self.reference_columns)
+            else:
+                ref_cols.extend(self.reference_columns)
+
+        if hasattr(self, "internal_op"):
+            internal_op = self.internal_op
 
         return MultiColumnValueConstraintMsg(
             dependent_columns=dependent_multiple_cols,
@@ -1025,7 +1026,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             value=value,
             value_set=set_vals_message,
             reference_columns=ref_cols,
-            internal_dependent_columns_op=self.internal_op,
+            internal_dependent_columns_op=internal_op,
             verbose=self._verbose,
         )
 

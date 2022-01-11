@@ -1351,9 +1351,9 @@ def test_merge_sum_of_row_values_constraint_valid():
     json_value = json.loads(message_to_json(srveq_merged.to_protobuf()))
 
     assert json_value["name"] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} ['total_pymnt']"
-    assert json_value["dependentColumns"][0] == list(col_set)
+    assert json_value["dependentColumns"] == list(col_set)
     assert json_value["op"] == Op.Name(Op.EQ)
-    assert json_value["referenceColumns"][0][0] == "total_pymnt"
+    assert json_value["referenceColumns"][0] == "total_pymnt"
     assert json_value["verbose"] is False
 
     report = srveq_merged.report()
@@ -1369,7 +1369,7 @@ def test_serialization_deserialization_sum_of_row_values_constraint():
     json_value = json.loads(message_to_json(c.to_protobuf()))
 
     assert json_value["name"] == f"multi column value SUM {columns} {Op.Name(Op.EQ)} 6"
-    assert json_value["dependentColumns"][0] == list(columns)
+    assert json_value["dependentColumns"] == list(columns)
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 6
     assert json_value["internalDependentColumnsOp"] == Op.Name(Op.SUM)
