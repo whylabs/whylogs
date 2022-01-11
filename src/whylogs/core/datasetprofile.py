@@ -702,7 +702,6 @@ class DatasetProfile:
                     unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
                 )
 
-
                 constraints.update(update_dict)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")

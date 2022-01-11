@@ -6,6 +6,7 @@ import pytest
 
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
+from whylogs.util.protobuf import message_to_json
 from whylogs.core.statistics.constraints import (
     DatasetConstraints,
     Op,
@@ -18,10 +19,10 @@ from whylogs.core.statistics.constraints import (
     _try_parse_json,
     _try_parse_strftime_format,
     _value_funcs,
-    columnUniqueValueCountBetweenConstraint,
-    columnUniqueValueProportionBetweenConstraint,
     columnExistsConstraint,
     columnsMatchSetConstraint,
+    columnUniqueValueCountBetweenConstraint,
+    columnUniqueValueProportionBetweenConstraint,
     columnValuesInSetConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
@@ -36,15 +37,14 @@ from whylogs.core.statistics.constraints import (
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
-    quantileBetweenConstraint,
     numberOfRowsConstraint,
+    quantileBetweenConstraint,
     stddevBetweenConstraint,
     strftimeFormatConstraint,
     stringLengthBetweenConstraint,
     stringLengthEqualConstraint,
 )
-from whylogs.proto import Op
-from whylogs.util.protobuf import message_to_json
+
 
 TEST_LOGGER = getLogger(__name__)
 
@@ -514,12 +514,6 @@ def test_max_between_constraint_invalid():
         maxBetweenConstraint(lower_field="max", upper_field=2)
 
 
-def test_column_values_in_set_constraint(df_lending_club, local_config_path):
-    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
-    ltc = ValueConstraint(Op.LT, 1)
-    dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
-
-
 def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
 
     dc = DatasetConstraints(None, summary_constraints={"annual_inc": constraints})
@@ -618,6 +612,22 @@ def test_set_summary_serialization():
     assert set1_json["firstField"] == set2_json["firstField"]
     assert set1_json["op"] == set2_json["op"]
     assert set1_json["verbose"] == set2_json["verbose"]
+
+
+def test_column_values_in_set_constraint(df_lending_club, local_config_path):
+    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
+    ltc = ValueConstraint(Op.LT, 1)
+    dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == len(df_lending_club)
+    # the number of fails should equal the number of rows - 1 since the column id only has the value 90671227 in set
+    assert report[0][1][0][2] == len(df_lending_club) - 1
 
 
 def test_merge_values_in_set_constraint_different_value_set():
@@ -1270,6 +1280,8 @@ def test_unique_proportion_between_constraint_wrong_datatype():
         columnUniqueValueProportionBetweenConstraint(lower_fraction=0.2, upper_fraction=0.1, verbose=True)
     with pytest.raises(ValueError):
         columnUniqueValueProportionBetweenConstraint(lower_fraction=0.4, upper_fraction=2)
+
+
 def test_table_shape_constraints(df_lending_club, local_config_path):
 
     rows = numberOfRowsConstraint(n_rows=10)

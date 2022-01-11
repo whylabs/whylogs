@@ -1108,6 +1108,8 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
         raise ValueError("The lower fraction should be decimal values less than or equal to the upper fraction")
 
     return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
+
+
 def columnExistsConstraint(column: str, verbose=False):
     return SummaryConstraint("columns", Op.CONTAIN, value=column, verbose=verbose)
 
