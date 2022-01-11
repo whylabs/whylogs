@@ -1276,46 +1276,6 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
     return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
 
 
-def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], np.array], value: Union[float, int, str], verbose: bool = False):
-    """
-
-    Parameters
-    ----------
-    columns : List[str]
-        List of columns for which the sum of row values should equal some value
-    value : Union[float, int, str]
-        Numeric value to compare with the sum of the column row values,
-        or a string indicating a column name for which the row value will be compared with the sum
-    verbose : bool
-        If true, log every application of this constraint that fails.
-        Useful to identify specific streaming values that fail the constraint.
-
-    Returns
-    -------
-        MultiColumnValueConstraint
-    """
-
-    if not isinstance(columns, (list, np.array)) or not all(isinstance(col, str) for col in columns):
-        raise TypeError(
-            "The column list should be an array-like data type of only string values, indicating the column names, for which the values are going to be summed"
-        )
-
-    if not isinstance(value, (float, int, str)):
-        raise TypeError(
-            "The value should be a numeric value equal to the expected sum,"
-            " or a string indicating the column name for which the row value will be taken as the reference sum value"
-        )
-
-    reference_cols = None
-    if isinstance(value, str):
-        reference_cols = [value]
-        value = None
-
-    return MultiColumnValueConstraint(
-        dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op=Op.SUM, verbose=verbose
-    )
-
-
 def column_values_A_greater_than_B_constraint(column_A: str, column_B: str, verbose: bool = False):
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
@@ -1356,3 +1316,43 @@ def column_values_A_not_equal_B_constraint(column_A: str, column_B: str, verbose
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
     return MultiColumnValueConstraint(column_A, op=Op.NE, reference_columns=column_B, verbose=verbose)
+
+
+def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], np.array], value: Union[float, int, str], verbose: bool = False):
+    """
+
+    Parameters
+    ----------
+    columns : List[str]
+        List of columns for which the sum of row values should equal some value
+    value : Union[float, int, str]
+        Numeric value to compare with the sum of the column row values,
+        or a string indicating a column name for which the row value will be compared with the sum
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint
+    """
+
+    if not isinstance(columns, (list, np.array)) or not all(isinstance(col, str) for col in columns):
+        raise TypeError(
+            "The column list should be an array-like data type of only string values, indicating the column names, for which the values are going to be summed"
+        )
+
+    if not isinstance(value, (float, int, str)):
+        raise TypeError(
+            "The value should be a numeric value equal to the expected sum,"
+            " or a string indicating the column name for which the row value will be taken as the reference sum value"
+        )
+
+    reference_cols = None
+    if isinstance(value, str):
+        reference_cols = [value]
+        value = None
+
+    return MultiColumnValueConstraint(
+        dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op=Op.SUM, verbose=verbose
+    )
