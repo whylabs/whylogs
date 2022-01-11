@@ -41,7 +41,7 @@ message SummaryConstraintMsg {
      double value = 4;
      SummaryBetweenConstraintMsg between = 7;
      google.protobuf.ListValue reference_set = 8;
-     string value_str = 9;
+     string value_str = 10;
   }
   Op op = 5;
   bool verbose = 6;

@@ -702,13 +702,8 @@ class DatasetProfile:
                     unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
                 )
 
-                distinct_column_values_dict = dict()
-                distinct_column_values_dict["string_theta"] = colprof.string_tracker.theta_sketch.theta_sketch
-                distinct_column_values_dict["number_theta"] = colprof.number_tracker.theta_sketch.theta_sketch
 
-                update_obj = _create_update_summary_object(number_summary=summ.number_summary, distinct_column_values=distinct_column_values_dict)
-
-                constraints.update(update_obj)
+                constraints.update(update_dict)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
@@ -718,7 +713,7 @@ class DatasetProfile:
         if table_shape_constraints is None:
             table_shape_constraints = self.constraints.table_shape_constraints
 
-        update_obj = _create_update_summary_object(NumberSummary(), columns=self.columns.keys(), total_row_number=self.total_row_number)
+        update_obj = _create_update_summary_dictionary(NumberSummary(), columns=self.columns.keys(), total_row_number=self.total_row_number)
 
         table_shape_constraints.update(update_obj)
 
