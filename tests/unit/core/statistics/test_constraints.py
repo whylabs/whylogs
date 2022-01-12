@@ -513,36 +513,108 @@ def test_max_between_constraint_invalid():
         maxBetweenConstraint(lower_field="max", upper_field=2)
 
 
-def _apply_set_summary_constraints_on_dataset(df_lending_club, local_config_path, constraints):
+def test_set_summary_constraints(df_lending_club, local_config_path):
 
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": constraints})
+    org_list = list(df_lending_club["annual_inc"])
+
+    org_list2 = list(df_lending_club["annual_inc"])
+    org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
+
+    in_set = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list2, name="True")
+    in_set2 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list, name="True2")
+    in_set3 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list[:-1], name="False")
+
+    eq_set = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list, name="True3")
+    eq_set2 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list2, name="False2")
+    eq_set3 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list[:-1], name="False3")
+
+    contains_set = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[org_list[2]], name="True4")
+    contains_set2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list, name="True5")
+    contains_set3 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list[:-1], name="True6")
+    contains_set4 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[str(org_list[2])], name="False4")
+    contains_set5 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2.3456], name="False5")
+    contains_set6 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list2, name="False6")
+
+    list(df_lending_club["annual_inc"])
+    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
+    _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
+
+
+def test_set_summary_constraint_invalid_init():
+    with pytest.raises(TypeError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, 1)
+    with pytest.raises(ValueError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, second_field="aaa")
+    with pytest.raises(ValueError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, third_field="aaa")
+    with pytest.raises(ValueError):
+        SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, upper_value=2)
+
+
+def test_set_summary_no_merge_different_set():
+
+    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2, 3, 4, 5])
+    with pytest.raises(AssertionError):
+        set_c_1.merge(set_c_2)
+
+
+def test_set_summary_merge():
+    set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+    set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+
+    merged = set_c_1.merge(set_c_2)
+
+    pre_merge_json = json.loads(message_to_json(set_c_1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pre_merge_json["referenceSet"] == merge_json["referenceSet"]
+    assert pre_merge_json["firstField"] == merge_json["firstField"]
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+
+def test_set_summary_serialization():
+    set1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
+    set2 = SummaryConstraint.from_protobuf(set1.to_protobuf())
+
+    set1_json = json.loads(message_to_json(set1.to_protobuf()))
+    set2_json = json.loads(message_to_json(set2.to_protobuf()))
+
+    assert set1_json["name"] == set2_json["name"]
+    assert set1_json["referenceSet"] == set2_json["referenceSet"]
+    assert set1_json["firstField"] == set2_json["firstField"]
+    assert set1_json["op"] == set2_json["op"]
+    assert set1_json["verbose"] == set2_json["verbose"]
+
+
+def _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints):
+    dc = DatasetConstraints(None, summary_constraints=summary_constraints)
     config = load_config(local_config_path)
     session = session_from_config(config)
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = profile.apply_summary_constraints()
+    return report
 
-    assert len(report) == 1
 
-    # make sure it checked every value
-    for each_feat in report:
-        for each_constraint in each_feat[1]:
-            assert each_constraint[1] == 1
-            if "True" in each_constraint[0]:
-                assert each_constraint[2] == 0
-            else:
-                assert each_constraint[2] == 1
+def _apply_value_constraints_on_dataset(df_lending_club, local_config_path, value_constraints=None, multi_column_value_constraints=None):
+    dc = DatasetConstraints(None, value_constraints=value_constraints, multi_column_value_constraints=multi_column_value_constraints)
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    return dc.report()
 
 
 def test_column_values_in_set_constraint(df_lending_club, local_config_path):
     cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
     ltc = ValueConstraint(Op.LT, 1)
-    dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = dc.report()
+    value_constraints = {"id": [cvisc, ltc]}
+    report = _apply_value_constraints_on_dataset(df_lending_club, local_config_path, value_constraints)
 
     # check if all of the rows have been reported
     assert report[0][1][0][1] == len(df_lending_club)
@@ -1027,12 +1099,8 @@ def test_summary_constraint_quantile_invalid():
 
 def test_quantile_between_constraint_apply(local_config_path, df_lending_club):
     qc = quantileBetweenConstraint(quantile_value=0.25, lower_value=13308, upper_value=241001)
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [qc]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
+    summary_constraint = {"annual_inc": [qc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
 
     assert report[0][1][0][0] == f"summary quantile {0.25} {Op.Name(Op.BTWN)} 13308 and 241001"
     assert report[0][1][0][1] == 1
@@ -1087,12 +1155,8 @@ def test_quantile_between_wrong_datatype():
 
 def test_unique_value_count_between_constraint_apply(local_config_path, df_lending_club):
     uc = columnUniqueValueCountBetweenConstraint(lower_value=5, upper_value=50)
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [uc]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
+    summary_constraint = {"annual_inc": [uc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
     print(report)
     assert report[0][1][0][0] == f"summary unique_count {Op.Name(Op.BTWN)} 5 and 50"
     assert report[0][1][0][1] == 1
@@ -1145,12 +1209,8 @@ def test_unique_count_between_constraint_wrong_datatype():
 
 def test_unique_value_proportion_between_constraint_apply(local_config_path, df_lending_club):
     uc = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.6, upper_fraction=0.9)
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [uc]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
+    summary_constraint = {"annual_inc": [uc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
     print(report)
     assert report[0][1][0][0] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.6 and 0.9"
     assert report[0][1][0][1] == 1
@@ -1204,13 +1264,8 @@ def test_unique_proportion_between_constraint_wrong_datatype():
 def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_path, df_lending_club):
     col_set = ["loan_amnt", "int_rate"]
     srveq = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
-
-    dc = DatasetConstraints(None, multi_column_value_constraints=[srveq])
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = dc.report()
+    multi_column_value_constraints = [srveq]
+    report = _apply_value_constraints_on_dataset(df_lending_club, local_config_path, multi_column_value_constraints=multi_column_value_constraints)
 
     total_payment = ["total_pymnt"]
     assert report[0][0] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} {total_payment}"
@@ -1321,7 +1376,7 @@ def test_multi_column_value_constraints_logical_operation(local_config_path):
     assert report[0][1] == 4 and report[0][2] == 0 and report[0][0] == f"multi column value col1 {Op.Name(Op.GT)} col2"
 
 
-def test_multi_column_value_constraints_merge():
+def test_multi_column_value_constraints_merge_error():
     mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
     mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, reference_columns="col5")
 
@@ -1346,10 +1401,12 @@ def test_multi_column_value_constraints_merge():
     with pytest.raises(AssertionError):
         mcvc1.merge(mcvc2)
 
+
+def test_multi_column_value_constraints_merge_valid():
     mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
     mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, reference_columns="col2")
 
-    merged = mcvc1.merge(mcvc1)
+    merged = mcvc1.merge(mcvc2)
 
     pre_merge_json = json.loads(message_to_json(mcvc1.to_protobuf()))
     merge_json = json.loads(message_to_json(merged.to_protobuf()))
@@ -1378,7 +1435,7 @@ def test_multi_column_value_constraints_invalid_init():
         mcvc = MultiColumnValueConstraint("a", op=Op.GT, internal_dependent_cols_op=Op.GT)
 
 
-def test_multi_column_value_constraints_serialization():
+def test_multi_column_value_constraints_serialization_reference_columns():
 
     mcvc1 = MultiColumnValueConstraint(dependent_columns=["col1", "col2"], reference_columns=["col5", "col6"], op=Op.EQ)
 
@@ -1396,6 +1453,8 @@ def test_multi_column_value_constraints_serialization():
     assert mcvc1_json["op"] == mcvc2_json["op"]
     assert mcvc1_json["verbose"] == mcvc2_json["verbose"]
 
+
+def test_multi_column_value_constraints_serialization_value():
     mcvc1 = MultiColumnValueConstraint(["col1", "col2"], op=Op.GT, value=2)
 
     mcvc2 = MultiColumnValueConstraint.from_protobuf(mcvc1.to_protobuf())
@@ -1412,6 +1471,8 @@ def test_multi_column_value_constraints_serialization():
     assert mcvc1_json["op"] == mcvc2_json["op"]
     assert mcvc1_json["verbose"] == mcvc2_json["verbose"]
 
+
+def test_multi_column_value_constraints_serialization_value_set():
     mcvc1 = MultiColumnValueConstraint(["col1", "col2"], op=Op.GT, value=set([1, 2]))
 
     mcvc2 = MultiColumnValueConstraint.from_protobuf(mcvc1.to_protobuf())
@@ -1432,13 +1493,8 @@ def test_multi_column_value_constraints_serialization():
 def test_column_pair_values_in_valid_set_constraint_apply(local_config_path, df_lending_club):
     val_set = {("B", "B2"), ("C", "C2"), ("D", "D1")}  # the second pair is found in the data set
     cpvis = columnPairValuesInSetConstraint(column_A="grade", column_B="sub_grade", value_set=val_set)
-
-    dc = DatasetConstraints(None, multi_column_value_constraints=[cpvis])
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = dc.report()
+    multi_column_value_constraints = [cpvis]
+    report = _apply_value_constraints_on_dataset(df_lending_club, local_config_path, multi_column_value_constraints=multi_column_value_constraints)
 
     col_set = ["grade", "sub_grade"]
     assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set}"
@@ -1515,13 +1571,8 @@ def test_column_pair_values_in_set_constraint_invalid_params():
 
 def test_column_values_unique_within_row_constraint_apply(local_config_path, df_lending_club):
     cvu = columnValuesUniqueWithinRow(column_A="grade", verbose=True)
-
-    dc = DatasetConstraints(None, multi_column_value_constraints=[cvu])
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = dc.report()
+    multi_column_value_constraints = [cvu]
+    report = _apply_value_constraints_on_dataset(df_lending_club, local_config_path, multi_column_value_constraints=multi_column_value_constraints)
 
     assert report[0][0] == f"multi column value grade {Op.Name(Op.NOT_IN)} all"
     assert report[0][1] == 50

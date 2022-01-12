@@ -1076,7 +1076,6 @@ class DatasetConstraints:
                 summary_constraints[k] = SummaryConstraints(v)
         self.summary_constraint_map = summary_constraints
 
-        self.column_pairs = dict()  # {col: set(dependent columns from multi_column_constraints)}
         if multi_column_value_constraints is None:
             multi_column_value_constraints = list()
         for i, v in enumerate(multi_column_value_constraints):
