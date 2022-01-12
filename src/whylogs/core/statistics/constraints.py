@@ -177,6 +177,7 @@ _multi_column_value_funcs = {
     Op.GE: lambda v2: lambda v1: v1 >= v2,
     Op.GT: lambda v2: lambda v1: v1 > v2,  # assert incoming value 'v' is greater than some fixed value 'x'
     Op.IN: lambda v2: lambda v1: v1 in v2,
+    Op.NOT_IN: lambda v2: lambda v1: v1 not in v2,
     Op.SUM: lambda v: sum(v),
 }
 
@@ -898,7 +899,11 @@ class MultiColumnValueConstraint(ValueConstraint):
                 v1 = tuple([columns[col] for col in self.dependent_columns])
         if hasattr(self, "reference_columns"):
             if isinstance(self.reference_columns, str):
-                v2 = columns[self.reference_columns]
+                if self.reference_columns == "all":
+                    columns.pop(self.dependent_columns)
+                    v2 = columns.values()
+                else:
+                    v2 = columns[self.reference_columns]
             else:
                 v2 = tuple([columns[col] for col in self.reference_columns])
         else:
@@ -1374,3 +1379,10 @@ def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set
         raise TypeError("The value_set should be an array-like data type of tuple values")
 
     return MultiColumnValueConstraint(dependent_columns=[column_A, column_B], op=Op.IN, value=value_set, verbose=verbose)
+
+
+def columnValuesUniqueWithinRow(column_A: str, verbose: bool = False):
+    if not isinstance(column_A, str):
+        raise TypeError("The provided column_A should be of type str, indicating the name of the column to be checked")
+
+    return MultiColumnValueConstraint(dependent_columns=column_A, op=Op.NOT_IN, reference_columns="all", verbose=verbose)

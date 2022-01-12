@@ -255,7 +255,7 @@ class ColumnProfile:
 
 class MultiColumnProfile:
     """
-    Statistics tracking for a column (i.e. a feature)
+    Statistics tracking for a multiple columns (i.e. a features)
 
     The primary method for
 
@@ -278,7 +278,7 @@ class MultiColumnProfile:
 
     def track(self, column_dict, character_list=None, token_method=None):
         """
-        Add `value` to tracking statistics.
+        TODO: Add `column_dict` to tracking statistics.
         """
 
         # update the MultiColumnTrackers code
@@ -296,11 +296,9 @@ class MultiColumnProfile:
             Protobuf summary message.
         """
 
-        opts = dict(
-            # summaries for the multi column trackers and statistics
-        )
+        # TODO: summaries for the multi column trackers and statistics
 
-        return ColumnSummary(**opts)  # Potentially MultiColumnSummary
+        raise NotImplementedError()
 
     def merge(self, other) -> "MultiColumnProfile":
         """
@@ -315,8 +313,7 @@ class MultiColumnProfile:
         merged : MultiColumnProfile
             A new, merged multi column profile.
         """
-        assert self.column_name == other.column_name
-        return MultiColumnProfile(self.column_name)
+        return MultiColumnProfile(self.constraints.merge(other.constraints))
 
     def to_protobuf(self):
         """
@@ -327,9 +324,8 @@ class MultiColumnProfile:
         message : ColumnMessage
         """
 
-        return ColumnMessage(
-            name=self.column_name,
-        )
+        # TODO: implement new type of multicolumn message
+        raise NotImplementedError()
 
     @staticmethod
     def from_protobuf(message):
@@ -340,7 +336,6 @@ class MultiColumnProfile:
         -------
         column_profile : MultiColumnProfile
         """
+        # TODO: implement new type of multicolumn message
 
-        return MultiColumnProfile(
-            message.name,
-        )
+        raise NotImplementedError()

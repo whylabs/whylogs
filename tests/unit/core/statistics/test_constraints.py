@@ -24,6 +24,7 @@ from whylogs.core.statistics.constraints import (
     columnUniqueValueCountBetweenConstraint,
     columnUniqueValueProportionBetweenConstraint,
     columnValuesInSetConstraint,
+    columnValuesUniqueWithinRow,
     containsCreditCardConstraint,
     containsEmailConstraint,
     containsSSNConstraint,
@@ -1510,3 +1511,68 @@ def test_column_pair_values_in_set_constraint_invalid_params():
         columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=1.0)
     with pytest.raises(TypeError):
         columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set="ABC")
+
+
+def test_column_values_unique_within_row_constraint_apply(local_config_path, df_lending_club):
+    cvu = columnValuesUniqueWithinRow(column_A="grade", verbose=True)
+
+    dc = DatasetConstraints(None, multi_column_value_constraints=[cvu])
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    assert report[0][0] == f"multi column value grade {Op.Name(Op.NOT_IN)} all"
+    assert report[0][1] == 50
+    assert report[0][2] == 0
+
+
+def test_merge_column_values_unique_within_row_constraint_different_values():
+    cvu1 = columnValuesUniqueWithinRow(column_A="A")
+    cvu2 = columnValuesUniqueWithinRow(column_A="A1", verbose=True)
+
+    with pytest.raises(AssertionError):
+        cvu1.merge(cvu2)
+
+
+def test_merge_column_values_unique_within_row_constraint_valid():
+    cvu1 = columnValuesUniqueWithinRow(column_A="A")
+    cvu1.total = 5
+    cvu1.failures = 1
+    cvu2 = columnValuesUniqueWithinRow(column_A="A", verbose=True)
+    cvu2.total = 3
+    cvu2.failures = 2
+
+    merged = cvu1.merge(cvu2)
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert json_value["name"] == f"multi column value A {Op.Name(Op.NOT_IN)} all"
+    assert json_value["dependentColumn"] == "A"
+    assert json_value["op"] == Op.Name(Op.NOT_IN)
+    assert json_value["referenceColumns"] == ["all"]
+    assert json_value["verbose"] is False
+
+    report = merged.report()
+    assert report[1] == 8
+    assert report[2] == 3
+
+
+def test_serialization_deserialization_column_values_unique_within_row_constraint():
+    c = columnValuesUniqueWithinRow(column_A="A", verbose=True)
+
+    c.from_protobuf(c.to_protobuf())
+    json_value = json.loads(message_to_json(c.to_protobuf()))
+
+    assert json_value["name"] == f"multi column value A {Op.Name(Op.NOT_IN)} all"
+    assert json_value["dependentColumn"] == "A"
+    assert json_value["op"] == Op.Name(Op.NOT_IN)
+    assert json_value["referenceColumns"] == ["all"]
+    assert json_value["verbose"] is True
+
+
+def test_column_values_unique_within_row_constraint_invalid_params():
+    with pytest.raises(TypeError):
+        columnValuesUniqueWithinRow(column_A=1)
+    with pytest.raises(TypeError):
+        columnValuesUniqueWithinRow(column_A=["A"])
