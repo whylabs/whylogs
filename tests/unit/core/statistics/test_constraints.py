@@ -30,6 +30,9 @@ from whylogs.core.statistics.constraints import (
     containsSSNConstraint,
     containsURLConstraint,
     dateUtilParseableConstraint,
+    distinctValuesContainSetConstraint,
+    distinctValuesEqualSetConstraint,
+    distinctValuesInSetConstraint,
     jsonParseableConstraint,
     matchesJsonSchemaConstraint,
     maxBetweenConstraint,
@@ -520,24 +523,29 @@ def test_set_summary_constraints(df_lending_club, local_config_path):
     org_list2 = list(df_lending_club["annual_inc"])
     org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
 
-    in_set = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list2, name="True")
-    in_set2 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list, name="True2")
-    in_set3 = SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=org_list[:-1], name="False")
+    in_set = distinctValuesInSetConstraint(reference_set=org_list2, name="True")
+    in_set2 = distinctValuesInSetConstraint(reference_set=org_list, name="True2")
+    in_set3 = distinctValuesInSetConstraint(reference_set=org_list[:-1], name="False")
 
-    eq_set = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list, name="True3")
-    eq_set2 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list2, name="False2")
-    eq_set3 = SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=org_list[:-1], name="False3")
+    eq_set = distinctValuesEqualSetConstraint(reference_set=org_list, name="True3")
+    eq_set2 = distinctValuesEqualSetConstraint(reference_set=org_list2, name="False2")
+    eq_set3 = distinctValuesEqualSetConstraint(reference_set=org_list[:-1], name="False3")
 
-    contains_set = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[org_list[2]], name="True4")
-    contains_set2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list, name="True5")
-    contains_set3 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list[:-1], name="True6")
-    contains_set4 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[str(org_list[2])], name="False4")
-    contains_set5 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2.3456], name="False5")
-    contains_set6 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=org_list2, name="False6")
+    contains_set = distinctValuesContainSetConstraint(reference_set=[org_list[2]], name="True4")
+    contains_set2 = distinctValuesContainSetConstraint(reference_set=org_list, name="True5")
+    contains_set3 = distinctValuesContainSetConstraint(reference_set=org_list[:-1], name="True6")
+    contains_set4 = distinctValuesContainSetConstraint(reference_set=[str(org_list[2])], name="False4")
+    contains_set5 = distinctValuesContainSetConstraint(reference_set=[2.3456], name="False5")
+    contains_set6 = distinctValuesContainSetConstraint(reference_set=org_list2, name="False6")
 
     list(df_lending_club["annual_inc"])
     constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
-    _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
+    for r in report[0][1]:
+        if "True" in r[0]:
+            assert r[2] == 0
+        else:
+            assert r[2] == 1
 
 
 def test_set_summary_constraint_invalid_init():
