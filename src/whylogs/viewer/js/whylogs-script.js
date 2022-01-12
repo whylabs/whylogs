@@ -93,7 +93,7 @@
       }
     }
 
-    if (!checkJSONValidityForMultiProfile(jsonData) && checkJSONValidityForMultiProfile(jsonData)) {
+    if (jsonData) {
       for (let i = 0; i < featureListChildren.length; i++) {
         const name = featureListChildren[i].dataset.featureName.toLowerCase();
         const type = featureListChildren[i].dataset.inferredType.toLowerCase();
@@ -165,6 +165,7 @@
       <text alignment-baseline="middle" style="font-size: 15px;">${text}</text>
     </div>
   `
+  let chartWidth = 600;
 
   class GenerateChartParams {
     constructor(height, width, data, bottomMargin=20, topMargin=5) {
@@ -233,7 +234,8 @@
   function generateDoubleHistogramChart(histogramData, overlappedHistogramData) {
     let yFormat,
         xFormat;
-    const sizes = new GenerateChartParams(230, 600, histogramData)
+
+    const sizes = new GenerateChartParams(230, chartWidth, histogramData)
     const {
       MARGIN,
       SVG_WIDTH,
@@ -316,7 +318,7 @@
       }
     }).slice(0, 20)
 
-    const sizes = new GenerateChartParams(230, 600, histogramData, undefined, 1)
+    const sizes = new GenerateChartParams(230, chartWidth, histogramData, undefined, 1)
     const {
       MARGIN,
       SVG_WIDTH,
@@ -402,7 +404,7 @@
     let yFormat,
         xFormat;
 
-    const sizes = new GenerateChartParams(230, 600, histogramData, undefined, 1)
+    const sizes = new GenerateChartParams(230, chartWidth, histogramData, undefined, 1)
     const {
      MARGIN,
      SVG_WIDTH,
@@ -582,7 +584,7 @@
 
     getPropertyPanelGraph = getPropertyPanelGraphHtml(jsonData.columns[feature[0]], feature[0])
 
-    if (checkJSONValidityForMultiProfile(jsonData) || checkJSONValidityForSingleProfile(jsonData)) {
+    if (jsonData) {
       if (items.length > 0 && items !== "undefined") {
         if (referencePropertyPanelData[feature[0]][0]) {
           openReferencePropertyPanel(referenceJsonData.columns[feature[0]], feature[0], getGraph, getDoubleHistogramChart, getBarChart, getPositiveNegative)
@@ -847,7 +849,8 @@
           quantilesMaxString +
           `</div></li>`,
       );
-      if (checkJSONValidityForMultiProfile(jsonData) || checkJSONValidityForSingleProfile(jsonData)) {
+
+      if (jsonData) {
         const $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
         $tableRowButton.on(
           "click",
@@ -878,7 +881,8 @@
         `,
       );
     });
-    if (!checkJSONValidityForMultiProfile(jsonData)) {
+
+    if (jsonData) {
       const countDiscrete = Object.values(numOfProfilesBasedOnType).reduce(
         (acc, feature) => (acc += feature.discrete.length),
         0,
@@ -896,7 +900,7 @@
       $featureCountNonDiscrete.html(countNonDiscrete);
       $featureCountUnknown.html(countUnknown);
       $selectedProfile.html(formatLabelDate(+dataForRead.properties[0].dataTimestamp));
-      if (checkCurrentProfile(false, true)) {
+      if (checkCurrentProfile(false, true) && dataForRead.properties[1]) {
         $selectedReferenceProfile.html(formatLabelDate(+dataForRead.properties[1].dataTimestamp))
       }
     }
@@ -941,34 +945,33 @@
       }
       if (!dataForRead.columns[tempFeatureName]) dataForRead.columns[tempFeatureName] = [];
         dataForRead.columns[tempFeatureName].push(feature[1]);
-        if (
-          referneceData &&
-          referneceData.columns[tempFeatureName].numberSummary
-        ) {
-          dataForRead.properties.push(referenceJsonData.properties)
-          const {
-            numberSummary,
-            frequentItems,
-            ...referenceDataForRead
-          } = dataForRead.columns[tempFeatureName][0]
-          dataForRead.columns[tempFeatureName].push({
-            ...referenceDataForRead,
-            referenceNumberSummary: referneceData.columns[tempFeatureName].numberSummary,
-            referenceFrequentItems: referneceData.columns[tempFeatureName].frequentItems
-          })
-        }
+          if (
+            referneceData &&
+            referneceData.columns[tempFeatureName].numberSummary
+          ) {
+            dataForRead.properties.push(referenceJsonData.properties)
+            const {
+              numberSummary,
+              frequentItems,
+              ...referenceDataForRead
+            } = dataForRead.columns[tempFeatureName][0]
+            dataForRead.columns[tempFeatureName].push({
+              ...referenceDataForRead,
+              referenceNumberSummary: referneceData.columns[tempFeatureName].numberSummary,
+              referenceFrequentItems: referneceData.columns[tempFeatureName].frequentItems
+            })
+          }
     });
     return dataForRead
   }
 
   function mapProfileDataToReadData(jsonData, dataForRead, referneceData) {
-    if (checkJSONValidityForMultiProfile(jsonData)) {
-      const multiReferenceData = referneceData ? Object.values(referneceData)[0] : referneceData
-      dataForRead = getDataForRead(dataForRead, Object.values(jsonData)[0], multiReferenceData)
-    } else {
+    try {
       dataForRead = getDataForRead(dataForRead, jsonData, referneceData)
+    } catch (e) {
+      alert("You selected wrong reference profile. Please select again.")
+      removeReferenceProfile()
     }
-
     makeFeatureDataForAllProfilesToShowOnTable(
       featureDataForTableForAllProfiles,
       dataForRead,
@@ -1217,6 +1220,22 @@
     }
   }
 
+  function removeReferenceProfile() {
+    referenceJsonData = undefined
+    dataForRead = {};
+    featureDataForTableForAllProfiles = {};
+    numOfProfilesBasedOnType = {};
+
+    $(".reference-table-head").addClass("d-none")
+
+    mapProfileDataToReadData(jsonData, dataForRead, referenceJsonData);
+    $tableBody.html("");
+    updateHtmlElementValues();
+    renderList();
+    $(".wl-selected-profile").addClass("d-none")
+    $(".wl-compare-profile").removeClass("d-none")
+  }
+
   function loadFile(inputId, jsonForm) {
     isActiveInferredType = {};
     $featureFilterInput.html("");
@@ -1253,17 +1272,17 @@
     let data = JSON.parse(lines);
     if (inputId === "file-input") {
       if (checkJSONValidityForMultiProfile(data)) {
-        jsonData = data[Object.keys(data)[0]]
+        jsonData = Object.values(data)[0]
       } else {
         jsonData = data;
       }
-      referenceJsonData = undefined
+      removeReferenceProfile()
       $(".reference-table-head").addClass("d-none")
       $(".wl-selected-profile").addClass("d-none")
       $compareProfile.removeClass("d-none");
     } else {
       if (checkJSONValidityForMultiProfile(data)) {
-        referenceJsonData = data[Object.keys(data)[0]]
+        referenceJsonData = Object.values(data)[0]
       } else {
         referenceJsonData = data;
       }
@@ -1271,9 +1290,8 @@
       $(".wl-selected-profile").removeClass("d-none")
       $(".wl-compare-profile").addClass("d-none")
     }
-
     mapProfileDataToReadData(jsonData, dataForRead, referenceJsonData);
-    if (checkJSONValidityForSingleProfile(data) || checkJSONValidityForMultiProfile(data)) {
+    if (data) {
       $(".compare-select").addClass("d-none");
       $multiProfileWrap.removeClass("d-none");
       selectedProfiles[0] = "0";
@@ -1302,16 +1320,6 @@
     }
   }
 
-  $( window ).resize(function() {
-    const windowHeight = $(window).width()
-    if (windowHeight < 1350 || windowHeight > 1680) {
-      $(".chart-box-chart > svg").css("width", 600)
-    }
-    if (windowHeight < 1680) {
-      $(".chart-box-chart > svg").css("width", 450)
-    }
-  });
-
   $("#frequent-item-button").on("click", function () {
     $(".frequent-items-body").html(`
     ${frequentItemBoxElement('item')}
@@ -1323,22 +1331,7 @@
   $(".clickable-test-feature-body").html(``);
   })
 
-  $removeReferenceProfileButton.on("click", function () {
-    referenceJsonData = undefined
-    dataForRead = {};
-    featureDataForTableForAllProfiles = {};
-    numOfProfilesBasedOnType = {};
-
-    $(".reference-table-head").addClass("d-none")
-
-    mapProfileDataToReadData(jsonData, dataForRead, referenceJsonData);
-    $tableBody.html("");
-    updateHtmlElementValues();
-    renderList();
-    $(".wl-selected-profile").addClass("d-none")
-    $(".wl-compare-profile").removeClass("d-none")
-
-  })
+  $removeReferenceProfileButton.on("click", removeReferenceProfile)
 
   $(document).on("click", ".page-button", function(e) {
     const $pagesButtons = $(".page-button"),
