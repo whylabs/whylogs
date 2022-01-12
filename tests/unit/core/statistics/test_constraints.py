@@ -19,10 +19,10 @@ from whylogs.core.statistics.constraints import (
     _try_parse_json,
     _try_parse_strftime_format,
     _value_funcs,
-    column_values_A_greater_than_B_constraint,
     columnPairValuesInSetConstraint,
     columnUniqueValueCountBetweenConstraint,
     columnUniqueValueProportionBetweenConstraint,
+    columnValuesAGreaterThanBConstraint,
     columnValuesInSetConstraint,
     columnValuesUniqueWithinRow,
     containsCreditCardConstraint,
@@ -1366,7 +1366,7 @@ def test_sum_of_row_values_constraint_invalid_params():
 
 
 def test_multi_column_value_constraints_logical_operation(local_config_path):
-    a_gt_b = column_values_A_greater_than_B_constraint("col1", "col2")
+    a_gt_b = columnValuesAGreaterThanBConstraint("col1", "col2")
 
     df = pd.DataFrame({"col1": [4, 5, 6, 7], "col2": [0, 1, 2, 3]})
 
@@ -1385,25 +1385,25 @@ def test_multi_column_value_constraints_logical_operation(local_config_path):
 
 
 def test_multi_column_value_constraints_merge_error():
-    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc1 = columnValuesAGreaterThanBConstraint("col1", "col2")
     mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, reference_columns="col5")
 
     with pytest.raises(AssertionError):
         mcvc1.merge(mcvc2)
 
-    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc1 = columnValuesAGreaterThanBConstraint("col1", "col2")
     mcvc2 = MultiColumnValueConstraint("col4", op=Op.GT, reference_columns="col2")
 
     with pytest.raises(AssertionError):
         mcvc1.merge(mcvc2)
 
-    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc1 = columnValuesAGreaterThanBConstraint("col1", "col2")
     mcvc2 = MultiColumnValueConstraint("col1", op=Op.EQ, reference_columns="col2")
 
     with pytest.raises(AssertionError):
         mcvc1.merge(mcvc2)
 
-    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc1 = columnValuesAGreaterThanBConstraint("col1", "col2")
     mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, value=2)
 
     with pytest.raises(AssertionError):
@@ -1411,7 +1411,7 @@ def test_multi_column_value_constraints_merge_error():
 
 
 def test_multi_column_value_constraints_merge_valid():
-    mcvc1 = column_values_A_greater_than_B_constraint("col1", "col2")
+    mcvc1 = columnValuesAGreaterThanBConstraint("col1", "col2")
     mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, reference_columns="col2")
 
     merged = mcvc1.merge(mcvc2)
