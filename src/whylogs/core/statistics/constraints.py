@@ -3,7 +3,7 @@ import json
 import logging
 import numbers
 import re
-from typing import Any, List, Mapping, Optional, Set, Union
+from typing import Any, List, Mapping, Optional, Set, Tuple, Union
 
 import jsonschema
 import numpy as np
@@ -156,7 +156,6 @@ _summary_funcs1 = {
     == round(theta_a_not_b().compute(ref_num_sketch, getattr(update_obj, f)["number_theta"]).get_estimate(), 1)
     == 0.0,
     Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
-    Op.CONTAIN: lambda f, v: lambda s: v in getattr(s, f),
 }
 
 _summary_funcs2 = {
@@ -838,9 +837,9 @@ class SummaryConstraints:
 class MultiColumnValueConstraint(ValueConstraint):
     def __init__(
         self,
-        dependent_columns: Union[str, List[str]],
+        dependent_columns: Union[str, List[str], Tuple[str], np.ndarray],
         op: Op,
-        reference_columns: Union[str, List[str]] = None,
+        reference_columns: Union[str, List[str], Tuple[str], np.ndarray] = None,
         internal_dependent_cols_op: Op = None,
         value=None,
         name: str = None,
@@ -854,25 +853,28 @@ class MultiColumnValueConstraint(ValueConstraint):
 
         if dependent_columns is None:
             raise ValueError("The dependent_columns attribute must be provided when creating a MultiColumnValueConstraint")
-        if not isinstance(dependent_columns, (str, list)):
-            raise TypeError("The dependent_columns attribute should be a str indicating a column name in the dataframe, or a list of column names")
+        if not isinstance(dependent_columns, (str, list, tuple, np.ndarray)):
+            raise TypeError(
+                "The dependent_columns attribute should be a str indicating a column name in the dataframe, or an array-like object of column names"
+            )
 
         self.dependent_columns = dependent_columns
+        self.func = _multi_column_value_funcs[op]
 
         if (reference_columns is None) == (value is None):
-            raise ValueError("One of value and reference_columns attributes should be provided when creating a MultiColumnValueConstraint, but noth both")
-        if reference_columns and not isinstance(reference_columns, (str, list)):
-            raise TypeError("The reference_columns attribute should be a str indicating a column name in the dataframe, or a list of column names")
+            raise ValueError("One of value and reference_columns attributes should be provided when creating a MultiColumnValueConstraint," " but not both")
 
-        self.reference_columns = reference_columns
+        if reference_columns:
+            if not isinstance(reference_columns, (str, list, tuple, np.ndarray)):
+                raise TypeError("The reference_columns attribute should be a str indicating a column name in the dataframe," " or a list of column names")
+            else:
+                self.reference_columns = reference_columns
+        elif value is not None:
+            self.value = value
 
         if internal_dependent_cols_op:
             self.internal_op = internal_dependent_cols_op
             self.internal_dependent_cols_func = _multi_column_value_funcs[internal_dependent_cols_op]
-
-        self.func = _multi_column_value_funcs[op]
-        if value is not None:
-            self.value = value
 
     @property
     def name(self):
@@ -890,11 +892,11 @@ class MultiColumnValueConstraint(ValueConstraint):
         if isinstance(self.dependent_columns, str):
             v1 = columns[self.dependent_columns]
         else:
-            if self.internal_dependent_cols_func:
+            if hasattr(self, "internal_dependent_cols_func"):
                 v1 = self.internal_dependent_cols_func([columns[col] for col in self.dependent_columns])
             else:
                 v1 = tuple([columns[col] for col in self.dependent_columns])
-        if self.reference_columns:
+        if hasattr(self, "reference_columns"):
             if isinstance(self.reference_columns, str):
                 v2 = columns[self.reference_columns]
             else:
@@ -913,6 +915,7 @@ class MultiColumnValueConstraint(ValueConstraint):
 
         val = None
         reference_columns = None
+        internal_op = None
 
         assert (
             self.dependent_columns == other.dependent_columns
@@ -936,6 +939,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             raise AssertionError("Cannot merge multicolumn value constraint that has an internal op, with one that does not")
         elif hasattr(self, "internal_op"):
             assert self.internal_op == other.internal_op, "Cannot merge multicolumn value constraints with different internal ops"
+            internal_op = self.internal_op
 
         merged_value_constraint = MultiColumnValueConstraint(
             dependent_columns=self.dependent_columns,
@@ -943,7 +947,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             value=val,
             name=self.name,
             reference_columns=reference_columns,
-            internal_dependent_cols_op=self.internal_op,
+            internal_dependent_cols_op=internal_op,
             verbose=self._verbose,
         )
 
@@ -966,7 +970,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             internal_op = msg.internal_dependent_columns_op
 
         if len(msg.value_set.values) != 0:
-            value = [tuple(v) if hasattr(v, "list_value") else v for v in msg.value_set]
+            value = {tuple(v) if hasattr(v, "values") else v for v in msg.value_set}
 
         elif msg.value:
             value = msg.value
@@ -977,7 +981,7 @@ class MultiColumnValueConstraint(ValueConstraint):
                 ref_cols = "all"
         else:
             raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
-
+        value
         return MultiColumnValueConstraint(
             dependent_cols, msg.op, value=value, reference_columns=ref_cols, name=msg.name, internal_dependent_cols_op=internal_op, verbose=msg.verbose
         )
@@ -1318,7 +1322,7 @@ def column_values_A_not_equal_B_constraint(column_A: str, column_B: str, verbose
     return MultiColumnValueConstraint(column_A, op=Op.NE, reference_columns=column_B, verbose=verbose)
 
 
-def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], np.array], value: Union[float, int, str], verbose: bool = False):
+def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], Set[str], np.array], value: Union[float, int, str], verbose: bool = False):
     """
 
     Parameters
@@ -1337,7 +1341,7 @@ def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], np
         MultiColumnValueConstraint
     """
 
-    if not isinstance(columns, (list, np.array)) or not all(isinstance(col, str) for col in columns):
+    if not isinstance(columns, (list, set, np.array)) or not all(isinstance(col, str) for col in columns):
         raise TypeError(
             "The column list should be an array-like data type of only string values, indicating the column names, for which the values are going to be summed"
         )
@@ -1356,3 +1360,17 @@ def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], np
     return MultiColumnValueConstraint(
         dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op=Op.SUM, verbose=verbose
     )
+
+
+def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set[Tuple[Any, Any]], verbose: bool = False):
+    if not all([isinstance(col, str) for col in (column_A, column_B)]):
+        raise TypeError("The provided column_A and column_B should be of type str, indicating the name of the columns to be compared")
+    if isinstance(value_set, str):
+        raise TypeError("The value_set should be an array-like data type of tuple values")
+
+    try:
+        value_set = set(value_set)
+    except Exception:
+        raise TypeError("The value_set should be an array-like data type of tuple values")
+
+    return MultiColumnValueConstraint(dependent_columns=[column_A, column_B], op=Op.IN, value=value_set, verbose=verbose)
