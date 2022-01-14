@@ -1,5 +1,8 @@
 import logging
 import math
+import unicodedata
+
+from collections import defaultdict
 from typing import Callable, List
 
 from datasketches import frequent_strings_sketch
@@ -158,6 +161,125 @@ class CharPosTracker:
         return CharPosSummary(**opts)
 
 
+class CharBlockTracker:
+    """
+    Track statistics for character blocks and properties within a string
+
+    Parameters
+    ----------
+    block_list : Dict[str, List[int]]
+        Map from block name to block range to track
+
+
+    """
+
+    def __init__(self, block_list: Dict[str, List[int]] = None):
+
+        if block_list is None:
+            # might want to make this a multimap or make each value a list of ranges
+            block_list = {
+                'emoji': [0x1F600, 0x1F64F],
+                'basic-latin': [0x0000, 0x007F],
+                'extended-latin': [0x0080, 0x02AF],
+            }
+        # validate list length is (multiple of) 2
+        self.block_list = block_list
+        self.char_block_map = defaultdict(NumberTracker)
+
+    def update(self, value: str) -> None:  # pass in block_list?
+        # value must be unicodedata.normalize()-able, not necessarily utf-16
+        """update
+
+        Parameters
+        ----------
+        value : str
+            utf-16 string
+        """
+        block_counter = defaultdict(int)
+        for char in unicodedata.normalize('NFD', value).lower():
+            for block_name, block_limits in self.block_list.items():
+                if block_limits[0] <= char <= block_limits[1]:
+                    block_counter[block_name] += 1
+                # do we want to track chars not in any block?
+        for block_name, block_count in block_counter.items():
+            self.char_block_map[block_name].track(block_count)
+
+    def merge(self, other: "CharBlockTracker") -> "CharBlockTracker":
+        """
+        Merges two Char Block Maps
+
+        Args:
+
+            other (CharBlockTracker): to be merged
+
+        """
+        # probably need lots of validation here :)
+        new_block_list = self.block_list | other.block_list
+
+        # initialize merged
+        new_char_block_tracker = CharBlockTracker(new_block_list)
+
+        # merge
+        new_char_block_map = defaultdict(NumberTracker)
+        for block_name in new_block_list.keys():
+            block_tracker = self.char_block_map.get(block_name, None)
+            other_tracker = other.char_block_map.get(block_name, None)
+
+            if block_tracker and other_tracker:
+                new_char_block_map[block_name] = block_tracker.merge(other_tracker)
+            elif block_tracker:
+                new_char_block_map[block_name] = block_tracker
+            elif other_tracker:
+                new_char_block_map[block_name] = other_tracker
+
+        # merge not in the list?
+
+        new_char_block_tracker.char_block_map = new_char_block_map
+
+        return new_char_block_tracker
+
+    def to_protobuf(self):
+        """
+        Return the object serialized as a protobuf message
+        """
+        block_list = {
+            block_name: UnicodeBlockEntry(block_start=block_range[0], block_end=block_range[1])
+            for block_name, block_range in self.block_list
+        }
+
+        opts = dict(block_list=block_list, char_pos_map={key: nt.to_protobuf() for key, nt in self.char_block_map.items()})
+
+        msg = CharBlockMessage(**opts)
+
+        return msg
+
+    @staticmethod
+    def from_protobuf(message: CharBlockMessage):
+        """
+        Load from a CharBlockMessage protobuf message
+
+        Returns
+        -------
+        CharBlockTracker
+        """
+
+        char_block_tracker = CharBlockTracker(dict())
+        for each_key, each_value in message.block_list.items():
+            char_block_tracker.block_list[each_key] = [each_value.block_start, each_value.block_end]
+
+        for each_key, each_value in message.char_block_map.items():
+            char_block_tracker.char_block_map[each_key] = NumberTracker.from_protobuf(each_value)
+
+        return char_block_tracker
+
+    def to_summary(self):
+        character_list = list(self.character_list)
+        character_list.sort()
+        opts = dict(character_list="".join(character_list), char_pos_map={key: nt.to_summary() for key, nt in self.char_pos_map.items()})
+
+        return CharPosSummary(**opts)
+
+
 class StringTracker:
     """
     Track statistics for strings
@@ -189,6 +311,7 @@ class StringTracker:
         token_length: NumberTracker = None,
         char_pos_tracker: CharPosTracker = None,
         token_method: Callable[[], List[str]] = None,
+        char_block_tracker: CharBlockTracker = None,
     ):
         if count is None:
             count = 0
@@ -208,6 +331,8 @@ class StringTracker:
 
         self.token_method = token_method if token_method else lambda x: x.split(" ")
 
+        self.char_block_tracker = char_block_tracker if char_block_tracker else CharBlockTracker()
+
     def update(self, value: str, character_list=None, token_method=None):
         """
         Add a string to the tracking statistics.
@@ -222,7 +347,7 @@ class StringTracker:
         self.items.update(value)
 
         self.char_pos_tracker.update(value, character_list)
-
+        self.char_range_tracker.update(value) # block map?
         if token_method:
             self.token_method = token_method
         self.length.track(len(value))
@@ -251,8 +376,9 @@ class StringTracker:
         new_length = self.length.merge(other.length)
         new_token_length = self.token_length.merge(other.token_length)
         new_char_pos_tracker = self.char_pos_tracker.merge(other.char_pos_tracker)
-
-        return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_char_pos_tracker)
+        new_char_range_tracker = self.char_block_tracker() # block map?
+        
+        return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_char_pos_tracker, new_char_block_tracker)
 
     def to_protobuf(self):
         """
@@ -270,6 +396,7 @@ class StringTracker:
             length=self.length.to_protobuf() if self.length else None,
             token_length=self.token_length.to_protobuf() if self.token_length else None,
             char_pos_tracker=self.char_pos_tracker.to_protobuf() if self.char_pos_tracker else None,
+            # char_block_tracker=self.char_block_tracker.to_protobuf() if self.char_block_tracker else None,
         )
 
     @staticmethod
@@ -294,6 +421,7 @@ class StringTracker:
             length=NumberTracker.from_protobuf(message.length),
             token_length=NumberTracker.from_protobuf(message.token_length),
             char_pos_tracker=CharPosTracker.from_protobuf(message.char_pos_tracker),
+            char_block_tracker=CharBlockTracker.from_protobuf(message.char_block_tracker),
         )
 
     def to_summary(self):
@@ -313,6 +441,7 @@ class StringTracker:
             length=self.length.to_summary(),
             token_length=self.token_length.to_summary(),
             char_pos_tracker=self.char_pos_tracker.to_summary(),
+            # CharBlockTracer ?
         )
         if unique_count.estimate < MAX_SUMMARY_ITEMS:
             frequent_strings = from_string_sketch(self.items)

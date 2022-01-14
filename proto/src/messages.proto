@@ -76,6 +76,16 @@ message CharPosMessage {
   map<string, NumbersMessage> char_pos_map = 2;
 }
 
+message UnicodeBlockEntry {
+  int32 block_start = 1;
+  int32 block_end = 2;
+}
+
+message CharBlockMessage {
+  map<string, BlockEntry> block_list = 1;
+  map<string, NumbersMessage> char_block_map = 2;
+}
+
 message StringsMessage {
   int64 count = 1;
 
@@ -86,7 +96,7 @@ message StringsMessage {
   NumbersMessage length = 5;
   NumbersMessage token_length = 6;
   CharPosMessage char_pos_tracker = 7;
-
+  CharBlockMessage char_block_tracker = 8;
 }
 
 
