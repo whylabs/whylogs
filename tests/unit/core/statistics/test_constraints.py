@@ -66,10 +66,10 @@ def test_value_summary_serialization():
             assert json_value["name"] == "value " + Op.Name(each_op) + " 3.6"
             assert pytest.approx(json_value["value"], 0.001) == 3.6
         assert json_value["op"] == Op.Name(each_op)
-        assert json_value["verbose"] == False
+        assert json_value["verbose"] is False
 
     for each_op, _ in _summary_funcs1.items():
-        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
+        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
             continue
         # constraints may have an optional name
         sum_constraint = SummaryConstraint("min", each_op, 300000, name="< 30K")
@@ -80,7 +80,7 @@ def test_value_summary_serialization():
         assert pytest.approx(json_summary["value"], 0.1) == 300000
         assert json_summary["firstField"] == "min"
         assert json_summary["op"] == str(Op.Name(each_op))
-        assert json_summary["verbose"] == False
+        assert json_summary["verbose"] is False
 
 
 def test_value_constraints(df_lending_club, local_config_path):
