@@ -17,6 +17,7 @@ from whylogs.core import ColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
 from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
+from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
     ColumnsChunkSegment,
     DatasetMetadataSegment,
@@ -692,6 +693,8 @@ class DatasetProfile:
                 distinct_column_values_dict = dict()
                 distinct_column_values_dict["string_theta"] = colprof.string_tracker.theta_sketch.theta_sketch
                 distinct_column_values_dict["number_theta"] = colprof.number_tracker.theta_sketch.theta_sketch
+                frequent_items_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
+                most_common_val = frequent_items_summ.items[0].json_value if frequent_items_summ else None
 
                 update_dict = _create_update_summary_dictionary(
                     number_summary=summ.number_summary,
@@ -699,6 +702,7 @@ class DatasetProfile:
                     quantile=colprof.number_tracker.histogram,
                     unique_count=summ.unique_count.estimate,
                     unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
+                    most_common_value=TypedDataConverter.convert(most_common_val),
                     null_count=summ.counters.null_count.value,
                 )
 
