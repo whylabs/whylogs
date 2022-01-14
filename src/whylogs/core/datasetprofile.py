@@ -703,6 +703,7 @@ class DatasetProfile:
                     unique_count=summ.unique_count.estimate,
                     unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
                     most_common_value=TypedDataConverter.convert(most_common_val),
+                    null_count=summ.counters.null_count.value,
                 )
 
                 constraints.update(update_dict)

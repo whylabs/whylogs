@@ -22,6 +22,7 @@ from whylogs.core.statistics.constraints import (
     columnUniqueValueCountBetweenConstraint,
     columnUniqueValueProportionBetweenConstraint,
     columnValuesInSetConstraint,
+    columnValuesNotNullConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
     containsSSNConstraint,
@@ -65,7 +66,7 @@ def test_value_summary_serialization():
             assert json_value["name"] == "value " + Op.Name(each_op) + " 3.6"
             assert pytest.approx(json_value["value"], 0.001) == 3.6
         assert json_value["op"] == Op.Name(each_op)
-        assert json_value["verbose"] == False
+        assert json_value["verbose"] is False
 
     for each_op, _ in _summary_funcs1.items():
         if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
@@ -79,7 +80,7 @@ def test_value_summary_serialization():
         assert pytest.approx(json_summary["value"], 0.1) == 300000
         assert json_summary["firstField"] == "min"
         assert json_summary["op"] == str(Op.Name(each_op))
-        assert json_summary["verbose"] == False
+        assert json_summary["verbose"] is False
 
 
 def test_value_constraints(df_lending_club, local_config_path):
@@ -530,38 +531,6 @@ def _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, su
     return report
 
 
-def test_set_summary_constraints(df_lending_club, local_config_path):
-
-    org_list = list(df_lending_club["annual_inc"])
-
-    org_list2 = list(df_lending_club["annual_inc"])
-    org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
-
-    in_set = distinctValuesInSetConstraint(reference_set=org_list2, name="True")
-    in_set2 = distinctValuesInSetConstraint(reference_set=org_list, name="True2")
-    in_set3 = distinctValuesInSetConstraint(reference_set=org_list[:-1], name="False")
-
-    eq_set = distinctValuesEqualSetConstraint(reference_set=org_list, name="True3")
-    eq_set2 = distinctValuesEqualSetConstraint(reference_set=org_list2, name="False2")
-    eq_set3 = distinctValuesEqualSetConstraint(reference_set=org_list[:-1], name="False3")
-
-    contains_set = distinctValuesContainSetConstraint(reference_set=[org_list[2]], name="True4")
-    contains_set2 = distinctValuesContainSetConstraint(reference_set=org_list, name="True5")
-    contains_set3 = distinctValuesContainSetConstraint(reference_set=org_list[:-1], name="True6")
-    contains_set4 = distinctValuesContainSetConstraint(reference_set=[str(org_list[2])], name="False4")
-    contains_set5 = distinctValuesContainSetConstraint(reference_set=[2.3456], name="False5")
-    contains_set6 = distinctValuesContainSetConstraint(reference_set=org_list2, name="False6")
-
-    list(df_lending_club["annual_inc"])
-    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
-    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
-    for r in report[0][1]:
-        if "True" in r[0]:
-            assert r[2] == 0
-        else:
-            assert r[2] == 1
-
-
 def test_set_summary_constraint_invalid_init():
     with pytest.raises(TypeError):
         SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=1)
@@ -597,6 +566,38 @@ def test_set_summary_merge():
     assert pre_merge_json["firstField"] == merge_json["firstField"]
     assert pre_merge_json["op"] == merge_json["op"]
     assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+
+def test_set_summary_constraints(df_lending_club, local_config_path):
+
+    org_list = list(df_lending_club["annual_inc"])
+
+    org_list2 = list(df_lending_club["annual_inc"])
+    org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
+
+    in_set = distinctValuesInSetConstraint(reference_set=org_list2, name="True")
+    in_set2 = distinctValuesInSetConstraint(reference_set=org_list, name="True2")
+    in_set3 = distinctValuesInSetConstraint(reference_set=org_list[:-1], name="False")
+
+    eq_set = distinctValuesEqualSetConstraint(reference_set=org_list, name="True3")
+    eq_set2 = distinctValuesEqualSetConstraint(reference_set=org_list2, name="False2")
+    eq_set3 = distinctValuesEqualSetConstraint(reference_set=org_list[:-1], name="False3")
+
+    contains_set = distinctValuesContainSetConstraint(reference_set=[org_list[2]], name="True4")
+    contains_set2 = distinctValuesContainSetConstraint(reference_set=org_list, name="True5")
+    contains_set3 = distinctValuesContainSetConstraint(reference_set=org_list[:-1], name="True6")
+    contains_set4 = distinctValuesContainSetConstraint(reference_set=[str(org_list[2])], name="False4")
+    contains_set5 = distinctValuesContainSetConstraint(reference_set=[2.3456], name="False5")
+    contains_set6 = distinctValuesContainSetConstraint(reference_set=org_list2, name="False6")
+
+    list(df_lending_club["annual_inc"])
+    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
+    for r in report[0][1]:
+        if "True" in r[0]:
+            assert r[2] == 0
+        else:
+            assert r[2] == 1
 
 
 def test_set_summary_serialization():
@@ -1303,3 +1304,67 @@ def test_serialization_deserialization_most_common_value_in_set_constraint():
 def test_most_common_value_in_set_constraint_wrong_datatype():
     with pytest.raises(TypeError):
         columnMostCommonValueInSetConstraint(value_set=2.3, verbose=True)
+
+
+def test_column_values_not_null_constraint_apply_pass(local_config_path, df_lending_club):
+    nnc1 = columnValuesNotNullConstraint()
+    summary_constraints = {"annual_inc": [nnc1]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
+
+    TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
+
+    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_column_values_not_null_constraint_apply_fail(local_config_path):
+    nnc2 = columnValuesNotNullConstraint()
+    df = pd.DataFrame([{"value": 1}, {"value": 5.2}, {"value": None}, {"value": 2.3}, {"value": None}])
+    summary_constraints = {"value": [nnc2]}
+    report = _apply_summary_constraints_on_dataset(df, local_config_path, summary_constraints)
+
+    TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
+
+    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 1
+
+
+def test_merge_column_values_not_null_constraint_different_values(local_config_path, df_lending_club):
+    nnc1 = columnValuesNotNullConstraint()
+    nnc2 = columnValuesNotNullConstraint()
+    summary_constraints1 = {"annual_inc": [nnc1]}
+    summary_constraints2 = {"annual_inc": [nnc2]}
+
+    report1 = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints1)
+    report2 = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints2)
+
+    assert report1[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report1[0][1][0][1] == 1
+    assert report1[0][1][0][2] == 0
+
+    assert report2[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report2[0][1][0][1] == 1
+    assert report2[0][1][0][2] == 0
+
+    merged = nnc1.merge(nnc2)
+    report_merged = merged.report()
+    print(report_merged)
+    TEST_LOGGER.info(f"Merged report of columnValuesNotNullConstraint: {report_merged}")
+
+    assert merged.total == 2
+    assert merged.failures == 0
+
+
+def test_serialization_deserialization_column_values_not_null_constraint():
+    nnc = columnValuesNotNullConstraint(verbose=True)
+
+    nnc.from_protobuf(nnc.to_protobuf())
+    json_value = json.loads(message_to_json(nnc.to_protobuf()))
+
+    assert json_value["name"] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert json_value["firstField"] == "null_count"
+    assert json_value["op"] == Op.Name(Op.EQ)
+    assert pytest.approx(json_value["value"], 0.01) == 0
+    assert json_value["verbose"] is True

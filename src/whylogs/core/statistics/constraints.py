@@ -209,7 +209,7 @@ class ValueConstraint:
         if (apply_function is not None) != (self.op == Op.APPLY_FUNC):
             raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator")
 
-        if (isinstance(value, set) and op != Op.IN) or (not isinstance(value, set) and op == Op.IN):
+        if isinstance(value, set) != (op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
         if self.op == Op.APPLY_FUNC:
@@ -1036,3 +1036,7 @@ def columnMostCommonValueInSetConstraint(value_set: Set[Any], verbose=False):
         raise TypeError("The value set should be an iterable data type")
 
     return SummaryConstraint("most_common_value", op=Op.IN, reference_set=value_set, verbose=verbose)
+
+
+def columnValuesNotNullConstraint(verbose=False):
+    return SummaryConstraint("null_count", value=0, op=Op.EQ, verbose=verbose)
