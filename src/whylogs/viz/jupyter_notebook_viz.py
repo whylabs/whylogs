@@ -59,5 +59,5 @@ def display_profile(profiles: List[DatasetProfile] = None, reference_profiles: L
         output_index = template(
             {"profile_from_whylogs": profile_jsons[0]})
 
-    iframe = f'''<iframe srcdoc="{html.escape(output_index)}" width=1000px height=1000px></iframe>'''
+    iframe = f'''<iframe srcdoc="{html.escape(output_index)}" width=960px height=1000px frameBorder=0></iframe>'''
     return IPython.display.HTML(iframe)

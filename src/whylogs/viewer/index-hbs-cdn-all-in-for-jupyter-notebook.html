@@ -163,7 +163,7 @@
       .wl-table-head {
         position: sticky;
         top: 0;
-        min-width: 130px;
+        min-width: 100px;
         background-color: var(--white);
         border-bottom: 2px solid var(--brandSecondary100);
         font-size: 12px;
@@ -240,15 +240,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-      }
-
-      @media screen and (min-width: 1000px) {
-        .desktop-content {
-          display: block;
-        }
-        .no-responsive {
-          display: none;
-        }
       }
 
       .no-responsive__content {
@@ -406,7 +397,7 @@
        margin-right: 5px;
      }
 
-     .drift-detection-search-input input::placeholder { 
+     .drift-detection-search-input input::placeholder {
        font-family: Arial;
        font-weight: normal;
        font-size: 17px;
@@ -423,7 +414,7 @@
       width: 0;
     }
 
-     @media screen and (min-width: 1000px) {
+     @media screen and (min-width: 500px) {
        .desktop-content {
          display: block;
        }
@@ -592,7 +583,7 @@
         }
       }
 
-      function generateChart(data, height = 75, width = 350, index = 0, referenceProfile = false) {
+      function generateChart(data, height = 70, width = 250, index = 0, referenceProfile = false) {
         const sizes = new GenerateChartParams(height, width, data, 5)
         const {
           MARGIN,
