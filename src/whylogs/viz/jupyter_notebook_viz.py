@@ -3,18 +3,21 @@ import os
 import tempfile
 import webbrowser
 from typing import List
+import html
+import IPython
 
 from whylogs.core import DatasetProfile
 from whylogs.util.protobuf import message_to_json
+
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 
 logger = logging.getLogger(__name__)
 
 
-def profile_viewer(profiles: List[DatasetProfile] = None, reference_profiles: List[DatasetProfile] = None, output_path=None) -> str:
+def display_profile(profiles: List[DatasetProfile] = None, reference_profiles: List[DatasetProfile] = None) -> str:
     """
-    open a profile viewer loader on your default browser
+    display profile in jupyter notebook
     """
     try:
         from pybars import Compiler
@@ -23,10 +26,6 @@ def profile_viewer(profiles: List[DatasetProfile] = None, reference_profiles: Li
         logger.debug(str(e))
         logger.debug(
             "Unable to load pybars; install pybars3 to load profile from directly from the current session ")
-
-        index_path = os.path.abspath(os.path.join(_MY_DIR, os.pardir, "viewer", "index.html"))
-        webbrowser.open_new_tab(f"file:{index_path}#")
-        return None
 
     # create json output from profiles
     if profiles:
@@ -39,12 +38,12 @@ def profile_viewer(profiles: List[DatasetProfile] = None, reference_profiles: Li
                                        for each_prof in reference_profiles]
 
     else:
-        index_path = os.path.abspath(os.path.join(_MY_DIR, os.pardir, "viewer", "index.html"))
-        webbrowser.open_new_tab(f"file:{index_path}#")
+        logger.warning(
+            "Got no profile data, make sure you pass data correctly ")
         return None
 
     index_path = os.path.abspath(os.path.join(
-        _MY_DIR, os.pardir, "viewer", "index-hbs-cdn-all-in.html"))
+        _MY_DIR, os.pardir, "viewer", "index-hbs-cdn-all-in-for-jupyter-notebook.html"))
 
     with open(index_path, "r") as file_with_template:
         source = file_with_template.read()
@@ -60,12 +59,5 @@ def profile_viewer(profiles: List[DatasetProfile] = None, reference_profiles: Li
         output_index = template(
             {"profile_from_whylogs": profile_jsons[0]})
 
-    if not output_path:
-        output_path = tempfile.mkstemp(suffix=".html")[1]
-    else:
-        output_path = os.path.abspath(os.path.expanduser(output_path))
-    with open(output_path, "w") as f:
-        f.write(output_index)
-
-    webbrowser.open_new_tab(f"file:{output_path}#")
-    return output_path
+    iframe = f'''<iframe srcdoc="{html.escape(output_index)}" width=1000px height=1000px></iframe>'''
+    return IPython.display.HTML(iframe)
