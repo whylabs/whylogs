@@ -17,6 +17,7 @@ from whylogs.proto import (
     ApplyFunctionMsg,
     DatasetConstraintMsg,
     DatasetProperties,
+    InferredType,
     Op,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
@@ -170,6 +171,9 @@ _summary_funcs2 = {
     Op.BTWN: lambda f, f2, f3: lambda s: getattr(s, f2) <= getattr(s, f) <= getattr(s, f3),
 }
 
+# restrict the set length for printing the name of the constraint which contains a reference set
+MAX_SET_DISPLAY_MESSAGE_LENGTH = 20
+
 
 class ValueConstraint:
     """
@@ -265,13 +269,16 @@ class ValueConstraint:
     def merge(self, other) -> "ValueConstraint":
         if not other:
             return self
+
         val = None
         pattern = None
+
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
         assert (
             self.apply_function == other.apply_function
         ), f"Cannot merge constraints with different apply_function: {self.apply_function} and {other.apply_function}"
+
         if self.apply_function is not None:
             if hasattr(self, "value") != hasattr(other, "value"):
                 raise TypeError("Cannot merge one constraint with provided value and one without")
@@ -292,22 +299,28 @@ class ValueConstraint:
         merged_value_constraint = ValueConstraint(
             op=self.op, value=val, regex_pattern=pattern, apply_function=self.apply_function, name=self.name, verbose=self._verbose
         )
+
         merged_value_constraint.total = self.total + other.total
         merged_value_constraint.failures = self.failures + other.failures
         return merged_value_constraint
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
+        val = None
+        regex_pattern = None
+        apply_function = None
+
         if msg.HasField("function"):
             val = None if msg.function.reference_value == "" else msg.function.reference_value
-            return ValueConstraint(msg.op, value=val, apply_function=globals()[msg.function.function], name=msg.name, verbose=msg.verbose)
+            apply_function = globals()[msg.function.function]
         elif msg.regex_pattern != "":
-            return ValueConstraint(msg.op, regex_pattern=msg.regex_pattern, name=msg.name, verbose=msg.verbose)
+            regex_pattern = msg.regex_pattern
         elif len(msg.value_set.values) != 0:
-            val_set = set(msg.value_set.values[0].list_value)
-            return ValueConstraint(msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
+            val = set(msg.value_set.values[0].list_value)
         else:
-            return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
+            val = msg.value
+
+        return ValueConstraint(msg.op, value=val, regex_pattern=regex_pattern, apply_function=apply_function, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
         set_vals_message = None
@@ -421,12 +434,9 @@ class SummaryConstraint:
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
             if any([value, upper_value, second_field, third_field, not reference_set]):
                 raise ValueError("When using set operations only set should be provided and not values or field names!")
-
             self.reference_set = reference_set
             reference_set = self.try_cast_set()
-
             self.ref_string_set, self.ref_numbers_set = self.get_string_and_numbers_sets()
-
             self.reference_theta_sketch = self.create_theta_sketch()
             self.string_theta_sketch = self.create_theta_sketch(self.ref_string_set)
             self.numbers_theta_sketch = self.create_theta_sketch(self.ref_numbers_set)
@@ -463,33 +473,34 @@ class SummaryConstraint:
                 # field-field summary comparison
                 if not isinstance(second_field, str) or not isinstance(third_field, str):
                     raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower field must be of type string")
-
                 self.func = _summary_funcs2[self.op](first_field, second_field, third_field)
             else:
                 raise ValueError("Summary constraint with BETWEEN operation must specify lower and upper value OR lower and third field name, but not both")
         else:
             if upper_value is not None or third_field is not None:
                 raise ValueError("Summary constraint with other than BETWEEN operation must NOT specify upper value NOR third field name")
-
             if value is not None and second_field is None:
                 # field-value summary comparison
-
                 self.func = _summary_funcs1[op](first_field, value)
             elif second_field is not None and value is None:
                 # field-field summary comparison
-
                 self.func = _summary_funcs2[op](first_field, second_field)
             else:
                 raise ValueError("Summary constraint must specify a second value or field name, but not both")
 
     @property
     def name(self):
+        value_or_field = None
         if self.first_field == "quantile":
             field_name = f"{self.first_field} {self.quantile_value}"
         else:
             field_name = self.first_field
-
-        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
+        if self.first_field == "column_values_type":
+            if self.value:
+                value_or_field = InferredType.Type.Name(self.value)
+            else:
+                value_or_field = {InferredType.Type.Name(element) for element in list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH]}
+        elif self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
             if len(self.reference_set) > MAX_SET_DISPLAY_MESSAGE_LENGTH:
                 tmp_set = set(list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])
                 value_or_field = f"{str(tmp_set)[:-1]}, ...}}"
@@ -533,14 +544,14 @@ class SummaryConstraint:
             theta.update(item)
         return theta
 
-    def update(self, update_dict: dict) -> bool:
+    def update(self, update_summary: object) -> bool:
         self.total += 1
 
         if self.first_field == "quantile":
-            kll_sketch = getattr(update_dict, self.first_field)
-            update_dict = single_quantile_from_sketch(kll_sketch, self.quantile_value)
+            kll_sketch = update_summary.quantile
+            update_summary = single_quantile_from_sketch(kll_sketch, self.quantile_value)
 
-        if not self.func(update_dict):
+        if not self.func(update_summary):
             self.failures += 1
             if self._verbose:
                 logger.info(f"summary constraint {self.name} failed")
@@ -621,18 +632,17 @@ class SummaryConstraint:
         lower_value = None
         upper_value = None
         third_field = None
-        quantile_val = None
+        quantile_value = None
 
         if msg.first_field == "quantile":
-            quantile_val = msg.quantile_value
-
+            quantile_value = msg.quantile_value
         if msg.HasField("reference_set"):
             reference_set = set(msg.reference_set)
-        if msg.HasField("value"):
+        elif msg.HasField("value"):
             value = msg.value
-        if msg.HasField("second_field"):
+        elif msg.HasField("second_field"):
             second_field = msg.second_field
-        if msg.HasField("between"):
+        elif msg.HasField("between"):
             if all([msg.between.HasField(f) for f in ("lower_value", "upper_value")]):
                 lower_value = msg.between.lower_value
                 upper_value = msg.between.upper_value
@@ -646,9 +656,9 @@ class SummaryConstraint:
             value=value if value is not None else lower_value,
             upper_value=upper_value,
             second_field=second_field,
+            quantile_value=quantile_value,
             third_field=third_field,
             reference_set=reference_set,
-            quantile_value=quantile_val,
             name=msg.name,
             verbose=msg.verbose,
         )
@@ -656,28 +666,35 @@ class SummaryConstraint:
     def to_protobuf(self) -> SummaryConstraintMsg:
         reference_set_msg = None
         summary_between_constraint_msg = None
-        quantile_val = None
+        quantile_value = None
+        value = None
+        second_field = None
 
         if self.quantile_value is not None:
-            quantile_val = self.quantile_value
+            quantile_value = self.quantile_value
 
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
             reference_set_msg = ListValue()
             reference_set_msg.extend(self.reference_set)
+
         elif self.op == Op.BTWN:
             if self.second_field is None and self.third_field is None:
                 summary_between_constraint_msg = SummaryBetweenConstraintMsg(lower_value=self.value, upper_value=self.upper_value)
             else:
                 summary_between_constraint_msg = SummaryBetweenConstraintMsg(second_field=self.second_field, third_field=self.third_field)
+        elif self.second_field:
+            second_field = self.second_field
+        elif self.value is not None:
+            value = self.value
 
         return SummaryConstraintMsg(
             name=self.name,
             first_field=self.first_field,
-            second_field=self.second_field,
-            value=self.value,
+            second_field=second_field,
+            value=value,
             between=summary_between_constraint_msg,
             reference_set=reference_set_msg,
-            quantile_value=quantile_val,
+            quantile_value=quantile_value,
             op=self.op,
             verbose=self._verbose,
         )
@@ -1040,3 +1057,68 @@ def columnMostCommonValueInSetConstraint(value_set: Set[Any], verbose=False):
 
 def columnValuesNotNullConstraint(verbose=False):
     return SummaryConstraint("null_count", value=0, op=Op.EQ, verbose=verbose)
+
+
+def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], verbose: bool = False):
+    """
+
+    Parameters
+    ----------
+    expected_type: Union[InferredType, int]
+        whylogs.proto.InferredType.Type - Enumeration of allowed inferred data types
+        If supplied as integer value, should be one of:
+            UNKNOWN = 0
+            NULL = 1
+            FRACTIONAL = 2
+            INTEGRAL = 3
+            BOOLEAN = 4
+            STRING = 5
+    verbose: bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+    SummaryConstraint
+    """
+
+    if not isinstance(expected_type, (InferredType, int)):
+        raise ValueError("The expected_type parameter should be of type whylogs.proto.InferredType or int")
+    if isinstance(expected_type, InferredType):
+        expected_type = expected_type.type
+
+    return SummaryConstraint("column_values_type", op=Op.EQ, value=expected_type, verbose=verbose)
+
+
+def columnValuesTypeInSetConstraint(type_set: Set[int], verbose: bool = False):
+    """
+
+    Parameters
+    ----------
+    type_set: Set[int]
+        whylogs.proto.InferredType.Type - Enumeration of allowed inferred data types
+        If supplied as integer value, should be one of:
+            UNKNOWN = 0
+            NULL = 1
+            FRACTIONAL = 2
+            INTEGRAL = 3
+            BOOLEAN = 4
+            STRING = 5
+    verbose: bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+    SummaryConstraint
+    """
+
+    try:
+        type_set = set(type_set)
+    except Exception:
+        raise TypeError("The type_set parameter should be an iterable of int values")
+
+    if not all([isinstance(t, int) for t in type_set]):
+        raise TypeError("All of the elements of the type_set parameter should be of type int")
+
+    return SummaryConstraint("column_values_type", op=Op.IN, reference_set=type_set, verbose=verbose)

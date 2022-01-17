@@ -23,6 +23,8 @@ from whylogs.core.statistics.constraints import (
     columnUniqueValueProportionBetweenConstraint,
     columnValuesInSetConstraint,
     columnValuesNotNullConstraint,
+    columnValuesTypeEqualsConstraint,
+    columnValuesTypeInSetConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
     containsSSNConstraint,
@@ -42,7 +44,7 @@ from whylogs.core.statistics.constraints import (
     stringLengthBetweenConstraint,
     stringLengthEqualConstraint,
 )
-from whylogs.proto import Op
+from whylogs.proto import InferredType, Op
 from whylogs.util.protobuf import message_to_json
 
 TEST_LOGGER = getLogger(__name__)
@@ -513,12 +515,6 @@ def test_max_between_constraint_invalid():
         maxBetweenConstraint(lower_field="max", upper_field=2)
 
 
-def test_column_values_in_set_constraint(df_lending_club, local_config_path):
-    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
-    ltc = ValueConstraint(Op.LT, 1)
-    dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
-
-
 def _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints):
 
     dc = DatasetConstraints(None, summary_constraints=summary_constraints)
@@ -527,8 +523,38 @@ def _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, su
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = profile.apply_summary_constraints()
-
     return report
+
+
+def test_set_summary_constraints(df_lending_club, local_config_path):
+    org_list = list(df_lending_club["annual_inc"])
+
+    org_list2 = list(df_lending_club["annual_inc"])
+    org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
+
+    in_set = distinctValuesInSetConstraint(reference_set=org_list2, name="True")
+    in_set2 = distinctValuesInSetConstraint(reference_set=org_list, name="True2")
+    in_set3 = distinctValuesInSetConstraint(reference_set=org_list[:-1], name="False")
+
+    eq_set = distinctValuesEqualSetConstraint(reference_set=org_list, name="True3")
+    eq_set2 = distinctValuesEqualSetConstraint(reference_set=org_list2, name="False2")
+    eq_set3 = distinctValuesEqualSetConstraint(reference_set=org_list[:-1], name="False3")
+
+    contains_set = distinctValuesContainSetConstraint(reference_set=[org_list[2]], name="True4")
+    contains_set2 = distinctValuesContainSetConstraint(reference_set=org_list, name="True5")
+    contains_set3 = distinctValuesContainSetConstraint(reference_set=org_list[:-1], name="True6")
+    contains_set4 = distinctValuesContainSetConstraint(reference_set=[str(org_list[2])], name="False4")
+    contains_set5 = distinctValuesContainSetConstraint(reference_set=[2.3456], name="False5")
+    contains_set6 = distinctValuesContainSetConstraint(reference_set=org_list2, name="False6")
+
+    list(df_lending_club["annual_inc"])
+    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
+    for r in report[0][1]:
+        if "True" in r[0]:
+            assert r[2] == 0
+        else:
+            assert r[2] == 1
 
 
 def test_set_summary_constraint_invalid_init():
@@ -568,38 +594,6 @@ def test_set_summary_merge():
     assert pre_merge_json["verbose"] == merge_json["verbose"]
 
 
-def test_set_summary_constraints(df_lending_club, local_config_path):
-
-    org_list = list(df_lending_club["annual_inc"])
-
-    org_list2 = list(df_lending_club["annual_inc"])
-    org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
-
-    in_set = distinctValuesInSetConstraint(reference_set=org_list2, name="True")
-    in_set2 = distinctValuesInSetConstraint(reference_set=org_list, name="True2")
-    in_set3 = distinctValuesInSetConstraint(reference_set=org_list[:-1], name="False")
-
-    eq_set = distinctValuesEqualSetConstraint(reference_set=org_list, name="True3")
-    eq_set2 = distinctValuesEqualSetConstraint(reference_set=org_list2, name="False2")
-    eq_set3 = distinctValuesEqualSetConstraint(reference_set=org_list[:-1], name="False3")
-
-    contains_set = distinctValuesContainSetConstraint(reference_set=[org_list[2]], name="True4")
-    contains_set2 = distinctValuesContainSetConstraint(reference_set=org_list, name="True5")
-    contains_set3 = distinctValuesContainSetConstraint(reference_set=org_list[:-1], name="True6")
-    contains_set4 = distinctValuesContainSetConstraint(reference_set=[str(org_list[2])], name="False4")
-    contains_set5 = distinctValuesContainSetConstraint(reference_set=[2.3456], name="False5")
-    contains_set6 = distinctValuesContainSetConstraint(reference_set=org_list2, name="False6")
-
-    list(df_lending_club["annual_inc"])
-    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
-    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
-    for r in report[0][1]:
-        if "True" in r[0]:
-            assert r[2] == 0
-        else:
-            assert r[2] == 1
-
-
 def test_set_summary_serialization():
     set1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
     set2 = SummaryConstraint.from_protobuf(set1.to_protobuf())
@@ -612,6 +606,22 @@ def test_set_summary_serialization():
     assert set1_json["firstField"] == set2_json["firstField"]
     assert set1_json["op"] == set2_json["op"]
     assert set1_json["verbose"] == set2_json["verbose"]
+
+
+def test_column_values_in_set_constraint(df_lending_club, local_config_path):
+    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
+    ltc = ValueConstraint(Op.LT, 1)
+    dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == len(df_lending_club)
+    # the number of fails should equal the number of rows - 1 since the column id only has the value 90671227 in set
+    assert report[0][1][0][2] == len(df_lending_club) - 1
 
 
 def test_merge_values_in_set_constraint_different_value_set():
@@ -1368,3 +1378,111 @@ def test_serialization_deserialization_column_values_not_null_constraint():
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 0
     assert json_value["verbose"] is True
+
+
+def test_column_values_type_equals_constraint_apply(local_config_path, df_lending_club):
+    cvtc = columnValuesTypeEqualsConstraint(expected_type=InferredType.Type.FRACTIONAL)
+    summary_constraints = {"annual_inc": [cvtc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
+
+    assert report[0][1][0][0] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.FRACTIONAL)}"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_merge_column_values_type_equals_constraint_different_values():
+    c1 = columnValuesTypeEqualsConstraint(expected_type=InferredType.Type.FRACTIONAL)
+    c2 = columnValuesTypeEqualsConstraint(expected_type=InferredType.Type.NULL)
+    with pytest.raises(AssertionError):
+        c1.merge(c2)
+
+
+def test_merge_column_values_type_equals_constraint_same_values():
+    u1 = columnValuesTypeEqualsConstraint(expected_type=1)
+    u2 = columnValuesTypeEqualsConstraint(expected_type=1)
+    merged = u1.merge(u2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(1)}"
+    assert message["firstField"] == "column_values_type"
+    assert message["op"] == Op.Name(Op.EQ)
+    assert message["value"] == 1
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_column_values_type_equals_constraint():
+    u1 = columnValuesTypeEqualsConstraint(expected_type=InferredType.Type.STRING, verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    assert json_value["name"] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.STRING)}"
+    assert json_value["firstField"] == "column_values_type"
+    assert json_value["op"] == Op.Name(Op.EQ)
+    assert json_value["value"] == InferredType.Type.STRING
+    assert json_value["verbose"] is True
+
+
+def test_column_values_type_equals_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        columnValuesTypeEqualsConstraint(expected_type=2.3, verbose=True)
+    with pytest.raises(ValueError):
+        columnValuesTypeEqualsConstraint(expected_type="FRACTIONAL", verbose=True)
+
+
+def test_column_values_type_in_set_constraint_apply(local_config_path, df_lending_club):
+    type_set = {InferredType.Type.FRACTIONAL, InferredType.Type.INTEGRAL}
+    cvtc = columnValuesTypeInSetConstraint(type_set=type_set)
+    summary_constraint = {"annual_inc": [cvtc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
+
+    type_names = {InferredType.Type.Name(t) for t in type_set}
+    assert report[0][1][0][0] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_merge_column_values_type_in_set_constraint_different_values():
+    c1 = columnValuesTypeInSetConstraint(type_set={InferredType.Type.INTEGRAL, InferredType.Type.STRING})
+    c2 = columnValuesTypeInSetConstraint(type_set={InferredType.Type.INTEGRAL, InferredType.Type.NULL})
+    with pytest.raises(AssertionError):
+        c1.merge(c2)
+
+
+def test_merge_column_values_type_in_set_constraint_same_values():
+    type_set = {InferredType.Type.INTEGRAL, InferredType.Type.STRING}
+    c1 = columnValuesTypeInSetConstraint(type_set=type_set)
+    c2 = columnValuesTypeInSetConstraint(type_set=type_set)
+    merged = c1.merge(c2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    type_names = {InferredType.Type.Name(t) for t in type_set}
+    assert message["name"] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert message["firstField"] == "column_values_type"
+    assert message["op"] == Op.Name(Op.IN)
+    assert message["referenceSet"] == list(type_set)
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_column_values_type_in_set_constraint():
+    type_set = {InferredType.Type.STRING, InferredType.Type.INTEGRAL}
+    u1 = columnValuesTypeInSetConstraint(type_set=type_set, verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    type_names = {InferredType.Type.Name(t) if isinstance(t, int) else InferredType.Type.Name(t.type) for t in type_set}
+    assert json_value["name"] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert json_value["firstField"] == "column_values_type"
+    assert json_value["op"] == Op.Name(Op.IN)
+    assert json_value["referenceSet"] == list(type_set)
+    assert json_value["verbose"] is True
+
+
+def test_column_values_type_in_set_constraint_wrong_datatype():
+    with pytest.raises(TypeError):
+        columnValuesTypeInSetConstraint(type_set={2.3, 1}, verbose=True)
+    with pytest.raises(TypeError):
+        columnValuesTypeInSetConstraint(type_set={"FRACTIONAL", 2}, verbose=True)
+    with pytest.raises(TypeError):
+        columnValuesTypeInSetConstraint(type_set="ABCD")
