@@ -107,6 +107,10 @@ def _matches_json_schema(json_data: Union[str, dict], json_schema: Union[str, di
     return True
 
 
+# restrict the set length for printing the name of the constraint which contains a reference set
+MAX_SET_DISPLAY_MESSAGE_LENGTH = 20
+
+
 """
 Dict indexed by constraint operator.
 
@@ -136,6 +140,7 @@ _summary_funcs1 = {
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
     Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
+    Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
     Op.IN_SET: lambda f, ref_str_sketch, ref_num_sketch: lambda update_obj: round(
         theta_a_not_b().compute(getattr(update_obj, f)["string_theta"], ref_str_sketch).get_estimate(), 1
     )
@@ -153,7 +158,6 @@ _summary_funcs1 = {
     == round(theta_a_not_b().compute(ref_str_sketch, getattr(update_obj, f)["string_theta"]).get_estimate(), 1)
     == round(theta_a_not_b().compute(ref_num_sketch, getattr(update_obj, f)["number_theta"]).get_estimate(), 1)
     == 0.0,
-    Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
 }
 
 _summary_funcs2 = {
@@ -208,6 +212,7 @@ class ValueConstraint:
 
         if (apply_function is not None) != (self.op == Op.APPLY_FUNC):
             raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator")
+
         if isinstance(value, set) != (op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
@@ -321,13 +326,13 @@ class ValueConstraint:
         set_vals_message = None
         regex_pattern = None
         value = None
-        func_msg = None
+        apply_func = None
 
         if self.op == Op.APPLY_FUNC:
             if hasattr(self, "value"):
-                func_msg = ApplyFunctionMsg(function=self.apply_function.__name__, reference_value=self.value)
+                apply_func = ApplyFunctionMsg(function=self.apply_function.__name__, reference_value=self.value)
             else:
-                func_msg = ApplyFunctionMsg(function=self.apply_function.__name__)
+                apply_func = ApplyFunctionMsg(function=self.apply_function.__name__)
 
         elif hasattr(self, "value"):
             if isinstance(self.value, set):
@@ -335,6 +340,7 @@ class ValueConstraint:
                 set_vals_message.append(list(self.value))
             else:
                 value = self.value
+
         elif hasattr(self, "regex_pattern"):
             regex_pattern = self.regex_pattern
 
@@ -344,7 +350,7 @@ class ValueConstraint:
             value=value,
             value_set=set_vals_message,
             regex_pattern=regex_pattern,
-            function=func_msg,
+            function=apply_func,
             verbose=self._verbose,
         )
 
@@ -538,7 +544,7 @@ class SummaryConstraint:
             theta.update(item)
         return theta
 
-    def update(self, update_summary: dict) -> bool:
+    def update(self, update_summary: object) -> bool:
         self.total += 1
 
         if self.first_field == "quantile":
@@ -558,6 +564,7 @@ class SummaryConstraint:
         second_field = None
         third_field = None
         upper_value = None
+        quantile = None
 
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
@@ -567,7 +574,8 @@ class SummaryConstraint:
         assert (
             self.quantile_value == other.quantile_value
         ), f"Cannot merge constraints with different quantile_value: {self.quantile_value} and {other.quantile_value}"
-
+        if self.quantile_value is not None:
+            quantile = self.quantile_value
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
             assert self.reference_set == other.reference_set
             reference_set = self.reference_set
@@ -585,7 +593,7 @@ class SummaryConstraint:
             second_field=second_field,
             third_field=third_field,
             reference_set=reference_set,
-            quantile_value=self.quantile_value,
+            quantile_value=quantile,
             name=self.name,
             verbose=self._verbose,
         )
@@ -594,8 +602,7 @@ class SummaryConstraint:
         merged_constraint.failures = self.failures + other.failures
         return merged_constraint
 
-    @staticmethod
-    def check_if_summary_constraint_message_is_valid(msg: SummaryConstraintMsg):
+    def _check_if_summary_constraint_message_is_valid(msg: SummaryConstraintMsg):
         if msg.HasField("reference_set") and not any([msg.HasField(f) for f in ("value", "second_field", "between")]):
             return True
         elif msg.HasField("value") and not any([msg.HasField(f) for f in ("second_field", "between", "reference_set")]):
@@ -607,16 +614,16 @@ class SummaryConstraint:
                 [msg.between.HasField(f) for f in ("second_field", "third_field")]
             ):
                 return True
-            elif all([msg.between.HasField(f) for f in ("second_field", "third_field")]) and not any(
-                [msg.between.HasField(f) for f in ("lower_value", "upper_value")]
-            ):
-                return True
+        elif all([msg.between.HasField(f) for f in ("second_field", "third_field")]) and not any(
+            [msg.between.HasField(f) for f in ("lower_value", "upper_value")]
+        ):
+            return True
 
         return False
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
-        if not SummaryConstraint.check_if_summary_constraint_message_is_valid(msg):
+        if not SummaryConstraint._check_if_summary_constraint_message_is_valid(msg):
             raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg, but only one of them")
 
         reference_set = None
@@ -1037,6 +1044,19 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
         raise ValueError("The lower fraction should be decimal values less than or equal to the upper fraction")
 
     return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
+
+
+def columnMostCommonValueInSetConstraint(value_set: Set[Any], verbose=False):
+    try:
+        value_set = set(value_set)
+    except Exception:
+        raise TypeError("The value set should be an iterable data type")
+
+    return SummaryConstraint("most_common_value", op=Op.IN, reference_set=value_set, verbose=verbose)
+
+
+def columnValuesNotNullConstraint(verbose=False):
+    return SummaryConstraint("null_count", value=0, op=Op.EQ, verbose=verbose)
 
 
 def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], verbose: bool = False):
