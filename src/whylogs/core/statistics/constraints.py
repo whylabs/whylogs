@@ -148,9 +148,6 @@ _summary_funcs1 = {
     == 0.0,
     Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
     Op.CONTAIN: lambda f, v: lambda s: v in getattr(s, f),
-    # Op.QUANTILE_BETWEEN: lambda first_field, lower, upper, quantile_value: lambda update_object: lower <=
-    #     getattr(update_object, first_field).get_quantiles([quantile_value])[0]
-    #     <= upper,
 }
 
 _summary_funcs2 = {
