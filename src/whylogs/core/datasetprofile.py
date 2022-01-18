@@ -17,8 +17,8 @@ from whylogs.core import ColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
 from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
-from whylogs.core.types import TypedDataConverter
 from whylogs.core.summaryconverters import entropy_from_column_summary
+from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
     ColumnsChunkSegment,
     DatasetMetadataSegment,
