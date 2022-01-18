@@ -1491,12 +1491,8 @@ def test_column_values_type_in_set_constraint_wrong_datatype():
 
 def test_entropy_between_constraint_numeric_apply(local_config_path, df_lending_club):
     ec = approximateEntropyBetweenConstraint(lower_value=0.4, upper_value=0.5)
-    dc = DatasetConstraints(None, summary_constraints={"annual_inc": [ec]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
+    summary_constraint = {"annual_inc": [ec]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
     # numeric
     assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.4 and 0.5"
     assert report[0][1][0][1] == 1
@@ -1505,12 +1501,8 @@ def test_entropy_between_constraint_numeric_apply(local_config_path, df_lending_
 
 def test_entropy_between_constraint_categorical_apply(local_config_path, df_lending_club):
     ec = approximateEntropyBetweenConstraint(lower_value=0.6, upper_value=1.5)
-    dc = DatasetConstraints(None, summary_constraints={"grade": [ec]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
+    summary_constraint = {"grade": [ec]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
 
     # categorical
     assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
@@ -1520,12 +1512,8 @@ def test_entropy_between_constraint_categorical_apply(local_config_path, df_lend
 
 def test_entropy_between_constraint_null_apply(local_config_path, df_lending_club):
     ec = approximateEntropyBetweenConstraint(lower_value=0.6, upper_value=1.5)
-    dc = DatasetConstraints(None, summary_constraints={"member_id": [ec]})
-    config = load_config(local_config_path)
-    session = session_from_config(config)
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-    session.close()
-    report = profile.apply_summary_constraints()
+    summary_constraint = {"member_id": [ec]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
 
     # categorical
     assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
