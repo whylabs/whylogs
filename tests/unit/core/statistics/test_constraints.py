@@ -1,8 +1,8 @@
 import json
 from logging import getLogger
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pytest
 
 from whylogs.app.config import load_config
@@ -1543,7 +1543,7 @@ def test_ks_test_p_value_greater_than_constraint_merge_same_values():
     TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
-    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.05"
+    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.05/None"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "ks_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.05
@@ -1558,7 +1558,7 @@ def test_serialization_deserialization_ks_test_p_value_greater_than_constraint()
 
     TEST_LOGGER.info(f"Serialize parametrizedKSTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
 
-    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.15"
+    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.15/None"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "ks_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -1662,7 +1662,7 @@ def test_column_kl_divergence_less_than_constraint_merge_same_values():
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
     print(json_value)
-    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.5"
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.5/None"
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["firstField"] == "kl_divergence"
     assert pytest.approx(json_value["value"], 0.01) == 0.5
@@ -1677,7 +1677,7 @@ def test_serialization_deserialization_column_kl_divergence_less_than_constraint
 
     TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
 
-    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15"
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15/None"
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["firstField"] == "kl_divergence"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -1693,7 +1693,7 @@ def test_serialization_deserialization_column_kl_divergence_less_than_constraint
 
     TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
 
-    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15"
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15/None"
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["firstField"] == "kl_divergence"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -1759,10 +1759,10 @@ def test_column_chi_squared_test_p_value_greater_than_constraint_merge_same_valu
     ks2 = columnChiSquaredTestPValueGreaterThanConstraint([1, "A", 3])
     merged = ks1.merge(ks2)
 
-    TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
+    TEST_LOGGER.info(f"Serialize the merged columnChiSquaredTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
-    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.05"
+    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.05/None"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "chi_squared_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.05
@@ -1776,7 +1776,7 @@ def test_serialization_deserialization_chi_squared_test_p_value_greater_than_con
     json_value = json.loads(message_to_json(ks1.to_protobuf()))
 
     TEST_LOGGER.info(f"Serialize columnChiSquaredTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
-    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.15"
+    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.15/None"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "chi_squared_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.15

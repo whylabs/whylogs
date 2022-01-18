@@ -5,29 +5,28 @@ import numbers
 import re
 from typing import Any, List, Mapping, Optional, Set, Union
 
+import datasketches
 import jsonschema
+import numpy as np
 from datasketches import theta_a_not_b, update_theta_sketch
 from dateutil.parser import parse
-import datasketches
-import numpy as np
 from google.protobuf.json_format import Parse
 from google.protobuf.struct_pb2 import ListValue
 from jsonschema import validate
 
-from whylogs.core.summaryconverters import single_quantile_from_sketch
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.statistics.numbertracker import DEFAULT_HIST_K
 from whylogs.core.summaryconverters import (
     compute_chi_squared_test_p_value,
     compute_kl_divergence,
     ks_test_compute_p_value,
+    single_quantile_from_sketch,
 )
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
     ApplyFunctionMsg,
     DatasetConstraintMsg,
     DatasetProperties,
-    InferredType,
     InferredType,
     KllFloatsSketchMessage,
     Op,
@@ -464,7 +463,7 @@ class SummaryConstraint:
 
             self.func = _summary_funcs1[self.op](first_field, self.string_theta_sketch, self.numbers_theta_sketch)
 
-        if reference_distribution:
+        elif reference_distribution:
             if not isinstance(reference_distribution, (datasketches.kll_floats_sketch, ReferenceDistributionDiscreteMessage)):
                 raise TypeError("The reference distribution should be an object of type datasketches.kll_floats_sketch or ReferenceDistributionDiscreteMessage")
             if self.value is None or any([v is not None for v in (self.upper_value, self.second_field, self.third_field)]):
@@ -473,6 +472,7 @@ class SummaryConstraint:
                     " and must not specify lower_value, second_field or third_field"
                 )
             self.reference_distribution = reference_distribution
+            self.func = _summary_funcs1[self.op](first_field, value)
 
         elif self.op == Op.IN:
             if any([value is not None, upper_value, second_field, third_field, reference_set is None]):
@@ -521,9 +521,13 @@ class SummaryConstraint:
 
     @property
     def name(self):
-        value_or_field = None
         if self.first_field == "quantile":
             field_name = f"{self.first_field} {self.quantile_value}"
+        elif hasattr(self, "reference_distribution"):
+            if self.first_field == "kl_divergence":
+                field_name = f"{self.first_field} threshold"
+            else:
+                field_name = f"{self.first_field} p-value"
         else:
             field_name = self.first_field
         if self.first_field == "column_values_type":
@@ -531,11 +535,6 @@ class SummaryConstraint:
                 value_or_field = InferredType.Type.Name(self.value)
             else:
                 value_or_field = {InferredType.Type.Name(element) for element in list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH]}
-        elif hasattr(self, "reference_distribution"):
-            if self.first_field == "kl_divergence":
-                value_or_field = "threshold"
-            else:
-                value_or_field = "p-value"
         elif self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
             if len(self.reference_set) > MAX_SET_DISPLAY_MESSAGE_LENGTH:
                 tmp_set = set(list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])
@@ -691,10 +690,12 @@ class SummaryConstraint:
 
         if msg.first_field == "quantile":
             quantile_value = msg.quantile_value
+
         if msg.HasField("continuous_distribution") and msg.continuous_distribution.HasField("sketch"):
             ref_distribution = datasketches.kll_floats_sketch.deserialize(msg.continuous_distribution.sketch.sketch)
         elif msg.HasField("discrete_distribution"):
             ref_distribution = msg.discrete_distribution
+
         if msg.HasField("reference_set"):
             reference_set = set(msg.reference_set)
         elif msg.HasField("value"):
