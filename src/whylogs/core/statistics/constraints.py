@@ -616,8 +616,8 @@ class SummaryConstraint:
         :param msg: The protobuf message containing the SummaryConstraint
         :param to_check: str representing the field_name or list with field names to check if they exist in the message.
         :param all_field: set to specify all the field names. If provided, the default message field names are overwritten by it.
-        :param check_type: all or any builtin functions, if all: check if every field_name in 'to_check' exists in the message.
-            If any: check if only one of the field_names in 'to_check' exist in the message.
+        :param check_type: all or any builtin functions, when all: check if every field_name in 'to_check' exists in the message.
+            when any: check if only one of the field_names in 'to_check' exist in the message.
         """
         if isinstance(to_check, str):
             to_check = [to_check]
