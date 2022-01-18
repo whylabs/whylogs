@@ -17,6 +17,7 @@ from whylogs.core import ColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
 from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
+from whylogs.core.summaryconverters import entropy_from_column_summary
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
     ColumnsChunkSegment,
@@ -705,6 +706,7 @@ class DatasetProfile:
                     most_common_value=TypedDataConverter.convert(most_common_val),
                     null_count=summ.counters.null_count.value,
                     column_values_type=summ.schema.inferred_type.type,
+                    entropy=entropy_from_column_summary(summ, colprof.number_tracker.histogram),
                 )
 
                 constraints.update(update_dict)
