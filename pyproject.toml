@@ -1,0 +1,44 @@
+[tool.isort]
+profile = "black"
+src_paths = ["whylogs_v1", "tests"]
+
+[tool.mypy]
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+explicit_package_bases = true
+files = ["**/*.py"]
+namespace_packages = true
+show_error_codes = true
+
+[tool.poetry]
+name = "whylogs-v1"
+version = "1.0.0"
+description = "Profile and monitor your ML data pipeline end-to-end"
+authors = ["WhyLabs.ai <support@whylabs.ai>"]
+license = "Apache-2.0"
+homepage = "https://docs.whylabs.ai"
+readme = "README.md"
+include = ["whylogs_v1/py.typed"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+black = {version = "*", allow-prereleases = true}
+flake8 = "*"
+isort = "^5.6"
+mkdocs-material = "^8"
+mypy = ">0.900,<1"
+pre-commit = "^2.8"
+pytest = "^6.2"
+pytest-cov = "^3"
+pytest-mock = "^3.3"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+minversion = "6.0"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

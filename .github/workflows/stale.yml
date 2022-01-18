@@ -1,0 +1,20 @@
+name: stale
+
+on:
+  schedule:
+    - cron: "0 13 * * 1"
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v3
+        with:
+          days-before-stale: 30
+          days-before-close: 1
+          stale-issue-label: "stale :zzz:"
+          stale-issue-message: "This issue is stale. Remove stale label or it will be closed tomorrow."
+          stale-pr-label: "stale :zzz:"
+          stale-pr-message: "This PR is stale. Remove stale label or it will be closed tomorrow."
+          exempt-issue-labels: "in progress :construction:"
+          exempt-pr-labels: "in progress :construction:"

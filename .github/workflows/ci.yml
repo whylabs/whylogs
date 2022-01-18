@@ -1,0 +1,91 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10"]
+    env:
+      CODECOV_UPLOAD: false
+      PIPX_VERSION: "0.16.4"
+      POETRY_VERSION: "1.1.11"
+      PYPI_PUBLISH: false
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Set up Poetry cache for Python dependencies
+        uses: actions/cache@v2
+        if: startsWith(runner.os, 'Linux')
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: ${{ runner.os }}-poetry-
+      - name: Set up pre-commit cache
+        uses: actions/cache@v2
+        if: startsWith(runner.os, 'Linux')
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: ${{ runner.os }}-pre-commit-
+      - name: Install pipx for Python ${{ matrix.python-version }}
+        run: python -m pip install "pipx==$PIPX_VERSION"
+      - name: Install Poetry
+        run: pipx install "poetry==$POETRY_VERSION"
+      - name: Test Poetry version
+        run: |
+          POETRY_VERSION_INSTALLED=$(poetry -V)
+          echo "The POETRY_VERSION environment variable is set to $POETRY_VERSION."
+          echo "The installed Poetry version is $POETRY_VERSION_INSTALLED."
+          case $POETRY_VERSION_INSTALLED in
+          *$POETRY_VERSION*) echo "Poetry version correct." ;;
+          *) echo "Poetry version incorrect." && exit 1 ;;
+          esac
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      - name: Test virtualenv location
+        run: |
+          EXPECTED_VIRTUALENV_PATH=${{ github.workspace }}/.venv
+          INSTALLED_VIRTUALENV_PATH=$(poetry env info --path)
+          echo "The virtualenv should be at $EXPECTED_VIRTUALENV_PATH."
+          echo "Poetry is using a virtualenv at $INSTALLED_VIRTUALENV_PATH."
+          case "$INSTALLED_VIRTUALENV_PATH" in
+          "$EXPECTED_VIRTUALENV_PATH") echo "Correct Poetry virtualenv." ;;
+          *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
+          esac
+      - name: Run pre-commit hooks
+        run: poetry run pre-commit run --all-files
+      - name: Run unit tests
+        run: poetry run pytest --cov-report=xml
+      - name: Upload test coverage report to Codecov
+        uses: codecov/codecov-action@v2
+        if: env.CODECOV_UPLOAD == 'true' && matrix.python-version == '3.10'
+        with:
+          fail_ci_if_error: true
+          flags: unit
+      - name: Build Python package with latest stable Python version and publish to PyPI
+        if: >
+          env.PYPI_PUBLISH == 'true' &&
+          matrix.python-version == '3.10' &&
+          startsWith(github.ref, 'refs/tags/')
+        run: |
+          PACKAGE_VERSION=$(poetry version -s)
+          GIT_TAG_VERSION=$(echo ${{ github.ref }} | cut -d / -f 3)
+          echo "The Python package version is $PACKAGE_VERSION."
+          echo "The Git tag version is $GIT_TAG_VERSION."
+          if [ "$PACKAGE_VERSION" = "$GIT_TAG_VERSION" ]; then
+            echo "Versions match."
+          else
+            echo "Versions do not match." && exit 1
+          fi
+          poetry publish --build -u __token__ -p ${{ secrets.PYPI_TOKEN }}
