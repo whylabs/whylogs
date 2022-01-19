@@ -17,6 +17,7 @@ from whylogs.core import ColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
 from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
+from whylogs.core.summaryconverters import entropy_from_column_summary
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
     ColumnsChunkSegment,
@@ -696,13 +697,16 @@ class DatasetProfile:
                 frequent_items_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
                 most_common_val = frequent_items_summ.items[0].json_value if frequent_items_summ else None
 
-                update_dict = _create_update_summary_dictionary(
+                update_dict = _create_column_profile_summary_object(
                     number_summary=summ.number_summary,
                     distinct_column_values=distinct_column_values_dict,
                     quantile=colprof.number_tracker.histogram,
-                    unique_count=summ.unique_count.estimate,
+                    unique_count=int(summ.unique_count.estimate),
                     unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
                     most_common_value=TypedDataConverter.convert(most_common_val),
+                    null_count=summ.counters.null_count.value,
+                    column_values_type=summ.schema.inferred_type.type,
+                    entropy=entropy_from_column_summary(summ, colprof.number_tracker.histogram),
                 )
 
                 constraints.update(update_dict)
@@ -810,7 +814,7 @@ def array_profile(
     return prof
 
 
-def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
+def _create_column_profile_summary_object(number_summary: NumberSummary, **kwargs):
     """
     Wrapper method for summary constraints update object creation
 
@@ -824,18 +828,18 @@ def _create_update_summary_dictionary(number_summary: NumberSummary, **kwargs):
 
     Returns
     -------
-    Anonymous object containing all of the metrics as fields with their coresponding values
+    Anonymous object containing all of the metrics as fields with their corresponding values
     """
 
-    update_dict = {}
+    column_summary = {}
 
-    update_dict.update(
+    column_summary.update(
         {
             field_name: getattr(number_summary, field_name)
             for field_name in dir(number_summary)
             if str.islower(field_name) and not str.startswith(field_name, "_") and not callable(getattr(number_summary, field_name))
         }
     )
-    update_dict.update(kwargs)
+    column_summary.update(kwargs)
 
-    return type("Object", (), update_dict)
+    return type("Object", (), column_summary)
