@@ -52,12 +52,18 @@ message CharPosSummary {
   map<string, NumberSummary>  char_pos_map =2;
 }
 
+message CharBlockSummary {
+  map<string, UnicodeBlockEntry> block_list = 1;
+  map<string, NumberSummary> char_block_map = 2;
+}
+
 message StringsSummary {
   UniqueCountSummary unique_count = 1;
   FrequentStringsSummary frequent = 2;
   NumberSummary length =3;
   NumberSummary token_length=4;
   CharPosSummary char_pos_tracker=5;
+  optional CharBlockSummary char_block_tracker=6;
 }
 
 message SchemaSummary {

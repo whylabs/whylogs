@@ -98,6 +98,49 @@ def test_merge_mod_character_lists():
     assert x.token_length.histogram.get_max_value() == 10
 
 
+def test_character_block_tracker():
+    x = StringTracker()
+    data = ["abc", "de", "\U0001f600", "\u0080", "\U0001f601", "\u0081"]
+    for record in data:
+        x.update(record)
+
+    assert x.char_block_tracker.char_block_map["emoji"].count == 2
+    assert x.char_block_tracker.char_block_map["emoji"].histogram.get_min_value() == 1
+    assert x.char_block_tracker.char_block_map["emoji"].histogram.get_max_value() == 1
+
+    assert x.char_block_tracker.char_block_map["basic-latin"].count == 2
+    assert x.char_block_tracker.char_block_map["basic-latin"].histogram.get_min_value() == 2
+    assert x.char_block_tracker.char_block_map["basic-latin"].histogram.get_max_value() == 3
+
+    assert x.char_block_tracker.char_block_map["extended-latin"].count == 2
+    assert x.char_block_tracker.char_block_map["extended-latin"].histogram.get_min_value() == 1
+    assert x.char_block_tracker.char_block_map["extended-latin"].histogram.get_max_value() == 1
+
+
+def test_merge_character_block():
+    x = StringTracker()
+    y = StringTracker()
+    data = ["abc", "\U0001f600", "\u0080"]
+    data2 = ["de", "\U0001f601", "\u0081"]
+    for record in data:
+        x.update(record)
+    for record in data2:
+        y.update(record)
+    new_tracker = x.merge(y)
+
+    assert new_tracker.char_block_tracker.char_block_map["emoji"].count == 2
+    assert new_tracker.char_block_tracker.char_block_map["emoji"].histogram.get_min_value() == 1
+    assert new_tracker.char_block_tracker.char_block_map["emoji"].histogram.get_max_value() == 1
+
+    assert new_tracker.char_block_tracker.char_block_map["basic-latin"].count == 2
+    assert new_tracker.char_block_tracker.char_block_map["basic-latin"].histogram.get_min_value() == 2
+    assert new_tracker.char_block_tracker.char_block_map["basic-latin"].histogram.get_max_value() == 3
+
+    assert new_tracker.char_block_tracker.char_block_map["extended-latin"].count == 2
+    assert new_tracker.char_block_tracker.char_block_map["extended-latin"].histogram.get_min_value() == 1
+    assert new_tracker.char_block_tracker.char_block_map["extended-latin"].histogram.get_max_value() == 1
+
+
 def test_tracking():
     x = StringTracker()
     data = ["one", "two", "three", "one", "one", "One", "six", None, None]
@@ -179,6 +222,44 @@ def test_summary():
             "quantiles": {"quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0], "quantileValues": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]},
             "stddev": 0.0,
             "isDiscrete": False,
+        },
+        "charBlockTracker": {
+            "blockList": {
+                "basic-latin": {
+                    'blockStart': 0,
+                    "blockEnd": 127,
+                },
+                'emoji': {
+                    'blockStart': 128512,
+                    'blockEnd': 128591,
+                },
+                'extended-latin': {
+                    "blockStart": 128,
+                    'blockEnd': 687,
+                },
+            },
+            'charBlockMap': {
+                'basic-latin': {
+                    'count': '7',
+                    'histogram': {
+                        'bins': [3.0, 4.000000249999999, 5.0000005],
+                        'counts': ['6', '1'],
+                        'end': 5.0000005,
+                        'max': 5.0,
+                        'min': 3.0,
+                        'n': '7',
+                        'start': 3.0,
+                        'width': 0.0,
+                    },
+                    'isDiscrete': False,
+                    'max': 5.0,
+                    'mean': 3.2857142857142856,
+                    'min': 3.0,
+                    'quantiles': {'quantileValues': [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 5.0, 5.0, 5.0], 'quantiles': [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]},
+                    'stddev': 0.7559289460184544,
+                    'uniqueCount': {'estimate': 2.0, 'lower': 2.0, 'upper': 2.0}
+                }
+            }
         },
         "charPosTracker": {
             "characterList": "!#$%&()*+,-./0123456789?@[]^_abcdefghijklmnopqrstuvwyz{}",

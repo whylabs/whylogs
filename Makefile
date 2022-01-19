@@ -102,7 +102,7 @@ requirements.txt:
 
 $(build.proto): $(src.proto)
 	@$(call i, Generating python source for protobuf)
-	protoc -I $(src.proto.dir) --python_out=$(build.proto.dir) $(src.proto)
+	protoc -I $(src.proto.dir) --python_out=$(build.proto.dir) --experimental_allow_proto3_optional $(src.proto)
 	poetry run 2to3 --nobackups --write ./src/whylogs/proto/
 
 lint: ## Check code for lint errors.
