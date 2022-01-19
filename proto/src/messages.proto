@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option java_package = "com.whylogs.core.message";
+option java_outer_classname = "Messages";
+option java_multiple_files = true;
+
+message Counters {
+  int64 count = 1;
+}
+
+message HllSketchMessage {
+  bytes sketch = 1;
+  int32 lg_k = 2;
+}

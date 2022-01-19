@@ -5,7 +5,6 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![ci](https://github.com/whylabs/whylogs-v1/workflows/ci/badge.svg)](https://github.com/whylabs/whylogs-v1/actions/workflows/ci.yml)
 
-
 ## Description
 
 The `whylogs-v1` repo

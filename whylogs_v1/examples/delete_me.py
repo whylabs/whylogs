@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
-"""Fibonacci numbers"""
-from typing import List
+import datasketches
+
+from whylogs_v1.proto import HllSketchMessage
 
 
 def user_input() -> str:
@@ -11,9 +11,7 @@ def user_input() -> str:
     """
     try:
         n = input("Please enter a number: ")
-        return (
-            f"Decrement number {n} is: {f(int(n))}."
-        )
+        return f"Decrement number {n} is: {f(int(n))}."
     except Exception as e:
         raise e
 
@@ -21,6 +19,12 @@ def user_input() -> str:
 def f(n: int) -> int:
     """Return n decremented."""
     return n - 1
+
+
+def message(lg_k: int) -> HllSketchMessage:
+    """Create an empy proto message and return it."""
+    sketch = datasketches.hll_sketch(lg_k)
+    return HllSketchMessage(sketch=sketch.serialize_compact(), lg_k=lg_k)
 
 
 if __name__ == "__main__":

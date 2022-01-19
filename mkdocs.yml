@@ -12,8 +12,8 @@ markdown_extensions:
       toc_depth: 3
 nav:
   - "index.md"
-repo_name: br3ndonland/whylogs-v1
-repo_url: https://github.com/br3ndonland/whylogs-v1
+repo_name: whylabs/whylogs-v1
+repo_url: https://github.com/whylabs/whylogs-v1
 site_name: whylogs-v1 docs
 site_url: ""
 theme:

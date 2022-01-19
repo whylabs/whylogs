@@ -11,7 +11,7 @@ namespace_packages = true
 show_error_codes = true
 
 [tool.poetry]
-name = "whylogs-v1"
+name = "whylogs_v1"
 version = "1.0.0"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
@@ -22,6 +22,8 @@ include = ["whylogs_v1/py.typed"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
+whylabs-datasketches = ">=2.2.0b1"
+protobuf = "^3.19.3"
 
 [tool.poetry.dev-dependencies]
 black = {version = "*", allow-prereleases = true}
@@ -33,6 +35,7 @@ pre-commit = "^2.8"
 pytest = "^6.2"
 pytest-cov = "^3"
 pytest-mock = "^3.3"
+autoflake = "^1.4"
 
 [tool.pytest.ini_options]
 addopts = "-q"
