@@ -1,7 +1,6 @@
 import logging
 import math
 import unicodedata
-
 from collections import defaultdict
 from typing import Callable, Dict, List
 
@@ -9,7 +8,15 @@ from datasketches import frequent_strings_sketch
 
 from whylogs.core.statistics.thetasketch import ThetaSketch
 from whylogs.core.summaryconverters import from_string_sketch
-from whylogs.proto import CharBlockMessage, CharBlockSummary, CharPosMessage, CharPosSummary, StringsMessage, StringsSummary, UnicodeBlockEntry
+from whylogs.proto import (
+    CharBlockMessage,
+    CharBlockSummary,
+    CharPosMessage,
+    CharPosSummary,
+    StringsMessage,
+    StringsSummary,
+    UnicodeBlockEntry,
+)
 from whylogs.util import dsketch
 
 from .numbertracker import NumberTracker
@@ -179,9 +186,9 @@ class CharBlockTracker:
             # might want to make this a multimap or make each value a list of ranges
             # maybe make the defualt {} so nothing's tracked to match old StringTracker behaviour
             block_list = {
-                'emoji': [0x1F600, 0x1F64F],
-                'basic-latin': [0x0000, 0x007F],
-                'extended-latin': [0x0080, 0x02AF],
+                "emoji": [0x1F600, 0x1F64F],
+                "basic-latin": [0x0000, 0x007F],
+                "extended-latin": [0x0080, 0x02AF],
             }
         # validate list length is (multiple of) 2
         self.block_list = block_list
@@ -198,7 +205,7 @@ class CharBlockTracker:
         """
         block_counter = defaultdict(int)
         # need to transform to utf-32 or handle surrogates
-        for char in unicodedata.normalize('NFD', value).lower():
+        for char in unicodedata.normalize("NFD", value).lower():
             for block_name, block_limits in self.block_list.items():
                 if block_limits[0] <= ord(char) <= block_limits[1]:
                     block_counter[block_name] += 1
@@ -243,8 +250,7 @@ class CharBlockTracker:
         Return the object serialized as a protobuf message
         """
         block_list = {
-            block_name: UnicodeBlockEntry(block_start=block_range[0], block_end=block_range[1])
-            for block_name, block_range in self.block_list.items()
+            block_name: UnicodeBlockEntry(block_start=block_range[0], block_end=block_range[1]) for block_name, block_range in self.block_list.items()
         }
 
         opts = dict(block_list=block_list, char_block_map={key: nt.to_protobuf() for key, nt in self.char_block_map.items()})
@@ -274,8 +280,7 @@ class CharBlockTracker:
 
     def to_summary(self):
         block_list = {
-            block_name: UnicodeBlockEntry(block_start=block_range[0], block_end=block_range[1])
-            for block_name, block_range in self.block_list.items()
+            block_name: UnicodeBlockEntry(block_start=block_range[0], block_end=block_range[1]) for block_name, block_range in self.block_list.items()
         }
 
         opts = dict(block_list=block_list, char_block_map={key: nt.to_summary() for key, nt in self.char_block_map.items()})
@@ -352,7 +357,7 @@ class StringTracker:
         self.items.update(value)
 
         self.char_pos_tracker.update(value, character_list)
-        self.char_block_tracker.update(value) # block map?
+        self.char_block_tracker.update(value)  # block map?
         if token_method:
             self.token_method = token_method
         self.length.track(len(value))
@@ -381,8 +386,8 @@ class StringTracker:
         new_length = self.length.merge(other.length)
         new_token_length = self.token_length.merge(other.token_length)
         new_char_pos_tracker = self.char_pos_tracker.merge(other.char_pos_tracker)
-        new_char_block_tracker = self.char_block_tracker.merge(other.char_block_tracker) # block map?
-        
+        new_char_block_tracker = self.char_block_tracker.merge(other.char_block_tracker)  # block map?
+
         return StringTracker(count, items_copy, new_theta, new_length, new_token_length, new_char_pos_tracker, self.token_method, new_char_block_tracker)
 
     def to_protobuf(self):

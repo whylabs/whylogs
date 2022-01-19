@@ -226,40 +226,43 @@ def test_summary():
         "charBlockTracker": {
             "blockList": {
                 "basic-latin": {
-                    'blockStart': 0,
+                    "blockStart": 0,
                     "blockEnd": 127,
                 },
-                'emoji': {
-                    'blockStart': 128512,
-                    'blockEnd': 128591,
+                "emoji": {
+                    "blockStart": 128512,
+                    "blockEnd": 128591,
                 },
-                'extended-latin': {
+                "extended-latin": {
                     "blockStart": 128,
-                    'blockEnd': 687,
+                    "blockEnd": 687,
                 },
             },
-            'charBlockMap': {
-                'basic-latin': {
-                    'count': '7',
-                    'histogram': {
-                        'bins': [3.0, 4.000000249999999, 5.0000005],
-                        'counts': ['6', '1'],
-                        'end': 5.0000005,
-                        'max': 5.0,
-                        'min': 3.0,
-                        'n': '7',
-                        'start': 3.0,
-                        'width': 0.0,
+            "charBlockMap": {
+                "basic-latin": {
+                    "count": "7",
+                    "histogram": {
+                        "bins": [3.0, 4.000000249999999, 5.0000005],
+                        "counts": ["6", "1"],
+                        "end": 5.0000005,
+                        "max": 5.0,
+                        "min": 3.0,
+                        "n": "7",
+                        "start": 3.0,
+                        "width": 0.0,
                     },
-                    'isDiscrete': False,
-                    'max': 5.0,
-                    'mean': 3.2857142857142856,
-                    'min': 3.0,
-                    'quantiles': {'quantileValues': [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 5.0, 5.0, 5.0], 'quantiles': [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]},
-                    'stddev': 0.7559289460184544,
-                    'uniqueCount': {'estimate': 2.0, 'lower': 2.0, 'upper': 2.0}
+                    "isDiscrete": False,
+                    "max": 5.0,
+                    "mean": 3.2857142857142856,
+                    "min": 3.0,
+                    "quantiles": {
+                        "quantileValues": [3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 5.0, 5.0, 5.0],
+                        "quantiles": [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0],
+                    },
+                    "stddev": 0.7559289460184544,
+                    "uniqueCount": {"estimate": 2.0, "lower": 2.0, "upper": 2.0},
                 }
-            }
+            },
         },
         "charPosTracker": {
             "characterList": "!#$%&()*+,-./0123456789?@[]^_abcdefghijklmnopqrstuvwyz{}",
