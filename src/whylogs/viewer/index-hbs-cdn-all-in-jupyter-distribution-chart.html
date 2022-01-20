@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Profile Viewer | whylogs</title>
+
+    <link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <style type="text/css">
+      :root {
+        /** Branded colors */
+        --brandSecondary900: #4f595b; 
+        --secondaryLight1000: #313b3d;
+        /** Purpose colors */
+        --tealBackground: #eaf2f3; 
+      }
+
+      /* RESET STYLE */
+      *,
+      *::after,
+      *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+     @media screen and (min-width: 500px) {
+       .desktop-content {
+         display: block;
+       }
+       .no-responsive {
+         display: none;
+       }
+     }
+
+    </style>
+  </head>
+
+  <body id="generated-html"></body>
+  <script id="entry-template" type="text/x-handlebars-template">
+    {{{{raw}}}}
+      <div class="desktop-content">
+        {{{getDoubleHistogramChart this}}}
+      </div>
+      <div class="no-responsive">
+        <div class="no-responsive__content">
+          <h1 class="no-responsive__title">Hold on! :)</h1>
+          <p class="no-responsive__text">
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          </p>
+        </div>
+      </div>
+    {{{{/raw}}}}
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    function fixNumberTo(number, decimals = 3) {
+      return parseFloat(number).toFixed(decimals);
+    }
+
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+
+      class GenerateChartParams {
+        constructor(height, width, data, bottomMargin=20, topMargin=5) {
+          this.MARGIN = {
+            TOP: topMargin,
+            RIGHT: 5,
+            BOTTOM: bottomMargin,
+            LEFT: 55,
+          };
+          this.SVG_WIDTH = width;
+          this.SVG_HEIGHT = height;
+          this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
+          this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
+          this.svgEl = d3.create("svg").attr("width", this.SVG_WIDTH).attr("height", this.SVG_HEIGHT);
+          this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+          this.xScale = d3
+            .scaleBand()
+            .domain(data.map((d) => d.axisX))
+            .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
+          this.yScale = d3
+            .scaleLinear()
+            .domain([0, this.maxYValue * 1.02])
+            .range([this.CHART_HEIGHT, 0]);
+        }
+      }
+
+      function chartData(column) {
+        const data = [];
+        if (column.numberSummary.isDiscrete) {
+            column.frequentItems.items.forEach((item, index) => {
+              data.push({
+                axisY: item.estimate,
+                axisX: index,
+              });
+            });
+        } else {
+          column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+            data.push({
+              axisY: count,
+              axisX: index,
+            });
+          });
+        }
+        return data
+      }
+
+      function CheckNumberSummary(column) {
+        if (column.numberSummary) {
+          return true
+        } else {
+          return false
+        }
+      }
+
+      function generateDoubleHistogramChart(data, referenceData) {
+        let histogramData = [],
+            overlappedHistogramData = [];
+
+        if (CheckNumberSummary(data) && referenceData && CheckNumberSummary(referenceData)) {
+          histogramData = chartData(data)
+          overlappedHistogramData = chartData(referenceData)
+        }
+        let yFormat,
+            xFormat;
+        const sizes = new GenerateChartParams($(window).height(), $(window).width(), histogramData)
+        const {
+          MARGIN,
+          SVG_WIDTH,
+          SVG_HEIGHT,
+          CHART_WIDTH,
+          CHART_HEIGHT,
+          svgEl,
+          maxYValue,
+          xScale,
+          yScale
+        } = sizes
+
+        const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+        yFormat = yScale.tickFormat(100, yFormat);
+
+        svgEl.append("g")
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+          .call(yAxis)
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick line")
+              .attr("x2", CHART_WIDTH)
+              .attr("stroke-opacity", 0.1))
+          .call(g => g.append("text")
+              .attr("x", -MARGIN.LEFT)
+              .attr("y", 10)
+              .attr("fill", "currentColor")
+              .attr("text-anchor", "start"));
+
+        svgEl.append("g")
+            .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+            .call(xAxis)
+            .call(g => g.select(".domain").remove())
+            .call(g => g.selectAll(".tick line").remove())
+            .call(g => g.append("text")
+                .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+                .attr("y", 27)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "end"));
+
+          const gChart = svgEl.append("g");
+          gChart
+          .selectAll(".bar")
+          .data(histogramData)
+          .enter()
+          .append("rect")
+          .classed("bar", true)
+          .attr("width", xScale.bandwidth())
+          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("x", (d) => xScale(d.axisX))
+          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+          .attr("fill", "#369BAC")
+          .style("opacity","0.6");
+
+          const gChart1 = svgEl.append("g");
+          gChart1
+            .selectAll(".bar")
+            .data(overlappedHistogramData)
+            .enter()
+            .append("rect")
+            .classed("bar", true)
+            .attr("width", xScale.bandwidth())
+            .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+            .attr("x", (d) => xScale(d.axisX))
+            .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+            .attr("fill", "#2683C9")
+            .style("opacity", "0.6");
+
+        return svgEl._groups[0][0].outerHTML;
+      }
+
+      const profileFromCSVfile = {{{reference_profile}}} 
+      Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => {
+        if (profileFromCSVfile) {
+          return  generateDoubleHistogramChart (
+              column, 
+              profileFromCSVfile
+            )
+        }
+      });
+    }
+
+
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = {{{profile_from_whylogs}}};
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById("entry-template").innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById("generated-html");
+      target.innerHTML = html;
+    }
+
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+  </script>
+</html>
