@@ -1097,7 +1097,7 @@ class DatasetConstraints:
     @staticmethod
     def from_protobuf(msg: DatasetConstraintMsg) -> "DatasetConstraints":
         vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
-        sm = [(SummaryConstraints.from_protobuf(v)) for v in msg.summary_constraints]
+        sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
         multi_column_value_m = dict([(k, MultiColumnValueConstraints.from_protobuf(v)) for k, v in msg.multi_column_value_constraints.items()])
         return DatasetConstraints(msg.properties, vm, sm, multi_column_value_m)
 
