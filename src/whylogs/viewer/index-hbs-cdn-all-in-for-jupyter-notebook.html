@@ -107,7 +107,7 @@
       /* CSS DIV TABLE BASIC STYLE */
 
       .wl-table-row .wl-table-head:first-child {
-        min-width: 400px;
+        min-width: 250px;
         z-index: 2;
       }
 
@@ -414,6 +414,24 @@
       width: 0;
     }
 
+    .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 85%;
+        padding-bottom: 17%;
+        vertical-align: top;
+        overflow: hidden;
+      }
+      .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+      }
+
+      .reference-table-head {
+        min-width: 230px;
+      }
+
      @media screen and (min-width: 500px) {
        .desktop-content {
          display: block;
@@ -510,8 +528,12 @@
                           <div></div>
                         </div>
                           <div class="display-flex">
-                            {{{getGraphHtml this}}}
-                            {{{getReferenceGraphHtml this}}}
+                            <div class="svg-container">
+                              {{{getGraphHtml this}}}
+                            </div>
+                            <div class="svg-container">
+                              {{{getReferenceGraphHtml this}}}
+                            </div>
                           </div>
                       </div>
                       <div
@@ -570,7 +592,10 @@
           this.SVG_HEIGHT = height;
           this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
-          this.svgEl = d3.create("svg").attr("width", this.SVG_WIDTH).attr("height", this.SVG_HEIGHT);
+          this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "30 0 320 400")
+             .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
             .scaleBand()
