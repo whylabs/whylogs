@@ -495,7 +495,7 @@
                     <div class="drift-detection-search-input-wrap">
                       <div class="drift-detection-search-input search-input">
                         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjUgMTFIMTEuNzFMMTEuNDMgMTAuNzNDMTIuNDEgOS41OSAxMyA4LjExIDEzIDYuNUMxMyAyLjkxIDEwLjA5IDAgNi41IDBDMi45MSAwIDAgMi45MSAwIDYuNUMwIDEwLjA5IDIuOTEgMTMgNi41IDEzQzguMTEgMTMgOS41OSAxMi40MSAxMC43MyAxMS40M0wxMSAxMS43MVYxMi41TDE2IDE3LjQ5TDE3LjQ5IDE2TDEyLjUgMTFaTTYuNSAxMUM0LjAxIDExIDIgOC45OSAyIDYuNUMyIDQuMDEgNC4wMSAyIDYuNSAyQzguOTkgMiAxMSA0LjAxIDExIDYuNUMxMSA4Ljk5IDguOTkgMTEgNi41IDExWiIgZmlsbD0iIzc3ODE4MyIvPgo8L3N2Zz4K"/>
-                        <input placeholder="Search"/>
+                        <input type="text" id="wl__feature-search" placeholder="Search"/>
                       </div>
                     </div>
                   </div>
@@ -793,7 +793,57 @@
     }
 
     function initWebsiteScripts() {
+      const $featureSearch = document.getElementById("wl__feature-search");
+      const $tableBody = document.getElementById("table-body");
+
+      const activeTypes = {
+        discrete: true,
+        "non-discrete": true,
+        unknown: true,
+      };
+
       const getReferenceProfile = () => { return {{{reference_profile}}} }
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate && !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function handleSearch() {
+        const tableBodyChildren = $tableBody.children;
+
+        for (let i = 0; i < tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = tableBodyChildren[i].dataset.featureName.toLowerCase();
+
+          if (activeTypes[type] && name.startsWith(searchString)) {
+            tableBodyChildren[i].style.display = "";
+          } else {
+            tableBodyChildren[i].style.display = "none";
+          }
+        }
+      }
+
+      $featureSearch.addEventListener(
+        "keyup",
+        debounce((event) => {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
 
       function checkCurrentProfile(item, referenceItem) {
         const refData = getReferenceProfile()
