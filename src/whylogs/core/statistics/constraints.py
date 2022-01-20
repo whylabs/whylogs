@@ -3,7 +3,7 @@ import json
 import logging
 import numbers
 import re
-from typing import Any, Callable, Iterable, List, Mapping, Optional, Set, Union
+from typing import Any, List, Mapping, Optional, Set, Union
 
 import jsonschema
 from datasketches import theta_a_not_b, update_theta_sketch
@@ -17,6 +17,7 @@ from whylogs.proto import (
     ApplyFunctionMsg,
     DatasetConstraintMsg,
     DatasetProperties,
+    InferredType,
     Op,
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
@@ -100,6 +101,10 @@ def _matches_json_schema(json_data: Union[str, dict], json_schema: Union[str, di
     return True
 
 
+# restrict the set length for printing the name of the constraint which contains a reference set
+MAX_SET_DISPLAY_MESSAGE_LENGTH = 20
+
+
 """
 Dict indexed by constraint operator.
 
@@ -129,6 +134,7 @@ _summary_funcs1 = {
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
     Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
+    Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
     Op.IN_SET: lambda f, ref_str_sketch, ref_num_sketch: lambda update_obj: round(
         theta_a_not_b().compute(getattr(update_obj, f)["string_theta"], ref_str_sketch).get_estimate(), 1
     )
@@ -200,7 +206,7 @@ class ValueConstraint:
         if (apply_function is not None) != (self.op == Op.APPLY_FUNC):
             raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator")
 
-        if (isinstance(value, set) and op != Op.IN) or (not isinstance(value, set) and op == Op.IN):
+        if isinstance(value, set) != (op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
         if self.op == Op.APPLY_FUNC:
@@ -224,11 +230,12 @@ class ValueConstraint:
     @property
     def name(self):
         if self.op == Op.APPLY_FUNC:
-            return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.apply_function.__name__}"
+            val_or_funct = self.apply_function.__name__
         elif getattr(self, "value", None) is not None:
-            return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.value}"
+            val_or_funct = self.value
         else:
-            return self._name if self._name is not None else f"value {Op.Name(self.op)} {self.regex_pattern}"
+            val_or_funct = self.regex_pattern
+        return self._name if self._name is not None else f"value {Op.Name(self.op)} {val_or_funct}"
 
     def update(self, v) -> bool:
         self.total += 1
@@ -255,13 +262,16 @@ class ValueConstraint:
     def merge(self, other) -> "ValueConstraint":
         if not other:
             return self
+
         val = None
         pattern = None
+
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
         assert (
             self.apply_function == other.apply_function
         ), f"Cannot merge constraints with different apply_function: {self.apply_function} and {other.apply_function}"
+
         if self.apply_function is not None:
             if hasattr(self, "value") != hasattr(other, "value"):
                 raise TypeError("Cannot merge one constraint with provided value and one without")
@@ -282,58 +292,60 @@ class ValueConstraint:
         merged_value_constraint = ValueConstraint(
             op=self.op, value=val, regex_pattern=pattern, apply_function=self.apply_function, name=self.name, verbose=self._verbose
         )
+
         merged_value_constraint.total = self.total + other.total
         merged_value_constraint.failures = self.failures + other.failures
         return merged_value_constraint
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
+        val = None
+        regex_pattern = None
+        apply_function = None
+
         if msg.HasField("function"):
             val = None if msg.function.reference_value == "" else msg.function.reference_value
-            return ValueConstraint(msg.op, value=val, apply_function=globals()[msg.function.function], name=msg.name, verbose=msg.verbose)
+            apply_function = globals()[msg.function.function]
         elif msg.regex_pattern != "":
-            return ValueConstraint(msg.op, regex_pattern=msg.regex_pattern, name=msg.name, verbose=msg.verbose)
+            regex_pattern = msg.regex_pattern
         elif len(msg.value_set.values) != 0:
-            val_set = set(msg.value_set.values[0].list_value)
-            return ValueConstraint(msg.op, value=val_set, name=msg.name, verbose=msg.verbose)
+            val = set(msg.value_set.values[0].list_value)
         else:
-            return ValueConstraint(msg.op, msg.value, name=msg.name, verbose=msg.verbose)
+            val = msg.value
+
+        return ValueConstraint(msg.op, value=val, regex_pattern=regex_pattern, apply_function=apply_function, name=msg.name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
+        set_vals_message = None
+        regex_pattern = None
+        value = None
+        apply_func = None
+
         if self.op == Op.APPLY_FUNC:
-            func_msg = ApplyFunctionMsg(function=self.apply_function.__name__)
             if hasattr(self, "value"):
-                func_msg = ApplyFunctionMsg(function=self.apply_function.__name__, reference_value=self.value)
-            return ValueConstraintMsg(
-                name=self.name,
-                op=self.op,
-                function=func_msg,
-                verbose=self._verbose,
-            )
+                apply_func = ApplyFunctionMsg(function=self.apply_function.__name__, reference_value=self.value)
+            else:
+                apply_func = ApplyFunctionMsg(function=self.apply_function.__name__)
+
         elif hasattr(self, "value"):
             if isinstance(self.value, set):
                 set_vals_message = ListValue()
                 set_vals_message.append(list(self.value))
-                return ValueConstraintMsg(
-                    name=self.name,
-                    op=self.op,
-                    value_set=set_vals_message,
-                    verbose=self._verbose,
-                )
             else:
-                return ValueConstraintMsg(
-                    name=self.name,
-                    op=self.op,
-                    value=self.value,
-                    verbose=self._verbose,
-                )
-        else:
-            return ValueConstraintMsg(
-                name=self.name,
-                op=self.op,
-                regex_pattern=self.regex_pattern,
-                verbose=self._verbose,
-            )
+                value = self.value
+
+        elif hasattr(self, "regex_pattern"):
+            regex_pattern = self.regex_pattern
+
+        return ValueConstraintMsg(
+            name=self.name,
+            op=self.op,
+            value=value,
+            value_set=set_vals_message,
+            regex_pattern=regex_pattern,
+            function=apply_func,
+            verbose=self._verbose,
+        )
 
     def report(self):
         return (self.name, self.total, self.failures)
@@ -434,23 +446,31 @@ class SummaryConstraint:
 
     @property
     def name(self):
+        value_or_field = None
         if self.first_field == "quantile":
             field_name = f"{self.first_field} {self.quantile_value}"
         else:
             field_name = self.first_field
 
-        constraint_type_str = "table" if self.first_field in ("columns, total_row_number") else "summary"
-        if hasattr(self, "reference_set"):
-            reference_set_str = self._get_str_from_ref_set()
-            return self._name if self._name is not None else f"{constraint_type_str} {self.first_field} {Op.Name(self.op)} {reference_set_str}"
+        constraint_type_str = "table" if self.first_field in ("columns", "total_row_number") else "summary"
+
+        if self.first_field == "column_values_type":
+            if self.value is not None:
+                value_or_field = InferredType.Type.Name(self.value)
+            else:
+                value_or_field = {InferredType.Type.Name(element) for element in list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH]}
+        elif hasattr(self, "reference_set"):
+            value_or_field = self._get_str_from_ref_set()
         elif self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
-            return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {lower_target} and {upper_target}"
-        elif self.first_field in ("columns, total_row_number"):
-            return self._name if self._name is not None else f"table {self.first_field} {Op.Name(self.op)} {self.value}"
+            value_or_field = f"{lower_target} and {upper_target}"
+        elif self.first_field in ("columns", "total_row_number"):
+            value_or_field = str(self.value)
+        else:
+            value_or_field = f"{self.value}/{self.second_field}"
 
-        return self._name if self._name is not None else f"{constraint_type_str} {field_name} {Op.Name(self.op)} {self.value}/{self.second_field}"
+        return self._name if self._name is not None else f"{constraint_type_str} {field_name} {Op.Name(self.op)} {value_or_field}"
 
     def _check_and_init_table_shape_constraint(self, reference_set):
         if self.first_field in ("columns", "total_row_number"):  # table shape constraint
@@ -521,8 +541,8 @@ class SummaryConstraint:
 
     def _get_str_from_ref_set(self) -> str:
         reference_set_str = ""
-        if len(self.reference_set) > 20:
-            tmp_set = set(list(self.reference_set)[:20])
+        if len(self.reference_set) > MAX_SET_DISPLAY_MESSAGE_LENGTH:
+            tmp_set = set(list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])
             reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
         else:
             reference_set_str = str(self.reference_set)
@@ -558,24 +578,29 @@ class SummaryConstraint:
             theta.update(item)
         return theta
 
-    def update(self, update_dict: object) -> bool:
+    def update(self, update_summary: object) -> bool:
+        constraint_type_str = "table shape" if self.first_field in ("columns", "total_row_number") else "summary"
+
         self.total += 1
 
         if self.first_field == "quantile":
-            kll_sketch = getattr(update_dict, self.first_field)
-            quantile_value = single_quantile_from_sketch(kll_sketch, self.quantile_value)
-            result = self.func(quantile_value)
-        else:
-            result = self.func(update_dict)
+            kll_sketch = update_summary.quantile
+            update_summary = single_quantile_from_sketch(kll_sketch, self.quantile_value)
 
-        if not result:
+        if not self.func(update_summary):
             self.failures += 1
             if self._verbose:
-                logger.info(f"summary constraint {self.name} failed")
+                logger.info(f"{constraint_type_str} constraint {self.name} failed")
 
     def merge(self, other) -> "SummaryConstraint":
         if not other:
             return self
+
+        reference_set = None
+        second_field = None
+        third_field = None
+        upper_value = None
+        quantile = None
 
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
         assert self.op == other.op, f"Cannot merge constraints with different ops: {self.op} and {other.op}"
@@ -585,186 +610,143 @@ class SummaryConstraint:
         assert (
             self.quantile_value == other.quantile_value
         ), f"Cannot merge constraints with different quantile_value: {self.quantile_value} and {other.quantile_value}"
+        if self.quantile_value is not None:
+            quantile = self.quantile_value
 
         if hasattr(self, "reference_set"):
             assert hasattr(other, "reference_set"), "Cannot merge constraint that doesn't have reference set with one that does."
-            assert self.reference_set == other.reference_set
-            merged_constraint = SummaryConstraint(
-                first_field=self.first_field, op=self.op, reference_set=self.reference_set, name=self.name, verbose=self._verbose
-            )
+            assert (
+                self.reference_set == other.reference_set
+            ), f"Cannot merge constraints with different reference sets: {self._get_str_from_ref_set()} and {other._get_str_from_ref_set()}"
+            reference_set = self.reference_set
         elif self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
             assert self.third_field == other.third_field, f"Cannot merge constraints with different third_field: {self.third_field} and {other.third_field}"
-            merged_constraint = SummaryConstraint(
-                first_field=self.first_field,
-                op=self.op,
-                value=self.value,
-                upper_value=self.upper_value,
-                quantile_value=self.quantile_value,
-                second_field=self.second_field,
-                third_field=self.third_field,
-                name=self.name,
-                verbose=self._verbose,
-            )
-        else:
-            merged_constraint = SummaryConstraint(
-                first_field=self.first_field,
-                op=self.op,
-                value=self.value,
-                quantile_value=self.quantile_value,
-                second_field=self.second_field,
-                name=self.name,
-                verbose=self._verbose,
-            )
+            third_field = self.third_field
+            upper_value = self.upper_value
+
+        merged_constraint = SummaryConstraint(
+            first_field=self.first_field,
+            op=self.op,
+            value=self.value,
+            upper_value=upper_value,
+            second_field=second_field,
+            third_field=third_field,
+            reference_set=reference_set,
+            quantile_value=quantile,
+            name=self.name,
+            verbose=self._verbose,
+        )
 
         merged_constraint.total = self.total + other.total
         merged_constraint.failures = self.failures + other.failures
         return merged_constraint
 
-    @staticmethod
-    def _check_protobuf_message(
-        msg: SummaryConstraintMsg,
-        to_check: Union[str, List[str]],
-        all_fields: Union[List[str], Set[str]] = None,
-        check_type: Callable[[Iterable[object]], bool] = all,
-    ) -> bool:
-        """
-        Check if the message contains the fields specified in to_check.
-
-        :param msg: The protobuf message containing the SummaryConstraint
-        :param to_check: str representing the field_name or list with field names to check if they exist in the message.
-        :param all_field: set to specify all the field names. If provided, the default message field names are overwritten by it.
-        :param check_type: all or any builtin functions, when all: check if every field_name in 'to_check' exists in the message.
-            when any: check if only one of the field_names in 'to_check' exist in the message.
-        """
-        if isinstance(to_check, str):
-            to_check = [to_check]
-
-        all_field_names = set(msg.DESCRIPTOR.fields_by_name.keys())
-        if all_fields:
-            all_field_names = all_fields if isinstance(all_fields, set) else set(all_fields)
-
-        all_field_names.difference_update(set(to_check))
-
-        if check_type([msg.HasField(field_name) for field_name in to_check]):
-            if all([not msg.HasField(field_name) for field_name in all_field_names]):
+    def _check_if_summary_constraint_message_is_valid(msg: SummaryConstraintMsg):
+        if msg.HasField("reference_set") and not any([msg.HasField(f) for f in ("value", "value_str", "second_field", "between")]):
+            return True
+        elif msg.HasField("value") and not any([msg.HasField(f) for f in ("value_str", "second_field", "between", "reference_set")]):
+            return True
+        elif msg.HasField("value_str") and not any([msg.HasField(f) for f in ("second_field", "between", "reference_set")]):
+            return True
+        elif msg.HasField("second_field") and not any([msg.HasField(f) for f in ("value", "value_str", "between", "reference_set")]):
+            return True
+        elif msg.HasField("between") and not any([msg.HasField(f) for f in ("value", "value_str", "second_field", "reference_set")]):
+            if all([msg.between.HasField(f) for f in ("lower_value", "upper_value")]) and not any(
+                [msg.between.HasField(f) for f in ("second_field", "third_field")]
+            ):
                 return True
+        elif all([msg.between.HasField(f) for f in ("second_field", "third_field")]) and not any(
+            [msg.between.HasField(f) for f in ("lower_value", "upper_value")]
+        ):
+            return True
+
         return False
 
     @staticmethod
     def from_protobuf(msg: SummaryConstraintMsg) -> "SummaryConstraint":
+        if not SummaryConstraint._check_if_summary_constraint_message_is_valid(msg):
+            raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg, but only one of them")
+
+        reference_set = None
+        value = None
+        second_field = None
+        lower_value = None
+        upper_value = None
+        third_field = None
+        quantile_value = None
+
         if msg.first_field == "quantile":
-            quantile_val = msg.quantile_value
-        else:
-            quantile_val = None
+            quantile_value = msg.quantile_value
+        if msg.HasField("reference_set"):
+            reference_set = set(msg.reference_set)
+        elif msg.HasField("value"):
+            value = msg.value
+        elif msg.HasField("value_str"):
+            value = msg.value_str
+        elif msg.HasField("second_field"):
+            second_field = msg.second_field
+        elif msg.HasField("between"):
+            if all([msg.between.HasField(f) for f in ("lower_value", "upper_value")]):
+                lower_value = msg.between.lower_value
+                upper_value = msg.between.upper_value
+            elif all([msg.between.HasField(f) for f in ("second_field", "third_field")]):
+                second_field = msg.between.second_field
+                third_field = msg.between.third_field
 
-        if not msg.DESCRIPTOR.oneofs_by_name["second"]:
-            raise ValueError(
-                "SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg OR reference set, but only one of them"
-            )
-
-        msg_oneof_fields = [field.name for field in msg.DESCRIPTOR.oneofs_by_name["second"].fields]
-        if SummaryConstraint._check_protobuf_message(msg, to_check="reference_set", all_fields=msg_oneof_fields):
-            return SummaryConstraint(
-                msg.first_field,
-                msg.op,
-                reference_set=set(msg.reference_set),
-                name=msg.name,
-                verbose=msg.verbose,
-            )
-        elif SummaryConstraint._check_protobuf_message(msg, to_check=["value", "value_str"], all_fields=msg_oneof_fields, check_type=any):
-            return SummaryConstraint(
-                msg.first_field,
-                msg.op,
-                value=msg.value if msg.HasField("value") else msg.value_str,
-                quantile_value=quantile_val,
-                name=msg.name,
-                verbose=msg.verbose,
-            )
-        elif SummaryConstraint._check_protobuf_message(msg, to_check="second_field", all_fields=msg_oneof_fields):
-            return SummaryConstraint(
-                msg.first_field,
-                msg.op,
-                second_field=msg.second_field,
-                name=msg.name,
-                quantile_value=quantile_val,
-                verbose=msg.verbose,
-            )
-        elif SummaryConstraint._check_protobuf_message(msg, to_check="between", all_fields=msg_oneof_fields):
-            between_value_to_check = ["lower_value", "upper_value"]
-            between_field_to_check = ["second_field", "third_field"]
-            between_all_fields = SummaryBetweenConstraintMsg.DESCRIPTOR.fields_by_name.keys()
-            if SummaryConstraint._check_protobuf_message(msg.between, to_check=between_value_to_check, all_fields=between_all_fields):
-                return SummaryConstraint(
-                    msg.first_field,
-                    msg.op,
-                    value=msg.between.lower_value,
-                    upper_value=msg.between.upper_value,
-                    quantile_value=quantile_val,
-                    name=msg.name,
-                    verbose=msg.verbose,
-                )
-            elif SummaryConstraint._check_protobuf_message(msg.between, to_check=between_field_to_check, all_fields=between_all_fields):
-                return SummaryConstraint(
-                    msg.first_field,
-                    msg.op,
-                    second_field=msg.between.second_field,
-                    third_field=msg.between.third_field,
-                    quantile_value=quantile_val,
-                    name=msg.name,
-                    verbose=msg.verbose,
-                )
-        else:
-            raise ValueError(
-                "SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg OR reference set, but only one of them"
-            )
+        return SummaryConstraint(
+            msg.first_field,
+            msg.op,
+            value=value if value is not None else lower_value,
+            upper_value=upper_value,
+            second_field=second_field,
+            quantile_value=quantile_value,
+            third_field=third_field,
+            reference_set=reference_set,
+            name=msg.name,
+            verbose=msg.verbose,
+        )
 
     def to_protobuf(self) -> SummaryConstraintMsg:
+        reference_set_msg = None
+        summary_between_constraint_msg = None
+        quantile_value = None
+        value = None
+        value_str = None
+        second_field = None
+
+        if self.quantile_value is not None:
+            quantile_value = self.quantile_value
+
         if hasattr(self, "reference_set"):
             reference_set_msg = ListValue()
             reference_set_msg.extend(self.reference_set)
 
-            msg = SummaryConstraintMsg(
-                name=self.name,
-                first_field=self.first_field,
-                op=self.op,
-                reference_set=reference_set_msg,
-                verbose=self._verbose,
-            )
         elif self.op == Op.BTWN:
-
-            summary_between_constraint_msg = None
             if self.second_field is None and self.third_field is None:
                 summary_between_constraint_msg = SummaryBetweenConstraintMsg(lower_value=self.value, upper_value=self.upper_value)
             else:
                 summary_between_constraint_msg = SummaryBetweenConstraintMsg(second_field=self.second_field, third_field=self.third_field)
-
-            msg = SummaryConstraintMsg(
-                name=self.name,
-                first_field=self.first_field,
-                op=self.op,
-                quantile_value=self.quantile_value,
-                between=summary_between_constraint_msg,
-                verbose=self._verbose,
-            )
-
-        elif self.second_field is None:
-            s_msg_opts = dict(name=self.name, first_field=self.first_field, op=self.op, quantile_value=self.quantile_value, verbose=self._verbose)
+        elif self.second_field:
+            second_field = self.second_field
+        elif self.value is not None:
             if isinstance(self.value, str):
-                s_msg_opts.update(dict(value_str=self.value))
+                value_str = self.value
             else:
-                s_msg_opts.update(dict(value=self.value))
-            msg = SummaryConstraintMsg(**s_msg_opts)
-        else:
-            msg = SummaryConstraintMsg(
-                name=self.name,
-                first_field=self.first_field,
-                op=self.op,
-                quantile_value=self.quantile_value,
-                second_field=self.second_field,
-                verbose=self._verbose,
-            )
-        return msg
+                value = self.value
+
+        return SummaryConstraintMsg(
+            name=self.name,
+            first_field=self.first_field,
+            second_field=second_field,
+            value=value,
+            value_str=value_str,
+            between=summary_between_constraint_msg,
+            reference_set=reference_set_msg,
+            quantile_value=quantile_value,
+            op=self.op,
+            verbose=self._verbose,
+        )
 
     def report(self):
         return (self.name, self.total, self.failures)
@@ -1135,3 +1117,92 @@ def numberOfRowsConstraint(n_rows: int, verbose=False):
 
 def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
     return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, verbose=verbose)
+
+
+def columnMostCommonValueInSetConstraint(value_set: Set[Any], verbose=False):
+    try:
+        value_set = set(value_set)
+    except Exception:
+        raise TypeError("The value set should be an iterable data type")
+
+    return SummaryConstraint("most_common_value", op=Op.IN, reference_set=value_set, verbose=verbose)
+
+
+def columnValuesNotNullConstraint(verbose=False):
+    return SummaryConstraint("null_count", value=0, op=Op.EQ, verbose=verbose)
+
+
+def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], verbose: bool = False):
+    """
+
+    Parameters
+    ----------
+    expected_type: Union[InferredType, int]
+        whylogs.proto.InferredType.Type - Enumeration of allowed inferred data types
+        If supplied as integer value, should be one of:
+            UNKNOWN = 0
+            NULL = 1
+            FRACTIONAL = 2
+            INTEGRAL = 3
+            BOOLEAN = 4
+            STRING = 5
+    verbose: bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+    SummaryConstraint
+    """
+
+    if not isinstance(expected_type, (InferredType, int)):
+        raise ValueError("The expected_type parameter should be of type whylogs.proto.InferredType or int")
+    if isinstance(expected_type, InferredType):
+        expected_type = expected_type.type
+
+    return SummaryConstraint("column_values_type", op=Op.EQ, value=expected_type, verbose=verbose)
+
+
+def columnValuesTypeInSetConstraint(type_set: Set[int], verbose: bool = False):
+    """
+
+    Parameters
+    ----------
+    type_set: Set[int]
+        whylogs.proto.InferredType.Type - Enumeration of allowed inferred data types
+        If supplied as integer value, should be one of:
+            UNKNOWN = 0
+            NULL = 1
+            FRACTIONAL = 2
+            INTEGRAL = 3
+            BOOLEAN = 4
+            STRING = 5
+    verbose: bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+    SummaryConstraint
+    """
+
+    try:
+        type_set = set(type_set)
+    except Exception:
+        raise TypeError("The type_set parameter should be an iterable of int values")
+
+    if not all([isinstance(t, int) for t in type_set]):
+        raise TypeError("All of the elements of the type_set parameter should be of type int")
+
+    return SummaryConstraint("column_values_type", op=Op.IN, reference_set=type_set, verbose=verbose)
+
+
+def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_value: float, verbose=False):
+    if not all([isinstance(v, (int, float)) for v in (lower_value, upper_value)]):
+        raise TypeError("The lower and upper values should be of type int or float")
+    if not all([v >= 0 for v in (lower_value, upper_value)]):
+        raise ValueError("The value of the entropy cannot be a negative number")
+    if lower_value > upper_value:
+        raise ValueError("The supplied lower bound should be less than or equal to the supplied upper bound")
+
+    return SummaryConstraint("entropy", op=Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)

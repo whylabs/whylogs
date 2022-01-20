@@ -22,9 +22,9 @@ enum Op {
     IN_SET = 10;
     CONTAIN_SET = 11;
     EQ_SET = 12;
-    IN = 13;
-    CONTAIN = 14;
-    APPLY_FUNC = 15;
+    APPLY_FUNC = 13;
+    IN = 14;
+    CONTAIN = 15;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -74,7 +74,7 @@ message ValueConstraintMsg {
     string regex_pattern = 5;
     google.protobuf.ListValue value_set = 6;
     ApplyFunctionMsg function = 7;
-    
+
   }
   Op op = 3;
   bool verbose = 4;
