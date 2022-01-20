@@ -77,6 +77,21 @@
         line-height: 1.5;
       }
 
+      .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%;
+        vertical-align: top;
+        overflow: hidden;
+      }
+      
+      .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+      }
+
      @media screen and (min-width: 500px) {
        .desktop-content {
          display: block;
@@ -93,7 +108,9 @@
   <script id="entry-template" type="text/x-handlebars-template">
     {{{{raw}}}}
       <div class="desktop-content">
-        {{{getDoubleHistogramChart this}}}
+        <div class="svg-container">
+          {{{getDoubleHistogramChart this}}}
+        </div>
       </div>
       <div class="no-responsive">
         <div class="no-responsive__content">
@@ -132,7 +149,10 @@
           this.SVG_HEIGHT = height;
           this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
-          this.svgEl = d3.create("svg").attr("width", this.SVG_WIDTH).attr("height", this.SVG_HEIGHT);
+          this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", `40 0 ${$(window).width()} ${$(window).height()}`)
+             .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
             .scaleBand()
@@ -181,6 +201,7 @@
           histogramData = chartData(data)
           overlappedHistogramData = chartData(referenceData)
         }
+        
         let yFormat,
             xFormat;
         const sizes = new GenerateChartParams($(window).height(), $(window).width(), histogramData)
@@ -259,9 +280,9 @@
       Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => {
         if (profileFromCSVfile) {
           return  generateDoubleHistogramChart (
-              column, 
-              profileFromCSVfile
-            )
+            column, 
+            profileFromCSVfile
+          )
         }
       });
     }
@@ -278,7 +299,6 @@
       const target = document.getElementById("generated-html");
       target.innerHTML = html;
     }
-
 
     // Invoke functions -- keep in mind invokation order
     registerHandlebarHelperFunctions();
