@@ -69,7 +69,7 @@ def test_value_summary_serialization():
         assert json_value["verbose"] == False
 
     for each_op, _ in _summary_funcs1.items():
-        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.CONTAIN):
+        if each_op in (Op.BTWN, Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.CONTAIN, Op.IN):
             continue
         # constraints may have an optional name
         sum_constraint = SummaryConstraint("min", each_op, 300000, name="< 30K")

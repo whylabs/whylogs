@@ -412,71 +412,22 @@ class SummaryConstraint:
         if self.first_field != "quantile" and self.quantile_value is not None:
             raise ValueError("Summary constraint applied on non-quantile field should not specify quantile value")
 
-        if self.first_field in ("columns", "total_row_number"):  # table shape constraint
+        table_shape_constraint = self._check_and_init_table_shape_constraint(reference_set)
+        set_constraint = False
+        between_constraint = False
 
-            if self.first_field == "columns":
-                if op == Op.EQ:
-                    if any([value, upper_value, second_field, third_field, not reference_set]):
-                        raise ValueError("When using set operations only set should be provided and not values or field names!")
-                    self.reference_set = reference_set
-                    reference_set = self.try_cast_set()
-                else:
-                    if any([not value, upper_value, second_field, third_field, reference_set]):
-                        raise ValueError("When using table shape columns constraint only value should be provided and no fields or reference set!")
-
-            if isinstance(value, (float)):
-                value = int(value)
-
-            if (op == Op.CONTAIN and not isinstance(value, str)) or (op == Op.EQ and not isinstance(value, int) and not isinstance(reference_set, set)):
-                raise ValueError("Table shape constraints require value of type string or string set for columns and type int for number of rows!")
-
-            target_val = self.value if self.value else self.reference_set
-            self.func = _summary_funcs1[self.op](first_field, target_val)
-
-        elif self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
-            if any([value, upper_value, second_field, third_field, not reference_set]):
-                raise ValueError("When using set operations only set should be provided and not values or field names!")
-
-            self.reference_set = reference_set
-            reference_set = self.try_cast_set()
-
-            self.ref_string_set, self.ref_numbers_set = self.get_string_and_numbers_sets()
-
-            self.reference_theta_sketch = self.create_theta_sketch()
-            self.string_theta_sketch = self.create_theta_sketch(self.ref_string_set)
-            self.numbers_theta_sketch = self.create_theta_sketch(self.ref_numbers_set)
-
-            self.func = _summary_funcs1[self.op](first_field, self.string_theta_sketch, self.numbers_theta_sketch)
-
-        elif self.op == Op.BTWN:
-            if value is not None and upper_value is not None and (second_field, third_field) == (None, None):
-                # field-value summary comparison
-                if not isinstance(value, (int, float)) or not isinstance(upper_value, (int, float)):
-                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower value must be of type (int, float)")
-                if value >= upper_value:
-                    raise ValueError("Summary constraint with BETWEEN operation must specify lower value to be less than upper value")
-
-                self.func = _summary_funcs1[self.op](first_field, value, upper_value)
-
-            elif second_field is not None and third_field is not None and (value, upper_value) == (None, None):
-                # field-field summary comparison
-                if not isinstance(second_field, str) or not isinstance(third_field, str):
-                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower field must be of type string")
-
-                self.func = _summary_funcs2[self.op](first_field, second_field, third_field)
-            else:
-                raise ValueError("Summary constraint with BETWEEN operation must specify lower and upper value OR lower and third field name, but not both")
-        else:
+        if not table_shape_constraint:
+            set_constraint = self._check_and_init_valid_set_constraint(reference_set)
+        if not any([table_shape_constraint, set_constraint]):
+            between_constraint = self._check_and_init_between_constraint()
+        if not any([table_shape_constraint, set_constraint, between_constraint]):
             if upper_value is not None or third_field is not None:
                 raise ValueError("Summary constraint with other than BETWEEN operation must NOT specify upper value NOR third field name")
-
             if value is not None and second_field is None:
                 # field-value summary comparison
-
                 self.func = _summary_funcs1[op](first_field, value)
             elif second_field is not None and value is None:
                 # field-field summary comparison
-
                 self.func = _summary_funcs2[op](first_field, second_field)
             else:
                 raise ValueError("Summary constraint must specify a second value or field name, but not both")
@@ -490,7 +441,7 @@ class SummaryConstraint:
 
         constraint_type_str = "table" if self.first_field in ("columns, total_row_number") else "summary"
         if hasattr(self, "reference_set"):
-            reference_set_str = self.get_str_from_ref_set()
+            reference_set_str = self._get_str_from_ref_set()
             return self._name if self._name is not None else f"{constraint_type_str} {self.first_field} {Op.Name(self.op)} {reference_set_str}"
         elif self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
@@ -501,7 +452,74 @@ class SummaryConstraint:
 
         return self._name if self._name is not None else f"{constraint_type_str} {field_name} {Op.Name(self.op)} {self.value}/{self.second_field}"
 
-    def get_str_from_ref_set(self) -> str:
+    def _check_and_init_table_shape_constraint(self, reference_set):
+        if self.first_field in ("columns", "total_row_number"):  # table shape constraint
+
+            if self.first_field == "columns":
+                if self.op == Op.EQ:
+                    if any([self.value, self.upper_value, self.second_field, self.third_field, not reference_set]):
+                        raise ValueError("When using set operations only set should be provided and not values or field names!")
+                    self.reference_set = reference_set
+                    reference_set = self._try_cast_set()
+                else:
+                    if any([not self.value, self.upper_value, self.second_field, self.third_field, reference_set]):
+                        raise ValueError("When using table shape columns constraint only value should be provided and no fields or reference set!")
+
+            if isinstance(self.value, (float)):
+                self.value = int(self.value)
+
+            if (self.op == Op.CONTAIN and not isinstance(self.value, str)) or all(
+                [self.op == Op.EQ, not isinstance(self.value, int), not isinstance(reference_set, set)]
+            ):
+
+                raise ValueError("Table shape constraints require value of type string or string set for columns and type int for number of rows!")
+
+            target_val = self.value if self.value is not None else self.reference_set
+            self.func = _summary_funcs1[self.op](self.first_field, target_val)
+            return True
+        return False
+
+    def _check_and_init_valid_set_constraint(self, reference_set):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
+            if any([self.value, self.upper_value, self.second_field, self.third_field, not reference_set]):
+                raise ValueError("When using set operations only set should be provided and not values or field names!")
+
+            self.reference_set = reference_set
+            reference_set = self._try_cast_set()
+
+            if self.op != Op.IN:
+                self.ref_string_set, self.ref_numbers_set = self._get_string_and_numbers_sets()
+                self.string_theta_sketch = self._create_theta_sketch(self.ref_string_set)
+                self.numbers_theta_sketch = self._create_theta_sketch(self.ref_numbers_set)
+
+                self.func = _summary_funcs1[self.op](self.first_field, self.string_theta_sketch, self.numbers_theta_sketch)
+            else:
+                self.func = _summary_funcs1[self.op](self.first_field, reference_set)
+            return True
+        return False
+
+    def _check_and_init_between_constraint(self):
+        if self.op == Op.BTWN:
+            if all([v is not None for v in (self.value, self.upper_value)]) and all([v is None for v in (self.second_field, self.third_field)]):
+                # field-value summary comparison
+                if not isinstance(self.value, (int, float)) or not isinstance(self.upper_value, (int, float)):
+                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower value must be of type (int, float)")
+                if self.value >= self.upper_value:
+                    raise ValueError("Summary constraint with BETWEEN operation must specify lower value to be less than upper value")
+
+                self.func = _summary_funcs1[self.op](self.first_field, self.value, self.upper_value)
+                return True
+            elif all([v is not None for v in (self.second_field, self.third_field)]) and all([v is None for v in (self.value, self.upper_value)]):
+                # field-field summary comparison
+                if not isinstance(self.second_field, str) or not isinstance(self.third_field, str):
+                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower field must be of type string")
+                self.func = _summary_funcs2[self.op](self.first_field, self.second_field, self.third_field)
+                return True
+            else:
+                raise ValueError("Summary constraint with BETWEEN operation must specify lower and upper value OR lower and third field name, but not both")
+        return False
+
+    def _get_str_from_ref_set(self) -> str:
         reference_set_str = ""
         if len(self.reference_set) > 20:
             tmp_set = set(list(self.reference_set)[:20])
@@ -511,7 +529,7 @@ class SummaryConstraint:
 
         return reference_set_str
 
-    def try_cast_set(self) -> Set[Any]:
+    def _try_cast_set(self) -> Set[Any]:
         if not isinstance(self.reference_set, set):
             try:
                 logger.warning(f"Trying to cast provided value of {type(self.reference_set)} to type set!")
@@ -521,7 +539,7 @@ class SummaryConstraint:
                 raise TypeError(f"When using set operations, provided value must be set or set castable, instead type: '{provided_type_name}' was provided!")
         return self.reference_set
 
-    def get_string_and_numbers_sets(self):
+    def _get_string_and_numbers_sets(self):
         string_set = set()
         numbers_set = set()
         for item in self.reference_set:
@@ -532,7 +550,7 @@ class SummaryConstraint:
 
         return string_set, numbers_set
 
-    def create_theta_sketch(self, ref_set: set = None):
+    def _create_theta_sketch(self, ref_set: set = None):
         theta = update_theta_sketch()
         target_set = self.reference_set if ref_set is None else ref_set
 
@@ -604,7 +622,7 @@ class SummaryConstraint:
         return merged_constraint
 
     @staticmethod
-    def check_protobuf_message(
+    def _check_protobuf_message(
         msg: SummaryConstraintMsg,
         to_check: Union[str, List[str]],
         all_fields: Union[List[str], Set[str]] = None,
@@ -646,7 +664,7 @@ class SummaryConstraint:
             )
 
         msg_oneof_fields = [field.name for field in msg.DESCRIPTOR.oneofs_by_name["second"].fields]
-        if SummaryConstraint.check_protobuf_message(msg, to_check="reference_set", all_fields=msg_oneof_fields):
+        if SummaryConstraint._check_protobuf_message(msg, to_check="reference_set", all_fields=msg_oneof_fields):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -654,7 +672,7 @@ class SummaryConstraint:
                 name=msg.name,
                 verbose=msg.verbose,
             )
-        elif SummaryConstraint.check_protobuf_message(msg, to_check=["value", "value_str"], all_fields=msg_oneof_fields, check_type=any):
+        elif SummaryConstraint._check_protobuf_message(msg, to_check=["value", "value_str"], all_fields=msg_oneof_fields, check_type=any):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -663,7 +681,7 @@ class SummaryConstraint:
                 name=msg.name,
                 verbose=msg.verbose,
             )
-        elif SummaryConstraint.check_protobuf_message(msg, to_check="second_field", all_fields=msg_oneof_fields):
+        elif SummaryConstraint._check_protobuf_message(msg, to_check="second_field", all_fields=msg_oneof_fields):
             return SummaryConstraint(
                 msg.first_field,
                 msg.op,
@@ -672,11 +690,11 @@ class SummaryConstraint:
                 quantile_value=quantile_val,
                 verbose=msg.verbose,
             )
-        elif SummaryConstraint.check_protobuf_message(msg, to_check="between", all_fields=msg_oneof_fields):
+        elif SummaryConstraint._check_protobuf_message(msg, to_check="between", all_fields=msg_oneof_fields):
             between_value_to_check = ["lower_value", "upper_value"]
             between_field_to_check = ["second_field", "third_field"]
             between_all_fields = SummaryBetweenConstraintMsg.DESCRIPTOR.fields_by_name.keys()
-            if SummaryConstraint.check_protobuf_message(msg.between, to_check=between_value_to_check, all_fields=between_all_fields):
+            if SummaryConstraint._check_protobuf_message(msg.between, to_check=between_value_to_check, all_fields=between_all_fields):
                 return SummaryConstraint(
                     msg.first_field,
                     msg.op,
@@ -686,7 +704,7 @@ class SummaryConstraint:
                     name=msg.name,
                     verbose=msg.verbose,
                 )
-            elif SummaryConstraint.check_protobuf_message(msg.between, to_check=between_field_to_check, all_fields=between_all_fields):
+            elif SummaryConstraint._check_protobuf_message(msg.between, to_check=between_field_to_check, all_fields=between_all_fields):
                 return SummaryConstraint(
                     msg.first_field,
                     msg.op,
