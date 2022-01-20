@@ -1570,6 +1570,15 @@ def test_entropy_between_constraint_wrong_datatype():
         approximateEntropyBetweenConstraint(lower_value=1, upper_value=0.9)
 
 
+def _apply_value_constraints_on_dataset(df_lending_club, local_config_path, value_constraints=None, multi_column_value_constraints=None):
+    dc = DatasetConstraints(None, value_constraints=value_constraints, multi_column_value_constraints=multi_column_value_constraints)
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    return dc.report()
+
+
 def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_path, df_lending_club):
     col_set = ["loan_amnt", "int_rate"]
     srveq = sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value="total_pymnt", verbose=False)
