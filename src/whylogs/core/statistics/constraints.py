@@ -1203,6 +1203,17 @@ def columnValuesTypeInSetConstraint(type_set: Set[int], verbose: bool = False):
     return SummaryConstraint("column_values_type", op=Op.IN, reference_set=type_set, verbose=verbose)
 
 
+def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_value: float, verbose=False):
+    if not all([isinstance(v, (int, float)) for v in (lower_value, upper_value)]):
+        raise TypeError("The lower and upper values should be of type int or float")
+    if not all([v >= 0 for v in (lower_value, upper_value)]):
+        raise ValueError("The value of the entropy cannot be a negative number")
+    if lower_value > upper_value:
+        raise ValueError("The supplied lower bound should be less than or equal to the supplied upper bound")
+
+    return SummaryConstraint("entropy", op=Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)
+
+
 def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[List[float], np.ndarray], p_value=0.05, verbose=False):
     """
 

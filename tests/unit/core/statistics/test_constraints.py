@@ -19,6 +19,7 @@ from whylogs.core.statistics.constraints import (
     _try_parse_json,
     _try_parse_strftime_format,
     _value_funcs,
+    approximateEntropyBetweenConstraint,
     columnChiSquaredTestPValueGreaterThanConstraint,
     columnKLDivergenceLessThanConstraint,
     columnMostCommonValueInSetConstraint,
@@ -1490,6 +1491,82 @@ def test_column_values_type_in_set_constraint_wrong_datatype():
         columnValuesTypeInSetConstraint(type_set={"FRACTIONAL", 2}, verbose=True)
     with pytest.raises(TypeError):
         columnValuesTypeInSetConstraint(type_set="ABCD")
+
+
+def test_entropy_between_constraint_numeric_apply(local_config_path, df_lending_club):
+    ec = approximateEntropyBetweenConstraint(lower_value=0.4, upper_value=0.5)
+    summary_constraint = {"annual_inc": [ec]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
+    # numeric
+    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.4 and 0.5"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 1
+
+
+def test_entropy_between_constraint_categorical_apply(local_config_path, df_lending_club):
+    ec = approximateEntropyBetweenConstraint(lower_value=0.6, upper_value=1.5)
+    summary_constraint = {"grade": [ec]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
+
+    # categorical
+    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_entropy_between_constraint_null_apply(local_config_path, df_lending_club):
+    ec = approximateEntropyBetweenConstraint(lower_value=0.6, upper_value=1.5)
+    summary_constraint = {"member_id": [ec]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
+
+    # categorical
+    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 1
+
+
+def test_merge_entropy_between_constraint_different_values():
+    e1 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=2.4)
+    e2 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=2.6)
+    with pytest.raises(AssertionError):
+        e1.merge(e2)
+
+
+def test_merge_entropy_between_constraint_same_values():
+    e1 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=3.2)
+    e2 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=3.2)
+    merged = e1.merge(e2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == f"summary entropy {Op.Name(Op.BTWN)} 1 and 3.2"
+    assert message["firstField"] == "entropy"
+    assert message["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(message["between"]["lowerValue"], 0.01) == 1
+    assert pytest.approx(message["between"]["upperValue"], 0.01) == 3.2
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_entropy_between_constraint():
+    e1 = approximateEntropyBetweenConstraint(lower_value=0.3, upper_value=1.2, verbose=True)
+
+    e1.from_protobuf(e1.to_protobuf())
+    json_value = json.loads(message_to_json(e1.to_protobuf()))
+
+    assert json_value["name"] == f"summary entropy {Op.Name(Op.BTWN)} 0.3 and 1.2"
+    assert json_value["firstField"] == "entropy"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.01) == 0.3
+    assert pytest.approx(json_value["between"]["upperValue"], 0.01) == 1.2
+    assert json_value["verbose"] is True
+
+
+def test_entropy_between_constraint_wrong_datatype():
+    with pytest.raises(TypeError):
+        approximateEntropyBetweenConstraint(lower_value="2", upper_value=4, verbose=True)
+    with pytest.raises(ValueError):
+        approximateEntropyBetweenConstraint(lower_value=-2, upper_value=3, verbose=True)
+    with pytest.raises(ValueError):
+        approximateEntropyBetweenConstraint(lower_value=1, upper_value=0.9)
 
 
 def test_ks_test_p_value_greater_than_constraint_false(df_lending_club, local_config_path):
