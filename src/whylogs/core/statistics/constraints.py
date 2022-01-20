@@ -404,11 +404,10 @@ class SummaryConstraint:
          to be compared against summary field specified in `first_field`.
         Only one of `upper_value` or `third_field` should be supplied.
     reference_set : (one-of)
-        Only to be supplied when using set operations. Used as a reference set to be compared with the column
-        distinct values.
-    reference_distribution: (one-of)
-        Instance of datasketches.kll_floats_sketch or ReferenceDistributionDiscreteMessage. Only to be supplied for constraints
-        on distributional measures, such as KS test, KL divergence and Chi-Squared test
+        Only to be supplied when using set operations or distributional measures.
+        Used as a reference set to be compared with the column distinct values.
+        Or is instance of datasketches.kll_floats_sketch or ReferenceDistributionDiscreteMessage.
+        Only to be supplied for constraints on distributional measures, such as KS test, KL divergence and Chi-Squared test.
     name : str
         Name of the constraint used for reporting
     verbose : bool
@@ -427,8 +426,7 @@ class SummaryConstraint:
         quantile_value: Union[int, float] = None,
         second_field: str = None,
         third_field: str = None,
-        reference_set=None,
-        reference_distribution: Union[datasketches.kll_floats_sketch, ReferenceDistributionDiscreteMessage] = None,
+        reference_set: Union[List[Any], Set[Any], datasketches.kll_floats_sketch, ReferenceDistributionDiscreteMessage] = None,
         name: str = None,
         verbose=False,
     ):
@@ -451,63 +449,15 @@ class SummaryConstraint:
         if self.first_field != "quantile" and self.quantile_value is not None:
             raise ValueError("Summary constraint applied on non-quantile field should not specify quantile value")
 
-        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET):
-            if any([value, upper_value, second_field, third_field, not reference_set]):
-                raise ValueError("When using set operations only set should be provided and not values or field names!")
-            self.reference_set = reference_set
-            reference_set = self.try_cast_set()
-            self.ref_string_set, self.ref_numbers_set = self.get_string_and_numbers_sets()
-            self.reference_theta_sketch = self.create_theta_sketch()
-            self.string_theta_sketch = self.create_theta_sketch(self.ref_string_set)
-            self.numbers_theta_sketch = self.create_theta_sketch(self.ref_numbers_set)
+        set_constraint = self._check_and_init_valid_set_constraint(reference_set)
+        distributional_measure_constraint = False
+        between_constraint = False
 
-            self.func = _summary_funcs1[self.op](first_field, self.string_theta_sketch, self.numbers_theta_sketch)
-
-        elif reference_distribution:
-            if not isinstance(reference_distribution, (datasketches.kll_floats_sketch, ReferenceDistributionDiscreteMessage)):
-                raise TypeError("The reference distribution should be an object of type datasketches.kll_floats_sketch or ReferenceDistributionDiscreteMessage")
-            if self.value is None or any([v is not None for v in (self.upper_value, self.second_field, self.third_field)]):
-                raise ValueError(
-                    "Summary constraint with reference_distribution must specify value for comparing with the p_value or threshold,"
-                    " and must not specify lower_value, second_field or third_field"
-                )
-            self.reference_distribution = reference_distribution
-            self.func = _summary_funcs1[self.op](first_field, value)
-
-        elif self.op == Op.IN:
-            if any([value is not None, upper_value, second_field, third_field, reference_set is None]):
-                raise ValueError("When using set operations only set should be provided and not values or field names!")
-
-            if not isinstance(reference_set, set):
-                try:
-                    logger.warning(f"Trying to cast provided value of {type(reference_set)} to type set!")
-                    reference_set = set(reference_set)
-                except TypeError:
-                    raise TypeError(
-                        "When using set operations, provided value must be set or set castable,"
-                        f" instead type: '{reference_set.__class__.__name__}' was provided!"
-                    )
-            self.reference_set = reference_set
-            self.func = _summary_funcs1[op](self.first_field, reference_set)
-
-        elif self.op == Op.BTWN:
-            if all([v is not None for v in (value, upper_value)]) and all([v is None for v in (second_field, third_field)]):
-                # field-value summary comparison
-                if not isinstance(value, (int, float)) or not isinstance(upper_value, (int, float)):
-                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower value must be of type (int, float)")
-                if value >= upper_value:
-                    raise ValueError("Summary constraint with BETWEEN operation must specify lower value to be less than upper value")
-
-                self.func = _summary_funcs1[self.op](first_field, value, upper_value)
-
-            elif all([v is not None for v in (second_field, third_field)]) and all([v is None for v in (value, upper_value)]):
-                # field-field summary comparison
-                if not isinstance(second_field, str) or not isinstance(third_field, str):
-                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower field must be of type string")
-                self.func = _summary_funcs2[self.op](first_field, second_field, third_field)
-            else:
-                raise ValueError("Summary constraint with BETWEEN operation must specify lower and upper value OR lower and third field name, but not both")
-        else:
+        if not set_constraint:
+            distributional_measure_constraint = self._check_and_init_distributional_measure_constraint(reference_set)
+        if not any([set_constraint, distributional_measure_constraint]):
+            between_constraint = self._check_and_init_between_constraint()
+        if not any([set_constraint, distributional_measure_constraint, between_constraint]):
             if upper_value is not None or third_field is not None:
                 raise ValueError("Summary constraint with other than BETWEEN operation must NOT specify upper value NOR third field name")
             if value is not None and second_field is None:
@@ -549,6 +499,61 @@ class SummaryConstraint:
             value_or_field = f"{self.value}/{self.second_field}"
 
         return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {value_or_field}"
+
+    def _check_and_init_valid_set_constraint(self, reference_set):
+        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
+            if any([self.value, self.upper_value, self.second_field, self.third_field, not reference_set]):
+                raise ValueError("When using set operations only set should be provided and not values or field names!")
+
+            self.reference_set = reference_set
+            reference_set = self.try_cast_set()
+
+            if self.op != Op.IN:
+                self.ref_string_set, self.ref_numbers_set = self.get_string_and_numbers_sets()
+                self.reference_theta_sketch = self.create_theta_sketch()
+                self.string_theta_sketch = self.create_theta_sketch(self.ref_string_set)
+                self.numbers_theta_sketch = self.create_theta_sketch(self.ref_numbers_set)
+
+                self.func = _summary_funcs1[self.op](self.first_field, self.string_theta_sketch, self.numbers_theta_sketch)
+            else:
+                self.func = _summary_funcs1[self.op](self.first_field, reference_set)
+            return True
+        return False
+
+    def _check_and_init_distributional_measure_constraint(self, reference_set):
+        if reference_set and self.op not in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
+            if not isinstance(reference_set, (datasketches.kll_floats_sketch, ReferenceDistributionDiscreteMessage)):
+                raise TypeError("The reference distribution should be an object of type datasketches.kll_floats_sketch or ReferenceDistributionDiscreteMessage")
+            if self.value is None or any([v is not None for v in (self.upper_value, self.second_field, self.third_field)]):
+                raise ValueError(
+                    "Summary constraint with reference_distribution must specify value for comparing with the p_value or threshold,"
+                    " and must not specify lower_value, second_field or third_field"
+                )
+            self.reference_distribution = reference_set
+            self.func = _summary_funcs1[self.op](self.first_field, self.value)
+            return True
+        return False
+
+    def _check_and_init_between_constraint(self):
+        if self.op == Op.BTWN:
+            if all([v is not None for v in (self.value, self.upper_value)]) and all([v is None for v in (self.second_field, self.third_field)]):
+                # field-value summary comparison
+                if not isinstance(self.value, (int, float)) or not isinstance(self.upper_value, (int, float)):
+                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower value must be of type (int, float)")
+                if self.value >= self.upper_value:
+                    raise ValueError("Summary constraint with BETWEEN operation must specify lower value to be less than upper value")
+
+                self.func = _summary_funcs1[self.op](self.first_field, self.value, self.upper_value)
+                return True
+            elif all([v is not None for v in (self.second_field, self.third_field)]) and all([v is None for v in (self.value, self.upper_value)]):
+                # field-field summary comparison
+                if not isinstance(self.second_field, str) or not isinstance(self.third_field, str):
+                    raise TypeError("When creating Summary constraint with BETWEEN operation, upper and lower field must be of type string")
+                self.func = _summary_funcs2[self.op](self.first_field, self.second_field, self.third_field)
+                return True
+            else:
+                raise ValueError("Summary constraint with BETWEEN operation must specify lower and upper value OR lower and third field name, but not both")
+        return False
 
     def try_cast_set(self) -> Set[Any]:
         if not isinstance(self.reference_set, set):
@@ -601,7 +606,6 @@ class SummaryConstraint:
         if not other:
             return self
 
-        reference_set = None
         second_field = None
         third_field = None
         upper_value = None
@@ -630,7 +634,7 @@ class SummaryConstraint:
                 raise AssertionError("Cannot merge constraints with different reference_distribution")
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
             assert self.reference_set == other.reference_set
-            reference_set = self.reference_set
+            reference_dist = self.reference_set
         elif self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
             assert self.third_field == other.third_field, f"Cannot merge constraints with different third_field: {self.third_field} and {other.third_field}"
@@ -644,9 +648,8 @@ class SummaryConstraint:
             upper_value=upper_value,
             second_field=second_field,
             third_field=third_field,
-            reference_set=reference_set,
+            reference_set=reference_dist,
             quantile_value=quantile,
-            reference_distribution=reference_dist,
             name=self.name,
             verbose=self._verbose,
         )
@@ -671,6 +674,12 @@ class SummaryConstraint:
             [msg.between.HasField(f) for f in ("lower_value", "upper_value")]
         ):
             return True
+        elif (
+            ((msg.HasField("continuous_distribution") and msg.continuous_distribution.HasField("sketch")) or msg.HasField("discrete_distribution"))
+            and msg.HasField("value")
+            and not any([msg.HasField(f) for f in ("second_field", "between")])
+        ):
+            return True
 
         return False
 
@@ -679,7 +688,6 @@ class SummaryConstraint:
         if not SummaryConstraint._check_if_summary_constraint_message_is_valid(msg):
             raise ValueError("SummaryConstraintMsg must specify a value OR second field name OR SummaryBetweenConstraintMsg, but only one of them")
 
-        reference_set = None
         value = None
         second_field = None
         lower_value = None
@@ -697,7 +705,7 @@ class SummaryConstraint:
             ref_distribution = msg.discrete_distribution
 
         if msg.HasField("reference_set"):
-            reference_set = set(msg.reference_set)
+            ref_distribution = set(msg.reference_set)
         elif msg.HasField("value"):
             value = msg.value
         elif msg.HasField("second_field"):
@@ -718,8 +726,7 @@ class SummaryConstraint:
             second_field=second_field,
             quantile_value=quantile_value,
             third_field=third_field,
-            reference_set=reference_set,
-            reference_distribution=ref_distribution,
+            reference_set=ref_distribution,
             name=msg.name,
             verbose=msg.verbose,
         )
@@ -1232,7 +1239,7 @@ def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[
             raise ValueError("The reference distribution should be a continuous distribution")
         kll_floats.update(value)
 
-    return SummaryConstraint("ks_test", op=Op.GT, reference_distribution=kll_floats, value=p_value, verbose=verbose)
+    return SummaryConstraint("ks_test", op=Op.GT, reference_set=kll_floats, value=p_value, verbose=verbose)
 
 
 def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any], np.ndarray], threshold: float = 0.5, verbose: bool = False):
@@ -1295,7 +1302,7 @@ def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any]
             frequent_items=frequent_items_sketch.to_summary(), unique_count=cardinality_sketch.to_summary(), total_count=total_count
         )
 
-    return SummaryConstraint("kl_divergence", op=Op.LT, reference_distribution=ref_summary, value=threshold, verbose=verbose)
+    return SummaryConstraint("kl_divergence", op=Op.LT, reference_set=ref_summary, value=threshold, verbose=verbose)
 
 
 def columnChiSquaredTestPValueGreaterThanConstraint(
@@ -1346,4 +1353,4 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
 
     ref_dist = ReferenceDistributionDiscreteMessage(frequent_items=frequent_items_sketch.to_summary(), total_count=frequency_sum)
 
-    return SummaryConstraint("chi_squared_test", op=Op.GT, reference_distribution=ref_dist, value=p_value, verbose=verbose)
+    return SummaryConstraint("chi_squared_test", op=Op.GT, reference_set=ref_dist, value=p_value, verbose=verbose)
