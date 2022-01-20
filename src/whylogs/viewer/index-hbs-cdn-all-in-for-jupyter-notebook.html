@@ -162,7 +162,7 @@
 
       .wl-table-head {
         position: sticky;
-        top: 0;
+        left: 0;
         min-width: 100px;
         background-color: var(--white);
         border-bottom: 2px solid var(--brandSecondary100);
@@ -397,7 +397,7 @@
        margin-right: 5px;
      }
 
-     .drift-detection-search-input input::placeholder {
+     .drift-detection-search-input input::placeholder { 
        font-family: Arial;
        font-weight: normal;
        font-size: 17px;
@@ -447,28 +447,28 @@
                         <div class="drift-detection-info-drifts-item display-flex align-items">
                           <div class="drift-detection-info-circle severe-drift-circle-color"></div>
                           <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                            <p class="drift-detection-info-drifts-item-count mb-0">18</p>
+                            <p class="drift-detection-info-drifts-item-count mb-0">{{severeDrift}}</p>
                             <p class="drift-detection-info-drifts-item-name  mb-0">Severe drift</p>
                           </div>
                         </div>
                         <div class="drift-detection-info-drifts-item display-flex align-items">
                           <div class="drift-detection-info-circle moderate-drift-circle-color"></div>
                           <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                            <p class="drift-detection-info-drifts-item-count mb-0">12</p>
+                            <p class="drift-detection-info-drifts-item-count mb-0">{{moderateDrift}}</p>
                             <p class="drift-detection-info-drifts-item-name  mb-0">Moderate drift</p>
                           </div>
                         </div>
                         <div class="drift-detection-info-drifts-item display-flex align-items">
                           <div class="drift-detection-info-circle mild-drift-circle-color"></div>
                           <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                            <p class="drift-detection-info-drifts-item-count mb-0">13</p>
+                            <p class="drift-detection-info-drifts-item-count mb-0">{{mildDrift}}</p>
                             <p class="drift-detection-info-drifts-item-name  mb-0">Mild drift</p>
                           </div>
                         </div>
                         <div class="drift-detection-info-drifts-item display-flex align-items">
                           <div class="drift-detection-info-circle minimal-drift-circle-color"></div>
                           <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                            <p class="drift-detection-info-drifts-item-count mb-0">22</p>
+                            <p class="drift-detection-info-drifts-item-count mb-0">{{minimalDrift}}</p>
                             <p class="drift-detection-info-drifts-item-name mb-0">Minimal drift</p>
                           </div>
                         </div>
@@ -676,15 +676,33 @@
         return format(date);
       }
 
+      const randomNumbers = (range) => Math.floor(Math.random() * range)
+
       const profileFromCSVfile = {{{reference_profile}}}
+
+      Handlebars.registerHelper("severeDrift", function () {
+        return randomNumbers(50);
+      });
+
+      Handlebars.registerHelper("moderateDrift", function () {
+        return randomNumbers(50);
+      });
+
+      Handlebars.registerHelper("mildDrift", function () {
+        return randomNumbers(50);
+      });
+
+      Handlebars.registerHelper("minimalDrift", function () {
+        return randomNumbers(50);
+      });
 
       Handlebars.registerHelper("getDiffFromRef", function () {
         if (profileFromCSVfile && profileFromCSVfile.columns) {
           const circleColors = ["severe-drift-circle-color", "moderate-drift-circle-color", "mild-drift-circle-color", "minimal-drift-circle-color"]
           return `
             <div class="display-flex justify-content-center">
-              ${Math.floor(Math.random() * 10)}
-              <div style="margin-left: 8px" class="drift-detection-info-circle ${circleColors[Math.floor(Math.random() * 4)]}"></div>
+              ${randomNumbers(10)}
+              <div style="margin-left: 8px" class="drift-detection-info-circle ${circleColors[randomNumbers(4)]}"></div>
             </div>
           `
         }
