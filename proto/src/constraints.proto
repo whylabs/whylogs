@@ -2,6 +2,7 @@ syntax = "proto3";
 
 import "messages.proto";
 import "google/protobuf/struct.proto";
+import "summaries.proto";
 
 option java_package = "com.whylogs.core.constraint";
 option java_outer_classname = "Constraints";
@@ -44,6 +45,21 @@ message SummaryConstraintMsg {
   Op op = 5;
   bool verbose = 6;
   double quantile_value = 9;
+  oneof reference_distribution{
+    ReferenceDistributionContinuousMessage continuous_distribution = 10;
+    ReferenceDistributionDiscreteMessage discrete_distribution = 11;
+  }
+}
+
+
+message ReferenceDistributionContinuousMessage {
+  KllFloatsSketchMessage sketch = 1;
+}
+
+message ReferenceDistributionDiscreteMessage {
+  FrequentItemsSummary frequent_items = 1;
+  UniqueCountSummary unique_count = 2;
+  float total_count = 3;
 }
 
 message SummaryBetweenConstraintMsg {
