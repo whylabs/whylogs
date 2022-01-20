@@ -25,9 +25,11 @@ from whylogs.proto import (
     DatasetProfileMessage,
     DatasetProperties,
     DatasetSummary,
+    InferredType,
     MessageSegment,
     ModelType,
     NumberSummary,
+    ReferenceDistributionDiscreteMessage,
 )
 from whylogs.util import time
 from whylogs.util.time import from_utc_ms, to_utc_ms
@@ -692,6 +694,24 @@ class DatasetProfile:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
 
+                kll_sketch = colprof.number_tracker.histogram
+                inferred_type = summ.schema.inferred_type.type
+                kl_divergence_summary = None
+                if inferred_type == InferredType.Type.FRACTIONAL:
+                    kl_divergence_summary = kll_sketch
+                elif inferred_type in (InferredType.STRING, InferredType.INTEGRAL, InferredType.BOOLEAN):
+                    kl_divergence_summary = ReferenceDistributionDiscreteMessage(
+                        frequent_items=summ.frequent_items,
+                        unique_count=summ.unique_count,
+                        total_count=summ.counters.count,
+                    )
+
+                chi_squared_summary = ReferenceDistributionDiscreteMessage(
+                    frequent_items=summ.frequent_items,
+                    unique_count=summ.unique_count,
+                    total_count=summ.counters.count,
+                )
+
                 distinct_column_values_dict = dict()
                 distinct_column_values_dict["string_theta"] = colprof.string_tracker.theta_sketch.theta_sketch
                 distinct_column_values_dict["number_theta"] = colprof.number_tracker.theta_sketch.theta_sketch
@@ -708,6 +728,9 @@ class DatasetProfile:
                     null_count=summ.counters.null_count.value,
                     column_values_type=summ.schema.inferred_type.type,
                     entropy=entropy_from_column_summary(summ, colprof.number_tracker.histogram),
+                    ks_test=kll_sketch,
+                    kl_divergence=kl_divergence_summary,
+                    chi_squared_test=chi_squared_summary,
                 )
 
                 constraints.update(update_dict)
