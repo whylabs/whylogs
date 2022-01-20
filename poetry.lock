@@ -175,7 +175,7 @@ license = ["ukkonen"]
 name = "importlib-metadata"
 version = "4.2.0"
 description = "Read metadata from Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -605,7 +605,7 @@ python-versions = ">=3.6"
 name = "typing-extensions"
 version = "4.0.1"
 description = "Backported and Experimental Type Hints for Python 3.6+"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -652,7 +652,7 @@ python-versions = "*"
 name = "zipp"
 version = "3.6.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -663,7 +663,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.1, <4.0"
-content-hash = "6b4a2dbac8add171bf697a780210fd31dceeb9b63f185f7c28f36d897f6bdbf0"
+content-hash = "73b7c056c3056104613205ccdbbad3ce62f9175044966f223f741db3a4c7ce2d"
 
 [metadata.files]
 appdirs = [

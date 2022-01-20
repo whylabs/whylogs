@@ -10,7 +10,7 @@ def test_package_version() -> None:
 
 def test_package_version_not_found() -> None:
     """Test package version calculation when package is not installed."""
-    assert package_version(package="incorrect") == "Package not found."
+    assert package_version(package="incorrect") == "incorrect is not installed."
 
 
 def test_version() -> None:

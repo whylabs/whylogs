@@ -27,6 +27,7 @@ include = ["whylogs_v1/py.typed"]
 python = ">=3.6.1, <4.0"
 whylabs-datasketches = ">=2.2.0b1"
 protobuf = ">=3.15.5"
+importlib-metadata = {version = ">=0.23", python = "<3.8"}
 
 [tool.poetry.dev-dependencies]
 black = {version = "*", allow-prereleases = true}
