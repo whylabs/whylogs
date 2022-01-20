@@ -1686,7 +1686,7 @@ def test_column_kl_divergence_less_than_constraint_continuous_true(df_lending_cl
 def test_column_kl_divergence_less_than_constraint_discrete_true(df_lending_club, local_config_path):
     np.random.seed(2)
     dist_data = np.random.choice(list(set(df_lending_club["grade"].values)), 100)
-    kld = columnKLDivergenceLessThanConstraint(dist_data, threshold=0.5)
+    kld = columnKLDivergenceLessThanConstraint(dist_data, threshold=1.3)
     dc = DatasetConstraints(None, summary_constraints={"grade": [kld]})
     config = load_config(local_config_path)
     session = session_from_config(config)
