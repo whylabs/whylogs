@@ -2,7 +2,6 @@ from logging import getLogger
 from typing import List, Union
 
 import numpy as np
-from sklearn.utils.multiclass import type_of_target
 
 from whylogs.core.statistics import NumberTracker
 from whylogs.proto import ScoreMatrixMessage
@@ -85,10 +84,6 @@ class ConfusionMatrix:
             multiclass suport
             ValueError: incase missing validation or predictions
         """
-        tgt_type = type_of_target(targets)
-        if tgt_type not in ("binary", "multiclass"):
-            raise NotImplementedError("target type not supported yet")
-
         if not isinstance(targets, list):
             targets = [targets]
         if not isinstance(predictions, list):
