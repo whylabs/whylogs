@@ -70,8 +70,7 @@ message PluginMessage {
 }
 
 message ColumnMessage {
-  string name = 1;
-  map<string, TrackerMessage> trackers = 2;
+  map<string, TrackerMessage> trackers = 1;
 }
 
 message DatasetProperties {
