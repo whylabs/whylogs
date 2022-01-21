@@ -8,9 +8,11 @@ import pytest
 from whylogs.app.config import load_config
 from whylogs.app.session import session_from_config
 from whylogs.core.statistics.constraints import (
+    MAX_SET_DISPLAY_MESSAGE_LENGTH,
     DatasetConstraints,
     Op,
     SummaryConstraint,
+    SummaryConstraints,
     ValueConstraint,
     ValueConstraints,
     _matches_json_schema,
@@ -1287,9 +1289,10 @@ def test_table_shape_constraints(df_lending_club, local_config_path):
     config = load_config(local_config_path)
     session = session_from_config(config)
 
-    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
-
-    report = profile.apply_table_shape_constraints()
+    report = None
+    logger = session.logger(dataset_name="test.data", constraints=dc)
+    logger.log_dataframe(df_lending_club)
+    report = logger.profile.apply_table_shape_constraints()
 
     assert len(report) == 6
     # table shape {self.value} {Op.Name(self.op)} {self.first_field}
@@ -1314,14 +1317,82 @@ def test_table_shape_constraints(df_lending_club, local_config_path):
     assert report[4][2] == 1
 
     reference_set_str = ""
-    if len(set2) > 20:
-        tmp_set = set(list(set2)[:20])
+    if len(set2) > MAX_SET_DISPLAY_MESSAGE_LENGTH:
+        tmp_set = set(list(set2)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])
         reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
     else:
         reference_set_str = str(set2)
     assert report[5][0] == f"table columns {Op.Name(Op.EQ)} {reference_set_str}"
     assert report[5][1] == 1
     assert report[5][2] == 0
+
+    logger.log({"no_WAY": 1})  # logging a new non existent column
+
+    report2 = logger.profile.apply_table_shape_constraints()
+
+    assert report2[1][0] == f"table total_row_number {Op.Name(Op.EQ)} {len(df_lending_club.index)}"
+    assert report2[1][1] == 2
+    assert report2[1][2] == 0
+    # applying the table shape constraints the second time, after adding a new column the constraint passes since
+    # the total row number stays the same
+
+    assert report2[2][0] == f"table columns {Op.Name(Op.CONTAIN)} no_WAY"
+    assert report2[2][1] == 2
+    assert report2[2][2] == 1
+    # after logging the new column 'no_WAY', this constraint DOES NOT fail the second time because the column 'no_way'
+    # is now present
+
+    assert report2[5][0] == f"table columns {Op.Name(Op.EQ)} {reference_set_str}"
+    assert report2[5][1] == 2
+    assert report2[5][2] == 1
+    # after logging the new column 'no_WAY', this constraint fails the second time because the reference set
+    # does not contain the new column 'no_WAY'
+
+    set3 = set(set2)
+    set3.add("no_WAY")
+
+    columns_match3 = columnsMatchSetConstraint(set3)
+
+    report3 = logger.profile.apply_table_shape_constraints(SummaryConstraints([columns_match3]))
+
+    reference_set_str2 = ""
+    if len(set3) > MAX_SET_DISPLAY_MESSAGE_LENGTH:
+        tmp_set = set(list(set3)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])
+        reference_set_str2 = f"{str(tmp_set)[:-1]}, ...}}"
+    else:
+        reference_set_str2 = str(set3)
+
+    assert report3[0][0] == f"table columns {Op.Name(Op.EQ)} {reference_set_str2}"
+    assert report3[0][1] == 1
+    assert report3[0][2] == 0
+    # adding the new column to 'set3' and creating a constraint with it, now it doesn't fail
+
+    log_dict = dict()
+    # logging a new value for every column (one more row)
+    for column in df_lending_club.columns:
+        value = df_lending_club[column][10]  # sample from the column
+        log_dict[column] = value
+    logger.log(log_dict)
+
+    report4 = logger.profile.apply_table_shape_constraints()
+
+    assert report4[1][0] == f"table total_row_number {Op.Name(Op.EQ)} {len(df_lending_club.index)}"
+    assert report4[1][1] == 3
+    assert report4[1][2] == 1
+    # applying the table shape constraints the third time, and only this time it fails as the new row was logged
+
+    rows_3 = numberOfRowsConstraint(n_rows=len(df_lending_club.index) + 1)  # 1 new row
+
+    report5 = logger.profile.apply_table_shape_constraints(SummaryConstraints([rows_3]))
+
+    assert report5[0][0] == f"table total_row_number {Op.Name(Op.EQ)} {len(df_lending_club.index)+1}"
+    assert report5[0][1] == 1
+    assert report5[0][2] == 0
+    # the new numberOfRowsConstraint with n_rows=previous_n_rows+1 passes
+
+    profile = logger.close()  # closing the logger and getting the DatasetProfile
+
+    assert profile.total_row_number == rows_3.value
 
 
 def test_table_shape_constraint_invalid_init():

@@ -114,6 +114,8 @@ class DatasetProfile:
 
         self.model_profile = model_profile
 
+        self.column_row_dict = dict()
+
         # Store Name attribute
         self._tags["name"] = name
 
@@ -153,6 +155,10 @@ class DatasetProfile:
         Return the session timestamp value in epoch milliseconds.
         """
         return time.to_utc_ms(self.session_timestamp)
+
+    @property
+    def total_row_number(self):
+        return max(self.column_row_dict.values())
 
     def add_output_field(self, field: Union[str, List[str]]):
         if self.model_profile is None:
@@ -249,6 +255,11 @@ class DatasetProfile:
             prof = ColumnProfile(column_name, constraints=constraints)
             self.columns[column_name] = prof
 
+            self.column_row_dict[column_name] = 0
+
+        # updating the map for every column name with increasing the number of tracked values
+        self.column_row_dict[column_name] += 1
+
         prof.track(data, character_list=None, token_method=None)
 
     def track_array(self, x: np.ndarray, columns=None):
@@ -282,7 +293,7 @@ class DatasetProfile:
         # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
         if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
             df = df.to_pandas()
-        self.total_row_number = len(df.index)
+
         element_count = df.size
         large_df = element_count > 200000
         if large_df:
