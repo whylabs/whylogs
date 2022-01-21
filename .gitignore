@@ -190,4 +190,7 @@ pip-selfcheck.json
 .history
 .ionide
 
+# IntelliJ
+.idea
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,virtualenv,visualstudiocode

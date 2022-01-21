@@ -1,16 +1,91 @@
 syntax = "proto3";
 
+import "google/protobuf/struct.proto";
 import "google/protobuf/wrappers.proto";
 
 option java_package = "com.whylogs.core.message";
 option java_outer_classname = "Messages";
 option java_multiple_files = true;
 
-message Counters {
-  int64 count = 1;
+message DataType {
+  enum Type {
+    UNKNOWN = 0;
+    NULL = 1;
+    FRACTIONAL = 2;
+    INTEGRAL = 3;
+    BOOLEAN = 4;
+    STRING = 5;
+  }
+
+  Type type = 1;
+  double ratio = 2;
 }
 
 message HllSketchMessage {
   bytes sketch = 1;
   int32 lg_k = 2;
+}
+
+message FrequentItemsSketchMessage {
+  bytes sketch = 1;
+  int32 lg_max_k = 2;
+}
+
+message KllSketchMessage {
+  bytes sketch = 1;
+  int32 k = 2;
+}
+
+message TrackerMessage {
+  string name = 1;
+  int32 type_index = 2;
+  oneof value {
+    int64 n = 3;
+    double d = 4;
+    bytes serialized_bytes = 5;
+    FrequentItemsSketchMessage frequent_items = 10;
+    HllSketchMessage cardinality_tracker = 11;
+    KllSketchMessage histogram = 12;
+
+    PluginMessage custom = 99;
+  }
+}
+
+message PluginType {
+  enum Language {
+    PYTHON = 0;
+    JAVA = 1;
+  }
+  string plugin_class_name = 1;
+  Language language = 2;
+}
+
+message PluginMessage {
+  string name = 1;
+  repeated PluginType plugin_types = 2; // The language and corresponding classname that implements this plugin.
+  oneof item {
+    google.protobuf.Struct params = 3;
+    bytes serialized_bytes = 4;
+  }
+}
+
+message ColumnMessage {
+  map<string, TrackerMessage> trackers = 1;
+}
+
+message DatasetProperties {
+  uint32 schema_major_version = 1;
+  uint32 schema_minor_version = 2;
+
+  string session_id = 3;
+  int64 session_timestamp = 4;
+  int64 data_timestamp = 5;
+  map<string, string> tags = 6;
+  map<string, string> metadata = 7;
+}
+
+message DatasetProfileMessage {
+  DatasetProperties properties = 1;
+  map<string, ColumnMessage> columns = 2;
+  map<string, TrackerMessage> metric_plugins = 3;
 }
