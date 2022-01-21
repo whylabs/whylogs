@@ -1,6 +1,7 @@
 import json
 from logging import getLogger
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -18,11 +19,16 @@ from whylogs.core.statistics.constraints import (
     _try_parse_json,
     _try_parse_strftime_format,
     _value_funcs,
+    approximateEntropyBetweenConstraint,
+    columnChiSquaredTestPValueGreaterThanConstraint,
+    columnKLDivergenceLessThanConstraint,
     columnMostCommonValueInSetConstraint,
     columnUniqueValueCountBetweenConstraint,
     columnUniqueValueProportionBetweenConstraint,
     columnValuesInSetConstraint,
     columnValuesNotNullConstraint,
+    columnValuesTypeEqualsConstraint,
+    columnValuesTypeInSetConstraint,
     containsCreditCardConstraint,
     containsEmailConstraint,
     containsSSNConstraint,
@@ -36,13 +42,14 @@ from whylogs.core.statistics.constraints import (
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
+    parametrizedKSTestPValueGreaterThanConstraint,
     quantileBetweenConstraint,
     stddevBetweenConstraint,
     strftimeFormatConstraint,
     stringLengthBetweenConstraint,
     stringLengthEqualConstraint,
 )
-from whylogs.proto import Op
+from whylogs.proto import InferredType, Op
 from whylogs.util.protobuf import message_to_json
 
 TEST_LOGGER = getLogger(__name__)
@@ -513,12 +520,6 @@ def test_max_between_constraint_invalid():
         maxBetweenConstraint(lower_field="max", upper_field=2)
 
 
-def test_column_values_in_set_constraint(df_lending_club, local_config_path):
-    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
-    ltc = ValueConstraint(Op.LT, 1)
-    dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
-
-
 def _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints):
 
     dc = DatasetConstraints(None, summary_constraints=summary_constraints)
@@ -527,8 +528,38 @@ def _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, su
     profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
     session.close()
     report = profile.apply_summary_constraints()
-
     return report
+
+
+def test_set_summary_constraints(df_lending_club, local_config_path):
+    org_list = list(df_lending_club["annual_inc"])
+
+    org_list2 = list(df_lending_club["annual_inc"])
+    org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
+
+    in_set = distinctValuesInSetConstraint(reference_set=org_list2, name="True")
+    in_set2 = distinctValuesInSetConstraint(reference_set=org_list, name="True2")
+    in_set3 = distinctValuesInSetConstraint(reference_set=org_list[:-1], name="False")
+
+    eq_set = distinctValuesEqualSetConstraint(reference_set=org_list, name="True3")
+    eq_set2 = distinctValuesEqualSetConstraint(reference_set=org_list2, name="False2")
+    eq_set3 = distinctValuesEqualSetConstraint(reference_set=org_list[:-1], name="False3")
+
+    contains_set = distinctValuesContainSetConstraint(reference_set=[org_list[2]], name="True4")
+    contains_set2 = distinctValuesContainSetConstraint(reference_set=org_list, name="True5")
+    contains_set3 = distinctValuesContainSetConstraint(reference_set=org_list[:-1], name="True6")
+    contains_set4 = distinctValuesContainSetConstraint(reference_set=[str(org_list[2])], name="False4")
+    contains_set5 = distinctValuesContainSetConstraint(reference_set=[2.3456], name="False5")
+    contains_set6 = distinctValuesContainSetConstraint(reference_set=org_list2, name="False6")
+
+    list(df_lending_club["annual_inc"])
+    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
+    for r in report[0][1]:
+        if "True" in r[0]:
+            assert r[2] == 0
+        else:
+            assert r[2] == 1
 
 
 def test_set_summary_constraint_invalid_init():
@@ -568,38 +599,6 @@ def test_set_summary_merge():
     assert pre_merge_json["verbose"] == merge_json["verbose"]
 
 
-def test_set_summary_constraints(df_lending_club, local_config_path):
-
-    org_list = list(df_lending_club["annual_inc"])
-
-    org_list2 = list(df_lending_club["annual_inc"])
-    org_list2.extend([1, 4, 5555, "gfsdgs", 0.00333, 245.32])
-
-    in_set = distinctValuesInSetConstraint(reference_set=org_list2, name="True")
-    in_set2 = distinctValuesInSetConstraint(reference_set=org_list, name="True2")
-    in_set3 = distinctValuesInSetConstraint(reference_set=org_list[:-1], name="False")
-
-    eq_set = distinctValuesEqualSetConstraint(reference_set=org_list, name="True3")
-    eq_set2 = distinctValuesEqualSetConstraint(reference_set=org_list2, name="False2")
-    eq_set3 = distinctValuesEqualSetConstraint(reference_set=org_list[:-1], name="False3")
-
-    contains_set = distinctValuesContainSetConstraint(reference_set=[org_list[2]], name="True4")
-    contains_set2 = distinctValuesContainSetConstraint(reference_set=org_list, name="True5")
-    contains_set3 = distinctValuesContainSetConstraint(reference_set=org_list[:-1], name="True6")
-    contains_set4 = distinctValuesContainSetConstraint(reference_set=[str(org_list[2])], name="False4")
-    contains_set5 = distinctValuesContainSetConstraint(reference_set=[2.3456], name="False5")
-    contains_set6 = distinctValuesContainSetConstraint(reference_set=org_list2, name="False6")
-
-    list(df_lending_club["annual_inc"])
-    constraints = [in_set, in_set2, in_set3, eq_set, eq_set2, eq_set3, contains_set, contains_set2, contains_set3, contains_set4, contains_set5, contains_set6]
-    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, {"annual_inc": constraints})
-    for r in report[0][1]:
-        if "True" in r[0]:
-            assert r[2] == 0
-        else:
-            assert r[2] == 1
-
-
 def test_set_summary_serialization():
     set1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
     set2 = SummaryConstraint.from_protobuf(set1.to_protobuf())
@@ -612,6 +611,22 @@ def test_set_summary_serialization():
     assert set1_json["firstField"] == set2_json["firstField"]
     assert set1_json["op"] == set2_json["op"]
     assert set1_json["verbose"] == set2_json["verbose"]
+
+
+def test_column_values_in_set_constraint(df_lending_club, local_config_path):
+    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8, 90671227})
+    ltc = ValueConstraint(Op.LT, 1)
+    dc = DatasetConstraints(None, value_constraints={"id": [cvisc, ltc]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == len(df_lending_club)
+    # the number of fails should equal the number of rows - 1 since the column id only has the value 90671227 in set
+    assert report[0][1][0][2] == len(df_lending_club) - 1
 
 
 def test_merge_values_in_set_constraint_different_value_set():
@@ -1368,3 +1383,490 @@ def test_serialization_deserialization_column_values_not_null_constraint():
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 0
     assert json_value["verbose"] is True
+
+
+def test_column_values_type_equals_constraint_apply(local_config_path, df_lending_club):
+    cvtc = columnValuesTypeEqualsConstraint(expected_type=InferredType.Type.FRACTIONAL)
+    summary_constraints = {"annual_inc": [cvtc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
+
+    assert report[0][1][0][0] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.FRACTIONAL)}"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_merge_column_values_type_equals_constraint_different_values():
+    c1 = columnValuesTypeEqualsConstraint(expected_type=InferredType.Type.FRACTIONAL)
+    c2 = columnValuesTypeEqualsConstraint(expected_type=InferredType.Type.NULL)
+    with pytest.raises(AssertionError):
+        c1.merge(c2)
+
+
+def test_merge_column_values_type_equals_constraint_same_values():
+    u1 = columnValuesTypeEqualsConstraint(expected_type=1)
+    u2 = columnValuesTypeEqualsConstraint(expected_type=1)
+    merged = u1.merge(u2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(1)}"
+    assert message["firstField"] == "column_values_type"
+    assert message["op"] == Op.Name(Op.EQ)
+    assert message["value"] == 1
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_column_values_type_equals_constraint():
+    u1 = columnValuesTypeEqualsConstraint(expected_type=InferredType.Type.STRING, verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    assert json_value["name"] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.STRING)}"
+    assert json_value["firstField"] == "column_values_type"
+    assert json_value["op"] == Op.Name(Op.EQ)
+    assert json_value["value"] == InferredType.Type.STRING
+    assert json_value["verbose"] is True
+
+
+def test_column_values_type_equals_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        columnValuesTypeEqualsConstraint(expected_type=2.3, verbose=True)
+    with pytest.raises(ValueError):
+        columnValuesTypeEqualsConstraint(expected_type="FRACTIONAL", verbose=True)
+
+
+def test_column_values_type_in_set_constraint_apply(local_config_path, df_lending_club):
+    type_set = {InferredType.Type.FRACTIONAL, InferredType.Type.INTEGRAL}
+    cvtc = columnValuesTypeInSetConstraint(type_set=type_set)
+    summary_constraint = {"annual_inc": [cvtc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
+
+    type_names = {InferredType.Type.Name(t) for t in type_set}
+    assert report[0][1][0][0] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_merge_column_values_type_in_set_constraint_different_values():
+    c1 = columnValuesTypeInSetConstraint(type_set={InferredType.Type.INTEGRAL, InferredType.Type.STRING})
+    c2 = columnValuesTypeInSetConstraint(type_set={InferredType.Type.INTEGRAL, InferredType.Type.NULL})
+    with pytest.raises(AssertionError):
+        c1.merge(c2)
+
+
+def test_merge_column_values_type_in_set_constraint_same_values():
+    type_set = {InferredType.Type.INTEGRAL, InferredType.Type.STRING}
+    c1 = columnValuesTypeInSetConstraint(type_set=type_set)
+    c2 = columnValuesTypeInSetConstraint(type_set=type_set)
+    merged = c1.merge(c2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    type_names = {InferredType.Type.Name(t) for t in type_set}
+    assert message["name"] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert message["firstField"] == "column_values_type"
+    assert message["op"] == Op.Name(Op.IN)
+    assert message["referenceSet"] == list(type_set)
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_column_values_type_in_set_constraint():
+    type_set = {InferredType.Type.STRING, InferredType.Type.INTEGRAL}
+    u1 = columnValuesTypeInSetConstraint(type_set=type_set, verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    type_names = {InferredType.Type.Name(t) if isinstance(t, int) else InferredType.Type.Name(t.type) for t in type_set}
+    assert json_value["name"] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert json_value["firstField"] == "column_values_type"
+    assert json_value["op"] == Op.Name(Op.IN)
+    assert json_value["referenceSet"] == list(type_set)
+    assert json_value["verbose"] is True
+
+
+def test_column_values_type_in_set_constraint_wrong_datatype():
+    with pytest.raises(TypeError):
+        columnValuesTypeInSetConstraint(type_set={2.3, 1}, verbose=True)
+    with pytest.raises(TypeError):
+        columnValuesTypeInSetConstraint(type_set={"FRACTIONAL", 2}, verbose=True)
+    with pytest.raises(TypeError):
+        columnValuesTypeInSetConstraint(type_set="ABCD")
+
+
+def test_entropy_between_constraint_numeric_apply(local_config_path, df_lending_club):
+    ec = approximateEntropyBetweenConstraint(lower_value=0.4, upper_value=0.5)
+    summary_constraint = {"annual_inc": [ec]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
+    # numeric
+    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.4 and 0.5"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 1
+
+
+def test_entropy_between_constraint_categorical_apply(local_config_path, df_lending_club):
+    ec = approximateEntropyBetweenConstraint(lower_value=0.6, upper_value=1.5)
+    summary_constraint = {"grade": [ec]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
+
+    # categorical
+    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 0
+
+
+def test_entropy_between_constraint_null_apply(local_config_path, df_lending_club):
+    ec = approximateEntropyBetweenConstraint(lower_value=0.6, upper_value=1.5)
+    summary_constraint = {"member_id": [ec]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
+
+    # categorical
+    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
+    assert report[0][1][0][1] == 1
+    assert report[0][1][0][2] == 1
+
+
+def test_merge_entropy_between_constraint_different_values():
+    e1 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=2.4)
+    e2 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=2.6)
+    with pytest.raises(AssertionError):
+        e1.merge(e2)
+
+
+def test_merge_entropy_between_constraint_same_values():
+    e1 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=3.2)
+    e2 = approximateEntropyBetweenConstraint(lower_value=1, upper_value=3.2)
+    merged = e1.merge(e2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == f"summary entropy {Op.Name(Op.BTWN)} 1 and 3.2"
+    assert message["firstField"] == "entropy"
+    assert message["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(message["between"]["lowerValue"], 0.01) == 1
+    assert pytest.approx(message["between"]["upperValue"], 0.01) == 3.2
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_entropy_between_constraint():
+    e1 = approximateEntropyBetweenConstraint(lower_value=0.3, upper_value=1.2, verbose=True)
+
+    e1.from_protobuf(e1.to_protobuf())
+    json_value = json.loads(message_to_json(e1.to_protobuf()))
+
+    assert json_value["name"] == f"summary entropy {Op.Name(Op.BTWN)} 0.3 and 1.2"
+    assert json_value["firstField"] == "entropy"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.01) == 0.3
+    assert pytest.approx(json_value["between"]["upperValue"], 0.01) == 1.2
+    assert json_value["verbose"] is True
+
+
+def test_entropy_between_constraint_wrong_datatype():
+    with pytest.raises(TypeError):
+        approximateEntropyBetweenConstraint(lower_value="2", upper_value=4, verbose=True)
+    with pytest.raises(ValueError):
+        approximateEntropyBetweenConstraint(lower_value=-2, upper_value=3, verbose=True)
+    with pytest.raises(ValueError):
+        approximateEntropyBetweenConstraint(lower_value=1, upper_value=0.9)
+
+
+def test_ks_test_p_value_greater_than_constraint_false(df_lending_club, local_config_path):
+    norm_values = np.random.normal(loc=10000, scale=2.0, size=15000)
+    kspval = parametrizedKSTestPValueGreaterThanConstraint(norm_values, p_value=0.1)
+    dc = DatasetConstraints(None, summary_constraints={"loan_amnt": [kspval]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint failed once
+    assert report[0][1][0][2] == 1
+
+
+def test_ks_test_p_value_greater_than_constraint_true(df_lending_club, local_config_path):
+    kspval = parametrizedKSTestPValueGreaterThanConstraint(df_lending_club["loan_amnt"].values, p_value=0.1)
+    dc = DatasetConstraints(None, summary_constraints={"loan_amnt": [kspval]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was successfully executed
+    assert report[0][1][0][2] == 0
+
+
+def test_ks_test_p_value_greater_than_constraint_merge_different_values():
+    ks1 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0])
+    ks2 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 4.0])
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+    ks1 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0], p_value=0.1)
+    ks2 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0], p_value=0.5)
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+
+def test_ks_test_p_value_greater_than_constraint_merge_same_values():
+    ks1 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0])
+    ks2 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0])
+    merged = ks1.merge(ks2)
+
+    TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
+
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.05/None"
+    assert json_value["op"] == Op.Name(Op.GT)
+    assert json_value["firstField"] == "ks_test"
+    assert pytest.approx(json_value["value"], 0.01) == 0.05
+    assert len(json_value["continuousDistribution"]["sketch"]["sketch"]) > 0
+    assert json_value["verbose"] is False
+
+
+def test_serialization_deserialization_ks_test_p_value_greater_than_constraint():
+    ks1 = parametrizedKSTestPValueGreaterThanConstraint([1.0, 2.0, 3.0], p_value=0.15, verbose=True)
+    ks1.from_protobuf(ks1.to_protobuf())
+    json_value = json.loads(message_to_json(ks1.to_protobuf()))
+
+    TEST_LOGGER.info(f"Serialize parametrizedKSTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
+
+    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.15/None"
+    assert json_value["op"] == Op.Name(Op.GT)
+    assert json_value["firstField"] == "ks_test"
+    assert pytest.approx(json_value["value"], 0.01) == 0.15
+    assert len(json_value["continuousDistribution"]["sketch"]["sketch"]) > 0
+    assert json_value["verbose"] is True
+
+
+def test_ks_test_p_value_greater_than_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        parametrizedKSTestPValueGreaterThanConstraint([1, 2, 3], p_value=0.15, verbose=True)
+    with pytest.raises(TypeError):
+        parametrizedKSTestPValueGreaterThanConstraint("abc", p_value=0.15, verbose=True)
+    with pytest.raises(ValueError):
+        parametrizedKSTestPValueGreaterThanConstraint([1, 2, 3], p_value=1.2, verbose=True)
+
+
+def test_column_kl_divergence_less_than_constraint_continuous_false(df_lending_club, local_config_path):
+    norm_values = np.random.normal(loc=10000, scale=2.0, size=15000)
+    kld = columnKLDivergenceLessThanConstraint(norm_values, threshold=2.1)
+    dc = DatasetConstraints(None, summary_constraints={"loan_amnt": [kld]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint failed once
+    assert report[0][1][0][2] == 1
+
+
+def test_column_kl_divergence_less_than_constraint_continuous_true(df_lending_club, local_config_path):
+    kld = columnKLDivergenceLessThanConstraint(df_lending_club["loan_amnt"].values, threshold=0.1)
+    dc = DatasetConstraints(None, summary_constraints={"loan_amnt": [kld]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was successfully executed
+    assert report[0][1][0][2] == 0
+
+
+def test_column_kl_divergence_less_than_constraint_discrete_true(df_lending_club, local_config_path):
+    np.random.seed(2)
+    dist_data = np.random.choice(list(set(df_lending_club["grade"].values)), 100)
+    kld = columnKLDivergenceLessThanConstraint(dist_data, threshold=1.3)
+    dc = DatasetConstraints(None, summary_constraints={"grade": [kld]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was successfully executed
+    assert report[0][1][0][2] == 0
+
+
+def test_column_kl_divergence_less_than_constraint_discrete_false(df_lending_club, local_config_path):
+    np.random.seed(2)
+    dist_data = np.random.choice(list(set(df_lending_club["grade"].values)), 1000, p=[0.005, 0.005, 0.005, 0.03, 0.19, 0.765])
+    kld = columnKLDivergenceLessThanConstraint(dist_data, threshold=0.4)
+    dc = DatasetConstraints(None, summary_constraints={"grade": [kld]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was not successfully executed
+    assert report[0][1][0][2] == 1
+
+
+def test_column_kl_divergence_less_than_constraint_merge_different_values():
+    ks1 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0])
+    ks2 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 4.0])
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+    ks1 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0], threshold=0.1)
+    ks2 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0], threshold=0.5)
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+
+def test_column_kl_divergence_less_than_constraint_merge_same_values():
+    ks1 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0])
+    ks2 = columnKLDivergenceLessThanConstraint([1.0, 2.0, 3.0])
+    merged = ks1.merge(ks2)
+
+    TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
+
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+
+    print(json_value)
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.5/None"
+    assert json_value["op"] == Op.Name(Op.LT)
+    assert json_value["firstField"] == "kl_divergence"
+    assert pytest.approx(json_value["value"], 0.01) == 0.5
+    assert len(json_value["continuousDistribution"]["sketch"]["sketch"]) > 0
+    assert json_value["verbose"] is False
+
+
+def test_serialization_deserialization_column_kl_divergence_less_than_constraint_discrete():
+    ks1 = columnKLDivergenceLessThanConstraint([1, 2, 3], threshold=0.15, verbose=True)
+    ks1.from_protobuf(ks1.to_protobuf())
+    json_value = json.loads(message_to_json(ks1.to_protobuf()))
+
+    TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
+
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15/None"
+    assert json_value["op"] == Op.Name(Op.LT)
+    assert json_value["firstField"] == "kl_divergence"
+    assert pytest.approx(json_value["value"], 0.01) == 0.15
+    assert len(json_value["discreteDistribution"]["frequentItems"]["items"]) == 3
+    assert json_value["discreteDistribution"]["totalCount"] == 3
+    assert json_value["verbose"] is True
+
+
+def test_serialization_deserialization_column_kl_divergence_less_than_constraint_continuous():
+    ks1 = columnKLDivergenceLessThanConstraint([2.0, 2.0, 3.0], threshold=0.15, verbose=True)
+    ks1.from_protobuf(ks1.to_protobuf())
+    json_value = json.loads(message_to_json(ks1.to_protobuf()))
+
+    TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
+
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15/None"
+    assert json_value["op"] == Op.Name(Op.LT)
+    assert json_value["firstField"] == "kl_divergence"
+    assert pytest.approx(json_value["value"], 0.01) == 0.15
+    assert len(json_value["continuousDistribution"]["sketch"]["sketch"]) > 0
+    assert json_value["verbose"] is True
+
+
+def test_column_kl_divergence_less_than_constraint_wrong_datatype():
+    with pytest.raises(TypeError):
+        columnKLDivergenceLessThanConstraint([1.0, "abc", 3], threshold=0.15, verbose=True)
+    with pytest.raises(TypeError):
+        columnKLDivergenceLessThanConstraint("abc", threshold=0.5, verbose=True)
+    with pytest.raises(TypeError):
+        columnKLDivergenceLessThanConstraint([1, 2, 3], threshold="1.2", verbose=True)
+
+
+def test_chi_squared_test_p_value_greater_than_constraint_true(df_lending_club, local_config_path):
+    test_values = ["A", "A", "B", "C", "C", "C", "C", "D", "D", "E", "F"]
+    kspval = columnChiSquaredTestPValueGreaterThanConstraint(test_values, p_value=0.1)
+    dc = DatasetConstraints(None, summary_constraints={"grade": [kspval]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint was successful
+    assert report[0][1][0][2] == 0
+
+
+def test_chi_squared_test_p_value_greater_than_constraint_false(df_lending_club, local_config_path):
+    test_values = {"C": 1, "B": 5, "A": 2, "D": 18, "E": 32, "F": 1}
+    chi = columnChiSquaredTestPValueGreaterThanConstraint(test_values, p_value=0.05)
+    dc = DatasetConstraints(None, summary_constraints={"grade": [chi]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df_lending_club, "test.data", constraints=dc)
+    session.close()
+    report = profile.apply_summary_constraints()
+
+    # check if all of the rows have been reported
+    assert report[0][1][0][1] == 1
+    # check if the constraint failed
+    assert report[0][1][0][2] == 1
+
+
+def test_chi_squared_test_p_value_greater_than_constraint_merge_different_values():
+    ks1 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, 3])
+    ks2 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, 4])
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+    ks1 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, 3], p_value=0.1)
+    ks2 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, 3], p_value=0.5)
+    with pytest.raises(AssertionError):
+        ks1.merge(ks2)
+
+
+def test_column_chi_squared_test_p_value_greater_than_constraint_merge_same_values():
+    ks1 = columnChiSquaredTestPValueGreaterThanConstraint([1, 3, "A"])
+    ks2 = columnChiSquaredTestPValueGreaterThanConstraint([1, "A", 3])
+    merged = ks1.merge(ks2)
+
+    TEST_LOGGER.info(f"Serialize the merged columnChiSquaredTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
+
+    json_value = json.loads(message_to_json(merged.to_protobuf()))
+    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.05/None"
+    assert json_value["op"] == Op.Name(Op.GT)
+    assert json_value["firstField"] == "chi_squared_test"
+    assert pytest.approx(json_value["value"], 0.01) == 0.05
+    assert len(json_value["discreteDistribution"]["frequentItems"]["items"]) == 3
+    assert json_value["verbose"] is False
+
+
+def test_serialization_deserialization_chi_squared_test_p_value_greater_than_constraint():
+    ks1 = columnChiSquaredTestPValueGreaterThanConstraint([1, 2, "A", "B"], p_value=0.15, verbose=True)
+    ks1.from_protobuf(ks1.to_protobuf())
+    json_value = json.loads(message_to_json(ks1.to_protobuf()))
+
+    TEST_LOGGER.info(f"Serialize columnChiSquaredTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
+    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.15/None"
+    assert json_value["op"] == Op.Name(Op.GT)
+    assert json_value["firstField"] == "chi_squared_test"
+    assert pytest.approx(json_value["value"], 0.01) == 0.15
+    assert len(json_value["discreteDistribution"]["frequentItems"]["items"]) == 4
+    assert json_value["verbose"] is True
+
+
+def test_chi_squared_test_p_value_greater_than_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        columnChiSquaredTestPValueGreaterThanConstraint([1.0, 2, 3], p_value=0.15, verbose=True)
+    with pytest.raises(TypeError):
+        columnChiSquaredTestPValueGreaterThanConstraint("abc", p_value=0.15, verbose=True)
+    with pytest.raises(ValueError):
+        columnChiSquaredTestPValueGreaterThanConstraint({"A": 0.3, "B": 1, "C": 12}, p_value=0.2, verbose=True)
+    with pytest.raises(TypeError):
+        columnChiSquaredTestPValueGreaterThanConstraint(["a", "b", "c"], p_value=1.2, verbose=True)
