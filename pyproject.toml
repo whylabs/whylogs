@@ -27,7 +27,7 @@ whylogs = 'whylogs.cli:main'
 whylogs-demo = 'whylogs.cli:demo_main'
 
 [tool.poetry.dependencies]
-python = ">=3.6.1,<3.11"
+python = ">=3.6.1,<3.10"
 click = ">=7.1.2"
 jsonschema = ">=3.2.0"
 protobuf = ">=3.15.5"
