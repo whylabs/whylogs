@@ -271,10 +271,7 @@ class MultiColumnProfile:
         constraints: MultiColumnValueConstraints = None,
     ):
 
-        if constraints is None:
-            constraints = MultiColumnValueConstraints()
-
-        self.constraints = constraints
+        self.constraints = constraints or MultiColumnValueConstraints()
 
     def track(self, column_dict, character_list=None, token_method=None):
         """
