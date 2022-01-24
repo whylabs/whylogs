@@ -107,7 +107,7 @@
       /* CSS DIV TABLE BASIC STYLE */
 
       .wl-table-row .wl-table-head:first-child {
-        min-width: 250px;
+        min-width: 360px;
         z-index: 2;
       }
 
@@ -302,7 +302,7 @@
        outline: none;
        height: 40px;
        width: 100%;
-       font-size: 17px;
+       font-size: 14px;
      }
 
      .search-input img{
@@ -362,7 +362,7 @@
      .drift-detection-info-title {
        font-family: Arial;
        font-weight: bold;
-       font-size: 20px;
+       font-size: 16px;
        line-height: 130%;
        color: #313B3D;
      }
@@ -370,7 +370,7 @@
      .drift-detection-info-drifts-item-count {
        font-family: Arial;
        font-weight: bold;
-       font-size: 16px;
+       font-size: 14px;
        line-height: 16px;
        color: #000000;
        padding-right: 8px;
@@ -380,7 +380,7 @@
        font-family: Arial;
        font-style: normal;
        font-weight: normal;
-       font-size: 14px;
+       font-size: 12px;
        line-height: 14px;
        color: #000000;
      }
@@ -418,7 +418,7 @@
         display: inline-block;
         position: relative;
         width: 85%;
-        padding-bottom: 17%;
+        padding-bottom: 15%;
         vertical-align: top;
         overflow: hidden;
       }
@@ -429,7 +429,7 @@
       }
 
       .reference-table-head {
-        min-width: 230px;
+        min-width: 250px;
       }
 
      @media screen and (min-width: 500px) {
@@ -506,7 +506,7 @@
                   <div class="wl-table-heading">
                     <div class="wl-table-row wl-table-row--bottom-shadow">
                       <div class="wl-table-head">
-                        <div class="wl-table-head table-border-none">Feature</div>
+                        <div class="wl-table-head table-border-none graph-table-head">Feature</div>
                         <div class="wl-table-head table-border-none reference-table-head">Reference</div>
                       </div>
                       <div class="wl-table-head text-align-center" id="diff-from-ref">Diff from ref</div>
@@ -528,12 +528,8 @@
                           <div></div>
                         </div>
                           <div class="display-flex">
-                            <div class="svg-container">
                               {{{getGraphHtml this}}}
-                            </div>
-                            <div class="svg-container">
                               {{{getReferenceGraphHtml this}}}
-                            </div>
                           </div>
                       </div>
                       <div
@@ -594,7 +590,7 @@
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
           this.svgEl = d3.create("svg")
              .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", "30 0 320 400")
+             .attr("viewBox", "30 0 240 400")
              .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
@@ -628,11 +624,14 @@
           svgEl
             .append("g")
             .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
-            .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]));
+            .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]))
+            .selectAll("text")
+            .style("font-size", "8")
         }
 
         const gChart = svgEl.append("g");
         gChart
+          .attr("transform", "translate(" + 20 + ", " + 0 + ")")
           .selectAll(".bar")
           .data(data)
           .enter()
@@ -683,6 +682,7 @@
         if (column.numberSummary) {
           data = chartData(column)
         } else if (column.numberSummary === undefined && referenceColumn === null ) {
+            $(".svg-container").css("padding-bottom", "0")
             return '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>';
         } else if (referenceColumn === undefined) {
             $(document).ready(function() {
@@ -692,7 +692,11 @@
         } else if (referenceColumn.frequentItems === undefined){
             return '';
         }
-        return generateChart(data, ...[,,], chartColor, chartValue);
+        return `
+          <div class="svg-container">
+            ${generateChart(data, ...[,,], chartColor, chartValue)}
+          </div>
+        `;
       }
 
       function formatLabelDate(timestamp) {
@@ -855,6 +859,7 @@
       }
 
       if(checkCurrentProfile(true, false)) {
+        $(".svg-container").css("padding-bottom", "27%")
         $("#diff-from-ref").addClass("d-none")
         $(".diff-from-ref-table-cell").addClass("d-none")
       } else {
