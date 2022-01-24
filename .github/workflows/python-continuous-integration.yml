@@ -44,6 +44,13 @@ jobs:
       run: make release
     - name: Run tests
       run: make test-system-python
+    - name: Smoke test wheel in client environment
+      run: |
+        python -m venv verify
+        source verify/bin/activate
+        python tests/smoketest.py
+        deactivate
+        rm -rf verify
     - name: Coveralls Parallel
       if: ${{matrix.os == 'ubuntu-latest'}}
       env:
