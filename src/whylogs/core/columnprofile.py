@@ -12,6 +12,10 @@ from whylogs.core.statistics.constraints import (
     SummaryConstraint,
     SummaryConstraints,
     ValueConstraints,
+    maxLessThanEqualConstraint,
+    meanBetweenConstraint,
+    columnValuesTypeEqualsConstraint,
+    columnUniqueValueCountBetweenConstraint, minGreaterThanEqualConstraint, columnMostCommonValueInSetConstraint,
 )
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.types import TypedDataConverter
@@ -180,9 +184,32 @@ class ColumnProfile:
         items = []
         if self.number_tracker is not None and self.number_tracker.count > 0:
             summ = self.number_tracker.to_summary()
-            if summ.min > 0:
-                items = [SummaryConstraint(op=Op.GT, first_field="min", value=0)]
-            # generate additional constraints here
+
+            if summ.min >= 0:
+                items.append(minGreaterThanEqualConstraint(value=0))
+            items.append(meanBetweenConstraint(
+                lower_value=summ.mean - summ.stddev,
+                upper_value=summ.mean + summ.stddev,
+            ))
+            if summ.max <= 0:
+                items.append(maxLessThanEqualConstraint(value=0))
+            schema_summary = self.schema_tracker.to_summary()
+            if schema_summary.inferred_type not in (InferredType.UNKNOWN, InferredType.NULL):
+                items.append(columnValuesTypeEqualsConstraint(expected_type=schema_summary.inferred_type))
+
+            if self.cardinality_tracker:
+                unique_count = self.cardinality_tracker.to_summary()
+                if unique_count.estimate > 0:
+                    items.append(columnUniqueValueCountBetweenConstraint(
+                        lower_value=unique_count.lower,
+                        upper_value=unique_count.upper,
+                    ))
+
+            frequent_items_summary = self.frequent_items.to_summary(max_items=5)
+            if len(frequent_items_summary) > 0:
+                most_common_value_set = {val.json_value for val in frequent_items_summary}
+                items.append(columnMostCommonValueInSetConstraint(value_set=most_common_value_set))
+
             if len(items) > 0:
                 return SummaryConstraints(items)
 
