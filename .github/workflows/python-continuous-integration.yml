@@ -48,6 +48,7 @@ jobs:
       run: |
         python -m venv verify
         source verify/bin/activate
+        pip install dist/whylogs*.whl
         python tests/smoketest.py
         deactivate
         rm -rf verify
