@@ -1,4 +1,3 @@
-
 """
 This is here to verify that the produced wheel includes
 all the necessary dependencies. This is excersized by
