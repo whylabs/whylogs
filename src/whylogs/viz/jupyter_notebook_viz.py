@@ -49,7 +49,7 @@ class DisplayProfile:
         sizes = {'index-hbs-cdn-all-in-for-jupyter-notebook.html': 'width=960px height=1000px',
                  'index-hbs-cdn-all-in-jupyter-distribution-chart.html': 'width=960px height=277px'
                  }
-        return str(sizes.get(html))
+        return str(sizes.get(html_frame_sizing))
 
     def __html_template_data(self, index_path):
         # bind profile jsons to html template
@@ -85,7 +85,7 @@ class DisplayProfile:
             output_index = template(
                 {"profile_from_whylogs": self.profile_jsons[0]}
             )
-        return self.__display_html(output_index, html_file)
+        return self.__display_html(output_index, html_frame_sizing)
 
     def download(self, html, path=None, html_file_name=None):
         # code to write html arg to file and generate name using TimeStamp
@@ -115,7 +115,7 @@ class DisplayProfile:
             "index-hbs-cdn-all-in-jupyter-distribution-chart.html")
         )
 
-        html_file = self.__iframe_output_sizing(
+        html_frame_sizing = self.__iframe_output_sizing(
             "index-hbs-cdn-all-in-jupyter-distribution-chart.html"
         )
         template = self.__html_template_data(index_path)
@@ -127,7 +127,7 @@ class DisplayProfile:
                 {"profile_from_whylogs": json.dumps(profile_feature.get('columns').get(name)),
                  "reference_profile": json.dumps(reference_profile_feature.get('columns').get(name))}
             )
-            return self.__display_html(output_index, html_file)
+            return self.__display_html(output_index, html_frame_sizing)
         else:
             logger.warning(
                 "This method has to get both target and reference profiles, with valid feature title"
