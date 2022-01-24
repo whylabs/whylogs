@@ -95,15 +95,16 @@ class DisplayProfile:
             output_path = os.path.abspath(os.path.join(
                 os.pardir, "html_reports")
             )
+        data_timestamp = ''
         if html_file_name:
             file_name = html_file_name
+            full_path = os.path.join(output_path, file_name+".html")
         elif self.reference_profiles:
-            file_name = self.reference_profile_jsons[0].name
-            data_timestamp = self.reference_profile_jsons[0].dataset_timestamp
+            data_timestamp = self.reference_profiles[0].dataset_timestamp
+            full_path = os.path.join(output_path, str(data_timestamp)+".html")
         else:
-            file_name = self.profiles[0].name
             data_timestamp = self.profiles[0].dataset_timestamp
-        full_path = os.path.join(output_path, file_name+"_"+str(data_timestamp)+".html")
+            full_path = os.path.join(output_path, str(data_timestamp)+".html")
 
         with open(full_path, "w") as saved_html:
             saved_html.write(html.data)
