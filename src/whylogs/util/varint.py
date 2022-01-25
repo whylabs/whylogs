@@ -24,7 +24,6 @@ if sys.version > "3":
     def _byte(b):
         return bytes((b,))
 
-
 else:
 
     def _byte(b):
