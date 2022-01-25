@@ -45,6 +45,7 @@ smart-open = ">=4.1.2"
 puremagic = "^1.10"
 matplotlib = "^3.0.3"
 scipy = "^1.5.4"
+dataclasses = "^0.6"
 tqdm = "^4.60.0"
 
 
