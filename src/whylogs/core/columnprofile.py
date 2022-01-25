@@ -9,23 +9,18 @@ from whylogs.core.statistics import (
     StringTracker,
 )
 from whylogs.core.statistics.constraints import (
-    SummaryConstraint,
     SummaryConstraints,
     ValueConstraints,
+    columnMostCommonValueInSetConstraint,
+    columnUniqueValueCountBetweenConstraint,
+    columnValuesTypeEqualsConstraint,
     maxLessThanEqualConstraint,
     meanBetweenConstraint,
-    columnValuesTypeEqualsConstraint,
-    columnUniqueValueCountBetweenConstraint, minGreaterThanEqualConstraint, columnMostCommonValueInSetConstraint,
+    minGreaterThanEqualConstraint,
 )
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.types import TypedDataConverter
-from whylogs.proto import (
-    ColumnMessage,
-    ColumnSummary,
-    InferredType,
-    Op,
-    UniqueCountSummary,
-)
+from whylogs.proto import ColumnMessage, ColumnSummary, InferredType, UniqueCountSummary
 from whylogs.util.dsketch import FrequentItemsSketch
 
 _TYPES = InferredType.Type
@@ -187,31 +182,39 @@ class ColumnProfile:
 
             if summ.min >= 0:
                 items.append(minGreaterThanEqualConstraint(value=0))
-            items.append(meanBetweenConstraint(
-                lower_value=summ.mean - summ.stddev,
-                upper_value=summ.mean + summ.stddev,
-            ))
+            items.append(
+                meanBetweenConstraint(
+                    lower_value=summ.mean - summ.stddev,
+                    upper_value=summ.mean + summ.stddev,
+                )
+            )
             if summ.max <= 0:
                 items.append(maxLessThanEqualConstraint(value=0))
-            schema_summary = self.schema_tracker.to_summary()
-            if schema_summary.inferred_type not in (InferredType.UNKNOWN, InferredType.NULL):
-                items.append(columnValuesTypeEqualsConstraint(expected_type=schema_summary.inferred_type))
 
-            if self.cardinality_tracker:
-                unique_count = self.cardinality_tracker.to_summary()
-                if unique_count.estimate > 0:
-                    items.append(columnUniqueValueCountBetweenConstraint(
-                        lower_value=unique_count.lower,
-                        upper_value=unique_count.upper,
-                    ))
+        schema_summary = self.schema_tracker.to_summary()
+        inferred_type = schema_summary.inferred_type.type
+        if inferred_type not in (InferredType.UNKNOWN, InferredType.NULL):
+            items.append(columnValuesTypeEqualsConstraint(expected_type=inferred_type))
 
-            frequent_items_summary = self.frequent_items.to_summary(max_items=5)
-            if len(frequent_items_summary) > 0:
-                most_common_value_set = {val.json_value for val in frequent_items_summary}
-                items.append(columnMostCommonValueInSetConstraint(value_set=most_common_value_set))
+        if self.cardinality_tracker and inferred_type != InferredType.FRACTIONAL:
+            unique_count = self.cardinality_tracker.to_summary()
+            if unique_count and unique_count.estimate > 0:
+                low = int(max(0, unique_count.lower - 1))
+                up = int(unique_count.upper + 1)
+                items.append(
+                    columnUniqueValueCountBetweenConstraint(
+                        lower_value=low,
+                        upper_value=up,
+                    )
+                )
 
-            if len(items) > 0:
-                return SummaryConstraints(items)
+        frequent_items_summary = self.frequent_items.to_summary(max_items=5)
+        if frequent_items_summary and len(frequent_items_summary.items) > 0:
+            most_common_value_set = {val.json_value for val in frequent_items_summary.items}
+            items.append(columnMostCommonValueInSetConstraint(value_set=most_common_value_set))
+
+        if len(items) > 0:
+            return SummaryConstraints(items)
 
         return None
 
