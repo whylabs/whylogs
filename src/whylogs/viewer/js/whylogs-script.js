@@ -170,7 +170,6 @@
       <text alignment-baseline="middle" style="font-size: 15px;">${text}</text>
     </div>
   `
-  let chartWidth = 600;
 
   class GenerateChartParams {
     constructor(height, width, data, bottomMargin=20, topMargin=5) {
@@ -197,13 +196,19 @@
     }
   }
 
-  function getGraphHtml(data, height = 75, width = 350, index = 0, referenceProfile = false) {
+  const referenceProfilePanelHeight = () => {
+    const pageHeight = $(document).height() - 48;
+    if ($(".clickable-test-feature-wrap").height() <= pageHeight) {
+      $(".clickable-test-feature-wrap").css("height", pageHeight)
+    } else {
+      $(".clickable-test-feature-wrap").css("height", "auto")
+    }
+  }
+
+  function getGraphHtml(data, height = 75, width = 350, index = 0, referenceProfile = false, propertyPanelGraph = false) {
     const sizes = new GenerateChartParams(height, width, data, 5)
-    const {
+    let {
       MARGIN,
-      SVG_WIDTH,
-      SVG_HEIGHT,
-      CHART_WIDTH,
       CHART_HEIGHT,
       svgEl,
       maxYValue,
@@ -211,6 +216,10 @@
       yScale
     } = sizes
     const color = ["#369BAC", '#2683C9']
+
+    if (propertyPanelGraph) {
+     svgEl = d3.create("svg").attr("width", width).attr("height", height);
+    }
 
     // Add the y Axis
     if (!referenceProfile) {
@@ -236,22 +245,26 @@
     return svgEl._groups[0][0].outerHTML;
   }
 
-  function generateDoubleHistogramChart(histogramData, overlappedHistogramData) {
+  function generateDoubleHistogramChart(currentWidth, histogramData, overlappedHistogramData) {
     let yFormat,
         xFormat;
 
-    const sizes = new GenerateChartParams(230, chartWidth, histogramData)
-    const {
+    const sizes = new GenerateChartParams(230, currentWidth, histogramData)
+    let {
       MARGIN,
       SVG_WIDTH,
       SVG_HEIGHT,
       CHART_WIDTH,
       CHART_HEIGHT,
       svgEl,
-      maxYValue,
       xScale,
       yScale
     } = sizes
+    
+    svgEl = d3.create("svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "0 0 600 400")
+    .classed("svg-content-responsive", true)
 
     const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).ticks(CHART_HEIGHT / 40, yFormat);
@@ -270,7 +283,7 @@
           .attr("fill", "currentColor")
           .attr("text-anchor", "start"));
 
-    svgEl.append("g")
+          svgEl.append("g").append("g")
         .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
         .call(xAxis)
         .call(g => g.select(".domain").remove())
@@ -312,7 +325,7 @@
     return svgEl._groups[0][0].outerHTML;
   }
 
-  function generateBarChart(histogramData, overlappedHistogramData) {
+  function generateBarChart(currentWidth, histogramData, overlappedHistogramData) {
     let yFormat,
         xFormat;
     const data = histogramData.map((profile, index) => {
@@ -323,20 +336,23 @@
       }
     }).slice(0, 20)
 
-    const sizes = new GenerateChartParams(230, chartWidth, histogramData, undefined, 1)
-    const {
+    const sizes = new GenerateChartParams(230, currentWidth, histogramData, undefined, 1)
+    let {
       MARGIN,
       SVG_WIDTH,
       SVG_HEIGHT,
       CHART_WIDTH,
       CHART_HEIGHT,
       svgEl,
-      maxYValue,
       xScale,
       yScale
     } = sizes
 
-    const groups = d3.map(data, function(d){return(d.group)}).keys()
+    svgEl = d3.create("svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "0 0 600 400")
+    .classed("svg-content-responsive", true)
+
     const subgroups = ['profile', 'reference_profile']
 
     xScale.padding([0.3])
@@ -399,7 +415,7 @@
      return svgEl._groups[0][0].outerHTML;
   }
 
-  function generatePositiveNegativeChart(histogramData, overlappedHistogramData) {
+  function generatePositiveNegativeChart(currentWidth, histogramData, overlappedHistogramData) {
     const data = histogramData.map((value, index) => {
       const difference = value.axisY - overlappedHistogramData[index].axisY
       const negativeValues = difference < 0 ? difference : 0
@@ -409,8 +425,8 @@
     let yFormat,
         xFormat;
 
-    const sizes = new GenerateChartParams(230, chartWidth, histogramData, undefined, 1)
-    const {
+    const sizes = new GenerateChartParams(230, currentWidth, histogramData, undefined, 1)
+    let {
      MARGIN,
      SVG_WIDTH,
      SVG_HEIGHT,
@@ -418,6 +434,11 @@
      CHART_HEIGHT,
      svgEl
     } = sizes
+
+    svgEl = d3.create("svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "0 0 600 400")
+    .classed("svg-content-responsive", true)
 
     const y0 = Math.max(Math.abs(d3.min(data)), Math.abs(d3.max(data)));
 
@@ -483,7 +504,6 @@
     `
     $(".clickable-test-feature-body").html(`
       ${chartBoxElement(colorsForDistingushingChartHTMLElement, getDoubleHistogramChart)}
-      ${chartBoxElement('', '')}
     `);
   }
 
@@ -605,6 +625,7 @@
       ${chartInfoItem(fixNumberTo(items.numberSummary.mean), "Mean")}
     `
     $(".chart-info").html(chipString);
+    referenceProfilePanelHeight()
   }
 
   function openProfilePropertyPanel(items, infType, chart) {
@@ -644,11 +665,11 @@
   
 
     if (referencePropertyPanelData[feature[0]][0]) {
+      getDoubleHistogramChart = generateDoubleHistogramChart(currentWidth, feature[1].chartData[0], feature[1].chartData[1])
+      getBarChart = generateBarChart(currentWidth, feature[1].chartData[0], feature[1].chartData[1])
+      getPositiveNegative = generatePositiveNegativeChart(currentWidth, feature[1].chartData[0], feature[1].chartData[1])
       items = referencePropertyPanelData[feature[0]][0]
-      getGraph = getGraphHtml(feature[1].chartData[1], 50, 280, 0, true)
-      getDoubleHistogramChart = generateDoubleHistogramChart(feature[1].chartData[0], feature[1].chartData[1])
-      getBarChart = generateBarChart(feature[1].chartData[0], feature[1].chartData[1]),
-      getPositiveNegative = generatePositiveNegativeChart(feature[1].chartData[0], feature[1].chartData[1])
+      getGraph = getGraphHtml(feature[1].chartData[1], 50, 280, 0, true, propertyPanelGraph)
     }
 
     getPropertyPanelGraph = getPropertyPanelGraphHtml(jsonData.columns[feature[0]], feature[0])

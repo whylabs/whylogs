@@ -408,6 +408,7 @@
         color: var(--brandSecondary400);
       }
       .wl-table-cell__bedge {
+        display: flex;
         height: 24px;
         margin: 1px;
         padding: 2px 8px;
@@ -923,7 +924,7 @@
        justify-content: center;
        flex-direction: column;
        width: 75%;
-       height: 310px;
+       height: 340px;
        border: 2px solid #EBF2F3;
        background: #FFF;
        border-radius: 4px;
@@ -1147,6 +1148,29 @@
       
       .fequent-items-wrap {
         width: 100%;
+      }
+
+      .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 85%;
+        padding-bottom: 34%;
+        vertical-align: top;
+        overflow: hidden;
+      }
+
+      .graph-svg-container {
+        padding-bottom: 13%;
+      }
+      
+      .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+      }
+
+      .reference-table-head {
+        min-width: 305px;
       }
 
      @media screen and (min-width: 1000px) {
@@ -1585,7 +1609,7 @@
         }
       }
 
-      function generateChart(data, height = 75, width = 350, index = 0, referenceProfile = false) {
+      function generateChart(data, height = 75, width = 350, index = 0, referenceProfile = false, propertyPanelGraph = false) {
         const sizes = new GenerateChartParams(height, width, data, 5)
         const {
           MARGIN,
@@ -1593,17 +1617,26 @@
           SVG_HEIGHT,
           CHART_WIDTH,
           CHART_HEIGHT,
-          svgEl,
           maxYValue,
           xScale,
           yScale
         } = sizes
         const color = ["#369BAC", '#2683C9']
 
+        let svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "30 0 320 400")
+             .classed("svg-content-responsive", true)
+
+        if (propertyPanelGraph) {
+          svgEl = d3.create("svg").attr("width", width).attr("height", height);
+        }
+
         // Add the y Axis
         if (!referenceProfile) {
           svgEl
             .append("g")
+            .style("font-size", "12")
             .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
             .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]));
         }
@@ -1652,7 +1685,7 @@
         }
       }
 
-      function generateDoubleHistogramChart(key, data, referenceData) {
+      function generateDoubleHistogramChart(currentWidth, key, data, referenceData) {
         let histogramData = [],
             overlappedHistogramData = [];
 
@@ -1660,21 +1693,29 @@
           histogramData = chartData(data)
           overlappedHistogramData = chartData(referenceData.columns[key.data.key])
         }
-        let yFormat,
-            xFormat;
-        const sizes = new GenerateChartParams(230, 600, histogramData)
+        
+        let yFormat, 
+            xFormat,
+            sizes;
+            
+           sizes = new GenerateChartParams(230, currentWidth, histogramData)
+
         const {
           MARGIN,
           SVG_WIDTH,
           SVG_HEIGHT,
           CHART_WIDTH,
           CHART_HEIGHT,
-          svgEl,
           maxYValue,
           xScale,
           yScale
         } = sizes
 
+        this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "0 0 600 400")
+             .classed("svg-content-responsive", true)
+ 
         const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
         const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
         yFormat = yScale.tickFormat(100, yFormat);
@@ -1734,7 +1775,7 @@
         return svgEl._groups[0][0].outerHTML;
       }
 
-      function generateBarChart(key, datas, referenceData) {
+      function generateBarChart(currentWidth, key, datas, referenceData) {
         let histogramData = [],
             overlappedHistogramData = [];
 
@@ -1752,17 +1793,21 @@
           }
         }).slice(0, 20)
 
-        const sizes = new GenerateChartParams(230, 600, histogramData, undefined, 1)
+        const sizes = new GenerateChartParams(230, currentWidth, histogramData, undefined, 1)
         const {
           MARGIN,
           SVG_WIDTH,
           SVG_HEIGHT,
           CHART_WIDTH,
           CHART_HEIGHT,
-          svgEl,
           maxYValue,
           yScale
         } = sizes
+
+        this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "0 0 600 400")
+             .classed("svg-content-responsive", true)
 
         const groups = d3.map(data, function(d){return(d.group)}).keys()
         const subgroups = ['profile', 'reference_profile']
@@ -1831,7 +1876,7 @@
          return svgEl._groups[0][0].outerHTML;
       }
 
-      function generatePositiveNegativeChart(key, datas, referenceData) {
+      function generatePositiveNegativeChart(currentWidth, key, datas, referenceData) {
         let histogramData = [],
             overlappedHistogramData = [];
 
@@ -1848,15 +1893,19 @@
         let yFormat,
             xFormat;
 
-        const sizes = new GenerateChartParams(230, 600, histogramData, undefined, 1)
+        const sizes = new GenerateChartParams(230, currentWidth, histogramData, undefined, 1)
         const {
          MARGIN,
          SVG_WIDTH,
          SVG_HEIGHT,
          CHART_WIDTH,
-         CHART_HEIGHT,
-         svgEl
+         CHART_HEIGHT
         } = sizes
+
+        this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "0 0 600 400")
+             .classed("svg-content-responsive", true)
 
         const y0 = Math.max(Math.abs(d3.min(data)), Math.abs(d3.max(data)));
 
@@ -1935,7 +1984,11 @@
         } else if (referenceColumn.frequentItems === undefined){
             return '';
         }
-        return generateChart(data, ...[,,], chartColor, chartValue);
+        return `
+          <div class="svg-container graph-svg-container">
+            ${generateChart(data, ...[,,], chartColor, chartValue)}
+          </div>
+        `;
       }
 
       function formatLabelDate(timestamp) {
@@ -2142,9 +2195,9 @@
       Handlebars.registerHelper("getGraphHtml",(column,key) => graph(column, key, null));
       Handlebars.registerHelper("getReferenceGraphHtml",(column,key) => graph(column, key, profileFromCSVfile));
 
-      Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => generateDoubleHistogramChart(key, column, profileFromCSVfile));
-      Handlebars.registerHelper("getBarChart",(column,key) => generateBarChart(key, column, profileFromCSVfile));
-      Handlebars.registerHelper("getPositiveNegativeChart",(column,key) => generatePositiveNegativeChart(key, column, profileFromCSVfile));
+      Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => generateDoubleHistogramChart(600, key, column, profileFromCSVfile));
+      Handlebars.registerHelper("getBarChart",(column,key) => generateBarChart(600, key, column, profileFromCSVfile));
+      Handlebars.registerHelper("getPositiveNegativeChart",(column,key) => generatePositiveNegativeChart(600, key, column, profileFromCSVfile));
 
       Handlebars.registerHelper("getPropertyPanelGraphHtml", function (column, key) {
         let chartString = "";
@@ -2179,20 +2232,21 @@
               });
             });
           }
-          if (!!profileFromCSVfile) {
+          if (profileFromCSVfile) {
             data = chartData(profileFromCSVfile.columns[columnKey])
           }
 
           if (column.numberSummary.isDiscrete) {
-            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, undefined, chartValue));
-            if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130));
+            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, undefined, chartValue, true));
+            if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130, ...[,,,], true));
           } else {
-            if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130));
-            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, undefined, chartValue));
+            if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130, ...[,,,], true));
+            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, undefined, chartValue, true));
           }
-          if (!!profileFromCSVfile) {
+          if (profileFromCSVfile && Object.values(profileFromCSVfile)) {
             chartString = '';
-            chartString += generateChart(data, 50, 280, 0, true);
+            let propertyPanelGraph = true; 
+            chartString += generateChart(data, 50, 280, 0, true, propertyPanelGraph);
           }
         }
         return chartString;
@@ -2325,6 +2379,7 @@
       }
 
       if(checkCurrentProfile(true, false)) {
+        $(".svg-container").css("padding-bottom", "27%")
         $("#diff-from-ref").addClass("d-none")
         $(".diff-from-ref-table-cell").addClass("d-none")
         $("#reference-profile-time-stamp").addClass("d-none");
