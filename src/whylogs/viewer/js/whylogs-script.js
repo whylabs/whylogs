@@ -620,9 +620,8 @@
     $("#chart").html(chart);
 
     chipString += `
-      ${chartInfoItem(fixNumberTo(items.numberSummary.stddev), "Drift from ref")}
-      ${chartInfoItem(items.numberSummary.count.toString(), "Total Count")}
-      ${chartInfoItem(fixNumberTo(items.numberSummary.mean), "Mean")}
+      ${chartInfoItem(profileItems.numberSummary.count.toString(), "Total Count")}
+      ${chartInfoItem(fixNumberTo(profileItems.numberSummary.mean), "Mean")}
     `
     $(".chart-info").html(chipString);
     referenceProfilePanelHeight()
