@@ -409,6 +409,7 @@
       }
       .wl-table-cell__bedge {
         display: flex;
+        align-items: center;
         height: 24px;
         margin: 1px;
         padding: 2px 8px;
@@ -2621,6 +2622,16 @@
     return toSort;
   }
 
+  function referenceProfilePanelHeight() {
+      const pageHeight = $(document).height() - 48;
+      if ($(".clickable-test-feature-wrap").height() <= pageHeight) {
+        $(".clickable-test-feature-wrap").css("height", pageHeight)
+      } else {
+        $(".clickable-test-feature-wrap").css("height", "auto")
+      }
+    }
+
+    function openReferencePropertyPanel(
       getBarChart,
       getPositiveNegativeChart,
       getDoubleHistogramChart,
@@ -2671,6 +2682,7 @@
         )
 
         $(".frequent-items-body").html(``);
+        referenceProfilePanelHeight()
       })
 
         getProfileCharts(
@@ -2701,6 +2713,7 @@
     `);
   
     $(".clickable-test-feature-body").html(``);
+    referenceProfilePanelHeight()
     })
       $("#chart").html(chart);
       chipString += `
@@ -2708,6 +2721,7 @@
         ${chartInfoItem(fixNumberTo(feature.numberSummary.mean), "Mean")}
       `
       $(".chart-info").html(chipString);
+      referenceProfilePanelHeight()
     }
 
     function getPropertyPanelData(feature) {
