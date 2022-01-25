@@ -114,6 +114,8 @@ class DatasetProfile:
 
         self.model_profile = model_profile
 
+        self.column_row_dict = dict()
+
         # Store Name attribute
         self._tags["name"] = name
 
@@ -153,6 +155,10 @@ class DatasetProfile:
         Return the session timestamp value in epoch milliseconds.
         """
         return time.to_utc_ms(self.session_timestamp)
+
+    @property
+    def total_row_number(self):
+        return max(self.column_row_dict.values())
 
     def add_output_field(self, field: Union[str, List[str]]):
         if self.model_profile is None:
@@ -249,6 +255,11 @@ class DatasetProfile:
             prof = ColumnProfile(column_name, constraints=constraints)
             self.columns[column_name] = prof
 
+            self.column_row_dict[column_name] = 0
+
+        # updating the map for every column name with increasing the number of tracked values
+        self.column_row_dict[column_name] += 1
+
         prof.track(data, character_list=None, token_method=None)
 
     def track_array(self, x: np.ndarray, columns=None):
@@ -282,6 +293,7 @@ class DatasetProfile:
         # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
         if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
             df = df.to_pandas()
+
         element_count = df.size
         large_df = element_count > 200000
         if large_df:
@@ -738,6 +750,16 @@ class DatasetProfile:
 
         return [(k, s.report()) for k, s in summary_constraints.items()]
 
+    def apply_table_shape_constraints(self, table_shape_constraints: Optional[SummaryConstraints] = None):
+        if table_shape_constraints is None:
+            table_shape_constraints = self.constraints.table_shape_constraints
+
+        update_obj = _create_column_profile_summary_object(NumberSummary(), columns=self.columns.keys(), total_row_number=self.total_row_number)
+
+        table_shape_constraints.update(update_obj)
+
+        return table_shape_constraints.report()
+
 
 def columns_chunk_iterator(iterator, marker: str):
     """
@@ -848,7 +870,6 @@ def _create_column_profile_summary_object(number_summary: NumberSummary, **kwarg
         Used to unpack the metrics as separate items in the dictionary
     kwargs : Summary objects or datasketches objects
         Used to update specific constraints that need additional calculations
-
     Returns
     -------
     Anonymous object containing all of the metrics as fields with their corresponding values
