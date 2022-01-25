@@ -6,13 +6,13 @@ from typing import Union
 
 import datasketches
 import numpy as np
-import scipy
 from datasketches import (
     frequent_items_error_type,
     frequent_strings_sketch,
     kll_floats_sketch,
     update_theta_sketch,
 )
+from scipy import special, stats
 
 from whylogs.proto import (
     ColumnSummary,
@@ -234,7 +234,7 @@ def ks_test_compute_p_value(target_distribution: kll_floats_sketch, reference_di
         if D > D_max:
             D_max = D
     n_samples = min(target_distribution.get_n(), reference_distribution.get_n())
-    p_value = scipy.special.kolmogorov(np.sqrt(n_samples) * D_max)
+    p_value = special.kolmogorov(np.sqrt(n_samples) * D_max)
     return type("Object", (), {"ks_test": p_value})
 
 
@@ -323,5 +323,5 @@ def compute_chi_squared_test_p_value(target_distribution: ReferenceDistributionD
             chi_sq += (i_frequency - ref_frequency) ** 2 / ref_frequency
 
     degrees_of_freedom = target_unique_count - 1
-    p_value = scipy.stats.chi2.sf(chi_sq, degrees_of_freedom)
+    p_value = stats.chi2.sf(chi_sq, degrees_of_freedom)
     return type("Object", (), {"chi_squared_test": p_value})
