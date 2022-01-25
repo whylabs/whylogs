@@ -182,12 +182,18 @@ class ColumnProfile:
 
             if summ.min >= 0:
                 items.append(minGreaterThanEqualConstraint(value=0))
-            items.append(
-                meanBetweenConstraint(
-                    lower_value=summ.mean - summ.stddev,
-                    upper_value=summ.mean + summ.stddev,
+
+            mean_lower = summ.mean - summ.stddev
+            mean_upper = summ.mean + summ.stddev
+
+            if mean_lower != mean_upper:
+                items.append(
+                    meanBetweenConstraint(
+                        lower_value=mean_lower,
+                        upper_value=mean_upper,
+                    )
                 )
-            )
+
             if summ.max <= 0:
                 items.append(maxLessThanEqualConstraint(value=0))
 
