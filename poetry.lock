@@ -267,14 +267,14 @@ webencodings = "*"
 
 [[package]]
 name = "boto3"
-version = "1.20.42"
+version = "1.20.43"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
 python-versions = ">= 3.6"
 
 [package.dependencies]
-botocore = ">=1.23.42,<1.24.0"
+botocore = ">=1.23.43,<1.24.0"
 jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.5.0,<0.6.0"
 
@@ -283,7 +283,7 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.23.42"
+version = "1.23.43"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
@@ -419,7 +419,7 @@ tabulate = ">=0.7.7"
 name = "dataclasses"
 version = "0.8"
 description = "A backport of the dataclasses module for Python 3.6"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6, <3.7"
 
@@ -1153,7 +1153,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "notebook"
-version = "6.4.7"
+version = "6.4.8"
 description = "A web-based notebook environment for interactive computing"
 category = "dev"
 optional = false
@@ -1681,7 +1681,7 @@ tests = ["matplotlib (>=2.1.1)", "scikit-image (>=0.13)", "pandas (>=0.25.0)", "
 name = "scipy"
 version = "1.5.4"
 description = "SciPy: Scientific Library for Python"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -2242,7 +2242,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.1,<3.10"
-content-hash = "bd8b926b17fcd94faac0ebd3ec0a5f00356d2b07bc2c1bb6ea3fa5541f77cae1"
+content-hash = "08f4df2191ed844c5dce6568cbf259dd4f2166a9a87cb00b9ff069fe9954cfb5"
 
 [metadata.files]
 2to3 = [
@@ -2420,12 +2420,12 @@ bleach = [
     {file = "bleach-4.1.0.tar.gz", hash = "sha256:0900d8b37eba61a802ee40ac0061f8c2b5dee29c1927dd1d233e075ebf5a71da"},
 ]
 boto3 = [
-    {file = "boto3-1.20.42-py3-none-any.whl", hash = "sha256:49499acf3f1dbb5f09eb93abfeb4025cd76fb7880c16a01a2901dfa335496f0d"},
-    {file = "boto3-1.20.42.tar.gz", hash = "sha256:d2fce99e42cb7cb263f3ff272bc707aa6a66bc6ab30d90bf0ff6cbdddd867cfa"},
+    {file = "boto3-1.20.43-py3-none-any.whl", hash = "sha256:50611d4707e967f1300e897c196db98cfc1b0ab95eca5d46d3b56a1c8e2a27b5"},
+    {file = "boto3-1.20.43.tar.gz", hash = "sha256:219cba1d078b3c0f3bd1678ee355e07c4a07ea75ee75adee6c306d89d60c555c"},
 ]
 botocore = [
-    {file = "botocore-1.23.42-py3-none-any.whl", hash = "sha256:e2e5509934e634a374afa560de4ddc770bb562c7259cb63cd92aa7e54f943bc1"},
-    {file = "botocore-1.23.42.tar.gz", hash = "sha256:a58f1e559ff2c65495f55ac48217afefb56f2d709d30f7377c40287e8c5765d0"},
+    {file = "botocore-1.23.43-py3-none-any.whl", hash = "sha256:22c88a653a026439f2e9b0ade154fafe0eaaaea3fee6e080102d90ec4271284e"},
+    {file = "botocore-1.23.43.tar.gz", hash = "sha256:f8c60dff90a7aea7f84908f0e4e778890d4f08c883d2da111c15c10d7c199102"},
 ]
 bump2version = [
     {file = "bump2version-1.0.1-py2.py3-none-any.whl", hash = "sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410"},
@@ -3151,8 +3151,8 @@ nest-asyncio = [
     {file = "nest_asyncio-1.5.4.tar.gz", hash = "sha256:f969f6013a16fadb4adcf09d11a68a4f617c6049d7af7ac2c676110169a63abd"},
 ]
 notebook = [
-    {file = "notebook-6.4.7-py3-none-any.whl", hash = "sha256:968e9c09639fe4b9dbf4b9f028daf861b563c124d735a99d6d48c09317553f31"},
-    {file = "notebook-6.4.7.tar.gz", hash = "sha256:b01da66f11a203b3839d6afa4013674bcfff41c36552f9ad0fbcb2d93c92764a"},
+    {file = "notebook-6.4.8-py3-none-any.whl", hash = "sha256:3e702fcc54b8ae597533c3864793b7a1e971dec9e112f67235828d8a798fd654"},
+    {file = "notebook-6.4.8.tar.gz", hash = "sha256:1e985c9dc6f678bdfffb9dc657306b5469bfa62d73e03f74e8defbf76d284312"},
 ]
 numpy = [
     {file = "numpy-1.19.5-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:cc6bd4fd593cb261332568485e20a0712883cf631f6f5e8e86a52caa8b2b50ff"},
