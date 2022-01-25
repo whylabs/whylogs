@@ -6,7 +6,7 @@ from typing import Union
 
 import datasketches
 import numpy as np
-import scipy.special
+import scipy
 from datasketches import (
     frequent_items_error_type,
     frequent_strings_sketch,
