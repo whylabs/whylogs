@@ -3,11 +3,12 @@ import json
 import logging
 import numbers
 import re
-from typing import Any, List, Mapping, Optional, Set, Union
+from typing import Any, List, Mapping, Optional, Set, Tuple, Union
 
 import datasketches
 import jsonschema
 import numpy as np
+import pandas as pd
 from datasketches import theta_a_not_b, update_theta_sketch
 from dateutil.parser import parse
 from google.protobuf.json_format import Parse
@@ -29,6 +30,7 @@ from whylogs.proto import (
     DatasetProperties,
     InferredType,
     KllFloatsSketchMessage,
+    MultiColumnValueConstraintMsg,
     Op,
     ReferenceDistributionContinuousMessage,
     ReferenceDistributionDiscreteMessage,
@@ -49,11 +51,9 @@ logger = logging.getLogger(__name__)
 def _try_parse_strftime_format(strftime_val: str, format: str) -> Optional[datetime.datetime]:
     """
     Return whether the string is in a strftime format.
-
     :param strftime_val: str, string to check for date
     :param format: format to check if strftime_val can be parsed
     :return None if not parseable, otherwise the parsed datetime.datetime object
-
     """
     parsed = None
     try:
@@ -66,11 +66,9 @@ def _try_parse_strftime_format(strftime_val: str, format: str) -> Optional[datet
 def _try_parse_dateutil(dateutil_val: str, ref_val=None) -> Optional[datetime.datetime]:
     """
     Return whether the string can be interpreted as a date.
-
     :param dateutil_val: str, string to check for date
     :param ref_val: any, not used, interface design requirement
     :return None if not parseable, otherwise the parsed datetime.datetime object
-
     """
     parsed = None
     try:
@@ -83,7 +81,6 @@ def _try_parse_dateutil(dateutil_val: str, ref_val=None) -> Optional[datetime.da
 def _try_parse_json(json_string: str, ref_val=None) -> Optional[dict]:
     """
     Return whether the string can be interpreted as json.
-
     :param json_string: str, string to check for json
     :param ref_val: any, not used, interface design requirement
     :return None if not parseable, otherwise the parsed json object
@@ -99,7 +96,6 @@ def _try_parse_json(json_string: str, ref_val=None) -> Optional[dict]:
 def _matches_json_schema(json_data: Union[str, dict], json_schema: Union[str, dict]) -> bool:
     """
     Return whether the provided json matches the provided schema.
-
     :param json_data: json object to check
     :param json_schema: schema to check if the json object matches it
     :return True if the json data matches the schema, False otherwise
@@ -156,7 +152,6 @@ _summary_funcs1 = {
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
     Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
-    Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
     Op.IN_SET: lambda f, ref_str_sketch, ref_num_sketch: lambda update_obj: round(
         theta_a_not_b().compute(getattr(update_obj, f)["string_theta"], ref_str_sketch).get_estimate(), 1
     )
@@ -174,6 +169,8 @@ _summary_funcs1 = {
     == round(theta_a_not_b().compute(ref_str_sketch, getattr(update_obj, f)["string_theta"]).get_estimate(), 1)
     == round(theta_a_not_b().compute(ref_num_sketch, getattr(update_obj, f)["number_theta"]).get_estimate(), 1)
     == 0.0,
+    Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
+    Op.CONTAIN: lambda f, v: lambda s: v in getattr(s, f),
 }
 
 _summary_funcs2 = {
@@ -187,8 +184,17 @@ _summary_funcs2 = {
     Op.BTWN: lambda f, f2, f3: lambda s: getattr(s, f2) <= getattr(s, f) <= getattr(s, f3),
 }
 
-# restrict the set length for printing the name of the constraint which contains a reference set
-MAX_SET_DISPLAY_MESSAGE_LENGTH = 20
+_multi_column_value_funcs = {
+    Op.LT: lambda v2: lambda v1: v1 < v2,
+    Op.LE: lambda v2: lambda v1: v1 <= v2,
+    Op.EQ: lambda v2: lambda v1: v1 == v2,
+    Op.NE: lambda v2: lambda v1: v1 != v2,
+    Op.GE: lambda v2: lambda v1: v1 >= v2,
+    Op.GT: lambda v2: lambda v1: v1 > v2,  # assert incoming value 'v' is greater than some fixed value 'x'
+    Op.IN: lambda v2: lambda v1: v1 in v2,
+    Op.NOT_IN: lambda v2: lambda v1: v1 not in v2,
+    Op.SUM: lambda v: sum(v),
+}
 
 
 class ValueConstraint:
@@ -449,15 +455,18 @@ class SummaryConstraint:
         if self.first_field != "quantile" and self.quantile_value is not None:
             raise ValueError("Summary constraint applied on non-quantile field should not specify quantile value")
 
-        set_constraint = self._check_and_init_valid_set_constraint(reference_set)
+        table_shape_constraint = self._check_and_init_table_shape_constraint(reference_set)
+        set_constraint = False
         distributional_measure_constraint = False
         between_constraint = False
 
-        if not set_constraint:
+        if not table_shape_constraint:
+            set_constraint = self._check_and_init_valid_set_constraint(reference_set)
+        if not any([table_shape_constraint, set_constraint]):
             distributional_measure_constraint = self._check_and_init_distributional_measure_constraint(reference_set)
-        if not any([set_constraint, distributional_measure_constraint]):
+        if not any([table_shape_constraint, set_constraint, distributional_measure_constraint]):
             between_constraint = self._check_and_init_between_constraint()
-        if not any([set_constraint, distributional_measure_constraint, between_constraint]):
+        if not any([table_shape_constraint, set_constraint, distributional_measure_constraint, between_constraint]):
             if upper_value is not None or third_field is not None:
                 raise ValueError("Summary constraint with other than BETWEEN operation must NOT specify upper value NOR third field name")
             if value is not None and second_field is None:
@@ -480,25 +489,53 @@ class SummaryConstraint:
                 field_name = f"{self.first_field} p-value"
         else:
             field_name = self.first_field
+
+        constraint_type_str = "table" if self.first_field in ("columns", "total_row_number") else "summary"
+
         if self.first_field == "column_values_type":
-            if self.value:
+            if self.value is not None:
                 value_or_field = InferredType.Type.Name(self.value)
             else:
                 value_or_field = {InferredType.Type.Name(element) for element in list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH]}
-        elif self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
-            if len(self.reference_set) > MAX_SET_DISPLAY_MESSAGE_LENGTH:
-                tmp_set = set(list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])
-                value_or_field = f"{str(tmp_set)[:-1]}, ...}}"
-            else:
-                value_or_field = str(self.reference_set)
+        elif hasattr(self, "reference_set"):
+            value_or_field = self._get_str_from_ref_set()
         elif self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
             value_or_field = f"{lower_target} and {upper_target}"
+        elif self.first_field in ("columns", "total_row_number"):
+            value_or_field = str(self.value)
         else:
             value_or_field = f"{self.value}/{self.second_field}"
 
-        return self._name if self._name is not None else f"summary {field_name} {Op.Name(self.op)} {value_or_field}"
+        return self._name if self._name is not None else f"{constraint_type_str} {field_name} {Op.Name(self.op)} {value_or_field}"
+
+    def _check_and_init_table_shape_constraint(self, reference_set):
+        if self.first_field in ("columns", "total_row_number"):  # table shape constraint
+
+            if self.first_field == "columns":
+                if self.op == Op.EQ:
+                    if any([self.value, self.upper_value, self.second_field, self.third_field, not reference_set]):
+                        raise ValueError("When using set operations only set should be provided and not values or field names!")
+                    self.reference_set = reference_set
+                    reference_set = self._try_cast_set()
+                else:
+                    if any([not self.value, self.upper_value, self.second_field, self.third_field, reference_set]):
+                        raise ValueError("When using table shape columns constraint only value should be provided and no fields or reference set!")
+
+            if isinstance(self.value, (float)):
+                self.value = int(self.value)
+
+            if (self.op == Op.CONTAIN and not isinstance(self.value, str)) or all(
+                [self.op == Op.EQ, not isinstance(self.value, int), not isinstance(reference_set, set)]
+            ):
+
+                raise ValueError("Table shape constraints require value of type string or string set for columns and type int for number of rows!")
+
+            target_val = self.value if self.value is not None else self.reference_set
+            self.func = _summary_funcs1[self.op](self.first_field, target_val)
+            return True
+        return False
 
     def _check_and_init_valid_set_constraint(self, reference_set):
         if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
@@ -506,13 +543,12 @@ class SummaryConstraint:
                 raise ValueError("When using set operations only set should be provided and not values or field names!")
 
             self.reference_set = reference_set
-            reference_set = self.try_cast_set()
+            reference_set = self._try_cast_set()
 
             if self.op != Op.IN:
-                self.ref_string_set, self.ref_numbers_set = self.get_string_and_numbers_sets()
-                self.reference_theta_sketch = self.create_theta_sketch()
-                self.string_theta_sketch = self.create_theta_sketch(self.ref_string_set)
-                self.numbers_theta_sketch = self.create_theta_sketch(self.ref_numbers_set)
+                self.ref_string_set, self.ref_numbers_set = self._get_string_and_numbers_sets()
+                self.string_theta_sketch = self._create_theta_sketch(self.ref_string_set)
+                self.numbers_theta_sketch = self._create_theta_sketch(self.ref_numbers_set)
 
                 self.func = _summary_funcs1[self.op](self.first_field, self.string_theta_sketch, self.numbers_theta_sketch)
             else:
@@ -555,7 +591,17 @@ class SummaryConstraint:
                 raise ValueError("Summary constraint with BETWEEN operation must specify lower and upper value OR lower and third field name, but not both")
         return False
 
-    def try_cast_set(self) -> Set[Any]:
+    def _get_str_from_ref_set(self) -> str:
+        reference_set_str = ""
+        if len(self.reference_set) > MAX_SET_DISPLAY_MESSAGE_LENGTH:
+            tmp_set = set(list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])
+            reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
+        else:
+            reference_set_str = str(self.reference_set)
+
+        return reference_set_str
+
+    def _try_cast_set(self) -> Set[Any]:
         if not isinstance(self.reference_set, set):
             try:
                 logger.warning(f"Trying to cast provided value of {type(self.reference_set)} to type set!")
@@ -565,7 +611,7 @@ class SummaryConstraint:
                 raise TypeError(f"When using set operations, provided value must be set or set castable, instead type: '{provided_type_name}' was provided!")
         return self.reference_set
 
-    def get_string_and_numbers_sets(self):
+    def _get_string_and_numbers_sets(self):
         string_set = set()
         numbers_set = set()
         for item in self.reference_set:
@@ -576,7 +622,7 @@ class SummaryConstraint:
 
         return string_set, numbers_set
 
-    def create_theta_sketch(self, ref_set: set = None):
+    def _create_theta_sketch(self, ref_set: set = None):
         theta = update_theta_sketch()
         target_set = self.reference_set if ref_set is None else ref_set
 
@@ -585,6 +631,8 @@ class SummaryConstraint:
         return theta
 
     def update(self, update_summary: object) -> bool:
+        constraint_type_str = "table shape" if self.first_field in ("columns", "total_row_number") else "summary"
+
         self.total += 1
 
         if self.first_field == "quantile":
@@ -600,7 +648,7 @@ class SummaryConstraint:
         if not self.func(update_summary):
             self.failures += 1
             if self._verbose:
-                logger.info(f"summary constraint {self.name} failed")
+                logger.info(f"{constraint_type_str} constraint {self.name} failed")
 
     def merge(self, other) -> "SummaryConstraint":
         if not other:
@@ -632,8 +680,12 @@ class SummaryConstraint:
                 ), "Cannot merge constraints with different reference_distribution"
             else:
                 raise AssertionError("Cannot merge constraints with different reference_distribution")
-        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
-            assert self.reference_set == other.reference_set
+
+        if hasattr(self, "reference_set"):
+            assert hasattr(other, "reference_set"), "Cannot merge constraint that doesn't have reference set with one that does."
+            assert (
+                self.reference_set == other.reference_set
+            ), f"Cannot merge constraints with different reference sets: {self._get_str_from_ref_set()} and {other._get_str_from_ref_set()}"
             reference_dist = self.reference_set
         elif self.op == Op.BTWN:
             assert self.upper_value == other.upper_value, f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
@@ -659,13 +711,15 @@ class SummaryConstraint:
         return merged_constraint
 
     def _check_if_summary_constraint_message_is_valid(msg: SummaryConstraintMsg):
-        if msg.HasField("reference_set") and not any([msg.HasField(f) for f in ("value", "second_field", "between")]):
+        if msg.HasField("reference_set") and not any([msg.HasField(f) for f in ("value", "value_str", "second_field", "between")]):
             return True
-        elif msg.HasField("value") and not any([msg.HasField(f) for f in ("second_field", "between", "reference_set")]):
+        elif msg.HasField("value") and not any([msg.HasField(f) for f in ("value_str", "second_field", "between", "reference_set")]):
             return True
-        elif msg.HasField("second_field") and not any([msg.HasField(f) for f in ("value", "between", "reference_set")]):
+        elif msg.HasField("value_str") and not any([msg.HasField(f) for f in ("second_field", "between", "reference_set")]):
             return True
-        elif msg.HasField("between") and not any([msg.HasField(f) for f in ("value", "second_field", "reference_set")]):
+        elif msg.HasField("second_field") and not any([msg.HasField(f) for f in ("value", "value_str", "between", "reference_set")]):
+            return True
+        elif msg.HasField("between") and not any([msg.HasField(f) for f in ("value", "value_str", "second_field", "reference_set")]):
             if all([msg.between.HasField(f) for f in ("lower_value", "upper_value")]) and not any(
                 [msg.between.HasField(f) for f in ("second_field", "third_field")]
             ):
@@ -708,6 +762,8 @@ class SummaryConstraint:
             ref_distribution = set(msg.reference_set)
         elif msg.HasField("value"):
             value = msg.value
+        elif msg.HasField("value_str"):
+            value = msg.value_str
         elif msg.HasField("second_field"):
             second_field = msg.second_field
         elif msg.HasField("between"):
@@ -736,6 +792,7 @@ class SummaryConstraint:
         summary_between_constraint_msg = None
         quantile_value = None
         value = None
+        value_str = None
         second_field = None
         continuous_dist = None
         discrete_dist = None
@@ -750,7 +807,7 @@ class SummaryConstraint:
         elif self.quantile_value is not None:
             quantile_value = self.quantile_value
 
-        if self.op in (Op.IN_SET, Op.CONTAIN_SET, Op.EQ_SET, Op.IN):
+        if hasattr(self, "reference_set"):
             reference_set_msg = ListValue()
             reference_set_msg.extend(self.reference_set)
 
@@ -762,13 +819,17 @@ class SummaryConstraint:
         elif self.second_field:
             second_field = self.second_field
         elif self.value is not None:
-            value = self.value
+            if isinstance(self.value, str):
+                value_str = self.value
+            else:
+                value = self.value
 
         return SummaryConstraintMsg(
             name=self.name,
             first_field=self.first_field,
             second_field=second_field,
             value=value,
+            value_str=value_str,
             between=summary_between_constraint_msg,
             reference_set=reference_set_msg,
             quantile_value=quantile_value,
@@ -907,12 +968,231 @@ class SummaryConstraints:
         return None
 
 
+class MultiColumnValueConstraint(ValueConstraint):
+    def __init__(
+        self,
+        dependent_columns: Union[str, List[str], Tuple[str], np.ndarray],
+        op: Op,
+        reference_columns: Union[str, List[str], Tuple[str], np.ndarray] = None,
+        internal_dependent_cols_op: Op = None,
+        value=None,
+        name: str = None,
+        verbose=False,
+    ):
+        self._name = name
+        self._verbose = verbose
+        self.op = op
+        self.total = 0
+        self.failures = 0
+
+        if dependent_columns is None:
+            raise ValueError("The dependent_columns attribute must be provided when creating a MultiColumnValueConstraint")
+        if not isinstance(dependent_columns, (str, list, tuple, np.ndarray)):
+            raise TypeError(
+                "The dependent_columns attribute should be a str indicating a column name in the dataframe, or an array-like object of column names"
+            )
+
+        self.dependent_columns = dependent_columns
+        self.func = _multi_column_value_funcs[op]
+
+        if (reference_columns is None) == (value is None):
+            raise ValueError("One of value and reference_columns attributes should be provided when creating a MultiColumnValueConstraint," " but not both")
+
+        if reference_columns:
+            if not isinstance(reference_columns, (str, list, tuple, np.ndarray)):
+                raise TypeError("The reference_columns attribute should be a str indicating a column name in the dataframe," " or a list of column names")
+            else:
+                self.reference_columns = reference_columns
+        elif value is not None:
+            self.value = value
+
+        if internal_dependent_cols_op:
+            self.internal_op = internal_dependent_cols_op
+            self.internal_dependent_cols_func = _multi_column_value_funcs[internal_dependent_cols_op]
+
+    @property
+    def name(self):
+        dependent_cols = str(self.dependent_columns)
+        if hasattr(self, "value"):
+            val_or_ref_columns = self.value
+        else:
+            val_or_ref_columns = self.reference_columns
+        if hasattr(self, "internal_op"):
+            dependent_cols = Op.Name(self.internal_op) + " " + dependent_cols
+        return self._name if self._name is not None else f"multi column value {dependent_cols} {Op.Name(self.op)} {val_or_ref_columns}"
+
+    def update(self, columns):
+        self.total += 1
+        if isinstance(self.dependent_columns, str):
+            v1 = columns[self.dependent_columns]
+        else:
+            if hasattr(self, "internal_dependent_cols_func"):
+                v1 = self.internal_dependent_cols_func([columns[col] for col in self.dependent_columns])
+            else:
+                v1 = tuple([columns[col] for col in self.dependent_columns])
+        if hasattr(self, "reference_columns"):
+            if isinstance(self.reference_columns, str):
+                if self.reference_columns == "all":
+                    columns.pop(self.dependent_columns)
+                    v2 = columns.values()
+                else:
+                    v2 = columns[self.reference_columns]
+            else:
+                v2 = tuple([columns[col] for col in self.reference_columns])
+        else:
+            v2 = self.value
+
+        if not self.func(v2)(v1):
+            self.failures += 1
+            if self._verbose:
+                logger.info(f"multi column value constraint {self.name} failed on values: {v1}, {v2}")
+
+    def merge(self, other) -> "MultiColumnValueConstraint":
+        if not other:
+            return self
+
+        val = None
+        reference_columns = None
+        internal_op = None
+
+        assert (
+            self.dependent_columns == other.dependent_columns
+        ), f"Cannot merge multicolumn constraints with different dependent columns: ({self.dependent_columns}) and ({other.dependent_columns})"
+        assert self.name == other.name, f"Cannot merge multicolumn constraints with different names: ({self.name}) and ({other.name})"
+        assert self.op == other.op, f"Cannot merge multicolumn constraints with different ops: {self.op} and {other.op}"
+
+        if all([hasattr(obj, "value") for obj in (self, other)]):
+            val = self.value
+            assert self.value == other.value, f"Cannot merge multicolumn value constraints with different values: {self.value} and {other.value}"
+        elif all([hasattr(obj, "reference_columns") for obj in (self, other)]):
+            reference_columns = self.reference_columns
+            assert (
+                self.reference_columns == other.reference_columns
+            ), f"Cannot merge multicolumn value constraints with different reference_columns: {self.reference_columns} and {other.reference_columns}"
+        else:
+            raise AssertionError(
+                "Cannot merge multicolumn value constraints from which one has a value attribute and the other has a reference_columns attribute"
+            )
+        if hasattr(self, "internal_op") != hasattr(other, "internal_op"):
+            raise AssertionError("Cannot merge multicolumn value constraint that has an internal op, with one that does not")
+        elif hasattr(self, "internal_op"):
+            assert self.internal_op == other.internal_op, "Cannot merge multicolumn value constraints with different internal ops"
+            internal_op = self.internal_op
+
+        merged_value_constraint = MultiColumnValueConstraint(
+            dependent_columns=self.dependent_columns,
+            op=self.op,
+            value=val,
+            name=self.name,
+            reference_columns=reference_columns,
+            internal_dependent_cols_op=internal_op,
+            verbose=self._verbose,
+        )
+
+        merged_value_constraint.total = self.total + other.total
+        merged_value_constraint.failures = self.failures + other.failures
+        return merged_value_constraint
+
+    @staticmethod
+    def from_protobuf(msg: MultiColumnValueConstraintMsg) -> "MultiColumnValueConstraint":
+        internal_op = None
+        value = None
+        ref_cols = None
+
+        if msg.HasField("dependent_columns"):
+            dependent_cols = list(msg.dependent_columns)
+        else:
+            dependent_cols = msg.dependent_column
+
+        if msg.internal_dependent_columns_op:
+            internal_op = msg.internal_dependent_columns_op
+
+        if len(msg.value_set.values) != 0:
+            value = {tuple(v) if hasattr(v, "values") else v for v in msg.value_set}
+
+        elif msg.value:
+            value = msg.value
+
+        elif msg.reference_columns:
+            ref_cols = list(msg.reference_columns)
+            if ref_cols == ["all"]:
+                ref_cols = "all"
+        else:
+            raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
+        value
+        return MultiColumnValueConstraint(
+            dependent_cols, msg.op, value=value, reference_columns=ref_cols, name=msg.name, internal_dependent_cols_op=internal_op, verbose=msg.verbose
+        )
+
+    def to_protobuf(self) -> MultiColumnValueConstraintMsg:
+        value = None
+        set_vals_message = None
+        ref_cols = None
+        dependent_single_col = None
+        dependent_multiple_cols = None
+        internal_op = None
+
+        if isinstance(self.dependent_columns, str):
+            dependent_single_col = self.dependent_columns
+        else:
+            dependent_multiple_cols = ListValue()
+            dependent_multiple_cols.extend(self.dependent_columns)
+
+        if hasattr(self, "value"):
+            if isinstance(self.value, (set, list, np.ndarray, pd.Series)):
+                set_vals_message = ListValue()
+                for val in self.value:
+                    if isinstance(val, (set, list, tuple)):
+                        internal_list_value = ListValue()
+                        internal_list_value.extend(list(val))
+                        set_vals_message.append(internal_list_value)
+                    else:
+                        set_vals_message.append(val)
+            else:
+                value = self.value
+        else:
+            ref_cols = ListValue()
+            if isinstance(self.reference_columns, str):
+                ref_cols.append(self.reference_columns)
+            else:
+                ref_cols.extend(self.reference_columns)
+
+        if hasattr(self, "internal_op"):
+            internal_op = self.internal_op
+
+        return MultiColumnValueConstraintMsg(
+            dependent_columns=dependent_multiple_cols,
+            dependent_column=dependent_single_col,
+            name=self.name,
+            op=self.op,
+            value=value,
+            value_set=set_vals_message,
+            reference_columns=ref_cols,
+            internal_dependent_columns_op=internal_op,
+            verbose=self._verbose,
+        )
+
+
+class MultiColumnValueConstraints(ValueConstraints):
+    def __init__(self, constraints: Mapping[str, MultiColumnValueConstraint] = None):
+        super().__init__(constraints=constraints)
+
+    @staticmethod
+    def from_protobuf(msg: ValueConstraintMsgs) -> "MultiColumnValueConstraints":
+        value_constraints = [MultiColumnValueConstraint.from_protobuf(c) for c in msg.constraints]
+        if len(value_constraints) > 0:
+            return MultiColumnValueConstraints({v.name: v for v in value_constraints})
+        return None
+
+
 class DatasetConstraints:
     def __init__(
         self,
         props: DatasetProperties,
         value_constraints: Optional[ValueConstraints] = None,
         summary_constraints: Optional[SummaryConstraints] = None,
+        table_shape_constraints: Optional[SummaryConstraints] = None,
+        multi_column_value_constraints: Optional[MultiColumnValueConstraints] = None,
     ):
         self.dataset_properties = props
         # repackage lists of constraints if necessary
@@ -922,12 +1202,28 @@ class DatasetConstraints:
             if isinstance(v, list):
                 value_constraints[k] = ValueConstraints(v)
         self.value_constraint_map = value_constraints
+
         if summary_constraints is None:
             summary_constraints = dict()
         for k, v in summary_constraints.items():
             if isinstance(v, list):
                 summary_constraints[k] = SummaryConstraints(v)
         self.summary_constraint_map = summary_constraints
+
+        if table_shape_constraints is None:
+            table_shape_constraints = SummaryConstraints()
+        if isinstance(table_shape_constraints, list):
+            table_shape_constraints = SummaryConstraints(table_shape_constraints)
+
+        self.table_shape_constraints = table_shape_constraints
+
+        if multi_column_value_constraints is None:
+            multi_column_value_constraints = list()
+        for i, v in enumerate(multi_column_value_constraints):
+            if isinstance(v, list):
+                multi_column_value_constraints[i] = MultiColumnValueConstraints(v)
+
+        self.multi_column_value_constraints = multi_column_value_constraints
 
     def __getitem__(self, key):
         if key in self.value_constraint_map:
@@ -938,7 +1234,9 @@ class DatasetConstraints:
     def from_protobuf(msg: DatasetConstraintMsg) -> "DatasetConstraints":
         vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
         sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
-        return DatasetConstraints(msg.properties, vm, sm)
+        table_shape_m = SummaryConstraints.from_protobuf(msg.table_shape_constraints)
+        multi_column_value_m = dict([(k, MultiColumnValueConstraints.from_protobuf(v)) for k, v in msg.multi_column_value_constraints.items()])
+        return DatasetConstraints(msg.properties, vm, sm, table_shape_m, multi_column_value_m)
 
     @staticmethod
     def from_json(data: str) -> "DatasetConstraints":
@@ -950,10 +1248,14 @@ class DatasetConstraints:
         # turn that into a map indexed by column name
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
         sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
+        table_shape_constraints_message = self.table_shape_constraints.to_protobuf()
+        multi_column_value_m = [v.to_protobuf() for v in self.multi_column_value_constraints]
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,
             summary_constraints=sm,
+            table_shape_constraints=table_shape_constraints_message,
+            multi_column_value_constraints=multi_column_value_m,
         )
 
     def to_json(self) -> str:
@@ -962,7 +1264,9 @@ class DatasetConstraints:
     def report(self):
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
-        return l1 + l2
+        l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
+        l4 = [mc.report() for mc in self.multi_column_value_constraints]
+        return l1 + l2 + l3 + l4
 
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
@@ -1123,6 +1427,18 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
         raise ValueError("The lower fraction should be decimal values less than or equal to the upper fraction")
 
     return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
+
+
+def columnExistsConstraint(column: str, verbose=False):
+    return SummaryConstraint("columns", Op.CONTAIN, value=column, verbose=verbose)
+
+
+def numberOfRowsConstraint(n_rows: int, verbose=False):
+    return SummaryConstraint("total_row_number", Op.EQ, value=n_rows, verbose=verbose)
+
+
+def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
+    return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, verbose=verbose)
 
 
 def columnMostCommonValueInSetConstraint(value_set: Set[Any], verbose=False):
@@ -1365,3 +1681,106 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
     ref_dist = ReferenceDistributionDiscreteMessage(frequent_items=frequent_items_sketch.to_summary(), total_count=frequency_sum)
 
     return SummaryConstraint("chi_squared_test", op=Op.GT, reference_set=ref_dist, value=p_value, verbose=verbose)
+
+
+def columnValuesAGreaterThanBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.GT, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesAGreaterThanEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.GE, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesALessThanBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.LT, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesALessThanEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.LE, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesAEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.EQ, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesANotEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.NE, reference_columns=column_B, verbose=verbose)
+
+
+def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], Set[str], np.array], value: Union[float, int, str], verbose: bool = False):
+    """
+
+    Parameters
+    ----------
+    columns : List[str]
+        List of columns for which the sum of row values should equal some value
+    value : Union[float, int, str]
+        Numeric value to compare with the sum of the column row values,
+        or a string indicating a column name for which the row value will be compared with the sum
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint
+    """
+
+    if not isinstance(columns, (list, set, np.array)) or not all(isinstance(col, str) for col in columns):
+        raise TypeError(
+            "The column list should be an array-like data type of only string values, indicating the column names, for which the values are going to be summed"
+        )
+
+    if not isinstance(value, (float, int, str)):
+        raise TypeError(
+            "The value should be a numeric value equal to the expected sum,"
+            " or a string indicating the column name for which the row value will be taken as the reference sum value"
+        )
+
+    reference_cols = None
+    if isinstance(value, str):
+        reference_cols = [value]
+        value = None
+
+    return MultiColumnValueConstraint(
+        dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op=Op.SUM, verbose=verbose
+    )
+
+
+def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set[Tuple[Any, Any]], verbose: bool = False):
+    if not all([isinstance(col, str) for col in (column_A, column_B)]):
+        raise TypeError("The provided column_A and column_B should be of type str, indicating the name of the columns to be compared")
+    if isinstance(value_set, str):
+        raise TypeError("The value_set should be an array-like data type of tuple values")
+
+    try:
+        value_set = set(value_set)
+    except Exception:
+        raise TypeError("The value_set should be an array-like data type of tuple values")
+
+    return MultiColumnValueConstraint(dependent_columns=[column_A, column_B], op=Op.IN, value=value_set, verbose=verbose)
+
+
+def columnValuesUniqueWithinRow(column_A: str, verbose: bool = False):
+    if not isinstance(column_A, str):
+        raise TypeError("The provided column_A should be of type str, indicating the name of the column to be checked")
+
+    return MultiColumnValueConstraint(dependent_columns=column_A, op=Op.NOT_IN, reference_columns="all", verbose=verbose)

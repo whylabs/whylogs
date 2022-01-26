@@ -25,6 +25,9 @@ enum Op {
     EQ_SET = 12;
     APPLY_FUNC = 13;
     IN = 14;
+    CONTAIN = 15;
+    NOT_IN = 16;
+    SUM = 17;
   }
 
 /* Summary constraints specify a relationship between a summary field and a literal value,
@@ -41,6 +44,7 @@ message SummaryConstraintMsg {
      double value = 4;
      SummaryBetweenConstraintMsg between = 7;
      google.protobuf.ListValue reference_set = 8;
+     string value_str = 12;
   }
   Op op = 5;
   bool verbose = 6;
@@ -50,7 +54,6 @@ message SummaryConstraintMsg {
     ReferenceDistributionDiscreteMessage discrete_distribution = 11;
   }
 }
-
 
 message ReferenceDistributionContinuousMessage {
   KllFloatsSketchMessage sketch = 1;
@@ -94,8 +97,26 @@ message ValueConstraintMsg {
   bool verbose = 4;
 }
 
+message MultiColumnValueConstraintMsg {
+  string name = 1;
+  oneof dependent {
+    google.protobuf.ListValue dependent_columns = 2;
+    string dependent_column = 3;
+  }
+
+  oneof reference {
+    double value = 6;
+    google.protobuf.ListValue value_set = 7;
+    google.protobuf.ListValue reference_columns = 8;
+  }
+  Op op = 4;
+  bool verbose = 5;
+  Op internal_dependent_columns_op = 9;
+}
+
 message ValueConstraintMsgs {
   repeated ValueConstraintMsg constraints = 1;
+  repeated MultiColumnValueConstraintMsg multi_column_constraints = 2;
 }
 
 message SummaryConstraintMsgs {
@@ -106,5 +127,7 @@ message DatasetConstraintMsg {
   DatasetProperties properties = 1;
   map<string, ValueConstraintMsgs> value_constraints = 2;
   map<string, SummaryConstraintMsgs> summary_constraints = 3;
+  SummaryConstraintMsgs table_shape_constraints = 4;
+  map<string, ValueConstraintMsgs> multi_column_value_constraints = 5;
 }
 

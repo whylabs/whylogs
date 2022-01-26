@@ -13,10 +13,14 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 from smart_open import open
 
-from whylogs.core import ColumnProfile
+from whylogs.core import ColumnProfile, MultiColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
-from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
+from whylogs.core.statistics.constraints import (
+    DatasetConstraints,
+    MultiColumnValueConstraints,
+    SummaryConstraints,
+)
 from whylogs.core.summaryconverters import entropy_from_column_summary
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
@@ -86,6 +90,7 @@ class DatasetProfile:
         dataset_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
         columns: dict = None,
+        multi_columns: MultiColumnProfile = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
@@ -95,6 +100,9 @@ class DatasetProfile:
         # Default values
         if columns is None:
             columns = {}
+        if multi_columns is None:
+            multi_column_constraints = MultiColumnValueConstraints(constraints.multi_column_value_constraints) if constraints else None
+            multi_columns = MultiColumnProfile(multi_column_constraints)
         if tags is None:
             tags = {}
         if metadata is None:
@@ -110,9 +118,12 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
+        self.multi_columns = multi_columns
         self.constraints = constraints
 
         self.model_profile = model_profile
+
+        self.column_row_dict = dict()
 
         # Store Name attribute
         self._tags["name"] = name
@@ -153,6 +164,10 @@ class DatasetProfile:
         Return the session timestamp value in epoch milliseconds.
         """
         return time.to_utc_ms(self.session_timestamp)
+
+    @property
+    def total_row_number(self):
+        return max(self.column_row_dict.values())
 
     def add_output_field(self, field: Union[str, List[str]]):
         if self.model_profile is None:
@@ -249,7 +264,16 @@ class DatasetProfile:
             prof = ColumnProfile(column_name, constraints=constraints)
             self.columns[column_name] = prof
 
+            self.column_row_dict[column_name] = 0
+
+        # updating the map for every column name with increasing the number of tracked values
+        self.column_row_dict[column_name] += 1
+
         prof.track(data, character_list=None, token_method=None)
+
+    def track_multi_column(self, columns):
+        multi_column_profile = self.multi_columns
+        multi_column_profile.track(columns)
 
     def track_array(self, x: np.ndarray, columns=None):
         """
@@ -282,20 +306,26 @@ class DatasetProfile:
         # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
         if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
             df = df.to_pandas()
+
         element_count = df.size
         large_df = element_count > 200000
         if large_df:
             logger.warning(f"About to log a dataframe with {element_count} elements, logging might take some time to complete.")
         count = 0
-        for col in df.columns:
-            col_str = str(col)
 
-            x = df[col].values
-            for xi in x:
-                count = count + 1
+        columns_len = len(df.columns)
+        num_records = len(df)
+        for idx in range(num_records):
+            row_values = df.iloc[idx].values
+            count += 1
+            for col_idx in range(columns_len):
+                col = df.columns[col_idx]
+                col_str = str(col)
+                self.track(col_str, row_values[col_idx], character_list=None, token_method=None)
                 if large_df and (count % 200000 == 0):
                     logger.warning(f"Logged {count} elements out of {element_count}")
-                self.track(col_str, xi, character_list=None, token_method=None)
+
+            self.track_multi_column({str(col): val for col, val in zip(df.columns, row_values)})
 
     def to_properties(self):
         """
@@ -717,7 +747,7 @@ class DatasetProfile:
                 frequent_items_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
                 most_common_val = frequent_items_summ.items[0].json_value if frequent_items_summ else None
 
-                update_dict = _create_column_profile_summary_object(
+                update_obj = _create_column_profile_summary_object(
                     number_summary=summ.number_summary,
                     distinct_column_values=distinct_column_values_dict,
                     quantile=colprof.number_tracker.histogram,
@@ -732,11 +762,21 @@ class DatasetProfile:
                     chi_squared_test=chi_squared_summary,
                 )
 
-                constraints.update(update_dict)
+                constraints.update(update_obj)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
         return [(k, s.report()) for k, s in summary_constraints.items()]
+
+    def apply_table_shape_constraints(self, table_shape_constraints: Optional[SummaryConstraints] = None):
+        if table_shape_constraints is None:
+            table_shape_constraints = self.constraints.table_shape_constraints
+
+        update_obj = _create_column_profile_summary_object(NumberSummary(), columns=self.columns.keys(), total_row_number=self.total_row_number)
+
+        table_shape_constraints.update(update_obj)
+
+        return table_shape_constraints.report()
 
 
 def columns_chunk_iterator(iterator, marker: str):
@@ -848,7 +888,6 @@ def _create_column_profile_summary_object(number_summary: NumberSummary, **kwarg
         Used to unpack the metrics as separate items in the dictionary
     kwargs : Summary objects or datasketches objects
         Used to update specific constraints that need additional calculations
-
     Returns
     -------
     Anonymous object containing all of the metrics as fields with their corresponding values
