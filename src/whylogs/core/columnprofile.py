@@ -9,6 +9,7 @@ from whylogs.core.statistics import (
     StringTracker,
 )
 from whylogs.core.statistics.constraints import (
+    MultiColumnValueConstraints,
     SummaryConstraint,
     SummaryConstraints,
     ValueConstraints,
@@ -250,3 +251,88 @@ class ColumnProfile:
             frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),
             cardinality_tracker=HllSketch.from_protobuf(message.cardinality_tracker),
         )
+
+
+class MultiColumnProfile:
+    """
+    Statistics tracking for a multiple columns (i.e. a features)
+
+    The primary method for
+
+    Parameters
+    ----------
+    constraints : MultiColumnValueConstraints
+        Static assertions to be applied to data tracked between all columns
+
+    """
+
+    def __init__(
+        self,
+        constraints: MultiColumnValueConstraints = None,
+    ):
+
+        self.constraints = constraints or MultiColumnValueConstraints()
+
+    def track(self, column_dict, character_list=None, token_method=None):
+        """
+        TODO: Add `column_dict` to tracking statistics.
+        """
+
+        # update the MultiColumnTrackers code
+
+        self.constraints.update(column_dict)
+        self.constraints.update_typed(column_dict)
+
+    def to_summary(self):
+        """
+        Generate a summary of the statistics
+
+        Returns
+        -------
+        summary : (Multi)ColumnSummary
+            Protobuf summary message.
+        """
+
+        # TODO: summaries for the multi column trackers and statistics
+
+        raise NotImplementedError()
+
+    def merge(self, other) -> "MultiColumnProfile":
+        """
+        Merge this columnprofile with another.
+
+        Parameters
+        ----------
+        other : MultiColumnProfile
+
+        Returns
+        -------
+        merged : MultiColumnProfile
+            A new, merged multi column profile.
+        """
+        return MultiColumnProfile(self.constraints.merge(other.constraints))
+
+    def to_protobuf(self):
+        """
+        Return the object serialized as a protobuf message
+
+        Returns
+        -------
+        message : ColumnMessage
+        """
+
+        # TODO: implement new type of multicolumn message
+        raise NotImplementedError()
+
+    @staticmethod
+    def from_protobuf(message):
+        """
+        Load from a protobuf message
+
+        Returns
+        -------
+        column_profile : MultiColumnProfile
+        """
+        # TODO: implement new type of multicolumn message
+
+        raise NotImplementedError()
