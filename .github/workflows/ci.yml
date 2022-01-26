@@ -72,8 +72,15 @@ jobs:
         run: make release
       - name: Run pre-commit hooks
         run: poetry run pre-commit run --all-files
-      - name: Run tests
-        run: poetry run pytest --cov-report=xml
+      - name: Smoke test wheel in client environment
+        run: |
+          python -m venv verify
+          source verify/bin/activate
+          pip install --upgrade pip
+          pip install dist/whylogs*.whl
+          python tests/smoketest.py
+          deactivate
+          rm -rf verify
       - name: Upload test coverage report to Codecov
         uses: codecov/codecov-action@v2
         if: env.CODECOV_UPLOAD == 'true' && matrix.python-version == '3.10'
