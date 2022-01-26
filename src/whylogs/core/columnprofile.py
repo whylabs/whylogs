@@ -10,7 +10,6 @@ from whylogs.core.statistics import (
 )
 from whylogs.core.statistics.constraints import (
     MultiColumnValueConstraints,
-    SummaryConstraint,
     SummaryConstraints,
     ValueConstraints,
     columnMostCommonValueInSetConstraint,

@@ -2395,6 +2395,8 @@ def test_generate_default_constraints_mixed(local_config_path):
     assert followers_constraints[2]["name"] == "summary column_values_type EQ INTEGRAL"
     assert followers_constraints[3]["name"] == "summary unique_count BTWN 3 and 5"  # we have 4 unique values in the df
     assert "summary most_common_value IN" in followers_constraints[4]["name"]
+
+
 def _apply_value_constraints_on_dataset(df_lending_club, local_config_path, value_constraints=None, multi_column_value_constraints=None):
     dc = DatasetConstraints(None, value_constraints=value_constraints, multi_column_value_constraints=multi_column_value_constraints)
     config = load_config(local_config_path)
