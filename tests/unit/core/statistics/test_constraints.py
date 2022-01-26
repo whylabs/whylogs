@@ -66,7 +66,6 @@ TEST_LOGGER = getLogger(__name__)
 
 
 def test_value_summary_serialization():
-
     for each_op, _ in _value_funcs.items():
         if each_op == Op.APPLY_FUNC:
             continue
@@ -101,7 +100,6 @@ def test_value_summary_serialization():
 
 
 def test_value_constraints(df_lending_club, local_config_path):
-
     conforming_loan = ValueConstraint(Op.LT, 548250)
     smallest_loan = ValueConstraint(Op.GT, 2500.0, verbose=True)
 
@@ -126,7 +124,6 @@ def test_value_constraints(df_lending_club, local_config_path):
 
 
 def test_value_constraints_pattern_match(df_lending_club, local_config_path):
-
     regex_state_abbreviation = r"^[a-zA-Z]{2}$"
     contains_state = ValueConstraint(Op.MATCH, regex_pattern=regex_state_abbreviation)
 
@@ -300,7 +297,6 @@ def test_value_constraints_raw_and_coerced_types_report():
 
 
 def test_summary_between_serialization_deserialization():
-
     # constraints may have an optional name
     sum_constraint = SummaryConstraint("min", Op.BTWN, 0.1, 2.4)
     msg_sum_const = sum_constraint.to_protobuf()
@@ -375,7 +371,6 @@ def test_summary_between_constraints_fields(df_lending_club, local_config_path):
 
 
 def test_summary_between_constraints_no_merge_different_values_fields():
-
     std_dev_between1 = SummaryConstraint("stddev", Op.BTWN, value=0.1, upper_value=200)
     std_dev_between2 = SummaryConstraint("stddev", Op.BTWN, value=0.2, upper_value=200)
 
@@ -531,7 +526,6 @@ def test_max_between_constraint_invalid():
 
 
 def _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints):
-
     dc = DatasetConstraints(None, summary_constraints=summary_constraints)
     config = load_config(local_config_path)
     session = session_from_config(config)
@@ -586,7 +580,6 @@ def test_set_summary_constraint_invalid_init():
 
 
 def test_set_summary_no_merge_different_set():
-
     set_c_1 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[1, 2, 3])
     set_c_2 = SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=[2, 3, 4, 5])
     with pytest.raises(AssertionError):
@@ -728,7 +721,6 @@ def _apply_string_length_constraints(local_config_path, length_constraints):
 
 
 def test_string_length_constraints(local_config_path):
-
     length_constraint7 = stringLengthEqualConstraint(length=7)
     length_constraint24 = stringLengthEqualConstraint(length=24)
     length_constraint7to10 = stringLengthBetweenConstraint(lower_value=7, upper_value=10)
@@ -894,7 +886,6 @@ def _apply_apply_func_constraints(local_config_path, apply_func_constraints):
 
 
 def test_apply_func_value_constraints(local_config_path):
-
     dateutil_parseable = dateUtilParseableConstraint()
     json_parseable = jsonParseableConstraint()
 
@@ -2257,6 +2248,153 @@ def test_chi_squared_test_p_value_greater_than_constraint_wrong_datatype():
         columnChiSquaredTestPValueGreaterThanConstraint({"A": 0.3, "B": 1, "C": 12}, p_value=0.2, verbose=True)
     with pytest.raises(TypeError):
         columnChiSquaredTestPValueGreaterThanConstraint(["a", "b", "c"], p_value=1.2, verbose=True)
+
+
+def test_generate_default_constraints_categorical(local_config_path):
+    usernames = ["jd123", "jane.doe@example.com", "bobsmith", "_anna_"]
+    emails = ["john.doe@example.com", "jane.doe@example.com", "bob.smith@example.com", "anna_jones@example.com"]
+    data = pd.DataFrame(
+        {
+            "username": usernames,
+            "email": emails,
+        }
+    )
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(data, "test.data")
+    generated_constraints = profile.generate_constraints()
+
+    json_summ = json.loads(message_to_json(generated_constraints.to_protobuf()))
+    constraints_username = json_summ["summaryConstraints"]["username"]["constraints"]
+    constraints_email = json_summ["summaryConstraints"]["email"]["constraints"]
+
+    # username constraints
+    assert len(constraints_username) == 3  # column value type equals, unique count between and most common value in set
+    assert constraints_username[0]["name"] == "summary column_values_type EQ STRING"
+    assert constraints_username[0]["firstField"] == "column_values_type"
+    assert constraints_username[0]["value"] == InferredType.STRING
+    assert constraints_username[0]["op"] == Op.Name(Op.EQ)
+    assert constraints_username[0]["verbose"] is False
+
+    # there are 4 unique values in the df for username, so the unique count between is in the range 4-1 and 4+1
+    assert constraints_username[1]["name"] == "summary unique_count BTWN 3 and 5"
+    assert constraints_username[1]["firstField"] == "unique_count"
+    assert constraints_username[1]["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(constraints_username[1]["between"]["lowerValue"], 0.001) == 3
+    assert pytest.approx(constraints_username[1]["between"]["upperValue"], 0.001) == 5
+    assert constraints_username[1]["verbose"] is False
+
+    assert f"summary most_common_value IN" in constraints_username[2]["name"]  # set has different order
+    assert constraints_username[2]["firstField"] == "most_common_value"
+    assert constraints_username[2]["op"] == Op.Name(Op.IN)
+    assert set(constraints_username[2]["referenceSet"]) == set(usernames)
+    assert constraints_username[2]["verbose"] is False
+
+    # email constraints
+    assert len(constraints_email) == 3  # column value type equals, unique count between and most common value in set
+    assert constraints_email[0]["name"] == "summary column_values_type EQ STRING"
+    assert constraints_email[0]["firstField"] == "column_values_type"
+    assert constraints_email[0]["value"] == InferredType.STRING
+    assert constraints_email[0]["op"] == Op.Name(Op.EQ)
+    assert constraints_email[0]["verbose"] is False
+
+    # there are 4 unique values in the df for username, so the unique count between is in the range 4-1 and 4+1
+    assert constraints_email[1]["name"] == "summary unique_count BTWN 3 and 5"
+    assert constraints_email[1]["firstField"] == "unique_count"
+    assert constraints_email[1]["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(constraints_email[1]["between"]["lowerValue"], 0.001) == 3
+    assert pytest.approx(constraints_email[1]["between"]["upperValue"], 0.001) == 5
+    assert constraints_email[1]["verbose"] is False
+
+    assert f"summary most_common_value IN" in constraints_email[2]["name"]  # set has different order
+    assert constraints_email[2]["firstField"] == "most_common_value"
+    assert constraints_email[2]["op"] == Op.Name(Op.IN)
+    assert set(constraints_email[2]["referenceSet"]) == set(emails)
+    assert constraints_email[2]["verbose"] is False
+
+
+def test_generate_default_constraints_numeric(local_config_path):
+    data = pd.DataFrame(
+        {
+            "followers": [1525, 12268, 51343, 867, 567, 100265, 22113, 3412],
+            "points": [23.4, 123.2, 432.22, 32.1, 44.1, 42.2, 344.2, 42.1],
+        }
+    )
+
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(data, "test.data")
+    generated_constraints = profile.generate_constraints()
+
+    json_summ = json.loads(message_to_json(generated_constraints.to_protobuf()))
+    followers_constraints = json_summ["summaryConstraints"]["followers"]["constraints"]
+    points_constraints = json_summ["summaryConstraints"]["points"]["constraints"]
+
+    assert len(followers_constraints) == 5
+    # min greater than 0, mean between mean-stddev and mean+stddev,
+    # column values type, most common value in set, unique count between
+
+    followers_mean = data["followers"].mean()
+    followers_stddev = data["followers"].std()
+    lower_followers = followers_mean - followers_stddev
+    upper_followers = followers_mean + followers_stddev
+
+    assert followers_constraints[0]["name"] == "summary min GE 0/None"
+    assert followers_constraints[1]["name"] == f"summary mean BTWN {lower_followers} and {upper_followers}"
+    assert followers_constraints[2]["name"] == "summary column_values_type EQ INTEGRAL"
+    assert followers_constraints[3]["name"] == "summary unique_count BTWN 7 and 9"  # we have 8 unique values in the df
+    assert "summary most_common_value IN" in followers_constraints[4]["name"]
+
+    assert len(points_constraints) == 4
+    # min greater than 0, mean between mean-stddev and mean+stddev,
+    # column values type, most common value in set
+    points_mean = data["points"].mean()
+    points_stddev = data["points"].std()
+    lower_points = points_mean - points_stddev
+    upper_points = points_mean + points_stddev
+
+    assert points_constraints[0]["name"] == "summary min GE 0/None"
+    assert points_constraints[1]["name"] == f"summary mean BTWN {lower_points} and {upper_points}"
+    assert points_constraints[2]["name"] == "summary column_values_type EQ FRACTIONAL"
+    assert "summary most_common_value IN" in points_constraints[3]["name"]
+
+
+def test_generate_default_constraints_mixed(local_config_path):
+    data = pd.DataFrame(
+        {"username": ["jd123", "jane.doe@example.com", "bobsmith", "_anna_"], "followers": [1525, 12268, 51343, 867], "null": [None, None, None, None]}
+    )
+
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(data, "test.data")
+    generated_constraints = profile.generate_constraints()
+
+    json_summ = json.loads(message_to_json(generated_constraints.to_protobuf()))
+    username_constraints = json_summ["summaryConstraints"]["username"]["constraints"]
+    followers_constraints = json_summ["summaryConstraints"]["followers"]["constraints"]
+
+    # no constraints should be generated for the null column since all values are None
+    assert "null" not in json_summ["summaryConstraints"]
+
+    assert len(username_constraints) == 3  # column value type equals, unique count between and most common value in set
+    assert username_constraints[0]["name"] == "summary column_values_type EQ STRING"
+    assert username_constraints[1]["name"] == "summary unique_count BTWN 3 and 5"  # we have 4 unique values in df
+    assert f"summary most_common_value IN" in username_constraints[2]["name"]
+
+    assert len(followers_constraints) == 5
+    # min greater than 0, mean between mean-stddev and mean+stddev,
+    # column values type, most common value in set, unique count between
+
+    followers_mean = data["followers"].mean()
+    followers_stddev = data["followers"].std()
+    lower_followers = followers_mean - followers_stddev
+    upper_followers = followers_mean + followers_stddev
+
+    assert followers_constraints[0]["name"] == "summary min GE 0/None"
+    assert followers_constraints[1]["name"] == f"summary mean BTWN {lower_followers} and {upper_followers}"
+    assert followers_constraints[2]["name"] == "summary column_values_type EQ INTEGRAL"
+    assert followers_constraints[3]["name"] == "summary unique_count BTWN 3 and 5"  # we have 4 unique values in the df
+    assert "summary most_common_value IN" in followers_constraints[4]["name"]
 
 
 def _apply_value_constraints_on_dataset(df_lending_club, local_config_path, value_constraints=None, multi_column_value_constraints=None):

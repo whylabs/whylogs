@@ -167,7 +167,8 @@ class DatasetProfile:
 
     @property
     def total_row_number(self):
-        return max(self.column_row_dict.values())
+        dict_counts = self.column_row_dict.values() if len(self.column_row_dict) else [0]
+        return max(dict_counts)
 
     def add_output_field(self, field: Union[str, List[str]]):
         if self.model_profile is None:
@@ -311,17 +312,18 @@ class DatasetProfile:
         large_df = element_count > 200000
         if large_df:
             logger.warning(f"About to log a dataframe with {element_count} elements, logging might take some time to complete.")
+
         count = 0
 
-        columns_len = len(df.columns)
         num_records = len(df)
         for idx in range(num_records):
-            row_values = df.iloc[idx].values
+            row_values = []
             count += 1
-            for col_idx in range(columns_len):
-                col = df.columns[col_idx]
-                col_str = str(col)
-                self.track(col_str, row_values[col_idx], character_list=None, token_method=None)
+            for col in df.columns:
+                col_values = df[col].values
+                value = col_values[idx]
+                row_values.append(value)
+                self.track(col, value, character_list=None, token_method=None)
                 if large_df and (count % 200000 == 0):
                     logger.warning(f"Logged {count} elements out of {element_count}")
 
