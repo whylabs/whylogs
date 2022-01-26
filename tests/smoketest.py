@@ -6,9 +6,6 @@ intended to test the wheel in a production environment,
 not a development environment.
 """
 
-import os
-
-import pandas as pd
 
 import whylogs
 from whylogs import get_or_create_session

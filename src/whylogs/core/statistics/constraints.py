@@ -3,11 +3,12 @@ import json
 import logging
 import numbers
 import re
-from typing import Any, List, Mapping, Optional, Set, Union
+from typing import Any, List, Mapping, Optional, Set, Tuple, Union
 
 import datasketches
 import jsonschema
 import numpy as np
+import pandas as pd
 from datasketches import theta_a_not_b, update_theta_sketch
 from dateutil.parser import parse
 from google.protobuf.json_format import Parse
@@ -29,6 +30,7 @@ from whylogs.proto import (
     DatasetProperties,
     InferredType,
     KllFloatsSketchMessage,
+    MultiColumnValueConstraintMsg,
     Op,
     ReferenceDistributionContinuousMessage,
     ReferenceDistributionDiscreteMessage,
@@ -150,7 +152,6 @@ _summary_funcs1 = {
     Op.GE: lambda f, v: lambda s: getattr(s, f) >= v,
     Op.GT: lambda f, v: lambda s: getattr(s, f) > v,
     Op.BTWN: lambda f, v1, v2: lambda s: v1 <= getattr(s, f) <= v2,
-    Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
     Op.IN_SET: lambda f, ref_str_sketch, ref_num_sketch: lambda update_obj: round(
         theta_a_not_b().compute(getattr(update_obj, f)["string_theta"], ref_str_sketch).get_estimate(), 1
     )
@@ -181,6 +182,18 @@ _summary_funcs2 = {
     Op.GE: lambda f, f2: lambda s: getattr(s, f) >= getattr(s, f2),
     Op.GT: lambda f, f2: lambda s: getattr(s, f) > getattr(s, f2),
     Op.BTWN: lambda f, f2, f3: lambda s: getattr(s, f2) <= getattr(s, f) <= getattr(s, f3),
+}
+
+_multi_column_value_funcs = {
+    Op.LT: lambda v2: lambda v1: v1 < v2,
+    Op.LE: lambda v2: lambda v1: v1 <= v2,
+    Op.EQ: lambda v2: lambda v1: v1 == v2,
+    Op.NE: lambda v2: lambda v1: v1 != v2,
+    Op.GE: lambda v2: lambda v1: v1 >= v2,
+    Op.GT: lambda v2: lambda v1: v1 > v2,  # assert incoming value 'v' is greater than some fixed value 'x'
+    Op.IN: lambda v2: lambda v1: v1 in v2,
+    Op.NOT_IN: lambda v2: lambda v1: v1 not in v2,
+    Op.SUM: lambda v: sum(v),
 }
 
 
@@ -955,6 +968,223 @@ class SummaryConstraints:
         return None
 
 
+class MultiColumnValueConstraint(ValueConstraint):
+    def __init__(
+        self,
+        dependent_columns: Union[str, List[str], Tuple[str], np.ndarray],
+        op: Op,
+        reference_columns: Union[str, List[str], Tuple[str], np.ndarray] = None,
+        internal_dependent_cols_op: Op = None,
+        value=None,
+        name: str = None,
+        verbose=False,
+    ):
+        self._name = name
+        self._verbose = verbose
+        self.op = op
+        self.total = 0
+        self.failures = 0
+
+        if dependent_columns is None:
+            raise ValueError("The dependent_columns attribute must be provided when creating a MultiColumnValueConstraint")
+        if not isinstance(dependent_columns, (str, list, tuple, np.ndarray)):
+            raise TypeError(
+                "The dependent_columns attribute should be a str indicating a column name in the dataframe, or an array-like object of column names"
+            )
+
+        self.dependent_columns = dependent_columns
+        self.func = _multi_column_value_funcs[op]
+
+        if (reference_columns is None) == (value is None):
+            raise ValueError("One of value and reference_columns attributes should be provided when creating a MultiColumnValueConstraint," " but not both")
+
+        if reference_columns:
+            if not isinstance(reference_columns, (str, list, tuple, np.ndarray)):
+                raise TypeError("The reference_columns attribute should be a str indicating a column name in the dataframe," " or a list of column names")
+            else:
+                self.reference_columns = reference_columns
+        elif value is not None:
+            self.value = value
+
+        if internal_dependent_cols_op:
+            self.internal_op = internal_dependent_cols_op
+            self.internal_dependent_cols_func = _multi_column_value_funcs[internal_dependent_cols_op]
+
+    @property
+    def name(self):
+        dependent_cols = str(self.dependent_columns)
+        if hasattr(self, "value"):
+            val_or_ref_columns = self.value
+        else:
+            val_or_ref_columns = self.reference_columns
+        if hasattr(self, "internal_op"):
+            dependent_cols = Op.Name(self.internal_op) + " " + dependent_cols
+        return self._name if self._name is not None else f"multi column value {dependent_cols} {Op.Name(self.op)} {val_or_ref_columns}"
+
+    def update(self, columns):
+        self.total += 1
+        if isinstance(self.dependent_columns, str):
+            v1 = columns[self.dependent_columns]
+        else:
+            if hasattr(self, "internal_dependent_cols_func"):
+                v1 = self.internal_dependent_cols_func([columns[col] for col in self.dependent_columns])
+            else:
+                v1 = tuple([columns[col] for col in self.dependent_columns])
+        if hasattr(self, "reference_columns"):
+            if isinstance(self.reference_columns, str):
+                if self.reference_columns == "all":
+                    columns.pop(self.dependent_columns)
+                    v2 = columns.values()
+                else:
+                    v2 = columns[self.reference_columns]
+            else:
+                v2 = tuple([columns[col] for col in self.reference_columns])
+        else:
+            v2 = self.value
+
+        if not self.func(v2)(v1):
+            self.failures += 1
+            if self._verbose:
+                logger.info(f"multi column value constraint {self.name} failed on values: {v1}, {v2}")
+
+    def merge(self, other) -> "MultiColumnValueConstraint":
+        if not other:
+            return self
+
+        val = None
+        reference_columns = None
+        internal_op = None
+
+        assert (
+            self.dependent_columns == other.dependent_columns
+        ), f"Cannot merge multicolumn constraints with different dependent columns: ({self.dependent_columns}) and ({other.dependent_columns})"
+        assert self.name == other.name, f"Cannot merge multicolumn constraints with different names: ({self.name}) and ({other.name})"
+        assert self.op == other.op, f"Cannot merge multicolumn constraints with different ops: {self.op} and {other.op}"
+
+        if all([hasattr(obj, "value") for obj in (self, other)]):
+            val = self.value
+            assert self.value == other.value, f"Cannot merge multicolumn value constraints with different values: {self.value} and {other.value}"
+        elif all([hasattr(obj, "reference_columns") for obj in (self, other)]):
+            reference_columns = self.reference_columns
+            assert (
+                self.reference_columns == other.reference_columns
+            ), f"Cannot merge multicolumn value constraints with different reference_columns: {self.reference_columns} and {other.reference_columns}"
+        else:
+            raise AssertionError(
+                "Cannot merge multicolumn value constraints from which one has a value attribute and the other has a reference_columns attribute"
+            )
+        if hasattr(self, "internal_op") != hasattr(other, "internal_op"):
+            raise AssertionError("Cannot merge multicolumn value constraint that has an internal op, with one that does not")
+        elif hasattr(self, "internal_op"):
+            assert self.internal_op == other.internal_op, "Cannot merge multicolumn value constraints with different internal ops"
+            internal_op = self.internal_op
+
+        merged_value_constraint = MultiColumnValueConstraint(
+            dependent_columns=self.dependent_columns,
+            op=self.op,
+            value=val,
+            name=self.name,
+            reference_columns=reference_columns,
+            internal_dependent_cols_op=internal_op,
+            verbose=self._verbose,
+        )
+
+        merged_value_constraint.total = self.total + other.total
+        merged_value_constraint.failures = self.failures + other.failures
+        return merged_value_constraint
+
+    @staticmethod
+    def from_protobuf(msg: MultiColumnValueConstraintMsg) -> "MultiColumnValueConstraint":
+        internal_op = None
+        value = None
+        ref_cols = None
+
+        if msg.HasField("dependent_columns"):
+            dependent_cols = list(msg.dependent_columns)
+        else:
+            dependent_cols = msg.dependent_column
+
+        if msg.internal_dependent_columns_op:
+            internal_op = msg.internal_dependent_columns_op
+
+        if len(msg.value_set.values) != 0:
+            value = {tuple(v) if hasattr(v, "values") else v for v in msg.value_set}
+
+        elif msg.value:
+            value = msg.value
+
+        elif msg.reference_columns:
+            ref_cols = list(msg.reference_columns)
+            if ref_cols == ["all"]:
+                ref_cols = "all"
+        else:
+            raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
+        value
+        return MultiColumnValueConstraint(
+            dependent_cols, msg.op, value=value, reference_columns=ref_cols, name=msg.name, internal_dependent_cols_op=internal_op, verbose=msg.verbose
+        )
+
+    def to_protobuf(self) -> MultiColumnValueConstraintMsg:
+        value = None
+        set_vals_message = None
+        ref_cols = None
+        dependent_single_col = None
+        dependent_multiple_cols = None
+        internal_op = None
+
+        if isinstance(self.dependent_columns, str):
+            dependent_single_col = self.dependent_columns
+        else:
+            dependent_multiple_cols = ListValue()
+            dependent_multiple_cols.extend(self.dependent_columns)
+
+        if hasattr(self, "value"):
+            if isinstance(self.value, (set, list, np.ndarray, pd.Series)):
+                set_vals_message = ListValue()
+                for val in self.value:
+                    if isinstance(val, (set, list, tuple)):
+                        internal_list_value = ListValue()
+                        internal_list_value.extend(list(val))
+                        set_vals_message.append(internal_list_value)
+                    else:
+                        set_vals_message.append(val)
+            else:
+                value = self.value
+        else:
+            ref_cols = ListValue()
+            if isinstance(self.reference_columns, str):
+                ref_cols.append(self.reference_columns)
+            else:
+                ref_cols.extend(self.reference_columns)
+
+        if hasattr(self, "internal_op"):
+            internal_op = self.internal_op
+
+        return MultiColumnValueConstraintMsg(
+            dependent_columns=dependent_multiple_cols,
+            dependent_column=dependent_single_col,
+            name=self.name,
+            op=self.op,
+            value=value,
+            value_set=set_vals_message,
+            reference_columns=ref_cols,
+            internal_dependent_columns_op=internal_op,
+            verbose=self._verbose,
+        )
+
+
+class MultiColumnValueConstraints(ValueConstraints):
+    def __init__(self, constraints: Mapping[str, MultiColumnValueConstraint] = None):
+        super().__init__(constraints=constraints)
+
+    @staticmethod
+    def from_protobuf(msg: ValueConstraintMsgs) -> "MultiColumnValueConstraints":
+        value_constraints = [MultiColumnValueConstraint.from_protobuf(c) for c in msg.constraints]
+        if len(value_constraints) > 0:
+            return MultiColumnValueConstraints({v.name: v for v in value_constraints})
+        return None
+
+
 class DatasetConstraints:
     def __init__(
         self,
@@ -962,6 +1192,7 @@ class DatasetConstraints:
         value_constraints: Optional[ValueConstraints] = None,
         summary_constraints: Optional[SummaryConstraints] = None,
         table_shape_constraints: Optional[SummaryConstraints] = None,
+        multi_column_value_constraints: Optional[MultiColumnValueConstraints] = None,
     ):
         self.dataset_properties = props
         # repackage lists of constraints if necessary
@@ -971,6 +1202,7 @@ class DatasetConstraints:
             if isinstance(v, list):
                 value_constraints[k] = ValueConstraints(v)
         self.value_constraint_map = value_constraints
+
         if summary_constraints is None:
             summary_constraints = dict()
         for k, v in summary_constraints.items():
@@ -985,6 +1217,14 @@ class DatasetConstraints:
 
         self.table_shape_constraints = table_shape_constraints
 
+        if multi_column_value_constraints is None:
+            multi_column_value_constraints = list()
+        for i, v in enumerate(multi_column_value_constraints):
+            if isinstance(v, list):
+                multi_column_value_constraints[i] = MultiColumnValueConstraints(v)
+
+        self.multi_column_value_constraints = multi_column_value_constraints
+
     def __getitem__(self, key):
         if key in self.value_constraint_map:
             return self.value_constraint_map[key]
@@ -995,7 +1235,8 @@ class DatasetConstraints:
         vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
         sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
         table_shape_m = SummaryConstraints.from_protobuf(msg.table_shape_constraints)
-        return DatasetConstraints(msg.properties, vm, sm, table_shape_m)
+        multi_column_value_m = dict([(k, MultiColumnValueConstraints.from_protobuf(v)) for k, v in msg.multi_column_value_constraints.items()])
+        return DatasetConstraints(msg.properties, vm, sm, table_shape_m, multi_column_value_m)
 
     @staticmethod
     def from_json(data: str) -> "DatasetConstraints":
@@ -1008,11 +1249,13 @@ class DatasetConstraints:
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
         sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
         table_shape_constraints_message = self.table_shape_constraints.to_protobuf()
+        multi_column_value_m = [v.to_protobuf() for v in self.multi_column_value_constraints]
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,
             summary_constraints=sm,
             table_shape_constraints=table_shape_constraints_message,
+            multi_column_value_constraints=multi_column_value_m,
         )
 
     def to_json(self) -> str:
@@ -1022,7 +1265,8 @@ class DatasetConstraints:
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
         l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
-        return l1 + l2 + l3
+        l4 = [mc.report() for mc in self.multi_column_value_constraints]
+        return l1 + l2 + l3 + l4
 
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
@@ -1437,3 +1681,106 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
     ref_dist = ReferenceDistributionDiscreteMessage(frequent_items=frequent_items_sketch.to_summary(), total_count=frequency_sum)
 
     return SummaryConstraint("chi_squared_test", op=Op.GT, reference_set=ref_dist, value=p_value, verbose=verbose)
+
+
+def columnValuesAGreaterThanBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.GT, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesAGreaterThanEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.GE, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesALessThanBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.LT, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesALessThanEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.LE, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesAEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.EQ, reference_columns=column_B, verbose=verbose)
+
+
+def columnValuesANotEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+    if not all([isinstance(col, str)] for col in (column_A, column_B)):
+        raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
+
+    return MultiColumnValueConstraint(column_A, op=Op.NE, reference_columns=column_B, verbose=verbose)
+
+
+def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], Set[str], np.array], value: Union[float, int, str], verbose: bool = False):
+    """
+
+    Parameters
+    ----------
+    columns : List[str]
+        List of columns for which the sum of row values should equal some value
+    value : Union[float, int, str]
+        Numeric value to compare with the sum of the column row values,
+        or a string indicating a column name for which the row value will be compared with the sum
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint
+    """
+
+    if not isinstance(columns, (list, set, np.array)) or not all(isinstance(col, str) for col in columns):
+        raise TypeError(
+            "The column list should be an array-like data type of only string values, indicating the column names, for which the values are going to be summed"
+        )
+
+    if not isinstance(value, (float, int, str)):
+        raise TypeError(
+            "The value should be a numeric value equal to the expected sum,"
+            " or a string indicating the column name for which the row value will be taken as the reference sum value"
+        )
+
+    reference_cols = None
+    if isinstance(value, str):
+        reference_cols = [value]
+        value = None
+
+    return MultiColumnValueConstraint(
+        dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op=Op.SUM, verbose=verbose
+    )
+
+
+def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set[Tuple[Any, Any]], verbose: bool = False):
+    if not all([isinstance(col, str) for col in (column_A, column_B)]):
+        raise TypeError("The provided column_A and column_B should be of type str, indicating the name of the columns to be compared")
+    if isinstance(value_set, str):
+        raise TypeError("The value_set should be an array-like data type of tuple values")
+
+    try:
+        value_set = set(value_set)
+    except Exception:
+        raise TypeError("The value_set should be an array-like data type of tuple values")
+
+    return MultiColumnValueConstraint(dependent_columns=[column_A, column_B], op=Op.IN, value=value_set, verbose=verbose)
+
+
+def columnValuesUniqueWithinRow(column_A: str, verbose: bool = False):
+    if not isinstance(column_A, str):
+        raise TypeError("The provided column_A should be of type str, indicating the name of the column to be checked")
+
+    return MultiColumnValueConstraint(dependent_columns=column_A, op=Op.NOT_IN, reference_columns="all", verbose=verbose)
