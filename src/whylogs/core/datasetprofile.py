@@ -165,7 +165,8 @@ class DatasetProfile:
 
     @property
     def total_row_number(self):
-        return max([col_prof.counters.count for col_prof in self.columns.values()])
+        column_counts = [col_prof.counters.count for col_prof in self.columns.values()] if len(self.columns) else [0]
+        return max(column_counts)
 
     def add_output_field(self, field: Union[str, List[str]]):
         if self.model_profile is None:
