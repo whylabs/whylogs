@@ -123,8 +123,6 @@ class DatasetProfile:
 
         self.model_profile = model_profile
 
-        self.column_row_dict = dict()
-
         # Store Name attribute
         self._tags["name"] = name
 
@@ -167,8 +165,8 @@ class DatasetProfile:
 
     @property
     def total_row_number(self):
-        dict_counts = self.column_row_dict.values() if len(self.column_row_dict) else [0]
-        return max(dict_counts)
+        column_counts = [col_prof.counters.count for col_prof in self.columns.values()] if len(self.columns) else [0]
+        return max(column_counts)
 
     def add_output_field(self, field: Union[str, List[str]]):
         if self.model_profile is None:
@@ -264,11 +262,6 @@ class DatasetProfile:
             constraints = None if self.constraints is None else self.constraints[column_name]
             prof = ColumnProfile(column_name, constraints=constraints)
             self.columns[column_name] = prof
-
-            self.column_row_dict[column_name] = 0
-
-        # updating the map for every column name with increasing the number of tracked values
-        self.column_row_dict[column_name] += 1
 
         prof.track(data, character_list=None, token_method=None)
 
