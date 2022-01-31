@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Profile Viewer | whylogs</title>
+
+    <link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <style type="text/css">
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media screen and (min-width: 1000px) {
+        .desktop-content {
+          display: block;
+        } 
+        .no-responsive {
+          display: none;
+        }
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #0E7384;
+      }
+
+      .statistic-measurement {
+        font-size: 15px;
+        padding-left: 5px;
+      }
+
+      .feature-summary-statistics-wrap {
+        padding: 20px;
+      }
+
+      .notification {
+        border: 1px solid #CED4DA;
+        border-radius: 4px;
+        height: 42px;
+        width: 42px;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: var(--brandSecondary100);
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        font-size: 10px;
+        color: #fff;
+        background-color: #ECB100;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+     @media screen and (min-width: 500px) {
+       .desktop-content {
+         display: block;
+       } 
+       .no-responsive {
+         display: none;
+       }
+     }
+
+
+    </style>
+  </head>
+
+  <body id="generated-html"></body>
+
+  <script id="entry-template" type="text/x-handlebars-template">
+    {{{{raw}}}}
+      <div class="desktop-content">
+        <div class="feature-summary-statistics-wrap">
+          <div class="feature-summary-statistics">
+              <div class="mb-4">
+                  <strong class="header-title">Profile Summary: {{getProfileName this}}_{{getProfileTimeStamp this}}</strong>
+              </div>
+              <div class="display-flex statistics">
+                  <div class="padding-right-30">
+                    <div class="statistic-number-title">Observations</div>
+                    <div class="statistic-number">{{observations}}</div>
+                  </div>
+                  <div class="padding-right-30">
+                    <div class="statistic-number-title">Missing Cells</div>
+                    <div class="statistic-number">
+                      {{missingCells}} 
+                      <div class="statistic-measurement">(8.1%)</div>
+                    </div>
+                  </div>
+                  <div class="padding-right-30">
+                    <div class="statistic-number-title">Duplicate Rows</div>
+                    <div class="statistic-number">
+                      {{duplicateRows}} 
+                      <div class="statistic-measurement">(0%)</div>
+                    </div>
+                  </div>
+                  <div class="padding-right-30">
+                    <div class="statistic-number-title">Total Size</div>
+                    <div class="statistic-number">{{totalSize}} 
+                      <div class="statistic-measurement">KiB</div>
+                    </div>
+                  </div>
+                  <div class="padding-right-30">
+                    <div class="statistic-number-title">Average record size</div>
+                    <div class="statistic-number">{{averageRecordSize}}
+                      <div class="statistic-measurement">B</div>
+                    </div>
+                  </div>
+                  <div class="notification display-flex justify-content-center align-items-center">
+                    <div class="notification-wrap">
+                      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAVCAYAAACkCdXRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFMSURBVHgBrZM9TsMwFMffc+0uZOgN8BGCBBVjOAGIAcTUDBUSG5yAcgKyVSpDwlSJCpEbsJeBHiFHYM6XsUMGSmJbSfktieKXn//+eAgW3DAc0dTx8zKPNzdXiamWgAWW7Z0Rgo+Msk9bLbGlEkBO1TsCjA7nK89UjzoJy50AASeNQQEJkOJuPb2MrTI3XPJhwd7lTxyMMYi/np4///7UWCbL6cwqUgFFGbjzJdfKVKrWpbUFk3vIBoNbrYxlAw86gPXhtMpQIIduNq6V7Qr5M5MLHVHXSCPDfegIzR23IVMnqR7QEbnPk4asul89QAT/aPFShag6YPz0ei+v4Qz6IlssLbKTOtkOop9IfEioT2vZg7R70Bv8IiWN4D9B0+B4sYrlDm+1jGzwg4/ri01bvbEDCEKwNbPASCeyJlMch2+8THNfoEikKDLVfgNXsl3ZERyi7AAAAABJRU5ErkJggg=="/>
+                    </div>
+                    <div class="notif-circle-container">
+                      <div class="notif-circle display-flex justify-content-center align-items-center">32</div>
+                    </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="no-responsive">
+        <div class="no-responsive__content">
+          <h1 class="no-responsive__title">Hold on! :)</h1>
+          <p class="no-responsive__text">
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          </p>
+        </div>
+      </div>
+    {{{{/raw}}}}
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
+        return format(date);
+      }
+
+      function numberWithCommas(number) {
+        let parts = number.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,".");
+        return parts.join(",");
+      }
+
+      const randomNumbers = (range) => Math.floor(Math.random() * range)
+      
+      Handlebars.registerHelper("observations", function () {
+        return numberWithCommas(randomNumbers(900000000));
+      });
+      
+      Handlebars.registerHelper("missingCells", function () {
+        return numberWithCommas(randomNumbers(900000000));
+      });
+      
+      Handlebars.registerHelper("duplicateRows", function () {
+        return numberWithCommas(randomNumbers(900000000));
+      });
+      
+      Handlebars.registerHelper("totalSize", function () {
+        return randomNumbers(900);
+      });
+
+      Handlebars.registerHelper("averageRecordSize", function () {
+        return randomNumbers(900);
+      });
+
+      Handlebars.registerHelper("getProfileTimeStamp", function (properties) {
+        return formatLabelDate(+properties.properties.dataTimestamp)
+      });
+
+
+      Handlebars.registerHelper("getProfileName", function (properties) {
+        console.log(properties);
+        return properties.properties.tags.name
+      });
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const targetedProfile = () => { return {{{profile_from_whylogs}}} }
+      const profileFromCSVfile = () => { return {{{reference_profile}}} }
+      console.log(profileFromCSVfile, typeof profileFromCSVfile);
+      const context =  profileFromCSVfile() ? profileFromCSVfile() : targetedProfile();
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById("entry-template").innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById("generated-html");
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      // Target HTML elements
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  </script>
+</html>
