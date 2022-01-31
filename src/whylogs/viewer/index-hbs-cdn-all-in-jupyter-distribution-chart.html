@@ -24,9 +24,6 @@
     ></script>
 
     <style type="text/css">
-      body {
-        overflow: hidden;
-      }
 
       :root {
         /** Branded colors */
@@ -60,6 +57,11 @@
         justify-content: center;
       }
 
+      .desktop-content {
+        display: flex;
+        flex-direction: column;
+      }
+
       .no-responsive__content {
         max-width: 600px;
         width: 100%;
@@ -85,16 +87,44 @@
         display: inline-block;
         position: relative;
         width: 100%;
-        padding-bottom: 100%;
         vertical-align: top;
         overflow: hidden;
       }
-      
+
       .svg-content-responsive {
         display: inline-block;
         position: absolute;
         left: 0;
       }
+
+      .circle-color {
+       display: inline-block;
+       padding: 5px;
+       border-radius: 50px;
+     }
+
+     .colors-for-distingushing-charts {
+       padding-right: 10px;
+     }
+
+     .display-flex{
+       display: flex;
+     }
+
+
+     .chart-box-title {
+       width: 98%;
+       justify-content: space-between;
+     }
+
+     .chart-box-title p{
+       font-family: Asap;
+       font-weight: bold;
+       font-size: 18px;
+       line-height: 16px;
+       color: #4F595B;
+     }
+
 
      @media screen and (min-width: 500px) {
        .desktop-content {
@@ -112,9 +142,23 @@
   <script id="entry-template" type="text/x-handlebars-template">
     {{{{raw}}}}
       <div class="desktop-content">
-        <div class="svg-container">
-          {{{getDoubleHistogramChart this}}}
-        </div>
+        {{#each this}}
+              <div class="chart-box" id="chart-box">
+                <div class="chart-box-title display-flex">        
+                  <p>{{@key}}</p>
+                  <div class="display-flex">
+                    <div class="colors-for-distingushing-charts">
+                      <div class="circle-color" style="background: #369BAC"></div>
+                      <text alignment-baseline="middle" style="font-size: 15px;">Current</text>
+                    </div>
+                    <div class="colors-for-distingushing-charts">
+                      <div class="circle-color" style="background: #2683C9"></div>
+                      <text alignment-baseline="middle" style="font-size: 15px;">Reference</text>
+                    </div>
+                  </div></div>
+                <div class="svg-container">{{{getDoubleHistogramChart this}}}</div>
+              </div>
+        {{/each}}
       </div>
       <div class="no-responsive">
         <div class="no-responsive__content">
@@ -155,7 +199,7 @@
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
           this.svgEl = d3.create("svg")
              .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `40 0 ${$(window).width()} ${$(window).height()}`)
+             .attr("viewBox", `40 0 ${$(window).width()} ${$(window).height()-32}`)
              .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
@@ -208,7 +252,7 @@
         
         let yFormat,
             xFormat;
-        const sizes = new GenerateChartParams($(window).height(), $(window).width(), histogramData)
+        const sizes = new GenerateChartParams($(window).height()-32, $(window).width(), histogramData)
         const {
           MARGIN,
           SVG_WIDTH,
@@ -281,17 +325,21 @@
       }
 
       const profileFromCSVfile = {{{reference_profile}}} 
+
       Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => {
+        const columnKey = key.data.key
         if (profileFromCSVfile) {
-          return  generateDoubleHistogramChart (
+        return  generateDoubleHistogramChart (
             column, 
-            profileFromCSVfile
+            profileFromCSVfile[columnKey]
           )
         }
       });
     }
 
-
+    function initWebsiteScripts() {
+      $(".svg-container").css("height", $(window).height() - 32)
+    }
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
@@ -299,7 +347,7 @@
       // Config handlebars and pass data to HBS template
       const source = document.getElementById("entry-template").innerHTML;
       const template = Handlebars.compile(source);
-      const html = template(context);
+      const html = template(context.columns);
       const target = document.getElementById("generated-html");
       target.innerHTML = html;
     }
@@ -307,5 +355,6 @@
     // Invoke functions -- keep in mind invokation order
     registerHandlebarHelperFunctions();
     initHandlebarsTemplate();
+    initWebsiteScripts();
   </script>
 </html>
