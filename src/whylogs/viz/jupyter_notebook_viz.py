@@ -46,8 +46,10 @@ class DisplayProfile:
 
     def __iframe_output_sizing(self, html_frame_sizing):
         # add all required heights and widths for individual HTMLs to be displayed in notebook
-        sizes = {'index-hbs-cdn-all-in-for-jupyter-notebook.html': 'width=960px height=1000px',
-                 'index-hbs-cdn-all-in-jupyter-distribution-chart.html': 'width=960px height=277px'
+        sizes = {'index-hbs-cdn-all-in-for-jupyter-notebook.html': 'width=100% height=1000px',
+                 'index-hbs-cdn-all-in-jupyter-distribution-chart.html': 'width=100% height=277px',
+                 'index-hbs-cdn-all-in-jupyter-full-summary-statistics.html': 'width=100% height=250px',
+                 'index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html': 'width=100% height=650px',
                  }
         return str(sizes.get(html_frame_sizing))
 
@@ -110,7 +112,7 @@ class DisplayProfile:
             saved_html.write(html.data)
         saved_html.close()
 
-    def feature(self, name):
+    def feature(self, names):
         index_path = os.path.abspath(os.path.join(
             _MY_DIR, os.pardir, "viewer",
             "index-hbs-cdn-all-in-jupyter-distribution-chart.html")
@@ -124,13 +126,79 @@ class DisplayProfile:
         if self.reference_profiles:
             profile_feature = json.loads(self.profile_jsons[0])
             reference_profile_feature = json.loads(self.reference_profile_jsons[0])
+            profile_from_whylogs = {}
+            reference_profile = {}
+            for name in names:
+                profile_from_whylogs[name] = profile_feature.get('columns').get(name)
+                reference_profile[name] = reference_profile_feature.get('columns').get(name)
             output_index = template(
-                {"profile_from_whylogs": json.dumps(profile_feature.get('columns').get(name)),
-                 "reference_profile": json.dumps(reference_profile_feature.get('columns').get(name))}
+                {"profile_from_whylogs": json.dumps(profile_from_whylogs),
+                 "reference_profile": json.dumps(reference_profile)}
             )
             return self.__display_html(output_index, html_frame_sizing)
         else:
             logger.warning(
                 "This method has to get both target and reference profiles, with valid feature title"
+            )
+            return None
+
+    def summary_statistics(self, profile):
+        index_path = os.path.abspath(os.path.join(
+            _MY_DIR, os.pardir, "viewer",
+            "index-hbs-cdn-all-in-jupyter-full-summary-statistics.html")
+        )
+        html_frame_sizing = self.__iframe_output_sizing(
+            "index-hbs-cdn-all-in-jupyter-full-summary-statistics.html")
+        template = self.__html_template_data(index_path)
+        if self.reference_profiles and profile == 'Reference':
+            output_index = template(
+                {"reference_profile": self.reference_profile_jsons[0]}
+            )
+        elif profile == 'Target':
+            output_index = template(
+                {"profile_from_whylogs": self.profile_jsons[0]}
+            )
+        else:
+            logger.warning(
+                "Please select from available options, 'Target' or 'Reference'"
+            )
+        return self.__display_html(output_index, html_frame_sizing)
+
+    def feature_summary_statistics(self, feature_name, profile):
+        index_path = os.path.abspath(os.path.join(
+            _MY_DIR, os.pardir, "viewer",
+            "index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html")
+        )
+
+        html_frame_sizing = self.__iframe_output_sizing(
+            "index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html"
+        )
+        template = self.__html_template_data(index_path)
+        # replace handlebars for json profiles
+        if self.reference_profiles and profile == 'Reference':
+            reference_profile_feature = json.loads(self.reference_profile_jsons[0])
+            reference_profile = {}
+            reference_profile['properties'] = reference_profile_feature.get('properties')
+            reference_profile[feature_name] = reference_profile_feature.get(
+                'columns').get(feature_name)
+
+            output_index = template(
+                {"reference_profile": json.dumps(reference_profile)}
+            )
+            return self.__display_html(output_index, html_frame_sizing)
+        elif self.profiles and profile == 'Target':
+            profile_feature = json.loads(self.profile_jsons[0])
+            profile_from_whylogs = {}
+            profile_from_whylogs['properties'] = profile_feature.get('properties')
+            profile_from_whylogs[feature_name] = profile_feature.get(
+                'columns').get(feature_name)
+
+            output_index = template(
+                {"profile_from_whylogs": json.dumps(profile_from_whylogs)}
+            )
+            return self.__display_html(output_index, html_frame_sizing)
+        else:
+            logger.warning(
+                "Make sure you have profile logged in and pass a valid feature name"
             )
             return None
