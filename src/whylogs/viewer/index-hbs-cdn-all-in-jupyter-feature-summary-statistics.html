@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Profile Viewer | whylogs</title>
+
+    <link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <style type="text/css">
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media screen and (min-width: 1000px) {
+        .desktop-content {
+          display: block;
+        } 
+        .no-responsive {
+          display: none;
+        }
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .statistics-header-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #4F595B;
+      }
+
+      .full-summary-statistics-wrap {
+        padding: 20px;
+      }
+
+      .statistics {
+        width: 100%;
+      }
+
+      .statistics-list {
+        width: 49% ;
+      }
+
+      .statistic-item:nth-child(1) > .statistic-number-title, .statistic-item:nth-child(1) > .statistic-number {
+        color: #E4593A;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: var(--brandSecondary100);
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        height: 16px;
+        width: 16px;
+        border-radius: 50%;
+        font-size: 10px;
+        color: #fff;
+        background-color: #ECB100;
+      }
+
+      .border-solid-gray {
+        border: 1px solid #CED4DA;
+        border-radius: 4px;
+        padding: 10px;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+     @media screen and (min-width: 500px) {
+       .desktop-content {
+         display: block;
+       } 
+       .no-responsive {
+         display: none;
+       }
+     }
+
+
+    </style>
+  </head>
+
+  <body id="generated-html"></body>
+
+  <script id="entry-template" type="text/x-handlebars-template">
+    {{{{raw}}}}
+      <div class="desktop-content">
+        <div class="full-summary-statistics-wrap">
+          <div class="full-summary-statistics">
+              <div class="mb-4">
+                  <strong class="header-title">{{featureName this}}: Summary Statistics {{getProfileName this}}_{{getProfileTimeStamp this}}</strong>
+              </div>
+              <div class="statistics-wrap border-solid-gray display-flex justify-content-center mb-5">
+                <div class="statistics display-flex justify-content-space-between">
+                    <div class="statistic-item padding-right-30">
+                      <div class="statistic-number-title">Distinct (%)</div>
+                      <div class="statistic-number">{{distinct}}</div>
+                    </div>
+                    <div class="statistic-item padding-right-30">
+                      <div class="statistic-number-title">Missing</div>
+                      <div class="statistic-number">{{missing}}</div>
+                    </div>
+                    <div class="statistic-item padding-right-30">
+                      <div class="statistic-number-title">Infinite</div>
+                      <div class="statistic-number">{{infinite}}</div>
+                    </div>
+                    <div class="statistic-item padding-right-30">
+                      <div class="statistic-number-title">Mean</div>
+                      <div class="statistic-number">{{mean this}}</div>
+                    </div>
+                    <div class="statistic-item padding-right-30">
+                      <div class="statistic-number-title">Minimum</div>
+                      <div class="statistic-number">{{minimum this}}</div>
+                    </div>
+                    <div class="statistic-item padding-right-30">
+                      <div class="statistic-number-title">Maximum</div>
+                      <div class="statistic-number">{{maximum this}}</div>
+                    </div>
+                    <div class="statistic-item padding-right-30">
+                      <div class="statistic-number-title">Zeros</div>
+                      <div class="statistic-number">{{zeros}}</div>
+                    </div>
+                    <div class="statistic-item padding-right-30">
+                      <div class="statistic-number-title">Negative</div>
+                      <div class="statistic-number">{{negative}}</div>
+                    </div>
+                    <div class="statistic-item padding-right-30">
+                      <div class="statistic-number-title">Memory size</div>
+                      <div class="statistic-number">{{memorySize}}</div>
+                    </div>
+                </div>
+              </div>
+              <div>
+                <div class="display-flex justify-content-space-between">
+                  <div class="statistics-list border-solid-gray">
+                    <div>
+                      <div class="mb-3">
+                        <strong class="statistics-header-title">Quantile statistics</strong>
+                      </div>
+                      <div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Minimum</div>
+                          <div>{{minimum this}}</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>5-th percentile</div>
+                          <div>45.5</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Q1</div>
+                          <div>223.5</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>median</div>
+                          <div>{{median this}}</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Q3</div>
+                          <div>668.5</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>95-th percentile</div>
+                          <div>846.5</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Maximum</div>
+                          <div>{{maximum this}}</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Range</div>
+                          <div>890</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Interquartile range (IQR)</div>
+                          <div>445</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="statistics-list border-solid-gray">
+                    <div>
+                      <div class="mb-3">
+                        <strong class="statistics-header-title">Descriptive statistics</strong>
+                      </div>
+                      <div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Standard deviation</div>
+                          <div>247.353842</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Coefficient of variation (CV)</div>
+                          <div>0.5770265516</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Kurtosis</div>
+                          <div>-1.2</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Mean</div>
+                          <div>446</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Median Absolute Deviation (MAD)</div>
+                          <div>223</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Skewness</div>
+                          <div>0</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Sum</div>
+                          <div>397386</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Variance</div>
+                          <div>66231</div>
+                        </div>
+                        <div class="display-flex justify-content-space-between mb-2">
+                          <div>Monotonicity</div>
+                          <div>Strictly increasing</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="no-responsive">
+        <div class="no-responsive__content">
+          <h1 class="no-responsive__title">Hold on! :)</h1>
+          <p class="no-responsive__text">
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          </p>
+        </div>
+      </div>
+    {{{{/raw}}}}
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
+        return format(date);
+      }
+
+      function fixNumberTo(number, decimals = 3) {
+        return parseFloat(number).toFixed(decimals);
+      }
+
+      const randomNumbers = (range) => Math.floor(Math.random() * range)
+      
+      Handlebars.registerHelper("distinct", function () {
+        return randomNumbers(50);
+      });
+      
+      Handlebars.registerHelper("missing", function () {
+        return randomNumbers(50);
+      });
+      
+      Handlebars.registerHelper("infinite", function () {
+        return randomNumbers(50);
+      });
+      
+      Handlebars.registerHelper("mean", function (column) {
+        const feture = Object.values(column)[1]
+        if (feture.numberSummary) {
+          return fixNumberTo(feture.numberSummary.mean);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("median", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(feture.numberSummary.quantiles.quantileValues[4]);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("minimum", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(feture.numberSummary.quantiles.quantileValues[0]);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("maximum", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(feture.numberSummary.quantiles.quantileValues[8]);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("q1", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(feture.numberSummary.quantiles.quantileValues[8]);
+        }
+        return "-";
+      });
+      
+      Handlebars.registerHelper("zeros", function () {
+        return randomNumbers(50);
+      });
+
+      Handlebars.registerHelper("negative", function () {
+        return randomNumbers(50);
+      });
+
+      Handlebars.registerHelper("memorySize", function () {
+        return randomNumbers(50);
+      });
+
+      Handlebars.registerHelper("getProfileTimeStamp", function (column) {
+        return formatLabelDate(+column.properties.dataTimestamp)
+      });
+
+      Handlebars.registerHelper("getProfileName", function (column) {
+        return column.properties.tags.name
+      });
+
+      Handlebars.registerHelper("featureName", function (column) {
+        const fetureName = Object.keys(column)[1]
+        return fetureName
+      });
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const targetedProfile = () => { return {{{profile_from_whylogs}}} }
+      const profileFromCSVfile = () => { return {{{reference_profile}}} }
+      const context =  profileFromCSVfile() ? profileFromCSVfile() : targetedProfile();
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById("entry-template").innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById("generated-html");
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      // Target HTML elements
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  </script>
+</html>
