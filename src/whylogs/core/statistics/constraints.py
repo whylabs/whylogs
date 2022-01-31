@@ -1272,7 +1272,7 @@ class MultiColumnValueConstraints(ValueConstraints):
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsgs) -> "MultiColumnValueConstraints":
-        value_constraints = [MultiColumnValueConstraint.from_protobuf(c) for c in msg.constraints]
+        value_constraints = [MultiColumnValueConstraint.from_protobuf(c) for c in msg.multi_column_constraints]
         if len(value_constraints) > 0:
             return MultiColumnValueConstraints({v.name: v for v in value_constraints})
         return None
