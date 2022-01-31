@@ -99,6 +99,10 @@
       */
       .main {
         position: relative;
+        background: #FFFFFF;
+        border: 1px solid #DBE5E7;
+        box-sizing: border-box;
+        border-radius: 4px;
       }
       .main .page-header {
         margin-top: 0;
@@ -221,10 +225,11 @@
       /* Property side panel */
 
       .wl-compare-profile {
-        position: sticky;
+        position: relative;
         left: 0;
         padding: 18px;
-        background: #F8FAFB;
+        background: var(--white);;
+        border-bottom: 1px solid var(--brandSecondary200);
       }
 
       /* Screen on smaller screens */
@@ -388,9 +393,12 @@
      .drift-detection-search-input {
        display: flex;
        align-items: center;
+       background: rgba(255, 255, 255, 0.7);
        border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 240px;
        padding-left: 10px;
-       background: #FFF;
      }
 
      .drift-detection-search-input img{
@@ -400,11 +408,55 @@
      .drift-detection-search-input input::placeholder { 
        font-family: Arial;
        font-weight: normal;
-       font-size: 17px;
+       font-size: 13px;
        line-height: 16px;
-       color: #9FA9AB;
-       padding-left: 10px;
+       color: #313B3D;
      }
+
+     .close-filter-button {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #369BAC;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 40px;
+       height: 40px;
+       cursor: pointer;
+       margin-left: 10px;
+     }
+
+     .filter-options-title {
+       width: 240px;
+     }
+
+     .filter-options-title p {
+       margin: 0;
+     }
+
+     .dropdown-container {
+       position: absolute;
+       right: 18px;
+       z-index: 999;
+       background: #FFFFFF;
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+       border-radius: 4px;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 1.25em;
+     }
+
 
     .justify-content-center {
       justify-content: center;
@@ -492,11 +544,70 @@
                         </div>
                       </div>
                     </div>
-                    <div class="drift-detection-search-input-wrap">
+                    <div class="drift-detection-search-input-wrap display-flex">
                       <div class="drift-detection-search-input search-input">
-                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyLjUgMTFIMTEuNzFMMTEuNDMgMTAuNzNDMTIuNDEgOS41OSAxMyA4LjExIDEzIDYuNUMxMyAyLjkxIDEwLjA5IDAgNi41IDBDMi45MSAwIDAgMi45MSAwIDYuNUMwIDEwLjA5IDIuOTEgMTMgNi41IDEzQzguMTEgMTMgOS41OSAxMi40MSAxMC43MyAxMS40M0wxMSAxMS43MVYxMi41TDE2IDE3LjQ5TDE3LjQ5IDE2TDEyLjUgMTFaTTYuNSAxMUM0LjAxIDExIDIgOC45OSAyIDYuNUMyIDQuMDEgNC4wMSAyIDYuNSAyQzguOTkgMiAxMSA0LjAxIDExIDYuNUMxMSA4Ljk5IDguOTkgMTEgNi41IDExWiIgZmlsbD0iIzc3ODE4MyIvPgo8L3N2Zz4K"/>
-                        <input type="text" id="wl__feature-search" placeholder="Search"/>
+                        <input type="text" id="wl__feature-search" placeholder="Quick search..."/>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg=="/>
                       </div>
+                      <div onclick="openFilter()" class="close-filter-button">
+                        <div class="display-flex close-filter-icon">
+                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/> 
+                        </div>
+                        <div class="display-flex filter-icon d-none">
+                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="dropdown-container flex-direction-colum mb-2" id="dropdown-container">
+                  <div class="filter-options">
+                    <div class="filter-options-title space-between dropdown">
+                      <p>Filter by type</p>
+                    </div>
+                    <div class="form-check mb-1 mt-2">
+                      <input
+                        class="form-check-input wl__feature-filter-input"
+                        type="checkbox"
+                        name="checkbox"
+                        value="Discrete"
+                        id="inferredDiscrete"
+                        onclick="changeDiscreteValue()"
+                        checked
+                      />
+                      <label class="form-check-label" for="inferredDiscrete">
+                        Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                      </label>
+                    </div>
+                    <div class="form-check mb-1">
+                      <input
+                        class="form-check-input wl__feature-filter-input"
+                        type="checkbox"
+                        name="checkbox"
+                        value="Non-discrete"
+                        id="inferredNonDiscrete"
+                        onclick="changeNonDiscreteValue()"
+                        checked
+                      />
+                      <label class="form-check-label" for="inferredNonDiscrete">
+                        Inferred non-discrete (<span
+                          class="wl__feature-count--non-discrete"
+                        >{{getNonDiscreteTypeCount}}</span>)
+                      </label>
+                    </div>
+                    <div class="form-check mb-1">
+                      <input
+                        class="form-check-input wl__feature-filter-input"
+                        type="checkbox"
+                        name="checkbox"
+                        value="Unknown"
+                        id="inferredUnknown"
+                        onclick="changeUnknwonValue()"
+                        checked
+                      />
+                      <label class="form-check-label" for="inferredUnknown">
+                        Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -796,9 +907,14 @@
       target.innerHTML = html;
     }
 
+
+
     function initWebsiteScripts() {
       const $featureSearch = document.getElementById("wl__feature-search");
       const $tableBody = document.getElementById("table-body");
+      const $discrete = document.getElementById("inferredDiscrete");
+      const $nonDiscrete = document.getElementById("inferredNonDiscrete");
+      const $unknown = document.getElementById("inferredUnknown");
 
       const activeTypes = {
         discrete: true,
@@ -807,6 +923,8 @@
       };
 
       const getReferenceProfile = () => { return {{{reference_profile}}} }
+
+      let searchString = "";
 
       function debounce(func, wait, immediate) {
         let timeout;
@@ -825,6 +943,17 @@
           if (callNow) func.apply(context, args);
         };
       }
+
+      function filterNotification() {
+      const $notifCircleContainer = $(".notif-circle-container")
+      const $boxes = $('.wl_filter-options>.form-check>input[name=checkbox]:checked');
+      const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+      if (item === undefined) {
+        $notifCircleContainer.removeClass("d-none")
+      } else {
+        $notifCircleContainer.addClass("d-none")
+      }
+    }
 
       function handleSearch() {
         const tableBodyChildren = $tableBody.children;
@@ -849,6 +978,36 @@
         }, 100),
       );
 
+      $discrete.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["discrete"] = true;
+        } else {
+          activeTypes["discrete"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $nonDiscrete.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["non-discrete"] = true;
+        } else {
+          activeTypes["non-discrete"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $unknown.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["unknown"] = true;
+        } else {
+          activeTypes["unknown"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
       function checkCurrentProfile(item, referenceItem) {
         const refData = getReferenceProfile()
         if (refData && Object.values(refData)) {
@@ -868,6 +1027,20 @@
       }
     }
 
+    function openFilter() { 
+      const $filterOptions = $(".dropdown-container");
+      const filterClass = $filterOptions.attr("class");
+
+      if (filterClass.indexOf("d-none") > 0) {
+        $filterOptions.removeClass("d-none");
+        $(".filter-icon").addClass("d-none")
+        $(".close-filter-icon").removeClass("d-none")
+      } else {
+        $filterOptions.addClass("d-none");
+        $(".close-filter-icon").addClass("d-none")
+        $(".filter-icon").removeClass("d-none")
+      }
+    }
 
     // Invoke functions -- keep in mind invokation order
     registerHandlebarHelperFunctions();
