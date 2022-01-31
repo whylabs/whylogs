@@ -914,9 +914,21 @@ def test_apply_func_value_constraints(local_config_path):
     )
 
 
+def test_apply_func_invalid_init():
+
+    with pytest.raises(ValueError):
+        apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=lambda x: x)
+
+    with pytest.raises(ValueError):
+        apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function="".startswith)
+
+    with pytest.raises(ValueError):
+        apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=any)
+
+
 def test_apply_func_merge():
     apply1 = dateUtilParseableConstraint()
-    apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=lambda x: x)
+    apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=_matches_json_schema)
 
     with pytest.raises(AssertionError):
         apply1.merge(apply2)
@@ -1578,10 +1590,12 @@ def test_dataset_constraints_serialization():
     value_constraints = dc.value_constraint_map
     summary_constraints = dc.summary_constraint_map
     table_shape_constraints = dc.table_shape_constraints
+    multi_column_value_constraints = dc.multi_column_value_constraints
 
     deser_v_c = dc_deser.value_constraint_map
     deser_s_c = dc_deser.summary_constraint_map
     deser_ts_c = dc_deser.table_shape_constraints
+    deser_mcv_c = dc_deser.multi_column_value_constraints
 
     for (column, constraints), (deser_column, deser_constraints) in zip(value_constraints.items(), deser_v_c.items()):
         assert column == deser_column
@@ -1635,6 +1649,28 @@ def test_dataset_constraints_serialization():
                 v = v.sort() if isinstance(v, list) else v
                 v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
             assert v == v_deser
+
+    for (mcvc, deser_mcvc) in zip(multi_column_value_constraints, deser_mcv_c):
+        all_constraints = dict()
+        all_constraints.update(mcvc.raw_value_constraints)
+        all_constraints.update(mcvc.coerced_type_constraints)
+
+        all_constraints_deser = dict()
+        all_constraints_deser.update(deser_mcvc.raw_value_constraints)
+        all_constraints_deser.update(deser_mcvc.coerced_type_constraints)
+
+        for (name, c), (deser_name, deser_c) in zip(all_constraints.items(), all_constraints_deser.items()):
+            assert name == deser_name
+
+            a = json.loads(message_to_json(c.to_protobuf()))
+            b = json.loads(message_to_json(deser_c.to_protobuf()))
+
+            for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+                assert k == k_deser
+                if all([v, v_deser]):
+                    v = v.sort() if isinstance(v, list) else v
+                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
+                assert v == v_deser
 
     report = dc.report()
     report_deser = dc_deser.report()
@@ -1706,7 +1742,7 @@ def test_column_values_not_null_constraint_apply_pass(local_config_path, df_lend
 
     TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
 
-    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -1719,7 +1755,7 @@ def test_column_values_not_null_constraint_apply_fail(local_config_path):
 
     TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
 
-    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 1
 
@@ -1733,11 +1769,11 @@ def test_merge_column_values_not_null_constraint_different_values(local_config_p
     report1 = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints1)
     report2 = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints2)
 
-    assert report1[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report1[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0"
     assert report1[0][1][0][1] == 1
     assert report1[0][1][0][2] == 0
 
-    assert report2[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report2[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0"
     assert report2[0][1][0][1] == 1
     assert report2[0][1][0][2] == 0
 
@@ -1756,7 +1792,7 @@ def test_serialization_deserialization_column_values_not_null_constraint():
     nnc.from_protobuf(nnc.to_protobuf())
     json_value = json.loads(message_to_json(nnc.to_protobuf()))
 
-    assert json_value["name"] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert json_value["name"] == f"summary null_count {Op.Name(Op.EQ)} 0"
     assert json_value["firstField"] == "null_count"
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 0
@@ -1998,7 +2034,7 @@ def test_ks_test_p_value_greater_than_constraint_merge_same_values():
     TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
-    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.05/None"
+    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.05"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "ks_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.05
@@ -2013,7 +2049,7 @@ def test_serialization_deserialization_ks_test_p_value_greater_than_constraint()
 
     TEST_LOGGER.info(f"Serialize parametrizedKSTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
 
-    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.15/None"
+    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.15"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "ks_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -2117,7 +2153,7 @@ def test_column_kl_divergence_less_than_constraint_merge_same_values():
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
     print(json_value)
-    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.5/None"
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.5"
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["firstField"] == "kl_divergence"
     assert pytest.approx(json_value["value"], 0.01) == 0.5
@@ -2132,7 +2168,7 @@ def test_serialization_deserialization_column_kl_divergence_less_than_constraint
 
     TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
 
-    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15/None"
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15"
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["firstField"] == "kl_divergence"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -2148,7 +2184,7 @@ def test_serialization_deserialization_column_kl_divergence_less_than_constraint
 
     TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
 
-    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15/None"
+    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15"
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["firstField"] == "kl_divergence"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -2217,7 +2253,7 @@ def test_column_chi_squared_test_p_value_greater_than_constraint_merge_same_valu
     TEST_LOGGER.info(f"Serialize the merged columnChiSquaredTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
-    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.05/None"
+    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.05"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "chi_squared_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.05
@@ -2231,7 +2267,7 @@ def test_serialization_deserialization_chi_squared_test_p_value_greater_than_con
     json_value = json.loads(message_to_json(ks1.to_protobuf()))
 
     TEST_LOGGER.info(f"Serialize columnChiSquaredTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
-    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.15/None"
+    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.15"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "chi_squared_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -2339,7 +2375,7 @@ def test_generate_default_constraints_numeric(local_config_path):
     lower_followers = followers_mean - followers_stddev
     upper_followers = followers_mean + followers_stddev
 
-    assert followers_constraints[0]["name"] == "summary min GE 0/None"
+    assert followers_constraints[0]["name"] == "summary min GE 0"
     assert followers_constraints[1]["name"] == f"summary mean BTWN {lower_followers} and {upper_followers}"
     assert followers_constraints[2]["name"] == "summary column_values_type EQ INTEGRAL"
     assert followers_constraints[3]["name"] == "summary unique_count BTWN 7 and 9"  # we have 8 unique values in the df
@@ -2353,7 +2389,7 @@ def test_generate_default_constraints_numeric(local_config_path):
     lower_points = points_mean - points_stddev
     upper_points = points_mean + points_stddev
 
-    assert points_constraints[0]["name"] == "summary min GE 0/None"
+    assert points_constraints[0]["name"] == "summary min GE 0"
     assert points_constraints[1]["name"] == f"summary mean BTWN {lower_points} and {upper_points}"
     assert points_constraints[2]["name"] == "summary column_values_type EQ FRACTIONAL"
     assert "summary most_common_value IN" in points_constraints[3]["name"]
@@ -2390,7 +2426,7 @@ def test_generate_default_constraints_mixed(local_config_path):
     lower_followers = followers_mean - followers_stddev
     upper_followers = followers_mean + followers_stddev
 
-    assert followers_constraints[0]["name"] == "summary min GE 0/None"
+    assert followers_constraints[0]["name"] == "summary min GE 0"
     assert followers_constraints[1]["name"] == f"summary mean BTWN {lower_followers} and {upper_followers}"
     assert followers_constraints[2]["name"] == "summary column_values_type EQ INTEGRAL"
     assert followers_constraints[3]["name"] == "summary unique_count BTWN 3 and 5"  # we have 4 unique values in the df
@@ -2772,3 +2808,59 @@ def test_column_values_unique_within_row_constraint_invalid_params():
         columnValuesUniqueWithinRow(column_A=1)
     with pytest.raises(TypeError):
         columnValuesUniqueWithinRow(column_A=["A"])
+
+
+def test_display_name():
+    cvisc = columnValuesInSetConstraint(value_set={2, 5, 8})
+    ltc = ValueConstraint(Op.LT, 1)
+    json_parseable = jsonParseableConstraint()
+
+    json_schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "years": {"type": "integer"},
+        },
+        "required": ["name", "abc"],
+    }
+    matches_json_schema = matchesJsonSchemaConstraint(json_schema=json_schema)
+
+    min_gt_constraint = SummaryConstraint("min", Op.GT, value=100)
+    max_le_constraint = SummaryConstraint("max", Op.LE, value=5)
+
+    set1 = set(["col1", "col2"])
+    columns_match_constraint = columnsMatchSetConstraint(set1)
+
+    dc = DatasetConstraints(
+        None,
+        value_constraints={"annual_inc": [cvisc, ltc, json_parseable, matches_json_schema]},
+        summary_constraints={"annual_inc": [max_le_constraint, min_gt_constraint]},
+        table_shape_constraints=[columns_match_constraint],
+    )
+
+    value_constraints = dc.value_constraint_map
+    summary_constraints = dc.summary_constraint_map
+    dc.table_shape_constraints
+    dc.multi_column_value_constraints
+
+    vc_display_names = [
+        "Values of annual_inc are json parseable",
+        'Values of annual_inc match json schema {"type": "object", "properties": {"name": {"type": "string"}, "years": {"type": "integer"}}, "required": ["name", "abc"]}',
+        "Values of annual_inc are in {8, 2, 5}",
+        "Values of annual_inc are less than 1",
+    ]
+    for column, constraints in value_constraints.items():
+
+        all_constraints = dict()
+        all_constraints.update(constraints.raw_value_constraints)
+        all_constraints.update(constraints.coerced_type_constraints)
+
+        for (name, c), display_name in zip(all_constraints.items(), vc_display_names):
+            assert c.display_name(column) == display_name
+
+    sc_display_names = ["The max of annual_inc is less than or equal to 5", "The min of annual_inc is greater than 100"]
+    for column, constraints in summary_constraints.items():
+        for (name, c), display_name in zip(constraints.constraints.items(), sc_display_names):
+            assert c.display_name(column) == display_name
+
+    dc.display_report()

@@ -119,6 +119,14 @@ def _matches_json_schema(json_data: Union[str, dict], json_schema: Union[str, di
     return True
 
 
+_apply_funcs_names = {
+    "_try_parse_strftime_format": "are strftime parseable",
+    "_try_parse_dateutil": "are dateutil parseable",
+    "_try_parse_json": "are json parseable",
+    "_matches_json_schema": "match json schema",
+}
+
+
 # restrict the set length for printing the name of the constraint which contains a reference set
 MAX_SET_DISPLAY_MESSAGE_LENGTH = 20
 
@@ -141,6 +149,19 @@ _value_funcs = {
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
     Op.IN: lambda x: lambda v: v in x,
     Op.APPLY_FUNC: lambda apply_function, reference_value: lambda v: apply_function(v, reference_value),
+}
+
+_value_funcs_names = {
+    Op.LT: "are less than",
+    Op.LE: "are less than or equal to",
+    Op.EQ: "are equal to",
+    Op.NE: "are not equal to",
+    Op.GE: "are greater than or equal to",
+    Op.GT: "are greater than",
+    Op.MATCH: "match",
+    Op.NOMATCH: "do not match",
+    Op.IN: "are in",
+    Op.APPLY_FUNC: "",
 }
 
 _summary_funcs1 = {
@@ -171,6 +192,21 @@ _summary_funcs1 = {
     == 0.0,
     Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
     Op.CONTAIN: lambda f, v: lambda s: v in getattr(s, f),
+}
+
+_summary_funcs1_names = {
+    Op.LT: "is less than",
+    Op.LE: "is less than or equal to",
+    Op.EQ: "is equal to",
+    Op.NE: "is not equal to",
+    Op.GE: "is greater than or equal to",
+    Op.GT: "is greater than",
+    Op.BTWN: "is between",
+    Op.IN_SET: "is in set",
+    Op.CONTAIN_SET: "contains set",
+    Op.EQ_SET: "equals set",
+    Op.IN: "is in",
+    Op.CONTAIN: "contains",
 }
 
 _summary_funcs2 = {
@@ -232,13 +268,18 @@ class ValueConstraint:
         self.total = 0
         self.failures = 0
 
+        self._display_name_dict = None
+
         if (apply_function is not None) != (self.op == Op.APPLY_FUNC):
-            raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator")
+            raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator!")
 
         if isinstance(value, set) != (op == Op.IN):
-            raise ValueError("Value constraint must provide a set of values for using the IN operator")
+            raise ValueError("Value constraint must provide a set of values for using the IN operator!")
 
         if self.op == Op.APPLY_FUNC:
+            if apply_function.__name__ not in globals() or "lambda" in apply_function.__name__:
+                raise ValueError("Cannot initialize constraint with APPLY_FUNC using an unknown function!")
+
             if value is not None:
                 value = self.apply_func_validate(value)
                 self.value = value
@@ -264,7 +305,22 @@ class ValueConstraint:
             val_or_funct = self.value
         else:
             val_or_funct = self.regex_pattern
+
+        display_val = _apply_funcs_names[val_or_funct] if self.op == Op.APPLY_FUNC else val_or_funct
+        display_val = f"{display_val} {self.value}" if all([hasattr(self, "value"), self.op == Op.APPLY_FUNC]) else display_val
+        self._display_name_dict = {"operation": _value_funcs_names[self.op], "value": display_val}
+
         return self._name if self._name is not None else f"value {Op.Name(self.op)} {val_or_funct}"
+
+    def display_name(self, feature_name: str):
+
+        if not self._display_name_dict:
+            _ = self.name
+
+        operation = f"{self._display_name_dict['operation']} " if len(self._display_name_dict["operation"]) else ""
+        value = self._display_name_dict["value"]
+
+        return f"Values of {feature_name} {operation}{value}"
 
     def update(self, v) -> bool:
         self.total += 1
@@ -379,6 +435,9 @@ class ValueConstraint:
     def report(self):
         return (self.name, self.total, self.failures)
 
+    def display_report(self, feature_name: str):
+        return (self.display_name(feature_name), self.total, self.failures)
+
 
 class SummaryConstraint:
     """
@@ -449,6 +508,8 @@ class SummaryConstraint:
         self.upper_value = upper_value
         self.quantile_value = quantile_value
 
+        self._display_name_dict = None
+
         if self.first_field == "quantile" and not self.quantile_value:
             raise ValueError("Summary quantile constraint must specify quantile value")
 
@@ -506,9 +567,27 @@ class SummaryConstraint:
         elif self.first_field in ("columns", "total_row_number"):
             value_or_field = str(self.value)
         else:
-            value_or_field = f"{self.value}/{self.second_field}"
+            value_or_field = f"{self.value if self.value is not None else self.second_field}"
 
+        self._display_name_dict = {
+            "constraint_type": constraint_type_str,
+            "field_name": field_name,
+            "operation": _summary_funcs1_names[self.op],
+            "value": value_or_field,
+        }
         return self._name if self._name is not None else f"{constraint_type_str} {field_name} {Op.Name(self.op)} {value_or_field}"
+
+    def display_name(self, feature_name: str):
+
+        if not self._display_name_dict:
+            _ = self.name
+
+        self._display_name_dict["constraint_type"]
+        field_name = self._display_name_dict["field_name"]
+        operation = self._display_name_dict["operation"]
+        value = self._display_name_dict["value"]
+
+        return f"The {field_name} of {feature_name} {operation} {value}"
 
     def _check_and_init_table_shape_constraint(self, reference_set):
         if self.first_field in ("columns", "total_row_number"):  # table shape constraint
@@ -842,6 +921,9 @@ class SummaryConstraint:
     def report(self):
         return (self.name, self.total, self.failures)
 
+    def display_report(self, feature_name: str):
+        return (self.display_name(feature_name), self.total, self.failures)
+
 
 class ValueConstraints:
     def __init__(self, constraints: Mapping[str, ValueConstraint] = None):
@@ -914,6 +996,13 @@ class ValueConstraints:
             return v
         return None
 
+    def display_report(self, feature_name: str) -> List[tuple]:
+        v = [c.display_report(feature_name) for c in self.raw_value_constraints.values()]
+        v.extend([c.display_report(feature_name) for c in self.coerced_type_constraints.values()])
+        if len(v) > 0:
+            return v
+        return None
+
 
 class SummaryConstraints:
     def __init__(self, constraints: Mapping[str, SummaryConstraint] = None):
@@ -966,6 +1055,10 @@ class SummaryConstraints:
         if len(v) > 0:
             return v
         return None
+
+    def display_report(self, feature_name: str) -> List[tuple]:
+        v = [c.display_report(feature_name) for c in self.constraints.values()]
+        return v if len(v) > 0 else None
 
 
 class MultiColumnValueConstraint(ValueConstraint):
@@ -1184,6 +1277,15 @@ class MultiColumnValueConstraints(ValueConstraints):
             return MultiColumnValueConstraints({v.name: v for v in value_constraints})
         return None
 
+    def to_protobuf(self) -> ValueConstraintMsgs:
+        v = [c.to_protobuf() for c in self.raw_value_constraints.values()]
+        v.extend([c.to_protobuf() for c in self.coerced_type_constraints.values()])
+        if len(v) > 0:
+            vcmsg = ValueConstraintMsgs()
+            vcmsg.multi_column_constraints.extend(v)
+            return vcmsg
+        return None
+
 
 class DatasetConstraints:
     def __init__(
@@ -1264,6 +1366,15 @@ class DatasetConstraints:
     def report(self):
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
+        l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
+        l4 = [mc.report() for mc in self.multi_column_value_constraints]
+        return l1 + l2 + l3 + l4
+
+    def display_report(self):
+        l1 = [(k, v.display_report(k)) for k, v in self.value_constraint_map.items()]
+
+        l2 = [(k, s.display_report(k)) for k, s in self.summary_constraint_map.items()]
+
         l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
         l4 = [mc.report() for mc in self.multi_column_value_constraints]
         return l1 + l2 + l3 + l4
