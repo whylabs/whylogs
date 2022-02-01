@@ -144,9 +144,20 @@ cython_debug/
 # IntelliJ
 .idea
 
+### VisualStudioCode ###
+*.code-workspace
+.vscode
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+.history
+.ionide
 
 #MacOS
 .DS_Store
+
+#Gradle
+.gradle/*
 
 # Misc
 /output # default location of the whylogs binary output
