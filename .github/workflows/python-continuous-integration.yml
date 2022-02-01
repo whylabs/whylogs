@@ -19,8 +19,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        submodules: true
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -46,6 +44,15 @@ jobs:
       run: make release
     - name: Run tests
       run: make test-system-python
+    - name: Smoke test wheel in client environment
+      run: |
+        python -m venv verify
+        source verify/bin/activate
+        pip install --upgrade pip
+        pip install dist/whylogs*.whl
+        python tests/smoketest.py
+        deactivate
+        rm -rf verify
     - name: Coveralls Parallel
       if: ${{matrix.os == 'ubuntu-latest'}}
       env:

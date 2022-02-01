@@ -6,6 +6,7 @@ RUN mkdir /workspace && \
     apt install protobuf-compiler -y && \
     pip install pytest && \
     pip install pytest-cov && \
+    pip install jupyterlab && \
     pip install numpy && \
     pip install pandas && \
     pip install sphinx && \
