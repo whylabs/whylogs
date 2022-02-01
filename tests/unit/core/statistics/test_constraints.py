@@ -11,6 +11,7 @@ from whylogs.core.statistics.constraints import (
     MAX_SET_DISPLAY_MESSAGE_LENGTH,
     DatasetConstraints,
     MultiColumnValueConstraint,
+    MultiColumnValueConstraints,
     Op,
     SummaryConstraint,
     SummaryConstraints,
@@ -2808,6 +2809,45 @@ def test_column_values_unique_within_row_constraint_invalid_params():
         columnValuesUniqueWithinRow(column_A=1)
     with pytest.raises(TypeError):
         columnValuesUniqueWithinRow(column_A=["A"])
+
+
+def test_multicolumn_value_constraints_serialization_deserialization():
+    val_set = {(1, 2), (3, 5)}
+    col_set = ["A", "B"]
+    constraints = [
+        columnValuesUniqueWithinRow(column_A="A", verbose=True),
+        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=val_set),
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value=100),
+    ]
+    mcvc = MultiColumnValueConstraints(constraints)
+
+    mcvc.from_protobuf(mcvc.to_protobuf())
+    json_value = json.loads(message_to_json(mcvc.to_protobuf()))
+    multi_column_constraints = json_value["multiColumnConstraints"]
+    unique = multi_column_constraints[0]
+    pair_values = multi_column_constraints[1]
+    sum_of_values = multi_column_constraints[2]
+
+    assert len(multi_column_constraints) == 3
+
+    assert unique["name"] == f"multi column value A {Op.Name(Op.NOT_IN)} all"
+    assert unique["dependentColumn"] == "A"
+    assert unique["op"] == Op.Name(Op.NOT_IN)
+    assert unique["referenceColumns"] == ["all"]
+    assert unique["verbose"] is True
+
+    assert pair_values["name"] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set}"
+    assert pair_values["dependentColumns"] == col_set
+    assert pair_values["op"] == Op.Name(Op.IN)
+    assert pair_values["valueSet"] == [list(t) for t in val_set]
+    assert pair_values["verbose"] is False
+
+    assert sum_of_values["name"] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} 100"
+    assert sum_of_values["dependentColumns"] == col_set
+    assert sum_of_values["op"] == Op.Name(Op.EQ)
+    assert pytest.approx(sum_of_values["value"], 0.01) == 100
+    assert sum_of_values["internalDependentColumnsOp"] == Op.Name(Op.SUM)
+    assert sum_of_values["verbose"] is False
 
 
 def test_display_name():

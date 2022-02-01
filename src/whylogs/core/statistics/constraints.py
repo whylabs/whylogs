@@ -268,7 +268,7 @@ class ValueConstraint:
         self.total = 0
         self.failures = 0
 
-        self._display_name_dict = None
+        self._display_name_dict = dict()
 
         if (apply_function is not None) != (self.op == Op.APPLY_FUNC):
             raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator!")
@@ -276,24 +276,30 @@ class ValueConstraint:
         if isinstance(value, set) != (op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator!")
 
+        self._display_name_dict["operation"] = _value_funcs_names[self.op]
+
         if self.op == Op.APPLY_FUNC:
             if apply_function.__name__ not in globals() or "lambda" in apply_function.__name__:
                 raise ValueError("Cannot initialize constraint with APPLY_FUNC using an unknown function!")
-
+            apply_funct_name = _apply_funcs_names[apply_function.__name__]
+            self._display_name_dict["value"] = apply_funct_name
             if value is not None:
                 value = self.apply_func_validate(value)
                 self.value = value
+                self._display_name_dict["value"] = f"{apply_funct_name} {value}"
             self.func = _value_funcs[op](apply_function, value)
 
         elif value is not None and regex_pattern is None:
             # numeric value
             self.value = value
             self.func = _value_funcs[op](value)
+            self._display_name_dict["value"] = value
 
         elif regex_pattern is not None and value is None:
             # Regex pattern
             self.regex_pattern = regex_pattern
             self.func = _value_funcs[op](re.compile(self.regex_pattern))
+            self._display_name_dict["value"] = regex_pattern
         else:
             raise ValueError("Value constraint must specify a numeric value or regex pattern, but not both")
 
@@ -306,17 +312,9 @@ class ValueConstraint:
         else:
             val_or_funct = self.regex_pattern
 
-        display_val = _apply_funcs_names[val_or_funct] if self.op == Op.APPLY_FUNC else val_or_funct
-        display_val = f"{display_val} {self.value}" if all([hasattr(self, "value"), self.op == Op.APPLY_FUNC]) else display_val
-        self._display_name_dict = {"operation": _value_funcs_names[self.op], "value": display_val}
-
         return self._name if self._name is not None else f"value {Op.Name(self.op)} {val_or_funct}"
 
     def display_name(self, feature_name: str):
-
-        if not self._display_name_dict:
-            _ = self.name
-
         operation = f"{self._display_name_dict['operation']} " if len(self._display_name_dict["operation"]) else ""
         value = self._display_name_dict["value"]
 
@@ -508,8 +506,6 @@ class SummaryConstraint:
         self.upper_value = upper_value
         self.quantile_value = quantile_value
 
-        self._display_name_dict = None
-
         if self.first_field == "quantile" and not self.quantile_value:
             raise ValueError("Summary quantile constraint must specify quantile value")
 
@@ -541,53 +537,60 @@ class SummaryConstraint:
 
     @property
     def name(self):
-        if self.first_field == "quantile":
-            field_name = f"{self.first_field} {self.quantile_value}"
-        elif hasattr(self, "reference_distribution"):
-            if self.first_field == "kl_divergence":
-                field_name = f"{self.first_field} threshold"
-            else:
-                field_name = f"{self.first_field} p-value"
-        else:
-            field_name = self.first_field
+        constraint_type_str = self._get_constraint_type()
+        field_name = self._get_field_name()
+        value_or_field = self._get_value_or_field()
 
-        constraint_type_str = "table" if self.first_field in ("columns", "total_row_number") else "summary"
-
-        if self.first_field == "column_values_type":
-            if self.value is not None:
-                value_or_field = InferredType.Type.Name(self.value)
-            else:
-                value_or_field = {InferredType.Type.Name(element) for element in list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH]}
-        elif hasattr(self, "reference_set"):
-            value_or_field = self._get_str_from_ref_set()
-        elif self.op == Op.BTWN:
-            lower_target = self.value if self.value is not None else self.second_field
-            upper_target = self.upper_value if self.upper_value is not None else self.third_field
-            value_or_field = f"{lower_target} and {upper_target}"
-        elif self.first_field in ("columns", "total_row_number"):
-            value_or_field = str(self.value)
-        else:
-            value_or_field = f"{self.value if self.value is not None else self.second_field}"
-
-        self._display_name_dict = {
-            "constraint_type": constraint_type_str,
-            "field_name": field_name,
-            "operation": _summary_funcs1_names[self.op],
-            "value": value_or_field,
-        }
         return self._name if self._name is not None else f"{constraint_type_str} {field_name} {Op.Name(self.op)} {value_or_field}"
 
+    def _set_display_name_dictionary(self):
+        self._display_name_dict = {
+            "constraint_type": self._get_constraint_type(),
+            "field_name": self._get_field_name(),
+            "operation": _summary_funcs1_names[self.op],
+            "value": self._get_value_or_field(),
+        }
+
     def display_name(self, feature_name: str):
+        if not hasattr(self, "_display_name_dict"):
+            self._set_display_name_dictionary()
 
-        if not self._display_name_dict:
-            _ = self.name
-
-        self._display_name_dict["constraint_type"]
         field_name = self._display_name_dict["field_name"]
         operation = self._display_name_dict["operation"]
         value = self._display_name_dict["value"]
 
         return f"The {field_name} of {feature_name} {operation} {value}"
+
+    def _get_field_name(self):
+        if self.first_field == "quantile":
+            return f"{self.first_field} {self.quantile_value}"
+        elif hasattr(self, "reference_distribution"):
+            if self.first_field == "kl_divergence":
+                return f"{self.first_field} threshold"
+            else:
+                return f"{self.first_field} p-value"
+        else:
+            return self.first_field
+
+    def _get_value_or_field(self):
+        if self.first_field == "column_values_type":
+            if self.value is not None:
+                return InferredType.Type.Name(self.value)
+            else:
+                return {InferredType.Type.Name(element) for element in list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH]}
+        elif hasattr(self, "reference_set"):
+            return self._get_str_from_ref_set()
+        elif self.op == Op.BTWN:
+            lower_target = self.value if self.value is not None else self.second_field
+            upper_target = self.upper_value if self.upper_value is not None else self.third_field
+            return f"{lower_target} and {upper_target}"
+        elif self.first_field in ("columns", "total_row_number"):
+            return str(self.value)
+        else:
+            return f"{self.value if self.value is not None else self.second_field}"
+
+    def _get_constraint_type(self):
+        return "table" if self.first_field in ("columns", "total_row_number") else "summary"
 
     def _check_and_init_table_shape_constraint(self, reference_set):
         if self.first_field in ("columns", "total_row_number"):  # table shape constraint
