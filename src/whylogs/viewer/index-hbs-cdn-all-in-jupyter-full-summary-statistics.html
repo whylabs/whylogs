@@ -134,6 +134,35 @@
         background-color: #ECB100;
       }
 
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background-color: #0E7384;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+      
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
       .display-flex {
         display: flex;
       }
@@ -180,33 +209,29 @@
               <div class="display-flex statistics">
                   <div class="padding-right-30">
                     <div class="statistic-number-title">Observations</div>
-                    <div class="statistic-number">{{observations}}</div>
+                    <div class="statistic-number">{{{observations}}}</div>
                   </div>
                   <div class="padding-right-30">
                     <div class="statistic-number-title">Missing Cells</div>
                     <div class="statistic-number">
-                      {{missingCells}} 
+                      {{{missingCells}}} 
                       <div class="statistic-measurement">(8.1%)</div>
                     </div>
                   </div>
                   <div class="padding-right-30">
                     <div class="statistic-number-title">Duplicate Rows</div>
                     <div class="statistic-number">
-                      {{duplicateRows}} 
+                      {{{duplicateRows}}} 
                       <div class="statistic-measurement">(0%)</div>
                     </div>
                   </div>
                   <div class="padding-right-30">
                     <div class="statistic-number-title">Total Size</div>
-                    <div class="statistic-number">{{totalSize}} 
-                      <div class="statistic-measurement">KiB</div>
-                    </div>
+                    {{{totalSize}}} 
                   </div>
                   <div class="padding-right-30">
                     <div class="statistic-number-title">Average record size</div>
-                    <div class="statistic-number">{{averageRecordSize}}
-                      <div class="statistic-measurement">B</div>
-                    </div>
+                    {{{averageRecordSize}}}
                   </div>
                   <div class="notification display-flex justify-content-center align-items-center">
                     <div class="notification-wrap">
@@ -246,32 +271,73 @@
         return format(date);
       }
 
-      function numberWithCommas(number) {
-        let parts = number.toString().split(".");
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,".");
-        return parts.join(",");
+      function abbreviateNumber(value) {
+        let newValue = value,
+        suffixe = ""
+        if (value >= 1000) {
+            let suffixes = ["", "K", "M", "B","T"];
+            let suffixNum = Math.floor( (""+value).length/3 );
+            let shortValue = '';
+            for (let precision = 2; precision >= 1; precision--) {
+                shortValue = parseFloat( (suffixNum != 0 ? (value / Math.pow(1000,suffixNum) ) : value).toPrecision(precision));
+                let dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z 0-9]+/g,'');
+                if (dotLessShortValue.length <= 2) { break; }
+            }
+            if (shortValue % 1 != 0)  shortValue = shortValue.toFixed(1);
+            newValue = shortValue;
+            suffixe = suffixes[suffixNum]
+        }
+        return {value, newValue, suffixe};
       }
+
+      function formatBytes(bytes, decimals = 2) {
+        let newValue,
+        suffixe = ""
+        if (bytes === 0) return '0 Bytes';
+    
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KiB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        newValue = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+        suffixe = sizes[i]
+        return {bytes, newValue, suffixe};
+      }
+
+      const numberWithSuffixe = (number, newNumber, suffixe) => 
+        `<div class="tooltip-full-number">
+           <div class="statistic-number">${newNumber}
+             <div class="statistic-measurement">${suffixe}</div>
+           </div>
+           <span class="tooltiptext">${number}</span>
+         </div>`
 
       const randomNumbers = (range) => Math.floor(Math.random() * range)
       
       Handlebars.registerHelper("observations", function () {
-        return numberWithCommas(randomNumbers(900000000));
+        const {value, newValue, suffixe} = abbreviateNumber(randomNumbers(900000000))
+        return numberWithSuffixe(value, newValue, suffixe);
       });
       
       Handlebars.registerHelper("missingCells", function () {
-        return numberWithCommas(randomNumbers(900000000));
+        const {value, newValue, suffixe} = abbreviateNumber(randomNumbers(90000))
+        return numberWithSuffixe(value, newValue, suffixe);
       });
       
       Handlebars.registerHelper("duplicateRows", function () {
-        return numberWithCommas(randomNumbers(900000000));
+        const {value, newValue, suffixe} = abbreviateNumber(randomNumbers(90000))
+        return numberWithSuffixe(value, newValue, suffixe);
       });
       
-      Handlebars.registerHelper("totalSize", function () {
-        return randomNumbers(900);
+      Handlebars.registerHelper("averageRecordSize", function () {
+        const {bytes, newValue, suffixe} = formatBytes(randomNumbers(900000))
+        return numberWithSuffixe(bytes, newValue, suffixe);
       });
 
-      Handlebars.registerHelper("averageRecordSize", function () {
-        return randomNumbers(900);
+      Handlebars.registerHelper("totalSize", function () {
+        const {bytes, newValue, suffixe} = formatBytes(randomNumbers(900000))
+        return numberWithSuffixe(bytes, newValue, suffixe);
       });
 
       Handlebars.registerHelper("getProfileTimeStamp", function (properties) {
@@ -280,7 +346,6 @@
 
 
       Handlebars.registerHelper("getProfileName", function (properties) {
-        console.log(properties);
         return properties.properties.tags.name
       });
     }
@@ -289,7 +354,6 @@
       // Replace this context with JSON from .py file
       const targetedProfile = () => { return {{{profile_from_whylogs}}} }
       const profileFromCSVfile = () => { return {{{reference_profile}}} }
-      console.log(profileFromCSVfile, typeof profileFromCSVfile);
       const context =  profileFromCSVfile() ? profileFromCSVfile() : targetedProfile();
       // Config handlebars and pass data to HBS template
       const source = document.getElementById("entry-template").innerHTML;
