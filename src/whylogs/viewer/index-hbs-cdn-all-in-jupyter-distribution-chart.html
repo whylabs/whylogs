@@ -125,7 +125,6 @@
        color: #4F595B;
      }
 
-
      @media screen and (min-width: 500px) {
        .desktop-content {
          display: block;
@@ -134,7 +133,6 @@
          display: none;
        }
      }
-
     </style>
   </head>
 
@@ -347,7 +345,7 @@
       // Config handlebars and pass data to HBS template
       const source = document.getElementById("entry-template").innerHTML;
       const template = Handlebars.compile(source);
-      const html = template(context.columns);
+      const html = template(context);
       const target = document.getElementById("generated-html");
       target.innerHTML = html;
     }

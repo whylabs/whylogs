@@ -273,68 +273,68 @@
         justify-content: space-between;
       }
 
-     .align-items {
-       display: flex;
-       align-items: center;
-     }
+      .align-items {
+        display: flex;
+        align-items: center;
+      }
 
-     .display-flex{
-       display: flex;
-     }
+      .display-flex{
+        display: flex;
+      }
+ 
+      .table-border-none {
+        padding: 0;
+        border: none;
+      }
+ 
+      .flex-direction-colum {
+        display: flex;
+        flex-direction: column;
+      }
+ 
+      .align-items {
+        align-items: center;
+      }
+ 
+      .search-input{
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+      }
 
-     .table-border-none {
-       padding: 0;
-       border: none;
-     }
-
-     .flex-direction-colum {
-       display: flex;
-       flex-direction: column;
-     }
-
-     .align-items {
-       align-items: center;
-     }
-
-     .search-input{
-       padding-top: 0 !important;
-       padding-bottom: 0 !important;
-     }
-
-     .search-input input{
-       border: none;
-       background: none;
-       outline: none;
-       height: 40px;
-       width: 100%;
-       font-size: 14px;
-     }
-
-     .search-input img{
-       height: 19px;
-       pointer-events: none;
-     }
-
-     input::placeholder {
-       color: var(--secondaryLight1000);
-     }
-
-     .bar.positive {
-       fill: #369BACB2;
-     }
-
-     .bar.negative {
-       fill: #2683C9E5;
-     }
-
-     .text-align-center {
-       text-align: center;
-     }
-
-     .drift-detection {
-       justify-content: space-between;
-       align-items: center;
-     }
+      .search-input input{
+        border: none;
+        background: none;
+        outline: none;
+        height: 40px;
+        width: 100%;
+        font-size: 14px;
+      }
+ 
+      .search-input img{
+        height: 19px;
+        pointer-events: none;
+      }
+ 
+      input::placeholder {
+        color: var(--secondaryLight1000);
+      }
+ 
+      .bar.positive {
+        fill: #369BACB2;
+      }
+ 
+      .bar.negative {
+        fill: #2683C9E5;
+      }
+ 
+      .text-align-center {
+        text-align: center;
+      }
+ 
+      .drift-detection {
+        justify-content: space-between;
+        align-items: center;
+      }
 
      .drift-detection-info-circle {
        width: 15px;
@@ -457,16 +457,15 @@
        border-radius: 1.25em;
      }
 
+      .justify-content-center {
+        justify-content: center;
+      }
+  
+      .wl-table-cell__graph-wrap {
+        width: 0;
+      }
 
-    .justify-content-center {
-      justify-content: center;
-    }
-
-    .wl-table-cell__graph-wrap {
-      width: 0;
-    }
-
-    .svg-container {
+      .svg-container {
         display: inline-block;
         position: relative;
         width: 85%;
@@ -474,6 +473,7 @@
         vertical-align: top;
         overflow: hidden;
       }
+
       .svg-content-responsive {
         display: inline-block;
         position: absolute;
@@ -484,14 +484,14 @@
         min-width: 250px;
       }
 
-     @media screen and (min-width: 500px) {
-       .desktop-content {
-         display: block;
-       }
-       .no-responsive {
-         display: none;
-       }
-     }
+      @media screen and (min-width: 500px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
 
     </style>
   </head>
@@ -504,113 +504,113 @@
         <div class="container-fluid">
           <div class="row">
             <div class="main">
-               <div class="wl-compare-profile" id="compare-profile">
-                <div class="drift-detection-wrap">
-                  <div class="drift-detection display-flex">
-                    <div class="drift-detection-info flex-direction-colum">
-                      <div class="drift-detection-info-title-wrap display-flex">
-                        <p class="drift-detection-info-title">
-                          Drift detected in 65 of 131 features
-                        </p>
-                      </div>
-                      <div class="drift-detection-info-drifts display-flex">
-                        <div class="drift-detection-info-drifts-item display-flex align-items">
-                          <div class="drift-detection-info-circle severe-drift-circle-color"></div>
-                          <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                            <p class="drift-detection-info-drifts-item-count mb-0">{{severeDrift}}</p>
-                            <p class="drift-detection-info-drifts-item-name  mb-0">Severe drift</p>
-                          </div>
-                        </div>
-                        <div class="drift-detection-info-drifts-item display-flex align-items">
-                          <div class="drift-detection-info-circle moderate-drift-circle-color"></div>
-                          <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                            <p class="drift-detection-info-drifts-item-count mb-0">{{moderateDrift}}</p>
-                            <p class="drift-detection-info-drifts-item-name  mb-0">Moderate drift</p>
-                          </div>
-                        </div>
-                        <div class="drift-detection-info-drifts-item display-flex align-items">
-                          <div class="drift-detection-info-circle mild-drift-circle-color"></div>
-                          <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                            <p class="drift-detection-info-drifts-item-count mb-0">{{mildDrift}}</p>
-                            <p class="drift-detection-info-drifts-item-name  mb-0">Mild drift</p>
-                          </div>
-                        </div>
-                        <div class="drift-detection-info-drifts-item display-flex align-items">
-                          <div class="drift-detection-info-circle minimal-drift-circle-color"></div>
-                          <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                            <p class="drift-detection-info-drifts-item-count mb-0">{{minimalDrift}}</p>
-                            <p class="drift-detection-info-drifts-item-name mb-0">Minimal drift</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="drift-detection-search-input-wrap display-flex">
-                      <div class="drift-detection-search-input search-input">
-                        <input type="text" id="wl__feature-search" placeholder="Quick search..."/>
-                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg=="/>
-                      </div>
-                      <div onclick="openFilter()" class="close-filter-button">
-                        <div class="display-flex close-filter-icon">
-                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/> 
-                        </div>
-                        <div class="display-flex filter-icon d-none">
-                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="dropdown-container flex-direction-colum mb-2" id="dropdown-container">
-                  <div class="filter-options">
-                    <div class="filter-options-title space-between dropdown">
-                      <p>Filter by type</p>
-                    </div>
-                    <div class="form-check mb-1 mt-2">
-                      <input
-                        class="form-check-input wl__feature-filter-input"
-                        type="checkbox"
-                        name="checkbox"
-                        value="Discrete"
-                        id="inferredDiscrete"
-                        onclick="changeDiscreteValue()"
-                        checked
-                      />
-                      <label class="form-check-label" for="inferredDiscrete">
-                        Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
-                      </label>
-                    </div>
-                    <div class="form-check mb-1">
-                      <input
-                        class="form-check-input wl__feature-filter-input"
-                        type="checkbox"
-                        name="checkbox"
-                        value="Non-discrete"
-                        id="inferredNonDiscrete"
-                        onclick="changeNonDiscreteValue()"
-                        checked
-                      />
-                      <label class="form-check-label" for="inferredNonDiscrete">
-                        Inferred non-discrete (<span
-                          class="wl__feature-count--non-discrete"
-                        >{{getNonDiscreteTypeCount}}</span>)
-                      </label>
-                    </div>
-                    <div class="form-check mb-1">
-                      <input
-                        class="form-check-input wl__feature-filter-input"
-                        type="checkbox"
-                        name="checkbox"
-                        value="Unknown"
-                        id="inferredUnknown"
-                        onclick="changeUnknwonValue()"
-                        checked
-                      />
-                      <label class="form-check-label" for="inferredUnknown">
-                        Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
-                      </label>
-                    </div>
-                  </div>
-                </div>
+              <div class="wl-compare-profile" id="compare-profile">
+               <div class="drift-detection-wrap">
+                 <div class="drift-detection display-flex">
+                   <div class="drift-detection-info flex-direction-colum">
+                     <div class="drift-detection-info-title-wrap display-flex">
+                       <p class="drift-detection-info-title">
+                         Drift detected in 65 of 131 features
+                       </p>
+                     </div>
+                     <div class="drift-detection-info-drifts display-flex">
+                       <div class="drift-detection-info-drifts-item display-flex align-items">
+                         <div class="drift-detection-info-circle severe-drift-circle-color"></div>
+                         <div class="drift-detection-info-drifts-item-text display-flex align-items">
+                           <p class="drift-detection-info-drifts-item-count mb-0">{{severeDrift}}</p>
+                           <p class="drift-detection-info-drifts-item-name  mb-0">Severe drift</p>
+                         </div>
+                       </div>
+                       <div class="drift-detection-info-drifts-item display-flex align-items">
+                         <div class="drift-detection-info-circle moderate-drift-circle-color"></div>
+                         <div class="drift-detection-info-drifts-item-text display-flex align-items">
+                           <p class="drift-detection-info-drifts-item-count mb-0">{{moderateDrift}}</p>
+                           <p class="drift-detection-info-drifts-item-name  mb-0">Moderate drift</p>
+                         </div>
+                       </div>
+                       <div class="drift-detection-info-drifts-item display-flex align-items">
+                         <div class="drift-detection-info-circle mild-drift-circle-color"></div>
+                         <div class="drift-detection-info-drifts-item-text display-flex align-items">
+                           <p class="drift-detection-info-drifts-item-count mb-0">{{mildDrift}}</p>
+                           <p class="drift-detection-info-drifts-item-name  mb-0">Mild drift</p>
+                         </div>
+                       </div>
+                       <div class="drift-detection-info-drifts-item display-flex align-items">
+                         <div class="drift-detection-info-circle minimal-drift-circle-color"></div>
+                         <div class="drift-detection-info-drifts-item-text display-flex align-items">
+                           <p class="drift-detection-info-drifts-item-count mb-0">{{minimalDrift}}</p>
+                           <p class="drift-detection-info-drifts-item-name mb-0">Minimal drift</p>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="drift-detection-search-input-wrap display-flex">
+                     <div class="drift-detection-search-input search-input">
+                       <input type="text" id="wl__feature-search" placeholder="Quick search..."/>
+                       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg=="/>
+                     </div>
+                     <div onclick="openFilter()" class="close-filter-button">
+                       <div class="display-flex close-filter-icon">
+                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/> 
+                       </div>
+                       <div class="display-flex filter-icon d-none">
+                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+               <div class="dropdown-container flex-direction-colum mb-2" id="dropdown-container">
+                 <div class="filter-options">
+                   <div class="filter-options-title space-between dropdown">
+                     <p>Filter by type</p>
+                   </div>
+                   <div class="form-check mb-1 mt-2">
+                     <input
+                       class="form-check-input wl__feature-filter-input"
+                       type="checkbox"
+                       name="checkbox"
+                       value="Discrete"
+                       id="inferredDiscrete"
+                       onclick="changeDiscreteValue()"
+                       checked
+                     />
+                     <label class="form-check-label" for="inferredDiscrete">
+                       Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                     </label>
+                   </div>
+                   <div class="form-check mb-1">
+                     <input
+                       class="form-check-input wl__feature-filter-input"
+                       type="checkbox"
+                       name="checkbox"
+                       value="Non-discrete"
+                       id="inferredNonDiscrete"
+                       onclick="changeNonDiscreteValue()"
+                       checked
+                     />
+                     <label class="form-check-label" for="inferredNonDiscrete">
+                       Inferred non-discrete (<span
+                         class="wl__feature-count--non-discrete"
+                       >{{getNonDiscreteTypeCount}}</span>)
+                     </label>
+                   </div>
+                   <div class="form-check mb-1">
+                     <input
+                       class="form-check-input wl__feature-filter-input"
+                       type="checkbox"
+                       name="checkbox"
+                       value="Unknown"
+                       id="inferredUnknown"
+                       onclick="changeUnknwonValue()"
+                       checked
+                     />
+                     <label class="form-check-label" for="inferredUnknown">
+                       Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                     </label>
+                   </div>
+                 </div>
+               </div>
               </div>
               <div class="wl-table-wrap" id="table-content">
                 <div class="wl-table">
@@ -894,6 +894,39 @@
 
       Handlebars.registerHelper("getGraphHtml",(column,key) => graph(column, key, null));
       Handlebars.registerHelper("getReferenceGraphHtml",(column,key) => graph(column, key, profileFromCSVfile));
+
+      Handlebars.registerHelper("getDiscreteTypeCount", function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) => {
+          if (feature[1].numberSummary && feature[1].numberSummary.isDiscrete === true) {
+            count++;
+          }
+        });
+        return count.toString();
+      });
+
+      Handlebars.registerHelper("getNonDiscreteTypeCount", function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) => {
+          if (feature[1].numberSummary && feature[1].numberSummary.isDiscrete === false) {
+            count++;
+          }
+        });
+        return count;
+      });
+
+      Handlebars.registerHelper("getUnknownTypeCount", function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) => {
+          if (!feature[1].numberSummary) {
+            count++;
+          }
+        });
+        return count;
+      });
     }
 
     function initHandlebarsTemplate() {
@@ -906,8 +939,6 @@
       const target = document.getElementById("generated-html");
       target.innerHTML = html;
     }
-
-
 
     function initWebsiteScripts() {
       const $featureSearch = document.getElementById("wl__feature-search");
