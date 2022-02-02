@@ -103,37 +103,6 @@
         padding: 20px;
       }
 
-      .notification {
-        border: 1px solid #CED4DA;
-        border-radius: 4px;
-        height: 42px;
-        width: 42px;
-        position: relative;
-        cursor: pointer;
-      }
-
-      .notif-circle-container{
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        padding: 5.3px;
-        border-radius: 50%;
-        background-color: var(--brandSecondary100);
-        cursor: pointer;
-      }
-
-      .notif-circle {
-        position: absolute;
-        top: 2px;
-        right: 2px;
-        height: 16px;
-        width: 16px;
-        border-radius: 50%;
-        font-size: 10px;
-        color: #fff;
-        background-color: #ECB100;
-      }
-
       .tooltip-full-number {
         position: relative;
         display: inline-block;
@@ -183,16 +152,14 @@
         padding-right: 30px;
       }
 
-     @media screen and (min-width: 500px) {
-       .desktop-content {
-         display: block;
-       } 
-       .no-responsive {
-         display: none;
-       }
-     }
-
-
+      @media screen and (min-width: 500px) {
+        .desktop-content {
+          display: block;
+        } 
+        .no-responsive {
+          display: none;
+        }
+      }
     </style>
   </head>
 
@@ -203,45 +170,37 @@
       <div class="desktop-content">
         <div class="feature-summary-statistics-wrap">
           <div class="feature-summary-statistics">
-              <div class="mb-4">
-                  <strong class="header-title">Profile Summary: {{getProfileName this}}_{{getProfileTimeStamp this}}</strong>
-              </div>
-              <div class="display-flex statistics">
-                  <div class="padding-right-30">
-                    <div class="statistic-number-title">Observations</div>
-                    <div class="statistic-number">{{{observations}}}</div>
+            <div class="mb-4">
+                <strong class="header-title">Profile Summary: {{getProfileName this}}_{{getProfileTimeStamp this}}</strong>
+            </div>
+            <div class="display-flex statistics">
+                <div class="padding-right-30">
+                  <div class="statistic-number-title">Observations</div>
+                  <div class="statistic-number">{{{observations}}}</div>
+                </div>
+                <div class="padding-right-30">
+                  <div class="statistic-number-title">Missing Cells</div>
+                  <div class="statistic-number">
+                    {{{missingCells}}} 
+                    <div class="statistic-measurement">(8.1%)</div>
                   </div>
-                  <div class="padding-right-30">
-                    <div class="statistic-number-title">Missing Cells</div>
-                    <div class="statistic-number">
-                      {{{missingCells}}} 
-                      <div class="statistic-measurement">(8.1%)</div>
-                    </div>
+                </div>
+                <div class="padding-right-30">
+                  <div class="statistic-number-title">Duplicate Rows</div>
+                  <div class="statistic-number">
+                    {{{duplicateRows}}} 
+                    <div class="statistic-measurement">(0%)</div>
                   </div>
-                  <div class="padding-right-30">
-                    <div class="statistic-number-title">Duplicate Rows</div>
-                    <div class="statistic-number">
-                      {{{duplicateRows}}} 
-                      <div class="statistic-measurement">(0%)</div>
-                    </div>
-                  </div>
-                  <div class="padding-right-30">
-                    <div class="statistic-number-title">Total Size</div>
-                    {{{totalSize}}} 
-                  </div>
-                  <div class="padding-right-30">
-                    <div class="statistic-number-title">Average record size</div>
-                    {{{averageRecordSize}}}
-                  </div>
-                  <div class="notification display-flex justify-content-center align-items-center">
-                    <div class="notification-wrap">
-                      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABMAAAAVCAYAAACkCdXRAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFMSURBVHgBrZM9TsMwFMffc+0uZOgN8BGCBBVjOAGIAcTUDBUSG5yAcgKyVSpDwlSJCpEbsJeBHiFHYM6XsUMGSmJbSfktieKXn//+eAgW3DAc0dTx8zKPNzdXiamWgAWW7Z0Rgo+Msk9bLbGlEkBO1TsCjA7nK89UjzoJy50AASeNQQEJkOJuPb2MrTI3XPJhwd7lTxyMMYi/np4///7UWCbL6cwqUgFFGbjzJdfKVKrWpbUFk3vIBoNbrYxlAw86gPXhtMpQIIduNq6V7Qr5M5MLHVHXSCPDfegIzR23IVMnqR7QEbnPk4asul89QAT/aPFShag6YPz0ei+v4Qz6IlssLbKTOtkOop9IfEioT2vZg7R70Bv8IiWN4D9B0+B4sYrlDm+1jGzwg4/ri01bvbEDCEKwNbPASCeyJlMch2+8THNfoEikKDLVfgNXsl3ZERyi7AAAAABJRU5ErkJggg=="/>
-                    </div>
-                    <div class="notif-circle-container">
-                      <div class="notif-circle display-flex justify-content-center align-items-center">32</div>
-                    </div>
-                  </div>
-              </div>
+                </div>
+                <div class="padding-right-30">
+                  <div class="statistic-number-title">Total Size</div>
+                  {{{totalSize}}} 
+                </div>
+                <div class="padding-right-30">
+                  <div class="statistic-number-title">Average record size</div>
+                  {{{averageRecordSize}}}
+                </div>
+            </div>
           </div>
         </div>
       </div>
@@ -344,7 +303,6 @@
         return formatLabelDate(+properties.properties.dataTimestamp)
       });
 
-
       Handlebars.registerHelper("getProfileName", function (properties) {
         return properties.properties.tags.name
       });
@@ -363,13 +321,8 @@
       target.innerHTML = html;
     }
 
-    function initWebsiteScripts() {
-      // Target HTML elements
-    }
-
     // Invoke functions -- keep in mind invokation order
     registerHandlebarHelperFunctions();
     initHandlebarsTemplate();
-    initWebsiteScripts();
   </script>
 </html>
