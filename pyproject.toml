@@ -17,7 +17,7 @@ homepage = "https://docs.whylabs.ai"
 keywords = ["machine learning", "data profiling", "data quality", "data logging"]
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: Apple Public Source License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
