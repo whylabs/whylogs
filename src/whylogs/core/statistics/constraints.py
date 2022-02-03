@@ -206,7 +206,7 @@ _summary_funcs1_names = {
     Op.CONTAIN_SET: "contains set",
     Op.EQ_SET: "equals set",
     Op.IN: "is in",
-    Op.CONTAIN: "contains",
+    Op.CONTAIN: "contain",
 }
 
 _summary_funcs2 = {
@@ -230,6 +230,18 @@ _multi_column_value_funcs = {
     Op.IN: lambda v2: lambda v1: v1 in v2,
     Op.NOT_IN: lambda v2: lambda v1: v1 not in v2,
     Op.SUM: lambda v: sum(v),
+}
+
+_multi_column_value_funcs_names = {
+    Op.LT: "ess than",
+    Op.LE: "less than or equal to",
+    Op.EQ: "equal to",
+    Op.NE: "not equal",
+    Op.GE: "greater than or equal to",
+    Op.GT: "greater than",
+    Op.IN: "in",
+    Op.NOT_IN: "not in",
+    Op.SUM: "Sum of",
 }
 
 
@@ -307,7 +319,7 @@ class ValueConstraint:
     def name(self):
         if self.op == Op.APPLY_FUNC:
             val_or_funct = self.apply_function.__name__
-        elif getattr(self, "value", None) is not None:
+        elif hasattr(self, "value"):
             val_or_funct = self.value
         else:
             val_or_funct = self.regex_pattern
@@ -393,8 +405,12 @@ class ValueConstraint:
             regex_pattern = msg.regex_pattern
         elif len(msg.value_set.values) != 0:
             val = set(msg.value_set.values[0].list_value)
+            if str(val) not in msg.name:
+                val = set([int(x) if isinstance(x, float) else x for x in val])
         else:
             val = msg.value
+            if str(val) not in msg.name:
+                val = int(val)
 
         return ValueConstraint(msg.op, value=val, regex_pattern=regex_pattern, apply_function=apply_function, name=msg.name, verbose=msg.verbose)
 
@@ -551,7 +567,7 @@ class SummaryConstraint:
             "value": self._get_value_or_field(),
         }
 
-    def display_name(self, feature_name: str):
+    def display_name(self, feature_name: str = ""):
         if not hasattr(self, "_display_name_dict"):
             self._set_display_name_dictionary()
 
@@ -559,7 +575,10 @@ class SummaryConstraint:
         operation = self._display_name_dict["operation"]
         value = self._display_name_dict["value"]
 
-        return f"The {field_name} of {feature_name} {operation} {value}"
+        if self._get_constraint_type() == "summary":
+            return f"The {field_name} of {feature_name} {operation} {value}"
+        else:
+            return f"{field_name} {operation} {value}"
 
     def _get_field_name(self):
         if self.first_field == "quantile":
@@ -842,8 +861,12 @@ class SummaryConstraint:
 
         if msg.HasField("reference_set"):
             ref_distribution = set(msg.reference_set)
+            if str(set(list(ref_distribution)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])) not in msg.name:
+                ref_distribution = set([int(x) if isinstance(x, float) else x for x in ref_distribution])
         elif msg.HasField("value"):
             value = msg.value
+            if not msg.name.endswith(str(value)):
+                value = int(value)
         elif msg.HasField("value_str"):
             value = msg.value_str
         elif msg.HasField("second_field"):
@@ -852,6 +875,9 @@ class SummaryConstraint:
             if all([msg.between.HasField(f) for f in ("lower_value", "upper_value")]):
                 lower_value = msg.between.lower_value
                 upper_value = msg.between.upper_value
+                if not msg.name.endswith(f"{lower_value} and {upper_value}"):
+                    lower_value = int(lower_value)
+                    upper_value = int(upper_value)
             elif all([msg.between.HasField(f) for f in ("second_field", "third_field")]):
                 second_field = msg.between.second_field
                 third_field = msg.between.third_field
@@ -1109,13 +1135,43 @@ class MultiColumnValueConstraint(ValueConstraint):
     @property
     def name(self):
         dependent_cols = str(self.dependent_columns)
-        if hasattr(self, "value"):
-            val_or_ref_columns = self.value
-        else:
-            val_or_ref_columns = self.reference_columns
         if hasattr(self, "internal_op"):
-            dependent_cols = Op.Name(self.internal_op) + " " + dependent_cols
+            dependent_cols = f"{Op.Name(self.internal_op)} {dependent_cols}"
+        val_or_ref_columns = self._get_value_or_ref_columns()
+
         return self._name if self._name is not None else f"multi column value {dependent_cols} {Op.Name(self.op)} {val_or_ref_columns}"
+
+    def display_name(self):
+        if not hasattr(self, "_display_name_dict"):
+            self._set_display_name_dictionary()
+
+        cols = "Column" if len(self._display_name_dict["dependent_columns"]) == 1 else "Columns"
+        pron = "is" if len(self._display_name_dict["dependent_columns"]) == 1 else "are"
+        dependent_columns = f"{cols} {self._display_name_dict['dependent_columns']}"
+        value = self._display_name_dict["value"]
+        internal_op = self._display_name_dict["internal_op"]
+
+        cols = "Column" if len(dependent_columns) == 1 else "Columns"
+
+        if internal_op is not None:
+            dependent_columns = f"{_multi_column_value_funcs_names[self.internal_op]} {dependent_columns}"
+            pron = "is"
+
+        return f"{dependent_columns} {pron} {_multi_column_value_funcs_names[self.op]} {value}"
+
+    def _set_display_name_dictionary(self):
+        self._display_name_dict = {
+            "dependent_columns": str(self.dependent_columns),
+            "value": self._get_value_or_ref_columns(),
+            "internal_op": self.internal_op if hasattr(self, "internal_op") else None,
+        }
+
+    def _get_value_or_ref_columns(self):
+        return self.value if hasattr(self, "value") else self.reference_columns
+
+    def _get_dependent_cols(self):
+        dependent_cols = str(self.dependent_columns)
+        return f"{_multi_column_value_funcs_names[self.internal_op]} {dependent_cols}" if hasattr(self, "internal_op") else f"{dependent_cols}"
 
     def update(self, columns):
         self.total += 1
@@ -1205,9 +1261,16 @@ class MultiColumnValueConstraint(ValueConstraint):
 
         if len(msg.value_set.values) != 0:
             value = {tuple(v) if hasattr(v, "values") else v for v in msg.value_set}
+            if not msg.name.endswith(str(value)):
+                value = {
+                    tuple([int(x) if isinstance(x, float) else x for x in v]) if hasattr(v, "values") else int(v) if isinstance(v, float) else v
+                    for v in msg.value_set
+                }
 
         elif msg.value:
             value = msg.value
+            if not msg.name.endswith(str(value)):
+                value = int(value)
 
         elif msg.reference_columns:
             ref_cols = list(msg.reference_columns)
@@ -1268,6 +1331,9 @@ class MultiColumnValueConstraint(ValueConstraint):
             verbose=self._verbose,
         )
 
+    def display_report(self):
+        return (self.display_name(), self.total, self.failures)
+
 
 class MultiColumnValueConstraints(ValueConstraints):
     def __init__(self, constraints: Mapping[str, MultiColumnValueConstraint] = None):
@@ -1277,7 +1343,7 @@ class MultiColumnValueConstraints(ValueConstraints):
     def from_protobuf(msg: ValueConstraintMsgs) -> "MultiColumnValueConstraints":
         value_constraints = [MultiColumnValueConstraint.from_protobuf(c) for c in msg.multi_column_constraints]
         if len(value_constraints) > 0:
-            return MultiColumnValueConstraints({v.name: v for v in value_constraints})
+            return MultiColumnValueConstraints(value_constraints)
         return None
 
     def to_protobuf(self) -> ValueConstraintMsgs:
@@ -1287,6 +1353,13 @@ class MultiColumnValueConstraints(ValueConstraints):
             vcmsg = ValueConstraintMsgs()
             vcmsg.multi_column_constraints.extend(v)
             return vcmsg
+        return None
+
+    def display_report(self) -> List[tuple]:
+        v = [c.display_report() for c in self.raw_value_constraints.values()]
+        v.extend([c.display_report() for c in self.coerced_type_constraints.values()])
+        if len(v) > 0:
+            return v
         return None
 
 
@@ -1323,10 +1396,10 @@ class DatasetConstraints:
         self.table_shape_constraints = table_shape_constraints
 
         if multi_column_value_constraints is None:
-            multi_column_value_constraints = list()
-        for i, v in enumerate(multi_column_value_constraints):
-            if isinstance(v, list):
-                multi_column_value_constraints[i] = MultiColumnValueConstraints(v)
+            multi_column_value_constraints = MultiColumnValueConstraints()
+
+        if isinstance(multi_column_value_constraints, list):
+            multi_column_value_constraints = MultiColumnValueConstraints(multi_column_value_constraints)
 
         self.multi_column_value_constraints = multi_column_value_constraints
 
@@ -1340,7 +1413,7 @@ class DatasetConstraints:
         vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
         sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
         table_shape_m = SummaryConstraints.from_protobuf(msg.table_shape_constraints)
-        multi_column_value_m = dict([(k, MultiColumnValueConstraints.from_protobuf(v)) for k, v in msg.multi_column_value_constraints.items()])
+        multi_column_value_m = MultiColumnValueConstraints.from_protobuf(msg.multi_column_value_constraints)
         return DatasetConstraints(msg.properties, vm, sm, table_shape_m, multi_column_value_m)
 
     @staticmethod
@@ -1354,7 +1427,8 @@ class DatasetConstraints:
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
         sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
         table_shape_constraints_message = self.table_shape_constraints.to_protobuf()
-        multi_column_value_m = [v.to_protobuf() for v in self.multi_column_value_constraints]
+        multi_column_value_m = self.multi_column_value_constraints.to_protobuf()
+
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,
@@ -1370,16 +1444,14 @@ class DatasetConstraints:
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
         l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
-        l4 = [mc.report() for mc in self.multi_column_value_constraints]
+        l4 = self.multi_column_value_constraints.report() if self.multi_column_value_constraints.report() else []
         return l1 + l2 + l3 + l4
 
     def display_report(self):
         l1 = [(k, v.display_report(k)) for k, v in self.value_constraint_map.items()]
-
         l2 = [(k, s.display_report(k)) for k, s in self.summary_constraint_map.items()]
-
         l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
-        l4 = [mc.report() for mc in self.multi_column_value_constraints]
+        l4 = l4 = self.multi_column_value_constraints.display_report() if self.multi_column_value_constraints.display_report() else []
         return l1 + l2 + l3 + l4
 
 
