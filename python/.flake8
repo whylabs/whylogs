@@ -6,7 +6,6 @@ exclude =
     .eggs
     docs
     whylogs_v1/proto
-    tests
     .venv
 max-line-length = 160
 extend-ignore = E203, W503

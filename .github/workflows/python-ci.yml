@@ -1,4 +1,4 @@
-name: ci
+name: python-ci
 
 on:
   pull_request:
@@ -7,6 +7,10 @@ on:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+*"
   workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: python
 
 jobs:
   ci:
@@ -42,7 +46,9 @@ jobs:
       - name: Install pipx for Python ${{ matrix.python-version }}
         run: python -m pip install "pipx==$PIPX_VERSION"
       - name: Install Poetry
-        run: pipx install "poetry==$POETRY_VERSION"
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
       - name: Install Protoc
         uses: arduino/setup-protoc@master
         with:
@@ -60,7 +66,7 @@ jobs:
         run: make install
       - name: Test virtualenv location
         run: |
-          EXPECTED_VIRTUALENV_PATH=${{ github.workspace }}/.venv
+          EXPECTED_VIRTUALENV_PATH=${{ github.workspace }}/python/.venv
           INSTALLED_VIRTUALENV_PATH=$(poetry env info --path)
           echo "The virtualenv should be at $EXPECTED_VIRTUALENV_PATH."
           echo "Poetry is using a virtualenv at $INSTALLED_VIRTUALENV_PATH."
@@ -71,7 +77,7 @@ jobs:
       - name: Run build, style, and lint checks
         run: make release
       - name: Run pre-commit hooks
-        run: poetry run pre-commit run --all-files
+        run: make pre-commit
       - name: Smoke test wheel in client environment
         run: |
           python -m venv verify

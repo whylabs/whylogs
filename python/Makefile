@@ -1,7 +1,7 @@
 src.python := $(shell find ./whylogs_v1 -type f -name "*.py")
 tst.python := $(shell find ./tests -type f -name "*.py")
 src.python.pyc := $(shell find ./whylogs_v1 -type f -name "*.pyc")
-src.proto.dir := ./proto/src
+src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 
 version := 1.0.0
