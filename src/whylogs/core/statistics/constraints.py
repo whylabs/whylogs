@@ -1203,6 +1203,15 @@ class MultiColumnValueConstraints(ValueConstraints):
             return MultiColumnValueConstraints({v.name: v for v in value_constraints})
         return None
 
+    def to_protobuf(self) -> ValueConstraintMsgs:
+        v = [c.to_protobuf() for c in self.raw_value_constraints.values()]
+        v.extend([c.to_protobuf() for c in self.coerced_type_constraints.values()])
+        if len(v) > 0:
+            vcmsg = ValueConstraintMsgs()
+            vcmsg.multi_column_constraints.extend(v)
+            return vcmsg
+        return None
+
 
 class DatasetConstraints:
     def __init__(
