@@ -1,0 +1,13 @@
+
+apply plugin: 'java'
+
+repostiores {
+  mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+  implementation "ai.whylabs:whylogs-core:0.1.7-b2"
+}
