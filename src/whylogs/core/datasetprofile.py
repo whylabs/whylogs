@@ -13,18 +13,27 @@ from google.protobuf.internal.decoder import _DecodeVarint32
 from google.protobuf.internal.encoder import _VarintBytes
 from smart_open import open
 
-from whylogs.core import ColumnProfile
+from whylogs.core import ColumnProfile, MultiColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
-from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
+from whylogs.core.statistics.constraints import (
+    DatasetConstraints,
+    MultiColumnValueConstraints,
+    SummaryConstraints,
+)
+from whylogs.core.summaryconverters import entropy_from_column_summary
+from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
     ColumnsChunkSegment,
     DatasetMetadataSegment,
     DatasetProfileMessage,
     DatasetProperties,
     DatasetSummary,
+    InferredType,
     MessageSegment,
     ModelType,
+    NumberSummary,
+    ReferenceDistributionDiscreteMessage,
 )
 from whylogs.util import time
 from whylogs.util.time import from_utc_ms, to_utc_ms
@@ -81,6 +90,7 @@ class DatasetProfile:
         dataset_timestamp: datetime.datetime = None,
         session_timestamp: datetime.datetime = None,
         columns: dict = None,
+        multi_columns: MultiColumnProfile = None,
         tags: Dict[str, str] = None,
         metadata: Dict[str, str] = None,
         session_id: str = None,
@@ -90,6 +100,9 @@ class DatasetProfile:
         # Default values
         if columns is None:
             columns = {}
+        if multi_columns is None:
+            multi_column_constraints = MultiColumnValueConstraints(constraints.multi_column_value_constraints) if constraints else None
+            multi_columns = MultiColumnProfile(multi_column_constraints)
         if tags is None:
             tags = {}
         if metadata is None:
@@ -105,6 +118,7 @@ class DatasetProfile:
         self._tags = dict(tags)
         self._metadata = metadata.copy()
         self.columns = columns
+        self.multi_columns = multi_columns
         self.constraints = constraints
 
         self.model_profile = model_profile
@@ -148,6 +162,11 @@ class DatasetProfile:
         Return the session timestamp value in epoch milliseconds.
         """
         return time.to_utc_ms(self.session_timestamp)
+
+    @property
+    def total_row_number(self):
+        column_counts = [col_prof.counters.count for col_prof in self.columns.values()] if len(self.columns) else [0]
+        return max(column_counts)
 
     def add_output_field(self, field: Union[str, List[str]]):
         if self.model_profile is None:
@@ -246,6 +265,10 @@ class DatasetProfile:
 
         prof.track(data, character_list=None, token_method=None)
 
+    def track_multi_column(self, columns):
+        multi_column_profile = self.multi_columns
+        multi_column_profile.track(columns)
+
     def track_array(self, x: np.ndarray, columns=None):
         """
         Track statistics for a numpy array
@@ -277,20 +300,27 @@ class DatasetProfile:
         # workaround for CUDF due to https://github.com/rapidsai/cudf/issues/6743
         if cudfDataFrame is not None and isinstance(df, cudfDataFrame):
             df = df.to_pandas()
+
         element_count = df.size
         large_df = element_count > 200000
         if large_df:
             logger.warning(f"About to log a dataframe with {element_count} elements, logging might take some time to complete.")
-        count = 0
-        for col in df.columns:
-            col_str = str(col)
 
-            x = df[col].values
-            for xi in x:
-                count = count + 1
+        count = 0
+
+        num_records = len(df)
+        for idx in range(num_records):
+            row_values = []
+            count += 1
+            for col in df.columns:
+                col_values = df[col].values
+                value = col_values[idx]
+                row_values.append(value)
+                self.track(col, value, character_list=None, token_method=None)
                 if large_df and (count % 200000 == 0):
                     logger.warning(f"Logged {count} elements out of {element_count}")
-                self.track(col_str, xi, character_list=None, token_method=None)
+
+            self.track_multi_column({str(col): val for col, val in zip(df.columns, row_values)})
 
     def to_properties(self):
         """
@@ -687,17 +717,61 @@ class DatasetProfile:
             if feature_name in self.columns:
                 colprof = self.columns[feature_name]
                 summ = colprof.to_summary()
-                update_dict = {
-                    "number_summary": summ.number_summary,
-                    "string_theta": colprof.string_tracker.theta_sketch.theta_sketch,
-                    "number_theta": colprof.number_tracker.theta_sketch.theta_sketch,
-                }
 
-                constraints.update(update_dict)
+                kll_sketch = colprof.number_tracker.histogram
+                inferred_type = summ.schema.inferred_type.type
+                kl_divergence_summary = None
+                if inferred_type == InferredType.Type.FRACTIONAL:
+                    kl_divergence_summary = kll_sketch
+                elif inferred_type in (InferredType.STRING, InferredType.INTEGRAL, InferredType.BOOLEAN):
+                    kl_divergence_summary = ReferenceDistributionDiscreteMessage(
+                        frequent_items=summ.frequent_items,
+                        unique_count=summ.unique_count,
+                        total_count=summ.counters.count,
+                    )
+
+                chi_squared_summary = ReferenceDistributionDiscreteMessage(
+                    frequent_items=summ.frequent_items,
+                    unique_count=summ.unique_count,
+                    total_count=summ.counters.count,
+                )
+
+                distinct_column_values_dict = dict()
+                distinct_column_values_dict["string_theta"] = colprof.string_tracker.theta_sketch.theta_sketch
+                distinct_column_values_dict["number_theta"] = colprof.number_tracker.theta_sketch.theta_sketch
+                frequent_items_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
+                most_common_val = frequent_items_summ.items[0].json_value if frequent_items_summ else None
+
+                update_obj = _create_column_profile_summary_object(
+                    number_summary=summ.number_summary,
+                    distinct_column_values=distinct_column_values_dict,
+                    quantile=colprof.number_tracker.histogram,
+                    unique_count=int(summ.unique_count.estimate),
+                    unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
+                    most_common_value=TypedDataConverter.convert(most_common_val),
+                    null_count=summ.counters.null_count.value,
+                    column_values_type=summ.schema.inferred_type.type,
+                    entropy=entropy_from_column_summary(summ, colprof.number_tracker.histogram),
+                    ks_test=kll_sketch,
+                    kl_divergence=kl_divergence_summary,
+                    chi_squared_test=chi_squared_summary,
+                )
+
+                constraints.update(update_obj)
             else:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
         return [(k, s.report()) for k, s in summary_constraints.items()]
+
+    def apply_table_shape_constraints(self, table_shape_constraints: Optional[SummaryConstraints] = None):
+        if table_shape_constraints is None:
+            table_shape_constraints = self.constraints.table_shape_constraints
+
+        update_obj = _create_column_profile_summary_object(NumberSummary(), columns=self.columns.keys(), total_row_number=self.total_row_number)
+
+        table_shape_constraints.update(update_obj)
+
+        return table_shape_constraints.report()
 
 
 def columns_chunk_iterator(iterator, marker: str):
@@ -796,3 +870,33 @@ def array_profile(
     prof = DatasetProfile(name, timestamp)
     prof.track_array(x, columns)
     return prof
+
+
+def _create_column_profile_summary_object(number_summary: NumberSummary, **kwargs):
+    """
+    Wrapper method for summary constraints update object creation
+
+    Parameters
+    ----------
+    number_summary : NumberSummary
+        Summary object generated from NumberTracker
+        Used to unpack the metrics as separate items in the dictionary
+    kwargs : Summary objects or datasketches objects
+        Used to update specific constraints that need additional calculations
+    Returns
+    -------
+    Anonymous object containing all of the metrics as fields with their corresponding values
+    """
+
+    column_summary = {}
+
+    column_summary.update(
+        {
+            field_name: getattr(number_summary, field_name)
+            for field_name in dir(number_summary)
+            if str.islower(field_name) and not str.startswith(field_name, "_") and not callable(getattr(number_summary, field_name))
+        }
+    )
+    column_summary.update(kwargs)
+
+    return type("Object", (), column_summary)

@@ -9,19 +9,19 @@ from whylogs.core.statistics import (
     StringTracker,
 )
 from whylogs.core.statistics.constraints import (
-    SummaryConstraint,
+    MultiColumnValueConstraints,
     SummaryConstraints,
     ValueConstraints,
+    columnMostCommonValueInSetConstraint,
+    columnUniqueValueCountBetweenConstraint,
+    columnValuesTypeEqualsConstraint,
+    maxLessThanEqualConstraint,
+    meanBetweenConstraint,
+    minGreaterThanEqualConstraint,
 )
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.types import TypedDataConverter
-from whylogs.proto import (
-    ColumnMessage,
-    ColumnSummary,
-    InferredType,
-    Op,
-    UniqueCountSummary,
-)
+from whylogs.proto import ColumnMessage, ColumnSummary, InferredType, UniqueCountSummary
 from whylogs.util.dsketch import FrequentItemsSketch
 
 _TYPES = InferredType.Type
@@ -180,11 +180,48 @@ class ColumnProfile:
         items = []
         if self.number_tracker is not None and self.number_tracker.count > 0:
             summ = self.number_tracker.to_summary()
-            if summ.min > 0:
-                items = [SummaryConstraint(op=Op.GT, first_field="min", value=0)]
-            # generate additional constraints here
-            if len(items) > 0:
-                return SummaryConstraints(items)
+
+            if summ.min >= 0:
+                items.append(minGreaterThanEqualConstraint(value=0))
+
+            mean_lower = summ.mean - summ.stddev
+            mean_upper = summ.mean + summ.stddev
+
+            if mean_lower != mean_upper:
+                items.append(
+                    meanBetweenConstraint(
+                        lower_value=mean_lower,
+                        upper_value=mean_upper,
+                    )
+                )
+
+            if summ.max <= 0:
+                items.append(maxLessThanEqualConstraint(value=0))
+
+        schema_summary = self.schema_tracker.to_summary()
+        inferred_type = schema_summary.inferred_type.type
+        if inferred_type not in (InferredType.UNKNOWN, InferredType.NULL):
+            items.append(columnValuesTypeEqualsConstraint(expected_type=inferred_type))
+
+        if self.cardinality_tracker and inferred_type != InferredType.FRACTIONAL:
+            unique_count = self.cardinality_tracker.to_summary()
+            if unique_count and unique_count.estimate > 0:
+                low = int(max(0, unique_count.lower - 1))
+                up = int(unique_count.upper + 1)
+                items.append(
+                    columnUniqueValueCountBetweenConstraint(
+                        lower_value=low,
+                        upper_value=up,
+                    )
+                )
+
+        frequent_items_summary = self.frequent_items.to_summary(max_items=5)
+        if frequent_items_summary and len(frequent_items_summary.items) > 0:
+            most_common_value_set = {val.json_value for val in frequent_items_summary.items}
+            items.append(columnMostCommonValueInSetConstraint(value_set=most_common_value_set))
+
+        if len(items) > 0:
+            return SummaryConstraints(items)
 
         return None
 
@@ -250,3 +287,88 @@ class ColumnProfile:
             frequent_items=FrequentItemsSketch.from_protobuf(message.frequent_items),
             cardinality_tracker=HllSketch.from_protobuf(message.cardinality_tracker),
         )
+
+
+class MultiColumnProfile:
+    """
+    Statistics tracking for a multiple columns (i.e. a features)
+
+    The primary method for
+
+    Parameters
+    ----------
+    constraints : MultiColumnValueConstraints
+        Static assertions to be applied to data tracked between all columns
+
+    """
+
+    def __init__(
+        self,
+        constraints: MultiColumnValueConstraints = None,
+    ):
+
+        self.constraints = constraints or MultiColumnValueConstraints()
+
+    def track(self, column_dict, character_list=None, token_method=None):
+        """
+        TODO: Add `column_dict` to tracking statistics.
+        """
+
+        # update the MultiColumnTrackers code
+
+        self.constraints.update(column_dict)
+        self.constraints.update_typed(column_dict)
+
+    def to_summary(self):
+        """
+        Generate a summary of the statistics
+
+        Returns
+        -------
+        summary : (Multi)ColumnSummary
+            Protobuf summary message.
+        """
+
+        # TODO: summaries for the multi column trackers and statistics
+
+        raise NotImplementedError()
+
+    def merge(self, other) -> "MultiColumnProfile":
+        """
+        Merge this columnprofile with another.
+
+        Parameters
+        ----------
+        other : MultiColumnProfile
+
+        Returns
+        -------
+        merged : MultiColumnProfile
+            A new, merged multi column profile.
+        """
+        return MultiColumnProfile(self.constraints.merge(other.constraints))
+
+    def to_protobuf(self):
+        """
+        Return the object serialized as a protobuf message
+
+        Returns
+        -------
+        message : ColumnMessage
+        """
+
+        # TODO: implement new type of multicolumn message
+        raise NotImplementedError()
+
+    @staticmethod
+    def from_protobuf(message):
+        """
+        Load from a protobuf message
+
+        Returns
+        -------
+        column_profile : MultiColumnProfile
+        """
+        # TODO: implement new type of multicolumn message
+
+        raise NotImplementedError()

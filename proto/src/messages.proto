@@ -203,3 +203,8 @@ message HllSketchMessage {
   bytes sketch = 1;
   int32 lg_k = 2;
 }
+
+message KllFloatsSketchMessage {
+  bytes sketch = 1;
+  int32 lg_k = 2;
+}

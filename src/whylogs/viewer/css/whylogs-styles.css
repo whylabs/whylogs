@@ -456,6 +456,8 @@ a .wl-table-row--bottom-shadow {
   color: var(--brandSecondary400);
 }
 .wl-table-cell__bedge {
+  display: flex;
+  align-items: center;
   height: 24px;
   margin: 1px;
   padding: 2px 8px;
@@ -1145,8 +1147,8 @@ input::placeholder {
 }
 
 .frequent-item-box {
+  padding: 20px;
   width: 90%;
-  height: 50px;
   align-items: flex-start;
   display: flex;
   justify-content: center;
@@ -1157,12 +1159,14 @@ input::placeholder {
 }
 
 .frequent-item-box-wrap {
+  width: 100%;
   display: flex;
   justify-content: center;
 }
 
 .frequent-item-box-to-title {
-  padding-left: 20px;
+  margin-left: 30px;
+  margin-bottom: 20px;
   font-family: Asap;
   font-weight: bold;
   font-size: 16px;
@@ -1175,9 +1179,34 @@ input::placeholder {
   flex-direction: column;
 }
 
-
 .text-align-center {
   text-align: center;
+}
+
+.fequent-items-wrap {
+  width: 100%;
+}
+
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 85%;
+  padding-bottom: 34%;
+  vertical-align: top;
+  overflow: hidden;
+}
+.svg-content-responsive {
+  display: inline-block;
+  position: absolute;
+  left: 0;
+}
+
+.graph-svg-container {
+  padding-bottom: 12%;
+}
+
+.reference-table-head {
+  min-width: 305px;
 }
 
 @media screen and (min-width: 1000px) {

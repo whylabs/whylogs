@@ -197,10 +197,5 @@ For further analysis, dataframes can be stored in a Parquet file, or collected t
 
 ## Building and Testing
 
-Before building, update the `proto` submodule,
-```
-git submodule update --init --recursive
-```
-
 * To build, run `./gradlew build`
 * To test, run `./gradlew test`
