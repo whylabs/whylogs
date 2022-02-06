@@ -43,7 +43,7 @@
       @media screen and (min-width: 1000px) {
         .desktop-content {
           display: block;
-        } 
+        }
         .no-responsive {
           display: none;
         }
@@ -163,7 +163,7 @@
       @media screen and (min-width: 500px) {
         .desktop-content {
           display: block;
-        } 
+        }
         .no-responsive {
           display: none;
         }
@@ -349,19 +349,19 @@
       }
 
       const randomNumbers = (range) => Math.floor(Math.random() * range)
-      
+
       Handlebars.registerHelper("distinct", function () {
         return randomNumbers(50);
       });
-      
+
       Handlebars.registerHelper("missing", function () {
         return randomNumbers(50);
       });
-      
+
       Handlebars.registerHelper("infinite", function () {
         return randomNumbers(50);
       });
-      
+
       Handlebars.registerHelper("mean", function (column) {
         const feture = Object.values(column)[1]
         if (feture.numberSummary) {
@@ -405,7 +405,7 @@
         }
         return "-";
       });
-      
+
       Handlebars.registerHelper("zeros", function () {
         return randomNumbers(50);
       });
@@ -434,9 +434,9 @@
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const targetedProfile = () => { return {{{profile_from_whylogs}}} }
-      const profileFromCSVfile = () => { return {{{reference_profile}}} }
-      const context =  profileFromCSVfile() ? profileFromCSVfile() : targetedProfile();
+      // const targetedProfile = () => { return {{{profile_from_whylogs}}} }
+      // const profileFromCSVfile = () => { return {{{profile_feature_summary_statistics_from_whylogs}}} }
+      const context =  {{{profile_feature_summary_statistics_from_whylogs}}};
       // Config handlebars and pass data to HBS template
       const source = document.getElementById("entry-template").innerHTML;
       const template = Handlebars.compile(source);

@@ -1,7 +1,5 @@
 import logging
 import os
-import tempfile
-import webbrowser
 import sys
 import json
 import html
@@ -18,43 +16,48 @@ logger = logging.getLogger(__name__)
 
 
 class DisplayProfile:
+    SUMMARY_REPORT_TEMPLATE_NAME = 'index-hbs-cdn-all-in-for-jupyter-notebook.html'
+    SUMMARY_STATISTICS_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-full-summary-statistics.html'
+    DOUBLE_HISTOGRAM_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-distribution-chart.html'
+    FEATURE_STATISTICS_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html'
+    PAGE_SIZES = {
+        SUMMARY_REPORT_TEMPLATE_NAME: '1000px',
+        DOUBLE_HISTOGRAM_TEMPLATE_NAME: '277px',
+        SUMMARY_STATISTICS_TEMPLATE_NAME: '250px',
+        FEATURE_STATISTICS_TEMPLATE_NAME: '650px',
+    }
 
-    def __init__(self, profiles: List[DatasetProfile] = None, reference_profiles: List[DatasetProfile] = None):
-        self.profiles = profiles
+    def __init__(self, target_profiles: List[DatasetProfile] = None, reference_profiles: List[DatasetProfile] = None):
+        self.target_profiles = target_profiles
         self.reference_profiles = reference_profiles
         # create json output from profiles
-        if self.profiles:
-            if len(self.profiles) > 1:
+        if self.target_profiles:
+            if len(self.target_profiles) > 1:
                 logger.warning(
                     "More than one profile not implemented yet, default to first profile in the list "
                 )
-            self.profile_jsons = [message_to_json(each_prof.to_summary())
-                                  for each_prof in self.profiles]
+            self.target_profile_jsons = [
+                message_to_json(each_prof.to_summary()) for each_prof in self.target_profiles
+            ]
             if self.reference_profiles:
-                self.reference_profile_jsons = [message_to_json(each_prof.to_summary())
-                                                for each_prof in self.reference_profiles]
-
+                self.reference_profile_jsons = [
+                    message_to_json(each_prof.to_summary()) for each_prof in self.reference_profiles
+                ]
         else:
             logger.warning(
                 "Got no profile data, make sure you pass data correctly ")
             return None
 
-    def __display_html(self, template, height):
-        # convert html to iframe and return it wrapped in Ipython...HTML()
-        iframe = f'''<iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>'''
-        return HTML(iframe)
+    def __get_template_path(self, html_file_name):
+        template_path = os.path.abspath(
+            os.path.join(
+                _MY_DIR, os.pardir, "viewer", html_file_name
+            )
+        )
+        return template_path
 
-    def __get_iframe_output_height(self, html_frame_height):
-        # add all required heights and widths for individual HTMLs to be displayed in notebook
-        sizes = {'index-hbs-cdn-all-in-for-jupyter-notebook.html': '1000px',
-                 'index-hbs-cdn-all-in-jupyter-distribution-chart.html': '277px',
-                 'index-hbs-cdn-all-in-jupyter-full-summary-statistics.html': '250px',
-                 'index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html': '650px',
-                 }
-        return str(sizes.get(html_frame_height))
-
-    def __compile_html_template(self, template_path):
-        # bind profile jsons to html template
+    def __get_compiled_template(self, template_name):
+        template_path = self.__get_template_path(template_name)
         try:
             from pybars import Compiler
         except ImportError as e:
@@ -70,170 +73,108 @@ class DisplayProfile:
         template = compiler.compile(source)
         return template
 
-    def __extract_feature_data(self, profile_jsons, feature_name):
+    def __pull_feature_data(self, profile_jsons, feature_name):
         profile_features = json.loads(profile_jsons[0])
         feature_data = {}
         feature_data['properties'] = profile_features.get('properties')
         feature_data[feature_name] = profile_features.get('columns').get(feature_name)
         return feature_data
 
-    def __create_template_path(self, html_file_name):
-        template_path = os.path.abspath(
-            os.path.join(
-                _MY_DIR, os.pardir, "viewer", html_file_name
-            )
-        )
-        return template_path
+    # rename
+    def __display_rendered_template(self, template, template_name, height):
+        if not height:
+            height = self.PAGE_SIZES[template_name]
+        # convert html to iframe and return it wrapped in Ipython...HTML()
+        iframe = f'''<iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>'''
+        return HTML(iframe)
 
     def summary(self, frame_height=None):
-        if frame_height:
-            html_frame_height = frame_height
-        else:
-            html_frame_height = self.__get_iframe_output_height(
-                "index-hbs-cdn-all-in-for-jupyter-notebook.html"
-            )
-        template = self.__compile_html_template(
-            self.__create_template_path(
-                "index-hbs-cdn-all-in-for-jupyter-notebook.html"
-            )
-        )
+        template = self.__get_compiled_template(self.SUMMARY_REPORT_TEMPLATE_NAME)
+        profiles_summary = {"profile_from_whylogs": self.target_profile_jsons[0]}
         if self.reference_profiles:
-            profiles_summary = template(
-                {"profile_from_whylogs": self.profile_jsons[0],
-                 "reference_profile": self.reference_profile_jsons[0]}
-            )
-            return self.__display_html(profiles_summary, html_frame_height)
-        else:
-            target_profile_summary = template(
-                {"profile_from_whylogs": self.profile_jsons[0]}
-            )
-            return self.__display_html(target_profile_summary, html_frame_height)
+            profiles_summary["reference_profile_from_whylogs"] = self.reference_profile_jsons[0]
+        return self.__display_rendered_template(
+            template(profiles_summary),
+            self.SUMMARY_REPORT_TEMPLATE_NAME,
+            frame_height
+        )
 
-    def download(self, html, path=None, html_file_name=None):
-        # code to write html arg to file and generate name using TimeStamp
-        if path:
-            output_path = os.path.abspath(
-                os.path.expanduser(path)
-            )
-        else:
-            output_path = os.path.abspath(
-                os.path.join(
-                    os.pardir, "html_reports"
+    def feature(self, feature_names, frame_height=None):
+        if type(feature_names) is not list:
+            feature_names = [feature_names]
+        template = self.__get_compiled_template(self.DOUBLE_HISTOGRAM_TEMPLATE_NAME)
+        if self.reference_profiles:
+            target_profile_columns = json.loads(self.target_profile_jsons[0]).get('columns')
+            reference_profile_columns = json.loads(self.reference_profile_jsons[0]).get('columns')
+            target_profile_features, reference_profile_features = {}, {}
+            for feature_name in feature_names:
+                target_profile_features[feature_name] = target_profile_columns.get(feature_name)
+                reference_profile_features[feature_name] = reference_profile_columns.get(
+                    feature_name
                 )
+            distribution_chart = template({
+                "profile_from_whylogs": json.dumps(target_profile_features),
+                "reference_profile_from_whylogs": json.dumps(reference_profile_features)
+            })
+            return self.__display_rendered_template(
+                distribution_chart,
+                self.DOUBLE_HISTOGRAM_TEMPLATE_NAME,
+                frame_height
             )
-        data_timestamp = ''
-        if html_file_name:
-            file_name = html_file_name
-        elif self.reference_profiles:
-            data_timestamp = self.reference_profiles[0].dataset_timestamp
-        else:
-            data_timestamp = self.profiles[0].dataset_timestamp
-
-        full_path = os.path.join(output_path, str(data_timestamp)+".html")
-        with open(full_path, "w") as saved_html:
-            saved_html.write(html.data)
-        saved_html.close()
-
-    def feature(self, names, frame_height=None):
-        if frame_height:
-            html_frame_height = frame_height
-        else:
-            html_frame_height = self.__get_iframe_output_height(
-                "index-hbs-cdn-all-in-jupyter-distribution-chart.html"
-            )
-        template = self.__compile_html_template(
-            self.__create_template_path(
-                "index-hbs-cdn-all-in-jupyter-distribution-chart.html"
-            )
-        )
-        # replace handlebars for json profiles
-        if self.reference_profiles:
-            profile_feature = json.loads(self.profile_jsons[0])
-            reference_profile_feature = json.loads(self.reference_profile_jsons[0])
-            profile_from_whylogs = {}
-            reference_profile = {}
-            for name in names:
-                profile_from_whylogs[name] = profile_feature.get('columns').get(name)
-                reference_profile[name] = reference_profile_feature.get('columns').get(name)
-            distribution_chart = template(
-                {"profile_from_whylogs": json.dumps(profile_from_whylogs),
-                 "reference_profile": json.dumps(reference_profile)}
-            )
-            return self.__display_html(distribution_chart, html_frame_height)
         else:
             logger.warning(
                 "This method has to get both target and reference profiles, with valid feature title"
             )
             return None
 
-    def summary_statistics(self, profile, frame_height=None):
-        if frame_height:
-            html_frame_height = frame_height
+    def summary_statistics(self, profile_name=None, frame_height=None):
+        template = self.__get_compiled_template(self.SUMMARY_STATISTICS_TEMPLATE_NAME)
+        if self.reference_profiles:
+            if not profile_name or profile_name.lower() == 'reference':
+                profile_statistics = self.reference_profile_jsons[0]
         else:
-            html_frame_height = self.__get_iframe_output_height(
-                "index-hbs-cdn-all-in-jupyter-full-summary-statistics.html"
-            )
-        template = self.__compile_html_template(
-            self.__create_template_path(
-                "index-hbs-cdn-all-in-jupyter-full-summary-statistics.html"
-            )
+            profile_statistics = self.target_profile_jsons[0]
+        rendered_template = template({
+            "profile_summary_statistics_from_whylogs": profile_statistics
+        })
+        return self.__display_rendered_template(
+            rendered_template,
+            self.SUMMARY_STATISTICS_TEMPLATE_NAME,
+            frame_height
         )
-        if self.reference_profiles and profile == 'Reference':
-            reference_summary_statistics = template(
-                {"reference_profile": self.reference_profile_jsons[0]}
-            )
-            return self.__display_html(reference_summary_statistics, html_frame_height)
-        elif profile == 'Target':
-            target_profile_statistics = template(
-                {"profile_from_whylogs": self.profile_jsons[0]}
-            )
-            return self.__display_html(target_profile_statistics, html_frame_height)
-        else:
-            logger.warning(
-                "Please select from available options, 'Target' or 'Reference'"
-            )
 
-    def feature_summary_statistics(self, feature_name, profile, frame_height=None):
-        if frame_height:
-            html_frame_height = frame_height
+    def feature_summary_statistics(self, feature_name, profile_name, frame_height=None):
+        template = self.__get_compiled_template(self.FEATURE_STATISTICS_TEMPLATE_NAME)
+        if self.reference_profiles and (not profile_name or profile_name.lower() == 'reference'):
+            selected_profile = self.reference_profile_jsons
         else:
-            html_frame_height = self.__get_iframe_output_height(
-                "index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html"
-            )
-        template = self.__compile_html_template(
-            self.__create_template_path(
-                "index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html"
-            )
+            selected_profile = self.target_profile_jsons
+
+        rendered_template = template({
+            "profile_feature_summary_statistics_from_whylogs": json.dumps(
+                self.__pull_feature_data(selected_profile, feature_name)
+            )}
         )
-        # replace handlebars for json profiles
-        if self.reference_profiles and profile == 'Reference':
-            reference_feature_summary_statistics = template(
-                {
-                    "reference_profile": json.dumps(
-                        __extract_feature_data(
-                            self, self.reference_profile_jsons, feature_name
-                        )
-                    )
-                }
-            )
-            return self.__display_html(
-                reference_feature_summary_statistics, html_frame_height
-            )
-        elif self.profiles and profile == 'Target':
-            target_feature_summary_statistics = template(
-                {
-                    "profile_from_whylogs": json.dumps(
-                        __extract_feature_data(
-                            self, self.profile_jsons, feature_name
-                        )
-                    )
-                }
-            )
-            return self.__display_html(
-                target_feature_summary_statistics, html_frame_height
-            )
+        return self.__display_rendered_template(
+            rendered_template,
+            self.FEATURE_STATISTICS_TEMPLATE_NAME,
+            frame_height
+        )
+
+    def download(self, html, prefered_path=None, html_file_name=None):
+        if not html_file_name:
+            if self.reference_profiles:
+                html_file_name = self.reference_profiles[0].dataset_timestamp
+            else:
+                html_file_name = self.target_profiles[0].dataset_timestamp
+
+        if prefered_path:
+            path = os.path.expanduser(prefered_path)
         else:
-            logger.warning(
-                "Make sure you have profile logged in and pass a valid feature name"
-            )
-            return None
+            path = os.path.join(os.pardir, "html_reports", str(html_file_name)+".html")
+
+        full_path = os.path.abspath(path)
+        with open(full_path, "w") as saved_html:
+            saved_html.write(html.data)
+        saved_html.close()
+        return None

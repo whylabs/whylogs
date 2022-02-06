@@ -281,21 +281,21 @@
       .display-flex{
         display: flex;
       }
- 
+
       .table-border-none {
         padding: 0;
         border: none;
       }
- 
+
       .flex-direction-colum {
         display: flex;
         flex-direction: column;
       }
- 
+
       .align-items {
         align-items: center;
       }
- 
+
       .search-input{
         padding-top: 0 !important;
         padding-bottom: 0 !important;
@@ -309,28 +309,28 @@
         width: 100%;
         font-size: 14px;
       }
- 
+
       .search-input img{
         height: 19px;
         pointer-events: none;
       }
- 
+
       input::placeholder {
         color: var(--secondaryLight1000);
       }
- 
+
       .bar.positive {
         fill: #369BACB2;
       }
- 
+
       .bar.negative {
         fill: #2683C9E5;
       }
- 
+
       .text-align-center {
         text-align: center;
       }
- 
+
       .drift-detection {
         justify-content: space-between;
         align-items: center;
@@ -405,7 +405,7 @@
        margin-right: 5px;
      }
 
-     .drift-detection-search-input input::placeholder { 
+     .drift-detection-search-input input::placeholder {
        font-family: Arial;
        font-weight: normal;
        font-size: 13px;
@@ -460,7 +460,7 @@
       .justify-content-center {
         justify-content: center;
       }
-  
+
       .wl-table-cell__graph-wrap {
         width: 0;
       }
@@ -551,7 +551,7 @@
                      </div>
                      <div onclick="openFilter()" class="close-filter-button">
                        <div class="display-flex close-filter-icon">
-                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/> 
+                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/>
                        </div>
                        <div class="display-flex filter-icon d-none">
                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
@@ -818,7 +818,7 @@
 
       const randomNumbers = (range) => Math.floor(Math.random() * range)
 
-      const profileFromCSVfile = {{{reference_profile}}}
+      const profileFromCSVfile = {{{reference_profile_from_whylogs}}}
 
       Handlebars.registerHelper("severeDrift", function () {
         return randomNumbers(50);
@@ -953,7 +953,7 @@
         unknown: true,
       };
 
-      const getReferenceProfile = () => { return {{{reference_profile}}} }
+      const getReferenceProfile = () => { return {{{reference_profile_from_whylogs}}} }
 
       let searchString = "";
 
@@ -1058,7 +1058,7 @@
       }
     }
 
-    function openFilter() { 
+    function openFilter() {
       const $filterOptions = $(".dropdown-container");
       const filterClass = $filterOptions.attr("class");
 

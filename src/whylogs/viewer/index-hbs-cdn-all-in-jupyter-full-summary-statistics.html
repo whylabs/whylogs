@@ -43,7 +43,7 @@
       @media screen and (min-width: 1000px) {
         .desktop-content {
           display: block;
-        } 
+        }
         .no-responsive {
           display: none;
         }
@@ -107,7 +107,7 @@
         position: relative;
         display: inline-block;
       }
-      
+
       .tooltip-full-number .tooltiptext {
         visibility: hidden;
         background-color: #0E7384;
@@ -126,7 +126,7 @@
         font-weight: normal;
         line-height: 100%;
       }
-      
+
       .tooltip-full-number:hover .tooltiptext {
         visibility: visible;
         opacity: 1;
@@ -155,7 +155,7 @@
       @media screen and (min-width: 500px) {
         .desktop-content {
           display: block;
-        } 
+        }
         .no-responsive {
           display: none;
         }
@@ -181,20 +181,20 @@
                 <div class="padding-right-30">
                   <div class="statistic-number-title">Missing Cells</div>
                   <div class="statistic-number">
-                    {{{missingCells}}} 
+                    {{{missingCells}}}
                     <div class="statistic-measurement">(8.1%)</div>
                   </div>
                 </div>
                 <div class="padding-right-30">
                   <div class="statistic-number-title">Duplicate Rows</div>
                   <div class="statistic-number">
-                    {{{duplicateRows}}} 
+                    {{{duplicateRows}}}
                     <div class="statistic-measurement">(0%)</div>
                   </div>
                 </div>
                 <div class="padding-right-30">
                   <div class="statistic-number-title">Total Size</div>
-                  {{{totalSize}}} 
+                  {{{totalSize}}}
                 </div>
                 <div class="padding-right-30">
                   <div class="statistic-number-title">Average record size</div>
@@ -253,18 +253,18 @@
         let newValue,
         suffixe = ""
         if (bytes === 0) return '0 Bytes';
-    
+
         const k = 1024;
         const dm = decimals < 0 ? 0 : decimals;
         const sizes = ['Bytes', 'KiB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    
+
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         newValue = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
         suffixe = sizes[i]
         return {bytes, newValue, suffixe};
       }
 
-      const numberWithSuffixe = (number, newNumber, suffixe) => 
+      const numberWithSuffixe = (number, newNumber, suffixe) =>
         `<div class="tooltip-full-number">
            <div class="statistic-number">${newNumber}
              <div class="statistic-measurement">${suffixe}</div>
@@ -273,22 +273,22 @@
          </div>`
 
       const randomNumbers = (range) => Math.floor(Math.random() * range)
-      
+
       Handlebars.registerHelper("observations", function () {
         const {value, newValue, suffixe} = abbreviateNumber(randomNumbers(900000000))
         return numberWithSuffixe(value, newValue, suffixe);
       });
-      
+
       Handlebars.registerHelper("missingCells", function () {
         const {value, newValue, suffixe} = abbreviateNumber(randomNumbers(90000))
         return numberWithSuffixe(value, newValue, suffixe);
       });
-      
+
       Handlebars.registerHelper("duplicateRows", function () {
         const {value, newValue, suffixe} = abbreviateNumber(randomNumbers(90000))
         return numberWithSuffixe(value, newValue, suffixe);
       });
-      
+
       Handlebars.registerHelper("averageRecordSize", function () {
         const {bytes, newValue, suffixe} = formatBytes(randomNumbers(900000))
         return numberWithSuffixe(bytes, newValue, suffixe);
@@ -310,9 +310,9 @@
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const targetedProfile = () => { return {{{profile_from_whylogs}}} }
-      const profileFromCSVfile = () => { return {{{reference_profile}}} }
-      const context =  profileFromCSVfile() ? profileFromCSVfile() : targetedProfile();
+      // const targetedProfile = () => { return  }
+      // const profileFromCSVfile = () => { return {{{reference_profile}}} }
+      const context =  {{{profile_summary_statistics_from_whylogs}}}
       // Config handlebars and pass data to HBS template
       const source = document.getElementById("entry-template").innerHTML;
       const template = Handlebars.compile(source);

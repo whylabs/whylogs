@@ -27,10 +27,10 @@
 
       :root {
         /** Branded colors */
-        --brandSecondary900: #4f595b; 
+        --brandSecondary900: #4f595b;
         --secondaryLight1000: #313b3d;
         /** Purpose colors */
-        --tealBackground: #eaf2f3; 
+        --tealBackground: #eaf2f3;
       }
 
       /* RESET STYLE */
@@ -41,7 +41,7 @@
         padding: 0;
         box-sizing: border-box;
       }
-      
+
       /* Screen on smaller screens */
       .no-responsive {
         display: none;
@@ -142,7 +142,7 @@
       <div class="desktop-content">
         {{#each this}}
               <div class="chart-box" id="chart-box">
-                <div class="chart-box-title display-flex">        
+                <div class="chart-box-title display-flex">
                   <p>{{@key}}</p>
                   <div class="display-flex">
                     <div class="colors-for-distingushing-charts">
@@ -247,7 +247,7 @@
           histogramData = chartData(data)
           overlappedHistogramData = chartData(referenceData)
         }
-        
+
         let yFormat,
             xFormat;
         const sizes = new GenerateChartParams($(window).height()-32, $(window).width(), histogramData)
@@ -322,13 +322,13 @@
         return svgEl._groups[0][0].outerHTML;
       }
 
-      const profileFromCSVfile = {{{reference_profile}}} 
+      const profileFromCSVfile = {{{reference_profile_from_whylogs}}} 
 
       Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => {
         const columnKey = key.data.key
         if (profileFromCSVfile) {
         return  generateDoubleHistogramChart (
-            column, 
+            column,
             profileFromCSVfile[columnKey]
           )
         }
