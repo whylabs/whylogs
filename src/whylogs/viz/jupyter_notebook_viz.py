@@ -80,7 +80,6 @@ class DisplayProfile:
         feature_data[feature_name] = profile_features.get('columns').get(feature_name)
         return feature_data
 
-    # rename
     def __display_rendered_template(self, template, template_name, height):
         if not height:
             height = self.PAGE_SIZES[template_name]
@@ -149,7 +148,6 @@ class DisplayProfile:
             selected_profile = self.reference_profile_jsons
         else:
             selected_profile = self.target_profile_jsons
-
         rendered_template = template({
             "profile_feature_summary_statistics_from_whylogs": json.dumps(
                 self.__pull_feature_data(selected_profile, feature_name)
@@ -167,12 +165,10 @@ class DisplayProfile:
                 html_file_name = self.reference_profiles[0].dataset_timestamp
             else:
                 html_file_name = self.target_profiles[0].dataset_timestamp
-
         if prefered_path:
             path = os.path.expanduser(prefered_path)
         else:
             path = os.path.join(os.pardir, "html_reports", str(html_file_name)+".html")
-
         full_path = os.path.abspath(path)
         with open(full_path, "w") as saved_html:
             saved_html.write(html.data)
