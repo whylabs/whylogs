@@ -65,6 +65,11 @@ message ReferenceDistributionDiscreteMessage {
   float total_count = 3;
 }
 
+message ValueBetweenConstraintMsg {
+  double lower_value = 1;
+  double upper_value = 2;
+}
+
 message SummaryBetweenConstraintMsg {
   oneof lower {
      string second_field = 1;
@@ -91,6 +96,7 @@ message ValueConstraintMsg {
     string regex_pattern = 5;
     google.protobuf.ListValue value_set = 6;
     ApplyFunctionMsg function = 7;
+    ValueBetweenConstraintMsg between = 8;
 
   }
   Op op = 3;

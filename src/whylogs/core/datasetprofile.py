@@ -376,10 +376,14 @@ class DatasetProfile:
             Protobuf constraints message.
         """
         self.validate()
-        constraints = [(name, col.generate_constraints()) for name, col in self.columns.items()]
+
+        value_constraints = [(name, col.generate_value_constraints()) for name, col in self.columns.items()]
+        value_constraints = [(n, c) for n, c in value_constraints if c is not None]
+
+        summary_constraints = [(name, col.generate_constraints()) for name, col in self.columns.items()]
         # filter empty constraints
-        constraints = [(n, c) for n, c in constraints if c is not None]
-        return DatasetConstraints(self.to_properties(), None, dict(constraints))
+        summary_constraints = [(n, c) for n, c in summary_constraints if c is not None]
+        return DatasetConstraints(self.to_properties(), dict(value_constraints), dict(summary_constraints))
 
     def flat_summary(self):
         """

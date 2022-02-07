@@ -37,6 +37,7 @@ from whylogs.proto import (
     SummaryBetweenConstraintMsg,
     SummaryConstraintMsg,
     SummaryConstraintMsgs,
+    ValueBetweenConstraintMsg,
     ValueConstraintMsg,
     ValueConstraintMsgs,
 )
@@ -141,6 +142,7 @@ _value_funcs = {
     Op.NOMATCH: lambda x: lambda v: x.match(v) is None,
     Op.IN: lambda x: lambda v: v in x,
     Op.APPLY_FUNC: lambda apply_function, reference_value: lambda v: apply_function(v, reference_value),
+    Op.BTWN: lambda x, y: lambda v: x <= v <= y,
 }
 
 _summary_funcs1 = {
@@ -210,6 +212,8 @@ class ValueConstraint:
     value : (one-of)
         When value is provided, regex_pattern must be None.
         Static value to compare against incoming stream using operator specified in `op`.
+    upper_value :
+        Upper_value must be provided if and only if using the between operation. Used as upper limit.
     regex_pattern : (one-of)
         When regex_pattern is provided, value must be None.
         Regex pattern to use when MATCH or NOMATCH operations are used.
@@ -224,7 +228,7 @@ class ValueConstraint:
 
     """
 
-    def __init__(self, op: Op, value=None, regex_pattern: str = None, apply_function=None, name: str = None, verbose=False):
+    def __init__(self, op: Op, value=None, upper_value=None, regex_pattern: str = None, apply_function=None, name: str = None, verbose=False):
         self._name = name
         self._verbose = verbose
         self.op = op
@@ -238,7 +242,10 @@ class ValueConstraint:
         if isinstance(value, set) != (op == Op.IN):
             raise ValueError("Value constraint must provide a set of values for using the IN operator")
 
-        if self.op == Op.APPLY_FUNC:
+        if self._check_and_init_between_constraint(value=value, upper_value=upper_value, regex_pattern=regex_pattern, apply_function=apply_function):
+            return
+
+        elif self.op == Op.APPLY_FUNC:
             if value is not None:
                 value = self.apply_func_validate(value)
                 self.value = value
@@ -258,13 +265,33 @@ class ValueConstraint:
 
     @property
     def name(self):
-        if self.op == Op.APPLY_FUNC:
+        if self.op == Op.BTWN:
+            val_or_funct = f"{self.value} and {self.upper_value}"
+        elif self.op == Op.APPLY_FUNC:
             val_or_funct = self.apply_function.__name__
         elif getattr(self, "value", None) is not None:
             val_or_funct = self.value
         else:
             val_or_funct = self.regex_pattern
         return self._name if self._name is not None else f"value {Op.Name(self.op)} {val_or_funct}"
+
+    def _check_and_init_between_constraint(self, value, upper_value, regex_pattern, apply_function):
+        if self.op == Op.BTWN:
+            if any([value is None, upper_value is None]):
+                raise ValueError("When using the between operation lower and upper limit values must be provided!")
+            if any([regex_pattern, apply_function]):
+                raise ValueError("When using the between operation no other parameters are allowed except lower and upper limit values!")
+            if not all([isinstance(value, (int, float)), isinstance(upper_value, (int, float))]):
+                raise TypeError("When creating Value constraint with BETWEEN operation, limit values must be of type (int, float)")
+            if value >= upper_value:
+                raise ValueError("Value constraint with BETWEEN operation must specify lower value to be less than upper value")
+
+            self.value = float(value)
+            self.upper_value = float(upper_value)
+            self.func = _value_funcs[self.op](self.value, self.upper_value)
+
+            return True
+        return False
 
     def update(self, v) -> bool:
         self.total += 1
@@ -293,6 +320,7 @@ class ValueConstraint:
             return self
 
         val = None
+        upper_val = None
         pattern = None
 
         assert self.name == other.name, f"Cannot merge constraints with different names: ({self.name}) and ({other.name})"
@@ -310,6 +338,12 @@ class ValueConstraint:
         elif all([getattr(v, "value", None) is not None for v in (self, other)]):
             val = self.value
             assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
+            if self.op == Op.BTWN:
+                assert all([hasattr(v, "upper_value") for v in (self, other)]), "Cannot merge value between constraints without upper value!"
+                assert (
+                    self.upper_value == other.upper_value
+                ), f"Cannot merge constraints with different upper values: {self.upper_value} and {other.upper_value}"
+                upper_val = self.upper_value
         elif all([getattr(v, "regex_pattern", None) for v in (self, other)]):
             pattern = self.regex_pattern
             assert (
@@ -319,7 +353,7 @@ class ValueConstraint:
             raise TypeError("Cannot merge a numeric value constraint with a string value constraint")
 
         merged_value_constraint = ValueConstraint(
-            op=self.op, value=val, regex_pattern=pattern, apply_function=self.apply_function, name=self.name, verbose=self._verbose
+            op=self.op, value=val, upper_value=upper_val, regex_pattern=pattern, apply_function=self.apply_function, name=self.name, verbose=self._verbose
         )
 
         merged_value_constraint.total = self.total + other.total
@@ -329,6 +363,7 @@ class ValueConstraint:
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsg) -> "ValueConstraint":
         val = None
+        upper_val = None
         regex_pattern = None
         apply_function = None
 
@@ -340,14 +375,21 @@ class ValueConstraint:
         elif len(msg.value_set.values) != 0:
             val = set(msg.value_set.values[0].list_value)
         else:
-            val = msg.value
+            if msg.HasField("between"):
+                val = msg.between.lower_value
+                upper_val = msg.between.upper_value
+            else:
+                val = msg.value
 
-        return ValueConstraint(msg.op, value=val, regex_pattern=regex_pattern, apply_function=apply_function, name=msg.name, verbose=msg.verbose)
+        return ValueConstraint(
+            msg.op, value=val, upper_value=upper_val, regex_pattern=regex_pattern, apply_function=apply_function, name=msg.name, verbose=msg.verbose
+        )
 
     def to_protobuf(self) -> ValueConstraintMsg:
         set_vals_message = None
         regex_pattern = None
         value = None
+        between_msg = None
         apply_func = None
 
         if self.op == Op.APPLY_FUNC:
@@ -361,7 +403,10 @@ class ValueConstraint:
                 set_vals_message = ListValue()
                 set_vals_message.append(list(self.value))
             else:
-                value = self.value
+                if self.op == Op.BTWN:
+                    between_msg = ValueBetweenConstraintMsg(lower_value=self.value, upper_value=self.upper_value)
+                else:
+                    value = self.value
 
         elif hasattr(self, "regex_pattern"):
             regex_pattern = self.regex_pattern
@@ -373,6 +418,7 @@ class ValueConstraint:
             value_set=set_vals_message,
             regex_pattern=regex_pattern,
             function=apply_func,
+            between=between_msg,
             verbose=self._verbose,
         )
 
@@ -1784,3 +1830,7 @@ def columnValuesUniqueWithinRow(column_A: str, verbose: bool = False):
         raise TypeError("The provided column_A should be of type str, indicating the name of the column to be checked")
 
     return MultiColumnValueConstraint(dependent_columns=column_A, op=Op.NOT_IN, reference_columns="all", verbose=verbose)
+
+
+def valueBetweenConstraint(lower_value: Union[int, float], upper_value: Union[int, float], verbose: bool = False):
+    return ValueConstraint(Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)

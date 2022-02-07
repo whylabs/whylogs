@@ -67,7 +67,7 @@ TEST_LOGGER = getLogger(__name__)
 
 def test_value_summary_serialization():
     for each_op, _ in _value_funcs.items():
-        if each_op == Op.APPLY_FUNC:
+        if each_op in (Op.APPLY_FUNC, Op.BTWN):
             continue
         if each_op == Op.IN:
             value = ValueConstraint(each_op, {3.6})
@@ -2772,3 +2772,104 @@ def test_column_values_unique_within_row_constraint_invalid_params():
         columnValuesUniqueWithinRow(column_A=1)
     with pytest.raises(TypeError):
         columnValuesUniqueWithinRow(column_A=["A"])
+
+
+def test_value_between_serialization_deserialization():
+    value_constraint = ValueConstraint(Op.BTWN, 0.1, 2.4)
+    msg_val_proto = value_constraint.to_protobuf()
+    json_val = json.loads(message_to_json(msg_val_proto))
+
+    assert json_val["name"] == "value BTWN 0.1 and 2.4"
+    assert pytest.approx(json_val["between"]["lowerValue"], 0.001) == 0.1
+    assert pytest.approx(json_val["between"]["upperValue"], 0.001) == 2.4
+    assert json_val["op"] == str(Op.Name(Op.BTWN))
+    assert json_val["verbose"] == False
+
+    val_deser_constraint = ValueConstraint.from_protobuf(value_constraint.to_protobuf())
+
+    json_deser_val = json.loads(message_to_json(val_deser_constraint.to_protobuf()))
+
+    assert json_val["name"] == json_deser_val["name"]
+    assert pytest.approx(json_val["between"]["lowerValue"], 0.001) == pytest.approx(json_deser_val["between"]["lowerValue"], 0.001)
+    assert pytest.approx(json_val["between"]["upperValue"], 0.001) == pytest.approx(json_deser_val["between"]["upperValue"], 0.001)
+    assert json_val["op"] == json_deser_val["op"]
+    assert json_val["verbose"] == json_deser_val["verbose"]
+
+
+def test_value_between_constraint_incompatible_parameters():
+    with pytest.raises(TypeError):
+        ValueConstraint(Op.BTWN, 0.1, "stddev")
+    with pytest.raises(ValueError):
+        ValueConstraint(Op.BTWN, 0.1, 2.4, "stddev")
+    with pytest.raises(ValueError):
+        ValueConstraint(Op.BTWN, 0.1)
+    with pytest.raises(ValueError):
+        ValueConstraint(Op.BTWN, upper_value=0.1)
+
+
+def test_value_between_constraints_no_merge():
+    btwn1 = ValueConstraint(Op.BTWN, value=0.1, upper_value=200)
+    btwn2 = ValueConstraint(Op.BTWN, value=0.2, upper_value=200)
+
+    with pytest.raises(AssertionError):
+        btwn1.merge(btwn2)
+
+    btwn1 = ValueConstraint(Op.BTWN, value=0.1, upper_value=200)
+    btwn2 = ValueConstraint(Op.BTWN, value=0.1, upper_value=300)
+
+    with pytest.raises(AssertionError):
+        btwn1.merge(btwn2)
+
+
+def test_value_between_constraints_merge():
+    btwn1 = ValueConstraint(Op.BTWN, value=0.1, upper_value=200)
+    btwn2 = ValueConstraint(Op.BTWN, value=0.1, upper_value=200)
+
+    merged = btwn1.merge(btwn2)
+
+    pre_merge_json = json.loads(message_to_json(btwn1.to_protobuf()))
+    merge_json = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert pre_merge_json["name"] == merge_json["name"]
+    assert pytest.approx(pre_merge_json["between"]["lowerValue"], 0.001) == pytest.approx(merge_json["between"]["lowerValue"], 0.001)
+    assert pytest.approx(pre_merge_json["between"]["upperValue"], 0.001) == pytest.approx(merge_json["between"]["upperValue"], 0.001)
+    assert pre_merge_json["op"] == merge_json["op"]
+    assert pre_merge_json["verbose"] == merge_json["verbose"]
+
+
+def test_value_between_constraints(local_config_path):
+    df = pd.DataFrame(
+        {"c1": [0.3, 0.45, 34.65, 0.12, 0.48, 0.67, 0.33, 0.21, 1.2]},
+    )
+    value_btwn = ValueConstraint(Op.BTWN, value=0, upper_value=1)
+
+    dc = DatasetConstraints(None, value_constraints={"c1": [value_btwn]})
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+    report = dc.report()
+
+    assert report[0][1][0][0] == f"value {Op.Name(Op.BTWN)} 0.0 and 1.0"
+    assert report[0][1][0][1] == 9
+    assert report[0][1][0][2] == 2
+
+
+def test_generate_value_constraints(local_config_path):
+    df = pd.DataFrame(
+        {"c1": np.random.normal(loc=10000, scale=2.0, size=5000)},
+    )
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data")
+
+    dc = profile.generate_constraints()
+
+    assert profile.columns["c1"].schema_tracker.infer_type().type == 2
+
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+
+    report = dc.report()
+
+    assert "value BTWN" in report[0][1][0][0]  # 3sigma
+    assert report[0][1][0][1] == 5000

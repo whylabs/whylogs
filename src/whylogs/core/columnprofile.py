@@ -2,6 +2,9 @@
 Defines the ColumnProfile class for tracking per-column statistics
 """
 
+
+import numpy as np
+
 from whylogs.core.statistics import (
     CountersTracker,
     NumberTracker,
@@ -15,9 +18,17 @@ from whylogs.core.statistics.constraints import (
     columnMostCommonValueInSetConstraint,
     columnUniqueValueCountBetweenConstraint,
     columnValuesTypeEqualsConstraint,
+    containsCreditCardConstraint,
+    containsEmailConstraint,
+    containsSSNConstraint,
+    containsURLConstraint,
+    dateUtilParseableConstraint,
+    jsonParseableConstraint,
     maxLessThanEqualConstraint,
     meanBetweenConstraint,
     minGreaterThanEqualConstraint,
+    parametrizedKSTestPValueGreaterThanConstraint,
+    valueBetweenConstraint,
 )
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.types import TypedDataConverter
@@ -222,6 +233,55 @@ class ColumnProfile:
 
         if len(items) > 0:
             return SummaryConstraints(items)
+
+        return None
+
+    def generate_value_constraints(self) -> ValueConstraints:
+
+        val_constraints = []
+
+        schema_summary = self.schema_tracker.to_summary()
+        inferred_type = schema_summary.inferred_type.type
+
+        column_name_lower = self.column_name.lower()
+
+        if inferred_type == InferredType.STRING:
+            # generate regex and string related constraints
+
+            email_checks = ["email", "e-mail", "e mail"]
+            credit_card_checks = ["credit card", "creditcard", "credit-card", "credit_card"]
+
+            if any([email_check in column_name_lower for email_check in email_checks]):
+                val_constraints.append(containsEmailConstraint())
+            elif "ssn" in column_name_lower:
+                val_constraints.append(containsSSNConstraint())
+            elif any([cc_check in column_name_lower for cc_check in credit_card_checks]):
+                val_constraints.append(containsCreditCardConstraint())
+            elif "url" in column_name_lower:
+                val_constraints.append(containsURLConstraint())
+            elif "json" in column_name_lower:
+                val_constraints.append(jsonParseableConstraint())
+            elif "date" in column_name_lower or "time" in column_name_lower:
+                val_constraints.append(dateUtilParseableConstraint())
+        elif inferred_type == InferredType.FRACTIONAL:
+            if self.number_tracker is not None and self.number_tracker.count > 0:
+                summ = self.number_tracker.to_summary()
+
+                norm_values = np.random.normal(loc=summ.mean, scale=summ.stddev, size=self.counters.count)
+                test_normal_dist_constraint = parametrizedKSTestPValueGreaterThanConstraint(norm_values)
+                kll_sketch = self.number_tracker.histogram
+                update_obj = type("Object", (), {"ks_test": kll_sketch})
+                test_normal_dist_constraint.update(update_obj)
+
+                if test_normal_dist_constraint.failures == 0:
+                    # did not fail, meaning the distribution is considered normal based on the ks test
+                    # constraint values 3 sigma
+                    lower3sigma = summ.mean - 3 * summ.stddev
+                    upper3sigma = summ.mean + 3 * summ.stddev
+                    val_constraints.append(valueBetweenConstraint(lower_value=lower3sigma, upper_value=upper3sigma))
+
+        if len(val_constraints) > 0:
+            return ValueConstraints(val_constraints)
 
         return None
 
