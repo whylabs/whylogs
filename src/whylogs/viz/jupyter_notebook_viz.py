@@ -15,7 +15,7 @@ _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 logger = logging.getLogger(__name__)
 
 
-class DisplayProfile:
+class NotebookProfileViewer:
     SUMMARY_REPORT_TEMPLATE_NAME = 'index-hbs-cdn-all-in-for-jupyter-notebook.html'
     SUMMARY_STATISTICS_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-full-summary-statistics.html'
     DOUBLE_HISTOGRAM_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-distribution-chart.html'
@@ -87,7 +87,7 @@ class DisplayProfile:
         iframe = f'''<iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>'''
         return HTML(iframe)
 
-    def summary(self, frame_height=None):
+    def summary_drift_report(self, preferred_cell_height=None):
         template = self.__get_compiled_template(self.SUMMARY_REPORT_TEMPLATE_NAME)
         profiles_summary = {"profile_from_whylogs": self.target_profile_jsons[0]}
         if self.reference_profiles:
@@ -95,10 +95,10 @@ class DisplayProfile:
         return self.__display_rendered_template(
             template(profiles_summary),
             self.SUMMARY_REPORT_TEMPLATE_NAME,
-            frame_height
+            preferred_cell_height
         )
 
-    def feature(self, feature_names, frame_height=None):
+    def double_histogram(self, feature_names, preferred_cell_height=None):
         if type(feature_names) is not list:
             feature_names = [feature_names]
         template = self.__get_compiled_template(self.DOUBLE_HISTOGRAM_TEMPLATE_NAME)
@@ -118,7 +118,7 @@ class DisplayProfile:
             return self.__display_rendered_template(
                 distribution_chart,
                 self.DOUBLE_HISTOGRAM_TEMPLATE_NAME,
-                frame_height
+                preferred_cell_height
             )
         else:
             logger.warning(
@@ -126,11 +126,10 @@ class DisplayProfile:
             )
             return None
 
-    def summary_statistics(self, profile_name=None, frame_height=None):
+    def summary_statistics(self, profile='reference', preferred_cell_height=None):
         template = self.__get_compiled_template(self.SUMMARY_STATISTICS_TEMPLATE_NAME)
-        if self.reference_profiles:
-            if not profile_name or profile_name.lower() == 'reference':
-                profile_statistics = self.reference_profile_jsons[0]
+        if self.reference_profiles and profile.lower() == 'reference':
+            profile_statistics = self.reference_profile_jsons[0]
         else:
             profile_statistics = self.target_profile_jsons[0]
         rendered_template = template({
@@ -139,12 +138,12 @@ class DisplayProfile:
         return self.__display_rendered_template(
             rendered_template,
             self.SUMMARY_STATISTICS_TEMPLATE_NAME,
-            frame_height
+            preferred_cell_height
         )
 
-    def feature_summary_statistics(self, feature_name, profile_name, frame_height=None):
+    def feature_summary_statistics(self, feature_name, profile='reference', preferred_cell_height=None):
         template = self.__get_compiled_template(self.FEATURE_STATISTICS_TEMPLATE_NAME)
-        if self.reference_profiles and (not profile_name or profile_name.lower() == 'reference'):
+        if self.reference_profiles and profile.lower() == 'reference':
             selected_profile = self.reference_profile_jsons
         else:
             selected_profile = self.target_profile_jsons
@@ -156,17 +155,17 @@ class DisplayProfile:
         return self.__display_rendered_template(
             rendered_template,
             self.FEATURE_STATISTICS_TEMPLATE_NAME,
-            frame_height
+            preferred_cell_height
         )
 
-    def download(self, html, prefered_path=None, html_file_name=None):
+    def download(self, html, preferred_path=None, html_file_name=None):
         if not html_file_name:
             if self.reference_profiles:
                 html_file_name = self.reference_profiles[0].dataset_timestamp
             else:
                 html_file_name = self.target_profiles[0].dataset_timestamp
-        if prefered_path:
-            path = os.path.expanduser(prefered_path)
+        if preferred_path:
+            path = os.path.expanduser(preferred_path)
         else:
             path = os.path.join(os.pardir, "html_reports", str(html_file_name)+".html")
         full_path = os.path.abspath(path)
