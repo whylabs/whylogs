@@ -1394,6 +1394,8 @@ def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None
         e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as an upper bound.
         If `upper_field` is supplied, then `lower_field` must also be supplied,
         and none of `lower_value` and `upper_value` should be provided.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1436,6 +1438,8 @@ def meanBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, 
         e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as an upper bound.
         If `upper_field` is supplied, then `lower_field` must also be supplied,
         and none of `lower_value` and `upper_value` should be provided.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1478,6 +1482,8 @@ def minBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, u
         e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as an upper bound.
         If `upper_field` is supplied, then `lower_field` must also be supplied,
         and none of `lower_value` and `upper_value` should be provided.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1508,6 +1514,8 @@ def minGreaterThanEqualConstraint(value=None, field=None, verbose=False):
         e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used for
         checking the greater than or equal to constraint.
         Only one of `field` and `value` should be supplied.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1551,6 +1559,8 @@ def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, u
         e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as an upper bound.
         If `upper_field` is supplied, then `lower_field` must also be supplied,
         and none of `lower_value` and `upper_value` should be provided.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1581,6 +1591,8 @@ def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
         e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used for
         checking the less than or equal to constraint.
         Only one of `field` and `value` should be supplied.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1732,6 +1744,8 @@ def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
     regex_pattern : str (optional)
         User-defined email regex pattern.
         If supplied, will override the default email regex pattern provided by whylogs.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
             If true, log every application of this constraint that fails.
             Useful to identify specific streaming values that fail the constraint.
@@ -1768,6 +1782,8 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
     regex_pattern : str (optional)
         User-defined credit card number regex pattern.
         If supplied, will override the default credit card number regex pattern provided by whylogs.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
             If true, log every application of this constraint that fails.
             Useful to identify specific streaming values that fail the constraint.
@@ -1803,6 +1819,8 @@ def dateUtilParseableConstraint(verbose=False):
 
     Parameters
     ----------
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
             If true, log every application of this constraint that fails.
             Useful to identify specific streaming values that fail the constraint.
@@ -1824,6 +1842,8 @@ def jsonParseableConstraint(verbose=False):
 
     Parameters
     ----------
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1847,6 +1867,8 @@ def matchesJsonSchemaConstraint(json_schema, verbose=False):
     ----------
     json_schema: Union[str, dict] (required)
         A string or dictionary of key-value pairs representing the expected JSON schema.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1869,6 +1891,8 @@ def strftimeFormatConstraint(format, verbose=False):
     ----------
     format: str (required)
         A string representing the expected strftime format for parsing the values.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1894,6 +1918,8 @@ def containsSSNConstraint(regex_pattern: "str" = None, verbose=False):
     regex_pattern : str (optional)
         User-defined SSN regex pattern.
         If supplied, will override the default SSN regex pattern provided by whylogs.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
             If true, log every application of this constraint that fails.
             Useful to identify specific streaming values that fail the constraint.
@@ -1924,6 +1950,8 @@ def containsURLConstraint(regex_pattern: "str" = None, verbose=False):
     regex_pattern : str (optional)
         User-defined URL regex pattern.
         If supplied, will override the default URL regex pattern provided by whylogs.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
             If true, log every application of this constraint that fails.
             Useful to identify specific streaming values that fail the constraint.
@@ -1957,6 +1985,8 @@ def stringLengthEqualConstraint(length: int, verbose=False):
     ----------
     length: int (required)
         A numeric value which represents the expected length of the string values in the specified feature.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1984,6 +2014,8 @@ def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose=Fa
     upper_value: int (required)
         A numeric value which represents the expected upper bound of the length
         of the string values in the specified feature.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool (optional)
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2013,6 +2045,8 @@ def quantileBetweenConstraint(quantile_value: Union[int, float], lower_value: Un
         Represents the lower value limit of the interval for the n-th quantile.
     upper_value : numeric (required)
         Represents the upper value limit of the interval for the n-th quantile.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2046,6 +2080,8 @@ def columnUniqueValueCountBetweenConstraint(lower_value: int, upper_value: int, 
         Represents the lower value limit of the interval for the feature cardinality.
     upper_value : numeric (required)
         Represents the upper value limit of the interval for the feature cardinality.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2078,6 +2114,8 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
         Represents the lower fraction limit of the interval for the feature unique value proportion.
     upper_fraction : fraction between 0 and 1 (required)
         Represents the upper fraction limit of the interval for the feature cardinality.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2106,6 +2144,8 @@ def columnExistsConstraint(column: str, verbose=False):
     ----------
     column : str (required)
         Represents the name of the column to be checked for existence in the data set.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2129,6 +2169,8 @@ def numberOfRowsConstraint(n_rows: int, verbose=False):
     ----------
     n_rows : int (required)
         Represents the user-supplied expected number of rows.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2151,6 +2193,8 @@ def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
     ----------
     reference_set : Set[str] (required)
         Represents the expected columns in the current data set.
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2238,6 +2282,8 @@ def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], ve
             INTEGRAL = 3
             BOOLEAN = 4
             STRING = 5
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2273,6 +2319,8 @@ def columnValuesTypeInSetConstraint(type_set: Set[int], verbose: bool = False):
             INTEGRAL = 3
             BOOLEAN = 4
             STRING = 5
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2306,6 +2354,8 @@ def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_va
         Represents the lower value limit of the interval for the feature's estimated entropy.
     upper_value : numeric (required)
         Represents the upper value limit of the interval for the feature's estimated entropy.
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2342,6 +2392,8 @@ def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[
     p_value: float
         Represents the reference p_value value to compare with the p_value of the test
         Should be between 0 and 1, inclusive
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2384,6 +2436,8 @@ def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any]
         Both numeric and categorical distributions are accepted
     threshold: float
         Represents the threshold value which if exceeded from the KL Divergence, the constraint would fail
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2457,6 +2511,8 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
     p_value: float
         Represents the reference p_value value to compare with the p_value of the test
         Should be between 0 and 1, inclusive
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2506,6 +2562,8 @@ def columnValuesAGreaterThanBConstraint(column_A: str, column_B: str, verbose: b
         The name of column A
     column_B : str
         The name of column B
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2535,6 +2593,8 @@ def columnValuesAGreaterThanEqualBConstraint(column_A: str, column_B: str, verbo
         The name of column A
     column_B : str
         The name of column B
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2564,6 +2624,8 @@ def columnValuesALessThanBConstraint(column_A: str, column_B: str, verbose: bool
         The name of column A
     column_B : str
         The name of column B
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2593,6 +2655,8 @@ def columnValuesALessThanEqualBConstraint(column_A: str, column_B: str, verbose:
         The name of column A
     column_B : str
         The name of column B
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2622,6 +2686,8 @@ def columnValuesAEqualBConstraint(column_A: str, column_B: str, verbose: bool = 
         The name of column A
     column_B : str
         The name of column B
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2651,6 +2717,8 @@ def columnValuesANotEqualBConstraint(column_A: str, column_B: str, verbose: bool
         The name of column A
     column_B : str
         The name of column B
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2681,6 +2749,8 @@ def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], Se
     value : Union[float, int, str]
         Numeric value to compare with the sum of the column row values,
         or a string indicating a column name for which the row value will be compared with the sum
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2725,6 +2795,8 @@ def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set
         The name of the second column
     value_set : Set[Tuple[Any, Any]]
         A set of expected pairs of values for the columns A and B, in that order
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -2757,6 +2829,8 @@ def columnValuesUniqueWithinRow(column_A: str, verbose: bool = False):
     ----------
     column_A : str
         The name of the column for which it is expected that the values are unique within each row
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
