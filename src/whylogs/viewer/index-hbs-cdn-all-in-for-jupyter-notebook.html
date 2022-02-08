@@ -484,6 +484,25 @@
         min-width: 250px;
       }
 
+      .notif-circle-container{
+        position: absolute;
+        top: 20px;
+        right: 15px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
       @media screen and (min-width: 500px) {
         .desktop-content {
           display: block;
@@ -549,18 +568,23 @@
                        <input type="text" id="wl__feature-search" placeholder="Quick search..."/>
                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg=="/>
                      </div>
-                     <div onclick="openFilter()" class="close-filter-button">
-                       <div class="display-flex close-filter-icon">
-                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/>
+                     <div class="wl__dropdown_arrow-icon">
+                       <div onclick="openFilter()" class="close-filter-button">
+                         <div class="display-flex close-filter-icon d-none">
+                           <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/>
+                         </div>
+                         <div class="display-flex filter-icon">
+                           <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
+                         </div>
                        </div>
-                       <div class="display-flex filter-icon d-none">
-                         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
-                       </div>
+                       <span class="notif-circle-container">
+                         <span class="notif-circle"></span>
+                       </span>
                      </div>
                    </div>
                  </div>
                </div>
-               <div class="dropdown-container flex-direction-colum mb-2" id="dropdown-container">
+               <div class="dropdown-container flex-direction-colum mb-2 d-none" id="dropdown-container">
                  <div class="filter-options">
                    <div class="filter-options-title space-between dropdown">
                      <p>Filter by type</p>
@@ -1056,11 +1080,22 @@
       }
     }
 
+    function checkedBoxes() {
+      const $boxes = $('input[name=checkbox]:checked');
+      const $notifCircleContainer = $(".notif-circle-container")
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass("d-none")
+      }
+    }
+
     function openFilter() {
       const $filterOptions = $(".dropdown-container");
+      const $notifCircleContainer = $(".notif-circle-container")
       const filterClass = $filterOptions.attr("class");
 
       if (filterClass.indexOf("d-none") > 0) {
+        $notifCircleContainer.addClass("d-none")
         $filterOptions.removeClass("d-none");
         $(".filter-icon").addClass("d-none")
         $(".close-filter-icon").removeClass("d-none")
@@ -1068,6 +1103,7 @@
         $filterOptions.addClass("d-none");
         $(".close-filter-icon").addClass("d-none")
         $(".filter-icon").removeClass("d-none")
+        checkedBoxes()
       }
     }
 
