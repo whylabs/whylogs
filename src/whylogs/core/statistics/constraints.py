@@ -236,9 +236,11 @@ class ValueConstraint:
             raise ValueError("A function must be provided if and only if using the APPLY_FUNC operator")
 
         if isinstance(value, set) != (op == Op.IN):
-            raise ValueError("Value constraint must provide a set of values for using the IN operator")
+            raise ValueError("Value constraint must provide a set of values for using the IN operator!")
 
         if self.op == Op.APPLY_FUNC:
+            if apply_function.__name__ not in globals() or "lambda" in apply_function.__name__:
+                raise ValueError("Cannot initialize constraint with APPLY_FUNC using an unknown function!")
             if value is not None:
                 value = self.apply_func_validate(value)
                 self.value = value
@@ -258,13 +260,16 @@ class ValueConstraint:
 
     @property
     def name(self):
+        if self._name:
+            return self._name
         if self.op == Op.APPLY_FUNC:
             val_or_funct = self.apply_function.__name__
         elif getattr(self, "value", None) is not None:
             val_or_funct = self.value
         else:
             val_or_funct = self.regex_pattern
-        return self._name if self._name is not None else f"value {Op.Name(self.op)} {val_or_funct}"
+
+        return f"value {Op.Name(self.op)} {val_or_funct}"
 
     def update(self, v) -> bool:
         self.total += 1
@@ -331,6 +336,7 @@ class ValueConstraint:
         val = None
         regex_pattern = None
         apply_function = None
+        name = msg.name if msg.name else None
 
         if msg.HasField("function"):
             val = None if msg.function.reference_value == "" else msg.function.reference_value
@@ -342,7 +348,7 @@ class ValueConstraint:
         else:
             val = msg.value
 
-        return ValueConstraint(msg.op, value=val, regex_pattern=regex_pattern, apply_function=apply_function, name=msg.name, verbose=msg.verbose)
+        return ValueConstraint(msg.op, value=val, regex_pattern=regex_pattern, apply_function=apply_function, name=name, verbose=msg.verbose)
 
     def to_protobuf(self) -> ValueConstraintMsg:
         set_vals_message = None
@@ -480,35 +486,44 @@ class SummaryConstraint:
 
     @property
     def name(self):
+        if self._name:
+            return self._name
+        constraint_type_str = self._get_constraint_type()
+        field_name = self._get_field_name()
+        value_or_field = self._get_value_or_field()
+
+        return f"{constraint_type_str} {field_name} {Op.Name(self.op)} {value_or_field}"
+
+    def _get_field_name(self):
         if self.first_field == "quantile":
-            field_name = f"{self.first_field} {self.quantile_value}"
+            return f"{self.first_field} {self.quantile_value}"
         elif hasattr(self, "reference_distribution"):
             if self.first_field == "kl_divergence":
-                field_name = f"{self.first_field} threshold"
+                return f"{self.first_field} threshold"
             else:
-                field_name = f"{self.first_field} p-value"
+                return f"{self.first_field} p-value"
         else:
-            field_name = self.first_field
+            return self.first_field
 
-        constraint_type_str = "table" if self.first_field in ("columns", "total_row_number") else "summary"
-
+    def _get_value_or_field(self):
         if self.first_field == "column_values_type":
             if self.value is not None:
-                value_or_field = InferredType.Type.Name(self.value)
+                return InferredType.Type.Name(self.value)
             else:
-                value_or_field = {InferredType.Type.Name(element) for element in list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH]}
+                return {InferredType.Type.Name(element) for element in list(self.reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH]}
         elif hasattr(self, "reference_set"):
-            value_or_field = self._get_str_from_ref_set()
+            return self._get_str_from_ref_set()
         elif self.op == Op.BTWN:
             lower_target = self.value if self.value is not None else self.second_field
             upper_target = self.upper_value if self.upper_value is not None else self.third_field
-            value_or_field = f"{lower_target} and {upper_target}"
+            return f"{lower_target} and {upper_target}"
         elif self.first_field in ("columns", "total_row_number"):
-            value_or_field = str(self.value)
+            return str(self.value)
         else:
-            value_or_field = f"{self.value}/{self.second_field}"
+            return f"{self.value if self.value is not None else self.second_field}"
 
-        return self._name if self._name is not None else f"{constraint_type_str} {field_name} {Op.Name(self.op)} {value_or_field}"
+    def _get_constraint_type(self):
+        return "table" if self.first_field in ("columns", "total_row_number") else "summary"
 
     def _check_and_init_table_shape_constraint(self, reference_set):
         if self.first_field in ("columns", "total_row_number"):  # table shape constraint
@@ -749,6 +764,7 @@ class SummaryConstraint:
         third_field = None
         quantile_value = None
         ref_distribution = None
+        name = msg.name if msg.name else None
 
         if msg.first_field == "quantile":
             quantile_value = msg.quantile_value
@@ -783,7 +799,7 @@ class SummaryConstraint:
             quantile_value=quantile_value,
             third_field=third_field,
             reference_set=ref_distribution,
-            name=msg.name,
+            name=name,
             verbose=msg.verbose,
         )
 
@@ -1012,6 +1028,9 @@ class MultiColumnValueConstraint(ValueConstraint):
 
     @property
     def name(self):
+        if self._name:
+            return self._name
+
         dependent_cols = str(self.dependent_columns)
         if hasattr(self, "value"):
             val_or_ref_columns = self.value
@@ -1019,7 +1038,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             val_or_ref_columns = self.reference_columns
         if hasattr(self, "internal_op"):
             dependent_cols = Op.Name(self.internal_op) + " " + dependent_cols
-        return self._name if self._name is not None else f"multi column value {dependent_cols} {Op.Name(self.op)} {val_or_ref_columns}"
+        return f"multi column value {dependent_cols} {Op.Name(self.op)} {val_or_ref_columns}"
 
     def update(self, columns):
         self.total += 1
@@ -1098,6 +1117,7 @@ class MultiColumnValueConstraint(ValueConstraint):
         internal_op = None
         value = None
         ref_cols = None
+        name = msg.name if msg.name else None
 
         if msg.HasField("dependent_columns"):
             dependent_cols = list(msg.dependent_columns)
@@ -1108,7 +1128,7 @@ class MultiColumnValueConstraint(ValueConstraint):
             internal_op = msg.internal_dependent_columns_op
 
         if len(msg.value_set.values) != 0:
-            value = {tuple(v) if hasattr(v, "values") else v for v in msg.value_set}
+            value = {TypedDataConverter.convert(tuple(v)) if hasattr(v, "values") else TypedDataConverter.convert(v) for v in msg.value_set}
 
         elif msg.value:
             value = msg.value
@@ -1119,9 +1139,8 @@ class MultiColumnValueConstraint(ValueConstraint):
                 ref_cols = "all"
         else:
             raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
-        value
         return MultiColumnValueConstraint(
-            dependent_cols, msg.op, value=value, reference_columns=ref_cols, name=msg.name, internal_dependent_cols_op=internal_op, verbose=msg.verbose
+            dependent_cols, msg.op, value=value, reference_columns=ref_cols, name=name, internal_dependent_cols_op=internal_op, verbose=msg.verbose
         )
 
     def to_protobuf(self) -> MultiColumnValueConstraintMsg:
@@ -1179,9 +1198,18 @@ class MultiColumnValueConstraints(ValueConstraints):
 
     @staticmethod
     def from_protobuf(msg: ValueConstraintMsgs) -> "MultiColumnValueConstraints":
-        value_constraints = [MultiColumnValueConstraint.from_protobuf(c) for c in msg.constraints]
+        value_constraints = [MultiColumnValueConstraint.from_protobuf(c) for c in msg.multi_column_constraints]
         if len(value_constraints) > 0:
             return MultiColumnValueConstraints({v.name: v for v in value_constraints})
+        return None
+
+    def to_protobuf(self) -> ValueConstraintMsgs:
+        v = [c.to_protobuf() for c in self.raw_value_constraints.values()]
+        v.extend([c.to_protobuf() for c in self.coerced_type_constraints.values()])
+        if len(v) > 0:
+            vcmsg = ValueConstraintMsgs()
+            vcmsg.multi_column_constraints.extend(v)
+            return vcmsg
         return None
 
 
@@ -1269,52 +1297,114 @@ class DatasetConstraints:
         return l1 + l2 + l3 + l4
 
 
-def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
-    return SummaryConstraint("stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+def _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field):
+    if (
+        (lower_value is not None and upper_field is not None)
+        or (lower_value is None and upper_value is not None)
+        or (upper_value is None and lower_field is None)
+        or (lower_field is not None and upper_field is None)
+    ):
+        raise ValueError("Summary constraint with BETWEEN operation must specify lower and upper value OR lower and upper field name, but not both")
 
 
-def meanBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
-    return SummaryConstraint("mean", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+def _set_between_constraint_default_name(field, lower_value, upper_value, lower_field, upper_field):
+    if all([v is not None for v in (lower_value, upper_value)]):
+        return f"{field} is between {lower_value} and {upper_value}"
+    else:
+        return f"{field} is between {lower_field} and {upper_field}"
 
 
-def minBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
-    return SummaryConstraint("min", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+def _format_set_values_for_display(reference_set):
+    if len(reference_set) > MAX_SET_DISPLAY_MESSAGE_LENGTH:
+        tmp_set = set(list(reference_set)[:MAX_SET_DISPLAY_MESSAGE_LENGTH])
+        return f"{str(tmp_set)[:-1]}, ...}}"
+    else:
+        return str(reference_set)
 
 
-def minGreaterThanEqualConstraint(value=None, field=None, verbose=False):
-    return SummaryConstraint("min", Op.GE, value=value, second_field=field, verbose=verbose)
+def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
+    _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field)
+    if name is None:
+        name = _set_between_constraint_default_name("standard deviation", lower_value, upper_value, lower_field, upper_field)
+    return SummaryConstraint(
+        "stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
+    )
 
 
-def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, verbose=False):
-    return SummaryConstraint("max", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
+def meanBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
+    _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field)
+    if name is None:
+        name = _set_between_constraint_default_name("mean", lower_value, upper_value, lower_field, upper_field)
+    return SummaryConstraint(
+        "mean", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
+    )
 
 
-def maxLessThanEqualConstraint(value=None, field=None, verbose=False):
-    return SummaryConstraint("max", Op.LE, value=value, second_field=field, verbose=verbose)
+def minBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
+    _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field)
+    if name is None:
+        name = _set_between_constraint_default_name("minimum", lower_value, upper_value, lower_field, upper_field)
+    return SummaryConstraint(
+        "min", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
+    )
+
+
+def minGreaterThanEqualConstraint(value=None, field=None, name=None, verbose=False):
+    if name is None:
+        name = f"minimum is greater than or equal to {value}"
+    return SummaryConstraint("min", Op.GE, value=value, second_field=field, name=name, verbose=verbose)
+
+
+def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
+    _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field)
+    if name is None:
+        name = _set_between_constraint_default_name("maximum", lower_value, upper_value, lower_field, upper_field)
+    return SummaryConstraint(
+        "max", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
+    )
+
+
+def maxLessThanEqualConstraint(value=None, field=None, name=None, verbose=False):
+    if name is None:
+        name = f"maximum is less than or equal to {value}"
+    return SummaryConstraint("max", Op.LE, value=value, second_field=field, name=name, verbose=verbose)
 
 
 def distinctValuesInSetConstraint(reference_set: Set[Any], name=None, verbose=False):
-    return SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=reference_set, name=name, verbose=False)
+    if name is None:
+        ref_name = _format_set_values_for_display(reference_set)
+        name = f"distinct values are in {ref_name}"
+    return SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=reference_set, name=name, verbose=verbose)
 
 
 def distinctValuesEqualSetConstraint(reference_set: Set[Any], name=None, verbose=False):
-    return SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=reference_set, name=name, verbose=False)
+    if name is None:
+        ref_name = _format_set_values_for_display(reference_set)
+        name = f"distinct values are equal to the set {ref_name}"
+    return SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=reference_set, name=name, verbose=verbose)
 
 
 def distinctValuesContainSetConstraint(reference_set: Set[Any], name=None, verbose=False):
-    return SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=reference_set, name=name, verbose=False)
+    if name is None:
+        ref_name = _format_set_values_for_display(reference_set)
+        name = f"distinct values contain the set {ref_name}"
+    return SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=reference_set, name=name, verbose=verbose)
 
 
-def columnValuesInSetConstraint(value_set: Set[Any], verbose=False):
+def columnValuesInSetConstraint(value_set: Set[Any], name=None, verbose=False):
     try:
         value_set = set(value_set)
     except Exception:
         raise TypeError("The value set should be an iterable data type")
 
-    return ValueConstraint(Op.IN, value=value_set, verbose=verbose)
+    if name is None:
+        val_name = _format_set_values_for_display(value_set)
+        name = f"values are in {val_name}"
+
+    return ValueConstraint(Op.IN, value=value_set, name=name, verbose=verbose)
 
 
-def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
+def containsEmailConstraint(regex_pattern: "str" = None, name=None, verbose=False):
     if regex_pattern is not None:
         logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsEmailConstraint, depending on its complexity.")
         email_pattern = regex_pattern
@@ -1326,10 +1416,13 @@ def containsEmailConstraint(regex_pattern: "str" = None, verbose=False):
             r"(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)$"
         )
 
-    return ValueConstraint(Op.MATCH, regex_pattern=email_pattern, verbose=verbose)
+    if name is None:
+        name = "column values match the email regex pattern"
+
+    return ValueConstraint(Op.MATCH, regex_pattern=email_pattern, name=name, verbose=verbose)
 
 
-def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
+def containsCreditCardConstraint(regex_pattern: "str" = None, name=None, verbose=False):
     if regex_pattern is not None:
         logger.warning(
             "Warning: supplying your own regex pattern might cause slower evaluation of the containsCreditCardConstraint, depending on its complexity."
@@ -1345,36 +1438,50 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, verbose=False):
             r"|(?:2131|1800|35[0-9]{2,3}([\s-]?[0-9]{4}){3}))$"
         )
 
-    return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, verbose=verbose)
+    if name is None:
+        name = "column values match the credit card regex pattern"
+
+    return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, name=name, verbose=verbose)
 
 
-def dateUtilParseableConstraint(verbose=False):
-    return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_dateutil, verbose=verbose)
+def dateUtilParseableConstraint(name=None, verbose=False):
+    if name is None:
+        name = "column values are dateutil parseable"
+    return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_dateutil, name=name, verbose=verbose)
 
 
-def jsonParseableConstraint(verbose=False):
-    return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_json, verbose=verbose)
+def jsonParseableConstraint(name=None, verbose=False):
+    if name is None:
+        name = "column values are JSON parseable"
+    return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_json, name=name, verbose=verbose)
 
 
-def matchesJsonSchemaConstraint(json_schema, verbose=False):
-    return ValueConstraint(Op.APPLY_FUNC, json_schema, apply_function=_matches_json_schema, verbose=verbose)
+def matchesJsonSchemaConstraint(json_schema, name=None, verbose=False):
+    if name is None:
+        name = f"column values match the provided JSON schema {json_schema}"
+    return ValueConstraint(Op.APPLY_FUNC, json_schema, apply_function=_matches_json_schema, name=name, verbose=verbose)
 
 
-def strftimeFormatConstraint(format, verbose=False):
-    return ValueConstraint(Op.APPLY_FUNC, format, apply_function=_try_parse_strftime_format, verbose=verbose)
+def strftimeFormatConstraint(format, name=None, verbose=False):
+    if name is None:
+        name = "column values are strftime parseable"
+    return ValueConstraint(Op.APPLY_FUNC, format, apply_function=_try_parse_strftime_format, name=name, verbose=verbose)
 
 
-def containsSSNConstraint(regex_pattern: "str" = None, verbose=False):
+def containsSSNConstraint(regex_pattern: "str" = None, name=None, verbose=False):
     if regex_pattern is not None:
         logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsSSNConstraint, depending on its complexity.")
         ssn_pattern = regex_pattern
     else:
         ssn_pattern = r"^(?!000|666|9[0-9]{2})[0-9]{3}[\s-]?(?!00)[0-9]{2}[\s-]?(?!0000)[0-9]{4}$"
 
-    return ValueConstraint(Op.MATCH, regex_pattern=ssn_pattern, verbose=verbose)
+    if name is None:
+        name = "column values match the SSN regex pattern"
+
+    return ValueConstraint(Op.MATCH, regex_pattern=ssn_pattern, name=name, verbose=verbose)
 
 
-def containsURLConstraint(regex_pattern: "str" = None, verbose=False):
+def containsURLConstraint(regex_pattern: "str" = None, name=None, verbose=False):
     if regex_pattern is not None:
         logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsURLConstraint, depending on its complexity.")
         url_pattern = regex_pattern
@@ -1386,75 +1493,103 @@ def containsURLConstraint(regex_pattern: "str" = None, verbose=False):
             r"(?:[-a-zA-Z0-9@:%_\+.~#?&//=]*))$"
         )
 
-    return ValueConstraint(Op.MATCH, regex_pattern=url_pattern, verbose=verbose)
+    if name is None:
+        name = "column values match the URL regex pattern"
+
+    return ValueConstraint(Op.MATCH, regex_pattern=url_pattern, name=name, verbose=verbose)
 
 
-def stringLengthEqualConstraint(length: int, verbose=False):
+def stringLengthEqualConstraint(length: int, name=None, verbose=False):
     length_pattern = f"^.{{{length}}}$"
-    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
+    if name is None:
+        name = f"length of the string values is equal to {length}"
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, name=name, verbose=verbose)
 
 
-def stringLengthBetweenConstraint(lower_value: int, upper_value: int, verbose=False):
+def stringLengthBetweenConstraint(lower_value: int, upper_value: int, name=None, verbose=False):
     length_pattern = rf"^.{{{lower_value},{upper_value}}}$"
-    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, verbose=verbose)
+    if name is None:
+        name = f"length of the string values is between {lower_value} and {upper_value}"
+    return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, name=name, verbose=verbose)
 
 
-def quantileBetweenConstraint(quantile_value: Union[int, float], lower_value: Union[int, float], upper_value: Union[int, float], verbose: "bool" = False):
+def quantileBetweenConstraint(
+    quantile_value: Union[int, float], lower_value: Union[int, float], upper_value: Union[int, float], name=None, verbose: "bool" = False
+):
     if not all([isinstance(v, (int, float)) for v in (quantile_value, upper_value, lower_value)]):
         raise TypeError("The quantile, lower and upper values must be of type int or float")
 
     if lower_value > upper_value:
         raise ValueError("The lower value must be less than or equal to the upper value")
 
-    return SummaryConstraint("quantile", value=lower_value, upper_value=upper_value, quantile_value=quantile_value, op=Op.BTWN, verbose=verbose)
+    if name is None:
+        name = f"{quantile_value}-th quantile value is between {lower_value} and {upper_value}"
+    return SummaryConstraint("quantile", value=lower_value, upper_value=upper_value, quantile_value=quantile_value, op=Op.BTWN, name=name, verbose=verbose)
 
 
-def columnUniqueValueCountBetweenConstraint(lower_value: int, upper_value: int, verbose: bool = False):
+def columnUniqueValueCountBetweenConstraint(lower_value: int, upper_value: int, name=None, verbose: bool = False):
     if not all([isinstance(v, int) and v >= 0 for v in (lower_value, upper_value)]):
         raise ValueError("The lower and upper values should be non-negative integers")
 
     if lower_value > upper_value:
         raise ValueError("The lower value should be less than or equal to the upper value")
 
-    return SummaryConstraint("unique_count", op=Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)
+    if name is None:
+        name = f"number of unique values is between {lower_value} and {upper_value}"
+    return SummaryConstraint("unique_count", op=Op.BTWN, value=lower_value, upper_value=upper_value, name=name, verbose=verbose)
 
 
-def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fraction: float, verbose: bool = False):
+def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fraction: float, name=None, verbose: bool = False):
     if not all([isinstance(v, float) and 0 <= v <= 1 for v in (lower_fraction, upper_fraction)]):
         raise ValueError("The lower and upper fractions should be between 0 and 1")
 
     if lower_fraction > upper_fraction:
         raise ValueError("The lower fraction should be decimal values less than or equal to the upper fraction")
 
-    return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, verbose=verbose)
+    if name is None:
+        name = f"proportion of unique values is between {lower_fraction} and {upper_fraction}"
+    return SummaryConstraint("unique_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, name=name, verbose=verbose)
 
 
-def columnExistsConstraint(column: str, verbose=False):
-    return SummaryConstraint("columns", Op.CONTAIN, value=column, verbose=verbose)
+def columnExistsConstraint(column: str, name=None, verbose=False):
+    if name is None:
+        name = f"The column {column} exists in the table"
+    return SummaryConstraint("columns", Op.CONTAIN, value=column, name=name, verbose=verbose)
 
 
-def numberOfRowsConstraint(n_rows: int, verbose=False):
-    return SummaryConstraint("total_row_number", Op.EQ, value=n_rows, verbose=verbose)
+def numberOfRowsConstraint(n_rows: int, name=None, verbose=False):
+    if name is None:
+        name = f"The number of rows in the table equals {n_rows}"
+    return SummaryConstraint("total_row_number", Op.EQ, value=n_rows, name=name, verbose=verbose)
 
 
-def columnsMatchSetConstraint(reference_set: Set[str], verbose=False):
-    return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, verbose=verbose)
+def columnsMatchSetConstraint(reference_set: Set[str], name=None, verbose=False):
+    if name is None:
+        ref_name = _format_set_values_for_display(reference_set)
+        name = f"The columns of the table are equal to the set {ref_name}"
+    return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, name=name, verbose=verbose)
 
 
-def columnMostCommonValueInSetConstraint(value_set: Set[Any], verbose=False):
+def columnMostCommonValueInSetConstraint(value_set: Set[Any], name=None, verbose=False):
     try:
         value_set = set(value_set)
     except Exception:
         raise TypeError("The value set should be an iterable data type")
 
-    return SummaryConstraint("most_common_value", op=Op.IN, reference_set=value_set, verbose=verbose)
+    if name is None:
+        val_name = _format_set_values_for_display(value_set)
+        name = f"most common value is in {val_name}"
+
+    return SummaryConstraint("most_common_value", op=Op.IN, reference_set=value_set, name=name, verbose=verbose)
 
 
-def columnValuesNotNullConstraint(verbose=False):
-    return SummaryConstraint("null_count", value=0, op=Op.EQ, verbose=verbose)
+def columnValuesNotNullConstraint(name=None, verbose=False):
+    if name is None:
+        name = "does not contain missing values"
+    return SummaryConstraint("null_count", value=0, op=Op.EQ, name=name, verbose=verbose)
 
 
-def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], verbose: bool = False):
+def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], name=None, verbose: bool = False):
     """
 
     Parameters
@@ -1468,6 +1603,8 @@ def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], ve
             INTEGRAL = 3
             BOOLEAN = 4
             STRING = 5
+    name: str
+        Name of the constraint
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1482,10 +1619,13 @@ def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], ve
     if isinstance(expected_type, InferredType):
         expected_type = expected_type.type
 
-    return SummaryConstraint("column_values_type", op=Op.EQ, value=expected_type, verbose=verbose)
+    if name is None:
+        name = f"type of the column values is {InferredType.Type.Name(expected_type)}"
+
+    return SummaryConstraint("column_values_type", op=Op.EQ, value=expected_type, name=name, verbose=verbose)
 
 
-def columnValuesTypeInSetConstraint(type_set: Set[int], verbose: bool = False):
+def columnValuesTypeInSetConstraint(type_set: Set[int], name=None, verbose: bool = False):
     """
 
     Parameters
@@ -1499,6 +1639,8 @@ def columnValuesTypeInSetConstraint(type_set: Set[int], verbose: bool = False):
             INTEGRAL = 3
             BOOLEAN = 4
             STRING = 5
+    name: str
+        The name of the constraint
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1516,10 +1658,15 @@ def columnValuesTypeInSetConstraint(type_set: Set[int], verbose: bool = False):
     if not all([isinstance(t, int) for t in type_set]):
         raise TypeError("All of the elements of the type_set parameter should be of type int")
 
-    return SummaryConstraint("column_values_type", op=Op.IN, reference_set=type_set, verbose=verbose)
+    if name is None:
+        type_names = {InferredType.Type.Name(t) if isinstance(t, int) else InferredType.Type.Name(t.type) for t in type_set}
+        type_names = _format_set_values_for_display(type_names)
+        name = f"type of the column values is in {type_names}"
+
+    return SummaryConstraint("column_values_type", op=Op.IN, reference_set=type_set, name=name, verbose=verbose)
 
 
-def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_value: float, verbose=False):
+def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_value: float, name=None, verbose=False):
     if not all([isinstance(v, (int, float)) for v in (lower_value, upper_value)]):
         raise TypeError("The lower and upper values should be of type int or float")
     if not all([v >= 0 for v in (lower_value, upper_value)]):
@@ -1527,10 +1674,13 @@ def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_va
     if lower_value > upper_value:
         raise ValueError("The supplied lower bound should be less than or equal to the supplied upper bound")
 
-    return SummaryConstraint("entropy", op=Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)
+    if name is None:
+        name = f"approximate entropy is between {lower_value} and {upper_value}"
+
+    return SummaryConstraint("entropy", op=Op.BTWN, value=lower_value, upper_value=upper_value, name=name, verbose=verbose)
 
 
-def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[List[float], np.ndarray], p_value=0.05, verbose=False):
+def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[List[float], np.ndarray], p_value=0.05, name=None, verbose=False):
     """
 
     Parameters
@@ -1542,6 +1692,8 @@ def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[
     p_value: float
         Represents the reference p_value value to compare with the p_value of the test
         Should be between 0 and 1, inclusive
+    name: str
+        The name of the constraint
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1566,10 +1718,13 @@ def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[
             raise ValueError("The reference distribution should be a continuous distribution")
         kll_floats.update(value)
 
-    return SummaryConstraint("ks_test", op=Op.GT, reference_set=kll_floats, value=p_value, verbose=verbose)
+    if name is None:
+        name = f"parametrized KS test p-value is greater than {p_value}"
+
+    return SummaryConstraint("ks_test", op=Op.GT, reference_set=kll_floats, value=p_value, name=name, verbose=verbose)
 
 
-def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any], np.ndarray], threshold: float = 0.5, verbose: bool = False):
+def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any], np.ndarray], threshold: float = 0.5, name=None, verbose: bool = False):
     """
 
     Parameters
@@ -1580,6 +1735,8 @@ def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any]
         Both numeric and categorical distributions are accepted
     threshold: float
         Represents the threshold value which if exceeded from the KL Divergence, the constraint would fail
+    name: str
+        The name of the constraint
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1629,11 +1786,14 @@ def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any]
             frequent_items=frequent_items_sketch.to_summary(), unique_count=cardinality_sketch.to_summary(), total_count=total_count
         )
 
-    return SummaryConstraint("kl_divergence", op=Op.LT, reference_set=ref_summary, value=threshold, verbose=verbose)
+    if name is None:
+        name = f"KL Divergence is less than {threshold}"
+
+    return SummaryConstraint("kl_divergence", op=Op.LT, reference_set=ref_summary, value=threshold, name=name, verbose=verbose)
 
 
 def columnChiSquaredTestPValueGreaterThanConstraint(
-    reference_distribution: Union[List[Any], np.ndarray, Mapping[str, int]], p_value: float = 0.05, verbose: bool = False
+    reference_distribution: Union[List[Any], np.ndarray, Mapping[str, int]], p_value: float = 0.05, name=None, verbose: bool = False
 ):
     """
 
@@ -1645,8 +1805,10 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
         or a mapping of type key: value where the keys are the items and the values are the per-item counts
         Only categorical distributions are accepted
     p_value: float
-         Represents the reference p_value value to compare with the p_value of the test
-         Should be between 0 and 1, inclusive
+        Represents the reference p_value value to compare with the p_value of the test
+        Should be between 0 and 1, inclusive
+    name: str
+        The name of the constraint
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1680,52 +1842,75 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
 
     ref_dist = ReferenceDistributionDiscreteMessage(frequent_items=frequent_items_sketch.to_summary(), total_count=frequency_sum)
 
-    return SummaryConstraint("chi_squared_test", op=Op.GT, reference_set=ref_dist, value=p_value, verbose=verbose)
+    if name is None:
+        name = f"Chi-Squared test p-value is greater than {p_value}"
+
+    return SummaryConstraint("chi_squared_test", op=Op.GT, reference_set=ref_dist, value=p_value, name=name, verbose=verbose)
 
 
-def columnValuesAGreaterThanBConstraint(column_A: str, column_B: str, verbose: bool = False):
+def columnValuesAGreaterThanBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
-    return MultiColumnValueConstraint(column_A, op=Op.GT, reference_columns=column_B, verbose=verbose)
+    if name is None:
+        name = f"The values of the column {column_A} are greater than the corresponding values of the column {column_B}"
+
+    return MultiColumnValueConstraint(column_A, op=Op.GT, reference_columns=column_B, name=name, verbose=verbose)
 
 
-def columnValuesAGreaterThanEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+def columnValuesAGreaterThanEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
-    return MultiColumnValueConstraint(column_A, op=Op.GE, reference_columns=column_B, verbose=verbose)
+    if name is None:
+        name = f"The values of the column {column_A} are greater than or equal to the corresponding values of the column {column_B}"
+
+    return MultiColumnValueConstraint(column_A, op=Op.GE, reference_columns=column_B, name=name, verbose=verbose)
 
 
-def columnValuesALessThanBConstraint(column_A: str, column_B: str, verbose: bool = False):
+def columnValuesALessThanBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
-    return MultiColumnValueConstraint(column_A, op=Op.LT, reference_columns=column_B, verbose=verbose)
+    if name is None:
+        name = f"The values of the column {column_A} are less than the corresponding values of the column {column_B}"
+
+    return MultiColumnValueConstraint(column_A, op=Op.LT, reference_columns=column_B, name=name, verbose=verbose)
 
 
-def columnValuesALessThanEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+def columnValuesALessThanEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
-    return MultiColumnValueConstraint(column_A, op=Op.LE, reference_columns=column_B, verbose=verbose)
+    if name is None:
+        name = f"The values of the column {column_A} are less than or equal to the corresponding values of the column {column_B}"
+
+    return MultiColumnValueConstraint(column_A, op=Op.LE, reference_columns=column_B, name=name, verbose=verbose)
 
 
-def columnValuesAEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+def columnValuesAEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
-    return MultiColumnValueConstraint(column_A, op=Op.EQ, reference_columns=column_B, verbose=verbose)
+    if name is None:
+        name = f"The values of the column {column_A} are equal to the corresponding values of the column {column_B}"
+
+    return MultiColumnValueConstraint(column_A, op=Op.EQ, reference_columns=column_B, name=name, verbose=verbose)
 
 
-def columnValuesANotEqualBConstraint(column_A: str, column_B: str, verbose: bool = False):
+def columnValuesANotEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
-    return MultiColumnValueConstraint(column_A, op=Op.NE, reference_columns=column_B, verbose=verbose)
+    if name is None:
+        name = f"The values of the column {column_A} are not equal to the corresponding values of the column {column_B}"
+
+    return MultiColumnValueConstraint(column_A, op=Op.NE, reference_columns=column_B, name=name, verbose=verbose)
 
 
-def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], Set[str], np.array], value: Union[float, int, str], verbose: bool = False):
+def sumOfRowValuesOfMultipleColumnsEqualsConstraint(
+    columns: Union[List[str], Set[str], np.array], value: Union[float, int, str], name=None, verbose: bool = False
+):
     """
 
     Parameters
@@ -1735,6 +1920,8 @@ def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], Se
     value : Union[float, int, str]
         Numeric value to compare with the sum of the column row values,
         or a string indicating a column name for which the row value will be compared with the sum
+    name: str
+        The name of the constraint
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
@@ -1760,12 +1947,23 @@ def sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns: Union[List[str], Se
         reference_cols = [value]
         value = None
 
+    if name is None:
+        coumn_names = ""
+        for i in range(len(columns) - 1):
+            if i == len(columns) - 2:
+                coumn_names += columns[i] + " "
+            else:
+                coumn_names += columns[i] + ", "
+        coumn_names += "and " + columns[-1]
+        value_or_column_name = f"the corresponding value of the column {reference_cols[0]}" if reference_cols else value
+        name = f"The sum of the values of {coumn_names} is equal to {value_or_column_name}"
+
     return MultiColumnValueConstraint(
-        dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op=Op.SUM, verbose=verbose
+        dependent_columns=columns, op=Op.EQ, value=value, reference_columns=reference_cols, internal_dependent_cols_op=Op.SUM, name=name, verbose=verbose
     )
 
 
-def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set[Tuple[Any, Any]], verbose: bool = False):
+def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set[Tuple[Any, Any]], name=None, verbose: bool = False):
     if not all([isinstance(col, str) for col in (column_A, column_B)]):
         raise TypeError("The provided column_A and column_B should be of type str, indicating the name of the columns to be compared")
     if isinstance(value_set, str):
@@ -1776,11 +1974,16 @@ def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set
     except Exception:
         raise TypeError("The value_set should be an array-like data type of tuple values")
 
-    return MultiColumnValueConstraint(dependent_columns=[column_A, column_B], op=Op.IN, value=value_set, verbose=verbose)
+    if name is None:
+        val_name = _format_set_values_for_display(value_set)
+        name = f"The pair of values of the columns {column_A} and {column_B} are in {val_name}"
+    return MultiColumnValueConstraint(dependent_columns=[column_A, column_B], op=Op.IN, value=value_set, name=name, verbose=verbose)
 
 
-def columnValuesUniqueWithinRow(column_A: str, verbose: bool = False):
+def columnValuesUniqueWithinRow(column_A: str, name=None, verbose: bool = False):
     if not isinstance(column_A, str):
         raise TypeError("The provided column_A should be of type str, indicating the name of the column to be checked")
 
-    return MultiColumnValueConstraint(dependent_columns=column_A, op=Op.NOT_IN, reference_columns="all", verbose=verbose)
+    if name is None:
+        name = f"The values of the column {column_A} are unique within each row"
+    return MultiColumnValueConstraint(dependent_columns=column_A, op=Op.NOT_IN, reference_columns="all", name=name, verbose=verbose)
