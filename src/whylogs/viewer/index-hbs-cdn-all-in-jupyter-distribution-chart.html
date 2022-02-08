@@ -197,7 +197,7 @@
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
           this.svgEl = d3.create("svg")
              .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `40 0 ${$(window).width()} ${$(window).height()-32}`)
+             .attr("viewBox", `20 0 ${$(window).width()} ${$(window).height()-32}`)
              .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
