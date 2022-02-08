@@ -1832,5 +1832,7 @@ def columnValuesUniqueWithinRow(column_A: str, verbose: bool = False):
     return MultiColumnValueConstraint(dependent_columns=column_A, op=Op.NOT_IN, reference_columns="all", verbose=verbose)
 
 
-def valueBetweenConstraint(lower_value: Union[int, float], upper_value: Union[int, float], verbose: bool = False):
-    return ValueConstraint(Op.BTWN, value=lower_value, upper_value=upper_value, verbose=verbose)
+def valueBetweenConstraint(lower_value: Union[int, float], upper_value: Union[int, float], name: str = None, verbose: bool = False):
+    if name is None:
+        name = f"column values are between {lower_value} and {upper_value}"
+    return ValueConstraint(Op.BTWN, value=lower_value, upper_value=upper_value, name=name, verbose=verbose)

@@ -2871,5 +2871,5 @@ def test_generate_value_constraints(local_config_path):
 
     report = dc.report()
 
-    assert "value BTWN" in report[0][1][0][0]  # 3sigma
+    assert "column values satisfy the 3 sigma rule" in report[0][1][0][0]  # 3sigma
     assert report[0][1][0][1] == 5000

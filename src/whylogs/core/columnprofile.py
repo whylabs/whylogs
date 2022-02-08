@@ -278,7 +278,11 @@ class ColumnProfile:
                     # constraint values 3 sigma
                     lower3sigma = summ.mean - 3 * summ.stddev
                     upper3sigma = summ.mean + 3 * summ.stddev
-                    val_constraints.append(valueBetweenConstraint(lower_value=lower3sigma, upper_value=upper3sigma))
+                    val_constraints.append(
+                        valueBetweenConstraint(
+                            lower_value=lower3sigma, upper_value=upper3sigma, name=f"column values satisfy the 3 sigma rule: [{lower3sigma}, {upper3sigma}]"
+                        )
+                    )
 
         if len(val_constraints) > 0:
             return ValueConstraints(val_constraints)
