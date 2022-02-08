@@ -35,8 +35,9 @@ def profile_viewer(profiles: List[DatasetProfile] = None, reference_profiles: Li
                 "More than one profile not implemented yet, default to first profile in the list ")
         profile_jsons = [message_to_json(each_prof.to_summary()) for each_prof in profiles]
         if reference_profiles:
-            reference_profile_jsons = [message_to_json(each_prof.to_summary())
-                               for each_prof in reference_profiles]
+            reference_profile_jsons = [
+                message_to_json(each_prof.to_summary()) for each_prof in reference_profiles
+            ]
 
     else:
         index_path = os.path.abspath(os.path.join(_MY_DIR, os.pardir, "viewer", "index.html"))
@@ -54,8 +55,10 @@ def profile_viewer(profiles: List[DatasetProfile] = None, reference_profiles: Li
     template = compiler.compile(source)
     # replace handlebars for json profiles
     if reference_profiles:
-        output_index = template(
-            {"profile_from_whylogs": profile_jsons[0], "reference_profile": reference_profile_jsons[0]})
+        output_index = template({
+            "profile_from_whylogs": profile_jsons[0],
+            "reference_profile": reference_profile_jsons[0]
+        })
     else:
         output_index = template(
             {"profile_from_whylogs": profile_jsons[0]})
