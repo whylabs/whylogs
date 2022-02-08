@@ -1,0 +1,30 @@
+site_name: whylogs
+site_url: https://example.com/
+# mkdocs.yml
+theme:
+  name: "material"
+
+plugins:
+- search
+- gen-files:
+    scripts:
+    - docs/gen_credits.py
+    - docs/gen_ref_nav.py
+- literate-nav:
+    nav_file: SUMMARY.md
+- mkdocstrings:
+    handlers:
+      python:
+        import:
+        - https://docs.python.org/3/objects.inv
+        - https://docs.python-requests.org/en/master/objects.inv  # demonstration purpose in the docs
+        - https://mkdocstrings.github.io/autorefs/objects.inv
+    watch:
+      - src/whylogs
+
+nav:
+# defer to gen-files + literate-nav
+- Code Reference: reference/
+
+
+
