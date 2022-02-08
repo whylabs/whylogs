@@ -680,6 +680,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script>
+    const getReferenceProfile = () => { return {{{reference_profile_from_whylogs}}} }
+    const referenceProfile = getReferenceProfile()
+
     function fixNumberTo(number, decimals = 3) {
       return parseFloat(number).toFixed(decimals);
     }
@@ -715,7 +718,7 @@
         }
       }
 
-      function generateChart(data, height = 70, width = 250, index = 0, referenceProfile = false) {
+      function generateChart(data, height = 70, width = 250, index = 0, referenceProfileExist = false) {
         const sizes = new GenerateChartParams(height, width, data, 5)
         const {
           MARGIN,
@@ -731,7 +734,7 @@
         const color = ["#369BAC", '#2683C9']
 
         // Add the y Axis
-        if (!referenceProfile) {
+        if (!referenceProfileExist) {
           svgEl
             .append("g")
             .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
@@ -818,8 +821,6 @@
 
       const randomNumbers = (range) => Math.floor(Math.random() * range)
 
-      const profileFromCSVfile = {{{reference_profile_from_whylogs}}}
-
       Handlebars.registerHelper("severeDrift", function () {
         return randomNumbers(50);
       });
@@ -837,7 +838,7 @@
       });
 
       Handlebars.registerHelper("getDiffFromRef", function () {
-        if (profileFromCSVfile && profileFromCSVfile.columns) {
+        if (referenceProfile && referenceProfile.columns) {
           const circleColors = ["severe-drift-circle-color", "moderate-drift-circle-color", "mild-drift-circle-color", "minimal-drift-circle-color"]
           return `
             <div class="display-flex justify-content-center">
@@ -893,7 +894,7 @@
       });
 
       Handlebars.registerHelper("getGraphHtml",(column,key) => graph(column, key, null));
-      Handlebars.registerHelper("getReferenceGraphHtml",(column,key) => graph(column, key, profileFromCSVfile));
+      Handlebars.registerHelper("getReferenceGraphHtml",(column,key) => graph(column, key, referenceProfile));
 
       Handlebars.registerHelper("getDiscreteTypeCount", function () {
         let count = 0;
@@ -952,8 +953,6 @@
         "non-discrete": true,
         unknown: true,
       };
-
-      const getReferenceProfile = () => { return {{{reference_profile_from_whylogs}}} }
 
       let searchString = "";
 
@@ -1040,8 +1039,7 @@
       });
 
       function checkCurrentProfile(item, referenceItem) {
-        const refData = getReferenceProfile()
-        if (refData && Object.values(refData)) {
+        if (referenceProfile && Object.values(referenceProfile)) {
           return referenceItem
         } else {
           return item
