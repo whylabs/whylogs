@@ -2210,7 +2210,7 @@ def test_column_kl_divergence_less_than_constraint_wrong_datatype():
 
 
 def test_chi_squared_test_p_value_greater_than_constraint_true(df_lending_club, local_config_path):
-    test_values = ["A", "A", "B", "C", "C", "C", "C", "D", "D", "E", "F"]
+    test_values = ["A"] * 6 + ["B"] * 13 + ["C"] * 25 + ["D"] * 3 + ["E"] + ["F"] * 2
     kspval = columnChiSquaredTestPValueGreaterThanConstraint(test_values, p_value=0.1)
     dc = DatasetConstraints(None, summary_constraints={"grade": [kspval]})
     config = load_config(local_config_path)
