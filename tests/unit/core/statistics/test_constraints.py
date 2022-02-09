@@ -50,6 +50,7 @@ from whylogs.core.statistics.constraints import (
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
+    missingValuesProportionBetweenConstraint,
     numberOfRowsConstraint,
     parametrizedKSTestPValueGreaterThanConstraint,
     quantileBetweenConstraint,
@@ -1761,6 +1762,84 @@ def test_serialization_deserialization_column_values_not_null_constraint():
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 0
     assert json_value["verbose"] is True
+
+
+def test_missing_values_proportion_between_constraint_apply_pass(local_config_path, df_lending_club):
+    mvpbc = missingValuesProportionBetweenConstraint(lower_fraction=0.0, upper_fraction=0.3)
+    summary_constraint = {"annual_inc": [mvpbc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
+    assert report[0][1][0][0] == f"missing values proportion is between 0.0% and 30.0%"
+    assert report[0][1][0][1] == 1  # number of executions
+    assert report[0][1][0][2] == 0  # number of failures
+
+
+def test_missing_values_proportion_between_constraint_apply_fail(local_config_path, df_lending_club):
+    mvpbc = missingValuesProportionBetweenConstraint(lower_fraction=0.3, upper_fraction=0.8)
+    summary_constraint = {"annual_inc": [mvpbc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
+    assert report[0][1][0][0] == f"missing values proportion is between 30.0% and 80.0%"
+    assert report[0][1][0][1] == 1  # number of executions
+    assert report[0][1][0][2] == 1  # number of failures
+
+
+def test_merge_missing_values_proportion_between_constraint_different_values():
+    m1 = missingValuesProportionBetweenConstraint(lower_fraction=0.2, upper_fraction=0.3)
+    m2 = missingValuesProportionBetweenConstraint(lower_fraction=0.1, upper_fraction=0.3)
+    with pytest.raises(AssertionError):
+        m1.merge(m2)
+
+
+def test_merge_missing_values_proportion_between_constraint_same_values():
+    m1 = missingValuesProportionBetweenConstraint(lower_fraction=0.1, upper_fraction=0.5)
+    m2 = missingValuesProportionBetweenConstraint(lower_fraction=0.1, upper_fraction=0.5)
+    merged = m1.merge(m2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == "missing values proportion is between 10.0% and 50.0%"
+    assert message["firstField"] == "missing_values_proportion"
+    assert message["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.1
+    assert pytest.approx(message["between"]["upperValue"], 0.001) == 0.5
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_missing_values_proportion_between_constraint():
+    u1 = missingValuesProportionBetweenConstraint(lower_fraction=0.4, upper_fraction=0.7, verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    assert json_value["name"] == "missing values proportion is between 40.0% and 70.0%"
+    assert json_value["firstField"] == "missing_values_proportion"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 0.4
+    assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 0.7
+    assert json_value["verbose"] is True
+
+
+def test_serialization_deserialization_missing_values_proportion_between_constraint_with_provided_name():
+    u1 = missingValuesProportionBetweenConstraint(lower_fraction=0.05, upper_fraction=0.1, name="missing values constraint", verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    assert json_value["name"] == "missing values constraint"
+    assert json_value["firstField"] == "missing_values_proportion"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 0.05
+    assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 0.1
+    assert json_value["verbose"] is True
+
+
+def test_missing_values_proportion_between_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        missingValuesProportionBetweenConstraint(lower_fraction=0, upper_fraction=1.0, verbose=True)
+    with pytest.raises(ValueError):
+        missingValuesProportionBetweenConstraint(lower_fraction=0.2, upper_fraction=0.1, verbose=True)
+    with pytest.raises(ValueError):
+        missingValuesProportionBetweenConstraint(lower_fraction=0.4, upper_fraction=2)
+    with pytest.raises(ValueError):
+        missingValuesProportionBetweenConstraint(lower_fraction="1", upper_fraction=2.0, verbose=False)
 
 
 def test_column_values_type_equals_constraint_apply(local_config_path, df_lending_club):
