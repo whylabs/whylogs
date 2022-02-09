@@ -4,7 +4,7 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
-from typing import Dict, List, Mapping, Optional, Union
+from typing import Dict, List, Mapping, Optional, Union, Tuple
 from uuid import uuid4
 
 import numpy as np
@@ -380,6 +380,12 @@ class DatasetProfile:
         # filter empty constraints
         constraints = [(n, c) for n, c in constraints if c is not None]
         return DatasetConstraints(self.to_properties(), None, dict(constraints))
+
+    def generate_data_insights(self) -> List:
+        insights = []
+        for name, col in self.columns.items():
+            insights.extend(col.generate_data_isnights())
+        return insights
 
     def flat_summary(self):
         """
