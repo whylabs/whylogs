@@ -2405,6 +2405,41 @@ def columnValuesNotNullConstraint(name=None, verbose=False):
     return SummaryConstraint("null_count", value=0, op=Op.EQ, name=name, verbose=verbose)
 
 
+def missingValuesProportionBetweenConstraint(lower_fraction: float, upper_fraction: float, name: str = None, verbose: bool = False):
+    """
+    Defines a summary constraint on the proportion of missing values of a specific feature.
+    The proportion of missing values can be defined to be between two frequency values.
+    The defined interval is a closed interval, which includes both of its limit points.
+    Useful for checking features with expected amounts of missing values.
+
+    Parameters
+    ----------
+    lower_fraction : fraction between 0 and 1 (required)
+        Represents the lower fraction limit of the interval for the feature missing value proportion.
+    upper_fraction : fraction between 0 and 1 (required)
+        Represents the upper fraction limit of the interval for the feature missing value proportion.
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a closed interval
+        for the valid proportion of missing values of a specific feature
+
+    """
+
+    if not all([isinstance(v, float) and 0 <= v <= 1 for v in (lower_fraction, upper_fraction)]):
+        raise ValueError("The lower and upper fractions should be between 0 and 1")
+
+    if lower_fraction > upper_fraction:
+        raise ValueError("The lower fraction should be decimal values less than or equal to the upper fraction")
+
+    if not name:
+        name = f"missing values proportion is between {lower_fraction * 100}% and {upper_fraction * 100}%"
+
+    return SummaryConstraint("missing_values_proportion", op=Op.BTWN, value=lower_fraction, upper_value=upper_fraction, name=name, verbose=verbose)
+
+
 def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], name=None, verbose: bool = False):
     """
     Defines a summary constraint on the type of the feature values.
