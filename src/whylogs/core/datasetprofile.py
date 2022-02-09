@@ -16,11 +16,7 @@ from smart_open import open
 from whylogs.core import ColumnProfile, MultiColumnProfile
 from whylogs.core.flatten_datasetprofile import flatten_summary
 from whylogs.core.model_profile import ModelProfile
-from whylogs.core.statistics.constraints import (
-    DatasetConstraints,
-    MultiColumnValueConstraints,
-    SummaryConstraints,
-)
+from whylogs.core.statistics.constraints import DatasetConstraints, SummaryConstraints
 from whylogs.core.summaryconverters import entropy_from_column_summary
 from whylogs.core.types import TypedDataConverter
 from whylogs.proto import (
@@ -101,7 +97,7 @@ class DatasetProfile:
         if columns is None:
             columns = {}
         if multi_columns is None:
-            multi_column_constraints = MultiColumnValueConstraints(constraints.multi_column_value_constraints) if constraints else None
+            multi_column_constraints = constraints.multi_column_value_constraints if constraints else None
             multi_columns = MultiColumnProfile(multi_column_constraints)
         if tags is None:
             tags = {}
