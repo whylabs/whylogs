@@ -1563,11 +1563,21 @@ def test_dataset_constraints_serialization():
     set1 = set(["col1", "col2"])
     columns_match_constraint = columnsMatchSetConstraint(set1)
 
+    val_set = {(1, 2), (3, 5)}
+    col_set = ["A", "B"]
+    constraints = [
+        columnValuesUniqueWithinRow(column_A="A", verbose=True),
+        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=val_set),
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value=100),
+    ]
+    mcvc = MultiColumnValueConstraints(constraints)
+
     dc = DatasetConstraints(
         None,
         value_constraints={"annual_inc": [cvisc, ltc]},
         summary_constraints={"annual_inc": [max_le_constraint, min_gt_constraint]},
         table_shape_constraints=[columns_match_constraint],
+        multi_column_value_constraints=mcvc,
     )
 
     dc_deser = DatasetConstraints.from_protobuf(dc.to_protobuf())
@@ -1649,27 +1659,26 @@ def test_dataset_constraints_serialization():
                 v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
             assert v == v_deser
 
-    for (mcvc, deser_mcvc) in zip(multi_column_value_constraints, deser_mcv_c):
-        all_constraints = dict()
-        all_constraints.update(mcvc.raw_value_constraints)
-        all_constraints.update(mcvc.coerced_type_constraints)
+    all_constraints = dict()
+    all_constraints.update(multi_column_value_constraints.raw_value_constraints)
+    all_constraints.update(multi_column_value_constraints.coerced_type_constraints)
 
-        all_constraints_deser = dict()
-        all_constraints_deser.update(deser_mcvc.raw_value_constraints)
-        all_constraints_deser.update(deser_mcvc.coerced_type_constraints)
+    all_constraints_deser = dict()
+    all_constraints_deser.update(deser_mcv_c.raw_value_constraints)
+    all_constraints_deser.update(deser_mcv_c.coerced_type_constraints)
 
-        for (name, c), (deser_name, deser_c) in zip(all_constraints.items(), all_constraints_deser.items()):
-            assert name == deser_name
+    for (name, c), (deser_name, deser_c) in zip(all_constraints.items(), all_constraints_deser.items()):
+        assert name == deser_name
 
-            a = json.loads(message_to_json(c.to_protobuf()))
-            b = json.loads(message_to_json(deser_c.to_protobuf()))
+        a = json.loads(message_to_json(c.to_protobuf()))
+        b = json.loads(message_to_json(deser_c.to_protobuf()))
 
-            for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
-                assert k == k_deser
-                if all([v, v_deser]):
-                    v = v.sort() if isinstance(v, list) else v
-                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
-                assert v == v_deser
+        for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+            assert k == k_deser
+            if all([v, v_deser]):
+                v = v.sort() if isinstance(v, list) else v
+                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
+            assert v == v_deser
 
     report = dc.report()
     report_deser = dc_deser.report()
@@ -2921,12 +2930,13 @@ def test_multicolumn_value_constraints_serialization_deserialization():
     ]
     mcvc = MultiColumnValueConstraints(constraints)
 
-    mcvc.from_protobuf(mcvc.to_protobuf())
+    mcvc = MultiColumnValueConstraints.from_protobuf(mcvc.to_protobuf())
     json_value = json.loads(message_to_json(mcvc.to_protobuf()))
     multi_column_constraints = json_value["multiColumnConstraints"]
     unique = multi_column_constraints[0]
     pair_values = multi_column_constraints[1]
     sum_of_values = multi_column_constraints[2]
+
     assert len(multi_column_constraints) == 3
 
     assert unique["name"] == f"The values of the column A are unique within each row"
