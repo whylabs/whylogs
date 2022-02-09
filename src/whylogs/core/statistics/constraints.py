@@ -1588,6 +1588,7 @@ def columnValuesNotNullConstraint(name=None, verbose=False):
         name = "does not contain missing values"
     return SummaryConstraint("null_count", value=0, op=Op.EQ, name=name, verbose=verbose)
 
+
 def missingValuesProportionBetweenConstraint(lower_fraction: float, upper_fraction: float, name: str = None, verbose: bool = False):
     """
     Defines a summary constraint on the proportion of missing values of a specific feature.
