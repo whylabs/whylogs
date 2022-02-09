@@ -312,10 +312,10 @@ class ValueConstraint:
             elif hasattr(self, "value") and hasattr(other, "value"):
                 val = self.value
                 assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
-        elif all([getattr(v, "value", None) is not None for v in (self, other)]):
+        elif all([hasattr(v, "value") for v in (self, other)]):
             val = self.value
             assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
-        elif all([getattr(v, "regex_pattern", None) for v in (self, other)]):
+        elif all([hasattr(v, "regex_pattern") for v in (self, other)]):
             pattern = self.regex_pattern
             assert (
                 self.regex_pattern == other.regex_pattern
