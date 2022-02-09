@@ -1418,7 +1418,7 @@ def _format_set_values_for_display(reference_set):
         return str(reference_set)
 
 
-def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name:str = None, verbose=False):
+def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
     """
     Defines a summary constraint on the standard deviation of a feature. The standard deviation can be defined to be
     between two values, or between the values of two other summary fields of the same feature,
@@ -1461,12 +1461,13 @@ def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None
 
     _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field)
     if name is None:
-        name = _set_between_constraint_default_name("standard deviation", lower_value, upper_value, lower_field,
-                                                    upper_field)
-    return SummaryConstraint("stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose)
+        name = _set_between_constraint_default_name("standard deviation", lower_value, upper_value, lower_field, upper_field)
+    return SummaryConstraint(
+        "stddev", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
+    )
 
 
-def meanBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name:str=None, verbose=False):
+def meanBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
     """
     Defines a summary constraint on the mean (average) of a feature. The mean can be defined to be
     between two values, or between the values of two other summary fields of the same feature,
@@ -1511,10 +1512,12 @@ def meanBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, 
     if name is None:
         name = _set_between_constraint_default_name("mean", lower_value, upper_value, lower_field, upper_field)
 
-    return SummaryConstraint("mean", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose)
+    return SummaryConstraint(
+        "mean", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
+    )
 
 
-def minBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name:str=None, verbose=False):
+def minBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
     """
     Defines a summary constraint on the minimum value of a feature. The minimum can be defined to be
     between two values, or between the values of two other summary fields of the same feature,
@@ -1559,10 +1562,12 @@ def minBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, u
     if name is None:
         name = _set_between_constraint_default_name("minimum", lower_value, upper_value, lower_field, upper_field)
 
-    return SummaryConstraint("min", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose)
+    return SummaryConstraint(
+        "min", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
+    )
 
 
-def minGreaterThanEqualConstraint(value=None, field=None, name:str=None, verbose=False):
+def minGreaterThanEqualConstraint(value=None, field=None, name=None, verbose=False):
     """
     Defines a summary constraint on the minimum value of a feature. The minimum can be defined to be
     greater than or equal to some value,
@@ -1598,7 +1603,7 @@ def minGreaterThanEqualConstraint(value=None, field=None, name:str=None, verbose
     return SummaryConstraint("min", Op.GE, value=value, second_field=field, name=name, verbose=verbose)
 
 
-def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name:str=None, verbose=False):
+def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
     """
     Defines a summary constraint on the maximum value of a feature. The maximum can be defined to be
     between two values, or between the values of two other summary fields of the same feature,
@@ -1646,7 +1651,7 @@ def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, u
     return SummaryConstraint("max", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
 
 
-def maxLessThanEqualConstraint(value=None, field=None, name:str=None, verbose=False):
+def maxLessThanEqualConstraint(value=None, field=None, name=None, verbose=False):
     """
     Defines a summary constraint on the maximum value of a feature. The maximum can be defined to be
     less than or equal to some value,
@@ -1819,6 +1824,7 @@ def columnValuesInSetConstraint(value_set: Set[Any], name=None, verbose=False):
 
     return ValueConstraint(Op.IN, value=value_set, name=name, verbose=verbose)
 
+
 def containsEmailConstraint(regex_pattern: "str" = None, name=None, verbose=False):
     """
     Defines a value constraint with email regex matching operations on the values of a single feature.
@@ -1857,6 +1863,7 @@ def containsEmailConstraint(regex_pattern: "str" = None, name=None, verbose=Fals
         name = "column values match the email regex pattern"
 
     return ValueConstraint(Op.MATCH, regex_pattern=email_pattern, name=name, verbose=verbose)
+
 
 def containsCreditCardConstraint(regex_pattern: "str" = None, name=None, verbose=False):
     """
@@ -1900,6 +1907,7 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, name=None, verbose
         name = "column values match the credit card regex pattern"
 
     return ValueConstraint(Op.MATCH, regex_pattern=credit_card_pattern, name=name, verbose=verbose)
+
 
 def dateUtilParseableConstraint(name=None, verbose=False):
     """
@@ -2041,6 +2049,7 @@ def containsSSNConstraint(regex_pattern: "str" = None, name=None, verbose=False)
 
     return ValueConstraint(Op.MATCH, regex_pattern=ssn_pattern, name=name, verbose=verbose)
 
+
 def containsURLConstraint(regex_pattern: "str" = None, name=None, verbose=False):
     """
     Defines a value constraint with URL regex matching operations on the values of a single feature.
@@ -2079,6 +2088,7 @@ def containsURLConstraint(regex_pattern: "str" = None, name=None, verbose=False)
         name = "column values match the URL regex pattern"
 
     return ValueConstraint(Op.MATCH, regex_pattern=url_pattern, name=name, verbose=verbose)
+
 
 def stringLengthEqualConstraint(length: int, name=None, verbose=False):
     """
@@ -2139,7 +2149,9 @@ def stringLengthBetweenConstraint(lower_value: int, upper_value: int, name=None,
     return ValueConstraint(Op.MATCH, regex_pattern=length_pattern, name=name, verbose=verbose)
 
 
-def quantileBetweenConstraint(quantile_value: Union[int, float], lower_value: Union[int, float], upper_value: Union[int, float], name=None, verbose: "bool" = False):
+def quantileBetweenConstraint(
+    quantile_value: Union[int, float], lower_value: Union[int, float], upper_value: Union[int, float], name=None, verbose: "bool" = False
+):
     """
     Defines a summary constraint on the n-th quantile value of a numeric feature.
     The n-th quantile can be defined to be between two values.
@@ -2366,6 +2378,7 @@ def columnMostCommonValueInSetConstraint(value_set: Set[Any], name=None, verbose
 
     return SummaryConstraint("most_common_value", op=Op.IN, reference_set=value_set, name=name, verbose=verbose)
 
+
 def columnValuesNotNullConstraint(name=None, verbose=False):
     """
     Defines a non-null summary constraint on the value of a feature.
@@ -2475,6 +2488,7 @@ def columnValuesTypeInSetConstraint(type_set: Set[int], name=None, verbose: bool
         name = f"type of the column values is in {type_names}"
 
     return SummaryConstraint("column_values_type", op=Op.IN, reference_set=type_set, name=name, verbose=verbose)
+
 
 def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_value: float, name=None, verbose=False):
     """
@@ -2694,6 +2708,7 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
 
     return SummaryConstraint("chi_squared_test", op=Op.GT, reference_set=ref_dist, value=p_value, name=name, verbose=verbose)
 
+
 def columnValuesAGreaterThanBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     """
     Defines a multi-column value constraint which specifies that each value in column A,
@@ -2726,6 +2741,7 @@ def columnValuesAGreaterThanBConstraint(column_A: str, column_B: str, name=None,
         name = f"The values of the column {column_A} are greater than the corresponding values of the column {column_B}"
 
     return MultiColumnValueConstraint(column_A, op=Op.GT, reference_columns=column_B, name=name, verbose=verbose)
+
 
 def columnValuesAGreaterThanEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     """
@@ -2760,6 +2776,7 @@ def columnValuesAGreaterThanEqualBConstraint(column_A: str, column_B: str, name=
 
     return MultiColumnValueConstraint(column_A, op=Op.GE, reference_columns=column_B, name=name, verbose=verbose)
 
+
 def columnValuesALessThanBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     """
     Defines a multi-column value constraint which specifies that each value in column A,
@@ -2792,6 +2809,7 @@ def columnValuesALessThanBConstraint(column_A: str, column_B: str, name=None, ve
         name = f"The values of the column {column_A} are less than the corresponding values of the column {column_B}"
 
     return MultiColumnValueConstraint(column_A, op=Op.LT, reference_columns=column_B, name=name, verbose=verbose)
+
 
 def columnValuesALessThanEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     """
@@ -2826,6 +2844,7 @@ def columnValuesALessThanEqualBConstraint(column_A: str, column_B: str, name=Non
 
     return MultiColumnValueConstraint(column_A, op=Op.LE, reference_columns=column_B, name=name, verbose=verbose)
 
+
 def columnValuesAEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     """
     Defines a multi-column value constraint which specifies that each value in column A,
@@ -2858,6 +2877,7 @@ def columnValuesAEqualBConstraint(column_A: str, column_B: str, name=None, verbo
         name = f"The values of the column {column_A} are equal to the corresponding values of the column {column_B}"
 
     return MultiColumnValueConstraint(column_A, op=Op.EQ, reference_columns=column_B, name=name, verbose=verbose)
+
 
 def columnValuesANotEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
     """
