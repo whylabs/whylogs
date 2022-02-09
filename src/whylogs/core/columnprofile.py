@@ -15,6 +15,9 @@ from whylogs.core.statistics.constraints import (
     columnMostCommonValueInSetConstraint,
     columnUniqueValueCountBetweenConstraint,
     columnValuesTypeEqualsConstraint,
+    containsCreditCardConstraint,
+    containsEmailConstraint,
+    containsSSNConstraint,
     maxLessThanEqualConstraint,
     meanBetweenConstraint,
     minGreaterThanEqualConstraint,
@@ -95,6 +98,7 @@ class ColumnProfile:
         self.frequent_items = frequent_items
         self.cardinality_tracker = cardinality_tracker
         self.constraints = constraints
+        self.pii_trackers = PIITracker(name)
 
     def track(self, value, character_list=None, token_method=None):
         """
@@ -111,6 +115,7 @@ class ColumnProfile:
         # TODO: ignore this if we already know the data type
         if isinstance(value, str):
             self.string_tracker.update(value, character_list=character_list, token_method=token_method)
+            self.pii_trackers.update(value)
         # TODO: Implement real typed data conversion
 
         self.constraints.update(value)
@@ -224,6 +229,9 @@ class ColumnProfile:
             return SummaryConstraints(items)
 
         return None
+
+    def generate_pii_insights(self):
+        return self.pii_trackers.derive_conclusion()
 
     def merge(self, other):
         """
@@ -372,3 +380,33 @@ class MultiColumnProfile:
         # TODO: implement new type of multicolumn message
 
         raise NotImplementedError()
+
+
+class PIITracker:
+    def __init__(self, column_name, reporting_threshold=0):
+        self.column_name = column_name
+        self.reporting_threshold = reporting_threshold
+        self.pii_constraints = ValueConstraints(
+            [
+                containsEmailConstraint(f"The column {self.column_name} contains some values identified as e-mail addresses"),
+                containsCreditCardConstraint(f"The column {self.column_name} contains some values identified as credit card numbers"),
+                containsSSNConstraint(f"The column {self.column_name} contains some values identified as social security numbers"),
+            ]
+        )
+
+    def update(self, value):
+        self.pii_constraints.update(value)
+
+    def report(self):
+        return self.pii_constraints.report()
+
+    def derive_conclusion(self):
+        pii_report = []
+        for constraint in self.pii_constraints.raw_value_constraints:
+            if (constraint.total - constraint.failures) > 0:
+                pii_report.append(constraint.name)
+
+        if len(pii_report) > 0:
+            return pii_report
+        else:
+            return f"There was no information identified as PII in the column {self.column_name}"
