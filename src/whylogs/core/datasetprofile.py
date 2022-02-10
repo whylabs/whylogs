@@ -737,13 +737,15 @@ class DatasetProfile:
                 distinct_column_values_dict["number_theta"] = colprof.number_tracker.theta_sketch.theta_sketch
                 frequent_items_summ = colprof.frequent_items.to_summary(max_items=1, min_count=1)
                 most_common_val = frequent_items_summ.items[0].json_value if frequent_items_summ else None
+                unique_proportion = 0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count
+                missing_proportion = 0 if summ.counters.count == 0 else summ.counters.null_count.value / summ.counters.count
 
                 update_obj = _create_column_profile_summary_object(
                     number_summary=summ.number_summary,
                     distinct_column_values=distinct_column_values_dict,
                     quantile=colprof.number_tracker.histogram,
                     unique_count=int(summ.unique_count.estimate),
-                    unique_proportion=(0 if summ.counters.count == 0 else summ.unique_count.estimate / summ.counters.count),
+                    unique_proportion=unique_proportion,
                     most_common_value=TypedDataConverter.convert(most_common_val),
                     null_count=summ.counters.null_count.value,
                     column_values_type=summ.schema.inferred_type.type,
@@ -751,6 +753,7 @@ class DatasetProfile:
                     ks_test=kll_sketch,
                     kl_divergence=kl_divergence_summary,
                     chi_squared_test=chi_squared_summary,
+                    missing_values_proportion=missing_proportion,
                 )
 
                 constraints.update(update_obj)
