@@ -316,7 +316,7 @@ def compute_chi_squared_test_p_value(target_distribution: ReferenceDistributionD
     chi_sq = 0
     for item in target_freq_items.items:
         target_frequency = item.estimate
-        ref_frequency = ref_dist_items[item.json_value]
+        ref_frequency = ref_dist_items[item.json_value] if item.json_value in ref_dist_items else 0
         if ref_frequency == 0:
             chi_sq = np.inf
         else:
