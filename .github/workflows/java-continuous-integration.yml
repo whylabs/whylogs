@@ -37,3 +37,8 @@ jobs:
         with:
           build-root-directory: java
           arguments: build
+      - name: Smoke test jar in client environment
+        uses: eskatos/gradle-command-action@v1
+        with:
+          build-root-directory: java/smoketest
+          arguments: run
