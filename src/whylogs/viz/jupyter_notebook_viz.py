@@ -84,7 +84,7 @@ class NotebookProfileViewer:
         if not height:
             height = self.PAGE_SIZES[template_name]
         # convert html to iframe and return it wrapped in Ipython...HTML()
-        iframe = f'''<iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>'''
+        iframe = f'''<div></div><iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>'''
         return HTML(iframe)
 
     def summary_drift_report(self, preferred_cell_height=None):
