@@ -284,6 +284,9 @@ def _compute_kl_divergence_discrete_distributions(
         if i_frequency == 0:
             continue
         ref_frequency = ref_freq_items_map[item.json_value] / ref_total_count if item.json_value in ref_freq_items_map.keys() else 0
+        if ref_frequency == 0:
+            kl_divergence = np.inf
+            break
         kl_divergence += i_frequency * np.log(i_frequency / ref_frequency)
 
     target_frequent_items_count = len(target_frequent_items.items)
@@ -319,8 +322,8 @@ def compute_chi_squared_test_p_value(target_distribution: ReferenceDistributionD
         ref_frequency = ref_dist_items[item.json_value] if item.json_value in ref_dist_items else 0
         if ref_frequency == 0:
             chi_sq = np.inf
-        else:
-            chi_sq += (target_frequency - ref_frequency) ** 2 / ref_frequency
+            break
+        chi_sq += (target_frequency - ref_frequency) ** 2 / ref_frequency
 
     degrees_of_freedom = target_unique_count - 1
     degrees_of_freedom = degrees_of_freedom if degrees_of_freedom > 0 else 1
