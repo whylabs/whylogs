@@ -861,6 +861,18 @@ class SummaryConstraint:
 
 class ValueConstraints:
     def __init__(self, constraints: Mapping[str, ValueConstraint] = None):
+        """
+        ValueConstraints is a container for multiple value constraints,
+        generally associated with a single ColumnProfile.
+
+        Parameters
+        ----------
+        constraints : Mapping[str, ValueConstraint]
+            A dictionary of value constraints with their names as keys.
+            Can also accept a list of value constraints.
+
+        """
+
         if constraints is None:
             constraints = dict()
 
@@ -933,6 +945,18 @@ class ValueConstraints:
 
 class SummaryConstraints:
     def __init__(self, constraints: Mapping[str, SummaryConstraint] = None):
+        """
+        SummaryConstraints is a container for multiple summary constraints,
+        generally associated with a single ColumnProfile.
+
+        Parameters
+        ----------
+        constraints : Mapping[str, SummaryConstrain]
+            A dictionary of summary constraints with their names as keys.
+            Can also accept a list of summary constraints.
+
+        """
+
         if constraints is None:
             constraints = dict()
 
@@ -993,8 +1017,44 @@ class MultiColumnValueConstraint(ValueConstraint):
         internal_dependent_cols_op: Op = None,
         value=None,
         name: str = None,
-        verbose=False,
+        verbose: bool = False,
     ):
+        """
+        MultiColumnValueConstraint defines a dependency relationship between multiple columns,
+        they can be relationships between column pairs and value pairs, between a single or multiple dependent and
+        a single or multiple reference columns, or between multiple columns and a single value.
+
+
+        Parameters
+        ----------
+        dependent_columns : Union[str, List[str], Tuple[str], np.ndarray] (required)
+            The dependent column(s), can be a single string representing one dependent column, or
+            a list, tuple or numpy array of strings representing the names of a set of dependent columns.
+        op - whylogs.proto.Op (required)
+            Enumeration of binary comparison operator applied between multiple columns, or multiple columns and values.
+            Enum values are mapped to operators like '==', '<', and '<=', etc.
+        reference_columns : Union[str, List[str], Tuple[str], np.ndarray] (one-of)
+            The reference column(s), can be a single string representing one reference column, or
+            A list, tuple or numpy array of strings representing the names of a set of reference columns.
+            If provided, the reference column(s) will be compared against
+            the dependent column(s) specified in `dependent_columns`, using the given operator.
+            Only one of `reference_columns` or `value` should be supplied.
+        internal_dependent_cols_op : whylogs.proto.Op
+            Enumeration of arithmetic operators applied to the dependent columns, if a transformation is necessary.
+            Enum values are mapped to operators like '+', '-', etc.
+            e.g.    dependent_columns = ['A', 'B', 'C'], internal_dependent_cols_op = Op.SUM
+                    A sum operation is performed over each value of column 'A', 'B', and 'C', in each row of the table
+        value : Any
+            Static value to be compared against the dependent columns specified in `dependent_columns`.
+            Only one of `value` or `reference_columns` should be supplied.
+        name : str
+            Name of the constraint used for reporting
+        verbose : bool
+            If true, log every application of this constraint that fails.
+            Useful to identify specific streaming values that fail the constraint.
+
+        """
+
         self._name = name
         self._verbose = verbose
         self.op = op
@@ -1194,6 +1254,17 @@ class MultiColumnValueConstraint(ValueConstraint):
 
 class MultiColumnValueConstraints(ValueConstraints):
     def __init__(self, constraints: Mapping[str, MultiColumnValueConstraint] = None):
+        """
+        MultiColumnValueConstraints is a container for multiple MultiColumnValueConstraint objects
+
+        Parameters
+        ----------
+        constraints : Mapping[str, MultiColumnValueConstraint]
+            A dictionary of multi column vale constraints with their names as keys.
+            Can also accept a list of multi column value constraints.
+
+        """
+
         super().__init__(constraints=constraints)
 
     @staticmethod
@@ -1217,11 +1288,36 @@ class DatasetConstraints:
     def __init__(
         self,
         props: DatasetProperties,
-        value_constraints: Optional[ValueConstraints] = None,
-        summary_constraints: Optional[SummaryConstraints] = None,
-        table_shape_constraints: Optional[SummaryConstraints] = None,
+        value_constraints: Mapping[str, ValueConstraints] = None,
+        summary_constraints: Mapping[str, SummaryConstraints] = None,
+        table_shape_constraints: Mapping[str, SummaryConstraints] = None,
         multi_column_value_constraints: Optional[MultiColumnValueConstraints] = None,
     ):
+        """
+        DatasetConstraints is a container for multiple types of constraint containers, such as ValueConstraints,
+        SummaryConstraints, and MultiColumnValueConstraints.
+        Used for wrapping constraints that should be applied on a single data set.
+
+        Parameters
+        ----------
+        props : whylogs.proto.DatasetProperties
+            Specifies the properties of the data set such as schema major and minor versions, session and
+            data timestamps, tags and other metadata
+        value_constraints : Mapping[str, ValueConstraints]
+            A dictionary where the keys correspond to the name of the feature for which the supplied value
+            represents the ValueConstraints to be executed
+        summary_constraints : Mapping[str, SummaryConstraints]
+            A dictionary where the keys correspond to the name of the feature for which the supplied value
+            represents the SummaryConstraints to be executed
+        table_shape_constraints : Mapping[str, SummaryConstraints]
+            A dictionary where the keys correspond to the name of the feature for which the supplied value
+            represents the table-shape constraints to be executed
+        multi_column_value_constraints : Mapping[str, MultiColumnValueConstraints]
+            A list of MultiColumnValueConstraint, or a container of MultiColumnValueConstraints representing
+            the multi-column value constraints to be executed over the predefined features in the constraints.
+
+        """
+
         self.dataset_properties = props
         # repackage lists of constraints if necessary
         if value_constraints is None:
@@ -1323,6 +1419,46 @@ def _format_set_values_for_display(reference_set):
 
 
 def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
+    """
+    Defines a summary constraint on the standard deviation of a feature. The standard deviation can be defined to be
+    between two values, or between the values of two other summary fields of the same feature,
+    such as the minimum and the maximum.
+    The defined interval is a closed interval, which includes both of its limit points.
+
+    Parameters
+    ----------
+    lower_value : numeric (one-of)
+        Represents the lower value limit of the interval for the standard deviation.
+        If `lower_value` is supplied, then `upper_value` must also be supplied,
+        and none of `lower_field` and `upper_field` should be provided.
+    upper_value : numeric (one-of)
+        Represents the upper value limit of the interval for the standard deviation.
+        If `upper_value` is supplied, then `lower_value` must also be supplied,
+        and none of `lower_field` and `upper_field` should be provided.
+    lower_field : str (one-of)
+        Represents the lower field limit of the interval for the standard deviation.
+        The lower field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as a lower bound.
+        If `lower_field` is supplied, then `upper_field` must also be supplied,
+        and none of `lower_value` and `upper_value` should be provided.
+    upper_field : str (one-of)
+        Represents the upper field limit of the interval for the standard deviation.
+        The upper field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as an upper bound.
+        If `upper_field` is supplied, then `lower_field` must also be supplied,
+        and none of `lower_value` and `upper_value` should be provided.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining an interval of values for the standard deviation of a feature
+
+    """
+
     _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field)
     if name is None:
         name = _set_between_constraint_default_name("standard deviation", lower_value, upper_value, lower_field, upper_field)
@@ -1332,66 +1468,351 @@ def stddevBetweenConstraint(lower_value=None, upper_value=None, lower_field=None
 
 
 def meanBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
+    """
+    Defines a summary constraint on the mean (average) of a feature. The mean can be defined to be
+    between two values, or between the values of two other summary fields of the same feature,
+    such as the minimum and the maximum.
+    The defined interval is a closed interval, which includes both of its limit points.
+
+    Parameters
+    ----------
+    lower_value : numeric (one-of)
+        Represents the lower value limit of the interval for the mean.
+        If `lower_value` is supplied, then `upper_value` must also be supplied,
+        and none of `lower_field` and `upper_field` should be provided.
+    upper_value : numeric (one-of)
+        Represents the upper value limit of the interval for the mean.
+        If `upper_value` is supplied, then `lower_value` must also be supplied,
+        and none of `lower_field` and `upper_field` should be provided.
+    lower_field : str (one-of)
+        Represents the lower field limit of the interval for the mean.
+        The lower field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as a lower bound.
+        If `lower_field` is supplied, then `upper_field` must also be supplied,
+        and none of `lower_value` and `upper_value` should be provided.
+    upper_field : str (one-of)
+        Represents the upper field limit of the interval for the mean.
+        The upper field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as an upper bound.
+        If `upper_field` is supplied, then `lower_field` must also be supplied,
+        and none of `lower_value` and `upper_value` should be provided.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining an interval of values for the mean of a feature
+
+    """
+
     _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field)
     if name is None:
         name = _set_between_constraint_default_name("mean", lower_value, upper_value, lower_field, upper_field)
+
     return SummaryConstraint(
         "mean", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
     )
 
 
 def minBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
+    """
+    Defines a summary constraint on the minimum value of a feature. The minimum can be defined to be
+    between two values, or between the values of two other summary fields of the same feature,
+    such as the minimum and the maximum.
+    The defined interval is a closed interval, which includes both of its limit points.
+
+    Parameters
+    ----------
+    lower_value : numeric (one-of)
+        Represents the lower value limit of the interval for the minimum.
+        If `lower_value` is supplied, then `upper_value` must also be supplied,
+        and none of `lower_field` and `upper_field` should be provided.
+    upper_value : numeric (one-of)
+        Represents the upper value limit of the interval for the minimum.
+        If `upper_value` is supplied, then `lower_value` must also be supplied,
+        and none of `lower_field` and `upper_field` should be provided.
+    lower_field : str (one-of)
+        Represents the lower field limit of the interval for the minimum.
+        The lower field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as a lower bound.
+        If `lower_field` is supplied, then `upper_field` must also be supplied,
+        and none of `lower_value` and `upper_value` should be provided.
+    upper_field : str (one-of)
+        Represents the upper field limit of the interval for the minimum.
+        The upper field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as an upper bound.
+        If `upper_field` is supplied, then `lower_field` must also be supplied,
+        and none of `lower_value` and `upper_value` should be provided.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining an interval of values for the minimum value of a feature
+
+    """
+
     _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field)
     if name is None:
         name = _set_between_constraint_default_name("minimum", lower_value, upper_value, lower_field, upper_field)
+
     return SummaryConstraint(
         "min", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
     )
 
 
 def minGreaterThanEqualConstraint(value=None, field=None, name=None, verbose=False):
+    """
+    Defines a summary constraint on the minimum value of a feature. The minimum can be defined to be
+    greater than or equal to some value,
+    or greater than or equal to the values of another summary field of the same feature, such as the mean (average).
+
+    Parameters
+    ----------
+    value : numeric (one-of)
+        Represents the value which should be compared to the minimum value of the specified feature,
+        for checking the greater than or equal to constraint.
+        Only one of `value` and `field` should be supplied.
+    field : str (one-of)
+        The field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used for
+        checking the greater than or equal to constraint.
+        Only one of `field` and `value` should be supplied.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a constraint on the minimum value to be greater than
+        or equal to some value / summary field
+
+    """
+
     if name is None:
         name = f"minimum is greater than or equal to {value}"
+
     return SummaryConstraint("min", Op.GE, value=value, second_field=field, name=name, verbose=verbose)
 
 
 def maxBetweenConstraint(lower_value=None, upper_value=None, lower_field=None, upper_field=None, name=None, verbose=False):
+    """
+    Defines a summary constraint on the maximum value of a feature. The maximum can be defined to be
+    between two values, or between the values of two other summary fields of the same feature,
+    such as the minimum and the maximum.
+    The defined interval is a closed interval, which includes both of its limit points.
+
+    Parameters
+    ----------
+    lower_value : numeric (one-of)
+        Represents the lower value limit of the interval for the maximum.
+        If `lower_value` is supplied, then `upper_value` must also be supplied,
+        and none of `lower_field` and `upper_field` should be provided.
+    upper_value : numeric (one-of)
+        Represents the upper value limit of the interval for the maximum.
+        If `upper_value` is supplied, then `lower_value` must also be supplied,
+        and none of `lower_field` and `upper_field` should be provided.
+    lower_field : str (one-of)
+        Represents the lower field limit of the interval for the maximum.
+        The lower field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as a lower bound.
+        If `lower_field` is supplied, then `upper_field` must also be supplied,
+        and none of `lower_value` and `upper_value` should be provided.
+    upper_field : str (one-of)
+        Represents the upper field limit of the interval for the maximum.
+        The upper field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used as an upper bound.
+        If `upper_field` is supplied, then `lower_field` must also be supplied,
+        and none of `lower_value` and `upper_value` should be provided.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining an interval of values for the maximum value of a feature
+
+    """
+
     _check_between_constraint_valid_initialization(lower_value, upper_value, lower_field, upper_field)
     if name is None:
         name = _set_between_constraint_default_name("maximum", lower_value, upper_value, lower_field, upper_field)
-    return SummaryConstraint(
-        "max", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, name=name, verbose=verbose
-    )
+
+    return SummaryConstraint("max", Op.BTWN, value=lower_value, upper_value=upper_value, second_field=lower_field, third_field=upper_field, verbose=verbose)
 
 
 def maxLessThanEqualConstraint(value=None, field=None, name=None, verbose=False):
+    """
+    Defines a summary constraint on the maximum value of a feature. The maximum can be defined to be
+    less than or equal to some value,
+    or less than or equal to the values of another summary field of the same feature, such as the mean (average).
+
+    Parameters
+    ----------
+    value : numeric (one-of)
+        Represents the value which should be compared to the maximum value of the specified feature,
+        for checking the less than or equal to constraint.
+        Only one of `value` and `field` should be supplied.
+    field : str (one-of)
+        The field is a string representing a summary field
+        e.g. `min`, `mean`, `max`, `stddev`, etc., for which the value will be used for
+        checking the less than or equal to constraint.
+        Only one of `field` and `value` should be supplied.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a constraint on the maximum value to be less than
+        or equal to some value / summary field
+
+    """
     if name is None:
         name = f"maximum is less than or equal to {value}"
+
     return SummaryConstraint("max", Op.LE, value=value, second_field=field, name=name, verbose=verbose)
 
 
 def distinctValuesInSetConstraint(reference_set: Set[Any], name=None, verbose=False):
+    """
+    Defines a summary constraint on the distinct values of a feature. All of the distinct values should
+    belong in the user-provided set or reference values `reference_set`.
+    Useful for categorical features, for checking if the set of values present in a feature
+    is contained in the set of expected categories.
+
+    Parameters
+    ----------
+    reference_set : Set[Any] (required)
+        Represents the set of reference (expected) values for a feature.
+        The provided values can be of any type.
+        If at least one of the distinct values of the feature is not in the user specified
+        set `reference_set`, then the constraint will fail.
+    name : str
+        The name of the constraint.
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a constraint on the distinct values of a feature
+        to belong in a user supplied set of values
+
+    """
     if name is None:
         ref_name = _format_set_values_for_display(reference_set)
         name = f"distinct values are in {ref_name}"
+
     return SummaryConstraint("distinct_column_values", Op.IN_SET, reference_set=reference_set, name=name, verbose=verbose)
 
 
 def distinctValuesEqualSetConstraint(reference_set: Set[Any], name=None, verbose=False):
+    """
+    Defines a summary constraint on the distinct values of a feature. The set of the distinct values should
+    be equal to the user-provided set or reference values, `reference_set`.
+    Useful for categorical features, for checking if the set of values present in a feature
+    is the same as the set of expected categories.
+
+    Parameters
+    ----------
+    reference_set : Set[Any] (required)
+        Represents the set of reference (expected) values for a feature.
+        The provided values can be of any type.
+        If the distinct values of the feature are not equal to the user specified
+        set `reference_set`, then the constraint will fail.
+    name : str
+        The name of the constraint.
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a constraint on the distinct values of a feature
+        to be equal to a user supplied set of values
+
+    """
     if name is None:
         ref_name = _format_set_values_for_display(reference_set)
         name = f"distinct values are equal to the set {ref_name}"
+
     return SummaryConstraint("distinct_column_values", Op.EQ_SET, reference_set=reference_set, name=name, verbose=verbose)
 
 
 def distinctValuesContainSetConstraint(reference_set: Set[Any], name=None, verbose=False):
+    """
+    Defines a summary constraint on the distinct values of a feature. The set of user-supplied reference values,
+    `reference_set` should be a subset of the set of distinct values for the current feature.
+    Useful for categorical features, for checking if the set of values present in a feature
+    is a superset of the set of expected categories.
+
+    Parameters
+    ----------
+    reference_set : Set[Any] (required)
+        Represents the set of reference (expected) values for a feature.
+        The provided values can be of any type.
+        If at least one of the values of the reference set, specified in `reference_set`,
+        is not contained in the set of distinct values of the feature, then the constraint will fail.
+    name : str
+        The name of the constraint.
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a constraint on the distinct values of a feature
+        to be a super set of the user supplied set of values
+
+    """
     if name is None:
         ref_name = _format_set_values_for_display(reference_set)
         name = f"distinct values contain the set {ref_name}"
+
     return SummaryConstraint("distinct_column_values", Op.CONTAIN_SET, reference_set=reference_set, name=name, verbose=verbose)
 
 
 def columnValuesInSetConstraint(value_set: Set[Any], name=None, verbose=False):
+    """
+    Defines a value constraint with set operations on the values of a single feature.
+    The values of the feature should all be in the set of user-supplied values,
+    specified in `value_set`.
+    Useful for categorical features, for checking if the values in a feature
+    belong in a predefined set.
+
+    Parameters
+    ----------
+    value_set : Set[Any] (required)
+        Represents the set of expected values for a feature.
+        The provided values can be of any type.
+        Each value in the feature is checked against the constraint.
+        The total number of failures equals the number of values not in the provided set `value_set`.
+    name : str
+        The name of the constraint.
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint -  a value constraint specifying a constraint on the values of a feature
+        to be drawn from a predefined set of values.
+
+    """
+
     try:
         value_set = set(value_set)
     except Exception:
@@ -1405,6 +1826,28 @@ def columnValuesInSetConstraint(value_set: Set[Any], name=None, verbose=False):
 
 
 def containsEmailConstraint(regex_pattern: "str" = None, name=None, verbose=False):
+    """
+    Defines a value constraint with email regex matching operations on the values of a single feature.
+    The constraint defines a default email regex pattern, but a user-defined pattern can be supplied to override it.
+    Useful for checking the validity of features with values representing email addresses.
+
+    Parameters
+    ----------
+    regex_pattern : str (optional)
+        User-defined email regex pattern.
+        If supplied, will override the default email regex pattern provided by whylogs.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+            If true, log every application of this constraint that fails.
+            Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint - a value constraint for email regex matching of the values of a single feature
+
+    """
+
     if regex_pattern is not None:
         logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsEmailConstraint, depending on its complexity.")
         email_pattern = regex_pattern
@@ -1423,6 +1866,28 @@ def containsEmailConstraint(regex_pattern: "str" = None, name=None, verbose=Fals
 
 
 def containsCreditCardConstraint(regex_pattern: "str" = None, name=None, verbose=False):
+    """
+    Defines a value constraint with credit card number regex matching operations on the values of a single feature.
+    The constraint defines a default credit card number regex pattern,
+    but a user-defined pattern can be supplied to override it.
+    Useful for checking the validity of features with values representing credit card numbers.
+
+    Parameters
+    ----------
+    regex_pattern : str (optional)
+        User-defined credit card number regex pattern.
+        If supplied, will override the default credit card number regex pattern provided by whylogs.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+            If true, log every application of this constraint that fails.
+            Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint - a value constraint for credit card number regex matching of the values of a single feature
+
+    """
     if regex_pattern is not None:
         logger.warning(
             "Warning: supplying your own regex pattern might cause slower evaluation of the containsCreditCardConstraint, depending on its complexity."
@@ -1445,30 +1910,134 @@ def containsCreditCardConstraint(regex_pattern: "str" = None, name=None, verbose
 
 
 def dateUtilParseableConstraint(name=None, verbose=False):
+    """
+    Defines a value constraint which checks if the values of a single feature
+    can be parsed by the dateutil parser.
+    Useful for checking if the date time values of a feature are compatible with dateutil.
+
+    Parameters
+    ----------
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+            If true, log every application of this constraint that fails.
+            Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint - a value constraint for checking if a feature's values are dateutil parseable
+
+    """
     if name is None:
         name = "column values are dateutil parseable"
+
     return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_dateutil, name=name, verbose=verbose)
 
 
 def jsonParseableConstraint(name=None, verbose=False):
+    """
+    Defines a value constraint which checks if the values of a single feature
+    are JSON parseable.
+    Useful for checking if the values of a feature can be serialized to JSON.
+
+    Parameters
+    ----------
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+       ValueConstraint - a value constraint for checking if a feature's values are JSON parseable
+
+    """
+
     if name is None:
         name = "column values are JSON parseable"
     return ValueConstraint(Op.APPLY_FUNC, apply_function=_try_parse_json, name=name, verbose=verbose)
 
 
 def matchesJsonSchemaConstraint(json_schema, name=None, verbose=False):
+    """
+    Defines a value constraint which checks if the values of a single feature
+    match a user-provided JSON schema.
+    Useful for checking if the values of a feature can be serialized to match a predefined JSON schema.
+
+    Parameters
+    ----------
+    json_schema: Union[str, dict] (required)
+        A string or dictionary of key-value pairs representing the expected JSON schema.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint - a value constraint for checking if a feature's values match a user-provided JSON schema
+
+    """
+
     if name is None:
         name = f"column values match the provided JSON schema {json_schema}"
+
     return ValueConstraint(Op.APPLY_FUNC, json_schema, apply_function=_matches_json_schema, name=name, verbose=verbose)
 
 
 def strftimeFormatConstraint(format, name=None, verbose=False):
+    """
+    Defines a value constraint which checks if the values of a single feature
+    are strftime parsable.
+
+    Parameters
+    ----------
+    format: str (required)
+        A string representing the expected strftime format for parsing the values.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint - a value constraint for checking if a feature's values are strftime parseable
+
+    """
+
     if name is None:
         name = "column values are strftime parseable"
+
     return ValueConstraint(Op.APPLY_FUNC, format, apply_function=_try_parse_strftime_format, name=name, verbose=verbose)
 
 
 def containsSSNConstraint(regex_pattern: "str" = None, name=None, verbose=False):
+    """
+    Defines a value constraint with social security number (SSN) matching operations
+    on the values of a single feature.
+    The constraint defines a default SSN regex pattern, but a user-defined pattern can be supplied to override it.
+    Useful for checking the validity of features with values representing SNN numbers.
+
+    Parameters
+    ----------
+    regex_pattern : str (optional)
+        User-defined SSN regex pattern.
+        If supplied, will override the default SSN regex pattern provided by whylogs.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+            If true, log every application of this constraint that fails.
+            Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint - a value constraint for SSN regex matching of the values of a single feature
+
+    """
+
     if regex_pattern is not None:
         logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsSSNConstraint, depending on its complexity.")
         ssn_pattern = regex_pattern
@@ -1482,6 +2051,28 @@ def containsSSNConstraint(regex_pattern: "str" = None, name=None, verbose=False)
 
 
 def containsURLConstraint(regex_pattern: "str" = None, name=None, verbose=False):
+    """
+    Defines a value constraint with URL regex matching operations on the values of a single feature.
+    The constraint defines a default URL regex pattern, but a user-defined pattern can be supplied to override it.
+    Useful for checking the validity of features with values representing URL addresses.
+
+    Parameters
+    ----------
+    regex_pattern : str (optional)
+        User-defined URL regex pattern.
+        If supplied, will override the default URL regex pattern provided by whylogs.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+            If true, log every application of this constraint that fails.
+            Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint - a value constraint for URL regex matching of the values of a single feature
+
+    """
+
     if regex_pattern is not None:
         logger.warning("Warning: supplying your own regex pattern might cause slower evaluation of the containsURLConstraint, depending on its complexity.")
         url_pattern = regex_pattern
@@ -1500,6 +2091,26 @@ def containsURLConstraint(regex_pattern: "str" = None, name=None, verbose=False)
 
 
 def stringLengthEqualConstraint(length: int, name=None, verbose=False):
+    """
+    Defines a value constraint which checks if the string values of a single feature
+    have a predefined length.
+
+    Parameters
+    ----------
+    length: int (required)
+        A numeric value which represents the expected length of the string values in the specified feature.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint - a value constraint for checking if a feature's string values have a predefined length
+
+    """
+
     length_pattern = f"^.{{{length}}}$"
     if name is None:
         name = f"length of the string values is equal to {length}"
@@ -1507,6 +2118,31 @@ def stringLengthEqualConstraint(length: int, name=None, verbose=False):
 
 
 def stringLengthBetweenConstraint(lower_value: int, upper_value: int, name=None, verbose=False):
+    """
+    Defines a value constraint which checks if the string values' length of a single feature
+    is in some predefined interval.
+
+    Parameters
+    ----------
+    lower_value: int (required)
+        A numeric value which represents the expected lower bound of the length
+        of the string values in the specified feature.
+    upper_value: int (required)
+        A numeric value which represents the expected upper bound of the length
+        of the string values in the specified feature.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool (optional)
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        ValueConstraint - a value constraint for checking if a feature's string values'
+        length is in a predefined interval
+
+    """
+
     length_pattern = rf"^.{{{lower_value},{upper_value}}}$"
     if name is None:
         name = f"length of the string values is between {lower_value} and {upper_value}"
@@ -1516,6 +2152,32 @@ def stringLengthBetweenConstraint(lower_value: int, upper_value: int, name=None,
 def quantileBetweenConstraint(
     quantile_value: Union[int, float], lower_value: Union[int, float], upper_value: Union[int, float], name=None, verbose: "bool" = False
 ):
+    """
+    Defines a summary constraint on the n-th quantile value of a numeric feature.
+    The n-th quantile can be defined to be between two values.
+    The defined interval is a closed interval, which includes both of its limit points.
+
+    Parameters
+    ----------
+    quantile_value: numeric (required)
+        The n-the quantile for which the constraint will be executed
+    lower_value : numeric (required)
+        Represents the lower value limit of the interval for the n-th quantile.
+    upper_value : numeric (required)
+        Represents the upper value limit of the interval for the n-th quantile.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a closed interval of valid values
+        for the n-th quantile value of a specific feature
+
+    """
+
     if not all([isinstance(v, (int, float)) for v in (quantile_value, upper_value, lower_value)]):
         raise TypeError("The quantile, lower and upper values must be of type int or float")
 
@@ -1528,6 +2190,30 @@ def quantileBetweenConstraint(
 
 
 def columnUniqueValueCountBetweenConstraint(lower_value: int, upper_value: int, name=None, verbose: bool = False):
+    """
+    Defines a summary constraint on the cardinality of a specific feature.
+    The cardinality can be defined to be between two values.
+    The defined interval is a closed interval, which includes both of its limit points.
+    Useful for checking the unique count of values for discrete features.
+
+    Parameters
+    ----------
+    lower_value : numeric (required)
+        Represents the lower value limit of the interval for the feature cardinality.
+    upper_value : numeric (required)
+        Represents the upper value limit of the interval for the feature cardinality.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a closed interval
+        for the valid cardinality of a specific feature
+
+    """
     if not all([isinstance(v, int) and v >= 0 for v in (lower_value, upper_value)]):
         raise ValueError("The lower and upper values should be non-negative integers")
 
@@ -1540,6 +2226,30 @@ def columnUniqueValueCountBetweenConstraint(lower_value: int, upper_value: int, 
 
 
 def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fraction: float, name=None, verbose: bool = False):
+    """
+    Defines a summary constraint on the proportion of unique values of a specific feature.
+    The proportion of unique values can be defined to be between two values.
+    The defined interval is a closed interval, which includes both of its limit points.
+    Useful for checking the frequency of unique values for discrete features.
+
+    Parameters
+    ----------
+    lower_fraction : fraction between 0 and 1 (required)
+        Represents the lower fraction limit of the interval for the feature unique value proportion.
+    upper_fraction : fraction between 0 and 1 (required)
+        Represents the upper fraction limit of the interval for the feature cardinality.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a closed interval
+        for the valid proportion of unique values of a specific feature
+
+    """
     if not all([isinstance(v, float) and 0 <= v <= 1 for v in (lower_fraction, upper_fraction)]):
         raise ValueError("The lower and upper fractions should be between 0 and 1")
 
@@ -1552,25 +2262,111 @@ def columnUniqueValueProportionBetweenConstraint(lower_fraction: float, upper_fr
 
 
 def columnExistsConstraint(column: str, name=None, verbose=False):
+    """
+    Defines a constraint on the data set schema.
+    Checks if the user-supplied column, identified by `column`, is present in the data set schema.
+
+    Parameters
+    ----------
+    column : str (required)
+        Represents the name of the column to be checked for existence in the data set.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint which checks the existence of a column
+        in the current data set.
+
+    """
     if name is None:
         name = f"The column {column} exists in the table"
     return SummaryConstraint("columns", Op.CONTAIN, value=column, name=name, verbose=verbose)
 
 
 def numberOfRowsConstraint(n_rows: int, name=None, verbose=False):
+    """
+    Defines a constraint on the data set schema.
+    Checks if the number of rows in the data set equals the user-supplied number of rows.
+
+    Parameters
+    ----------
+    n_rows : int (required)
+        Represents the user-supplied expected number of rows.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint which checks the number of rows in the data set
+
+    """
+
     if name is None:
         name = f"The number of rows in the table equals {n_rows}"
     return SummaryConstraint("total_row_number", Op.EQ, value=n_rows, name=name, verbose=verbose)
 
 
 def columnsMatchSetConstraint(reference_set: Set[str], name=None, verbose=False):
+    """
+    Defines a constraint on the data set schema.
+    Checks if the set of columns in the data set is equal to the user-supplied set of expected columns.
+
+    Parameters
+    ----------
+    reference_set : Set[str] (required)
+        Represents the expected columns in the current data set.
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint which checks if the column set
+        of the current data set matches the expected column set
+
+    """
     if name is None:
         ref_name = _format_set_values_for_display(reference_set)
         name = f"The columns of the table are equal to the set {ref_name}"
+
     return SummaryConstraint("columns", Op.EQ, reference_set=reference_set, name=name, verbose=verbose)
 
 
 def columnMostCommonValueInSetConstraint(value_set: Set[Any], name=None, verbose=False):
+    """
+    Defines a summary constraint on the most common value of a feature.
+    The most common value of the feature should be in the set of user-supplied values, `value_set`.
+    Useful for categorical features, for checking if the most common value of a feature
+    belongs in an expected set of common categories.
+
+    Parameters
+    ----------
+    value_set : Set[Any] (required)
+        Represents the set of expected values for a feature.
+        The provided values can be of any type.
+        If the most common value of the feature is not in the values of the user-specified `value_set`,
+        the constraint will fail.
+    name : str
+        The name of the constraint.
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining a constraint on the most common value of a feature
+        to belong to a set of user-specified expected values
+
+    """
     try:
         value_set = set(value_set)
     except Exception:
@@ -1584,6 +2380,26 @@ def columnMostCommonValueInSetConstraint(value_set: Set[Any], name=None, verbose
 
 
 def columnValuesNotNullConstraint(name=None, verbose=False):
+    """
+    Defines a non-null summary constraint on the value of a feature.
+    Useful for features for which there is no tolerance for missing values.
+    The constraint will fail if there is at least one missing value in the specified feature.
+
+    Parameters
+    ----------
+    name : str
+        The name of the constraint.
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint -  a summary constraint defining that no missing values
+        are allowed for the specified feature
+
+    """
+
     if name is None:
         name = "does not contain missing values"
     return SummaryConstraint("null_count", value=0, op=Op.EQ, name=name, verbose=verbose)
@@ -1626,6 +2442,8 @@ def missingValuesProportionBetweenConstraint(lower_fraction: float, upper_fracti
 
 def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], name=None, verbose: bool = False):
     """
+    Defines a summary constraint on the type of the feature values.
+    The type of values should be equal to the user-provided expected type.
 
     Parameters
     ----------
@@ -1638,15 +2456,17 @@ def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], na
             INTEGRAL = 3
             BOOLEAN = 4
             STRING = 5
-    name: str
-        Name of the constraint
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
 
     Returns
     -------
-    SummaryConstraint
+        SummaryConstraint - a summary constraint defining that the feature values type should be
+            equal to a user-provided expected type
+
     """
 
     if not isinstance(expected_type, (InferredType, int)):
@@ -1662,6 +2482,8 @@ def columnValuesTypeEqualsConstraint(expected_type: Union[InferredType, int], na
 
 def columnValuesTypeInSetConstraint(type_set: Set[int], name=None, verbose: bool = False):
     """
+    Defines a summary constraint on the type of the feature values.
+    The type of values should be in the set of to the user-provided expected types.
 
     Parameters
     ----------
@@ -1674,15 +2496,17 @@ def columnValuesTypeInSetConstraint(type_set: Set[int], name=None, verbose: bool
             INTEGRAL = 3
             BOOLEAN = 4
             STRING = 5
-    name: str
-        The name of the constraint
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
 
     Returns
     -------
-    SummaryConstraint
+    SummaryConstraint - a summary constraint defining that the feature values type should be
+        in the set of user-provided expected types
+
     """
 
     try:
@@ -1702,6 +2526,29 @@ def columnValuesTypeInSetConstraint(type_set: Set[int], name=None, verbose: bool
 
 
 def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_value: float, name=None, verbose=False):
+    """
+    Defines a summary constraint specifying the expected interval of the features estimated entropy.
+    The defined interval is a closed interval, which includes both of its limit points.
+
+    Parameters
+    ----------
+    lower_value : numeric (required)
+        Represents the lower value limit of the interval for the feature's estimated entropy.
+    upper_value : numeric (required)
+        Represents the upper value limit of the interval for the feature's estimated entropy.
+    name : str
+        Name of the constraint used for reporting
+    verbose: bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        SummaryConstraint - a summary constraint defining the interval of valid values
+        of the feature's estimated entropy
+
+    """
+
     if not all([isinstance(v, (int, float)) for v in (lower_value, upper_value)]):
         raise TypeError("The lower and upper values should be of type int or float")
     if not all([v >= 0 for v in (lower_value, upper_value)]):
@@ -1717,6 +2564,9 @@ def approximateEntropyBetweenConstraint(lower_value: Union[int, float], upper_va
 
 def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[List[float], np.ndarray], p_value=0.05, name=None, verbose=False):
     """
+    Defines a summary constraint specifying the expected
+    upper limit of the p-value for rejecting the null hypothesis of the KS test.
+    Can be used only for continuous data.
 
     Parameters
     ----------
@@ -1727,15 +2577,17 @@ def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[
     p_value: float
         Represents the reference p_value value to compare with the p_value of the test
         Should be between 0 and 1, inclusive
-    name: str
-        The name of the constraint
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
 
     Returns
     -------
-        SummaryConstraint
+        SummaryConstraint - a summary constraint specifying the upper limit of the
+        KS test p-value for rejecting the null hypothesis
+
     """
 
     if not isinstance(p_value, float):
@@ -1761,6 +2613,8 @@ def parametrizedKSTestPValueGreaterThanConstraint(reference_distribution: Union[
 
 def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any], np.ndarray], threshold: float = 0.5, name=None, verbose: bool = False):
     """
+    Defines a summary constraint specifying the expected
+    upper limit of the threshold for the KL divergence of the specified feature.
 
     Parameters
     ----------
@@ -1770,16 +2624,19 @@ def columnKLDivergenceLessThanConstraint(reference_distribution: Union[List[Any]
         Both numeric and categorical distributions are accepted
     threshold: float
         Represents the threshold value which if exceeded from the KL Divergence, the constraint would fail
-    name: str
-        The name of the constraint
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
 
     Returns
     -------
-        SummaryConstraint
+        SummaryConstraint - a summary constraint specifying the upper threshold of the
+        feature's KL divergence
+
     """
+
     if not isinstance(reference_distribution, (list, np.ndarray)):
         raise TypeError("The reference distribution should be an array-like instance of values")
     if not isinstance(threshold, float):
@@ -1831,6 +2688,9 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
     reference_distribution: Union[List[Any], np.ndarray, Mapping[str, int]], p_value: float = 0.05, name=None, verbose: bool = False
 ):
     """
+    Defines a summary constraint specifying the expected
+    upper limit of the p-value for rejecting the null hypothesis of the Chi-Squared test.
+    Can be used only for discrete data.
 
     Parameters
     ----------
@@ -1842,15 +2702,16 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
     p_value: float
         Represents the reference p_value value to compare with the p_value of the test
         Should be between 0 and 1, inclusive
-    name: str
-        The name of the constraint
+    name : str
+        Name of the constraint used for reporting
     verbose: bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
 
     Returns
     -------
-        SummaryConstraint
+        SummaryConstraint - a summary constraint specifying the upper limit of the
+        Chi-Squared test p-value for rejecting the null hypothesis
     """
 
     if not isinstance(reference_distribution, (list, np.ndarray, dict)):
@@ -1884,6 +2745,30 @@ def columnChiSquaredTestPValueGreaterThanConstraint(
 
 
 def columnValuesAGreaterThanBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
+    """
+    Defines a multi-column value constraint which specifies that each value in column A,
+    specified in `column_A`, is greater than the corresponding value of column B, specified in `column_B`
+    in the same row.
+
+    Parameters
+    ----------
+    column_A : str
+        The name of column A
+    column_B : str
+        The name of column B
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint - multi-column value constraint specifying that values from column A
+        should always be greater than the corresponding values of column B
+
+    """
+
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
@@ -1894,6 +2779,30 @@ def columnValuesAGreaterThanBConstraint(column_A: str, column_B: str, name=None,
 
 
 def columnValuesAGreaterThanEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
+    """
+    Defines a multi-column value constraint which specifies that each value in column A,
+    specified in `column_A`, is greater than or equal to the corresponding value of column B,
+    specified in `column_B` in the same row.
+
+    Parameters
+    ----------
+    column_A : str
+        The name of column A
+    column_B : str
+        The name of column B
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint - multi-column value constraint specifying that values from column A
+        should always be greater than or equal to the corresponding values of column B
+
+    """
+
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
@@ -1904,6 +2813,30 @@ def columnValuesAGreaterThanEqualBConstraint(column_A: str, column_B: str, name=
 
 
 def columnValuesALessThanBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
+    """
+    Defines a multi-column value constraint which specifies that each value in column A,
+    specified in `column_A`, is less than the corresponding value of column B, specified in `column_B`
+    in the same row.
+
+    Parameters
+    ----------
+    column_A : str
+        The name of column A
+    column_B : str
+        The name of column B
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint - multi-column value constraint specifying that values from column A
+        should always be less the corresponding values of column B
+
+    """
+
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
@@ -1914,6 +2847,30 @@ def columnValuesALessThanBConstraint(column_A: str, column_B: str, name=None, ve
 
 
 def columnValuesALessThanEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
+    """
+    Defines a multi-column value constraint which specifies that each value in column A,
+    specified in `column_A`, is less than or equal to the corresponding value of column B, specified in `column_B`
+    in the same row.
+
+    Parameters
+    ----------
+    column_A : str
+        The name of column A
+    column_B : str
+        The name of column B
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint - multi-column value constraint specifying that values from column A
+        should always be less than or equal to the corresponding values of column B
+
+    """
+
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
@@ -1924,6 +2881,30 @@ def columnValuesALessThanEqualBConstraint(column_A: str, column_B: str, name=Non
 
 
 def columnValuesAEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
+    """
+    Defines a multi-column value constraint which specifies that each value in column A,
+    specified in `column_A`, is equal to the corresponding value of column B, specified in `column_B`
+    in the same row.
+
+    Parameters
+    ----------
+    column_A : str
+        The name of column A
+    column_B : str
+        The name of column B
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint - multi-column value constraint specifying that values from column A
+        should always be equal to the corresponding values of column B
+
+    """
+
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
@@ -1934,6 +2915,30 @@ def columnValuesAEqualBConstraint(column_A: str, column_B: str, name=None, verbo
 
 
 def columnValuesANotEqualBConstraint(column_A: str, column_B: str, name=None, verbose: bool = False):
+    """
+    Defines a multi-column value constraint which specifies that each value in column A,
+    specified in `column_A`, is different from the corresponding value of column B, specified in `column_B`
+    in the same row.
+
+    Parameters
+    ----------
+    column_A : str
+        The name of column A
+    column_B : str
+        The name of column B
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint - multi-column value constraint specifying that values from column A
+        should always be different from the corresponding values of column B
+
+    """
+
     if not all([isinstance(col, str)] for col in (column_A, column_B)):
         raise TypeError("The provided dependent_column and reference_column should be of type str, indicating the name of the columns to be compared")
 
@@ -1947,23 +2952,27 @@ def sumOfRowValuesOfMultipleColumnsEqualsConstraint(
     columns: Union[List[str], Set[str], np.array], value: Union[float, int, str], name=None, verbose: bool = False
 ):
     """
+    Defines a multi-column value constraint which specifies that the sum of the values in each row
+    of the provided columns, specified in `columns`, should be equal to the user-predefined value, specified in `value`,
+    or to the corresponding value of another column, which will be specified with a name in the `value` parameter.
 
     Parameters
     ----------
     columns : List[str]
-        List of columns for which the sum of row values should equal some value
+        List of columns for which the sum of row values should equal the provided-value
     value : Union[float, int, str]
         Numeric value to compare with the sum of the column row values,
         or a string indicating a column name for which the row value will be compared with the sum
-    name: str
-        The name of the constraint
+    name : str
+        Name of the constraint used for reporting
     verbose : bool
         If true, log every application of this constraint that fails.
         Useful to identify specific streaming values that fail the constraint.
 
     Returns
     -------
-        MultiColumnValueConstraint
+        MultiColumnValueConstraint - specifying the expected value of the sum of the values in multiple columns
+
     """
 
     if not isinstance(columns, (list, set, np.array)) or not all(isinstance(col, str) for col in columns):
@@ -1999,6 +3008,30 @@ def sumOfRowValuesOfMultipleColumnsEqualsConstraint(
 
 
 def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set[Tuple[Any, Any]], name=None, verbose: bool = False):
+    """
+    Defines a multi-column value constraint which specifies that the pair of values of columns A and B,
+    should be in a user-predefined set of expected pairs of values.
+
+    Parameters
+    ----------
+    column_A : str
+        The name of the first column
+    column_B : str
+        The name of the second column
+    value_set : Set[Tuple[Any, Any]]
+        A set of expected pairs of values for the columns A and B, in that order
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint - specifying the expected set of value pairs of two columns in the data set
+
+    """
+
     if not all([isinstance(col, str) for col in (column_A, column_B)]):
         raise TypeError("The provided column_A and column_B should be of type str, indicating the name of the columns to be compared")
     if isinstance(value_set, str):
@@ -2016,6 +3049,26 @@ def columnPairValuesInSetConstraint(column_A: str, column_B: str, value_set: Set
 
 
 def columnValuesUniqueWithinRow(column_A: str, name=None, verbose: bool = False):
+    """
+    Defines a multi-column value constraint which specifies that the values of column A
+    should be unique within each row of the data set.
+
+    Parameters
+    ----------
+    column_A : str
+        The name of the column for which it is expected that the values are unique within each row
+    name : str
+        Name of the constraint used for reporting
+    verbose : bool
+        If true, log every application of this constraint that fails.
+        Useful to identify specific streaming values that fail the constraint.
+
+    Returns
+    -------
+        MultiColumnValueConstraint - specifying that the provided column's values are unique within each row
+
+    """
+
     if not isinstance(column_A, str):
         raise TypeError("The provided column_A should be of type str, indicating the name of the column to be checked")
 
