@@ -2875,6 +2875,38 @@ def test_column_values_unique_within_row_constraint_invalid_params():
         columnValuesUniqueWithinRow(column_A=["A"])
 
 
+def test_multicolumn_value_constraints_report(local_config_path):
+    data = pd.DataFrame(
+        {
+            "A": [50, 23, 42, 11],
+            "B": [52, 77, 58, 100],
+        }
+    )
+
+    val_set = {(1, 2), (3, 5)}
+    col_set = ["A", "B"]
+    constraints = [
+        columnValuesUniqueWithinRow(column_A="A", verbose=True),
+        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=val_set),
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value=100),
+    ]
+    mcvc = MultiColumnValueConstraints(constraints)
+
+    report = _apply_value_constraints_on_dataset(data, local_config_path, multi_column_value_constraints=mcvc)
+    assert len(report) == 3
+    assert report[0][0] == "The values of the column A are unique within each row"
+    assert report[0][1] == 4
+    assert report[0][2] == 0
+
+    assert report[1][0] == f"The pair of values of the columns A and B are in {val_set}"
+    assert report[1][1] == 4
+    assert report[1][2] == 4
+
+    assert report[2][0] == "The sum of the values of A and B is equal to 100"
+    assert report[2][1] == 4
+    assert report[2][2] == 2
+
+
 def test_multicolumn_value_constraints_serialization_deserialization():
     val_set = {(1, 2), (3, 5)}
     col_set = ["A", "B"]

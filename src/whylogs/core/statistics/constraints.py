@@ -1,3 +1,4 @@
+import copy
 import datetime
 import json
 import logging
@@ -1100,7 +1101,8 @@ class MultiColumnValueConstraint(ValueConstraint):
             dependent_cols = Op.Name(self.internal_op) + " " + dependent_cols
         return f"multi column value {dependent_cols} {Op.Name(self.op)} {val_or_ref_columns}"
 
-    def update(self, columns):
+    def update(self, column_values_dictionary):
+        columns = copy.deepcopy(column_values_dictionary)
         self.total += 1
         if isinstance(self.dependent_columns, str):
             v1 = columns[self.dependent_columns]
