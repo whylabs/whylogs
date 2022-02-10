@@ -60,6 +60,7 @@ val javadocJar by tasks.creating(Jar::class) {
 val sourcesJar by tasks.creating(Jar::class) {
     archiveBaseName.set("${rootProject.name}-spark")
     archiveClassifier.set("sources")
+    duplicatesStrategy.set("include")
     from(sourceSets["main"].allSource)
 }
 
