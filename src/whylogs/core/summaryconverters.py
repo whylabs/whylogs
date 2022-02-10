@@ -176,6 +176,8 @@ def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int = None, av
 
 def entropy_from_column_summary(summary: ColumnSummary, histogram: datasketches.kll_floats_sketch):
     """
+    Calculate the estimated entropy for a ColumnProfile, using the ColumnSummary
+    Can be used for both continuous and discrete types of data.
 
     Parameters
     ----------
@@ -189,6 +191,7 @@ def entropy_from_column_summary(summary: ColumnSummary, histogram: datasketches.
     entropy : float
         Estimated entropy value,
         np.nan if the inferred data type of the column is not categorical or numeric
+
     """
 
     frequent_items = summary.frequent_items
@@ -225,6 +228,28 @@ def entropy_from_column_summary(summary: ColumnSummary, histogram: datasketches.
 
 
 def ks_test_compute_p_value(target_distribution: kll_floats_sketch, reference_distribution: kll_floats_sketch):
+    """
+    Compute the Kolmogorov-Smirnov test p-value of two continuous distributions.
+    Uses the quantile values and the corresponding CDFs to calculate the approximate KS statistic.
+    Only applicable to continuous distributions.
+    The null hypothesis expects the samples to come from the same distribution.
+
+    Parameters
+    ----------
+    target_distribution : datasketches.kll_floats_sketch
+        A kll_floats_sketch (quantiles sketch) from the target distribution's values
+    reference_distribution : datasketches.kll_floats_sketch
+        A kll_floats_sketch (quantiles sketch) from the reference (expected) distribution's values
+        Can be generated from a theoretical distribution, or another sample for the same feature.
+
+    Returns
+    -------
+        p_value : float
+        The estimated p-value from the parametrized KS test, applied on the target and reference distributions'
+        kll_floats_sketch summaries
+
+    """
+
     D_max = 0
     quantile_values = reference_distribution.get_quantiles(QUANTILES)
     for quant in quantile_values:
@@ -242,6 +267,32 @@ def compute_kl_divergence(
     target_distribution: Union[kll_floats_sketch, ReferenceDistributionDiscreteMessage],
     reference_distribution: Union[kll_floats_sketch, ReferenceDistributionDiscreteMessage],
 ):
+    """
+    Calculates the KL divergence between a target feature and a reference feature.
+    Applicable to both continuous and discrete distributions.
+    Uses the pmf and the `datasketches.kll_floats_sketch` to calculate the KL divergence in the continuous case.
+    Uses the top frequent items to calculate the KL divergence in the discrete case.
+
+    Parameters
+    ----------
+    target_distribution : Union[kll_floats_sketch, ReferenceDistributionDiscreteMessage]
+        The target distribution. Should be a `datasketches.kll_floats_sketch` if the target distribution is continuous.
+        Should be a ReferenceDistributionDiscreteMessage if the target distribution is discrete.
+        Both the target distribution, specified in `target_distribution`, and the reference distribution,
+        specified in `reference_distribution` must be of the same type.
+    reference_distribution : Union[kll_floats_sketch, ReferenceDistributionDiscreteMessage]
+        The reference distribution. Should be a `datasketches.kll_floats_sketch` if the reference distribution
+        is continuous. Should be a ReferenceDistributionDiscreteMessage if the reference distribution is discrete.
+        Both the target distribution, specified in `target_distribution`, and the reference distribution,
+        specified in `reference_distribution` must be of the same type.
+
+    Returns
+    -------
+        kl_divergence : float
+        The estimated value of the KL divergence between the target and the reference feature
+
+    """
+
     if isinstance(target_distribution, kll_floats_sketch) and isinstance(reference_distribution, kll_floats_sketch):
         return _compute_kl_divergence_continuous_distributions(target_distribution, reference_distribution)
     elif all([isinstance(v, ReferenceDistributionDiscreteMessage) for v in (target_distribution, reference_distribution)]):
@@ -251,6 +302,25 @@ def compute_kl_divergence(
 
 
 def _compute_kl_divergence_continuous_distributions(target_distribution: kll_floats_sketch, reference_distribution: kll_floats_sketch):
+    """
+    Calculates the estimated KL divergence for two continuous distributions.
+    Uses the `datasketches.kll_floats_sketch` sketch to calculate the KL divergence based on the PMFs.
+    Only applicable to continuous distributions.
+
+    Parameters
+    ----------
+    target_distribution : datasketches.kll_floats_sketch
+        The quantiles summary of the target feature's distribution.
+    reference_distribution : datasketches.kll_floats_sketch
+        The quantiles summary of the reference feature's distribution.
+
+    Returns
+    -------
+        kl_divergence : float
+        The estimated KL divergence between two continuous features.
+
+    """
+
     bins_target = np.linspace(target_distribution.get_min_value(), target_distribution.get_max_value(), 100)
     pmf_target = np.array(target_distribution.get_pmf(bins_target))
 
@@ -263,6 +333,29 @@ def _compute_kl_divergence_continuous_distributions(target_distribution: kll_flo
 def _compute_kl_divergence_discrete_distributions(
     target_distribution: ReferenceDistributionDiscreteMessage, reference_distribution: ReferenceDistributionDiscreteMessage
 ):
+    """
+    Calculates the estimated KL divergence for two discrete distributions.
+    Uses the frequent items summary to calculate the estimated frequencies of items in each distribution.
+    Only applicable to discrete distributions.
+
+    Parameters
+    ----------
+    target_distribution : ReferenceDistributionDiscreteMessage
+        The summary message of the target feature's distribution.
+        Should be a ReferenceDistributionDiscreteMessage containing the frequent items,
+        unique, and total count summaries.
+    reference_distribution : ReferenceDistributionDiscreteMessage
+        The summary message of the reference feature's distribution.
+        Should be a ReferenceDistributionDiscreteMessage containing the frequent items,
+        unique, and total count summaries.
+
+    Returns
+    -------
+        kl_divergence : float
+        The estimated KL divergence between two discrete features.
+
+    """
+
     target_frequent_items = target_distribution.frequent_items
     target_unique_count = target_distribution.unique_count.estimate
     target_total_count = target_distribution.total_count
@@ -304,6 +397,29 @@ def _compute_kl_divergence_discrete_distributions(
 
 
 def compute_chi_squared_test_p_value(target_distribution: ReferenceDistributionDiscreteMessage, reference_distribution: ReferenceDistributionDiscreteMessage):
+    """
+    Calculates the Chi-Squared test p-value for two discrete distributions.
+    Uses the top frequent items summary, unique count estimate and total count estimate for each feature,
+    to calculate the estimated Chi-Squared statistic.
+    Applicable only to discrete distributions.
+
+    Parameters
+    ----------
+    target_distribution : ReferenceDistributionDiscreteMessage
+        The summary message of the target feature's distribution.
+        Should be a ReferenceDistributionDiscreteMessage containing the frequent items,
+        unique, and total count summaries.
+    reference_distribution : ReferenceDistributionDiscreteMessage
+        The summary message of the reference feature's distribution.
+        Should be a ReferenceDistributionDiscreteMessage containing the frequent items,
+        unique, and total count summaries.
+
+    Returns
+    -------
+        p_value : float
+        The estimated p-value from the Chi-Squared test, applied on the target and reference distributions'
+        frequent and unique items summaries
+    """
     target_freq_items = target_distribution.frequent_items
     target_total_count = target_distribution.total_count
     target_unique_count = target_distribution.unique_count.estimate
