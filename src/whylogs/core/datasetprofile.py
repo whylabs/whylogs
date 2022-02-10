@@ -4,7 +4,7 @@ Defines the primary interface class for tracking dataset statistics.
 import datetime
 import io
 import logging
-from typing import Dict, List, Mapping, Optional, Union, Tuple
+from typing import Dict, List, Mapping, Optional, Union
 from uuid import uuid4
 
 import numpy as np
@@ -384,7 +384,7 @@ class DatasetProfile:
     def generate_data_insights(self) -> List:
         insights = []
         for name, col in self.columns.items():
-            insights.extend(col.generate_data_isnights())
+            insights.extend(col.generate_data_insights())
         return insights
 
     def flat_summary(self):

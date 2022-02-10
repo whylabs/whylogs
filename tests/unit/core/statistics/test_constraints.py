@@ -2304,54 +2304,42 @@ def test_generate_default_constraints_categorical(local_config_path):
     constraints_email = json_summ["summaryConstraints"]["email"]["constraints"]
 
     # username constraints
-    assert len(constraints_username) == 3  # column value type equals, unique count between and most common value in set
-    assert constraints_username[0]["name"] == "type of the column values is STRING"
+    assert len(constraints_username) == 2  # column value type equals, unique count between
+    assert constraints_username[0]["name"] == "The values of the feature username are of type STRING"
     assert constraints_username[0]["firstField"] == "column_values_type"
     assert constraints_username[0]["value"] == InferredType.STRING
     assert constraints_username[0]["op"] == Op.Name(Op.EQ)
     assert constraints_username[0]["verbose"] is False
 
     # there are 4 unique values in the df for username, so the unique count between is in the range 4-1 and 4+1
-    assert constraints_username[1]["name"] == "number of unique values is between 3 and 5"
+    assert constraints_username[1]["name"] == "The cardinality of unique values of the feature username is between 3 and 5"
     assert constraints_username[1]["firstField"] == "unique_count"
     assert constraints_username[1]["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(constraints_username[1]["between"]["lowerValue"], 0.001) == 3
     assert pytest.approx(constraints_username[1]["between"]["upperValue"], 0.001) == 5
     assert constraints_username[1]["verbose"] is False
 
-    assert f"most common value is in" in constraints_username[2]["name"]  # set has different order
-    assert constraints_username[2]["firstField"] == "most_common_value"
-    assert constraints_username[2]["op"] == Op.Name(Op.IN)
-    assert set(constraints_username[2]["referenceSet"]) == set(usernames)
-    assert constraints_username[2]["verbose"] is False
-
     # email constraints
-    assert len(constraints_email) == 3  # column value type equals, unique count between and most common value in set
-    assert constraints_email[0]["name"] == "type of the column values is STRING"
+    assert len(constraints_email) == 2  # column value type equals, unique count between
+    assert constraints_email[0]["name"] == "The values of the feature email are of type STRING"
     assert constraints_email[0]["firstField"] == "column_values_type"
     assert constraints_email[0]["value"] == InferredType.STRING
     assert constraints_email[0]["op"] == Op.Name(Op.EQ)
     assert constraints_email[0]["verbose"] is False
 
     # there are 4 unique values in the df for username, so the unique count between is in the range 4-1 and 4+1
-    assert constraints_email[1]["name"] == "number of unique values is between 3 and 5"
+    assert constraints_email[1]["name"] == "The cardinality of unique values of the feature email is between 3 and 5"
     assert constraints_email[1]["firstField"] == "unique_count"
     assert constraints_email[1]["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(constraints_email[1]["between"]["lowerValue"], 0.001) == 3
     assert pytest.approx(constraints_email[1]["between"]["upperValue"], 0.001) == 5
     assert constraints_email[1]["verbose"] is False
 
-    assert f"most common value is in" in constraints_email[2]["name"]  # set has different order
-    assert constraints_email[2]["firstField"] == "most_common_value"
-    assert constraints_email[2]["op"] == Op.Name(Op.IN)
-    assert set(constraints_email[2]["referenceSet"]) == set(emails)
-    assert constraints_email[2]["verbose"] is False
-
 
 def test_generate_default_constraints_numeric(local_config_path):
     data = pd.DataFrame(
         {
-            "followers": [1525, 12268, 51343, 867, 567, 100265, 22113, 3412],
+            "followers": [1525, 1525, 51343, 867, 567, 100265, 22113, 3412],
             "points": [23.4, 123.2, 432.22, 32.1, 44.1, 42.2, 344.2, 42.1],
         }
     )
@@ -2374,24 +2362,26 @@ def test_generate_default_constraints_numeric(local_config_path):
     lower_followers = followers_mean - followers_stddev
     upper_followers = followers_mean + followers_stddev
 
-    assert followers_constraints[0]["name"] == "minimum is greater than or equal to 0"
-    assert followers_constraints[1]["name"] == f"mean is between {lower_followers} and {upper_followers}"
-    assert followers_constraints[2]["name"] == "type of the column values is INTEGRAL"
-    assert followers_constraints[3]["name"] == "number of unique values is between 7 and 9"  # we have 8 unique values in the df
-    assert "most common value is in" in followers_constraints[4]["name"]
+    assert followers_constraints[0]["name"] == "The minimum value of the feature followers is greater than or equal to 0"
+    assert followers_constraints[1]["name"] == f"The mean value of the feature followers is between {lower_followers} and {upper_followers}"
+    assert followers_constraints[2]["name"] == "The values of the feature followers are of type INTEGRAL"
+    assert (
+        followers_constraints[3]["name"] == "The cardinality of unique values of the feature followers is between 6 and 8"
+    )  # we have 8 unique values in the df
+    assert "The most common value of the feature followers" in followers_constraints[4]["name"]
 
     assert len(points_constraints) == 4
     # min greater than 0, mean between mean-stddev and mean+stddev,
-    # column values type, most common value in set
+    # column values type, most common value in set, normal distribution
     points_mean = data["points"].mean()
     points_stddev = data["points"].std()
     lower_points = points_mean - points_stddev
     upper_points = points_mean + points_stddev
 
-    assert points_constraints[0]["name"] == "minimum is greater than or equal to 0"
-    assert points_constraints[1]["name"] == f"mean is between {lower_points} and {upper_points}"
-    assert points_constraints[2]["name"] == "type of the column values is FRACTIONAL"
-    assert "most common value is in" in points_constraints[3]["name"]
+    assert points_constraints[0]["name"] == "The minimum value of the feature points is greater than or equal to 0"
+    assert points_constraints[1]["name"] == f"The mean value of the feature points is between {lower_points} and {upper_points}"
+    assert points_constraints[2]["name"] == "The feature points is normally distributed"
+    assert points_constraints[3]["name"] == "The values of the feature points are of type FRACTIONAL"
 
 
 def test_generate_default_constraints_mixed(local_config_path):
@@ -2411,25 +2401,25 @@ def test_generate_default_constraints_mixed(local_config_path):
     # no constraints should be generated for the null column since all values are None
     assert "null" not in json_summ["summaryConstraints"]
 
-    assert len(username_constraints) == 3  # column value type equals, unique count between and most common value in set
-    assert username_constraints[0]["name"] == "type of the column values is STRING"
-    assert username_constraints[1]["name"] == "number of unique values is between 3 and 5"  # we have 4 unique values in df
-    assert f"most common value is in" in username_constraints[2]["name"]
+    assert len(username_constraints) == 2  # column value type equals, unique count between
+    assert username_constraints[0]["name"] == "The values of the feature username are of type STRING"
+    assert username_constraints[1]["name"] == "The cardinality of unique values of the feature username is between 3 and 5"  # we have 4 unique values in df
 
-    assert len(followers_constraints) == 5
+    assert len(followers_constraints) == 4
     # min greater than 0, mean between mean-stddev and mean+stddev,
-    # column values type, most common value in set, unique count between
+    # column values type, unique count between
 
     followers_mean = data["followers"].mean()
     followers_stddev = data["followers"].std()
     lower_followers = followers_mean - followers_stddev
     upper_followers = followers_mean + followers_stddev
 
-    assert followers_constraints[0]["name"] == "minimum is greater than or equal to 0"
-    assert followers_constraints[1]["name"] == f"mean is between {lower_followers} and {upper_followers}"
-    assert followers_constraints[2]["name"] == "type of the column values is INTEGRAL"
-    assert followers_constraints[3]["name"] == "number of unique values is between 3 and 5"  # we have 4 unique values in the df
-    assert f"most common value is in" in followers_constraints[4]["name"]
+    assert followers_constraints[0]["name"] == "The minimum value of the feature followers is greater than or equal to 0"
+    assert followers_constraints[1]["name"] == f"The mean value of the feature followers is between {lower_followers} and {upper_followers}"
+    assert followers_constraints[2]["name"] == "The values of the feature followers are of type INTEGRAL"
+    assert (
+        followers_constraints[3]["name"] == "The cardinality of unique values of the feature followers is between 3 and 5"
+    )  # we have 4 unique values in the df
 
 
 def _apply_value_constraints_on_dataset(df_lending_club, local_config_path, value_constraints=None, multi_column_value_constraints=None):
@@ -2846,3 +2836,25 @@ def test_multicolumn_value_constraints_serialization_deserialization():
     assert pytest.approx(sum_of_values["value"], 0.01) == 100
     assert sum_of_values["internalDependentColumnsOp"] == Op.Name(Op.SUM)
     assert sum_of_values["verbose"] is False
+
+
+def test_generate_insights(local_config_path):
+    data = pd.DataFrame(
+        {
+            "users": ["john", "jane@example.com", "alex", "bob", "anna@example.com", "dave", "smith", "johnson"],
+            "points": [23.4, 123.2, 432.22, 32.1, 44.1, 42.2, 344.2, 42.1],
+            "id": [1, 2, "123-01-2335", "5", "234", "16", 6, 100],
+        }
+    )
+
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+
+    profile = session.log_dataframe(data, "test.data")
+    insights = profile.generate_data_insights()
+
+    TEST_LOGGER.info(f"Generate data insights:\n {insights}")
+
+    assert len(insights) == 12
+    assert "The feature users contains some values identified as e-mail addresses" in insights
+    assert "he feature id contains some values identified as social security numbers"

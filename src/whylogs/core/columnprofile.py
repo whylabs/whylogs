@@ -1,6 +1,8 @@
 """
 Defines the ColumnProfile class for tracking per-column statistics
 """
+import numpy as np
+
 from whylogs.core.PIITracker import PIITracker
 from whylogs.core.statistics import (
     CountersTracker,
@@ -18,6 +20,7 @@ from whylogs.core.statistics.constraints import (
     maxLessThanEqualConstraint,
     meanBetweenConstraint,
     minGreaterThanEqualConstraint,
+    parametrizedKSTestPValueGreaterThanConstraint,
 )
 from whylogs.core.statistics.hllsketch import HllSketch
 from whylogs.core.types import TypedDataConverter
@@ -180,14 +183,12 @@ class ColumnProfile:
 
     def generate_constraints(self) -> SummaryConstraints:
         items = []
+        inferred_type = self.schema_tracker.infer_type().type
         if self.number_tracker is not None and self.number_tracker.count > 0:
             summ = self.number_tracker.to_summary()
 
             if summ.min >= 0:
-                items.append(minGreaterThanEqualConstraint(
-                    value=0,
-                    name=f"The minimum value of the column {self.column_name} is greater than or equal to 0"
-                ))
+                items.append(minGreaterThanEqualConstraint(value=0, name=f"The minimum value of the feature {self.column_name} is greater than or equal to 0"))
 
             mean_lower = summ.mean - summ.stddev
             mean_upper = summ.mean + summ.stddev
@@ -197,23 +198,33 @@ class ColumnProfile:
                     meanBetweenConstraint(
                         lower_value=mean_lower,
                         upper_value=mean_upper,
-                        name=f"The mean value of the column {self.column_name} is between {mean_lower} and {mean_upper}"
+                        name=f"The mean value of the feature {self.column_name} is between {mean_lower} and {mean_upper}",
                     )
                 )
 
             if summ.max <= 0:
-                items.append(maxLessThanEqualConstraint(
-                    value=0,
-                    name=f"The maximum value of the column {self.column_name} is less than 0"
-                ))
+                items.append(maxLessThanEqualConstraint(value=0, name=f"The maximum value of the feature {self.column_name} is less than 0"))
 
-        schema_summary = self.schema_tracker.to_summary()
-        inferred_type = schema_summary.inferred_type.type
+            if inferred_type == InferredType.FRACTIONAL and self.counters.count > 0:
+                summ = self.number_tracker.to_summary()
+
+                norm_values = np.random.normal(loc=summ.mean, scale=summ.stddev, size=self.counters.count)
+                test_normal_dist_constraint = parametrizedKSTestPValueGreaterThanConstraint(
+                    norm_values, p_value=0.05, name=f"The feature {self.column_name} is normally distributed"
+                )
+                kll_sketch = self.number_tracker.histogram
+                update_obj = type("Object", (), {"ks_test": kll_sketch})
+                test_normal_dist_constraint.update(update_obj)
+
+                if test_normal_dist_constraint.failures == 0:
+                    items.append(test_normal_dist_constraint)
+
         if inferred_type not in (InferredType.UNKNOWN, InferredType.NULL):
-            items.append(columnValuesTypeEqualsConstraint(
-                expected_type=inferred_type,
-                name=f"The value of the column {self.column_name} are of type {InferredType.Type.Name(inferred_type)}"
-            ))
+            items.append(
+                columnValuesTypeEqualsConstraint(
+                    expected_type=inferred_type, name=f"The values of the feature {self.column_name} are of type {InferredType.Type.Name(inferred_type)}"
+                )
+            )
 
         if self.cardinality_tracker and inferred_type != InferredType.FRACTIONAL:
             unique_count = self.cardinality_tracker.to_summary()
@@ -222,19 +233,18 @@ class ColumnProfile:
                 up = int(unique_count.upper + 1)
                 items.append(
                     columnUniqueValueCountBetweenConstraint(
-                        lower_value=low,
-                        upper_value=up,
-                        name=f"The cardinality of unique values of the column {self.column_name} is between {low} and {up}"
+                        lower_value=low, upper_value=up, name=f"The cardinality of unique values of the feature {self.column_name} is between {low} and {up}"
                     )
                 )
 
-        frequent_items_summary = self.frequent_items.to_summary(max_items=5)
+        frequent_items_summary = self.frequent_items.to_summary(max_items=5, min_count=2)
         if frequent_items_summary and len(frequent_items_summary.items) > 0:
             most_common_value_set = {val.json_value for val in frequent_items_summary.items}
-            items.append(columnMostCommonValueInSetConstraint(
-                value_set=most_common_value_set,
-                name=f"The most common value in the column {self.column_name} is in the set {most_common_value_set}"
-            ))
+            items.append(
+                columnMostCommonValueInSetConstraint(
+                    value_set=most_common_value_set, name=f"The most common value of the feature {self.column_name} is in the set {most_common_value_set}"
+                )
+            )
 
         if len(items) > 0:
             return SummaryConstraints(items)
@@ -244,7 +254,9 @@ class ColumnProfile:
     def generate_data_insights(self):
         insights = self.pii_trackers.give_pii_insights()
         constraints = self.generate_constraints()
-        insights.extend([c.name for c in constraints])
+        if isinstance(insights, str):
+            insights = []
+        insights.extend([name for name, c in constraints.constraints.items()])
         return insights
 
     def merge(self, other):
