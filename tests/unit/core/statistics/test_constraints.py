@@ -1552,8 +1552,7 @@ def test_table_shape_serialization():
     assert ts1_json["verbose"] == ts2_json["verbose"]
 
 
-def test_dataset_constraints_serialization():
-
+def _get_sample_dataset_constraints():
     cvisc = columnValuesInSetConstraint(value_set={2, 5, 8})
     ltc = ValueConstraint(Op.LT, 1)
 
@@ -1565,25 +1564,24 @@ def test_dataset_constraints_serialization():
 
     val_set = {(1, 2), (3, 5)}
     col_set = ["A", "B"]
-    constraints = [
+    mcv_constraints = [
         columnValuesUniqueWithinRow(column_A="A", verbose=True),
         columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=val_set),
         sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value=100),
     ]
-    mcvc = MultiColumnValueConstraints(constraints)
 
-    dc = DatasetConstraints(
+    return DatasetConstraints(
         None,
         value_constraints={"annual_inc": [cvisc, ltc]},
         summary_constraints={"annual_inc": [max_le_constraint, min_gt_constraint]},
         table_shape_constraints=[columns_match_constraint],
-        multi_column_value_constraints=mcvc,
+        multi_column_value_constraints=mcv_constraints,
     )
 
-    dc_deser = DatasetConstraints.from_protobuf(dc.to_protobuf())
 
+def _assert_dc_props_equal(dc, dc_deserialized):
     props = dc.dataset_properties
-    deser_props = dc_deser.dataset_properties
+    deser_props = dc_deserialized.dataset_properties
 
     if all([props, deser_props]):
         pm_json = json.loads(message_to_json(props))
@@ -1595,6 +1593,39 @@ def test_dataset_constraints_serialization():
                 v = v.sort() if isinstance(v, list) else v
                 v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
             assert v == v_deser
+
+
+def _assert_constraints_equal(constraints, deserialized_constraints):
+    for (name, c), (deser_name, deser_c) in zip(constraints.items(), deserialized_constraints.items()):
+        assert name == deser_name
+
+        a = json.loads(message_to_json(c.to_protobuf()))
+        b = json.loads(message_to_json(deser_c.to_protobuf()))
+
+        for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+            assert k == k_deser
+            if all([v, v_deser]):
+                v = v.sort() if isinstance(v, list) else v
+                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
+            assert v == v_deser
+
+
+def _get_all_value_constraints(constraints):
+
+    all_v_constraints = dict()
+    all_v_constraints.update(constraints.raw_value_constraints)
+    all_v_constraints.update(constraints.coerced_type_constraints)
+
+    return all_v_constraints
+
+
+def test_dataset_constraints_serialization():
+
+    dc = _get_sample_dataset_constraints()
+
+    dc_deser = DatasetConstraints.from_protobuf(dc.to_protobuf())
+
+    _assert_dc_props_equal(dc, dc_deser)
 
     value_constraints = dc.value_constraint_map
     summary_constraints = dc.summary_constraint_map
@@ -1609,76 +1640,22 @@ def test_dataset_constraints_serialization():
     for (column, constraints), (deser_column, deser_constraints) in zip(value_constraints.items(), deser_v_c.items()):
         assert column == deser_column
 
-        all_constraints = dict()
-        all_constraints.update(constraints.raw_value_constraints)
-        all_constraints.update(constraints.coerced_type_constraints)
+        all_v_constraints = _get_all_value_constraints(constraints)
+        all_v_constraints_deser = _get_all_value_constraints(deser_constraints)
 
-        all_constraints_deser = dict()
-        all_constraints_deser.update(deser_constraints.raw_value_constraints)
-        all_constraints_deser.update(deser_constraints.coerced_type_constraints)
-
-        for (name, c), (deser_name, deser_c) in zip(all_constraints.items(), all_constraints_deser.items()):
-            assert name == deser_name
-
-            a = json.loads(message_to_json(c.to_protobuf()))
-            b = json.loads(message_to_json(deser_c.to_protobuf()))
-
-            for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
-                assert k == k_deser
-                if all([v, v_deser]):
-                    v = v.sort() if isinstance(v, list) else v
-                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
-                assert v == v_deser
+        _assert_constraints_equal(all_v_constraints, all_v_constraints_deser)
 
     for (column, constraints), (deser_column, deser_constraints) in zip(summary_constraints.items(), deser_s_c.items()):
         assert column == deser_column
 
-        for (name, c), (deser_name, deser_c) in zip(constraints.constraints.items(), deser_constraints.constraints.items()):
-            assert name == deser_name
+        _assert_constraints_equal(constraints.constraints, deser_constraints.constraints)
 
-            a = json.loads(message_to_json(c.to_protobuf()))
-            b = json.loads(message_to_json(deser_c.to_protobuf()))
+    _assert_constraints_equal(table_shape_constraints.constraints, deser_ts_c.constraints)
 
-            for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
-                assert k == k_deser
-                if all([v, v_deser]):
-                    v = v.sort() if isinstance(v, list) else v
-                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
-                assert v == v_deser
+    all_mc_constraints = _get_all_value_constraints(multi_column_value_constraints)
+    all_mc_constraints_deser = _get_all_value_constraints(deser_mcv_c)
 
-    for (name, c), (deser_name, deser_c) in zip(table_shape_constraints.constraints.items(), deser_ts_c.constraints.items()):
-        assert name == deser_name
-
-        a = json.loads(message_to_json(c.to_protobuf()))
-        b = json.loads(message_to_json(deser_c.to_protobuf()))
-
-        for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
-            assert k == k_deser
-            if all([v, v_deser]):
-                v = v.sort() if isinstance(v, list) else v
-                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
-            assert v == v_deser
-
-    all_constraints = dict()
-    all_constraints.update(multi_column_value_constraints.raw_value_constraints)
-    all_constraints.update(multi_column_value_constraints.coerced_type_constraints)
-
-    all_constraints_deser = dict()
-    all_constraints_deser.update(deser_mcv_c.raw_value_constraints)
-    all_constraints_deser.update(deser_mcv_c.coerced_type_constraints)
-
-    for (name, c), (deser_name, deser_c) in zip(all_constraints.items(), all_constraints_deser.items()):
-        assert name == deser_name
-
-        a = json.loads(message_to_json(c.to_protobuf()))
-        b = json.loads(message_to_json(deser_c.to_protobuf()))
-
-        for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
-            assert k == k_deser
-            if all([v, v_deser]):
-                v = v.sort() if isinstance(v, list) else v
-                v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
-            assert v == v_deser
+    _assert_constraints_equal(all_mc_constraints, all_mc_constraints_deser)
 
     report = dc.report()
     report_deser = dc_deser.report()
