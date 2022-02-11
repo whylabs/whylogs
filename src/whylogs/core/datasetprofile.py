@@ -377,10 +377,14 @@ class DatasetProfile:
         constraints = [(n, c) for n, c in constraints if c is not None]
         return DatasetConstraints(self.to_properties(), None, dict(constraints))
 
-    def generate_data_insights(self) -> List:
-        insights = []
+    def generate_data_insights(self) -> dict:
+        insights = dict()
         for name, col in self.columns.items():
-            insights.extend(col.generate_data_insights())
+            if name not in insights:
+                insights[name] = []
+
+            insights[name].extend(col.generate_data_insights())
+            
         return insights
 
     def flat_summary(self):

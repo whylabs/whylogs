@@ -12,9 +12,9 @@ class PIITracker:
         self.reporting_threshold = reporting_threshold
         self.pii_constraints = ValueConstraints(
             [
-                containsEmailConstraint(name=f"The feature {self.column_name} contains some values identified as e-mail addresses"),
-                containsCreditCardConstraint(name=f"The feature {self.column_name} contains some values identified as credit card numbers"),
-                containsSSNConstraint(name=f"The feature {self.column_name} contains some values identified as social security numbers"),
+                containsEmailConstraint(name=f"The feature \'{self.column_name}\' contains some values identified as e-mail addresses"),
+                containsCreditCardConstraint(name=f"The feature \'{self.column_name}\' contains some values identified as credit card numbers"),
+                containsSSNConstraint(name=f"The feature \'{self.column_name}\' contains some values identified as social security numbers"),
             ]
         )
         self.tracking = True
@@ -35,4 +35,4 @@ class PIITracker:
         if len(pii_report) > 0:
             return pii_report
         else:
-            return f"There was no information identified as PII in the column {self.column_name}"
+            return f"There was no information identified as PII in the column \'{self.column_name}\'"
