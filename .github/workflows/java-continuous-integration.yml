@@ -41,4 +41,5 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           build-root-directory: java/smoketest
+          gradle-executable: java/gradle
           arguments: run
