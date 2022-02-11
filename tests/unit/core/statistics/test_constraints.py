@@ -11,6 +11,7 @@ from whylogs.core.statistics.constraints import (
     MAX_SET_DISPLAY_MESSAGE_LENGTH,
     DatasetConstraints,
     MultiColumnValueConstraint,
+    MultiColumnValueConstraints,
     Op,
     SummaryConstraint,
     SummaryConstraints,
@@ -18,9 +19,6 @@ from whylogs.core.statistics.constraints import (
     ValueConstraints,
     _matches_json_schema,
     _summary_funcs1,
-    _try_parse_dateutil,
-    _try_parse_json,
-    _try_parse_strftime_format,
     _value_funcs,
     approximateEntropyBetweenConstraint,
     columnChiSquaredTestPValueGreaterThanConstraint,
@@ -50,6 +48,7 @@ from whylogs.core.statistics.constraints import (
     maxBetweenConstraint,
     meanBetweenConstraint,
     minBetweenConstraint,
+    missingValuesProportionBetweenConstraint,
     numberOfRowsConstraint,
     parametrizedKSTestPValueGreaterThanConstraint,
     quantileBetweenConstraint,
@@ -649,7 +648,7 @@ def test_merge_values_in_set_constraint_same_value_set():
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == f"value {Op.Name(Op.IN)} " + str(val_set)
+    assert json_value["name"] == f"values are in {val_set}"
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"][0] == list(val_set)
 
@@ -663,7 +662,7 @@ def test_serialization_deserialization_values_in_set_constraint():
 
     TEST_LOGGER.info(f"Serialize columnValuesInSetConstraint from deserialized representation:\n {cvisc.to_protobuf()}")
 
-    assert json_value["name"] == f"value {Op.Name(Op.IN)} " + str(val_set)
+    assert json_value["name"] == f"values are in {val_set}"
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"][0] == list(val_set)
 
@@ -729,9 +728,9 @@ def test_string_length_constraints(local_config_path):
     report = _apply_string_length_constraints(local_config_path, length_constraints)
 
     # report[column_n][report_list][report][name total or failure]
-    assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7}}$"
-    assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == rf"value {Op.Name(Op.MATCH)} ^.{{24}}$"
-    assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == rf"value {Op.Name(Op.MATCH)} ^.{{7,10}}$"
+    assert report[0][1][0][1] == 7 and report[0][1][0][2] == 5 and report[0][1][0][0] == f"length of the string values is equal to 7"
+    assert report[0][1][1][1] == 7 and report[0][1][1][2] == 6 and report[0][1][1][0] == f"length of the string values is equal to 24"
+    assert report[0][1][2][1] == 7 and report[0][1][2][2] == 2 and report[0][1][2][0] == f"length of the string values is between 7 and 10"
 
 
 def test_email_constraint(local_config_path):
@@ -743,7 +742,7 @@ def test_email_constraint(local_config_path):
 
 def test_email_constraint_supply_regex_pattern(local_config_path):
     report = _report_email_value_constraint_on_data_set(local_config_path, r"\S+@\S+")
-    assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} \S+@\S+"
+    assert report[0][1][0][0] == "column values match the email regex pattern"
     assert report[0][1][0][1] == 8
     assert report[0][1][0][2] == 1
 
@@ -754,7 +753,7 @@ def test_email_constraint_merge_valid():
     merged = ec1.merge(ec2)
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == rf"value {Op.Name(Op.MATCH)} \S+@\S+"
+    assert json_value["name"] == "column values match the email regex pattern"
     assert json_value["op"] == Op.Name(Op.MATCH)
     assert json_value["regexPattern"] == r"\S+@\S+"
     assert json_value["verbose"] is True
@@ -809,7 +808,7 @@ def test_credit_card_constraint(local_config_path):
 
 def test_credit_card_constraint_supply_regex_pattern(local_config_path):
     report = _report_credit_card_value_constraint_on_data_set(local_config_path, r"^(?:[0-9]{4}[\s-]?){3,4}$")
-    assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + r"^(?:[0-9]{4}[\s-]?){3,4}$"
+    assert report[0][1][0][0] == "column values match the credit card regex pattern"
     assert report[0][1][0][1] == 19
     assert report[0][1][0][2] == 8
 
@@ -821,7 +820,7 @@ def test_credit_card_constraint_merge_valid():
     merged = ccc1.merge(ccc2)
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == f"value {Op.Name(Op.MATCH)} " + pattern
+    assert json_value["name"] == "column values match the credit card regex pattern"
     assert json_value["op"] == Op.Name(Op.MATCH)
     assert json_value["regexPattern"] == pattern
     assert json_value["verbose"] is True
@@ -906,17 +905,27 @@ def test_apply_func_value_constraints(local_config_path):
     report = _apply_apply_func_constraints(local_config_path, apply_constraints)
 
     # report[column_n][report_list][report][name total or failure]
-    assert report[0][1][0][1] == 30 and report[0][1][0][2] == 21 and report[0][1][0][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_dateutil.__name__}"
-    assert report[0][1][1][1] == 30 and report[0][1][1][2] == 25 and report[0][1][1][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_json.__name__}"
-    assert report[0][1][2][1] == 30 and report[0][1][2][2] == 22 and report[0][1][2][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_matches_json_schema.__name__}"
-    assert (
-        report[0][1][3][1] == 30 and report[0][1][3][2] == 27 and report[0][1][3][0] == f"value {Op.Name(Op.APPLY_FUNC)} {_try_parse_strftime_format.__name__}"
-    )
+    assert report[0][1][0][1] == 30 and report[0][1][0][2] == 21 and report[0][1][0][0] == "column values are dateutil parseable"
+    assert report[0][1][1][1] == 30 and report[0][1][1][2] == 25 and report[0][1][1][0] == "column values are JSON parseable"
+    assert report[0][1][2][1] == 30 and report[0][1][2][2] == 22 and report[0][1][2][0] == f"column values match the provided JSON schema {json_schema}"
+    assert report[0][1][3][1] == 30 and report[0][1][3][2] == 27 and report[0][1][3][0] == "column values are strftime parseable"
+
+
+def test_apply_func_invalid_init():
+
+    with pytest.raises(ValueError):
+        apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=lambda x: x)
+
+    with pytest.raises(ValueError):
+        apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function="".startswith)
+
+    with pytest.raises(ValueError):
+        apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=any)
 
 
 def test_apply_func_merge():
     apply1 = dateUtilParseableConstraint()
-    apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=lambda x: x)
+    apply2 = ValueConstraint(Op.APPLY_FUNC, apply_function=_matches_json_schema)
 
     with pytest.raises(AssertionError):
         apply1.merge(apply2)
@@ -1002,7 +1011,7 @@ def test_contains_ssn_constraint(local_config_path):
 def test_ssn_constraint_supply_regex_pattern(local_config_path):
     pattern = r"^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
     report = _report_ssn_value_constraint_on_data_set(local_config_path, pattern)
-    assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + pattern
+    assert report[0][1][0][0] == "column values match the SSN regex pattern"
     assert report[0][1][0][1] == 8
     assert report[0][1][0][2] == 5
 
@@ -1014,7 +1023,7 @@ def test_ssn_constraint_merge_valid():
     merged = ccc1.merge(ccc2)
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == f"value {Op.Name(Op.MATCH)} " + pattern
+    assert json_value["name"] == "column values match the SSN regex pattern"
     assert json_value["op"] == Op.Name(Op.MATCH)
     assert json_value["regexPattern"] == pattern
     assert json_value["verbose"] is True
@@ -1066,7 +1075,7 @@ def test_contains_url_constraint(local_config_path):
 def test_url_constraint_supply_regex_pattern(local_config_path):
     pattern = r"^http(s)?:\/\/(www\.)?.+\..+$"
     report = _report_url_value_constraint_on_data_set(local_config_path, pattern)
-    assert report[0][1][0][0] == rf"value {Op.Name(Op.MATCH)} " + pattern
+    assert report[0][1][0][0] == "column values match the URL regex pattern"
     assert report[0][1][0][1] == 10
     assert report[0][1][0][2] == 8
 
@@ -1078,7 +1087,7 @@ def test_url_constraint_merge_valid():
     merged = ccc1.merge(ccc2)
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == f"value {Op.Name(Op.MATCH)} " + pattern
+    assert json_value["name"] == "column values match the URL regex pattern"
     assert json_value["op"] == Op.Name(Op.MATCH)
     assert json_value["regexPattern"] == pattern
     assert json_value["verbose"] is False
@@ -1108,7 +1117,7 @@ def test_quantile_between_constraint_apply(local_config_path, df_lending_club):
     summary_constraint = {"annual_inc": [qc]}
     report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
 
-    assert report[0][1][0][0] == f"summary quantile {0.25} {Op.Name(Op.BTWN)} 13308 and 241001"
+    assert report[0][1][0][0] == f"0.25-th quantile value is between 13308 and 241001"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -1126,7 +1135,7 @@ def test_merge_quantile_between_constraint_same_values():
     merged = qc1.merge(qc2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary quantile 0.5 {Op.Name(Op.BTWN)} 0 and 5"
+    assert message["name"] == f"0.5-th quantile value is between 0 and 5"
     assert message["firstField"] == "quantile"
     assert message["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.0
@@ -1140,7 +1149,7 @@ def test_serialization_deserialization_quantile_between_constraint():
     qc1.from_protobuf(qc1.to_protobuf())
     json_value = json.loads(message_to_json(qc1.to_protobuf()))
 
-    assert json_value["name"] == f"summary quantile 0.5 {Op.Name(Op.BTWN)} 1.24 and 6.63"
+    assert json_value["name"] == f"0.5-th quantile value is between 1.24 and 6.63"
     assert json_value["firstField"] == "quantile"
     assert json_value["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 1.24
@@ -1163,7 +1172,7 @@ def test_unique_value_count_between_constraint_apply(local_config_path, df_lendi
     uc = columnUniqueValueCountBetweenConstraint(lower_value=5, upper_value=50)
     summary_constraint = {"annual_inc": [uc]}
     report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
-    assert report[0][1][0][0] == f"summary unique_count {Op.Name(Op.BTWN)} 5 and 50"
+    assert report[0][1][0][0] == f"number of unique values is between 5 and 50"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -1181,7 +1190,7 @@ def test_merge_unique_value_count_between_constraint_same_values():
     merged = u1.merge(u2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary unique_count {Op.Name(Op.BTWN)} 0 and 5"
+    assert message["name"] == f"number of unique values is between 0 and 5"
     assert message["firstField"] == "unique_count"
     assert message["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.0
@@ -1195,7 +1204,7 @@ def test_serialization_deserialization_unique_value_count_between_constraint():
     u1.from_protobuf(u1.to_protobuf())
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
-    assert json_value["name"] == f"summary unique_count {Op.Name(Op.BTWN)} 15 and 50"
+    assert json_value["name"] == f"number of unique values is between 15 and 50"
     assert json_value["firstField"] == "unique_count"
     assert json_value["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 15
@@ -1216,7 +1225,7 @@ def test_unique_value_proportion_between_constraint_apply(local_config_path, df_
     uc = columnUniqueValueProportionBetweenConstraint(lower_fraction=0.6, upper_fraction=0.9)
     summary_constraint = {"annual_inc": [uc]}
     report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
-    assert report[0][1][0][0] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.6 and 0.9"
+    assert report[0][1][0][0] == f"proportion of unique values is between 0.6 and 0.9"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -1234,7 +1243,7 @@ def test_merge_unique_value_proportion_between_constraint_same_values():
     merged = u1.merge(u2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.1 and 0.5"
+    assert message["name"] == f"proportion of unique values is between 0.1 and 0.5"
     assert message["firstField"] == "unique_proportion"
     assert message["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.1
@@ -1248,7 +1257,7 @@ def test_serialization_deserialization_unique_value_proportion_between_constrain
     u1.from_protobuf(u1.to_protobuf())
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
-    assert json_value["name"] == f"summary unique_proportion {Op.Name(Op.BTWN)} 0.6 and 0.7"
+    assert json_value["name"] == f"proportion of unique values is between 0.6 and 0.7"
     assert json_value["firstField"] == "unique_proportion"
     assert json_value["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 0.6
@@ -1292,23 +1301,23 @@ def test_table_shape_constraints(df_lending_club, local_config_path):
 
     assert len(report) == 6
     # table shape {self.value} {Op.Name(self.op)} {self.first_field}
-    assert report[0][0] == f"table total_row_number {Op.Name(Op.EQ)} 10"
+    assert report[0][0] == f"The number of rows in the table equals 10"
     assert report[0][1] == 1
     assert report[0][2] == 1
 
-    assert report[1][0] == f"table total_row_number {Op.Name(Op.EQ)} {len(df_lending_club.index)}"
+    assert report[1][0] == f"The number of rows in the table equals {len(df_lending_club.index)}"
     assert report[1][1] == 1
     assert report[1][2] == 0
 
-    assert report[2][0] == f"table columns {Op.Name(Op.CONTAIN)} no_WAY"
+    assert report[2][0] == f"The column no_WAY exists in the table"
     assert report[2][1] == 1
     assert report[2][2] == 1
 
-    assert report[3][0] == f"table columns {Op.Name(Op.CONTAIN)} loan_amnt"
+    assert report[3][0] == f"The column loan_amnt exists in the table"
     assert report[3][1] == 1
     assert report[3][2] == 0
 
-    assert report[4][0] == f"table columns {Op.Name(Op.EQ)} {set1}"
+    assert report[4][0] == f"The columns of the table are equal to the set {set1}"
     assert report[4][1] == 1
     assert report[4][2] == 1
 
@@ -1318,7 +1327,7 @@ def test_table_shape_constraints(df_lending_club, local_config_path):
         reference_set_str = f"{str(tmp_set)[:-1]}, ...}}"
     else:
         reference_set_str = str(set2)
-    assert report[5][0] == f"table columns {Op.Name(Op.EQ)} {reference_set_str}"
+    assert report[5][0] == f"The columns of the table are equal to the set {reference_set_str}"
     assert report[5][1] == 1
     assert report[5][2] == 0
 
@@ -1326,19 +1335,19 @@ def test_table_shape_constraints(df_lending_club, local_config_path):
 
     report2 = logger.profile.apply_table_shape_constraints()
 
-    assert report2[1][0] == f"table total_row_number {Op.Name(Op.EQ)} {len(df_lending_club.index)}"
+    assert report2[1][0] == f"The number of rows in the table equals {len(df_lending_club.index)}"
     assert report2[1][1] == 2
     assert report2[1][2] == 0
     # applying the table shape constraints the second time, after adding a new column the constraint passes since
     # the total row number stays the same
 
-    assert report2[2][0] == f"table columns {Op.Name(Op.CONTAIN)} no_WAY"
+    assert report2[2][0] == f"The column no_WAY exists in the table"
     assert report2[2][1] == 2
     assert report2[2][2] == 1
     # after logging the new column 'no_WAY', this constraint DOES NOT fail the second time because the column 'no_way'
     # is now present
 
-    assert report2[5][0] == f"table columns {Op.Name(Op.EQ)} {reference_set_str}"
+    assert report2[5][0] == f"The columns of the table are equal to the set {reference_set_str}"
     assert report2[5][1] == 2
     assert report2[5][2] == 1
     # after logging the new column 'no_WAY', this constraint fails the second time because the reference set
@@ -1358,7 +1367,7 @@ def test_table_shape_constraints(df_lending_club, local_config_path):
     else:
         reference_set_str2 = str(set3)
 
-    assert report3[0][0] == f"table columns {Op.Name(Op.EQ)} {reference_set_str2}"
+    assert report3[0][0] == f"The columns of the table are equal to the set {reference_set_str2}"
     assert report3[0][1] == 1
     assert report3[0][2] == 0
     # adding the new column to 'set3' and creating a constraint with it, now it doesn't fail
@@ -1372,7 +1381,7 @@ def test_table_shape_constraints(df_lending_club, local_config_path):
 
     report4 = logger.profile.apply_table_shape_constraints()
 
-    assert report4[1][0] == f"table total_row_number {Op.Name(Op.EQ)} {len(df_lending_club.index)}"
+    assert report4[1][0] == f"The number of rows in the table equals {len(df_lending_club.index)}"
     assert report4[1][1] == 3
     assert report4[1][2] == 1
     # applying the table shape constraints the third time, and only this time it fails as the new row was logged
@@ -1381,7 +1390,7 @@ def test_table_shape_constraints(df_lending_club, local_config_path):
 
     report5 = logger.profile.apply_table_shape_constraints(SummaryConstraints([rows_3]))
 
-    assert report5[0][0] == f"table total_row_number {Op.Name(Op.EQ)} {len(df_lending_club.index)+1}"
+    assert report5[0][0] == f"The number of rows in the table equals {len(df_lending_club.index)+1}"
     assert report5[0][1] == 1
     assert report5[0][2] == 0
     # the new numberOfRowsConstraint with n_rows=previous_n_rows+1 passes
@@ -1447,6 +1456,7 @@ def test_table_shape_no_merge_different_set():
 def test_table_shape_merge():
     set_c_1 = SummaryConstraint("columns", Op.EQ, reference_set=[1, 2, 3])
     set_c_2 = columnsMatchSetConstraint(reference_set=[1, 2, 3])
+    set_c_1._name = set_c_2.name
 
     merged = set_c_1.merge(set_c_2)
 
@@ -1461,6 +1471,7 @@ def test_table_shape_merge():
 
     set_c_1 = SummaryConstraint("columns", Op.CONTAIN, "c1")
     set_c_2 = columnExistsConstraint(column="c1")
+    set_c_1._name = set_c_2.name
 
     merged = set_c_1.merge(set_c_2)
 
@@ -1475,6 +1486,7 @@ def test_table_shape_merge():
 
     set_c_1 = SummaryConstraint("total_row_number", Op.EQ, 2)
     set_c_2 = numberOfRowsConstraint(n_rows=2)
+    set_c_1._name = set_c_2.name
 
     merged = set_c_1.merge(set_c_2)
 
@@ -1578,10 +1590,12 @@ def test_dataset_constraints_serialization():
     value_constraints = dc.value_constraint_map
     summary_constraints = dc.summary_constraint_map
     table_shape_constraints = dc.table_shape_constraints
+    multi_column_value_constraints = dc.multi_column_value_constraints
 
     deser_v_c = dc_deser.value_constraint_map
     deser_s_c = dc_deser.summary_constraint_map
     deser_ts_c = dc_deser.table_shape_constraints
+    deser_mcv_c = dc_deser.multi_column_value_constraints
 
     for (column, constraints), (deser_column, deser_constraints) in zip(value_constraints.items(), deser_v_c.items()):
         assert column == deser_column
@@ -1636,6 +1650,28 @@ def test_dataset_constraints_serialization():
                 v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
             assert v == v_deser
 
+    for (mcvc, deser_mcvc) in zip(multi_column_value_constraints, deser_mcv_c):
+        all_constraints = dict()
+        all_constraints.update(mcvc.raw_value_constraints)
+        all_constraints.update(mcvc.coerced_type_constraints)
+
+        all_constraints_deser = dict()
+        all_constraints_deser.update(deser_mcvc.raw_value_constraints)
+        all_constraints_deser.update(deser_mcvc.coerced_type_constraints)
+
+        for (name, c), (deser_name, deser_c) in zip(all_constraints.items(), all_constraints_deser.items()):
+            assert name == deser_name
+
+            a = json.loads(message_to_json(c.to_protobuf()))
+            b = json.loads(message_to_json(deser_c.to_protobuf()))
+
+            for (k, v), (k_deser, v_deser) in zip(a.items(), b.items()):
+                assert k == k_deser
+                if all([v, v_deser]):
+                    v = v.sort() if isinstance(v, list) else v
+                    v_deser = v_deser.sort() if isinstance(v_deser, list) else v_deser
+                assert v == v_deser
+
     report = dc.report()
     report_deser = dc_deser.report()
 
@@ -1650,11 +1686,11 @@ def test_most_common_value_in_set_constraint_apply(local_config_path, df_lending
     summary_constraints = {"loan_amnt": [mcvc1], "funded_amnt": [mcvc2]}
     report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
 
-    assert report[0][1][0][0] == f"summary most_common_value {Op.Name(Op.IN)} {val_set1}"
+    assert report[0][1][0][0] == f"most common value is in {val_set1}"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
-    assert report[1][1][0][0] == f"summary most_common_value {Op.Name(Op.IN)} {val_set2}"
+    assert report[1][1][0][0] == f"most common value is in {val_set2}"
     assert report[1][1][0][1] == 1
     assert report[1][1][0][2] == 1
 
@@ -1673,7 +1709,7 @@ def test_merge_most_common_value_in_set_constraint_same_values():
     merged = u1.merge(u2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary most_common_value {Op.Name(Op.IN)} {val_set}"
+    assert message["name"] == f"most common value is in {val_set}"
     assert message["firstField"] == "most_common_value"
     assert message["op"] == Op.Name(Op.IN)
     assert message["referenceSet"] == list(val_set)
@@ -1687,7 +1723,7 @@ def test_serialization_deserialization_most_common_value_in_set_constraint():
     u1.from_protobuf(u1.to_protobuf())
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
-    assert json_value["name"] == f"summary most_common_value {Op.Name(Op.IN)} {val_set}"
+    assert json_value["name"] == f"most common value is in {val_set}"
     assert json_value["firstField"] == "most_common_value"
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["referenceSet"] == list(val_set)
@@ -1706,7 +1742,7 @@ def test_column_values_not_null_constraint_apply_pass(local_config_path, df_lend
 
     TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
 
-    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report[0][1][0][0] == f"does not contain missing values"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -1719,7 +1755,7 @@ def test_column_values_not_null_constraint_apply_fail(local_config_path):
 
     TEST_LOGGER.info(f"Apply columnValuesNotNullConstraint report:\n{report}")
 
-    assert report[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report[0][1][0][0] == f"does not contain missing values"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 1
 
@@ -1733,11 +1769,11 @@ def test_merge_column_values_not_null_constraint_different_values(local_config_p
     report1 = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints1)
     report2 = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints2)
 
-    assert report1[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report1[0][1][0][0] == f"does not contain missing values"
     assert report1[0][1][0][1] == 1
     assert report1[0][1][0][2] == 0
 
-    assert report2[0][1][0][0] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert report2[0][1][0][0] == f"does not contain missing values"
     assert report2[0][1][0][1] == 1
     assert report2[0][1][0][2] == 0
 
@@ -1756,11 +1792,89 @@ def test_serialization_deserialization_column_values_not_null_constraint():
     nnc.from_protobuf(nnc.to_protobuf())
     json_value = json.loads(message_to_json(nnc.to_protobuf()))
 
-    assert json_value["name"] == f"summary null_count {Op.Name(Op.EQ)} 0/None"
+    assert json_value["name"] == f"does not contain missing values"
     assert json_value["firstField"] == "null_count"
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 0
     assert json_value["verbose"] is True
+
+
+def test_missing_values_proportion_between_constraint_apply_pass(local_config_path, df_lending_club):
+    mvpbc = missingValuesProportionBetweenConstraint(lower_fraction=0.0, upper_fraction=0.3)
+    summary_constraint = {"annual_inc": [mvpbc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
+    assert report[0][1][0][0] == f"missing values proportion is between 0.0% and 30.0%"
+    assert report[0][1][0][1] == 1  # number of executions
+    assert report[0][1][0][2] == 0  # number of failures
+
+
+def test_missing_values_proportion_between_constraint_apply_fail(local_config_path, df_lending_club):
+    mvpbc = missingValuesProportionBetweenConstraint(lower_fraction=0.3, upper_fraction=0.8)
+    summary_constraint = {"annual_inc": [mvpbc]}
+    report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
+    assert report[0][1][0][0] == f"missing values proportion is between 30.0% and 80.0%"
+    assert report[0][1][0][1] == 1  # number of executions
+    assert report[0][1][0][2] == 1  # number of failures
+
+
+def test_merge_missing_values_proportion_between_constraint_different_values():
+    m1 = missingValuesProportionBetweenConstraint(lower_fraction=0.2, upper_fraction=0.3)
+    m2 = missingValuesProportionBetweenConstraint(lower_fraction=0.1, upper_fraction=0.3)
+    with pytest.raises(AssertionError):
+        m1.merge(m2)
+
+
+def test_merge_missing_values_proportion_between_constraint_same_values():
+    m1 = missingValuesProportionBetweenConstraint(lower_fraction=0.1, upper_fraction=0.5)
+    m2 = missingValuesProportionBetweenConstraint(lower_fraction=0.1, upper_fraction=0.5)
+    merged = m1.merge(m2)
+    message = json.loads(message_to_json(merged.to_protobuf()))
+
+    assert message["name"] == "missing values proportion is between 10.0% and 50.0%"
+    assert message["firstField"] == "missing_values_proportion"
+    assert message["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(message["between"]["lowerValue"], 0.001) == 0.1
+    assert pytest.approx(message["between"]["upperValue"], 0.001) == 0.5
+    assert message["verbose"] is False
+
+
+def test_serialization_deserialization_missing_values_proportion_between_constraint():
+    u1 = missingValuesProportionBetweenConstraint(lower_fraction=0.4, upper_fraction=0.7, verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    assert json_value["name"] == "missing values proportion is between 40.0% and 70.0%"
+    assert json_value["firstField"] == "missing_values_proportion"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 0.4
+    assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 0.7
+    assert json_value["verbose"] is True
+
+
+def test_serialization_deserialization_missing_values_proportion_between_constraint_with_provided_name():
+    u1 = missingValuesProportionBetweenConstraint(lower_fraction=0.05, upper_fraction=0.1, name="missing values constraint", verbose=True)
+
+    u1.from_protobuf(u1.to_protobuf())
+    json_value = json.loads(message_to_json(u1.to_protobuf()))
+
+    assert json_value["name"] == "missing values constraint"
+    assert json_value["firstField"] == "missing_values_proportion"
+    assert json_value["op"] == Op.Name(Op.BTWN)
+    assert pytest.approx(json_value["between"]["lowerValue"], 0.001) == 0.05
+    assert pytest.approx(json_value["between"]["upperValue"], 0.001) == 0.1
+    assert json_value["verbose"] is True
+
+
+def test_missing_values_proportion_between_constraint_wrong_datatype():
+    with pytest.raises(ValueError):
+        missingValuesProportionBetweenConstraint(lower_fraction=0, upper_fraction=1.0, verbose=True)
+    with pytest.raises(ValueError):
+        missingValuesProportionBetweenConstraint(lower_fraction=0.2, upper_fraction=0.1, verbose=True)
+    with pytest.raises(ValueError):
+        missingValuesProportionBetweenConstraint(lower_fraction=0.4, upper_fraction=2)
+    with pytest.raises(ValueError):
+        missingValuesProportionBetweenConstraint(lower_fraction="1", upper_fraction=2.0, verbose=False)
 
 
 def test_column_values_type_equals_constraint_apply(local_config_path, df_lending_club):
@@ -1768,7 +1882,7 @@ def test_column_values_type_equals_constraint_apply(local_config_path, df_lendin
     summary_constraints = {"annual_inc": [cvtc]}
     report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints)
 
-    assert report[0][1][0][0] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.FRACTIONAL)}"
+    assert report[0][1][0][0] == f"type of the column values is {InferredType.Type.Name(InferredType.Type.FRACTIONAL)}"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -1786,7 +1900,7 @@ def test_merge_column_values_type_equals_constraint_same_values():
     merged = u1.merge(u2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(1)}"
+    assert message["name"] == f"type of the column values is {InferredType.Type.Name(1)}"
     assert message["firstField"] == "column_values_type"
     assert message["op"] == Op.Name(Op.EQ)
     assert message["value"] == 1
@@ -1799,7 +1913,7 @@ def test_serialization_deserialization_column_values_type_equals_constraint():
     u1.from_protobuf(u1.to_protobuf())
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
-    assert json_value["name"] == f"summary column_values_type {Op.Name(Op.EQ)} {InferredType.Type.Name(InferredType.Type.STRING)}"
+    assert json_value["name"] == f"type of the column values is {InferredType.Type.Name(InferredType.Type.STRING)}"
     assert json_value["firstField"] == "column_values_type"
     assert json_value["op"] == Op.Name(Op.EQ)
     assert json_value["value"] == InferredType.Type.STRING
@@ -1820,7 +1934,7 @@ def test_column_values_type_in_set_constraint_apply(local_config_path, df_lendin
     report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraint)
 
     type_names = {InferredType.Type.Name(t) for t in type_set}
-    assert report[0][1][0][0] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert report[0][1][0][0] == f"type of the column values is in {type_names}"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -1840,7 +1954,7 @@ def test_merge_column_values_type_in_set_constraint_same_values():
     message = json.loads(message_to_json(merged.to_protobuf()))
 
     type_names = {InferredType.Type.Name(t) for t in type_set}
-    assert message["name"] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert message["name"] == f"type of the column values is in {type_names}"
     assert message["firstField"] == "column_values_type"
     assert message["op"] == Op.Name(Op.IN)
     assert message["referenceSet"] == list(type_set)
@@ -1855,7 +1969,7 @@ def test_serialization_deserialization_column_values_type_in_set_constraint():
     json_value = json.loads(message_to_json(u1.to_protobuf()))
 
     type_names = {InferredType.Type.Name(t) if isinstance(t, int) else InferredType.Type.Name(t.type) for t in type_set}
-    assert json_value["name"] == f"summary column_values_type {Op.Name(Op.IN)} {type_names}"
+    assert json_value["name"] == f"type of the column values is in {type_names}"
     assert json_value["firstField"] == "column_values_type"
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["referenceSet"] == list(type_set)
@@ -1876,7 +1990,7 @@ def test_entropy_between_constraint_numeric_apply(local_config_path, df_lending_
     summary_constraint = {"annual_inc": [ec]}
     report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
     # numeric
-    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.4 and 0.5"
+    assert report[0][1][0][0] == f"approximate entropy is between 0.4 and 0.5"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 1
 
@@ -1887,7 +2001,7 @@ def test_entropy_between_constraint_categorical_apply(local_config_path, df_lend
     report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
 
     # categorical
-    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
+    assert report[0][1][0][0] == f"approximate entropy is between 0.6 and 1.5"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 0
 
@@ -1898,7 +2012,7 @@ def test_entropy_between_constraint_null_apply(local_config_path, df_lending_clu
     report = _apply_summary_constraints_on_dataset(df_lending_club, local_config_path, summary_constraints=summary_constraint)
 
     # categorical
-    assert report[0][1][0][0] == f"summary entropy {Op.Name(Op.BTWN)} 0.6 and 1.5"
+    assert report[0][1][0][0] == f"approximate entropy is between 0.6 and 1.5"
     assert report[0][1][0][1] == 1
     assert report[0][1][0][2] == 1
 
@@ -1916,7 +2030,7 @@ def test_merge_entropy_between_constraint_same_values():
     merged = e1.merge(e2)
     message = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert message["name"] == f"summary entropy {Op.Name(Op.BTWN)} 1 and 3.2"
+    assert message["name"] == f"approximate entropy is between 1 and 3.2"
     assert message["firstField"] == "entropy"
     assert message["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(message["between"]["lowerValue"], 0.01) == 1
@@ -1930,7 +2044,7 @@ def test_serialization_deserialization_entropy_between_constraint():
     e1.from_protobuf(e1.to_protobuf())
     json_value = json.loads(message_to_json(e1.to_protobuf()))
 
-    assert json_value["name"] == f"summary entropy {Op.Name(Op.BTWN)} 0.3 and 1.2"
+    assert json_value["name"] == f"approximate entropy is between 0.3 and 1.2"
     assert json_value["firstField"] == "entropy"
     assert json_value["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(json_value["between"]["lowerValue"], 0.01) == 0.3
@@ -1998,7 +2112,7 @@ def test_ks_test_p_value_greater_than_constraint_merge_same_values():
     TEST_LOGGER.info(f"Serialize the merged parametrizedKSTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
-    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.05/None"
+    assert json_value["name"] == f"parametrized KS test p-value is greater than 0.05"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "ks_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.05
@@ -2013,7 +2127,7 @@ def test_serialization_deserialization_ks_test_p_value_greater_than_constraint()
 
     TEST_LOGGER.info(f"Serialize parametrizedKSTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
 
-    assert json_value["name"] == f"summary ks_test p-value {Op.Name(Op.GT)} 0.15/None"
+    assert json_value["name"] == f"parametrized KS test p-value is greater than 0.15"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "ks_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -2117,7 +2231,7 @@ def test_column_kl_divergence_less_than_constraint_merge_same_values():
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
     print(json_value)
-    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.5/None"
+    assert json_value["name"] == f"KL Divergence is less than 0.5"
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["firstField"] == "kl_divergence"
     assert pytest.approx(json_value["value"], 0.01) == 0.5
@@ -2132,7 +2246,7 @@ def test_serialization_deserialization_column_kl_divergence_less_than_constraint
 
     TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
 
-    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15/None"
+    assert json_value["name"] == f"KL Divergence is less than 0.15"
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["firstField"] == "kl_divergence"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -2148,7 +2262,7 @@ def test_serialization_deserialization_column_kl_divergence_less_than_constraint
 
     TEST_LOGGER.info(f"Serialize columnKLDivergenceLessThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
 
-    assert json_value["name"] == f"summary kl_divergence threshold {Op.Name(Op.LT)} 0.15/None"
+    assert json_value["name"] == f"KL Divergence is less than 0.15"
     assert json_value["op"] == Op.Name(Op.LT)
     assert json_value["firstField"] == "kl_divergence"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -2217,7 +2331,7 @@ def test_column_chi_squared_test_p_value_greater_than_constraint_merge_same_valu
     TEST_LOGGER.info(f"Serialize the merged columnChiSquaredTestPValueGreaterThanConstraint:\n {merged.to_protobuf()}")
 
     json_value = json.loads(message_to_json(merged.to_protobuf()))
-    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.05/None"
+    assert json_value["name"] == f"Chi-Squared test p-value is greater than 0.05"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "chi_squared_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.05
@@ -2231,7 +2345,7 @@ def test_serialization_deserialization_chi_squared_test_p_value_greater_than_con
     json_value = json.loads(message_to_json(ks1.to_protobuf()))
 
     TEST_LOGGER.info(f"Serialize columnChiSquaredTestPValueGreaterThanConstraint from deserialized representation:\n {ks1.to_protobuf()}")
-    assert json_value["name"] == f"summary chi_squared_test p-value {Op.Name(Op.GT)} 0.15/None"
+    assert json_value["name"] == f"Chi-Squared test p-value is greater than 0.15"
     assert json_value["op"] == Op.Name(Op.GT)
     assert json_value["firstField"] == "chi_squared_test"
     assert pytest.approx(json_value["value"], 0.01) == 0.15
@@ -2270,21 +2384,21 @@ def test_generate_default_constraints_categorical(local_config_path):
 
     # username constraints
     assert len(constraints_username) == 3  # column value type equals, unique count between and most common value in set
-    assert constraints_username[0]["name"] == "summary column_values_type EQ STRING"
+    assert constraints_username[0]["name"] == "type of the column values is STRING"
     assert constraints_username[0]["firstField"] == "column_values_type"
     assert constraints_username[0]["value"] == InferredType.STRING
     assert constraints_username[0]["op"] == Op.Name(Op.EQ)
     assert constraints_username[0]["verbose"] is False
 
     # there are 4 unique values in the df for username, so the unique count between is in the range 4-1 and 4+1
-    assert constraints_username[1]["name"] == "summary unique_count BTWN 3 and 5"
+    assert constraints_username[1]["name"] == "number of unique values is between 3 and 5"
     assert constraints_username[1]["firstField"] == "unique_count"
     assert constraints_username[1]["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(constraints_username[1]["between"]["lowerValue"], 0.001) == 3
     assert pytest.approx(constraints_username[1]["between"]["upperValue"], 0.001) == 5
     assert constraints_username[1]["verbose"] is False
 
-    assert f"summary most_common_value IN" in constraints_username[2]["name"]  # set has different order
+    assert f"most common value is in" in constraints_username[2]["name"]  # set has different order
     assert constraints_username[2]["firstField"] == "most_common_value"
     assert constraints_username[2]["op"] == Op.Name(Op.IN)
     assert set(constraints_username[2]["referenceSet"]) == set(usernames)
@@ -2292,21 +2406,21 @@ def test_generate_default_constraints_categorical(local_config_path):
 
     # email constraints
     assert len(constraints_email) == 3  # column value type equals, unique count between and most common value in set
-    assert constraints_email[0]["name"] == "summary column_values_type EQ STRING"
+    assert constraints_email[0]["name"] == "type of the column values is STRING"
     assert constraints_email[0]["firstField"] == "column_values_type"
     assert constraints_email[0]["value"] == InferredType.STRING
     assert constraints_email[0]["op"] == Op.Name(Op.EQ)
     assert constraints_email[0]["verbose"] is False
 
     # there are 4 unique values in the df for username, so the unique count between is in the range 4-1 and 4+1
-    assert constraints_email[1]["name"] == "summary unique_count BTWN 3 and 5"
+    assert constraints_email[1]["name"] == "number of unique values is between 3 and 5"
     assert constraints_email[1]["firstField"] == "unique_count"
     assert constraints_email[1]["op"] == Op.Name(Op.BTWN)
     assert pytest.approx(constraints_email[1]["between"]["lowerValue"], 0.001) == 3
     assert pytest.approx(constraints_email[1]["between"]["upperValue"], 0.001) == 5
     assert constraints_email[1]["verbose"] is False
 
-    assert f"summary most_common_value IN" in constraints_email[2]["name"]  # set has different order
+    assert f"most common value is in" in constraints_email[2]["name"]  # set has different order
     assert constraints_email[2]["firstField"] == "most_common_value"
     assert constraints_email[2]["op"] == Op.Name(Op.IN)
     assert set(constraints_email[2]["referenceSet"]) == set(emails)
@@ -2339,11 +2453,11 @@ def test_generate_default_constraints_numeric(local_config_path):
     lower_followers = followers_mean - followers_stddev
     upper_followers = followers_mean + followers_stddev
 
-    assert followers_constraints[0]["name"] == "summary min GE 0/None"
-    assert followers_constraints[1]["name"] == f"summary mean BTWN {lower_followers} and {upper_followers}"
-    assert followers_constraints[2]["name"] == "summary column_values_type EQ INTEGRAL"
-    assert followers_constraints[3]["name"] == "summary unique_count BTWN 7 and 9"  # we have 8 unique values in the df
-    assert "summary most_common_value IN" in followers_constraints[4]["name"]
+    assert followers_constraints[0]["name"] == "minimum is greater than or equal to 0"
+    assert followers_constraints[1]["name"] == f"mean is between {lower_followers} and {upper_followers}"
+    assert followers_constraints[2]["name"] == "type of the column values is INTEGRAL"
+    assert followers_constraints[3]["name"] == "number of unique values is between 7 and 9"  # we have 8 unique values in the df
+    assert "most common value is in" in followers_constraints[4]["name"]
 
     assert len(points_constraints) == 4
     # min greater than 0, mean between mean-stddev and mean+stddev,
@@ -2353,16 +2467,16 @@ def test_generate_default_constraints_numeric(local_config_path):
     lower_points = points_mean - points_stddev
     upper_points = points_mean + points_stddev
 
-    assert points_constraints[0]["name"] == "summary min GE 0/None"
-    assert points_constraints[1]["name"] == f"summary mean BTWN {lower_points} and {upper_points}"
-    assert points_constraints[2]["name"] == "summary column_values_type EQ FRACTIONAL"
-    assert "summary most_common_value IN" in points_constraints[3]["name"]
+    assert points_constraints[0]["name"] == "minimum is greater than or equal to 0"
+    assert points_constraints[1]["name"] == f"mean is between {lower_points} and {upper_points}"
+    assert points_constraints[2]["name"] == "type of the column values is FRACTIONAL"
+    assert "most common value is in" in points_constraints[3]["name"]
 
 
 def test_generate_default_constraints_mixed(local_config_path):
-    data = pd.DataFrame(
-        {"username": ["jd123", "jane.doe@example.com", "bobsmith", "_anna_"], "followers": [1525, 12268, 51343, 867], "null": [None, None, None, None]}
-    )
+    users = ["jd123", "jane.doe@example.com", "bobsmith", "_anna_"]
+    followers = [1525, 12268, 51343, 867]
+    data = pd.DataFrame({"username": users, "followers": followers, "null": [None, None, None, None]})
 
     config = load_config(local_config_path)
     session = session_from_config(config)
@@ -2377,9 +2491,9 @@ def test_generate_default_constraints_mixed(local_config_path):
     assert "null" not in json_summ["summaryConstraints"]
 
     assert len(username_constraints) == 3  # column value type equals, unique count between and most common value in set
-    assert username_constraints[0]["name"] == "summary column_values_type EQ STRING"
-    assert username_constraints[1]["name"] == "summary unique_count BTWN 3 and 5"  # we have 4 unique values in df
-    assert f"summary most_common_value IN" in username_constraints[2]["name"]
+    assert username_constraints[0]["name"] == "type of the column values is STRING"
+    assert username_constraints[1]["name"] == "number of unique values is between 3 and 5"  # we have 4 unique values in df
+    assert f"most common value is in" in username_constraints[2]["name"]
 
     assert len(followers_constraints) == 5
     # min greater than 0, mean between mean-stddev and mean+stddev,
@@ -2390,11 +2504,11 @@ def test_generate_default_constraints_mixed(local_config_path):
     lower_followers = followers_mean - followers_stddev
     upper_followers = followers_mean + followers_stddev
 
-    assert followers_constraints[0]["name"] == "summary min GE 0/None"
-    assert followers_constraints[1]["name"] == f"summary mean BTWN {lower_followers} and {upper_followers}"
-    assert followers_constraints[2]["name"] == "summary column_values_type EQ INTEGRAL"
-    assert followers_constraints[3]["name"] == "summary unique_count BTWN 3 and 5"  # we have 4 unique values in the df
-    assert "summary most_common_value IN" in followers_constraints[4]["name"]
+    assert followers_constraints[0]["name"] == "minimum is greater than or equal to 0"
+    assert followers_constraints[1]["name"] == f"mean is between {lower_followers} and {upper_followers}"
+    assert followers_constraints[2]["name"] == "type of the column values is INTEGRAL"
+    assert followers_constraints[3]["name"] == "number of unique values is between 3 and 5"  # we have 4 unique values in the df
+    assert f"most common value is in" in followers_constraints[4]["name"]
 
 
 def _apply_value_constraints_on_dataset(df_lending_club, local_config_path, value_constraints=None, multi_column_value_constraints=None):
@@ -2412,8 +2526,7 @@ def test_sum_of_row_values_of_multiple_columns_constraint_apply(local_config_pat
     multi_column_value_constraints = [srveq]
     report = _apply_value_constraints_on_dataset(df_lending_club, local_config_path, multi_column_value_constraints=multi_column_value_constraints)
 
-    total_payment = ["total_pymnt"]
-    assert report[0][0] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} {total_payment}"
+    assert report[0][0] == f"The sum of the values of loan_amnt and int_rate is equal to the corresponding value of the column total_pymnt"
     assert report[0][1] == 50
     assert report[0][2] == 50
 
@@ -2438,7 +2551,7 @@ def test_sum_of_row_values_of_multiple_columns_constraint_apply_true(local_confi
     session.close()
     report = dc.report()
 
-    assert report[0][0] == f"multi column value SUM {colset} {Op.Name(Op.EQ)} 100"
+    assert report[0][0] == f"The sum of the values of A and B is equal to 100"
     assert report[0][1] == 5
     assert report[0][2] == 3
 
@@ -2466,8 +2579,7 @@ def test_merge_sum_of_row_values_constraint_valid():
     srveq_merged = srveq1.merge(srveq2)
     json_value = json.loads(message_to_json(srveq_merged.to_protobuf()))
 
-    total_payment = ["total_pymnt"]
-    assert json_value["name"] == f"multi column value SUM {col_set} {Op.Name(Op.EQ)} {total_payment}"
+    assert json_value["name"] == f"The sum of the values of loan_amnt and int_rate is equal to the corresponding value of the column total_pymnt"
     assert json_value["dependentColumns"] == col_set
     assert json_value["op"] == Op.Name(Op.EQ)
     assert json_value["referenceColumns"][0] == "total_pymnt"
@@ -2485,7 +2597,7 @@ def test_serialization_deserialization_sum_of_row_values_constraint():
     c.from_protobuf(c.to_protobuf())
     json_value = json.loads(message_to_json(c.to_protobuf()))
 
-    assert json_value["name"] == f"multi column value SUM {columns} {Op.Name(Op.EQ)} 6"
+    assert json_value["name"] == f"The sum of the values of A, B and C is equal to 6"
     assert json_value["dependentColumns"] == columns
     assert json_value["op"] == Op.Name(Op.EQ)
     assert pytest.approx(json_value["value"], 0.01) == 6
@@ -2518,7 +2630,11 @@ def test_multi_column_value_constraints_logical_operation(local_config_path):
 
     assert len(report[0]) == 3
 
-    assert report[0][1] == 4 and report[0][2] == 0 and report[0][0] == f"multi column value col1 {Op.Name(Op.GT)} col2"
+    assert (
+        report[0][1] == 4
+        and report[0][2] == 0
+        and report[0][0] == f"The values of the column col1 are greater than the corresponding values of the column col2"
+    )
 
 
 def test_multi_column_value_constraints_merge_error():
@@ -2549,7 +2665,7 @@ def test_multi_column_value_constraints_merge_error():
 
 def test_multi_column_value_constraints_merge_valid():
     mcvc1 = columnValuesAGreaterThanBConstraint("col1", "col2")
-    mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, reference_columns="col2")
+    mcvc2 = MultiColumnValueConstraint("col1", op=Op.GT, reference_columns="col2", name=mcvc1.name)
 
     merged = mcvc1.merge(mcvc2)
 
@@ -2641,8 +2757,7 @@ def test_column_pair_values_in_valid_set_constraint_apply(local_config_path, df_
     multi_column_value_constraints = [cpvis]
     report = _apply_value_constraints_on_dataset(df_lending_club, local_config_path, multi_column_value_constraints=multi_column_value_constraints)
 
-    col_set = ["grade", "sub_grade"]
-    assert report[0][0] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set}"
+    assert report[0][0] == f"The pair of values of the columns grade and sub_grade are in {val_set}"
     assert report[0][1] == 50
     assert report[0][2] == 45  # 5 values are in the set
 
@@ -2676,7 +2791,7 @@ def test_merge_column_pair_values_in_valid_set_constraint_valid():
     json_value = json.loads(message_to_json(cpvis_merged.to_protobuf()))
 
     col_set = ["annual_inc", "grade"]
-    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set1}"
+    assert json_value["name"] == f"The pair of values of the columns annual_inc and grade are in {val_set1}"
     assert json_value["dependentColumns"] == col_set
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"] == [list(t) for t in val_set1]
@@ -2696,7 +2811,7 @@ def test_serialization_deserialization_column_pair_values_in_valid_set_constrain
 
     val_set1 = set(val_set1)
     col_set = ["A", "B"]
-    assert json_value["name"] == f"multi column value {col_set} {Op.Name(Op.IN)} {val_set1}"
+    assert json_value["name"] == f"The pair of values of the columns A and B are in {val_set1}"
     assert json_value["dependentColumns"] == col_set
     assert json_value["op"] == Op.Name(Op.IN)
     assert json_value["valueSet"] == [list(t) for t in val_set1]
@@ -2719,7 +2834,7 @@ def test_column_values_unique_within_row_constraint_apply(local_config_path, df_
     multi_column_value_constraints = [cvu]
     report = _apply_value_constraints_on_dataset(df_lending_club, local_config_path, multi_column_value_constraints=multi_column_value_constraints)
 
-    assert report[0][0] == f"multi column value grade {Op.Name(Op.NOT_IN)} all"
+    assert report[0][0] == f"The values of the column grade are unique within each row"
     assert report[0][1] == 50
     assert report[0][2] == 0
 
@@ -2743,7 +2858,7 @@ def test_merge_column_values_unique_within_row_constraint_valid():
     merged = cvu1.merge(cvu2)
     json_value = json.loads(message_to_json(merged.to_protobuf()))
 
-    assert json_value["name"] == f"multi column value A {Op.Name(Op.NOT_IN)} all"
+    assert json_value["name"] == f"The values of the column A are unique within each row"
     assert json_value["dependentColumn"] == "A"
     assert json_value["op"] == Op.Name(Op.NOT_IN)
     assert json_value["referenceColumns"] == ["all"]
@@ -2760,7 +2875,7 @@ def test_serialization_deserialization_column_values_unique_within_row_constrain
     c.from_protobuf(c.to_protobuf())
     json_value = json.loads(message_to_json(c.to_protobuf()))
 
-    assert json_value["name"] == f"multi column value A {Op.Name(Op.NOT_IN)} all"
+    assert json_value["name"] == f"The values of the column A are unique within each row"
     assert json_value["dependentColumn"] == "A"
     assert json_value["op"] == Op.Name(Op.NOT_IN)
     assert json_value["referenceColumns"] == ["all"]
@@ -2772,3 +2887,41 @@ def test_column_values_unique_within_row_constraint_invalid_params():
         columnValuesUniqueWithinRow(column_A=1)
     with pytest.raises(TypeError):
         columnValuesUniqueWithinRow(column_A=["A"])
+
+
+def test_multicolumn_value_constraints_serialization_deserialization():
+    val_set = {(1, 2), (3, 5)}
+    col_set = ["A", "B"]
+    constraints = [
+        columnValuesUniqueWithinRow(column_A="A", verbose=True),
+        columnPairValuesInSetConstraint(column_A="A", column_B="B", value_set=val_set),
+        sumOfRowValuesOfMultipleColumnsEqualsConstraint(columns=col_set, value=100),
+    ]
+    mcvc = MultiColumnValueConstraints(constraints)
+
+    mcvc.from_protobuf(mcvc.to_protobuf())
+    json_value = json.loads(message_to_json(mcvc.to_protobuf()))
+    multi_column_constraints = json_value["multiColumnConstraints"]
+    unique = multi_column_constraints[0]
+    pair_values = multi_column_constraints[1]
+    sum_of_values = multi_column_constraints[2]
+    assert len(multi_column_constraints) == 3
+
+    assert unique["name"] == f"The values of the column A are unique within each row"
+    assert unique["dependentColumn"] == "A"
+    assert unique["op"] == Op.Name(Op.NOT_IN)
+    assert unique["referenceColumns"] == ["all"]
+    assert unique["verbose"] is True
+
+    assert pair_values["name"] == f"The pair of values of the columns A and B are in {val_set}"
+    assert pair_values["dependentColumns"] == col_set
+    assert pair_values["op"] == Op.Name(Op.IN)
+    assert pair_values["valueSet"] == [list(t) for t in val_set]
+    assert pair_values["verbose"] is False
+
+    assert sum_of_values["name"] == f"The sum of the values of A and B is equal to 100"
+    assert sum_of_values["dependentColumns"] == col_set
+    assert sum_of_values["op"] == Op.Name(Op.EQ)
+    assert pytest.approx(sum_of_values["value"], 0.01) == 100
+    assert sum_of_values["internalDependentColumnsOp"] == Op.Name(Op.SUM)
+    assert sum_of_values["verbose"] is False
