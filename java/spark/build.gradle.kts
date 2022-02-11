@@ -27,6 +27,10 @@ tasks.jar {
     archiveBaseName.set(artifactBaseName)
 }
 
+tasks.withType<Jar> {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 fun scalaPackage(groupId: String, name: String, version: String) =
     "$groupId:${name}_$scalaVersion:$version"
 
@@ -60,7 +64,6 @@ val javadocJar by tasks.creating(Jar::class) {
 val sourcesJar by tasks.creating(Jar::class) {
     archiveBaseName.set("${rootProject.name}-spark")
     archiveClassifier.set("sources")
-    duplicatesStrategy.set("include")
     from(sourceSets["main"].allSource)
 }
 
