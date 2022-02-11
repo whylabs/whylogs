@@ -3,7 +3,7 @@ plugins {
     `java-library`
     signing
     `maven-publish`
-    id("com.github.maiflai.scalatest") version "0.26"
+    id("com.github.maiflai.scalatest") version "0.31"
 }
 
 repositories {
