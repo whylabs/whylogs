@@ -42,3 +42,4 @@ jobs:
         with:
           build-root-directory: java/smoketest
           arguments: run
+          gradle-executable: java/gradlew
