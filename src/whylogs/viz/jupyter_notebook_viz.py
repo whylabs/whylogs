@@ -9,6 +9,8 @@ from IPython.core.display import display, HTML
 from whylogs.core import DatasetProfile
 from whylogs.util.protobuf import message_to_json
 
+from .utils.profile_viz_calculations import add_drift_val_to_ref_profile_json
+
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 
@@ -88,10 +90,15 @@ class NotebookProfileViewer:
         return HTML(iframe)
 
     def summary_drift_report(self, preferred_cell_height=None):
+        reference_profile = add_drift_val_to_ref_profile_json(
+            self.target_profiles[0],
+            self.reference_profiles[0],
+            json.loads(self.target_profile_jsons[0])
+        )
         template = self.__get_compiled_template(self.SUMMARY_REPORT_TEMPLATE_NAME)
         profiles_summary = {"profile_from_whylogs": self.target_profile_jsons[0]}
         if self.reference_profiles:
-            profiles_summary["reference_profile_from_whylogs"] = self.reference_profile_jsons[0]
+            profiles_summary["reference_profile_from_whylogs"] = json.dumps(reference_profile)
         return self.__display_rendered_template(
             template(profiles_summary),
             self.SUMMARY_REPORT_TEMPLATE_NAME,
