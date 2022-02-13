@@ -118,11 +118,12 @@
      .chart-box-title {
        width: 98%;
        justify-content: space-between;
+       margin: 10px;
+       margin-top: 20px;
      }
 
      .chart-box-title p{
        margin-bottom: 0;
-       margin-top: 1rem;
        font-family: Asap;
        font-weight: bold;
        font-size: 18px;
@@ -147,7 +148,7 @@
       <div class="desktop-content">
         {{#each this}}
               <div class="chart-box" id="chart-box">
-                <div class="chart-box-title display-flex align-items-flex-end">
+                <div class="chart-box-title display-flex">
                   <p>{{@key}}</p>
                   <div class="display-flex">
                     <div class="colors-for-distingushing-charts">
@@ -198,7 +199,7 @@
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
           this.svgEl = d3.create("svg")
              .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `20 0 ${$(window).width()} ${$(window).height()-32}`)
+             .attr("viewBox", `20 0 ${$(window).width()} ${$(window).height()-50}`)
              .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
@@ -251,7 +252,7 @@
 
         let yFormat,
             xFormat;
-        const sizes = new GenerateChartParams($(window).height()-32, $(window).width(), histogramData)
+        const sizes = new GenerateChartParams($(window).height()-50, $(window).width(), histogramData)
         const {
           MARGIN,
           SVG_WIDTH,
