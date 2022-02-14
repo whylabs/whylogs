@@ -160,7 +160,6 @@ class NotebookProfileViewer:
             selected_profile = self.reference_profile_jsons
         else:
             selected_profile = self.target_profile_jsons
-        print(self.__pull_feature_data(selected_profile, feature_name))
         rendered_template = template({
             "profile_feature_summary_statistics_from_whylogs": json.dumps(
                 self.__pull_feature_data(selected_profile, feature_name)
