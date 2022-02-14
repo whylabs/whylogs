@@ -9,7 +9,7 @@ from IPython.core.display import display, HTML
 from whylogs.core import DatasetProfile
 from whylogs.util.protobuf import message_to_json
 
-from .utils.profile_viz_calculations import add_drift_val_to_ref_profile_json
+from .utils.profile_viz_calculations import add_drift_val_to_ref_profile_json, calculate_variance, calculate_coefficient_of_variation
 
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
@@ -80,6 +80,12 @@ class NotebookProfileViewer:
         feature_data = {}
         feature_data['properties'] = profile_features.get('properties')
         feature_data[feature_name] = profile_features.get('columns').get(feature_name)
+        feature_data[feature_name]['variance'] = calculate_variance(
+            profile_features, feature_name
+        )
+        feature_data[feature_name]['coefficient_of_variation'] = calculate_coefficient_of_variation(
+            profile_features, feature_name
+        )
         return feature_data
 
     def __display_rendered_template(self, template, template_name, height):
@@ -154,6 +160,7 @@ class NotebookProfileViewer:
             selected_profile = self.reference_profile_jsons
         else:
             selected_profile = self.target_profile_jsons
+        print(self.__pull_feature_data(selected_profile, feature_name))
         rendered_template = template({
             "profile_feature_summary_statistics_from_whylogs": json.dumps(
                 self.__pull_feature_data(selected_profile, feature_name)

@@ -54,3 +54,18 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
                 else:
                     reference_profile_json['columns'][target_col_name]['drift_from_ref'] = None
     return reference_profile_json
+
+
+def calculate_variance(profile_jsons, feature_name):
+    feature = profile_jsons.get(
+        'columns').get(feature_name)
+    variance = feature.get('numberSummary').get('stddev')**2
+    return variance
+
+
+def calculate_coefficient_of_variation(profile_jsons, feature_name):
+    feature = profile_jsons.get(
+        'columns').get(feature_name)
+    coefficient_of_variation = feature.get(
+        'numberSummary').get('stddev')/feature.get('numberSummary').get('mean')
+    return coefficient_of_variation
