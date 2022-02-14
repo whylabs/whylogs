@@ -9,8 +9,12 @@ from IPython.core.display import display, HTML
 from whylogs.core import DatasetProfile
 from whylogs.util.protobuf import message_to_json
 
-from .utils.profile_viz_calculations import add_drift_val_to_ref_profile_json, calculate_variance, calculate_coefficient_of_variation
-
+from .utils.profile_viz_calculations import (
+    add_drift_val_to_ref_profile_json,
+    calculate_variance,
+    calculate_coefficient_of_variation,
+    calculate_quantile_statistics_for_single_feature
+)
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 
@@ -75,16 +79,23 @@ class NotebookProfileViewer:
         template = compiler.compile(source)
         return template
 
-    def __pull_feature_data(self, profile_jsons, feature_name):
+    def __pull_feature_data(self, profile, profile_jsons, feature_name):
         profile_features = json.loads(profile_jsons[0])
         feature_data = {}
         feature_data['properties'] = profile_features.get('properties')
         feature_data[feature_name] = profile_features.get('columns').get(feature_name)
         feature_data[feature_name]['variance'] = calculate_variance(
-            profile_features, feature_name
+            profile_features,
+            feature_name
         )
         feature_data[feature_name]['coefficient_of_variation'] = calculate_coefficient_of_variation(
-            profile_features, feature_name
+            profile_features,
+            feature_name
+        )
+        feature_data[feature_name]['quantile_statistics'] = calculate_quantile_statistics_for_single_feature(
+            profile,
+            profile_features,
+            feature_name
         )
         return feature_data
 
@@ -157,12 +168,18 @@ class NotebookProfileViewer:
     def feature_summary_statistics(self, feature_name, profile='reference', preferred_cell_height=None):
         template = self.__get_compiled_template(self.FEATURE_STATISTICS_TEMPLATE_NAME)
         if self.reference_profiles and profile.lower() == 'reference':
-            selected_profile = self.reference_profile_jsons
+            selected_profile_json = self.reference_profile_jsons
+            selected_profile = self.reference_profiles[0].columns
         else:
-            selected_profile = self.target_profile_jsons
+            selected_profile_json = self.target_profile_jsons
+            selected_profile = self.target_profiles[0].columns
         rendered_template = template({
             "profile_feature_summary_statistics_from_whylogs": json.dumps(
-                self.__pull_feature_data(selected_profile, feature_name)
+                self.__pull_feature_data(
+                    selected_profile.get(feature_name),
+                    selected_profile_json,
+                    feature_name
+                )
             )}
         )
         return self.__display_rendered_template(
