@@ -320,11 +320,12 @@ def _compute_kl_divergence_continuous_distributions(target_distribution: kll_flo
         The estimated KL divergence between two continuous features.
 
     """
-
+    almost_zero_probability_of_event = 10e-5
     bins_target = np.linspace(target_distribution.get_min_value(), target_distribution.get_max_value(), 100)
     pmf_target = np.array(target_distribution.get_pmf(bins_target))
 
     pmf_reference = np.array(reference_distribution.get_pmf(bins_target))
+    pmf_reference[pmf_reference == 0] = almost_zero_probability_of_event
 
     kl_divergence = np.sum(np.where(pmf_target != 0, pmf_target * np.log(pmf_target / pmf_reference), 0))
     return type("Object", (), {"kl_divergence": kl_divergence})
