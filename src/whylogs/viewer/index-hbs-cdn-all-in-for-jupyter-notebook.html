@@ -532,35 +532,7 @@
                          Drift detected in 65 of 131 features
                        </p>
                      </div>
-                     <div class="drift-detection-info-drifts display-flex">
-                       <div class="drift-detection-info-drifts-item display-flex align-items">
-                         <div class="drift-detection-info-circle severe-drift-circle-color"></div>
-                         <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                           <p class="drift-detection-info-drifts-item-count mb-0">{{severeDrift}}</p>
-                           <p class="drift-detection-info-drifts-item-name  mb-0">Severe drift</p>
-                         </div>
-                       </div>
-                       <div class="drift-detection-info-drifts-item display-flex align-items">
-                         <div class="drift-detection-info-circle moderate-drift-circle-color"></div>
-                         <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                           <p class="drift-detection-info-drifts-item-count mb-0">{{moderateDrift}}</p>
-                           <p class="drift-detection-info-drifts-item-name  mb-0">Moderate drift</p>
-                         </div>
-                       </div>
-                       <div class="drift-detection-info-drifts-item display-flex align-items">
-                         <div class="drift-detection-info-circle mild-drift-circle-color"></div>
-                         <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                           <p class="drift-detection-info-drifts-item-count mb-0">{{mildDrift}}</p>
-                           <p class="drift-detection-info-drifts-item-name  mb-0">Mild drift</p>
-                         </div>
-                       </div>
-                       <div class="drift-detection-info-drifts-item display-flex align-items">
-                         <div class="drift-detection-info-circle minimal-drift-circle-color"></div>
-                         <div class="drift-detection-info-drifts-item-text display-flex align-items">
-                           <p class="drift-detection-info-drifts-item-count mb-0">{{minimalDrift}}</p>
-                           <p class="drift-detection-info-drifts-item-name mb-0">Minimal drift</p>
-                         </div>
-                       </div>
+                     <div class="drift-detection-info-drifts display-flex" id="drift-detection-info-drifts">
                      </div>
                    </div>
                    <div class="drift-detection-search-input-wrap display-flex">
@@ -708,7 +680,8 @@
     const referenceProfile = getReferenceProfile()
 
     function fixNumberTo(number, decimals = 3) {
-      return parseFloat(number).toFixed(decimals);
+      const fractionalDigits = String(number % 1).split('').slice(2, 2 + decimals).join('')
+      return `${Math.trunc(number)}.${fractionalDigits}`
     }
 
     function registerHandlebarHelperFunctions() {
@@ -845,32 +818,70 @@
 
       const randomNumbers = (range) => Math.floor(Math.random() * range)
 
-      Handlebars.registerHelper("severeDrift", function () {
-        return randomNumbers(50);
-      });
+      const driftCountElement = (driftCount, driftColor, driftName) => `
+      <div class="drift-detection-info-drifts-item display-flex align-items">
+        <div class="drift-detection-info-circle ${driftColor}"></div>
+        <div class="drift-detection-info-drifts-item-text display-flex align-items">
+          <p class="drift-detection-info-drifts-item-count mb-0">${driftCount}</p>
+          <p class="drift-detection-info-drifts-item-name  mb-0">${driftName}</p>
+        </div>
+      </div>
+      `
 
-      Handlebars.registerHelper("moderateDrift", function () {
-        return randomNumbers(50);
-      });
+      const drifts = {
+        minimal: {
+          count: 0,
+          name: "Minimal drift",
+          colorClass: "minimal-drift-circle-color"
+        }, 
+        mild: {
+          count: 0,
+          name: "Mild drift",
+          colorClass: "mild-drift-circle-color"
+        }, 
+        moderate: {
+          count: 0,
+          name: "Moderate drift",
+          colorClass: "moderate-drift-circle-color"
+        }, 
+        severe: {
+          count: 0,
+          name: "Severe drift",
+          colorClass: "severe-drift-circle-color"
+        }
+      };
 
-      Handlebars.registerHelper("mildDrift", function () {
-        return randomNumbers(50);
-      });
+      const countOfDrifts = (driftNumber, dividedNumber) => {
+        const divide = 1 / dividedNumber;
+        for(let i = 1; i <= dividedNumber; i++){
+          if(driftNumber <= divide*i) {
+            Object.values(drifts)[i-1].count++
+            return i-1
+          }
+        }
+      }
 
-      Handlebars.registerHelper("minimalDrift", function () {
-        return randomNumbers(50);
-      });
+      $(document).ready(() => 
+        Object.values(drifts).map(({count, name, colorClass}) =>{ 
+          $("#drift-detection-info-drifts")
+          .append(driftCountElement(count, colorClass, name))
+        })
+      )
 
-      Handlebars.registerHelper("getDiffFromRef", function () {
-        if (referenceProfile && referenceProfile.columns) {
-          const circleColors = ["severe-drift-circle-color", "moderate-drift-circle-color", "mild-drift-circle-color", "minimal-drift-circle-color"]
+      Handlebars.registerHelper("getDiffFromRef", function (column, key) {
+        const columnKey = key.data.key
+        if (referenceProfile && referenceProfile.columns[columnKey].drift_from_ref) {
+          const {drift_from_ref} = referenceProfile.columns[columnKey]
+          const driftFromRefNumber = drift_from_ref % 1 ? fixNumberTo(drift_from_ref, 2) : drift_from_ref
+          const circleColor = Object.values(drifts)[countOfDrifts(driftFromRefNumber, 4)].colorClass
           return `
             <div class="display-flex justify-content-center">
-              ${randomNumbers(10)}
-              <div style="margin-left: 8px" class="drift-detection-info-circle ${circleColors[randomNumbers(4)]}"></div>
+              ${driftFromRefNumber}
+              <div style="margin-left: 8px" class="drift-detection-info-circle ${circleColor}"></div>
             </div>
           `
         }
+        return '<p style="color: black">-</p>';
       });
 
       Handlebars.registerHelper("inferredType", function (column) {
@@ -999,15 +1010,15 @@
       }
 
       function filterNotification() {
-      const $notifCircleContainer = $(".notif-circle-container")
-      const $boxes = $('.wl_filter-options>.form-check>input[name=checkbox]:checked');
-      const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
-      if (item === undefined) {
-        $notifCircleContainer.removeClass("d-none")
-      } else {
-        $notifCircleContainer.addClass("d-none")
+        const $notifCircleContainer = $(".notif-circle-container")
+        const $boxes = $('.wl_filter-options>.form-check>input[name=checkbox]:checked');
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass("d-none")
+        } else {
+          $notifCircleContainer.addClass("d-none")
+        }
       }
-    }
 
       function handleSearch() {
         const tableBodyChildren = $tableBody.children;
