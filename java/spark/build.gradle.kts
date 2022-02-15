@@ -3,7 +3,7 @@ plugins {
     `java-library`
     signing
     `maven-publish`
-    id("com.github.maiflai.scalatest") version "0.26"
+    id("com.github.maiflai.scalatest") version "0.31"
 }
 
 repositories {
@@ -25,6 +25,10 @@ val artifactBaseName = "${rootProject.name}-spark_$sparkVersion-scala_$scalaVers
 
 tasks.jar {
     archiveBaseName.set(artifactBaseName)
+}
+
+tasks.withType<Jar> {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 fun scalaPackage(groupId: String, name: String, version: String) =
@@ -82,10 +86,10 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
 
     // lombok support
-    compileOnly("org.projectlombok:lombok:1.18.12")
-    annotationProcessor("org.projectlombok:lombok:1.18.12")
-    testCompileOnly("org.projectlombok:lombok:1.18.12")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.12")
+    compileOnly("org.projectlombok:lombok:1.18.20")
+    annotationProcessor("org.projectlombok:lombok:1.18.20")
+    testCompileOnly("org.projectlombok:lombok:1.18.20")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.20")
 
     // testng
     testImplementation("org.testng:testng:6.8")
