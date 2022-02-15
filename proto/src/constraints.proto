@@ -131,3 +131,9 @@ message DatasetConstraintMsg {
   map<string, ValueConstraintMsgs> multi_column_value_constraints = 5;
 }
 
+message PIIMessage {
+  string column_name = 1;
+  int32 reporting_threshold = 2;
+  ValueConstraintMsgs constraints = 3;
+  bool tracking = 4;
+}
