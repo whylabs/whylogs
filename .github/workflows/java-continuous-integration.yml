@@ -37,3 +37,9 @@ jobs:
         with:
           build-root-directory: java
           arguments: build
+      - name: Smoke test jar in client environment
+        uses: gradle/gradle-build-action@v2
+        with:
+          build-root-directory: java/smoketest
+          arguments: run
+          gradle-executable: java/gradlew

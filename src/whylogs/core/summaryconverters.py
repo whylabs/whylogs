@@ -320,11 +320,12 @@ def _compute_kl_divergence_continuous_distributions(target_distribution: kll_flo
         The estimated KL divergence between two continuous features.
 
     """
-
+    almost_zero_probability_of_event = 10e-5
     bins_target = np.linspace(target_distribution.get_min_value(), target_distribution.get_max_value(), 100)
     pmf_target = np.array(target_distribution.get_pmf(bins_target))
 
     pmf_reference = np.array(reference_distribution.get_pmf(bins_target))
+    pmf_reference[pmf_reference == 0] = almost_zero_probability_of_event
 
     kl_divergence = np.sum(np.where(pmf_target != 0, pmf_target * np.log(pmf_target / pmf_reference), 0))
     return type("Object", (), {"kl_divergence": kl_divergence})
@@ -377,6 +378,9 @@ def _compute_kl_divergence_discrete_distributions(
         if i_frequency == 0:
             continue
         ref_frequency = ref_freq_items_map[item.json_value] / ref_total_count if item.json_value in ref_freq_items_map.keys() else 0
+        if ref_frequency == 0:
+            kl_divergence = np.inf
+            break
         kl_divergence += i_frequency * np.log(i_frequency / ref_frequency)
 
     target_frequent_items_count = len(target_frequent_items.items)
@@ -431,13 +435,14 @@ def compute_chi_squared_test_p_value(target_distribution: ReferenceDistributionD
 
     chi_sq = 0
     for item in target_freq_items.items:
-        i_frequency = item.estimate / target_total_count
-        ref_frequency = ref_dist_items[item.json_value] / ref_total_count if item.json_value in ref_dist_items.keys() else 0
+        target_frequency = item.estimate
+        ref_frequency = ref_dist_items[item.json_value] if item.json_value in ref_dist_items else 0
         if ref_frequency == 0:
             chi_sq = np.inf
-        else:
-            chi_sq += (i_frequency - ref_frequency) ** 2 / ref_frequency
+            break
+        chi_sq += (target_frequency - ref_frequency) ** 2 / ref_frequency
 
     degrees_of_freedom = target_unique_count - 1
+    degrees_of_freedom = degrees_of_freedom if degrees_of_freedom > 0 else 1
     p_value = stats.chi2.sf(chi_sq, degrees_of_freedom)
     return type("Object", (), {"chi_squared_test": p_value})

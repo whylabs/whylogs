@@ -4,6 +4,7 @@ RUN mkdir /workspace && \
     apt update && \
     apt install git -y && \
     apt install protobuf-compiler -y && \
+    apt install cmake -y && \
     pip install pytest && \
     pip install pytest-cov && \
     pip install jupyterlab && \
