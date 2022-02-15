@@ -284,7 +284,7 @@
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Variance</div>
-                        <div>4664</div>
+                        <div>{{variance this}}</div>
                       </div>
                     </div>
                   </div>
@@ -325,6 +325,14 @@
       }
 
       const randomNumbers = (range) => Math.floor(Math.random() * range)
+
+      Handlebars.registerHelper("variance", function (column) {
+        const feture = Object.values(column)[1]
+        if (feture.variance) {
+          return fixNumberTo(feture.variance);
+        }
+        return "0";
+      });
 
       Handlebars.registerHelper("coefficientOfVariation", function (column) {
         const feture = Object.values(column)[1]
