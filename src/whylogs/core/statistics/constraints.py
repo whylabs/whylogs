@@ -1,3 +1,4 @@
+import copy
 import datetime
 import json
 import logging
@@ -264,7 +265,7 @@ class ValueConstraint:
             return self._name
         if self.op == Op.APPLY_FUNC:
             val_or_funct = self.apply_function.__name__
-        elif getattr(self, "value", None) is not None:
+        elif hasattr(self, "value"):
             val_or_funct = self.value
         else:
             val_or_funct = self.regex_pattern
@@ -312,10 +313,10 @@ class ValueConstraint:
             elif hasattr(self, "value") and hasattr(other, "value"):
                 val = self.value
                 assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
-        elif all([getattr(v, "value", None) is not None for v in (self, other)]):
+        elif all([hasattr(v, "value") for v in (self, other)]):
             val = self.value
             assert self.value == other.value, f"Cannot merge value constraints with different values: {self.value} and {other.value}"
-        elif all([getattr(v, "regex_pattern", None) for v in (self, other)]):
+        elif all([hasattr(v, "regex_pattern") for v in (self, other)]):
             pattern = self.regex_pattern
             assert (
                 self.regex_pattern == other.regex_pattern
@@ -1100,7 +1101,8 @@ class MultiColumnValueConstraint(ValueConstraint):
             dependent_cols = Op.Name(self.internal_op) + " " + dependent_cols
         return f"multi column value {dependent_cols} {Op.Name(self.op)} {val_or_ref_columns}"
 
-    def update(self, columns):
+    def update(self, column_values_dictionary):
+        columns = copy.deepcopy(column_values_dictionary)
         self.total += 1
         if isinstance(self.dependent_columns, str):
             v1 = columns[self.dependent_columns]
@@ -1342,10 +1344,10 @@ class DatasetConstraints:
         self.table_shape_constraints = table_shape_constraints
 
         if multi_column_value_constraints is None:
-            multi_column_value_constraints = list()
-        for i, v in enumerate(multi_column_value_constraints):
-            if isinstance(v, list):
-                multi_column_value_constraints[i] = MultiColumnValueConstraints(v)
+            multi_column_value_constraints = MultiColumnValueConstraints()
+
+        if isinstance(multi_column_value_constraints, list):
+            multi_column_value_constraints = MultiColumnValueConstraints(multi_column_value_constraints)
 
         self.multi_column_value_constraints = multi_column_value_constraints
 
@@ -1359,7 +1361,7 @@ class DatasetConstraints:
         vm = dict([(k, ValueConstraints.from_protobuf(v)) for k, v in msg.value_constraints.items()])
         sm = dict([(k, SummaryConstraints.from_protobuf(v)) for k, v in msg.summary_constraints.items()])
         table_shape_m = SummaryConstraints.from_protobuf(msg.table_shape_constraints)
-        multi_column_value_m = dict([(k, MultiColumnValueConstraints.from_protobuf(v)) for k, v in msg.multi_column_value_constraints.items()])
+        multi_column_value_m = MultiColumnValueConstraints.from_protobuf(msg.multi_column_value_constraints)
         return DatasetConstraints(msg.properties, vm, sm, table_shape_m, multi_column_value_m)
 
     @staticmethod
@@ -1373,7 +1375,7 @@ class DatasetConstraints:
         vm = dict([(k, v.to_protobuf()) for k, v in self.value_constraint_map.items()])
         sm = dict([(k, s.to_protobuf()) for k, s in self.summary_constraint_map.items()])
         table_shape_constraints_message = self.table_shape_constraints.to_protobuf()
-        multi_column_value_m = [v.to_protobuf() for v in self.multi_column_value_constraints]
+        multi_column_value_m = self.multi_column_value_constraints.to_protobuf()
         return DatasetConstraintMsg(
             properties=self.dataset_properties,
             value_constraints=vm,
@@ -1389,7 +1391,7 @@ class DatasetConstraints:
         l1 = [(k, v.report()) for k, v in self.value_constraint_map.items()]
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
         l3 = self.table_shape_constraints.report() if self.table_shape_constraints.report() else []
-        l4 = [mc.report() for mc in self.multi_column_value_constraints]
+        l4 = self.multi_column_value_constraints.report() if self.multi_column_value_constraints.report() else []
         return l1 + l2 + l3 + l4
 
 

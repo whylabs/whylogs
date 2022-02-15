@@ -44,10 +44,10 @@ dependencies {
     api("com.google.code.findbugs:jsr305:3.0.2")
 
     // lombok support
-    compileOnly("org.projectlombok:lombok:1.18.12")
-    annotationProcessor("org.projectlombok:lombok:1.18.12")
-    testCompileOnly("org.projectlombok:lombok:1.18.12")
-    testAnnotationProcessor("org.projectlombok:lombok:1.18.12")
+    compileOnly("org.projectlombok:lombok:1.18.20")
+    annotationProcessor("org.projectlombok:lombok:1.18.20")
+    testCompileOnly("org.projectlombok:lombok:1.18.20")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.20")
 
     // testng
     testImplementation("org.testng:testng:6.8")
