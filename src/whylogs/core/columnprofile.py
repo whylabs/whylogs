@@ -252,7 +252,7 @@ class ColumnProfile:
         return None
 
     def generate_data_insights(self):
-        insights = self.pii_trackers.give_pii_insights()
+        insights = self.pii_trackers.generate_pii_insights()
         constraints = self.generate_constraints()
         if isinstance(insights, str):
             insights = []
