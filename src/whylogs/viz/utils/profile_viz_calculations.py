@@ -1,4 +1,4 @@
-from whylogs.core.summaryconverters import ks_test_compute_p_value, compute_chi_squared_test_p_value
+from whylogs.core.summaryconverters import ks_test_compute_p_value, compute_chi_squared_test_p_value, single_quantile_from_sketch
 
 from whylogs.proto import ReferenceDistributionDiscreteMessage, InferredType
 
@@ -59,7 +59,8 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
 def calculate_variance(profile_jsons, feature_name):
     feature = profile_jsons.get(
         'columns').get(feature_name)
-    variance = feature.get('numberSummary').get('stddev')**2
+    variance = feature.get('numberSummary').get(
+        'stddev')**2 if feature.get('numberSummary') != None else 0
     return variance
 
 
@@ -67,5 +68,36 @@ def calculate_coefficient_of_variation(profile_jsons, feature_name):
     feature = profile_jsons.get(
         'columns').get(feature_name)
     coefficient_of_variation = feature.get(
-        'numberSummary').get('stddev')/feature.get('numberSummary').get('mean')
+        'numberSummary').get('stddev')/feature.get('numberSummary').get('mean') if feature.get('numberSummary') != None else 0
     return coefficient_of_variation
+
+
+def calculate_quantile_statistics_for_single_feature(feature, profile_jsons, feature_name):
+    quantile_statistics = {}
+    feature_number_summary = profile_jsons.get('columns').get(feature_name).get('numberSummary')
+    if feature.number_tracker and feature.number_tracker.histogram.get_n() > 0:
+        kll_sketch = feature.number_tracker.histogram
+        quantile_statistics['fifth_percentile'] = single_quantile_from_sketch(
+            kll_sketch,
+            quantile=0.05
+        ).quantile
+        quantile_statistics['q1'] = single_quantile_from_sketch(
+            kll_sketch,
+            quantile=0.25
+        ).quantile
+        quantile_statistics['median'] = single_quantile_from_sketch(
+            kll_sketch,
+            quantile=0.5
+        ).quantile
+        quantile_statistics['q3'] = single_quantile_from_sketch(
+            kll_sketch,
+            quantile=0.75
+        ).quantile
+        quantile_statistics['ninety_fifth_percentile'] = single_quantile_from_sketch(
+            kll_sketch,
+            quantile=0.95
+        ).quantile
+        quantile_statistics['range'] = feature_number_summary.get(
+            'max') - feature_number_summary.get('min')
+        quantile_statistics['iqr'] = quantile_statistics['q3'] - quantile_statistics['q1']
+    return quantile_statistics
