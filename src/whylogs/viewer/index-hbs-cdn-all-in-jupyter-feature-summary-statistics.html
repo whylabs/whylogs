@@ -185,11 +185,11 @@
               <div class="statistics display-flex justify-content-space-between">
                   <div class="statistic-item padding-right-30">
                     <div class="statistic-number-title">Distinct (%)</div>
-                    <div class="statistic-number">{{distinct}}</div>
+                    <div class="statistic-number">{{distinct this}}</div>
                   </div>
                   <div class="statistic-item padding-right-30">
                     <div class="statistic-number-title">Missing</div>
-                    <div class="statistic-number">{{missing}}</div>
+                    <div class="statistic-number">{{missing this}}</div>
                   </div>
                   <div class="statistic-item padding-right-30">
                     <div class="statistic-number-title">Infinite</div>
@@ -230,16 +230,12 @@
                     </div>
                     <div>
                       <div class="display-flex justify-content-space-between mb-2">
-                        <div>Minimum</div>
-                        <div>{{minimum this}}</div>
-                      </div>
-                      <div class="display-flex justify-content-space-between mb-2">
                         <div>5-th percentile</div>
-                        <div>45.5</div>
+                        <div>{{fifthPercentile this}}</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Q1</div>
-                        <div>223.5</div>
+                        <div>{{q1 this}}</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>median</div>
@@ -247,23 +243,19 @@
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Q3</div>
-                        <div>668.5</div>
+                        <div>{{q3 this}}</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>95-th percentile</div>
-                        <div>846.5</div>
-                      </div>
-                      <div class="display-flex justify-content-space-between mb-2">
-                        <div>Maximum</div>
-                        <div>{{maximum this}}</div>
+                        <div>{{ninetyFifthPercentile this}}</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Range</div>
-                        <div>890</div>
+                        <div>{{range this}}</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Interquartile range (IQR)</div>
-                        <div>445</div>
+                        <div>{{iqr this}}</div>
                       </div>
                     </div>
                   </div>
@@ -276,27 +268,15 @@
                     <div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Standard deviation</div>
-                        <div>247.353842</div>
+                        <div>{{stddev this}}</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Coefficient of variation (CV)</div>
-                        <div>0.5770265516</div>
+                        <div>{{coefficientOfVariation this}}</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Kurtosis</div>
                         <div>-1.2</div>
-                      </div>
-                      <div class="display-flex justify-content-space-between mb-2">
-                        <div>Mean</div>
-                        <div>446</div>
-                      </div>
-                      <div class="display-flex justify-content-space-between mb-2">
-                        <div>Median Absolute Deviation (MAD)</div>
-                        <div>223</div>
-                      </div>
-                      <div class="display-flex justify-content-space-between mb-2">
-                        <div>Skewness</div>
-                        <div>0</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Sum</div>
@@ -304,11 +284,7 @@
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Variance</div>
-                        <div>66231</div>
-                      </div>
-                      <div class="display-flex justify-content-space-between mb-2">
-                        <div>Monotonicity</div>
-                        <div>Strictly increasing</div>
+                        <div>4664</div>
                       </div>
                     </div>
                   </div>
@@ -350,12 +326,93 @@
 
       const randomNumbers = (range) => Math.floor(Math.random() * range)
 
-      Handlebars.registerHelper("distinct", function () {
-        return randomNumbers(50);
+      Handlebars.registerHelper("coefficientOfVariation", function (column) {
+        const feture = Object.values(column)[1]
+        if (feture.coefficient_of_variation) {
+          return fixNumberTo(feture.coefficient_of_variation);
+        }
+        return "0";
       });
 
-      Handlebars.registerHelper("missing", function () {
-        return randomNumbers(50);
+      Handlebars.registerHelper("median", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.quantile_statistics && feture.quantile_statistics.median) {
+          return fixNumberTo(feture.quantile_statistics.median);
+        }
+        return "0";
+      });
+
+      Handlebars.registerHelper("fifthPercentile", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.quantile_statistics && feture.quantile_statistics.fifth_percentile) {
+          return fixNumberTo(feture.quantile_statistics.fifth_percentile);
+        }
+        return "0";
+      });
+      
+      Handlebars.registerHelper("ninetyFifthPercentile", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.quantile_statistics && feture.quantile_statistics.ninety_fifth_percentile) {
+          return fixNumberTo(feture.quantile_statistics.ninety_fifth_percentile);
+        }
+        return "0";
+      });
+
+      Handlebars.registerHelper("range", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.quantile_statistics && feture.quantile_statistics.range) {
+          return fixNumberTo(feture.quantile_statistics.range);
+        }
+        return "0";
+      });
+
+      Handlebars.registerHelper("q3", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.quantile_statistics && feture.quantile_statistics.q3) {
+          return fixNumberTo(feture.quantile_statistics.q3);
+        }
+        return "0";
+      });
+
+      Handlebars.registerHelper("q1", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.quantile_statistics && feture.quantile_statistics.q1) {
+          return fixNumberTo(feture.quantile_statistics.q1);
+        }
+        return "0";
+      });
+
+      Handlebars.registerHelper("iqr", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.quantile_statistics && feture.quantile_statistics.iqr) {
+          return fixNumberTo(feture.quantile_statistics.iqr);
+        }
+        return "0";
+      });
+      
+
+      Handlebars.registerHelper("distinct", function (column) {
+        const feture = Object.values(column)[1]
+
+        if (feture.numberSummary && feture.numberSummary.uniqueCount) {
+          return feture.numberSummary.uniqueCount.estimate;
+        }
+        return "0";
+      });
+
+      Handlebars.registerHelper("missing", function (column) {
+        const feture = Object.values(column)[1]
+        if (feture.counters && feture.counters.nullCount) {
+          return feture.counters.nullCount;
+        }
+        return "0";
       });
 
       Handlebars.registerHelper("infinite", function () {
@@ -364,19 +421,20 @@
 
       Handlebars.registerHelper("mean", function (column) {
         const feture = Object.values(column)[1]
+
         if (feture.numberSummary) {
           return fixNumberTo(feture.numberSummary.mean);
         }
-        return "-";
+        return "0";
       });
 
-      Handlebars.registerHelper("median", function (column) {
+      Handlebars.registerHelper("stddev", function (column) {
         const feture = Object.values(column)[1]
 
-        if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
-          return fixNumberTo(feture.numberSummary.quantiles.quantileValues[4]);
+        if (feture.numberSummary && feture.numberSummary.stddev) {
+          return fixNumberTo(feture.numberSummary.stddev);
         }
-        return "-";
+        return "0";
       });
 
       Handlebars.registerHelper("minimum", function (column) {
@@ -385,7 +443,7 @@
         if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
           return fixNumberTo(feture.numberSummary.quantiles.quantileValues[0]);
         }
-        return "-";
+        return "0";
       });
 
       Handlebars.registerHelper("maximum", function (column) {
@@ -394,16 +452,7 @@
         if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
           return fixNumberTo(feture.numberSummary.quantiles.quantileValues[8]);
         }
-        return "-";
-      });
-
-      Handlebars.registerHelper("q1", function (column) {
-        const feture = Object.values(column)[1]
-
-        if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
-          return fixNumberTo(feture.numberSummary.quantiles.quantileValues[8]);
-        }
-        return "-";
+        return "0";
       });
 
       Handlebars.registerHelper("zeros", function () {
@@ -434,9 +483,7 @@
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      // const targetedProfile = () => { return {{{profile_from_whylogs}}} }
-      // const profileFromCSVfile = () => { return {{{profile_feature_summary_statistics_from_whylogs}}} }
-      const context =  {{{profile_feature_summary_statistics_from_whylogs}}};
+      const context = {{{profile_feature_summary_statistics_from_whylogs}}};
       // Config handlebars and pass data to HBS template
       const source = document.getElementById("entry-template").innerHTML;
       const template = Handlebars.compile(source);
