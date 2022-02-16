@@ -40,6 +40,7 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        overflow-y: hidden;
       }
 
       /* Screen on smaller screens */
@@ -119,7 +120,8 @@
        width: 98%;
        justify-content: space-between;
        margin: 10px;
-       margin-top: 20px;
+       margin-top: 15px;
+       bottom: 0;
      }
 
      .chart-box-title p{
@@ -199,7 +201,7 @@
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
           this.svgEl = d3.create("svg")
              .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `20 0 ${$(window).width()} ${$(window).height()-50}`)
+             .attr("viewBox", `20 0 ${$(window).width()} ${$(window).height()-55}`)
              .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
@@ -208,8 +210,8 @@
             .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
           this.yScale = d3
             .scaleLinear()
-            .domain([0, this.maxYValue * 1.02])
-            .range([this.CHART_HEIGHT, 0]);
+            .domain([0, this.maxYValue * 1.4])
+            .range([this.SVG_HEIGHT, 0]);
         }
       }
 
@@ -252,7 +254,7 @@
 
         let yFormat,
             xFormat;
-        const sizes = new GenerateChartParams($(window).height()-50, $(window).width(), histogramData)
+        const sizes = new GenerateChartParams($(window).height()-55, $(window).width(), histogramData)
         const {
           MARGIN,
           SVG_WIDTH,
@@ -324,7 +326,7 @@
         return svgEl._groups[0][0].outerHTML;
       }
 
-      const profileFromCSVfile = {{{reference_profile_from_whylogs}}} 
+      const profileFromCSVfile = {{{reference_profile_from_whylogs}}}
 
       Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => {
         const columnKey = key.data.key
