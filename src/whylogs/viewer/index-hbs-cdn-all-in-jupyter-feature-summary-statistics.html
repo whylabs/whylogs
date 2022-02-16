@@ -192,10 +192,6 @@
                     <div class="statistic-number">{{missing this}}</div>
                   </div>
                   <div class="statistic-item padding-right-30">
-                    <div class="statistic-number-title">Infinite</div>
-                    <div class="statistic-number">{{infinite}}</div>
-                  </div>
-                  <div class="statistic-item padding-right-30">
                     <div class="statistic-number-title">Mean</div>
                     <div class="statistic-number">{{mean this}}</div>
                   </div>
@@ -206,18 +202,6 @@
                   <div class="statistic-item padding-right-30">
                     <div class="statistic-number-title">Maximum</div>
                     <div class="statistic-number">{{maximum this}}</div>
-                  </div>
-                  <div class="statistic-item padding-right-30">
-                    <div class="statistic-number-title">Zeros</div>
-                    <div class="statistic-number">{{zeros}}</div>
-                  </div>
-                  <div class="statistic-item padding-right-30">
-                    <div class="statistic-number-title">Negative</div>
-                    <div class="statistic-number">{{negative}}</div>
-                  </div>
-                  <div class="statistic-item padding-right-30">
-                    <div class="statistic-number-title">Memory size</div>
-                    <div class="statistic-number">{{memorySize}}</div>
                   </div>
               </div>
             </div>
@@ -324,8 +308,6 @@
         return parseFloat(number).toFixed(decimals);
       }
 
-      const randomNumbers = (range) => Math.floor(Math.random() * range)
-
       Handlebars.registerHelper("variance", function (column) {
         const feture = Object.values(column)[1]
         if (feture.variance) {
@@ -359,7 +341,7 @@
         }
         return "0";
       });
-      
+
       Handlebars.registerHelper("ninetyFifthPercentile", function (column) {
         const feture = Object.values(column)[1]
 
@@ -404,7 +386,7 @@
         }
         return "0";
       });
-      
+
 
       Handlebars.registerHelper("distinct", function (column) {
         const feture = Object.values(column)[1]
@@ -421,10 +403,6 @@
           return feture.counters.nullCount;
         }
         return "0";
-      });
-
-      Handlebars.registerHelper("infinite", function () {
-        return randomNumbers(50);
       });
 
       Handlebars.registerHelper("mean", function (column) {
@@ -461,18 +439,6 @@
           return fixNumberTo(feture.numberSummary.quantiles.quantileValues[8]);
         }
         return "0";
-      });
-
-      Handlebars.registerHelper("zeros", function () {
-        return randomNumbers(50);
-      });
-
-      Handlebars.registerHelper("negative", function () {
-        return randomNumbers(50);
-      });
-
-      Handlebars.registerHelper("memorySize", function () {
-        return randomNumbers(50);
       });
 
       Handlebars.registerHelper("getProfileTimeStamp", function (column) {

@@ -91,7 +91,6 @@
         padding: 0;
         box-sizing: border-box;
         font-family: "Asap", Arial, Helvetica, sans-serif;
-        color: var(--secondaryLight1000);
       }
 
       /*
@@ -503,6 +502,93 @@
         background-color: #F2994A;
       }
 
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #0E7384;
+      }
+
+      .statistic-measurement {
+        font-size: 15px !important;
+        margin-left: 3px;
+      }
+
+      .statistic-measurement-percent {
+        font-size: 15px !important;
+      }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background-color: #0E7384;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+      .text-color {
+        color: var(--secondaryLight1000);
+      }
+
       @media screen and (min-width: 500px) {
         .desktop-content {
           display: block;
@@ -521,6 +607,26 @@
     {{{{raw}}}}
       <div class="desktop-content">
         <div class="container-fluid">
+          <div class="feature-summary-statistics-wrap">
+            <div class="feature-summary-statistics">
+              <div class="mb-4">
+                  <strong class="header-title">Profile Summary: {{getProfileName this}}_{{getProfileTimeStamp this}}</strong>
+              </div>
+              <div class="display-flex statistics">
+                  <div class="padding-right-30">
+                    <div class="statistic-number-title">Observations</div>
+                    <div class="statistic-number">{{{observations this}}}</div>
+                  </div>
+                  <div class="padding-right-30">
+                    <div class="statistic-number-title">Missing Cells</div>
+                    <div class="statistic-number">
+                      {{{missingCells this}}}
+                      <div>{{{missingCellsPercentage this}}}</div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
           <div class="row">
             <div class="main">
               <div class="wl-compare-profile" id="compare-profile">
@@ -529,7 +635,11 @@
                    <div class="drift-detection-info flex-direction-colum">
                      <div class="drift-detection-info-title-wrap display-flex">
                        <p class="drift-detection-info-title">
-                         Drift detected in 65 of 131 features
+                         Drift detected in
+                         <span class="drift-count"></span>
+                         of
+                         <span class="all-features"></span>
+                         features
                        </p>
                      </div>
                      <div class="drift-detection-info-drifts display-flex" id="drift-detection-info-drifts">
@@ -678,7 +788,6 @@
   <script>
     const getReferenceProfile = () => { return {{{reference_profile_from_whylogs}}} }
     const referenceProfile = getReferenceProfile()
-
     function fixNumberTo(number, decimals = 3) {
       const fractionalDigits = String(number % 1).split('').slice(2, 2 + decimals).join('')
       return `${Math.trunc(number)}.${fractionalDigits}`
@@ -816,8 +925,6 @@
         return format(date);
       }
 
-      const randomNumbers = (range) => Math.floor(Math.random() * range)
-
       const driftCountElement = (driftCount, driftColor, driftName) => `
       <div class="drift-detection-info-drifts-item display-flex align-items">
         <div class="drift-detection-info-circle ${driftColor}"></div>
@@ -833,17 +940,17 @@
           count: 0,
           name: "Minimal drift",
           colorClass: "minimal-drift-circle-color"
-        }, 
+        },
         mild: {
           count: 0,
           name: "Mild drift",
           colorClass: "mild-drift-circle-color"
-        }, 
+        },
         moderate: {
           count: 0,
           name: "Moderate drift",
           colorClass: "moderate-drift-circle-color"
-        }, 
+        },
         severe: {
           count: 0,
           name: "Severe drift",
@@ -861,21 +968,112 @@
         }
       }
 
-      $(document).ready(() => 
-        Object.values(drifts).map(({count, name, colorClass}) =>{ 
+      $(document).ready(() =>
+        Object.values(drifts).map(({count, name, colorClass}) =>{
           $("#drift-detection-info-drifts")
           .append(driftCountElement(count, colorClass, name))
         })
       )
 
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
+        return format(date);
+      }
+
+      function abbreviateNumber(value) {
+        let newValue = value,
+        suffixe = ""
+        if (value >= 1000) {
+            let suffixes = ["", "K", "M", "B","T"];
+            let suffixNum = Math.floor( (""+value).length/3 );
+            let shortValue = '';
+            for (let precision = 2; precision >= 1; precision--) {
+                shortValue = parseFloat( (suffixNum != 0 ? (value / Math.pow(1000,suffixNum) ) : value).toPrecision(precision));
+                let dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z 0-9]+/g,'');
+                if (dotLessShortValue.length <= 2) { break; }
+            }
+            if (shortValue % 1 != 0)  shortValue = shortValue.toFixed(1);
+            newValue = shortValue;
+            suffixe = suffixes[suffixNum]
+        }
+        return {value, newValue, suffixe};
+      }
+
+      function formatBytes(bytes, decimals = 2) {
+        let newValue,
+        suffixe = ""
+        if (bytes === 0) return '0 Bytes';
+
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KiB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        newValue = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+        suffixe = sizes[i]
+        return {bytes, newValue, suffixe};
+      }
+
+      const valueSuffixe = (newNumber) => `
+      <div class="statistic-measurement">
+       ${newNumber}
+      </div>
+      `
+      const valueNumber = (newNumber) => `
+      <div class="statistic-number">
+       ${newNumber}
+      </div>
+      `
+
+      const numberWithSuffixe = (number, newNumber, suffixe) =>
+        `<div class="tooltip-full-number">
+           <div class="statistic-number">
+              ${newNumber}
+             <div class="statistic-measurement">${suffixe}</div>
+           </div>
+           <span class="tooltiptext">${number}</span>
+         </div>`
+
+      Handlebars.registerHelper("observations", function (properties) {
+        const {value, newValue, suffixe} = abbreviateNumber(referenceProfile.properties.observations)
+        return numberWithSuffixe(value, valueNumber(newValue), valueNumber(suffixe));
+      });
+
+      Handlebars.registerHelper("missingCells", function (properties) {
+        const {value, newValue, suffixe} = abbreviateNumber(referenceProfile.properties.missing_cells)
+        return numberWithSuffixe(value, newValue, suffixe);
+      });
+
+      Handlebars.registerHelper("missingCellsPercentage", function (properties) {
+        const {value, newValue, suffixe} = abbreviateNumber(fixNumberTo(referenceProfile.properties.missing_percentage, 2))
+        return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
+      });
+
+      Handlebars.registerHelper("getProfileTimeStamp", function (properties) {
+        return formatLabelDate(+properties.properties.dataTimestamp)
+      });
+
+      Handlebars.registerHelper("getProfileName", function (properties) {
+        return properties.properties.tags.name
+      });
+
+      let driftCount = 0;
+
       Handlebars.registerHelper("getDiffFromRef", function (column, key) {
         const columnKey = key.data.key
         if (referenceProfile && referenceProfile.columns[columnKey].drift_from_ref) {
+          driftCount++
           const {drift_from_ref} = referenceProfile.columns[columnKey]
           const driftFromRefNumber = drift_from_ref % 1 ? fixNumberTo(drift_from_ref, 2) : drift_from_ref
           const circleColor = Object.values(drifts)[countOfDrifts(driftFromRefNumber, 4)].colorClass
+
+          $(document).ready(() => {
+            $(".drift-count").html(driftCount)
+            $(".all-features").html(Object.keys(referenceProfile.columns).length)
+          })
           return `
-            <div class="display-flex justify-content-center">
+            <div class="text-color display-flex justify-content-center">
               ${driftFromRefNumber}
               <div style="margin-left: 8px" class="drift-detection-info-circle ${circleColor}"></div>
             </div>

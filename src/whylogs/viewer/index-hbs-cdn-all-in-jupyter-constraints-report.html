@@ -374,16 +374,7 @@
                                   Constraints Report
                                 </p>
                               </div>
-                                <div class="statistics display-flex">
-                                  <div class="statistic-item padding-right-30">
-                                    <div class="statistic-number-title">Columns with constraints</div>
-                                    <div class="statistic-number">{{columnsWithConstraints this}}</div>
-                                  </div>
-                                  <div class="statistic-item padding-right-30">
-                                    <div class="statistic-number-title">Columns without constraints</div>
-                                    <div class="statistic-number">{{columnsWithoutConstraints this}}</div>
-                                  </div>
-                                </div>
+
                               <!-- </div> -->
                             </div>
                             <div class="drift-detection-search-input-wrap display-flex">
@@ -513,9 +504,8 @@
         }
       }
 
-      const alertListElement = (text, status) => {
-        const firstWord = text.split(' ')[0]
-        const newText = text.split(' ').slice(1).join(' ')
+      const alertListElement = (name, text, status) => {
+
         return (
           `<div
              data-inferred-type=${alertListItemStatus(status, "passed", "failed")}
@@ -523,13 +513,14 @@
            >
             <div>
               ${
+                name &&
                 alertListItemStatus(
                   status,
-                  `<mark class="blue-mark">${firstWord}</mark>`,
-                  `<mark class="red-mark">${firstWord}</mark>`
+                  `<mark class="blue-mark">${name}</mark>`,
+                  `<mark class="red-mark">${name}</mark>`
                 )
               }
-              ${newText}
+              ${text}
             </div>
               ${
                 alertListItemStatus(
@@ -554,11 +545,10 @@
 
       Handlebars.registerHelper("alertLIst", function (column) {
         let alertListItem = column.map((value) => {
-
           if (value[1][0]) {
-            return alertListElement(`${value[0]} ${value[1][0][0]}`, value[1][0][value[1][0].length - 1] === 0 || (failedConstraints++, false))
+            return alertListElement(value[0], value[1][0][0], value[1][0][value[1][0].length - 1] === 0 || (failedConstraints++, false))
           } else {
-            return alertListElement(value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+            return alertListElement('', value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
           }
         })
          $(document).ready(() => {
@@ -567,18 +557,6 @@
            $(".wl__feature-count--unknown").append(column.length)
          })
         return alertListItem.join(' ')
-      });
-
-      Handlebars.registerHelper("getPassedConstraints", function (column) {
-        // return datas.filter(({status}) => status === true).length
-      });
-
-      Handlebars.registerHelper("columnsWithConstraints", function () {
-        return randomNumbers(200);
-      });
-
-      Handlebars.registerHelper("columnsWithoutConstraints", function () {
-        return randomNumbers(200);
       });
     }
 

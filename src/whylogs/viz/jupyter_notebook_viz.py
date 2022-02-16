@@ -23,14 +23,12 @@ logger = logging.getLogger(__name__)
 
 class NotebookProfileViewer:
     SUMMARY_REPORT_TEMPLATE_NAME = 'index-hbs-cdn-all-in-for-jupyter-notebook.html'
-    SUMMARY_STATISTICS_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-full-summary-statistics.html'
     DOUBLE_HISTOGRAM_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-distribution-chart.html'
     FEATURE_STATISTICS_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html'
     CONSTRAINTS_REPORT_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-constraints-report.html'
     PAGE_SIZES = {
         SUMMARY_REPORT_TEMPLATE_NAME: '1000px',
         DOUBLE_HISTOGRAM_TEMPLATE_NAME: '277px',
-        SUMMARY_STATISTICS_TEMPLATE_NAME: '250px',
         FEATURE_STATISTICS_TEMPLATE_NAME: '650px',
         CONSTRAINTS_REPORT_TEMPLATE_NAME: '750PX'
     }
@@ -151,21 +149,6 @@ class NotebookProfileViewer:
                 "This method has to get both target and reference profiles, with valid feature title"
             )
             return None
-
-    def summary_statistics(self, profile='reference', preferred_cell_height=None):
-        template = self.__get_compiled_template(self.SUMMARY_STATISTICS_TEMPLATE_NAME)
-        if self.reference_profiles and profile.lower() == 'reference':
-            profile_statistics = self.reference_profile_jsons[0]
-        else:
-            profile_statistics = self.target_profile_jsons[0]
-        rendered_template = template({
-            "profile_summary_statistics_from_whylogs": profile_statistics
-        })
-        return self.__display_rendered_template(
-            rendered_template,
-            self.SUMMARY_STATISTICS_TEMPLATE_NAME,
-            preferred_cell_height
-        )
 
     def feature_summary_statistics(self, feature_name, profile='reference', preferred_cell_height=None):
         template = self.__get_compiled_template(self.FEATURE_STATISTICS_TEMPLATE_NAME)

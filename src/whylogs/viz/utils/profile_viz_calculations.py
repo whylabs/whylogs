@@ -21,8 +21,16 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
     reference_profile_json : Reference profile summary serialized json with drift value for every feature
     """
     # QUESTION: Should this function need to change behaviour to add drift into target profile?
+    observations = 0
+    missing_cells = 0
+    total_count = 0
     for target_col_name in target_profile.columns.keys():
         target_col = target_profile.columns[target_col_name]
+        observations += target_col.counters.to_protobuf().count
+        null_count = target_col.to_summary().counters.null_count.value
+        missing_cells += null_count if null_count else 0
+        total_count += target_col.to_summary().counters.count
+
         if target_col_name in reference_profile.columns:
             ref_col = reference_profile.columns[target_col_name]
             target_type = target_col.schema_tracker.to_summary().inferred_type.type
@@ -53,6 +61,13 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
                     reference_profile_json['columns'][target_col_name]['drift_from_ref'] = chi_squared_p_value.chi_squared_test
                 else:
                     reference_profile_json['columns'][target_col_name]['drift_from_ref'] = None
+    reference_profile_json['properties']['observations'] = observations
+    reference_profile_json['properties']['missing_cells'] = missing_cells
+    reference_profile_json['properties']['total_count'] = total_count
+    reference_profile_json['properties']['missing_percentage'] = (
+        missing_cells / total_count
+    ) * 100 if total_count else 0
+
     return reference_profile_json
 
 
