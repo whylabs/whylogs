@@ -26,11 +26,13 @@ class NotebookProfileViewer:
     SUMMARY_STATISTICS_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-full-summary-statistics.html'
     DOUBLE_HISTOGRAM_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-distribution-chart.html'
     FEATURE_STATISTICS_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html'
+    CONSTRAINTS_REPORT_TEMPLATE_NAME = 'index-hbs-cdn-all-in-jupyter-constraints-report.html'
     PAGE_SIZES = {
         SUMMARY_REPORT_TEMPLATE_NAME: '1000px',
         DOUBLE_HISTOGRAM_TEMPLATE_NAME: '277px',
         SUMMARY_STATISTICS_TEMPLATE_NAME: '250px',
         FEATURE_STATISTICS_TEMPLATE_NAME: '650px',
+        CONSTRAINTS_REPORT_TEMPLATE_NAME: '750PX'
     }
 
     def __init__(self, target_profiles: List[DatasetProfile] = None, reference_profiles: List[DatasetProfile] = None):
@@ -203,3 +205,14 @@ class NotebookProfileViewer:
             saved_html.write(html.data)
         saved_html.close()
         return None
+
+    def constraints_report(self, constraints, preferred_cell_height=None):
+        template = self.__get_compiled_template(self.CONSTRAINTS_REPORT_TEMPLATE_NAME)
+        rendered_template = template({
+            "constraints_report": json.dumps(constraints.report())}
+        )
+        return self.__display_rendered_template(
+            rendered_template,
+            self.CONSTRAINTS_REPORT_TEMPLATE_NAME,
+            preferred_cell_height
+        )
