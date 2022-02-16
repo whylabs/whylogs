@@ -259,12 +259,8 @@
                         <div>{{coefficientOfVariation this}}</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
-                        <div>Kurtosis</div>
-                        <div>-1.2</div>
-                      </div>
-                      <div class="display-flex justify-content-space-between mb-2">
                         <div>Sum</div>
-                        <div>397386</div>
+                        <div>{{getSum this}}</div>
                       </div>
                       <div class="display-flex justify-content-space-between mb-2">
                         <div>Variance</div>
@@ -309,134 +305,139 @@
       }
 
       Handlebars.registerHelper("variance", function (column) {
-        const feture = Object.values(column)[1]
-        if (feture.variance) {
-          return fixNumberTo(feture.variance);
+        const feature = Object.values(column)[1]
+        if (feature.variance) {
+          return fixNumberTo(feature.variance);
         }
         return "0";
       });
 
       Handlebars.registerHelper("coefficientOfVariation", function (column) {
-        const feture = Object.values(column)[1]
-        if (feture.coefficient_of_variation) {
-          return fixNumberTo(feture.coefficient_of_variation);
+        const feature = Object.values(column)[1]
+        if (feature.coefficient_of_variation) {
+          return fixNumberTo(feature.coefficient_of_variation);
         }
         return "0";
       });
 
       Handlebars.registerHelper("median", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.quantile_statistics && feture.quantile_statistics.median) {
-          return fixNumberTo(feture.quantile_statistics.median);
+        if (feature.quantile_statistics && feature.quantile_statistics.median) {
+          return fixNumberTo(feature.quantile_statistics.median);
         }
         return "0";
       });
 
       Handlebars.registerHelper("fifthPercentile", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.quantile_statistics && feture.quantile_statistics.fifth_percentile) {
-          return fixNumberTo(feture.quantile_statistics.fifth_percentile);
+        if (feature.quantile_statistics && feature.quantile_statistics.fifth_percentile) {
+          return fixNumberTo(feature.quantile_statistics.fifth_percentile);
         }
         return "0";
       });
 
       Handlebars.registerHelper("ninetyFifthPercentile", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.quantile_statistics && feture.quantile_statistics.ninety_fifth_percentile) {
-          return fixNumberTo(feture.quantile_statistics.ninety_fifth_percentile);
+        if (feature.quantile_statistics && feature.quantile_statistics.ninety_fifth_percentile) {
+          return fixNumberTo(feature.quantile_statistics.ninety_fifth_percentile);
         }
         return "0";
       });
 
       Handlebars.registerHelper("range", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.quantile_statistics && feture.quantile_statistics.range) {
-          return fixNumberTo(feture.quantile_statistics.range);
+        if (feature.quantile_statistics && feature.quantile_statistics.range) {
+          return fixNumberTo(feature.quantile_statistics.range);
         }
         return "0";
       });
 
       Handlebars.registerHelper("q3", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.quantile_statistics && feture.quantile_statistics.q3) {
-          return fixNumberTo(feture.quantile_statistics.q3);
+        if (feature.quantile_statistics && feature.quantile_statistics.q3) {
+          return fixNumberTo(feature.quantile_statistics.q3);
         }
         return "0";
       });
 
       Handlebars.registerHelper("q1", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.quantile_statistics && feture.quantile_statistics.q1) {
-          return fixNumberTo(feture.quantile_statistics.q1);
+        if (feature.quantile_statistics && feature.quantile_statistics.q1) {
+          return fixNumberTo(feature.quantile_statistics.q1);
         }
         return "0";
       });
 
-      Handlebars.registerHelper("iqr", function (column) {
-        const feture = Object.values(column)[1]
+      Handlebars.registerHelper("getSum", function (column) {
+        const feature = Object.values(column)[1]
+        return fixNumberTo(feature.sum, 2);
+      });
 
-        if (feture.quantile_statistics && feture.quantile_statistics.iqr) {
-          return fixNumberTo(feture.quantile_statistics.iqr);
+      Handlebars.registerHelper("iqr", function (column) {
+        const feature = Object.values(column)[1]
+
+        if (feature.quantile_statistics && feature.quantile_statistics.iqr) {
+          return fixNumberTo(feature.quantile_statistics.iqr);
         }
         return "0";
       });
 
 
       Handlebars.registerHelper("distinct", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.numberSummary && feture.numberSummary.uniqueCount) {
-          return feture.numberSummary.uniqueCount.estimate;
+        if (feature.numberSummary && feature.numberSummary.uniqueCount) {
+          return feature.numberSummary.uniqueCount.estimate;
         }
         return "0";
       });
 
       Handlebars.registerHelper("missing", function (column) {
-        const feture = Object.values(column)[1]
-        if (feture.counters && feture.counters.nullCount) {
-          return feture.counters.nullCount;
+        const feature = Object.values(column)[1]
+        if (feature.counters && feature.counters.nullCount) {
+          return feature.counters.nullCount;
         }
         return "0";
       });
 
       Handlebars.registerHelper("mean", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.numberSummary) {
-          return fixNumberTo(feture.numberSummary.mean);
+        if (feature.numberSummary) {
+          return fixNumberTo(feature.numberSummary.mean);
         }
         return "0";
       });
 
       Handlebars.registerHelper("stddev", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.numberSummary && feture.numberSummary.stddev) {
-          return fixNumberTo(feture.numberSummary.stddev);
+        if (feature.numberSummary && feature.numberSummary.stddev) {
+          return fixNumberTo(feature.numberSummary.stddev);
         }
         return "0";
       });
 
       Handlebars.registerHelper("minimum", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
-          return fixNumberTo(feture.numberSummary.quantiles.quantileValues[0]);
+        if (feature.numberSummary && feature.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(feature.numberSummary.quantiles.quantileValues[0]);
         }
         return "0";
       });
 
       Handlebars.registerHelper("maximum", function (column) {
-        const feture = Object.values(column)[1]
+        const feature = Object.values(column)[1]
 
-        if (feture.numberSummary && feture.numberSummary.quantiles.quantileValues) {
-          return fixNumberTo(feture.numberSummary.quantiles.quantileValues[8]);
+        if (feature.numberSummary && feature.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(feature.numberSummary.quantiles.quantileValues[8]);
         }
         return "0";
       });
@@ -450,14 +451,14 @@
       });
 
       Handlebars.registerHelper("featureName", function (column) {
-        const fetureName = Object.keys(column)[1]
-        return fetureName
+        const featureName = Object.keys(column)[1]
+        return featureName
       });
     }
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {{{profile_feature_summary_statistics_from_whylogs}}};
+      const context = {{{profile_feature_statistics_from_whylogs}}};
       // Config handlebars and pass data to HBS template
       const source = document.getElementById("entry-template").innerHTML;
       const template = Handlebars.compile(source);
