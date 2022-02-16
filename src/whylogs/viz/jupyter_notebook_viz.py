@@ -7,6 +7,7 @@ from typing import List
 from IPython.core.display import HTML
 
 from whylogs.core import DatasetProfile
+from whylogs.proto import InferredType
 from whylogs.util.protobuf import message_to_json
 
 from .utils.profile_viz_calculations import (
@@ -18,8 +19,11 @@ from .utils.profile_viz_calculations import (
 )
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
+TYPES = InferredType.Type
 
 logger = logging.getLogger(__name__)
+
+numerical_types = (TYPES.INTEGRAL, TYPES.FRACTIONAL)
 
 
 class NotebookProfileViewer:
@@ -68,15 +72,19 @@ class NotebookProfileViewer:
         return template
 
     def __pull_feature_data(self, profile, profile_jsons, feature_name):
-        profile_features = json.loads(profile_jsons[0])
-        feature_data = {}
-        feature_data["properties"] = profile_features.get("properties")
-        feature_data[feature_name] = profile_features.get("columns").get(feature_name)
-        feature_data[feature_name]["sum"] = calculate_sum(profile_features, feature_name)
-        feature_data[feature_name]["variance"] = calculate_variance(profile_features, feature_name)
-        feature_data[feature_name]["coefficient_of_variation"] = calculate_coefficient_of_variation(profile_features, feature_name)
-        feature_data[feature_name]["quantile_statistics"] = calculate_quantile_statistics_for_single_feature(profile, profile_features, feature_name)
-        return feature_data
+        if profile.columns[feature_name].schema_tracker.to_summary().inferred_type.type in numerical_types:
+            profile_features = json.loads(profile_jsons[0])
+            feature_data = {}
+            feature_data["properties"] = profile_features.get("properties")
+            feature_data[feature_name] = profile_features.get("columns").get(feature_name)
+            feature_data[feature_name]["sum"] = calculate_sum(profile_features, feature_name)
+            feature_data[feature_name]["variance"] = calculate_variance(profile_features, feature_name)
+            feature_data[feature_name]["coefficient_of_variation"] = calculate_coefficient_of_variation(profile_features, feature_name)
+            feature_data[feature_name]["quantile_statistics"] = calculate_quantile_statistics_for_single_feature(profile, profile_features, feature_name)
+            return feature_data
+        else:
+            logger.warning("Quantile and descriptive statistics can be calculated for numerical features only!")
+            return None
 
     def __display_rendered_template(self, template, template_name, height):
         if not height:
