@@ -43,7 +43,7 @@
       @media screen and (min-width: 1000px) {
         .desktop-content {
           display: block;
-        } 
+        }
         .no-responsive {
           display: none;
         }
@@ -148,7 +148,7 @@
        margin-right: 5px;
      }
 
-     .drift-detection-search-input input::placeholder { 
+     .drift-detection-search-input input::placeholder {
        font-family: Arial;
        font-weight: normal;
        font-size: 13px;
@@ -286,35 +286,13 @@
         line-height: 140%;
         color: #FFFFFF;
       }
-      
+
       .turquoise-background-color {
         background-color: #369BAC;
       }
 
       .bordeaux-background-color {
         background-color: #C6462A;
-      }
-
-      .notif-circle-container{
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        padding: 5.3px;
-        border-radius: 50%;
-        background-color: var(--brandSecondary100);
-        cursor: pointer;
-      }
-
-      .notif-circle {
-        position: absolute;
-        top: 2px;
-        right: 2px;
-        height: 16px;
-        width: 16px;
-        border-radius: 50%;
-        font-size: 10px;
-        color: #fff;
-        background-color: #ECB100;
       }
 
       .border-solid-gray {
@@ -346,10 +324,29 @@
         padding-right: 30px;
       }
 
-     @media screen and (min-width: 1000px) {
+      .notif-circle-container{
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+     @media screen and (min-width: 500px) {
        .desktop-content {
          display: block;
-       } 
+       }
        .no-responsive {
          display: none;
        }
@@ -394,18 +391,23 @@
                                 <input type="text" id="wl__feature-search" placeholder="Quick search..."/>
                                 <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg=="/>
                               </div>
-                              <div onclick="openFilter()" class="close-filter-button">
-                                <div class="display-flex close-filter-icon">
-                                  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/> 
+                              <div class="wl__dropdown_arrow-icon">
+                                <div onclick="openFilter()" class="close-filter-button">
+                                <div class="display-flex close-filter-icon d-none">
+                                  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/>
                                 </div>
-                                <div class="display-flex filter-icon d-none">
+                                <div class="display-flex filter-icon">
                                   <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
                                 </div>
-                              </div>
+                                </div>
+                              <span class="notif-circle-container">
+                                <span class="notif-circle"></span>
+                              </span>
+                            </div>
                             </div>
                           </div>
                         </div>
-                        <div class="dropdown-container flex-direction-colum mb-2" id="dropdown-container">
+                        <div class="dropdown-container flex-direction-colum mb-2 d-none" id="dropdown-container">
                           <div class="filter-options">
                             <div class="filter-options-title space-between dropdown">
                               <p>Select a view:</p>
@@ -420,7 +422,7 @@
                                 checked
                               />
                               <label class="form-check-label" for="inferredDiscrete">
-                                Failed constraints (<span class="wl__feature-count--discrete">{{getFailedConstraints}}</span>)
+                                Failed constraints (<span class="wl__feature-count--discrete"></span>)
                               </label>
                             </div>
                             <div class="form-check mb-1">
@@ -435,7 +437,7 @@
                               <label class="form-check-label" for="inferredNonDiscrete">
                                 Passed constraints (<span
                                   class="wl__feature-count--non-discrete"
-                                >{{getPassedConstraints}}</span>)
+                                ></span>)
                               </label>
                             </div>
                             <div class="form-check mb-1">
@@ -448,14 +450,14 @@
                                 checked
                               />
                               <label class="form-check-label" for="inferredUnknown">
-                                All constraints (<span class="wl__feature-count--unknown">{{getAllConstraints}}</span>)
+                                All constraints (<span class="wl__feature-count--unknown"></span>)
                               </label>
                             </div>
                           </div>
                         </div>
                       </div>
                     <div class="alert-list" id="alert-list">
-                      {{{alertLIst}}}
+                      {{{alertLIst this}}}
                     </div>
                   </div>
                 </div>
@@ -498,7 +500,7 @@
 
       const findFetureWithNumberSummary = (column) => {
         const fetureIndex = Object.values(column.columns)
-              .findIndex((feture) => feture.numberSummary) 
+              .findIndex((feture) => feture.numberSummary)
 
         return Object.keys(column.columns)[fetureIndex]
       }
@@ -515,7 +517,7 @@
         const firstWord = text.split(' ')[0]
         const newText = text.split(' ').slice(1).join(' ')
         return (
-          `<div 
+          `<div
              data-inferred-type=${alertListItemStatus(status, "passed", "failed")}
              class="alert-list-item display-flex justify-content-space-between mb-2"
            >
@@ -540,37 +542,7 @@
         )
       }
 
-      const datas = [
-        {text: "Dataset has 2687 (14.4%) missing values", status: true},
-        {text: "Sit mean is less than 0.0065", status: true},
-        {text: "Sit has 177 (19.9%) missing values", status: true},
-        {text: "Sit mean is greater than Lorem mean", status: true},
-        {text: "Sit is uniformly distributed", status: true},
-        {text: "Lorem has 177 (19.9%) missing values", status: false},
-        {text: "Lorem mean is less than Dolor mean", status: false},
-        {text: "Lorem is uniformly distributed", status: false},
-        {text: "Lorem has a high cardinality: 1346 distinct values", status: false},
-        {text: "Lectus has a high cardinality: 891 distinct values", status: false},
-        {text: "Lectus is uniformly distributed", status: true},
-        {text: "Lectus has 273 (23.4%) missing values", status: true},
-        {text: "Dolor has a high cardinality: 891 distinct values", status: true},
-        {text: "Dolor mean is less than 0.0065", status: true},
-        {text: "Dolor is uniformly distributed", status: true},
-      ]
-
-      const profileFromCSVfile = {{{reference_profile}}}
-
-      Handlebars.registerHelper("getFailedConstraints", function (column) {
-        return datas.filter(({status}) => status === false).length
-      });
-
-      Handlebars.registerHelper("getPassedConstraints", function (column) {
-        return datas.filter(({status}) => status === true).length
-      });
-
-      Handlebars.registerHelper("getAllConstraints", function (column) {
-        return datas.length
-      });
+      let failedConstraints = 0;
 
       Handlebars.registerHelper("getProfileTimeStamp", function (column) {
         return formatLabelDate(+column.properties.dataTimestamp)
@@ -581,11 +553,24 @@
       });
 
       Handlebars.registerHelper("alertLIst", function (column) {
-        console.log(datas.map(({text, status}) => alertListElement(text, status)));
-        let alertListItem = datas.map(({text, status}) => alertListElement(text, status))
-        console.log(alertListItem);
+        let alertListItem = column.map((value) => {
 
+          if (value[1][0]) {
+            return alertListElement(`${value[0]} ${value[1][0][0]}`, value[1][0][value[1][0].length - 1] === 0 || (failedConstraints++, false))
+          } else {
+            return alertListElement(value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+          }
+        })
+         $(document).ready(() => {
+           $(".wl__feature-count--discrete").append(failedConstraints)
+           $(".wl__feature-count--non-discrete").append(column.length - failedConstraints)
+           $(".wl__feature-count--unknown").append(column.length)
+         })
         return alertListItem.join(' ')
+      });
+
+      Handlebars.registerHelper("getPassedConstraints", function (column) {
+        // return datas.filter(({status}) => status === true).length
       });
 
       Handlebars.registerHelper("columnsWithConstraints", function () {
@@ -597,7 +582,7 @@
       });
     }
 
-    function openFilter() { 
+    function openFilter() {
       const $filterOptions = $(".dropdown-container");
       const filterClass = $filterOptions.attr("class");
 
@@ -614,7 +599,7 @@
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {{{profile_from_whylogs}}};
+      const context = {{{constraints_report}}};
       // Config handlebars and pass data to HBS template
       const source = document.getElementById("entry-template").innerHTML;
       const template = Handlebars.compile(source);
@@ -622,7 +607,7 @@
       const target = document.getElementById("generated-html");
       target.innerHTML = html;
     }
-    
+
     function initWebsiteScripts() {
       const $featureSearch = document.getElementById("wl__feature-search");
       const $alertList = document.getElementById("alert-list");
@@ -634,8 +619,6 @@
         passed: true,
         failed: true
       };
-
-      const getReferenceProfile = () => { return {{{reference_profile}}} }
 
       let searchString = "";
 
@@ -655,6 +638,17 @@
           timeout = setTimeout(later, wait);
           if (callNow) func.apply(context, args);
         };
+      }
+
+      function filterNotification() {
+        const $notifCircleContainer = $(".notif-circle-container")
+        const $boxes = $('.wl_filter-options>.form-check>input[name=checkbox]:checked');
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass("d-none")
+        } else {
+          $notifCircleContainer.addClass("d-none")
+        }
       }
 
       function handleSearch() {
@@ -696,7 +690,7 @@
           $($(".form-check-input")[$(".form-check-input").length - 1]).prop( "checked", false );
         }
         handleSearch();
-        
+
       });
 
       $nonDiscrete.addEventListener("change", (event) => {
@@ -723,6 +717,33 @@
           $(".form-check-input").prop( "checked", false );
         }
       });
+    }
+
+    function checkedBoxes() {
+      const $boxes = $('input[name=checkbox]:checked');
+      const $notifCircleContainer = $(".notif-circle-container")
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass("d-none")
+      }
+    }
+
+    function openFilter() {
+      const $filterOptions = $(".dropdown-container");
+      const $notifCircleContainer = $(".notif-circle-container")
+      const filterClass = $filterOptions.attr("class");
+
+      if (filterClass.indexOf("d-none") > 0) {
+        $notifCircleContainer.addClass("d-none")
+        $filterOptions.removeClass("d-none");
+        $(".filter-icon").addClass("d-none")
+        $(".close-filter-icon").removeClass("d-none")
+      } else {
+        $filterOptions.addClass("d-none");
+        $(".close-filter-icon").addClass("d-none")
+        $(".filter-icon").removeClass("d-none")
+        checkedBoxes()
+      }
     }
 
     // Invoke functions -- keep in mind invokation order
