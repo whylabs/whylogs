@@ -84,7 +84,11 @@ def calculate_coefficient_of_variation(profile_jsons, feature_name):
 
 def calculate_sum(profile_jsons, feature_name):
     feature = profile_jsons.get("columns").get(feature_name)
-    sum = feature.get("numberSummary").get("mean") * int(feature.get("counters").get("count"))
+    feature_number_summary = feature.get("numberSummary")
+    if feature_number_summary:
+        sum = feature_number_summary.get("mean") * int(feature.get("counters").get("count"))
+    else:
+        sum = 0
     return sum
 
 

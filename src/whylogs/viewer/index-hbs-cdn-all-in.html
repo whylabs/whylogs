@@ -1121,13 +1121,13 @@
         background: #FFF;
         border-radius: 4px;
       }
-      
+
       .frequent-item-box-wrap {
         width: 100%;
         display: flex;
         justify-content: center;
       }
-      
+
       .frequent-item-box-to-title {
         margin-left: 30px;
         margin-bottom: 20px;
@@ -1137,16 +1137,16 @@
         line-height: 16px;
         color: #4F595B;
       }
-      
+
       .frequent-items-body {
         display: flex;
         flex-direction: column;
       }
-      
+
       .text-align-center {
         text-align: center;
       }
-      
+
       .fequent-items-wrap {
         width: 100%;
       }
@@ -1163,7 +1163,7 @@
       .graph-svg-container {
         padding-bottom: 13%;
       }
-      
+
       .svg-content-responsive {
         display: inline-block;
         position: absolute;
@@ -1694,11 +1694,11 @@
           histogramData = chartData(data)
           overlappedHistogramData = chartData(referenceData.columns[key.data.key])
         }
-        
-        let yFormat, 
+
+        let yFormat,
             xFormat,
             sizes;
-            
+
            sizes = new GenerateChartParams(230, currentWidth, histogramData)
 
         const {
@@ -1716,7 +1716,7 @@
              .attr("preserveAspectRatio", "xMinYMin meet")
              .attr("viewBox", "0 0 600 400")
              .classed("svg-content-responsive", true)
- 
+
         const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
         const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
         yFormat = yScale.tickFormat(100, yFormat);
@@ -2050,10 +2050,9 @@
       });
 
       Handlebars.registerHelper("totalCount", function (column) {
-        if (column.numberSummary) {
-          return column.numberSummary.count.toString();
+        if (column.numberSummary || column.stringSummary) {
+          return column.counters.count.toString();
         }
-
         return "-";
       });
 
@@ -2246,7 +2245,7 @@
           }
           if (profileFromCSVfile && Object.values(profileFromCSVfile)) {
             chartString = '';
-            let propertyPanelGraph = true; 
+            let propertyPanelGraph = true;
             chartString += generateChart(data, 50, 280, 0, true, propertyPanelGraph);
           }
         }
@@ -2675,9 +2674,9 @@
       $("#page-button").on("click", function () {
         getProfileCharts(
           feature,
-          feature[0], 
-          getDoubleHistogramChart, 
-          getBarChart, 
+          feature[0],
+          getDoubleHistogramChart,
+          getBarChart,
           getPositiveNegativeChart
         )
 
@@ -2687,9 +2686,9 @@
 
         getProfileCharts(
           feature,
-          feature[0], 
-          getDoubleHistogramChart, 
-          getBarChart, 
+          feature[0],
+          getDoubleHistogramChart,
+          getBarChart,
           getPositiveNegativeChart
         )
       $(".frequent-items-body").html(``);
@@ -2711,7 +2710,7 @@
         </div>
       </div>
     `);
-  
+
     $(".clickable-test-feature-body").html(``);
     referenceProfilePanelHeight()
     })
@@ -2794,7 +2793,7 @@
     function closeFeatureHeading() {
       const $tableContent = $("#table-content")
       const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap")
-       
+
       $("#compare-profile").remove("d-none")
       $tableContent.removeClass("d-none")
       $clickableTestFeatureWrap.addClass("d-none")
