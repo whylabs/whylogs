@@ -44,13 +44,10 @@ class NotebookProfileViewer:
         # create json output from profiles
         if self.target_profiles:
             if len(self.target_profiles) > 1:
-                logger.warning(
-                    "More than one profile not implemented yet, default to first profile in the list ")
-            self.target_profile_jsons = [message_to_json(
-                each_prof.to_summary()) for each_prof in self.target_profiles]
+                logger.warning("More than one profile not implemented yet, default to first profile in the list ")
+            self.target_profile_jsons = [message_to_json(each_prof.to_summary()) for each_prof in self.target_profiles]
             if self.reference_profiles:
-                self.reference_profile_jsons = [message_to_json(
-                    each_prof.to_summary()) for each_prof in self.reference_profiles]
+                self.reference_profile_jsons = [message_to_json(each_prof.to_summary()) for each_prof in self.reference_profiles]
 
     def __get_template_path(self, html_file_name):
         template_path = os.path.abspath(os.path.join(_MY_DIR, os.pardir, "viewer", html_file_name))
@@ -63,8 +60,7 @@ class NotebookProfileViewer:
         except ImportError as e:
             Compiler = None
             logger.debug(str(e))
-            logger.debug(
-                "Unable to load pybars; install pybars3 to load profile from directly from the current session ")
+            logger.debug("Unable to load pybars; install pybars3 to load profile from directly from the current session ")
         with open(template_path, "r") as file_with_template:
             source = file_with_template.read()
         # compile templated files
@@ -78,12 +74,9 @@ class NotebookProfileViewer:
         feature_data["properties"] = profile_features.get("properties")
         feature_data[feature_name] = profile_features.get("columns").get(feature_name)
         feature_data[feature_name]["sum"] = calculate_sum(profile_features, feature_name)
-        feature_data[feature_name]["variance"] = calculate_variance(
-            profile_features, feature_name)
-        feature_data[feature_name]["coefficient_of_variation"] = calculate_coefficient_of_variation(
-            profile_features, feature_name)
-        feature_data[feature_name]["quantile_statistics"] = calculate_quantile_statistics_for_single_feature(
-            profile, profile_features, feature_name)
+        feature_data[feature_name]["variance"] = calculate_variance(profile_features, feature_name)
+        feature_data[feature_name]["coefficient_of_variation"] = calculate_coefficient_of_variation(profile_features, feature_name)
+        feature_data[feature_name]["quantile_statistics"] = calculate_quantile_statistics_for_single_feature(profile, profile_features, feature_name)
         return feature_data
 
     def __display_rendered_template(self, template, template_name, height):
@@ -94,8 +87,7 @@ class NotebookProfileViewer:
         return HTML(iframe)
 
     def summary_drift_report(self, preferred_cell_height=None):
-        reference_profile = add_drift_val_to_ref_profile_json(
-            self.target_profiles[0], self.reference_profiles[0], json.loads(self.target_profile_jsons[0]))
+        reference_profile = add_drift_val_to_ref_profile_json(self.target_profiles[0], self.reference_profiles[0], json.loads(self.target_profile_jsons[0]))
         template = self.__get_compiled_template(self.SUMMARY_REPORT_TEMPLATE_NAME)
         profiles_summary = {"profile_from_whylogs": self.target_profile_jsons[0]}
         if self.reference_profiles:
@@ -112,16 +104,13 @@ class NotebookProfileViewer:
             target_profile_features, reference_profile_features = {}, {}
             for feature_name in feature_names:
                 target_profile_features[feature_name] = target_profile_columns.get(feature_name)
-                reference_profile_features[feature_name] = reference_profile_columns.get(
-                    feature_name)
+                reference_profile_features[feature_name] = reference_profile_columns.get(feature_name)
             distribution_chart = template(
-                {"profile_from_whylogs": json.dumps(
-                    target_profile_features), "reference_profile_from_whylogs": json.dumps(reference_profile_features)}
+                {"profile_from_whylogs": json.dumps(target_profile_features), "reference_profile_from_whylogs": json.dumps(reference_profile_features)}
             )
             return self.__display_rendered_template(distribution_chart, self.DOUBLE_HISTOGRAM_TEMPLATE_NAME, preferred_cell_height)
         else:
-            logger.warning(
-                "This method has to get both target and reference profiles, with valid feature title")
+            logger.warning("This method has to get both target and reference profiles, with valid feature title")
             return None
 
     def feature_statistics(self, feature_name, profile="reference", preferred_cell_height=None):
@@ -136,15 +125,13 @@ class NotebookProfileViewer:
             rendered_template = template(
                 {
                     "profile_feature_statistics_from_whylogs": json.dumps(
-                        self.__pull_feature_data(selected_profile.get(
-                            feature_name), selected_profile_json, feature_name)
+                        self.__pull_feature_data(selected_profile.get(feature_name), selected_profile_json, feature_name)
                     )
                 }
             )
             return self.__display_rendered_template(rendered_template, self.FEATURE_STATISTICS_TEMPLATE_NAME, preferred_cell_height)
         else:
-            logger.warning(
-                "Quantile and descriptive statistics can be calculated for numerical features only!")
+            logger.warning("Quantile and descriptive statistics can be calculated for numerical features only!")
             return None
 
     def download(self, html, preferred_path=None, html_file_name=None):
