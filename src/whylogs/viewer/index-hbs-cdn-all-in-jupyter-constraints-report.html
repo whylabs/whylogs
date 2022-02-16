@@ -278,6 +278,7 @@
       }
 
       .alert-tag {
+        height: 27px;
         padding: 5px;
         border-radius: 4px;
         font-family: Arial;
@@ -341,6 +342,10 @@
         padding: 3.3px;
         border-radius: 50%;
         background-color: #F2994A;
+      }
+
+      .alert-list-text {
+        width: 70%
       }
 
      @media screen and (min-width: 500px) {
@@ -509,9 +514,9 @@
         return (
           `<div
              data-inferred-type=${alertListItemStatus(status, "passed", "failed")}
-             class="alert-list-item display-flex justify-content-space-between mb-2"
+             class="alert-list-item display-flex justify-content-space-between align-items-center mb-2"
            >
-            <div>
+            <div class="alert-list-text">
               ${
                 name &&
                 alertListItemStatus(
@@ -674,14 +679,12 @@
         const currentCheckbox = $(event.currentTarget);
 
         if (event.currentTarget.checked) {
-          console.log("handleSearch1");
           activeTypes["passed"] = true;
           checkedBoxes();
         } else {
           activeTypes["passed"] = false;
           $($(".form-check-input")[$(".form-check-input").length - 1]).prop( "checked", false );
         }
-        console.log("handleSearch");
         handleSearch();
       });
 
@@ -689,13 +692,11 @@
         const currentCheckbox = $(event.currentTarget);
 
         if (event.currentTarget.checked) {
-          // $(".alert-list-item").removeClass("d-none");
           $(".form-check-input").prop( "checked", true );
           activeTypes["passed"] = true;
           activeTypes["failed"] = true;
           checkedBoxes();
         } else {
-          // $(".alert-list-item").addClass("d-none");
           $(".form-check-input").prop( "checked", false );
           activeTypes["passed"] = false;
           activeTypes["failed"] = false;
