@@ -188,7 +188,7 @@
       //helper fun
 
       class GenerateChartParams {
-        constructor(height, width, data, bottomMargin=20, topMargin=5) {
+        constructor(height, width, data, bottomMargin=30, topMargin=5) {
           this.MARGIN = {
             TOP: topMargin,
             RIGHT: 5,
@@ -210,12 +210,12 @@
             .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
           this.yScale = d3
             .scaleLinear()
-            .domain([0, this.maxYValue * 1.4])
-            .range([this.SVG_HEIGHT, 0]);
+            .domain([0, this.maxYValue * 1.2])
+            .range([this.CHART_HEIGHT, 0]);
         }
       }
 
-      function chartData(column) {
+      function chartData(column, startIndex) {
         const data = [];
         if (column.numberSummary.isDiscrete) {
             column.frequentItems.items.forEach((item, index) => {
@@ -225,12 +225,12 @@
               });
             });
         } else {
-          column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+          for (let i = 0; i<column.numberSummary.histogram.counts.length; i++) {
             data.push({
-              axisY: count,
-              axisX: index,
+              axisY: column.numberSummary.histogram.counts[i-startIndex] || 0,
+              axisX: i,
             });
-          });
+          }
         }
         return data
       }
@@ -248,8 +248,20 @@
             overlappedHistogramData = [];
 
         if (CheckNumberSummary(data) && referenceData && CheckNumberSummary(referenceData)) {
-          histogramData = chartData(data)
-          overlappedHistogramData = chartData(referenceData)
+          const targetedProfileMin = data.numberSummary.histogram.min < 0 ?
+            data.numberSummary.histogram.min.toFixed(1) * 10 * -1 :
+            data.numberSummary.histogram.min.toFixed(1) * 10
+
+          const referenceProfileMin = referenceData.numberSummary.histogram.min < 0 ?
+            referenceData.numberSummary.histogram.min.toFixed(1) * 10 * -1 :
+            referenceData.numberSummary.histogram.min.toFixed(1) * 10
+
+          const chartsStartPoint = []
+          targetedProfileMin > referenceProfileMin ?
+          chartsStartPoint.push(Math.ceil(targetedProfileMin-referenceProfileMin), 0):
+          chartsStartPoint.push(0, Math.ceil(referenceProfileMin-targetedProfileMin))
+          histogramData = chartData(data, chartsStartPoint[0])
+          overlappedHistogramData = chartData(referenceData, chartsStartPoint[1])
         }
 
         let yFormat,
@@ -267,7 +279,7 @@
           yScale
         } = sizes
 
-        const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+        const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH, xFormat).tickSizeOuter(0);
         const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
         yFormat = yScale.tickFormat(100, yFormat);
 
@@ -284,17 +296,6 @@
               .attr("fill", "currentColor")
               .attr("text-anchor", "start"));
 
-        svgEl.append("g")
-            .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
-            .call(xAxis)
-            .call(g => g.select(".domain").remove())
-            .call(g => g.selectAll(".tick line").remove())
-            .call(g => g.append("text")
-                .attr("x", SVG_WIDTH - MARGIN.RIGHT)
-                .attr("y", 27)
-                .attr("fill", "currentColor")
-                .attr("text-anchor", "end"));
-
           const gChart = svgEl.append("g");
           gChart
           .selectAll(".bar")
@@ -303,10 +304,10 @@
           .append("rect")
           .classed("bar", true)
           .attr("width", xScale.bandwidth())
-          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("height", (d) => ((CHART_HEIGHT - yScale(d.axisY)) < 0 || d.axisY === 0 ? 0 : (CHART_HEIGHT - yScale(d.axisY))))
           .attr("x", (d) => xScale(d.axisX))
           .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-          .attr("fill", "#369BAC")
+          .attr("fill", "#2683C9")
           .style("opacity","0.6");
 
           const gChart1 = svgEl.append("g");
@@ -317,10 +318,10 @@
             .append("rect")
             .classed("bar", true)
             .attr("width", xScale.bandwidth())
-            .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+            .attr("height", (d) => ((CHART_HEIGHT - yScale(d.axisY)) < 0 || d.axisY === 0 ? 0 : (CHART_HEIGHT - yScale(d.axisY))))
             .attr("x", (d) => xScale(d.axisX))
             .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-            .attr("fill", "#2683C9")
+            .attr("fill", "#369BAC")
             .style("opacity", "0.6");
 
         return svgEl._groups[0][0].outerHTML;
