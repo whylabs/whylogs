@@ -87,7 +87,7 @@ class NotebookProfileViewer:
         return HTML(iframe)
 
     def summary_drift_report(self, preferred_cell_height=None):
-        reference_profile = add_drift_val_to_ref_profile_json(self.target_profiles[0], self.reference_profiles[0], json.loads(self.target_profile_jsons[0]))
+        reference_profile = add_drift_val_to_ref_profile_json(self.target_profiles[0], self.reference_profiles[0], json.loads(self.reference_profile_jsons[0]))
         template = self.__get_compiled_template(self.SUMMARY_REPORT_TEMPLATE_NAME)
         profiles_summary = {"profile_from_whylogs": self.target_profile_jsons[0]}
         if self.reference_profiles:
