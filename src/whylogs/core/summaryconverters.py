@@ -289,7 +289,8 @@ def ks_test_compute_p_value(target_distribution: kll_floats_sketch, reference_di
             D_max = D
         j += 1
 
-    p_value = special.kolmogorov(np.sqrt(num_quantiles) * D_max)
+    n_samples = min(target_distribution.get_n(), reference_distribution.get_n())
+    p_value = special.kolmogorov(np.sqrt(n_samples) * D_max)
     return type("Object", (), {"ks_test": p_value})
 
 
