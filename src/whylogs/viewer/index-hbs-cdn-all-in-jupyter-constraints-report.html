@@ -639,8 +639,9 @@
 
         for (let i = 0; i < tableBodyChildren.length; i++) {
           const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = $(tableBodyChildren[i].children[0]).find("mark").text().toLowerCase();
 
-          if (activeTypes[type]) {
+          if (activeTypes[type] && name.startsWith(searchString)) {
             tableBodyChildren[i].style.display = "";
           } else {
             tableBodyChildren[i].style.display = "none";
