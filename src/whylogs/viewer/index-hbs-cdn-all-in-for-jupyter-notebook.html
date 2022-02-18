@@ -1072,6 +1072,7 @@
             </div>
           `
         } else if (referenceProfile.columns[columnKey].drift_from_ref !== undefined && typeof drift_from_ref !== "number") {
+          driftCount++
           Object.values(drifts)[0].count++
           return `<div class="display-flex justify-content-center">
                     <p class="text-color"> undefined </p>
