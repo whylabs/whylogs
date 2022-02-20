@@ -389,6 +389,16 @@
        color: #000000;
      }
 
+     .drift-detection-info-drifts-item-range {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: bold;
+       font-size: 14px;
+       line-height: 14px;
+       color: #6C757D;
+       padding-top: 5px;
+     }
+
      .drift-detection-search-input {
        display: flex;
        align-items: center;
@@ -468,7 +478,7 @@
         display: inline-block;
         position: relative;
         width: 85%;
-        padding-bottom: 15%;
+        padding-bottom: 17%;
         vertical-align: top;
         overflow: hidden;
       }
@@ -567,6 +577,10 @@
 
       .display-flex {
         display: flex;
+      }
+
+      .flex-direction-column {
+        flex-direction: column;
       }
 
       .justify-content-space-between {
@@ -926,34 +940,41 @@
         return format(date);
       }
 
-      const driftCountElement = (driftCount, driftColor, driftName) => `
-      <div class="drift-detection-info-drifts-item display-flex align-items">
-        <div class="drift-detection-info-circle ${driftColor}"></div>
-        <div class="drift-detection-info-drifts-item-text display-flex align-items">
-          <p class="drift-detection-info-drifts-item-count mb-0">${driftCount}</p>
-          <p class="drift-detection-info-drifts-item-name  mb-0">${driftName}</p>
+      const driftCountElement = (driftCount, driftColor, driftName, driftRange) => `
+      <div class="display-flex flex-direction-column">
+        <div class="drift-detection-info-drifts-item display-flex align-items">
+          <div class="drift-detection-info-circle ${driftColor}"></div>
+          <div class="drift-detection-info-drifts-item-text display-flex align-items">
+            <p class="drift-detection-info-drifts-item-count mb-0">${driftCount}</p>
+            <p class="drift-detection-info-drifts-item-name  mb-0">${driftName}</p>
+          </div>
         </div>
+        <p class="drift-detection-info-drifts-item-range display-flex justify-content-center mb-0">(${driftRange})</p>
       </div>
       `
 
       const drifts = {
         severe: {
           count: 0,
+          range: "0 - 0.05",
           name: "Severe drift",
           colorClass: "severe-drift-circle-color"
         },
         moderate: {
           count: 0,
+          range: "0.05 - 0.3",
           name: "Moderate drift",
           colorClass: "moderate-drift-circle-color"
         },
         mild: {
           count: 0,
+          range: "0.3 - 0.6",
           name: "Mild drift",
           colorClass: "mild-drift-circle-color"
         },
         minimal: {
           count: 0,
+          range: "0.6 - 1",
           name: "Minimal drift",
           colorClass: "minimal-drift-circle-color"
         }
@@ -1050,12 +1071,28 @@
        return properties.properties.tags.name
      });
 
-     let driftCount = 0;
+      let driftCount = 0;
+      const diffFromRefTableElement = (driftFromRefNumber, circleColor) => `
+         <div class="text-color display-flex justify-content-center">
+           ${driftFromRefNumber}
+           <div style="margin-left: 8px" class="drift-detection-info-circle ${circleColor}"></div>
+         </div>
+       `
+
+       const cheqValueTypeNumber = (profile, profileValue) => {
+         let validValue;
+         if (profile && profileValue !== undefined && typeof profileValue === "number") { 
+           return true
+         } else if (profileValue !== undefined && typeof profileValue !== "number") {
+           return false
+         }
+       }
 
       Handlebars.registerHelper("getDiffFromRef", function (column, key) {
         const columnKey = key.data.key
         const {drift_from_ref} = referenceProfile.columns[columnKey]
-        if (referenceProfile && referenceProfile.columns[columnKey].drift_from_ref !== undefined && typeof drift_from_ref === "number") {
+
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
           driftCount++
           const driftFromRefNumber = drift_from_ref % 1 ? fixNumberTo(drift_from_ref, 2) : drift_from_ref
           const circleColor = Object.values(drifts)[countOfDrifts(driftFromRefNumber, 3)].colorClass
@@ -1065,28 +1102,21 @@
              $(".all-features").html(Object.keys(referenceProfile.columns).length)
            })
 
-          return `
-            <div class="text-color display-flex justify-content-center">
-              ${driftFromRefNumber}
-              <div style="margin-left: 8px" class="drift-detection-info-circle ${circleColor}"></div>
-            </div>
-          `
-        } else if (referenceProfile.columns[columnKey].drift_from_ref !== undefined && typeof drift_from_ref !== "number") {
+          return diffFromRefTableElement(driftFromRefNumber, circleColor)
+
+        } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref) !== undefined) {
           driftCount++
           Object.values(drifts)[0].count++
-          return `<div class="display-flex justify-content-center">
-                    <p class="text-color"> undefined </p>
-                    <div style="margin-left: 8px" class="drift-detection-info-circle severe-drift-circle-color"></div>
-                  </div>`;
-        } else {
-          return '<p style="color: black">-</p>';
+          return diffFromRefTableElement("undefined", "severe-drift-circle-color")
         }
+
+        return '<p style="color: black">-</p>';
       });
 
       $(document).ready(() =>
-        Object.values(drifts).map(({count, name, colorClass}) =>{
+        Object.values(drifts).map(({count, name, colorClass, range}) =>{
           $("#drift-detection-info-drifts")
-          .append(driftCountElement(count, colorClass, name))
+          .append(driftCountElement(count, colorClass, name, range))
         })
       )
 
