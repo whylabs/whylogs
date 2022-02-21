@@ -1,3 +1,5 @@
+import json
+
 from whylogs.core.summaryconverters import (
     compute_chi_squared_test_p_value,
     ks_test_compute_p_value,
@@ -5,8 +7,94 @@ from whylogs.core.summaryconverters import (
 )
 from whylogs.proto import InferredType, ReferenceDistributionDiscreteMessage
 
-TYPES = InferredType.Type
-categorical_types = (TYPES.INTEGRAL, TYPES.STRING, TYPES.BOOLEAN)
+categorical_types = (InferredType.Type.INTEGRAL, InferredType.Type.STRING, InferredType.Type.BOOLEAN)
+
+
+def __calculate_variance(profile_jsons, feature_name):
+    """
+    Calculates variance for single feature
+
+    Parameters
+    ----------
+    profile_jsons: Profile summary serialized json
+    feature_name: Name of feature
+
+    Returns
+    -------
+    variance : Calculated variance for feature
+    """
+    feature = profile_jsons.get("columns").get(feature_name)
+    variance = feature.get("numberSummary").get("stddev") ** 2 if feature.get("numberSummary") is not None else 0
+    return variance
+
+
+def __calculate_coefficient_of_variation(profile_jsons, feature_name):
+    """
+    Calculates coefficient of variation for single feature
+
+    Parameters
+    ----------
+    profile_jsons: Profile summary serialized json
+    feature_name: Name of feature
+
+    Returns
+    -------
+    coefficient_of_variation : Calculated coefficient of variation for feature
+    """
+    feature = profile_jsons.get("columns").get(feature_name)
+    coefficient_of_variation = (
+        feature.get("numberSummary").get("stddev") / feature.get("numberSummary").get("mean") if feature.get("numberSummary") is not None else 0
+    )
+    return coefficient_of_variation
+
+
+def __calculate_sum(profile_jsons, feature_name):
+    """
+    Calculates sum for single feature
+
+    Parameters
+    ----------
+    profile_jsons: Profile summary serialized json
+    feature_name: Name of feature
+
+    Returns
+    -------
+    coefficient_of_variation : Calculated sum for feature
+    """
+    feature = profile_jsons.get("columns").get(feature_name)
+    feature_number_summary = feature.get("numberSummary")
+    if feature_number_summary:
+        sum = feature_number_summary.get("mean") * int(feature.get("counters").get("count"))
+    else:
+        sum = 0
+    return sum
+
+
+def __calculate_quantile_statistics(feature, profile_jsons, feature_name):
+    """
+    Calculates sum for single feature
+
+    Parameters
+    ----------
+    profile_jsons: Profile summary serialized json
+    feature_name: Name of feature
+
+    Returns
+    -------
+    coefficient_of_variation : Calculated sum for feature
+    """
+    quantile_statistics = {}
+    feature_number_summary = profile_jsons.get("columns").get(feature_name).get("numberSummary")
+    if feature.number_tracker and feature.number_tracker.histogram.get_n() > 0:
+        kll_sketch = feature.number_tracker.histogram
+        quantile_statistics["fifth_percentile"] = single_quantile_from_sketch(kll_sketch, quantile=0.05).quantile
+        quantile_statistics["q1"] = single_quantile_from_sketch(kll_sketch, quantile=0.25).quantile
+        quantile_statistics["median"] = single_quantile_from_sketch(kll_sketch, quantile=0.5).quantile
+        quantile_statistics["q3"] = single_quantile_from_sketch(kll_sketch, quantile=0.75).quantile
+        quantile_statistics["ninety_fifth_percentile"] = single_quantile_from_sketch(kll_sketch, quantile=0.95).quantile
+        quantile_statistics["range"] = feature_number_summary.get("max") - feature_number_summary.get("min")
+        quantile_statistics["iqr"] = quantile_statistics["q3"] - quantile_statistics["q1"]
+    return quantile_statistics
 
 
 def add_drift_val_to_ref_profile_json(target_profile, reference_profile, reference_profile_json):
@@ -23,7 +111,6 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
     -------
     reference_profile_json : Reference profile summary serialized json with drift value for every feature
     """
-    # QUESTION: Should this function need to change behaviour to add drift into target profile?
     observations = 0
     missing_cells = 0
     total_count = 0
@@ -68,40 +155,26 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
     return reference_profile_json
 
 
-def calculate_variance(profile_jsons, feature_name):
-    feature = profile_jsons.get("columns").get(feature_name)
-    variance = feature.get("numberSummary").get("stddev") ** 2 if feature.get("numberSummary") is not None else 0
-    return variance
+def add_feature_statistics(feature, profile_jsons, feature_name):
+    """
+    Calculates different values for feature statistics
 
+    Parameters
+    ----------
+    feature:
+    profile_jsons: Profile summary serialized json
+    feature_name: Name of feature
 
-def calculate_coefficient_of_variation(profile_jsons, feature_name):
-    feature = profile_jsons.get("columns").get(feature_name)
-    coefficient_of_variation = (
-        feature.get("numberSummary").get("stddev") / feature.get("numberSummary").get("mean") if feature.get("numberSummary") is not None else 0
-    )
-    return coefficient_of_variation
-
-
-def calculate_sum(profile_jsons, feature_name):
-    feature = profile_jsons.get("columns").get(feature_name)
-    feature_number_summary = feature.get("numberSummary")
-    if feature_number_summary:
-        sum = feature_number_summary.get("mean") * int(feature.get("counters").get("count"))
-    else:
-        sum = 0
-    return sum
-
-
-def calculate_quantile_statistics_for_single_feature(feature, profile_jsons, feature_name):
-    quantile_statistics = {}
-    feature_number_summary = profile_jsons.get("columns").get(feature_name).get("numberSummary")
-    if feature.number_tracker and feature.number_tracker.histogram.get_n() > 0:
-        kll_sketch = feature.number_tracker.histogram
-        quantile_statistics["fifth_percentile"] = single_quantile_from_sketch(kll_sketch, quantile=0.05).quantile
-        quantile_statistics["q1"] = single_quantile_from_sketch(kll_sketch, quantile=0.25).quantile
-        quantile_statistics["median"] = single_quantile_from_sketch(kll_sketch, quantile=0.5).quantile
-        quantile_statistics["q3"] = single_quantile_from_sketch(kll_sketch, quantile=0.75).quantile
-        quantile_statistics["ninety_fifth_percentile"] = single_quantile_from_sketch(kll_sketch, quantile=0.95).quantile
-        quantile_statistics["range"] = feature_number_summary.get("max") - feature_number_summary.get("min")
-        quantile_statistics["iqr"] = quantile_statistics["q3"] - quantile_statistics["q1"]
-    return quantile_statistics
+    Returns
+    -------
+    feature: Feature data with appended values for statistics report
+    """
+    profile_features = json.loads(profile_jsons[0])
+    feature_with_statistics = {}
+    feature_with_statistics["properties"] = profile_features.get("properties")
+    feature_with_statistics[feature_name] = profile_features.get("columns").get(feature_name)
+    feature_with_statistics[feature_name]["sum"] = __calculate_sum(profile_features, feature_name)
+    feature_with_statistics[feature_name]["variance"] = __calculate_variance(profile_features, feature_name)
+    feature_with_statistics[feature_name]["coefficient_of_variation"] = __calculate_coefficient_of_variation(profile_features, feature_name)
+    feature_with_statistics[feature_name]["quantile_statistics"] = __calculate_quantile_statistics(feature, profile_features, feature_name)
+    return feature_with_statistics

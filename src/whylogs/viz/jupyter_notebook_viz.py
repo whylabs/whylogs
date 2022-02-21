@@ -12,28 +12,28 @@ from whylogs.util.protobuf import message_to_json
 
 from .utils.profile_viz_calculations import (
     add_drift_val_to_ref_profile_json,
-    calculate_coefficient_of_variation,
-    calculate_quantile_statistics_for_single_feature,
-    calculate_sum,
-    calculate_variance,
+    add_feature_statistics,
 )
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
-TYPES = InferredType.Type
 
 logger = logging.getLogger(__name__)
 
-numerical_types = (TYPES.INTEGRAL, TYPES.FRACTIONAL)
+numerical_types = (InferredType.Type.INTEGRAL, InferredType.Type.FRACTIONAL)
 
 
 class NotebookProfileViewer:
     SUMMARY_REPORT_TEMPLATE_NAME = "index-hbs-cdn-all-in-for-jupyter-notebook.html"
     DOUBLE_HISTOGRAM_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-distribution-chart.html"
+    DISTRIBUTION_CHART_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-bar-chart.html"
+    DIFFERENCED_CHART_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-differenced-chart.html"
     FEATURE_STATISTICS_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html"
     CONSTRAINTS_REPORT_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-constraints-report.html"
     PAGE_SIZES = {
         SUMMARY_REPORT_TEMPLATE_NAME: "1000px",
         DOUBLE_HISTOGRAM_TEMPLATE_NAME: "277px",
+        DISTRIBUTION_CHART_TEMPLATE_NAME: "277px",
+        DIFFERENCED_CHART_TEMPLATE_NAME: "277px",
         FEATURE_STATISTICS_TEMPLATE_NAME: "650px",
         CONSTRAINTS_REPORT_TEMPLATE_NAME: "750PX",
     }
@@ -41,7 +41,6 @@ class NotebookProfileViewer:
     def __init__(self, target_profiles: List[DatasetProfile] = None, reference_profiles: List[DatasetProfile] = None):
         self.target_profiles = target_profiles
         self.reference_profiles = reference_profiles
-        # create json output from profiles
         if self.target_profiles:
             if len(self.target_profiles) > 1:
                 logger.warning("More than one profile not implemented yet, default to first profile in the list ")
@@ -63,26 +62,32 @@ class NotebookProfileViewer:
             logger.debug("Unable to load pybars; install pybars3 to load profile from directly from the current session ")
         with open(template_path, "r") as file_with_template:
             source = file_with_template.read()
-        # compile templated files
         compiler = Compiler()
         template = compiler.compile(source)
         return template
 
-    def __pull_feature_data(self, profile, profile_jsons, feature_name):
-        profile_features = json.loads(profile_jsons[0])
-        feature_data = {}
-        feature_data["properties"] = profile_features.get("properties")
-        feature_data[feature_name] = profile_features.get("columns").get(feature_name)
-        feature_data[feature_name]["sum"] = calculate_sum(profile_features, feature_name)
-        feature_data[feature_name]["variance"] = calculate_variance(profile_features, feature_name)
-        feature_data[feature_name]["coefficient_of_variation"] = calculate_coefficient_of_variation(profile_features, feature_name)
-        feature_data[feature_name]["quantile_statistics"] = calculate_quantile_statistics_for_single_feature(profile, profile_features, feature_name)
-        return feature_data
+    def __display_feature_chart(self, feature_names, template_name, preferred_cell_height=None):
+        if type(feature_names) is not list:
+            feature_names = [feature_names]
+        template = self.__get_compiled_template(template_name)
+        if self.reference_profiles:
+            target_profile_columns = json.loads(self.target_profile_jsons[0]).get("columns")
+            reference_profile_columns = json.loads(self.reference_profile_jsons[0]).get("columns")
+            target_profile_features, reference_profile_features = {}, {}
+            for feature_name in feature_names:
+                target_profile_features[feature_name] = target_profile_columns.get(feature_name)
+                reference_profile_features[feature_name] = reference_profile_columns.get(feature_name)
+            distribution_chart = template(
+                {"profile_from_whylogs": json.dumps(target_profile_features), "reference_profile_from_whylogs": json.dumps(reference_profile_features)}
+            )
+            return self.__display_rendered_template(distribution_chart, template_name, preferred_cell_height)
+        else:
+            logger.warning("This method has to get both target and reference profiles, with valid feature title")
+            return None
 
     def __display_rendered_template(self, template, template_name, height):
         if not height:
             height = self.PAGE_SIZES[template_name]
-        # convert html to iframe and return it wrapped in Ipython...HTML()
         iframe = f"""<div></div><iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>"""
         return HTML(iframe)
 
@@ -95,23 +100,13 @@ class NotebookProfileViewer:
         return self.__display_rendered_template(template(profiles_summary), self.SUMMARY_REPORT_TEMPLATE_NAME, preferred_cell_height)
 
     def double_histogram(self, feature_names, preferred_cell_height=None):
-        if type(feature_names) is not list:
-            feature_names = [feature_names]
-        template = self.__get_compiled_template(self.DOUBLE_HISTOGRAM_TEMPLATE_NAME)
-        if self.reference_profiles:
-            target_profile_columns = json.loads(self.target_profile_jsons[0]).get("columns")
-            reference_profile_columns = json.loads(self.reference_profile_jsons[0]).get("columns")
-            target_profile_features, reference_profile_features = {}, {}
-            for feature_name in feature_names:
-                target_profile_features[feature_name] = target_profile_columns.get(feature_name)
-                reference_profile_features[feature_name] = reference_profile_columns.get(feature_name)
-            distribution_chart = template(
-                {"profile_from_whylogs": json.dumps(target_profile_features), "reference_profile_from_whylogs": json.dumps(reference_profile_features)}
-            )
-            return self.__display_rendered_template(distribution_chart, self.DOUBLE_HISTOGRAM_TEMPLATE_NAME, preferred_cell_height)
-        else:
-            logger.warning("This method has to get both target and reference profiles, with valid feature title")
-            return None
+        return self.__display_feature_chart(feature_names, self.DOUBLE_HISTOGRAM_TEMPLATE_NAME, preferred_cell_height)
+
+    def distribution_chart(self, feature_names, preferred_cell_height=None):
+        return self.__display_feature_chart(feature_names, self.DISTRIBUTION_CHART_TEMPLATE_NAME, preferred_cell_height)
+
+    def differenced_distribution_chart(self, feature_names, preferred_cell_height=None):
+        return self.__display_feature_chart(feature_names, self.DIFFERENCED_CHART_TEMPLATE_NAME, preferred_cell_height)
 
     def feature_statistics(self, feature_name, profile="reference", preferred_cell_height=None):
         template = self.__get_compiled_template(self.FEATURE_STATISTICS_TEMPLATE_NAME)
@@ -125,7 +120,7 @@ class NotebookProfileViewer:
             rendered_template = template(
                 {
                     "profile_feature_statistics_from_whylogs": json.dumps(
-                        self.__pull_feature_data(selected_profile.get(feature_name), selected_profile_json, feature_name)
+                        add_feature_statistics(selected_profile.get(feature_name), selected_profile_json, feature_name)
                     )
                 }
             )
@@ -133,6 +128,11 @@ class NotebookProfileViewer:
         else:
             logger.warning("Quantile and descriptive statistics can be calculated for numerical features only!")
             return None
+
+    def constraints_report(self, constraints, preferred_cell_height=None):
+        template = self.__get_compiled_template(self.CONSTRAINTS_REPORT_TEMPLATE_NAME)
+        rendered_template = template({"constraints_report": json.dumps(constraints.report())})
+        return self.__display_rendered_template(rendered_template, self.CONSTRAINTS_REPORT_TEMPLATE_NAME, preferred_cell_height)
 
     def download(self, html, preferred_path=None, html_file_name=None):
         if not html_file_name:
@@ -149,8 +149,3 @@ class NotebookProfileViewer:
             saved_html.write(html.data)
         saved_html.close()
         return None
-
-    def constraints_report(self, constraints, preferred_cell_height=None):
-        template = self.__get_compiled_template(self.CONSTRAINTS_REPORT_TEMPLATE_NAME)
-        rendered_template = template({"constraints_report": json.dumps(constraints.report())})
-        return self.__display_rendered_template(rendered_template, self.CONSTRAINTS_REPORT_TEMPLATE_NAME, preferred_cell_height)
