@@ -14,6 +14,9 @@ jobs:
         exclude:
           - scala-version: 2.11
             spark-version: 3.1.1
+        include:
+          - scala-verison: 2.13
+            spark-version: 3.2.0
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
