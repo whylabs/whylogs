@@ -188,7 +188,7 @@
       //helper fun
 
       class GenerateChartParams {
-        constructor(height, width, data, bottomMargin=30, topMargin=5) {
+        constructor(height, width, targetData, referenceData, bottomMargin=30, topMargin=5) {
           this.MARGIN = {
             TOP: topMargin,
             RIGHT: 5,
@@ -201,12 +201,16 @@
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
           this.svgEl = d3.create("svg")
              .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `20 0 ${$(window).width()} ${$(window).height()-55}`)
+             .attr("viewBox", `20 0 ${$(window).width()} ${$(window).height()-30}`)
              .classed("svg-content-responsive", true)
-          this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+          this.maxYValue = d3.max(targetData, (d) => Math.abs(d.axisY));
+          const mergedData = targetData.concat(referenceData).map(a => {
+            return a.axisX
+          })
+          const mergedAndSortedData = mergedData.sort(function(a, b) { return a - b; });
           this.xScale = d3
             .scaleBand()
-            .domain(data.map((d) => d.axisX))
+            .domain(mergedAndSortedData.map((d) => d))
             .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
           this.yScale = d3
             .scaleLinear()
@@ -217,56 +221,37 @@
 
       function chartData(column, startIndex) {
         const data = [];
-        if (column.numberSummary.isDiscrete) {
-            column.frequentItems.items.forEach((item, index) => {
-              data.push({
-                axisY: item.estimate,
-                axisX: index,
-              });
-            });
-        } else {
-          for (let i = 0; i<column.numberSummary.histogram.counts.length; i++) {
-            data.push({
-              axisY: column.numberSummary.histogram.counts[i-startIndex] || 0,
-              axisX: i,
-            });
-          }
+        for (let i = 0; i<column.numberSummary.histogram.counts.length; i++) {
+          data.push({
+            axisY: column.numberSummary.histogram.counts[i] || 0,
+            axisX: parseFloat(column.numberSummary.histogram.bins[i]).toFixed(2),
+          });
         }
         return data
       }
 
-      function CheckNumberSummary(column) {
-        if (column.numberSummary) {
-          return true
-        } else {
-          return false
-        }
-      }
-
-      function generateDoubleHistogramChart(data, referenceData) {
+      function generateDoubleHistogramChart(targetData, referenceData) {
         let histogramData = [],
             overlappedHistogramData = [];
 
-        if (CheckNumberSummary(data) && referenceData && CheckNumberSummary(referenceData)) {
-          const targetedProfileMin = data.numberSummary.histogram.min < 0 ?
-            data.numberSummary.histogram.min.toFixed(1) * 10 * -1 :
-            data.numberSummary.histogram.min.toFixed(1) * 10
+        const targetedProfileMin = targetData.numberSummary.histogram.min < 0 ?
+          targetData.numberSummary.histogram.min.toFixed(1) * 10 * -1 :
+          targetData.numberSummary.histogram.min.toFixed(1) * 10
 
-          const referenceProfileMin = referenceData.numberSummary.histogram.min < 0 ?
-            referenceData.numberSummary.histogram.min.toFixed(1) * 10 * -1 :
-            referenceData.numberSummary.histogram.min.toFixed(1) * 10
+        const referenceProfileMin = referenceData.numberSummary.histogram.min < 0 ?
+          referenceData.numberSummary.histogram.min.toFixed(1) * 10 * -1 :
+          referenceData.numberSummary.histogram.min.toFixed(1) * 10
 
-          const chartsStartPoint = []
-          targetedProfileMin > referenceProfileMin ?
-          chartsStartPoint.push(Math.ceil(targetedProfileMin-referenceProfileMin), 0):
-          chartsStartPoint.push(0, Math.ceil(referenceProfileMin-targetedProfileMin))
-          histogramData = chartData(data, chartsStartPoint[0])
-          overlappedHistogramData = chartData(referenceData, chartsStartPoint[1])
-        }
+        const chartsStartPoint = []
+        targetedProfileMin > referenceProfileMin ?
+        chartsStartPoint.push(Math.ceil(targetedProfileMin-referenceProfileMin), 0):
+        chartsStartPoint.push(0, Math.ceil(referenceProfileMin-targetedProfileMin))
+        histogramData = chartData(targetData, chartsStartPoint[0], 'original_profile')
+        overlappedHistogramData = chartData(referenceData, chartsStartPoint[1], 'ref_profile')
 
         let yFormat,
             xFormat;
-        const sizes = new GenerateChartParams($(window).height()-55, $(window).width(), histogramData)
+        const sizes = new GenerateChartParams($(window).height()-55, $(window).width(), histogramData, overlappedHistogramData)
         const {
           MARGIN,
           SVG_WIDTH,
@@ -296,6 +281,21 @@
               .attr("fill", "currentColor")
               .attr("text-anchor", "start"));
 
+        svgEl.append("g")
+          .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+          .call(xAxis)
+            .selectAll("text")
+              .attr("dy", "-.6em")
+              .attr("dx", "-.8em")
+              .attr("transform", "rotate(-90)")
+              .style("text-anchor", "end")
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick line").remove())
+          .call(g => g.append("text")
+            .attr("fill", "currentColor")
+            .attr("text-anchor", "end"))
+            .style("font-size", "10")
+
           const gChart = svgEl.append("g");
           gChart
           .selectAll(".bar")
@@ -323,7 +323,6 @@
             .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
             .attr("fill", "#369BAC")
             .style("opacity", "0.6");
-
         return svgEl._groups[0][0].outerHTML;
       }
 

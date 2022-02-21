@@ -31,7 +31,7 @@ class NotebookProfileViewer:
     CONSTRAINTS_REPORT_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-constraints-report.html"
     PAGE_SIZES = {
         SUMMARY_REPORT_TEMPLATE_NAME: "1000px",
-        DOUBLE_HISTOGRAM_TEMPLATE_NAME: "277px",
+        DOUBLE_HISTOGRAM_TEMPLATE_NAME: "300px",
         DISTRIBUTION_CHART_TEMPLATE_NAME: "277px",
         DIFFERENCED_CHART_TEMPLATE_NAME: "277px",
         FEATURE_STATISTICS_TEMPLATE_NAME: "650px",
