@@ -155,21 +155,21 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
     return reference_profile_json
 
 
-def add_feature_statistics(feature, profile_jsons, feature_name):
+def add_feature_statistics(feature, profile_json, feature_name):
     """
     Calculates different values for feature statistics
 
     Parameters
     ----------
     feature:
-    profile_jsons: Profile summary serialized json
+    profile_json: Profile summary serialized json
     feature_name: Name of feature
 
     Returns
     -------
     feature: Feature data with appended values for statistics report
     """
-    profile_features = json.loads(profile_jsons[0])
+    profile_features = json.loads(profile_json)
     feature_with_statistics = {}
     feature_with_statistics["properties"] = profile_features.get("properties")
     feature_with_statistics[feature_name] = profile_features.get("columns").get(feature_name)

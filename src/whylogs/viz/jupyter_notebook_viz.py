@@ -2,7 +2,6 @@ import html
 import json
 import logging
 import os
-from typing import List
 
 from IPython.core.display import HTML
 
@@ -38,16 +37,6 @@ class NotebookProfileViewer:
         CONSTRAINTS_REPORT_TEMPLATE_NAME: "750PX",
     }
 
-    def __init__(self, target_profiles: List[DatasetProfile] = None, reference_profiles: List[DatasetProfile] = None):
-        self.target_profiles = target_profiles
-        self.reference_profiles = reference_profiles
-        if self.target_profiles:
-            if len(self.target_profiles) > 1:
-                logger.warning("More than one profile not implemented yet, default to first profile in the list ")
-            self.target_profile_jsons = [message_to_json(each_prof.to_summary()) for each_prof in self.target_profiles]
-            if self.reference_profiles:
-                self.reference_profile_jsons = [message_to_json(each_prof.to_summary()) for each_prof in self.reference_profiles]
-
     def __get_template_path(self, html_file_name):
         template_path = os.path.abspath(os.path.join(_MY_DIR, os.pardir, "viewer", html_file_name))
         return template_path
@@ -70,9 +59,9 @@ class NotebookProfileViewer:
         if type(feature_names) is not list:
             feature_names = [feature_names]
         template = self.__get_compiled_template(template_name)
-        if self.reference_profiles:
-            target_profile_columns = json.loads(self.target_profile_jsons[0]).get("columns")
-            reference_profile_columns = json.loads(self.reference_profile_jsons[0]).get("columns")
+        if self._reference_profile:
+            target_profile_columns = json.loads(self._target_profile_json).get("columns")
+            reference_profile_columns = json.loads(self._reference_profile_json).get("columns")
             target_profile_features, reference_profile_features = {}, {}
             for feature_name in feature_names:
                 target_profile_features[feature_name] = target_profile_columns.get(feature_name)
@@ -91,11 +80,19 @@ class NotebookProfileViewer:
         iframe = f"""<div></div><iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>"""
         return HTML(iframe)
 
+    def set_profiles(self, target_profile: DatasetProfile = None, reference_profile: DatasetProfile = None):
+        self._target_profile = target_profile
+        self._reference_profile = reference_profile
+        if self._target_profile:
+            self._target_profile_json = message_to_json(self._target_profile.to_summary())
+            if self._reference_profile:
+                self._reference_profile_json = message_to_json(self._reference_profile.to_summary())
+
     def summary_drift_report(self, preferred_cell_height=None):
-        reference_profile = add_drift_val_to_ref_profile_json(self.target_profiles[0], self.reference_profiles[0], json.loads(self.reference_profile_jsons[0]))
+        reference_profile = add_drift_val_to_ref_profile_json(self._target_profile, self._reference_profile, json.loads(self._reference_profile_json))
         template = self.__get_compiled_template(self.SUMMARY_REPORT_TEMPLATE_NAME)
-        profiles_summary = {"profile_from_whylogs": self.target_profile_jsons[0]}
-        if self.reference_profiles:
+        profiles_summary = {"profile_from_whylogs": self._target_profile_json}
+        if self._reference_profile:
             profiles_summary["reference_profile_from_whylogs"] = json.dumps(reference_profile)
         return self.__display_rendered_template(template(profiles_summary), self.SUMMARY_REPORT_TEMPLATE_NAME, preferred_cell_height)
 
@@ -110,12 +107,12 @@ class NotebookProfileViewer:
 
     def feature_statistics(self, feature_name, profile="reference", preferred_cell_height=None):
         template = self.__get_compiled_template(self.FEATURE_STATISTICS_TEMPLATE_NAME)
-        if self.reference_profiles and profile.lower() == "reference":
-            selected_profile_json = self.reference_profile_jsons
-            selected_profile = self.reference_profiles[0].columns
+        if self._reference_profile and profile.lower() == "reference":
+            selected_profile_json = self._reference_profile_json
+            selected_profile = self._reference_profile.columns
         else:
-            selected_profile_json = self.target_profile_jsons
-            selected_profile = self.target_profiles[0].columns
+            selected_profile_json = self._target_profile_json
+            selected_profile = self._target_profile.columns
         if selected_profile.get(feature_name).schema_tracker.to_summary().inferred_type.type in numerical_types:
             rendered_template = template(
                 {
@@ -136,10 +133,10 @@ class NotebookProfileViewer:
 
     def download(self, html, preferred_path=None, html_file_name=None):
         if not html_file_name:
-            if self.reference_profiles:
-                html_file_name = self.reference_profiles[0].dataset_timestamp
+            if self._reference_profile:
+                html_file_name = self._reference_profile.dataset_timestamp
             else:
-                html_file_name = self.target_profiles[0].dataset_timestamp
+                html_file_name = self._target_profile.dataset_timestamp
         if preferred_path:
             path = os.path.expanduser(preferred_path)
         else:
