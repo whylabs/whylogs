@@ -12,6 +12,9 @@ jobs:
         os: [ubuntu-latest]
         scala-version: [2.11, 2.12]
         spark-version: [2.4.7, 3.1.1]
+        exclude:
+          - scala-version: 2.11
+            spark-version: 3.1.1
     runs-on: ${{ matrix.os }}
     defaults:
       run:
