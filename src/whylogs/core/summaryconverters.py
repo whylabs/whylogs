@@ -200,6 +200,8 @@ def entropy_from_column_summary(summary: ColumnSummary, histogram: datasketches.
     total_count = summary.counters.count
 
     if inferred_type == InferredType.Type.FRACTIONAL:
+        if histogram.get_min_value() == histogram.get_max_value() or histogram.get_n() <= 1:
+            return 0
         bins = np.linspace(histogram.get_min_value(), histogram.get_max_value(), 100)
         pmf = histogram.get_pmf(bins)
         pmf = list(filter(lambda x: x > 0, pmf))
@@ -251,13 +253,42 @@ def ks_test_compute_p_value(target_distribution: kll_floats_sketch, reference_di
     """
 
     D_max = 0
-    quantile_values = reference_distribution.get_quantiles(QUANTILES)
-    for quant in quantile_values:
-        cdf_target = target_distribution.get_cdf([quant])[0]
-        cdf_ref = reference_distribution.get_cdf([quant])[0]
+    target_quantile_values = target_distribution.get_quantiles(QUANTILES)
+    ref_quantile_values = reference_distribution.get_quantiles(QUANTILES)
+
+    num_quantiles = len(QUANTILES)
+    i, j = 0, 0
+    while i < num_quantiles and j < num_quantiles:
+
+        if target_quantile_values[i] < ref_quantile_values[j]:
+            current_quantile = target_quantile_values[i]
+            i += 1
+        else:
+            current_quantile = ref_quantile_values[j]
+            j += 1
+
+        cdf_target = target_distribution.get_cdf([current_quantile])[0]
+        cdf_ref = reference_distribution.get_cdf([current_quantile])[0]
         D = abs(cdf_target - cdf_ref)
         if D > D_max:
             D_max = D
+
+    while i < num_quantiles:
+        cdf_target = target_distribution.get_cdf([target_quantile_values[i]])[0]
+        cdf_ref = reference_distribution.get_cdf([target_quantile_values[i]])[0]
+        D = abs(cdf_target - cdf_ref)
+        if D > D_max:
+            D_max = D
+        i += 1
+
+    while j < num_quantiles:
+        cdf_target = target_distribution.get_cdf([ref_quantile_values[j]])[0]
+        cdf_ref = reference_distribution.get_cdf([ref_quantile_values[j]])[0]
+        D = abs(cdf_target - cdf_ref)
+        if D > D_max:
+            D_max = D
+        j += 1
+
     n_samples = min(target_distribution.get_n(), reference_distribution.get_n())
     p_value = special.kolmogorov(np.sqrt(n_samples) * D_max)
     return type("Object", (), {"ks_test": p_value})
