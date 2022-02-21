@@ -299,7 +299,7 @@
         yFormat = yScale.tickFormat(100, yFormat);
     
         svgEl.append("g")
-          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+          .attr("transform", `translate(${MARGIN.LEFT}, 0)`)
           .call(yAxis)
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick line")
