@@ -140,7 +140,7 @@
      .bar.positive {
        fill: #369BACB2;
      }
-     
+
      .bar.negative {
        fill: #2683C9E5;
      }
@@ -199,11 +199,15 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script>
-    function registerHandlebarHelperFunctions() {
-      //helper fun
-      const filterAndSortChartData = (overlappedHistogramData, histogramData) => {
-        return overlappedHistogramData
-          .map((d) => 
+   function registerHandlebarHelperFunctions() {
+    const findAndDeleteUndefined = (axisData) => {
+      const undefinedAxisIndex = axisData.findIndex((axis) => axis === undefined)
+      return [...axisData.slice(0, undefinedAxisIndex), ...axisData.slice(undefinedAxisIndex + 1)]
+    }
+
+    const filterAndSortChartData = (overlappedHistogramData, histogramData) => {
+        const filteredData = overlappedHistogramData
+          .map((d) =>
             histogramData
             .filter((ref) => d.axisX === ref.axisX )[0])
             .sort((a, b) => {
@@ -217,6 +221,8 @@
               return 0;
             })
             .slice(0, 20)
+
+        return findAndDeleteUndefined(filteredData)
       }
 
       class GenerateChartParams {
@@ -233,7 +239,7 @@
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
           this.svgEl = d3.create("svg")
              .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `20 0 ${$(window).width()} ${$(window).height()-55}`)
+             .attr("viewBox", `0 0 ${$(window).width()} ${$(window).height()-30}`)
              .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
@@ -249,10 +255,10 @@
 
       function chartData(column) {
         const data = [];
-            Object.entries(column.stringSummary.charPosTracker.charPosMap).forEach(([key, value], index) => {
+            Object.entries(column.stringSummary.frequent.items).forEach(([key, {value, estimate}], index) => {
               data.push({
-                axisY: value.count,
-                axisX: key,
+                axisY: estimate,
+                axisX: value,
               });
             });
         return data
@@ -269,16 +275,16 @@
       function generateBarChart(histogramData, overlappedHistogramData) {
         let yFormat,
             xFormat;
-        const data = filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData)).map(({axisY, axisX}, index) => {
-          const findIndex = chartData(histogramData).findIndex((value) => value.axisX === axisX)
+        const data = filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData)).map((axis, index) => {
+          const findIndex = chartData(histogramData).findIndex((value) => value.axisX === axis.axisX)
           return {
-            group: axisX,
-            profile: axisY,
+            group: axis.axisX,
+            profile: axis.axisY,
             reference_profile: chartData(histogramData)[findIndex].axisY
           }
         })
-    
-        const sizes = new GenerateChartParams($(window).height()-55, $(window).width(), chartData(histogramData), chartData(overlappedHistogramData))
+
+        const sizes = new GenerateChartParams($(window).height()-60, $(window).width(), chartData(histogramData), chartData(overlappedHistogramData))
         let {
           MARGIN,
           SVG_WIDTH,
@@ -289,15 +295,15 @@
           xScale,
           yScale
         } = sizes
-    
+
         const subgroups = ['reference_profile', 'profile']
-    
+
         xScale.padding([0.3])
-    
+
         const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
         const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
         yFormat = yScale.tickFormat(100, yFormat);
-    
+
         svgEl.append("g")
           .attr("transform", `translate(${MARGIN.LEFT}, 0)`)
           .call(yAxis)
@@ -310,7 +316,26 @@
               .attr("y", 10)
               .attr("fill", "currentColor")
               .attr("text-anchor", "start"));
-    
+
+        svgEl.append("text")
+          .attr("transform",
+                "translate(" + (CHART_WIDTH/2) + " ," +
+                               (CHART_HEIGHT + MARGIN.TOP + 40) + ")")
+          .style("text-anchor", "middle")
+          .text("Values")
+          .style("font-size", "15")
+          .style("opacity", "0.6")
+
+        svgEl.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0)
+          .attr("x", 0 - (SVG_HEIGHT / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Counts")
+          .style("font-size", "15")
+          .style("opacity", "0.6")
+
         svgEl.append("g")
             .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
             .call(xAxis)
@@ -325,12 +350,12 @@
         const xSubgroup = d3.scaleBand()
           .domain(subgroups)
           .range([0, xScale.bandwidth()])
-    
+
         // color palette = one color per subgroup
         const color = d3.scaleOrdinal()
           .domain(subgroups)
           .range(['#2683C9', '#369BAC'])
-    
+
         svgEl.append("g")
            .selectAll("g")
            // Enter in data = loop group per group
@@ -347,10 +372,10 @@
              .attr("height", function(d) { return (CHART_HEIGHT - yScale(d.value)); })
              .attr("fill", function(d) { return color(d.key); })
              .style("opacity", "0.6");
-    
-    
+
+
          return svgEl._groups[0][0].outerHTML;
-      }    
+      }
 
       const profileFromCSVfile = {{{reference_profile_from_whylogs}}}
 

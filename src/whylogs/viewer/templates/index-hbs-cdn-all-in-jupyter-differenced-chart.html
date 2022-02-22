@@ -202,8 +202,13 @@
     function registerHandlebarHelperFunctions() {
       //helper fun
 
+      const findAndDeleteUndefined = (axisData) => {
+        const undefinedAxisIndex = axisData.findIndex((axis) => axis === undefined)
+        return [...axisData.slice(0, undefinedAxisIndex), ...axisData.slice(undefinedAxisIndex + 1)]
+      }
+
       const filterAndSortChartData = (overlappedHistogramData, histogramData) => {
-        return overlappedHistogramData
+        const filteredData = overlappedHistogramData
           .map((d) =>
             histogramData
             .filter((ref) => d.axisX === ref.axisX )[0])
@@ -218,6 +223,8 @@
               return 0;
             })
             .slice(0, 20)
+
+        return findAndDeleteUndefined(filteredData)
       }
 
       class GenerateChartParams {
@@ -234,7 +241,7 @@
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
           this.svgEl = d3.create("svg")
              .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `0 -10 ${$(window).width()} ${$(window).height()-55}`)
+             .attr("viewBox", `0 -10 ${$(window).width()} ${$(window).height()-30}`)
              .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
@@ -251,26 +258,26 @@
 
       function chartData(column) {
         const data = [];
-            Object.entries(column.stringSummary.charPosTracker.charPosMap).forEach(([key, value], index) => {
+            Object.entries(column.stringSummary.frequent.items).forEach(([key, {value, estimate}], index) => {
               data.push({
-                axisY: value.count,
-                axisX: Object.keys(column.stringSummary.charPosTracker.charPosMap)[index],
+                axisY: estimate,
+                axisX: value,
               });
             });
         return data
       }
 
       function generatePositiveNegativeChart(histogramData, overlappedHistogramData) {
-        const data = filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData)).map(({axisY, axisX}, index) => {
-          const findIndex = chartData(histogramData).findIndex((value) => value.axisX === axisX)
-          const difference = axisY - chartData(histogramData)[findIndex].axisY
+        const data = filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData)).map((axis, index) => {
+          const findIndex = chartData(histogramData).findIndex((value) => value.axisX === axis.axisX)
+          const difference = axis.axisY - chartData(histogramData)[findIndex].axisY
           return [difference]
         }).flat()
 
         let yFormat,
             xFormat;
 
-        const sizes = new GenerateChartParams($(window).height()-55, $(window).width(), chartData(histogramData), chartData(overlappedHistogramData))
+        const sizes = new GenerateChartParams($(window).height()-60, $(window).width(), chartData(histogramData), chartData(overlappedHistogramData))
         let {
          MARGIN,
          SVG_WIDTH,
@@ -283,11 +290,8 @@
 
         const maxY = Math.abs(d3.max(data));
         const minY = Math.abs(d3.min(data));
-        let positiveY,
-           negativeY;
-
-           positiveY = Math.ceil(maxY) % 1 ? maxY + 2*(maxY/(maxY*10)) : maxY + 2*(maxY/(maxY/10))
-           negativeY = Math.ceil(minY) % 1 ? minY + 2*(minY/(minY*10)) : minY + 2*(minY/(minY/10))
+        let positiveY = Math.ceil(maxY) % 1 ? maxY + 2*(maxY/(maxY*10)) : maxY + 2*(maxY/(maxY/10)),
+            negativeY = Math.ceil(minY) % 1 ? minY + 2*(minY/(minY*10)) : minY + 2*(minY/(minY/10));
 
         const yScale = d3.scaleLinear()
             .domain([-negativeY, positiveY ])
@@ -310,9 +314,28 @@
           .attr("fill", "currentColor")
           .attr("text-anchor", "start"));
 
+          svgEl.append("text")
+          .attr("transform",
+                "translate(" + (CHART_WIDTH/2) + " ," +
+                               (CHART_HEIGHT + MARGIN.TOP + 30) + ")")
+          .style("text-anchor", "middle")
+          .text("Values")
+          .style("font-size", "15")
+          .style("opacity", "0.6")
+
+        svgEl.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0)
+          .attr("x", 0 - (SVG_HEIGHT / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Counts")
+          .style("font-size", "15")
+          .style("opacity", "0.6")
+
           svgEl
           .append("g")
-          .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+          .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM - 7})`)
           .call(xAxis)
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick>line").remove())
