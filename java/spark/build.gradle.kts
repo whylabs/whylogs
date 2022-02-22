@@ -32,7 +32,7 @@ tasks.withType<Jar> {
 }
 
 fun scalaPackage(groupId: String, name: String, version: String) =
-    "$groupId:${name}_$scalaVersion:$version"
+    "$groupId:${name}_${scalaVersion}:${version}"
 
 sourceSets {
     main {
