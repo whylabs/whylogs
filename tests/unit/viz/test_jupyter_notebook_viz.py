@@ -1,35 +1,35 @@
 import datetime
 import os
-
-import numpy as np
-
-from faker import Faker
 from collections import OrderedDict
 
+import numpy as np
+from faker import Faker
+
 from whylogs import get_or_create_session
-from whylogs.viz import NotebookProfileViewer
 from whylogs.core.statistics.constraints import (
+    DatasetConstraints,
+    Op,
+    SummaryConstraint,
+    ValueConstraint,
+    columnPairValuesInSetConstraint,
     columnsMatchSetConstraint,
     columnValuesInSetConstraint,
-    ValueConstraint,
     columnValuesUniqueWithinRow,
-    columnPairValuesInSetConstraint,
     sumOfRowValuesOfMultipleColumnsEqualsConstraint,
-    DatasetConstraints,
-    SummaryConstraint,
-    SummaryConstraints,
-    Op,
 )
+from whylogs.viz import NotebookProfileViewer
 
 
 def __generate_target_profile():
 
     session = get_or_create_session()
-    locales = OrderedDict([
-        ('en-US', 1),
-        ('fr-FR', 2),
-        ('ja_JP', 2),
-    ])
+    locales = OrderedDict(
+        [
+            ("en-US", 1),
+            ("fr-FR", 2),
+            ("ja_JP", 2),
+        ]
+    )
     fake = Faker(locales)
     with session.logger("mytestytest", dataset_timestamp=datetime.datetime(2021, 6, 2)) as logger:
         for _ in range(5):
@@ -43,11 +43,13 @@ def __generate_target_profile():
 def __generate_reference_profile():
 
     session = get_or_create_session()
-    locales = OrderedDict([
-        ('en-US', 1),
-        ('fr-FR', 2),
-        ('ja_JP', 2),
-    ])
+    locales = OrderedDict(
+        [
+            ("en-US", 1),
+            ("fr-FR", 2),
+            ("ja_JP", 2),
+        ]
+    )
     fake = Faker(locales)
     with session.logger("mytestytest", dataset_timestamp=datetime.datetime(2021, 6, 2)) as logger:
         for _ in range(5):
@@ -113,7 +115,7 @@ def test_feature_statistics_not_passing_profile_type():
     reference_profile = __generate_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.feature_statistics('uniform_integers')
+    viz.feature_statistics("uniform_integers")
 
 
 def test_feature_statistics_passing_profile_type():
@@ -121,7 +123,7 @@ def test_feature_statistics_passing_profile_type():
     reference_profile = __generate_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.feature_statistics('uniform_integers', 'target')
+    viz.feature_statistics("uniform_integers", "target")
 
 
 def test_feature_statistics_passing_profile_type_and_prefered_height():
@@ -129,7 +131,7 @@ def test_feature_statistics_passing_profile_type_and_prefered_height():
     reference_profile = __generate_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.feature_statistics('uniform_integers', 'target', '1000px')
+    viz.feature_statistics("uniform_integers", "target", "1000px")
 
 
 def test_download_passing_all_arguments(tmpdir):
@@ -138,7 +140,7 @@ def test_download_passing_all_arguments(tmpdir):
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
 
-    download = viz.download(viz.summary_drift_report(), tmpdir, html_file_name='foo')
+    download = viz.download(viz.summary_drift_report(), tmpdir, html_file_name="foo")
     assert os.path.exists(tmpdir + "/foo.html")
 
 
@@ -157,7 +159,7 @@ def test_constraints_report_with_preferred_height():
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     dc = _get_sample_dataset_constraints()
-    viz.constraints_report(dc, preferred_cell_height='1000px')
+    viz.constraints_report(dc, preferred_cell_height="1000px")
 
 
 def test_double_histogram_without_height():
@@ -165,7 +167,7 @@ def test_double_histogram_without_height():
     reference_profile = __generate_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.double_histogram('uniform_integers')
+    viz.double_histogram("uniform_integers")
 
 
 def test_double_histogram_with_height():
@@ -173,7 +175,7 @@ def test_double_histogram_with_height():
     reference_profile = __generate_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.double_histogram('uniform_integers', '1000px')
+    viz.double_histogram("uniform_integers", "1000px")
 
 
 def test_distribution_chart_without_height():
@@ -181,7 +183,7 @@ def test_distribution_chart_without_height():
     reference_profile = __generate_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.distribution_chart('strings')
+    viz.distribution_chart("strings")
 
 
 def test_distribution_chart_with_height():
@@ -189,7 +191,7 @@ def test_distribution_chart_with_height():
     reference_profile = __generate_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.distribution_chart('strings', '1000px')
+    viz.distribution_chart("strings", "1000px")
 
 
 def test_difference_distribution_chart_without_height():
@@ -197,7 +199,7 @@ def test_difference_distribution_chart_without_height():
     reference_profile = __generate_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.difference_distribution_chart('strings')
+    viz.difference_distribution_chart("strings")
 
 
 def test_difference_distribution_chart_with_height():
@@ -205,4 +207,4 @@ def test_difference_distribution_chart_with_height():
     reference_profile = __generate_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.difference_distribution_chart('strings', '1000px')
+    viz.difference_distribution_chart("strings", "1000px")
