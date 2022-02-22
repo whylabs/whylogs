@@ -2944,3 +2944,30 @@ def test_multicolumn_value_constraints_serialization_deserialization():
     assert pytest.approx(sum_of_values["value"], 0.01) == 100
     assert sum_of_values["internalDependentColumnsOp"] == Op.Name(Op.SUM)
     assert sum_of_values["verbose"] is False
+
+
+def test_value_constraints_report_serialization(local_config_path, df_lending_club):
+
+    df = pd.DataFrame({"col1": list(range(100)), "col2": list(range(149, 49, -1))})
+
+    val_constraint = ValueConstraint(Op.LT, 10)
+
+    mc_val_constraint = columnValuesAGreaterThanBConstraint("col1", "col2")
+
+    value_constraints = {"col1": [val_constraint]}
+
+    dc = DatasetConstraints(None, value_constraints=value_constraints, multi_column_value_constraints=[mc_val_constraint])
+    config = load_config(local_config_path)
+    session = session_from_config(config)
+    profile = session.log_dataframe(df, "test.data", constraints=dc)
+    session.close()
+
+    report = dc.report()
+
+    val_constraint_proto = val_constraint.to_protobuf()
+    assert report[0][1][0][1] == val_constraint_proto.total == 100
+    assert report[0][1][0][2] == val_constraint_proto.failures == 90
+
+    mc_val_constraint_proto = mc_val_constraint.to_protobuf()
+    assert report[1][1] == mc_val_constraint_proto.total == 100
+    assert report[1][2] == mc_val_constraint_proto.failures == 75

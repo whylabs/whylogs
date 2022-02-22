@@ -95,6 +95,8 @@ message ValueConstraintMsg {
   }
   Op op = 3;
   bool verbose = 4;
+  uint32 total = 8;
+  uint32 failures = 9;
 }
 
 message MultiColumnValueConstraintMsg {
@@ -112,6 +114,8 @@ message MultiColumnValueConstraintMsg {
   Op op = 4;
   bool verbose = 5;
   Op internal_dependent_columns_op = 9;
+  uint32 total = 10;
+  uint32 failures = 11;
 }
 
 message ValueConstraintMsgs {

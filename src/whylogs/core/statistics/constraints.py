@@ -381,6 +381,8 @@ class ValueConstraint:
             regex_pattern=regex_pattern,
             function=apply_func,
             verbose=self._verbose,
+            total=self.total,
+            failures=self.failures,
         )
 
     def report(self):
@@ -1251,6 +1253,8 @@ class MultiColumnValueConstraint(ValueConstraint):
             reference_columns=ref_cols,
             internal_dependent_columns_op=internal_op,
             verbose=self._verbose,
+            total=self.total,
+            failures=self.failures,
         )
 
 
