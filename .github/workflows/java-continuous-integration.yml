@@ -28,12 +28,13 @@ jobs:
           - os: ubuntu-latest
             scala-version: 2.12
             spark-version: 3.2.1
-          - os: ubuntu-latest
-            scala-version: 2.13
-            spark-version: 3.2.0
-          - os: ubuntu-latest
-            scala-version: 2.13
-            spark-version: 3.2.1
+          // s/JavaConversions/CollectionConverts/ deprecation in Scala 2.13
+          //- os: ubuntu-latest
+          //  scala-version: 2.13
+          //  spark-version: 3.2.0
+          //- os: ubuntu-latest
+          //  scala-version: 2.13
+          //  spark-version: 3.2.1
     runs-on: ${{ matrix.os }}
     defaults:
       run:
