@@ -2946,7 +2946,7 @@ def test_multicolumn_value_constraints_serialization_deserialization():
     assert sum_of_values["verbose"] is False
 
 
-def test_value_constraints_report_serialization(local_config_path, df_lending_club):
+def test_value_constraints_executions_serialization(local_config_path, df_lending_club):
 
     df = pd.DataFrame({"col1": list(range(100)), "col2": list(range(149, 49, -1))})
 
@@ -2965,9 +2965,11 @@ def test_value_constraints_report_serialization(local_config_path, df_lending_cl
     report = dc.report()
 
     val_constraint_proto = val_constraint.to_protobuf()
-    assert report[0][1][0][1] == val_constraint_proto.total == 100
-    assert report[0][1][0][2] == val_constraint_proto.failures == 90
+    val_constraint_deser = ValueConstraint.from_protobuf(val_constraint_proto)
+    assert report[0][1][0][1] == val_constraint_proto.total == val_constraint_deser.total == 100
+    assert report[0][1][0][2] == val_constraint_proto.failures == val_constraint_deser.failures == 90
 
     mc_val_constraint_proto = mc_val_constraint.to_protobuf()
-    assert report[1][1] == mc_val_constraint_proto.total == 100
-    assert report[1][2] == mc_val_constraint_proto.failures == 75
+    mc_val_constraint_deser = MultiColumnValueConstraint.from_protobuf(mc_val_constraint_proto)
+    assert report[1][1] == mc_val_constraint_proto.total == mc_val_constraint_deser.total == 100
+    assert report[1][2] == mc_val_constraint_proto.failures == mc_val_constraint_deser.failures == 75

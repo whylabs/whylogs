@@ -349,7 +349,11 @@ class ValueConstraint:
         else:
             val = msg.value
 
-        return ValueConstraint(msg.op, value=val, regex_pattern=regex_pattern, apply_function=apply_function, name=name, verbose=msg.verbose)
+        constraint = ValueConstraint(msg.op, value=val, regex_pattern=regex_pattern, apply_function=apply_function, name=name, verbose=msg.verbose)
+        constraint.total = msg.total
+        constraint.failures = msg.failures
+
+        return constraint
 
     def to_protobuf(self) -> ValueConstraintMsg:
         set_vals_message = None
@@ -1203,9 +1207,13 @@ class MultiColumnValueConstraint(ValueConstraint):
                 ref_cols = "all"
         else:
             raise ValueError("MultiColumnValueConstraintMsg should contain one of the attributes: value_set, value or reference_columns, but none were found")
-        return MultiColumnValueConstraint(
+        mcv_constraint = MultiColumnValueConstraint(
             dependent_cols, msg.op, value=value, reference_columns=ref_cols, name=name, internal_dependent_cols_op=internal_op, verbose=msg.verbose
         )
+        mcv_constraint.total = msg.total
+        mcv_constraint.failures = msg.failures
+
+        return mcv_constraint
 
     def to_protobuf(self) -> MultiColumnValueConstraintMsg:
         value = None
