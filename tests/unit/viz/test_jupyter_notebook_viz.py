@@ -1,9 +1,8 @@
 import datetime
 import os
-from collections import OrderedDict
 
 import numpy as np
-from faker import Faker
+import pandas as pd
 
 from whylogs import get_or_create_session
 from whylogs.core.statistics.constraints import (
@@ -23,17 +22,9 @@ from whylogs.viz import NotebookProfileViewer
 def __generate_target_profile():
 
     session = get_or_create_session()
-    locales = OrderedDict(
-        [
-            ("en-US", 1),
-            ("fr-FR", 2),
-            ("ja_JP", 2),
-        ]
-    )
-    fake = Faker(locales)
+
     with session.logger("mytestytest", dataset_timestamp=datetime.datetime(2021, 6, 2)) as logger:
         for _ in range(5):
-            logger.log({"strings": fake.name()})
             logger.log({"uniform_integers": np.random.randint(0, 50)})
             logger.log({"nulls": None})
 
@@ -43,21 +34,39 @@ def __generate_target_profile():
 def __generate_reference_profile():
 
     session = get_or_create_session()
-    locales = OrderedDict(
-        [
-            ("en-US", 1),
-            ("fr-FR", 2),
-            ("ja_JP", 2),
-        ]
-    )
-    fake = Faker(locales)
+
     with session.logger("mytestytest", dataset_timestamp=datetime.datetime(2021, 6, 2)) as logger:
         for _ in range(5):
-            logger.log({"strings": fake.name()})
             logger.log({"uniform_integers": np.random.randint(0, 50)})
             logger.log({"nulls": None})
 
         return logger.profile
+
+
+def __generate_categorical_target_profile():
+    session = get_or_create_session()
+    credit_cards = pd.DataFrame(
+        [
+            {"credit_card": "3714-496353-98431"},
+            {"credit_card": "3787 344936 71000"},
+            {"credit_card": "3056 930902 5904"},
+            {"credit_card": "3065 133242 2899"},
+        ]
+    )
+    return session.log_dataframe(credit_cards, "test.data")
+
+
+def __generate_categorical_reference_profile():
+    session = get_or_create_session()
+    credit_cards = pd.DataFrame(
+        [
+            {"credit_card": "6011 1111 1111 1117"},
+            {"credit_card": "6011-0009-9013-9424"},
+            {"credit_card": "3530 1113 3330 0000"},
+            {"credit_card": "3566-0020-2036-0505"},
+        ]
+    )
+    return session.log_dataframe(credit_cards, "test.data")
 
 
 def _get_sample_dataset_constraints():
@@ -179,32 +188,32 @@ def test_double_histogram_with_height():
 
 
 def test_distribution_chart_without_height():
-    target_profile = __generate_target_profile()
-    reference_profile = __generate_reference_profile()
+    target_profile = __generate_categorical_target_profile()
+    reference_profile = __generate_categorical_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.distribution_chart("strings")
+    viz.distribution_chart("credit_card")
 
 
 def test_distribution_chart_with_height():
-    target_profile = __generate_target_profile()
-    reference_profile = __generate_reference_profile()
+    target_profile = __generate_categorical_target_profile()
+    reference_profile = __generate_categorical_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.distribution_chart("strings", "1000px")
+    viz.distribution_chart("credit_card", "1000px")
 
 
 def test_difference_distribution_chart_without_height():
-    target_profile = __generate_target_profile()
-    reference_profile = __generate_reference_profile()
+    target_profile = __generate_categorical_target_profile()
+    reference_profile = __generate_categorical_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.difference_distribution_chart("strings")
+    viz.difference_distribution_chart("credit_card")
 
 
 def test_difference_distribution_chart_with_height():
-    target_profile = __generate_target_profile()
-    reference_profile = __generate_reference_profile()
+    target_profile = __generate_categorical_target_profile()
+    reference_profile = __generate_categorical_reference_profile()
     viz = NotebookProfileViewer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
-    viz.difference_distribution_chart("strings", "1000px")
+    viz.difference_distribution_chart("credit_card", "1000px")
