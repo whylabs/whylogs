@@ -16,7 +16,6 @@ jobs:
           - os: ubuntu-latest
             scala-verison: 2.12
             spark-version: [3.0.3, 3.1.1, 3.1.3]
-        include:
           - os: ubuntu-latest
             scala-verison: [2.12, 2.13]
             spark-version: [3.2.0, 3.2.1]
