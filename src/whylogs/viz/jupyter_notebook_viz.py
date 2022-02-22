@@ -40,7 +40,6 @@ class NotebookProfileViewer:
     def __get_template_path(self, html_file_name):
         template_path = os.path.abspath(os.path.join(
             _MY_DIR, os.pardir, "viewer/templates", html_file_name))
-        print(_MY_DIR)
         return template_path
 
     def __get_compiled_template(self, template_name):
