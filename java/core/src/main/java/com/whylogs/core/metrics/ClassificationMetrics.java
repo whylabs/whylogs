@@ -235,8 +235,7 @@ public class ClassificationMetrics {
 
     if (msg.getLabelsCount() == 0 && msg.getScoresCount() > 0) {
       // Not valid to have score without labels.
-      log.warn("Skipping classification ScoreMatrix: has scores but no labels");
-      return null;
+      throw new IllegalArgumentException("classification ScoreMatrix: has scores but no labels");
     }
 
     final int n = labels.size();

@@ -82,8 +82,7 @@ public class RegressionMetrics {
     }
 
     if ("".equals(msg.getPredictionField()) || "".equals(msg.getTargetField())) {
-      log.warn("Skipping Regression metrics: prediction or target field not set");
-      return null;
+      throw new IllegalArgumentException("Regression metrics: prediction or target field not set");
     }
 
     val res = new RegressionMetrics(msg.getPredictionField(), msg.getTargetField());
