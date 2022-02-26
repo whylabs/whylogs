@@ -943,40 +943,30 @@
       const driftCountElement = (driftCount, driftColor, driftName, driftRange) => `
       <div class="display-flex flex-direction-column">
         <div class="drift-detection-info-drifts-item display-flex align-items">
-          <div class="drift-detection-info-circle ${driftColor}"></div>
           <div class="drift-detection-info-drifts-item-text display-flex align-items">
             <p class="drift-detection-info-drifts-item-count mb-0">${driftCount}</p>
-            <p class="drift-detection-info-drifts-item-name  mb-0">${driftName}</p>
+            <p class="drift-detection-info-drifts-item-range display-flex justify-content-center mb-0">${driftRange}</p>
           </div>
         </div>
-        <p class="drift-detection-info-drifts-item-range display-flex justify-content-center mb-0">(${driftRange})</p>
       </div>
       `
 
       const drifts = {
         severe: {
           count: 0,
-          range: "0 - 0.05",
-          name: "Severe drift",
-          colorClass: "severe-drift-circle-color"
+          range: "with severe drift (0.00 - 0.05)",
         },
         moderate: {
           count: 0,
-          range: "0.05 - 0.3",
-          name: "Moderate drift",
-          colorClass: "moderate-drift-circle-color"
+          range: "with moderate drift (0.05 - 0.3)",
         },
         mild: {
           count: 0,
-          range: "0.3 - 0.6",
-          name: "Mild drift",
-          colorClass: "mild-drift-circle-color"
+          range: "with mild drift (0.3 - 0.6)",
         },
         minimal: {
           count: 0,
-          range: "0.6 - 1",
-          name: "Minimal drift",
-          colorClass: "minimal-drift-circle-color"
+          range: "with minimal drift (0.6 - 1.0)",
         }
       };
 
