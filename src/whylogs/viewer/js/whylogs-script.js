@@ -205,6 +205,8 @@
     }
   }
 
+  const rectColors = ["#44C0E7", "#F5843C"]
+
   function getGraphHtml(data, height = 75, width = 350, index = 0, referenceProfile = false, propertyPanelGraph = false) {
     const sizes = new GenerateChartParams(height, width, data, 5)
     let {
@@ -215,7 +217,6 @@
       xScale,
       yScale
     } = sizes
-    const color = ["#369BAC", '#2683C9']
 
     if (propertyPanelGraph) {
      svgEl = d3.create("svg").attr("width", width).attr("height", height);
@@ -240,7 +241,7 @@
       .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
       .attr("x", (d) => xScale(d.axisX))
       .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-      .attr("fill", color[index]);
+      .attr("fill", rectColors[index]);
 
     return svgEl._groups[0][0].outerHTML;
   }
@@ -305,8 +306,8 @@
       .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
       .attr("x", (d) => xScale(d.axisX))
       .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-      .attr("fill", "#369BAC")
-      .style("opacity","0.6");
+      .attr("fill", rectColors[0])
+      .style("opacity","0.8");
 
       const gChart1 = svgEl.append("g");
       gChart1
@@ -319,8 +320,8 @@
         .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
         .attr("x", (d) => xScale(d.axisX))
         .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-        .attr("fill", "#2683C9")
-        .style("opacity", "0.6");
+        .attr("fill", rectColors[1])
+        .style("opacity", "0.8");
 
     return svgEl._groups[0][0].outerHTML;
   }
@@ -392,7 +393,7 @@
     // color palette = one color per subgroup
     const color = d3.scaleOrdinal()
       .domain(subgroups)
-      .range(['#369BAC', '#2683C9'])
+      .range(rectColors)
 
     svgEl.append("g")
        .selectAll("g")
@@ -409,7 +410,7 @@
          .attr("width", xSubgroup.bandwidth())
          .attr("height", function(d) { return (CHART_HEIGHT - yScale(d.value)); })
          .attr("fill", function(d) { return color(d.key); })
-         .style("opacity", "0.6");
+         .style("opacity", "0.8");
 
 
      return svgEl._groups[0][0].outerHTML;
@@ -440,6 +441,7 @@
     .attr("viewBox", "0 0 600 400")
     .classed("svg-content-responsive", true)
 
+    const rectColors = ["bar negative", "bar positive"]
     const y0 = Math.max(Math.abs(d3.min(data)), Math.abs(d3.max(data)));
 
     const yScale = d3.scaleLinear()
@@ -483,11 +485,12 @@
     svgEl.selectAll(".bar")
         .data(data)
       .enter().append("rect")
-        .attr("class", function(d) { return d < 0 ? "bar negative" : "bar positive"; })
+        .attr("class", function(d) { return d < 0 ? rectColors[0] : rectColors[1]; })
         .attr("y", function(d) { return yScale(Math.max(0, d)); })
         .attr("x", function(d, i) { return xScale(i); })
         .attr("height", function(d) { return Math.abs(yScale(d) - yScale(0)); })
-        .attr("width", xScale.bandwidth());
+        .attr("width", xScale.bandwidth())
+        .style("opacity", "0.8")
 
         return svgEl._groups[0][0].outerHTML;
   }
@@ -498,8 +501,8 @@
     colorsForDistingushingChartHTMLElement +=`
       <p>Data Distribution Chart</p>
       <div class="display-flex">
-        ${colorsForDistingushingCharts("#369BAC", "Current")}
-        ${colorsForDistingushingCharts("#2683C9", "Reference")}
+        ${colorsForDistingushingCharts("#44C0E7", "Current")}
+        ${colorsForDistingushingCharts("#F5843C", "Reference")}
       </div>
     `
     $(".clickable-test-feature-body").html(`

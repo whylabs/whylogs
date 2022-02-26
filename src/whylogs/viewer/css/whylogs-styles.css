@@ -1139,11 +1139,11 @@ input::placeholder {
 }
 
 .bar.positive {
-  fill: #369BACB2;
+  fill: #44C0E7;
 }
 
 .bar.negative {
-  fill: #2683C9E5;
+  fill: #F5843C;
 }
 
 .frequent-item-box {
