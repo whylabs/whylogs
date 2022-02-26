@@ -325,14 +325,6 @@
         color: var(--secondaryLight1000);
       }
 
-      .bar.positive {
-        fill: #369BACB2;
-      }
-
-      .bar.negative {
-        fill: #2683C9E5;
-      }
-
       .text-align-center {
         text-align: center;
       }
@@ -509,8 +501,8 @@
 
       .notif-circle-container{
         position: absolute;
-        top: 20px;
-        right: 15px;
+        top: -4px;
+        right: -4px;
         padding: 5.3px;
         border-radius: 50%;
         background-color: white;
@@ -896,7 +888,7 @@
           xScale,
           yScale
         } = sizes
-        const color = ["#369BAC", '#2683C9']
+        const rectColors = ["#44C0E7", "#F5843C"]
 
         // Add the y Axis
         if (!referenceProfileExist) {
@@ -920,7 +912,7 @@
           .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
           .attr("x", (d) => xScale(d.axisX))
           .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-          .attr("fill", color[index]);
+          .attr("fill", rectColors[index]);
 
         return svgEl._groups[0][0].outerHTML;
       }
