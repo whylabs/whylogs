@@ -251,10 +251,10 @@
       function chartData(column) {
         const data = [];
         if (column.numberSummary?.histogram) {
-          for (let i = 0; i<column.numberSummary.histogram.counts.length; i++) {
+          for (let i = 0; i<column.numberSummary.histogram.bins.length; i++) {
             data.push({
-              axisY: column.numberSummary.histogram.counts[i],
-              axisX: parseFloat(column.numberSummary.histogram.bins[i]).toFixed(2),
+              axisY: column.numberSummary.histogram.counts[i] || 0,
+              axisX: parseFloat(column.numberSummary.histogram.bins[i]).toFixed(2) || 0,
             });
           }
         } else {
@@ -328,8 +328,8 @@
           .style("font-size", "15")
           .style("opacity", "0.6")
 
-          const width_b1 = histogramData[1].axisX - histogramData[0].axisX;
-          const width_b2 = overlappedHistogramData[1].axisX - overlappedHistogramData[0].axisX;
+          const width_b1 = histogramData[1]?.axisX - histogramData[0]?.axisX || histogramData[0].axisX;
+          const width_b2 = overlappedHistogramData[1]?.axisX - overlappedHistogramData[0]?.axisX || overlappedHistogramData[0].axisX;
 
           const gChart = svgEl.append("g");
           gChart
@@ -357,7 +357,7 @@
           .append("rect")
           .style("stroke", "#021826")
           .classed("bar", true)
-          .attr("width", function(d) { return xScale(width_b1) - 1; })
+          .attr("width", function(d) { return xScale(width_b2) - 1; })
           .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
           .attr("x", 1)
           .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
