@@ -145,6 +145,14 @@
        fill: #F5843C;
      }
 
+     .error-message {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       color: rgb(255, 114, 71);
+       font-size: 30px;
+       font-weight: 900;
+     }
 
      @media screen and (min-width: 500px) {
        .desktop-content {
@@ -389,11 +397,21 @@
 
       Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => {
         const columnKey = key.data.key
-        if (profileFromCSVfile) {
-          return generatePositiveNegativeChart(
-                   column,
-                   profileFromCSVfile[columnKey]
-                 )
+        try {
+          if (profileFromCSVfile) {
+            return generatePositiveNegativeChart(
+                     column,
+                     profileFromCSVfile[columnKey]
+                   )
+          }
+        } catch (err) {
+          $(document).ready(() => 
+            $(".desktop-content").html(`
+              <p style="height: ${$(window).height()}px" class="error-message"> 
+                Something went wrong. Please try again.
+              </p>
+            `)
+          )
         }
       });
     }
