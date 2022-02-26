@@ -163,6 +163,10 @@
         padding-top: 35px; /* cell-top-padding + cell-title-height */
       }
 
+      .wl-table-head-wraper {
+        background-color: var(--white);
+      }
+
       .wl-table-head {
         position: sticky;
         left: 0;
@@ -172,6 +176,10 @@
         font-size: 12px;
         line-height: 1.67;
         white-space: nowrap;
+      }
+
+      .wl-sub-table-head {
+        position: relative;
       }
 
       .wl-table-body {
@@ -496,6 +504,10 @@
         min-width: 250px;
       }
 
+      .wl__dropdown_arrow-icon {
+        position: relative;
+      }
+
       .notif-circle-container{
         position: absolute;
         top: 20px;
@@ -549,6 +561,24 @@
         font-size: 15px !important;
       }
 
+      .question-mark {
+        font-size: 10px;
+        font-weight: 900;
+        color: #0E7384;
+        border-radius: 50px;
+        border: 2px solid #0E7384;
+        padding: 0px 4px;
+        transition: 0.5s;
+        cursor: pointer;
+      }
+
+      .question-mark:hover {
+        color: white;
+        background: #0E7384;
+        border: 2px solid none;
+        transition: 0.5s;
+      }
+
       .tooltip-full-number {
         position: relative;
         display: inline-block;
@@ -556,10 +586,10 @@
 
       .tooltip-full-number .tooltiptext {
         visibility: hidden;
-        background-color: #0E7384;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
         padding: 3px;
         position: absolute;
         z-index: 1;
@@ -739,13 +769,22 @@
                 <div class="wl-table">
                   <div class="wl-table-heading">
                     <div class="wl-table-row wl-table-row--bottom-shadow">
-                      <div class="wl-table-head">
+                      <div class="wl-table-head wl-table-head-wraper">
                         <div class="wl-table-head table-border-none graph-table-head">Feature</div>
                         <div class="wl-table-head table-border-none reference-table-head">Reference</div>
                       </div>
-                      <div class="wl-table-head text-align-center" id="diff-from-ref">Diff from ref</div>
-                      <div class="wl-table-head text-align-center">Total count</div>
-                      <div class="wl-table-head text-align-center">Mean</div>
+                      <div class="wl-table-head wl-sub-table-head text-align-center" id="diff-from-ref">
+                        Diff from ref.
+                        <div class="tooltip-full-number">
+                            <span class="question-mark">?</span>
+                          <span class="tooltiptext">
+                           <div class="mb-1">Lorem Ipsum is simply dummy</div> 
+                           <div>text of the printing and typesetting.</div>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="wl-table-head wl-sub-table-head text-align-center">Total count</div>
+                      <div class="wl-table-head wl-sub-table-head text-align-center">Mean</div>
                     </div>
                   </div>
                   <ul class="wl-table-body wl__table-body" id="table-body">
@@ -1022,15 +1061,13 @@
      }
 
      const valueSuffixe = (newNumber) => `
-     <div class="statistic-measurement">
-      ${newNumber}
-     </div>
-     `
+       <div class="statistic-measurement">
+        ${newNumber}
+       </div>`
      const valueNumber = (newNumber) => `
-     <div class="statistic-number">
-      ${newNumber}
-     </div>
-     `
+       <div class="statistic-number">
+        ${newNumber}
+       </div>`
 
      const numberWithSuffixe = (number, newNumber, suffixe) =>
        `<div class="tooltip-full-number">
