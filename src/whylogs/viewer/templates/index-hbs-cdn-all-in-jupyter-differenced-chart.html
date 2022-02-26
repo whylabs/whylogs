@@ -204,7 +204,10 @@
 
       const findAndDeleteUndefined = (axisData) => {
         const undefinedAxisIndex = axisData.findIndex((axis) => axis === undefined)
-        return [...axisData.slice(0, undefinedAxisIndex), ...axisData.slice(undefinedAxisIndex + 1)]
+        if (undefinedAxisIndex > 0) {
+          return [...axisData.slice(0, undefinedAxisIndex), ...axisData.slice(undefinedAxisIndex + 1)]
+        }
+        return axisData
       }
 
       const filterAndSortChartData = (overlappedHistogramData, histogramData) => {
@@ -246,7 +249,7 @@
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
             .scaleBand()
-            .domain(filterAndSortChartData(data, referenceData).map((sortedCounts) => sortedCounts.axisX))
+            .domain(filterAndSortChartData(data, referenceData).map((sortedCounts) => sortedCounts && sortedCounts.axisX))
             .rangeRound([this.MARGIN.LEFT, this.SVG_WIDTH])
             .padding([0.1]);
           this.yScale = d3
@@ -258,21 +261,42 @@
 
       function chartData(column) {
         const data = [];
+          if (column.stringSummary?.frequent) {
             Object.entries(column.stringSummary.frequent.items).forEach(([key, {value, estimate}], index) => {
               data.push({
                 axisY: estimate,
                 axisX: value,
               });
             });
+          } else if (column.stringSummary?.charPosTracker){
+            Object.entries(column.stringSummary.charPosTracker.charPosMap).forEach(([key, {count}], index) => {
+              data.push({
+                axisY: count,
+                axisX: key,
+              });
+            });
+          } else {
+            $(document).ready(() => 
+              $(".desktop-content").html(`
+                <p style="height: ${$(window).height()}px" class="error-message"> 
+                  Something went wrong. Please try again.
+                </p>
+              `)
+            )
+          }
+
         return data
       }
 
       function generatePositiveNegativeChart(histogramData, overlappedHistogramData) {
-        const data = filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData)).map((axis, index) => {
-          const findIndex = chartData(histogramData).findIndex((value) => value.axisX === axis.axisX)
-          const difference = axis.axisY - chartData(histogramData)[findIndex].axisY
-          return [difference]
-        }).flat()
+          const data = filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData)).map((axis, index) => {
+            if (axis) {
+              const findIndex = chartData(histogramData).findIndex((value) => value.axisX === axis.axisX)
+              const difference = axis.axisY - chartData(histogramData)[findIndex].axisY
+              return [difference]
+            }
+            return 0;
+          }).flat()
 
         let yFormat,
             xFormat;
@@ -288,13 +312,14 @@
          svgEl
         } = sizes
 
+        const rectColors = ["bar positive", "bar negative"]
         const maxY = Math.abs(d3.max(data));
         const minY = Math.abs(d3.min(data));
         let positiveY = Math.ceil(maxY) % 1 ? maxY + 2*(maxY/(maxY*10)) : maxY + 2*(maxY/(maxY/10)),
             negativeY = Math.ceil(minY) % 1 ? minY + 2*(minY/(minY*10)) : minY + 2*(minY/(minY/10));
 
         const yScale = d3.scaleLinear()
-            .domain([-negativeY, positiveY ])
+            .domain([-negativeY, positiveY || 0])
             .range([CHART_HEIGHT,0])
 
         const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
@@ -314,15 +339,15 @@
           .attr("fill", "currentColor")
           .attr("text-anchor", "start"));
 
-          svgEl.append("text")
+          svgEl.append("text")             
           .attr("transform",
-                "translate(" + (CHART_WIDTH/2) + " ," +
+                "translate(" + (CHART_WIDTH/2) + " ," + 
                                (CHART_HEIGHT + MARGIN.TOP + 30) + ")")
           .style("text-anchor", "middle")
           .text("Values")
           .style("font-size", "15")
           .style("opacity", "0.6")
-
+  
         svgEl.append("text")
           .attr("transform", "rotate(-90)")
           .attr("y", 0)
@@ -330,7 +355,7 @@
           .attr("dy", "1em")
           .style("text-anchor", "middle")
           .text("Counts")
-          .style("font-size", "15")
+          .style("font-size", "15")   
           .style("opacity", "0.6")
 
           svgEl
@@ -348,14 +373,14 @@
         svgEl.selectAll(".bar")
             .data(data)
           .enter()
-          .append("g")
-             .attr("transform", function(d, i) { return "translate(" + xScale(filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData))[i].axisX) + ",0)"; })
           .append("rect")
-            .attr("class", function(d) { return d < 0 ? "bar negative" : "bar positive"; })
+            .attr("class", function(d) { return d < 0 ? rectColors[0] : rectColors[1]; })
             .attr("y", function(d) { return yScale(Math.max(0, d)); })
-            .attr("x", function(d, i) { return xScale(i) })
+            .attr("x", function(d, i) { return xScale(filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData))[i]?.axisX) })
             .attr("height", function(d) { return Math.abs(yScale(d) - yScale(0)); })
-            .attr("width", xScale.bandwidth());
+            .attr("width", xScale.bandwidth())
+            .style("opacity", "0.8")
+            
 
             return svgEl._groups[0][0].outerHTML;
       }
