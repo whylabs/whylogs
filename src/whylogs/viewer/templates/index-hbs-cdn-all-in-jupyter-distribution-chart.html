@@ -117,7 +117,7 @@
      }
 
      .chart-box-title {
-       width: 98%;
+       width: 88%;
        justify-content: space-between;
        margin: 10px;
        margin-top: 15px;
@@ -132,6 +132,17 @@
        line-height: 16px;
        color: #4F595B;
      }
+    
+    .bar {
+      font: 10px sans-serif;
+    }
+  
+    .bar path,
+    .bar line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
 
      @media screen and (min-width: 500px) {
        .desktop-content {
@@ -154,11 +165,11 @@
                   <p>{{@key}}</p>
                   <div class="display-flex">
                     <div class="colors-for-distingushing-charts">
-                      <div class="circle-color" style="background: #369BAC"></div>
+                      <div class="circle-color" style="background: #44C0E7;"></div>
                       <text alignment-baseline="middle" style="font-size: 15px;">Current</text>
                     </div>
                     <div class="colors-for-distingushing-charts">
-                      <div class="circle-color" style="background: #2683C9"></div>
+                      <div class="circle-color" style="background: #F5843C"></div>
                       <text alignment-baseline="middle" style="font-size: 15px;">Reference</text>
                     </div>
                   </div></div>
@@ -201,57 +212,64 @@
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
           this.svgEl = d3.create("svg")
              .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `20 0 ${$(window).width()} ${$(window).height()-30}`)
+             .attr("viewBox", `0 0 ${$(window).width()+100} ${$(window).height()-30}`)
              .classed("svg-content-responsive", true)
           this.maxYValue = d3.max(targetData, (d) => Math.abs(d.axisY));
-          const mergedData = targetData.concat(referenceData).map(a => {
-            return a.axisX
+          this.minYValue = d3.min(targetData, (d) => Math.abs(d.axisY));
+          const mergedReferenceData = referenceData.map(({axisX, axisY}) => {
+            return {axisX, axisY}
           })
-          const mergedAndSortedData = mergedData.sort(function(a, b) { return a - b; });
+          const mergedTargetedData = targetData.map(({axisX, axisY}) => {
+            return {axisX, axisY}
+          })
+
+          this.charts2 = mergedReferenceData.concat(mergedTargetedData)
+          this.charts2 = this.charts2.sort(function(a, b) { return a - b; });
+
           this.xScale = d3
-            .scaleBand()
-            .domain(mergedAndSortedData.map((d) => d))
-            .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
-          this.yScale = d3
-            .scaleLinear()
-            .domain([0, this.maxYValue * 1.2])
-            .range([this.CHART_HEIGHT, 0]);
+              .scaleLinear()
+         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisX) + 2; })])     // I was too lazy to do basic math of max(bin_start + width for each distribution)
+         .range([0, this.CHART_WIDTH ]);
+         this.svgEl.append("g")
+             .attr("transform", "translate("+ this.MARGIN.LEFT +"," + this.SVG_HEIGHT + ")")
+             .call(d3.axisBottom(this.xScale));
+          this.yScale = d3.scaleLinear()
+              .range([this.CHART_HEIGHT , 0])
+              this.yScale.domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisY); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisY); })]);
         }
       }
 
-      function chartData(column, startIndex) {
+      function chartData(column) {
         const data = [];
-        for (let i = 0; i<column.numberSummary.histogram.counts.length; i++) {
-          data.push({
-            axisY: column.numberSummary.histogram.counts[i] || 0,
-            axisX: parseFloat(column.numberSummary.histogram.bins[i]).toFixed(2),
-          });
-        }
+        if (column.numberSummary?.histogram) {
+          for (let i = 0; i<column.numberSummary.histogram.counts.length; i++) {
+            data.push({
+              axisY: column.numberSummary.histogram.counts[i],
+              axisX: parseFloat(column.numberSummary.histogram.bins[i]).toFixed(2),
+            });
+          }
+        } else {
+            $(document).ready(() => 
+              $(".desktop-content").html(`
+                <p style="height: ${$(window).height()}px" class="error-message"> 
+                  Something went wrong. Please try again.
+                </p>
+              `)
+            )
+          }
+
         return data
       }
 
       function generateDoubleHistogramChart(targetData, referenceData) {
         let histogramData = [],
             overlappedHistogramData = [];
+        let yFormat;
 
-        const targetedProfileMin = targetData.numberSummary.histogram.min < 0 ?
-          targetData.numberSummary.histogram.min.toFixed(1) * 10 * -1 :
-          targetData.numberSummary.histogram.min.toFixed(1) * 10
+        histogramData = chartData(targetData)
+        overlappedHistogramData = chartData(referenceData)
 
-        const referenceProfileMin = referenceData.numberSummary.histogram.min < 0 ?
-          referenceData.numberSummary.histogram.min.toFixed(1) * 10 * -1 :
-          referenceData.numberSummary.histogram.min.toFixed(1) * 10
-
-        const chartsStartPoint = []
-        targetedProfileMin > referenceProfileMin ?
-        chartsStartPoint.push(Math.ceil(targetedProfileMin-referenceProfileMin), 0):
-        chartsStartPoint.push(0, Math.ceil(referenceProfileMin-targetedProfileMin))
-        histogramData = chartData(targetData, chartsStartPoint[0], 'original_profile')
-        overlappedHistogramData = chartData(referenceData, chartsStartPoint[1], 'ref_profile')
-
-        let yFormat,
-            xFormat;
-        const sizes = new GenerateChartParams($(window).height()-55, $(window).width(), histogramData, overlappedHistogramData)
+        const sizes = new GenerateChartParams($(window).height()-80, $(window).width(), histogramData, overlappedHistogramData)
         const {
           MARGIN,
           SVG_WIDTH,
@@ -260,16 +278,17 @@
           CHART_HEIGHT,
           svgEl,
           maxYValue,
+          minYValue,
           xScale,
           yScale
         } = sizes
 
-        const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH, xFormat).tickSizeOuter(0);
+        const rectColors = ["#44C0E7", "#F5843C"]
         const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
         yFormat = yScale.tickFormat(100, yFormat);
 
         svgEl.append("g")
-          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
           .call(yAxis)
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick line")
@@ -279,50 +298,64 @@
               .attr("x", -MARGIN.LEFT)
               .attr("y", 10)
               .attr("fill", "currentColor")
-              .attr("text-anchor", "start"));
+              .attr("text-anchor", "start"))
 
-        svgEl.append("g")
-          .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
-          .call(xAxis)
-            .selectAll("text")
-              .attr("dy", "-.6em")
-              .attr("dx", "-.8em")
-              .attr("transform", "rotate(-90)")
-              .style("text-anchor", "end")
-          .call(g => g.select(".domain").remove())
-          .call(g => g.selectAll(".tick line").remove())
-          .call(g => g.append("text")
-            .attr("fill", "currentColor")
-            .attr("text-anchor", "end"))
-            .style("font-size", "10")
+        svgEl.append("text")
+          .attr("transform",
+                "translate(" + (CHART_WIDTH/2) + " ," +
+                               (CHART_HEIGHT + MARGIN.TOP + 75) + ")")
+          .style("text-anchor", "middle")
+          .text("Values")
+          .style("font-size", "15")
+          .style("opacity", "0.6")
+
+        svgEl.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0)
+          .attr("x", 0 - (SVG_HEIGHT / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Counts")
+          .style("font-size", "15")
+          .style("opacity", "0.6")
+
+          const width_b1 = histogramData[1].axisX - histogramData[0].axisX;
+          const width_b2 = overlappedHistogramData[1].axisX - overlappedHistogramData[0].axisX;
 
           const gChart = svgEl.append("g");
           gChart
+          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
           .selectAll(".bar")
           .data(histogramData)
           .enter()
           .append("rect")
+          .style("stroke", "#021826")
           .classed("bar", true)
-          .attr("width", xScale.bandwidth())
-          .attr("height", (d) => ((CHART_HEIGHT - yScale(d.axisY)) < 0 || d.axisY === 0 ? 0 : (CHART_HEIGHT - yScale(d.axisY))))
-          .attr("x", (d) => xScale(d.axisX))
-          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-          .attr("fill", "#2683C9")
-          .style("opacity","0.6");
+          .attr("width", function(d) { return xScale(width_b1) - 1; })
+          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("x", 1)
+          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
+          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr("fill", rectColors[0])
+          .style("opacity","0.8")
 
           const gChart1 = svgEl.append("g");
           gChart1
-            .selectAll(".bar")
-            .data(overlappedHistogramData)
-            .enter()
-            .append("rect")
-            .classed("bar", true)
-            .attr("width", xScale.bandwidth())
-            .attr("height", (d) => ((CHART_HEIGHT - yScale(d.axisY)) < 0 || d.axisY === 0 ? 0 : (CHART_HEIGHT - yScale(d.axisY))))
-            .attr("x", (d) => xScale(d.axisX))
-            .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-            .attr("fill", "#369BAC")
-            .style("opacity", "0.6");
+          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
+          .selectAll(".bar")
+          .data(overlappedHistogramData)
+          .enter()
+          .append("rect")
+          .style("stroke", "#021826")
+          .classed("bar", true)
+          .attr("width", function(d) { return xScale(width_b1) - 1; })
+          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("x", 1)
+          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
+          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr("fill", rectColors[1])
+          .style("opacity","0.8")
+
         return svgEl._groups[0][0].outerHTML;
       }
 
