@@ -171,7 +171,6 @@
         position: sticky;
         left: 0;
         min-width: 100px;
-        background-color: var(--white);
         border-bottom: 2px solid var(--brandSecondary100);
         font-size: 12px;
         line-height: 1.67;
@@ -417,7 +416,7 @@
        border: 1px solid #DBE5E7;
        box-sizing: border-box;
        border-radius: 4px;
-       width: 240px;
+       width: 170px;
        padding-left: 10px;
      }
 
@@ -632,6 +631,10 @@
         padding-right: 30px;
       }
 
+      .padding-5 {
+        padding: 5px;
+      }
+
       .text-color {
         color: var(--secondaryLight1000);
       }
@@ -644,7 +647,6 @@
           display: none;
         }
       }
-
     </style>
   </head>
 
@@ -808,13 +810,13 @@
                       <div
                         class="diff-from-ref-table-cell wl-table-cell wl-table-cell--top-spacing align-middle"
                         style="max-width: 270px; padding-right: 18px"
-                      ><div class="wl-table-cell__bedge-wrap">
+                      ><div class="wl-table-cell__bedge-wrap text-align-end">
                            {{{getDiffFromRef this}}}
                         </div></div><div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle"
-                      ><div class="text-align-center">{{totalCount this}}</div></div><div
+                      ><div class="text-align-end">{{totalCount this}}</div></div><div
                         class="wl-table-cell wl-table-cell--top-spacing align-middle"
-                      ><div class="text-align-center">{{mean this}}</div></div>
+                      ><div class="text-align-end">{{mean this}}</div></div>
                     </li>
                     {{/each}}
                   </ul>
