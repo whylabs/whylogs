@@ -254,7 +254,7 @@
           for (let i = 0; i<column.numberSummary.histogram.bins.length; i++) {
             data.push({
               axisY: column.numberSummary.histogram.counts[i] || 0,
-              axisX: parseFloat(column.numberSummary.histogram.bins[i]).toFixed(2) || 0,
+              axisX: column.numberSummary.histogram.bins[i] || 0,
             });
           }
         } else {
@@ -328,8 +328,13 @@
           .style("font-size", "15")
           .style("opacity", "0.6")
 
-          const width_b1 = histogramData[1]?.axisX - histogramData[0]?.axisX || histogramData[0].axisX;
-          const width_b2 = overlappedHistogramData[1]?.axisX - overlappedHistogramData[0]?.axisX || overlappedHistogramData[0].axisX;
+          let width_b1 = histogramData[1]?.axisX,
+              width_b2 = overlappedHistogramData[1]?.axisX;
+
+          if (histogramData[0]?.axisX !== overlappedHistogramData[0]?.axisX) {
+              width_b1 = histogramData[1]?.axisX - histogramData[0]?.axisX,
+              width_b2 = overlappedHistogramData[1]?.axisX - overlappedHistogramData[0]?.axisX
+          } 
 
           const gChart = svgEl.append("g");
           gChart
