@@ -145,7 +145,6 @@
        fill: #2683C9E5;
      }
 
-
      @media screen and (min-width: 500px) {
        .desktop-content {
          display: block;
@@ -200,6 +199,7 @@
 
   <script>
    function registerHandlebarHelperFunctions() {
+     
     const findAndDeleteUndefined = (axisData) => {
       const undefinedAxisIndex = axisData.findIndex((axis) => axis === undefined)
       return [...axisData.slice(0, undefinedAxisIndex), ...axisData.slice(undefinedAxisIndex + 1)]
@@ -244,7 +244,7 @@
           this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
           this.xScale = d3
             .scaleBand()
-            .domain(filterAndSortChartData(data, referenceData).map((sortedCounts) => sortedCounts.axisX))
+            .domain(filterAndSortChartData(data, referenceData).map((sortedCounts) => sortedCounts?.axisX))
             .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
           this.yScale = d3
             .scaleLinear()
@@ -255,14 +255,33 @@
 
       function chartData(column) {
         const data = [];
+          if (column.stringSummary?.frequent) {
             Object.entries(column.stringSummary.frequent.items).forEach(([key, {value, estimate}], index) => {
               data.push({
                 axisY: estimate,
                 axisX: value,
               });
             });
+          } else if (column.stringSummary?.charPosTracker){
+            Object.entries(column.stringSummary.charPosTracker.charPosMap).forEach(([key, {count}], index) => {
+              data.push({
+                axisY: count,
+                axisX: key,
+              });
+            });
+          } else {
+            $(document).ready(() => 
+              $(".desktop-content").html(`
+                <p style="height: ${$(window).height()}px" class="error-message"> 
+                  Something went wrong. Please try again.
+                </p>
+              `)
+            )
+          }
+
         return data
       }
+
 
       function CheckNumberSummary(column) {
         if (column.numberSummary) {
@@ -276,14 +295,17 @@
         let yFormat,
             xFormat;
         const data = filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData)).map((axis, index) => {
-          const findIndex = chartData(histogramData).findIndex((value) => value.axisX === axis.axisX)
-          return {
-            group: axis.axisX,
-            profile: axis.axisY,
-            reference_profile: chartData(histogramData)[findIndex].axisY
+          if (axis) {
+            const findIndex = chartData(histogramData).findIndex((value) => value.axisX === axis.axisX)
+            return {
+              group: axis.axisX,
+              profile: axis.axisY,
+              reference_profile: chartData(histogramData)[findIndex].axisY
+            }
           }
+          return 0;
         })
-
+    
         const sizes = new GenerateChartParams($(window).height()-60, $(window).width(), chartData(histogramData), chartData(overlappedHistogramData))
         let {
           MARGIN,
@@ -297,13 +319,13 @@
         } = sizes
 
         const subgroups = ['reference_profile', 'profile']
-
+    
         xScale.padding([0.3])
-
+    
         const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
         const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
         yFormat = yScale.tickFormat(100, yFormat);
-
+    
         svgEl.append("g")
           .attr("transform", `translate(${MARGIN.LEFT}, 0)`)
           .call(yAxis)
@@ -317,15 +339,15 @@
               .attr("fill", "currentColor")
               .attr("text-anchor", "start"));
 
-        svgEl.append("text")
+        svgEl.append("text")             
           .attr("transform",
-                "translate(" + (CHART_WIDTH/2) + " ," +
+                "translate(" + (CHART_WIDTH/2) + " ," + 
                                (CHART_HEIGHT + MARGIN.TOP + 40) + ")")
           .style("text-anchor", "middle")
           .text("Values")
           .style("font-size", "15")
           .style("opacity", "0.6")
-
+  
         svgEl.append("text")
           .attr("transform", "rotate(-90)")
           .attr("y", 0)
@@ -333,9 +355,9 @@
           .attr("dy", "1em")
           .style("text-anchor", "middle")
           .text("Counts")
-          .style("font-size", "15")
+          .style("font-size", "15")   
           .style("opacity", "0.6")
-
+    
         svgEl.append("g")
             .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
             .call(xAxis)
@@ -346,36 +368,34 @@
                 .attr("y", 27)
                 .attr("fill", "currentColor")
                 .attr("text-anchor", "end"));
-        // Another scale for subgroup position?
+
         const xSubgroup = d3.scaleBand()
           .domain(subgroups)
           .range([0, xScale.bandwidth()])
 
-        // color palette = one color per subgroup
         const color = d3.scaleOrdinal()
           .domain(subgroups)
-          .range(['#2683C9', '#369BAC'])
-
+          .range(rectColors)
+    
         svgEl.append("g")
            .selectAll("g")
-           // Enter in data = loop group per group
            .data(data)
            .enter()
            .append("g")
-             .attr("transform", function(d) { return "translate(" + xScale(d.group) + ",0)"; })
+             .attr("transform", function(d) { return "translate(" + xScale(d?.group) + ",0)"; })
            .selectAll("rect")
-           .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key]}; }); })
+           .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d && d[key]}; }); })
            .enter().append("rect")
              .attr("x", function(d) { return xSubgroup(d.key); })
              .attr("y", function(d) { return yScale(d.value); })
              .attr("width", xSubgroup.bandwidth())
              .attr("height", function(d) { return (CHART_HEIGHT - yScale(d.value)); })
              .attr("fill", function(d) { return color(d.key); })
-             .style("opacity", "0.6");
-
-
+             .style("opacity", "0.8");
+    
+    
          return svgEl._groups[0][0].outerHTML;
-      }
+      }    
 
       const profileFromCSVfile = {{{reference_profile_from_whylogs}}}
 
