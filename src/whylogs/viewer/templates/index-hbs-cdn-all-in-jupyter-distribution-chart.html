@@ -144,6 +144,15 @@
       shape-rendering: crispEdges;
     }
 
+    .error-message {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: rgb(255, 114, 71);
+      font-size: 30px;
+      font-weight: 900;
+    }
+
      @media screen and (min-width: 500px) {
        .desktop-content {
          display: block;
@@ -362,11 +371,21 @@
       const profileFromCSVfile = {{{reference_profile_from_whylogs}}}
 
       Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => {
-        const columnKey = key.data.key
-        if (profileFromCSVfile) {
-        return  generateDoubleHistogramChart (
-            column,
-            profileFromCSVfile[columnKey]
+          const columnKey = key.data.key
+        try {
+          if (profileFromCSVfile) {
+          return  generateDoubleHistogramChart (
+              column,
+              profileFromCSVfile[columnKey]
+            )
+          }
+        } catch (err) {
+          $(document).ready(() => 
+            $(".desktop-content").html(`
+              <p style="height: ${$(window).height()}px" class="error-message"> 
+                Something went wrong. Please try again.
+              </p>
+            `)
           )
         }
       });
