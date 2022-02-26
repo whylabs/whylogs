@@ -927,21 +927,29 @@
 
       function chartData(column) {
         const data = [];
-        if (column.numberSummary.isDiscrete) {
-            column.frequentItems.items.forEach((item, index) => {
-              data.push({
-                axisY: item.estimate,
-                axisX: index,
-              });
-            });
-        } else {
+        if (column.numberSummary?.histogram) {
           column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
             data.push({
               axisY: count,
               axisX: index,
             });
           });
-        }
+        } else if (column.stringSummary?.frequent) {
+          Object.entries(column.stringSummary.frequent.items).forEach(([key, {value, estimate}], index) => {
+              data.push({
+                axisY: estimate,
+                axisX: value,
+              });
+            });
+        } else if (column.stringSummary?.charPosTracker){
+            Object.entries(column.stringSummary.charPosTracker.charPosMap).forEach(([key, {count}], index) => {
+              data.push({
+                axisY: count,
+                axisX: key,
+              });
+            });
+          }
+
         return data
       }
 
@@ -958,7 +966,7 @@
           column = ""
         }
 
-        if (column.numberSummary) {
+        if (column.numberSummary?.histogram || column.stringSummary?.frequent || column.stringSummary?.charPosTracker) {
           data = chartData(column)
         } else if (column.numberSummary === undefined && referenceColumn === null ) {
             $(".svg-container").css("padding-bottom", "0")
