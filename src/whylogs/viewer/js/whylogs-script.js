@@ -307,7 +307,7 @@
       .attr("x", (d) => xScale(d.axisX))
       .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
       .attr("fill", rectColors[0])
-      .style("opacity","0.8");
+      .style("opacity","0.6");
 
       const gChart1 = svgEl.append("g");
       gChart1
@@ -321,7 +321,7 @@
         .attr("x", (d) => xScale(d.axisX))
         .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
         .attr("fill", rectColors[1])
-        .style("opacity", "0.8");
+        .style("opacity", "0.6");
 
     return svgEl._groups[0][0].outerHTML;
   }
