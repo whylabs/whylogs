@@ -143,7 +143,6 @@ def repr_message(x: google.protobuf.message.Message, indent=2, display=True):
 
 
 def _repr_message(x, level=0, msg="", display=True, indent=2):
-    from uuid import uuid4
 
     if hasattr(x, "DESCRIPTOR"):
         # FIXME: this since the metadata is nested now
