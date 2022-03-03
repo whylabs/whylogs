@@ -9,21 +9,33 @@
    <a href="https://github.com/whylabs/whylogs#python-quickstart"><b>Python Quickstart</b></a>
  </h3>
 
-
-
-
-[![License](http://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE)
-[![PyPI version](https://badge.fury.io/py/whylogs.svg)](https://badge.fury.io/py/whylogs)
-[![Coverage Status](https://coveralls.io/repos/github/whylabs/whylogs/badge.svg?branch=mainline)](https://coveralls.io/github/whylabs/whylogs?branch=mainline)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4490/badge)](https://bestpractices.coreinfrastructure.org/projects/4490)
-[![PyPi Downloads](https://pepy.tech/badge/whylogs)](https://pepy.tech/project/whylogs)
-![CI](https://github.com/whylabs/whylogs-python/workflows/whylogs%20CI/badge.svg)
-[![Maintainability](https://api.codeclimate.com/v1/badges/442f6ca3dca1e583a488/maintainability)](https://codeclimate.com/github/whylabs/whylogs-python/maintainability)
+<p align="center">
+<a href="https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE" target="_blank">
+    <img src="http://img.shields.io/:license-Apache%202-blue.svg" alt="License">
+</a>
+<a href="https://badge.fury.io/py/whylogs" target="_blank">
+    <img src="https://badge.fury.io/py/whylogs.svg" alt="PyPi Version">
+</a>
+<a href="https://github.com/python/black" target="_blank">
+    <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black">
+</a>
+<a href="https://bestpractices.coreinfrastructure.org/projects/4490" target="_blank">
+    <img src="https://bestpractices.coreinfrastructure.org/projects/4490/badge" alt="CI Best Practices">
+</a>
+<a href="https://pepy.tech/project/whylogs" target="_blank">
+    <img src="https://pepy.tech/badge/whylogs" alt="PyPi Downloads">
+</a>
+<a href="bit.ly/whylogs" target="_blank">
+    <img src="https://github.com/whylabs/whylogs-python/workflows/whylogs%20CI/badge.svg" alt="CI">
+</a>
+<a href="https://codeclimate.com/github/whylabs/whylogs-python/maintainability" target="_blank">
+    <img src="https://api.codeclimate.com/v1/badges/442f6ca3dca1e583a488/maintainability" alt="Maintainability">
+</a>
+</p>
 
 ## What is whylogs
 
-whylogs is the open source standard for logging your data. With whylogs, users are able to generate summaries of their datasets (called *whylogs profiles*) which they can use to:
+whylogs is an open source library for logging any kind of data. With whylogs, users are able to generate summaries of their datasets (called *whylogs profiles*) which they can use to:
 1. Track changes in their dataset
 2. Create *data constraints* to know whether their data looks they way it should
 3. Quickly visualize key summary statistics about their datasets
@@ -45,7 +57,7 @@ If you have any questions, comments, or just want to hang out with us, please jo
 
 ### Install whylogs
 
-Install whylogs using the pip package manager by running
+Install whylogs using the pip package manager by running:
 
 ```
 pip install whylogs
@@ -53,7 +65,7 @@ pip install whylogs
 
 ### Log some data
 
-whylogs is easy to get up and runnings
+Profiling dataframes, Python dicts, or images is as easy as running:
 
 ```python
 from whylogs import get_or_create_session
@@ -61,18 +73,8 @@ import pandas as pd
 
 session = get_or_create_session()
 
-df = pd.read_csv("path/to/file.csv")
-
 with session.logger(dataset_name="my_dataset") as logger:
-    
-    #dataframe
     logger.log_dataframe(df)
-
-    #dict
-    logger.log({"name": 1})
-
-    #images
-    logger.log_image("path/to/image.png")
 ```
 
 ## Table of Contents
@@ -88,6 +90,8 @@ with session.logger(dataset_name="my_dataset") as logger:
 - [Contribute](#contribute)
 
 ## whylogs Profiles<a name="whylogs-profiles" />
+
+### What are profiles
 
 whylogs profiles are the core of the whylogs library. They capture key statistical properties of data, such as the distribution (far beyond simple mean, median, and standard deviation measures), the number of missing values, and a wide range of configurable custom metrics. By capturing these summary statistics, we are able to accurately represent the data and enable all of the use cases described in the introduction.
 
@@ -111,6 +115,33 @@ whylogs profiles have three properties that make them ideal for data logging: th
 
 **Mergeable**: One of the most powerful features of whylogs profiles is their mergeability. Mergeability means that whylogs profiles can be combined together to form new profiles which represent the aggregate of their constituent profiles. This enables logging for distributed and streaming systems, and allows users to view aggregated data across any time granularity.
 
+### How do you generate profiles
+
+Once whylogs is installed, it's easy to generate profiles in both Python and Java environments.
+
+To generate a profile from a Pandas dataframe in Python, simply run:
+```python
+from whylogs import get_or_create_session
+import pandas as pd
+
+session = get_or_create_session()
+
+df = pd.read_csv("path/to/file.csv")
+
+with session.logger(dataset_name="my_dataset") as logger:
+    logger.log_dataframe(df)
+```
+
+For images, replace `logger.log_dataframe(df)` with `logger.log_image("path/to/image.png")`. Similarly, you can profile Python dicts by running `logger.log(dict)` directly on the dict object.
+
+### What can you do with profiles
+
+Once you’ve generated whylogs profiles, a few things can be done with them:
+
+In your local Python environment, you can set data constraints or visualize your profiles. Setting data constraints on your profiles allows you to get notified when your data don’t match your expectations, allowing you to do data unit testing and some baseline data monitoring. With the Profile Visualizer, you can visually explore your data, allowing you to understand it and ensure that your ML models are ready for production.
+
+In addition, you can send whylogs profiles to the SaaS ML monitoring and AI observability platform [WhyLabs](whylabs.ai). With WhyLabs, you can automatically set up monitoring for your machine learning models, getting notified on both data quality and data change issues (such as data drift). If you’re interested in trying out WhyLabs, check out the always free [Starter edition](whylabs.ai/free), which allows you to experience the entire platform’s capabilities with no credit card required.
+
 
 ## Visualizing Profiles<a name="visualizing-profiles" />
 
@@ -125,7 +156,7 @@ figure= vizualization.plot_distribution("<feature_name>")
 figure.savefig("/my/image/path.png")
 ```
 
-Individual profiles are saved to disk, AWS S3, or WhyLabs API, automatically when loggers are closed, per the configuration found in the Session configuration.
+Individual profiles can be saved to local disk, uploaded to AWS S3, or sent to the WhyLabs AI Observability Platform via the WhyLabs API. This can be set up to happen automatically when loggers are closed, per the configuration found in the Session configuration.
 
 Current profiles from active loggers can be loaded from memory with:
 ```python
@@ -142,8 +173,7 @@ profile_viewer()
 ```
 
 This will open a viewer on your default browser where you can load a profile json summary, using the `Select JSON profile` button:
-Once the json is selected you can view your profile's features and 
-associated and statistics.
+Once the json is selected you can view your profile's features and associated statistics.
 
 <img src="https://whylabs-public.s3-us-west-2.amazonaws.com/assets/whylogs-viewer.gif" title="whylogs HTML viewer demo">
 
@@ -169,7 +199,7 @@ Some other key features about whylogs:
 
 
 ## Data Types<a name="data-types" />
-Whylogs supports both structured and unstructured data, specifically: 
+whylogs supports both structured and unstructured data, specifically: 
 
 | Data type  | Features | Notebook Example |
 | --- | --- | ---|
@@ -197,7 +227,7 @@ Whylogs supports both structured and unstructured data, specifically:
 | AWS S3 |  Store whylogs profiles in S3 | <ul><li>[S3 example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/S3%20example.ipynb)</li></ul>
 
 ## Examples
-For a full set of our examples, please check out [whylogs-examples](https://github.com/whylabs/whylogs-examples).
+For a full set of our examples, please check out the [examples folder](/examples/).
 
 Check out our example notebooks with Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/whylabs/whylogs-examples/HEAD)
 - [Getting Started notebook](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb)
@@ -216,4 +246,12 @@ If you have any questions, comments, or just want to hang out with us, please jo
 
 ## Contribute
 
+### How to Contribute
 We welcome contributions to whylogs. Please see our [contribution guide](https://github.com/whylabs/whylogs/blob/mainline/CONTRIBUTING.md) and our [development guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
+
+### Contributors
+<a href="https://github.com/whylabs/whylogs/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=whylabs/whylogs" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
