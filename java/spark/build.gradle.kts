@@ -19,8 +19,8 @@ spotless {
     }
 }
 
-val scalaVersion = System.getenv("SCALA_VERSION")
-val sparkVersion = System.getenv("SPARK_VERSION")
+val scalaVersion = System.getenv("SCALA_VERSION") ?: "2.12"
+val sparkVersion = System.getenv("SPARK_VERSION") ?: "3.1.1"
 val artifactBaseName = "${rootProject.name}-spark_$sparkVersion-scala_$scalaVersion"
 
 tasks.jar {

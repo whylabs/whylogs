@@ -14,8 +14,8 @@ plugins {
     id("com.github.johnrengelman.shadow") version ("5.2.0")
 }
 
-val scalaVersion = System.getenv("SCALA_VERSION")
-val sparkVersion = System.getenv("SPARK_VERSION")
+val scalaVersion = System.getenv("SCALA_VERSION") ?: "2.12"
+val sparkVersion = System.getenv("SPARK_VERSION") ?: "3.1.1"
 val artifactBaseName = "whylogs-spark-bundle_${sparkVersion}-scala_$scalaVersion"
 val versionString = rootProject.version
 
