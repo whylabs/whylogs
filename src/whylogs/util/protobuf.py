@@ -3,7 +3,6 @@ Functions for interacting with protobuf
 """
 import google.protobuf.message
 from google.protobuf.json_format import MessageToDict, MessageToJson
-from google.protobuf.pyext._message import MessageMapContainer
 
 from whylogs.util import varint
 
@@ -144,7 +143,6 @@ def repr_message(x: google.protobuf.message.Message, indent=2, display=True):
 
 
 def _repr_message(x, level=0, msg="", display=True, indent=2):
-    from uuid import uuid4
 
     if hasattr(x, "DESCRIPTOR"):
         # FIXME: this since the metadata is nested now
@@ -153,9 +151,6 @@ def _repr_message(x, level=0, msg="", display=True, indent=2):
             msg = msg + " " * level + str(f) + "\n"
             v = getattr(x, f, None)
             msg = _repr_message(v, level + indent, msg)
-    elif isinstance(x, (MessageMapContainer,)):
-        test_val = x.get_or_create(str(uuid4()))
-        msg = _repr_message(test_val, level + indent, msg)
     else:
         msg = msg[0:-1] + ": " + str(x)[0:100] + "\n"
     if display and level == 0:
