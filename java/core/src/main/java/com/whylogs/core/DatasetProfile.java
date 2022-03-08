@@ -249,6 +249,11 @@ public class DatasetProfile implements Serializable {
    * @return a merged {@link DatasetProfile} with summed up columns
    */
   public DatasetProfile merge(@NonNull DatasetProfile other) {
+
+    if (this.tags.isEmpty()) {
+      return doMerge(other, ImmutableMap.copyOf(other.tags));
+    }
+
     val sharedTags = ImmutableMap.<String, String>builder();
     for (val tagKey : this.tags.keySet()) {
       val tagValue = this.tags.get(tagKey);
@@ -256,21 +261,17 @@ public class DatasetProfile implements Serializable {
         sharedTags.put(tagKey, tagValue);
       }
     }
-
     return doMerge(other, sharedTags.build());
   }
 
   private DatasetProfile doMerge(@NonNull DatasetProfile other, Map<String, String> tags) {
     this.validate();
     other.validate();
-
+    Instant datasetTimestamp =
+        (this.dataTimestamp == null) ? other.getDataTimestamp() : this.dataTimestamp;
     val result =
         new DatasetProfile(
-            this.sessionId,
-            this.sessionTimestamp,
-            this.dataTimestamp,
-            tags,
-            Collections.emptyMap());
+            this.sessionId, this.sessionTimestamp, datasetTimestamp, tags, Collections.emptyMap());
 
     val sharedMetadata = ImmutableMap.<String, String>builder();
     for (val mKey : this.metadata.keySet()) {

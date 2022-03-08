@@ -5,6 +5,7 @@ import com.whylogs.spark.WhyLogs.PROFILE_FIELD
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.expressions.Aggregator
 import org.apache.spark.sql.{Encoder, Encoders, Row}
+import org.slf4j.LoggerFactory
 
 import java.io.ByteArrayInputStream
 import java.time.Instant
@@ -13,6 +14,8 @@ import java.util.UUID
 class DatasetProfileMerger(datasetName: String,
                            sessionTimeInMillis: Long,
                            sessionId: String = UUID.randomUUID().toString) extends Aggregator[Row, DatasetProfile, Array[Byte]] {
+  private val logger = LoggerFactory.getLogger(getClass)
+  
   override def zero: DatasetProfile =  new DatasetProfile(sessionId, Instant.ofEpochMilli(sessionTimeInMillis))
     .withTag("Name", datasetName)
 
@@ -30,7 +33,10 @@ class DatasetProfileMerger(datasetName: String,
     b1.merge(b2)
   }
 
-  override def finish(reduction: DatasetProfile): Array[Byte] = reduction.toBytes
+  override def finish(reduction: DatasetProfile): Array[Byte] = {
+    logger.debug(s"whylogs profile merge Aggregator finish using timeColumn value: [${reduction.getDataTimestamp}] and tags: ${reduction.getTags}")
+    reduction.toBytes
+  }
 
   override def bufferEncoder: Encoder[DatasetProfile] = Encoders.javaSerialization(classOf[DatasetProfile])
 
