@@ -235,10 +235,17 @@
           this.charts2 = mergedReferenceData.concat(mergedTargetedData)
           this.charts2 = this.charts2.sort(function(a, b) { return a - b; });
 
+          this.targetBinWidth = targetData[1]?.axisX - targetData[0]?.axisX
+          this.referenceBinWidth = referenceData[1]?.axisX - referenceData[0]?.axisX
+          this.maxTargetXValue = d3.max(targetData, (d) => d.axisX);
+
+          this.maxReferenceXValue = d3.max(referenceData, (d) => d.axisX);
+
           this.xScale = d3
               .scaleLinear()
-         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisX) + 2; })])     // I was too lazy to do basic math of max(bin_start + width for each distribution)
+         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth >= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])     // I was too lazy to do basic math of max(bin_start + width for each distribution)
          .range([0, this.CHART_WIDTH ]);
+
          this.svgEl.append("g")
              .attr("transform", "translate("+ this.MARGIN.LEFT +"," + this.SVG_HEIGHT + ")")
              .call(d3.axisBottom(this.xScale));
@@ -328,14 +335,6 @@
           .style("font-size", "15")
           .style("opacity", "0.6")
 
-          let width_b1 = histogramData[1]?.axisX,
-              width_b2 = overlappedHistogramData[1]?.axisX;
-
-          if (histogramData[0]?.axisX !== overlappedHistogramData[0]?.axisX) {
-              width_b1 = histogramData[1]?.axisX - histogramData[0]?.axisX,
-              width_b2 = overlappedHistogramData[1]?.axisX - overlappedHistogramData[0]?.axisX
-          } 
-
           const gChart = svgEl.append("g");
           gChart
           .attr("transform", "translate("+ MARGIN.LEFT +",0)")
@@ -345,7 +344,7 @@
           .append("rect")
           .style("stroke", "#021826")
           .classed("bar", true)
-          .attr("width", function(d) { return xScale(width_b1) - 1; })
+          .attr("width", function(d) { return xScale(histogramData[1]?.axisX)-xScale(histogramData[0]?.axisX); })
           .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
           .attr("x", 1)
           .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
@@ -362,7 +361,7 @@
           .append("rect")
           .style("stroke", "#021826")
           .classed("bar", true)
-          .attr("width", function(d) { return xScale(width_b2) - 1; })
+          .attr("width", function(d) { return xScale(overlappedHistogramData[1]?.axisX)-xScale(overlappedHistogramData[0]?.axisX); })
           .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
           .attr("x", 1)
           .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
