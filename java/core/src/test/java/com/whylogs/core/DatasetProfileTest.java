@@ -126,6 +126,20 @@ public class DatasetProfileTest {
     assertThat(result.getMetadata(), is(ImmutableMap.of("m1", "v1", "m2", "v2")));
   }
 
+  @Test
+  public void merge_Empty_ShouldRetainTagsAndDataTimestamp() {
+    val now = Instant.now();
+    val testTags = ImmutableMap.of("key", "foo", "key2", "foo3");
+    val tesTimestamp = now.plusSeconds(60);
+    val first =
+        new DatasetProfile("test", now, null, Collections.emptyMap(), Collections.emptyMap());
+    val second = new DatasetProfile("test", now, tesTimestamp, testTags, Collections.emptyMap());
+
+    val result = first.merge(second);
+    assertThat(result.getTags(), is(testTags));
+    assertThat(result.getDataTimestamp(), is(tesTimestamp));
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void mergeStrict_MismatchedTags_ThrowsIllegalArgumentException() {
     val now = Instant.now();
