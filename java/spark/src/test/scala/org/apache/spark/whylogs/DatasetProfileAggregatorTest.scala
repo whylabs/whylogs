@@ -83,6 +83,47 @@ class DatasetProfileAggregatorTest extends AnyFunSuite with SharedSparkContext {
     assert(summaries.map(_.getColumnsOrThrow("z")).map(_.getCounters.getCount).sum == numberOfEntries)
   }
 
+  test("dataset profile aggregator with agg() against empty profile preserves timeColumn") {
+    val _spark = spark
+    import _spark.implicits._
+    val numberOfEntries = 1000 * 1000
+    
+    val sessionTimestamp = Instant.now().toEpochMilli
+    val dataTimestamp = sessionTimestamp + 6000
+
+     val examples = (1 to numberOfEntries)
+      // the "x" field value is between 0 to 3 (inclusive)
+      .map(i => {
+        ExamplePoint(i % 4, i * 1.50, "text " + i, new Timestamp(dataTimestamp))
+      })
+      .toDF() // have to convert to a DataFrame, aka Dataset[Row]
+      .repartition(16)
+
+    import org.apache.spark.sql.functions._
+
+    // group by column x and aggregate
+    val dpAggregator = DatasetProfileAggregator("test", sessionTimestamp, timeColumn = "ts", groupByColumns = Seq("x"))
+
+    // the dataset must be groupped by BOTH ts and x
+    val groupedDf = examples.groupBy(col("x"), col("ts"))
+      .agg(dpAggregator.toColumn.name("whylogs_profile"))
+    groupedDf.printSchema()
+
+    val deserialized_profiles = groupedDf.select("whylogs_profile")
+      .collect()
+      .map(_.getAs[Array[Byte]](0))
+      .map(new ByteArrayInputStream(_))
+      .map(DatasetProfile.parse(_))
+
+    assert(deserialized_profiles.length == 4)
+
+    // assert that the "x" column was not profiled
+    for (profile <- deserialized_profiles) {
+      assert(profile.getDataTimestamp.toEpochMilli == dataTimestamp)
+    }
+  }
+
+
 
   test("dataset profile aggregator works with SQL time") {
     val _spark = spark
