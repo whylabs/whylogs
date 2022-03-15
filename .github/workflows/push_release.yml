@@ -3,13 +3,34 @@ name: Upload Whylogs Packages
 
 on:
   release:
-    types: [ released, prereleased]
+    types: [released, prereleased]
 
 jobs:
   deploy:
-
+    strategy:
+      matrix:
+        scala-version: [2.11, 2.12]
+        spark-version: [2.4.7, 2.4.8]
+        include:
+          - os: ubuntu-latest
+            scala-version: 2.11
+            spark-version: 2.4.5
+          - os: ubuntu-latest
+            scala-version: 2.12
+            spark-version: 3.0.1
+          - os: ubuntu-latest
+            scala-version: 2.12
+            spark-version: 3.0.3
+          - os: ubuntu-latest
+            scala-version: 2.12
+            spark-version: 3.1.1
+          - os: ubuntu-latest
+            scala-version: 2.12
+            spark-version: 3.1.2
+          - os: ubuntu-latest
+            scala-version: 2.12
+            spark-version: 3.1.3
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -69,6 +90,8 @@ jobs:
       env:
         ORG_GRADLE_PROJECT_signingKey: ${{ secrets.SIGNING_KEY_ASCII }}
         ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        SCALA_VERSION : ${{ matrix.scala-version }}
+        SPARK_VERSION : ${{ matrix.spark-version }}
       run: ./gradlew publish -PossrhUsername=${{ secrets.NEXUS_TOKEN_USERNAME }} -PossrhPassword=${{ secrets.NEXUS_TOKEN_PASSWORD }}
       working-directory: java
 

@@ -17,6 +17,8 @@ skip_notebooks = [
     "mlflow_whylabs.ipynb",
     "sagemaker_whylabs.ipynb",
     "MLFlow Integration Example.ipynb",
+    "Performance Metrics-Classification.ipynb",
+    "Performance Metrics-Regression.ipynb",
 ]
 
 
