@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Profile Viewer | whylogs</title>
+
+    <link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <style type="text/css">
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media screen and (min-width: 1000px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .wl-compare-profile {
+        position: relative;
+        left: 0;
+        padding: 30px;
+        margin-bottom: 20px;
+        background: var(--white);;
+        border-bottom: 1px solid #CED4DA;
+      }
+
+      .alert-list {
+        padding: 30px;
+        padding-top: 0;
+      }
+
+    .drift-detection {
+       justify-content: space-between;
+       align-items: center;
+     }
+
+     .drift-detection-info-circle {
+       width: 15px;
+       height: 15px;
+       border-radius: 50px;
+       display: inline-block;
+       margin-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item {
+         padding-right: 20px;
+     }
+
+     .drift-detection-info-title {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 22px;
+       line-height: 130%;
+       color: #313B3D;
+     }
+
+     .drift-detection-info-drifts-item-count {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 14px;
+       line-height: 16px;
+       color: #000000;
+       padding-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item-name {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 12px;
+       line-height: 14px;
+       color: #000000;
+     }
+
+     .drift-detection-search-input {
+       display: flex;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 170px;
+       padding-left: 10px;
+     }
+
+     .drift-detection-search-input img{
+       margin-right: 5px;
+     }
+
+     .drift-detection-search-input input::placeholder {
+       font-family: Arial;
+       font-weight: normal;
+       font-size: 13px;
+       line-height: 16px;
+       color: #313B3D;
+     }
+
+     .dropdown-container {
+       position: absolute;
+       right: 30px;
+       top: 80px;
+       z-index: 999;
+       background: #FFFFFF;
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+       border-radius: 4px;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .filter-options-title {
+       width: 240px;
+     }
+
+     .filter-options-title p {
+       margin: 0;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 2px;
+     }
+
+     .search-input{
+       padding-top: 0 !important;
+       padding-bottom: 0 !important;
+     }
+
+     .search-input input{
+       border: none;
+       background: none;
+       outline: none;
+       height: 40px;
+       width: 100%;
+       font-size: 14px;
+     }
+
+     .search-input img{
+       height: 19px;
+       pointer-events: none;
+     }
+
+     input::placeholder {
+       color: var(--secondaryLight1000);
+     }
+
+      .statistics {
+        width: 100%;
+      }
+
+     .close-filter-button {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #369BAC;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 40px;
+       height: 40px;
+       cursor: pointer;
+       margin-left: 10px;
+     }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #4F595B;
+      }
+
+      .full-summary-statistics-wrap {
+        padding: 20px;
+      }
+
+      .statistics {
+        width: 100%;
+      }
+
+      .statistics-list {
+        width: 100% ;
+      }
+
+      mark {
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 140%;
+      }
+
+      .blue-mark {
+        background-color:  #369BAC1A;
+        color: #369BAC;
+      }
+
+      .red-mark {
+        background-color: #FFEFEE;
+        color: #F5473C;
+      }
+
+      .alert-tag {
+        height: 27px;
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 140%;
+        color: #FFFFFF;
+      }
+
+      .turquoise-background-color {
+        background-color: #1DBB42;
+      }
+
+      .bordeaux-background-color {
+        background-color: #C6462A;
+      }
+
+      .border-solid-gray {
+        border: 1px solid #CED4DA;
+        border-radius: 4px;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .align-items-flex-start {
+        align-items: flex-start;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+      .alert-list-text {
+        width: 70%
+      }
+
+     @media screen and (min-width: 500px) {
+       .desktop-content {
+         display: block;
+       }
+       .no-responsive {
+         display: none;
+       }
+     }
+    </style>
+  </head>
+
+  <body id="generated-html"></body>
+
+  <script id="entry-template" type="text/x-handlebars-template">
+    {{{{raw}}}}
+      <div class="desktop-content">
+        <div class="full-summary-statistics-wrap">
+          <div class="full-summary-statistics">
+            <div>
+              <div class="display-flex justify-content-center">
+                <div class="statistics-list border-solid-gray">
+                  <div>
+                    <div class="wl-compare-profile" id="compare-profile">
+                        <div class="drift-detection-wrap">
+                          <div class="drift-detection display-flex align-items-flex-start">
+                            <div class="drift-detection-info flex-direction-colum">
+                              <div class="drift-detection-info-title-wrap display-flex">
+                                <p class="drift-detection-info-title">
+                                  Constraints Report
+                                </p>
+                              </div>
+
+                              <!-- </div> -->
+                            </div>
+                            <div class="drift-detection-search-input-wrap display-flex">
+                              <div class="drift-detection-search-input search-input">
+                                <input type="text" id="wl__feature-search" placeholder="Quick search..."/>
+                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg=="/>
+                              </div>
+                              <div class="wl__dropdown_arrow-icon">
+                                <div onclick="openFilter()" class="close-filter-button">
+                                <div class="display-flex close-filter-icon d-none">
+                                  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/>
+                                </div>
+                                <div class="display-flex filter-icon">
+                                  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
+                                </div>
+                                </div>
+                              <span class="notif-circle-container">
+                                <span class="notif-circle"></span>
+                              </span>
+                            </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="dropdown-container flex-direction-colum mb-2 d-none" id="dropdown-container">
+                          <div class="filter-options">
+                            <div class="filter-options-title space-between dropdown">
+                              <p>Select a view:</p>
+                            </div>
+                            <div class="form-check mb-1 mt-2">
+                              <input
+                                class="form-check-input wl__feature-filter-input"
+                                type="checkbox"
+                                name="checkbox"
+                                value="Discrete"
+                                id="inferredDiscrete"
+                                checked
+                              />
+                              <label class="form-check-label" for="inferredDiscrete">
+                                Failed constraints (<span class="wl__feature-count--discrete"></span>)
+                              </label>
+                            </div>
+                            <div class="form-check mb-1">
+                              <input
+                                class="form-check-input wl__feature-filter-input"
+                                type="checkbox"
+                                name="checkbox"
+                                value="Non-discrete"
+                                id="inferredNonDiscrete"
+                                checked
+                              />
+                              <label class="form-check-label" for="inferredNonDiscrete">
+                                Passed constraints (<span
+                                  class="wl__feature-count--non-discrete"
+                                ></span>)
+                              </label>
+                            </div>
+                            <div class="form-check mb-1">
+                              <input
+                                class="form-check-input wl__feature-filter-input"
+                                type="checkbox"
+                                name="checkbox"
+                                value="Unknown"
+                                id="inferredUnknown"
+                                checked
+                              />
+                              <label class="form-check-label" for="inferredUnknown">
+                                All constraints (<span class="wl__feature-count--unknown"></span>)
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <div class="alert-list" id="alert-list">
+                      {{{alertLIst this}}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="no-responsive">
+        <div class="no-responsive__content">
+          <h1 class="no-responsive__title">Hold on! :)</h1>
+          <p class="no-responsive__text">
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          </p>
+        </div>
+      </div>
+    {{{{/raw}}}}
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
+        return format(date);
+      }
+
+      function fixNumberTo(number, decimals = 3) {
+        return parseFloat(number).toFixed(decimals);
+      }
+
+      const randomNumbers = (range) => Math.floor(Math.random() * range)
+
+      const findFetureWithNumberSummary = (column) => {
+        const fetureIndex = Object.values(column.columns)
+              .findIndex((feture) => feture.numberSummary)
+
+        return Object.keys(column.columns)[fetureIndex]
+      }
+
+      const alertListItemStatus = (status, passedItem, failedItem) => {
+        if (status) {
+          return passedItem
+        } else {
+          return failedItem
+        }
+      }
+
+      const alertListElement = (name, text, status) => {
+
+        return (
+          `<div
+             data-inferred-type=${alertListItemStatus(status, "passed", "failed")}
+             class="alert-list-item display-flex justify-content-space-between align-items-center mb-2"
+           >
+            <div class="alert-list-text">
+              ${
+                name &&
+                alertListItemStatus(
+                  status,
+                  `<mark class="blue-mark">${name}</mark>`,
+                  `<mark class="red-mark">${name}</mark>`
+                )
+              }
+              ${text}
+            </div>
+              ${
+                alertListItemStatus(
+                  status,
+                  `<div class="turquoise-background-color alert-tag">Passed</div>`,
+                  `<div class="bordeaux-background-color alert-tag">Failed</div>`
+                )
+              }
+          </div>`
+        )
+      }
+
+      let failedConstraints = 0;
+
+      Handlebars.registerHelper("getProfileTimeStamp", function (column) {
+        return formatLabelDate(+column.properties.dataTimestamp)
+      });
+
+      Handlebars.registerHelper("getProfileName", function (column) {
+        return column.properties.tags.name
+      });
+
+      Handlebars.registerHelper("alertLIst", function (column) {
+        let alertListItem = column.map((value) => {
+          if (value[1][0]) {
+            return alertListElement(value[0], value[1][0][0], value[1][0][value[1][0].length - 1] === 0 || (failedConstraints++, false))
+          } else {
+            return alertListElement('', value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+          }
+        })
+         $(document).ready(() => {
+           $(".wl__feature-count--discrete").append(failedConstraints)
+           $(".wl__feature-count--non-discrete").append(column.length - failedConstraints)
+           $(".wl__feature-count--unknown").append(column.length)
+         })
+        return alertListItem.join(' ')
+      });
+    }
+
+    function openFilter() {
+      const $filterOptions = $(".dropdown-container");
+      const filterClass = $filterOptions.attr("class");
+
+      if (filterClass.indexOf("d-none") > 0) {
+        $filterOptions.removeClass("d-none");
+        $(".filter-icon").addClass("d-none")
+        $(".close-filter-icon").removeClass("d-none")
+      } else {
+        $filterOptions.addClass("d-none");
+        $(".close-filter-icon").addClass("d-none")
+        $(".filter-icon").removeClass("d-none")
+      }
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = {{{constraints_report}}};
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById("entry-template").innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById("generated-html");
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      const $featureSearch = document.getElementById("wl__feature-search");
+      const $alertList = document.getElementById("alert-list");
+      const $discrete = document.getElementById("inferredDiscrete");
+      const $nonDiscrete = document.getElementById("inferredNonDiscrete");
+      const $unknown = document.getElementById("inferredUnknown");
+
+      const activeTypes = {
+        passed: true,
+        failed: true
+      };
+
+      let searchString = "";
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate && !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function filterNotification() {
+        const $notifCircleContainer = $(".notif-circle-container")
+        const $boxes = $('.wl_filter-options>.form-check>input[name=checkbox]:checked');
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass("d-none")
+        } else {
+          $notifCircleContainer.addClass("d-none")
+        }
+      }
+
+      function handleSearch() {
+        const tableBodyChildren = $alertList.children;
+
+        for (let i = 0; i < tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = $(tableBodyChildren[i].children[0]).find("mark").text().toLowerCase();
+
+          if (activeTypes[type] && name.startsWith(searchString)) {
+            tableBodyChildren[i].style.display = "";
+          } else {
+            tableBodyChildren[i].style.display = "none";
+          }
+        }
+      }
+
+      const checkedBoxes = () => {
+        if ($('.form-check-input:checked').length === $(".form-check-input").length - 1) {
+          $($(".form-check-input")[$(".form-check-input").length - 1]).prop( "checked", true );
+        }
+      }
+
+      $featureSearch.addEventListener(
+        "keyup",
+        debounce((event) => {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
+
+      $discrete.addEventListener("change", (event) => {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes["failed"] = true;
+          checkedBoxes();
+        } else {
+          activeTypes["failed"] = false;
+          $($(".form-check-input")[$(".form-check-input").length - 1]).prop( "checked", false );
+        }
+        handleSearch();
+      });
+
+      $nonDiscrete.addEventListener("change", (event) => {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes["passed"] = true;
+          checkedBoxes();
+        } else {
+          activeTypes["passed"] = false;
+          $($(".form-check-input")[$(".form-check-input").length - 1]).prop( "checked", false );
+        }
+        handleSearch();
+      });
+
+      $unknown.addEventListener("change", (event) => {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          $(".form-check-input").prop( "checked", true );
+          activeTypes["passed"] = true;
+          activeTypes["failed"] = true;
+          checkedBoxes();
+        } else {
+          $(".form-check-input").prop( "checked", false );
+          activeTypes["passed"] = false;
+          activeTypes["failed"] = false;
+        }
+        handleSearch();
+      });
+    }
+
+    function checkedBoxes() {
+      const $boxes = $('input[name=checkbox]:checked');
+      const $notifCircleContainer = $(".notif-circle-container")
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass("d-none")
+      }
+    }
+
+    function openFilter() {
+      const $filterOptions = $(".dropdown-container");
+      const $notifCircleContainer = $(".notif-circle-container")
+      const filterClass = $filterOptions.attr("class");
+
+      if (filterClass.indexOf("d-none") > 0) {
+        $notifCircleContainer.addClass("d-none")
+        $filterOptions.removeClass("d-none");
+        $(".filter-icon").addClass("d-none")
+        $(".close-filter-icon").removeClass("d-none")
+      } else {
+        $filterOptions.addClass("d-none");
+        $(".close-filter-icon").addClass("d-none")
+        $(".filter-icon").removeClass("d-none")
+        checkedBoxes()
+      }
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  </script>
+</html>
