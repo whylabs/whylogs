@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Profile Viewer | whylogs</title>
+
+    <link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <style type="text/css">
+      :root {
+        /* CONSTANTS */
+        --SIDE-PANEL-WIDTH: 320px;
+        --PROPERTY-PANEL-WIDTH: 420px;
+
+        /* COLOR VARIABLES */
+        /** Standard colors */
+        --red: #d11010;
+        --orange: #f07028;
+        --yellow: #faaf40;
+        --olive: #b5cc18;
+        --green: #1dbb42;
+        --teal: #00b5ad;
+        --blue: #2683c9;
+        --violet: #6435c9;
+        --purple: #a333c8;
+        --pink: #ed45a4;
+        --brown: #ac724d;
+        --grey: #778183;
+        --black: #1b1c1d;
+        --white: #ffffff;
+
+        /** Branded colors */
+        --brandPrimary900: #0e7384;
+        --brandPrimary800: #228798;
+        --brandPrimary700: #369bac;
+        --brandPrimary600: #4aafc0;
+        --brandPrimary500: #5ec3d4;
+        --brandPrimary400: #72d7e8;
+        --brandPrimary300: #86ebfc;
+        --brandPrimary200: #a6f2ff;
+        --brandPrimary100: #cdf8ff;
+        --brandSecondary900: #4f595b;
+        --brandSecondary800: #636d6f;
+        --brandSecondary700: #778183;
+        --brandSecondary600: #8b9597;
+        --brandSecondary500: #9fa9ab;
+        --brandSecondary400: #b3bdbf;
+        --brandSecondary300: #c7d1d3;
+        --brandSecondary200: #dbe5e7;
+        --brandSecondary100: #ebf2f3;
+        --secondaryLight1000: #313b3d;
+        --brandRed4: #b30000;
+        --brandRed3: #d72424;
+        --brandRed2: #eb5656;
+        --brandRed1: #ff8282;
+        --night1: #021826;
+        /** Purpose colors */
+        --textColor: #4f595b;
+        --linkColor: #369bac;
+        --infoColor: #2683c9;
+        --warningColor: #faaf40;
+        --tealBackground: #eaf2f3;
+        --pageBackground: #e5e5e5;
+        --contrastTableRow: #fafafa;
+        --whiteBackground: #ffffff;
+        --primaryBackground: #e5e5e5;
+      }
+
+      /* RESET STYLE */
+      *,
+      *::after,
+      *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Asap", Arial, Helvetica, sans-serif;
+      }
+
+      /*
+      * Main content
+      */
+      .main {
+        position: relative;
+        background: #FFFFFF;
+        border: 1px solid #DBE5E7;
+        box-sizing: border-box;
+        border-radius: 4px;
+      }
+      .main .page-header {
+        margin-top: 0;
+      }
+
+      /* CSS DIV TABLE BASIC STYLE */
+
+      .wl-table-row .wl-table-head:first-child {
+        min-width: 360px;
+        z-index: 2;
+      }
+
+      .wl-table-wrap {
+        position: relative;
+        overflow: auto;
+      }
+
+      .wl-table {
+        display: table;
+        width: 100%;
+      }
+
+      .row>* {
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+      }
+
+      .wl-table-row {
+        display: table-row;
+      }
+
+      .wl-table-row:hover,
+      .wl-table-row:hover .wl-table-cell:first-child {
+        background-color: var(--brandSecondary100);
+      }
+      .wl-table-row--clickable:hover .wl-table-cell__title-button {
+        visibility: visible;
+      }
+
+      .wl-table-heading {
+        position: relative;
+        z-index: 1;
+        display: table-header-group;
+        font-weight: 700;
+      }
+
+      .wl-table-cell,
+      .wl-table-head {
+        border-bottom: 1px solid var(--brandSecondary200);
+        display: table-cell;
+        padding: 12px 18px;
+      }
+
+      .wl-table-cell {
+        font-size: 14px;
+      }
+
+      .wl-table-cell--top-spacing {
+        padding-top: 35px; /* cell-top-padding + cell-title-height */
+      }
+
+      .wl-table-head-wraper {
+        background-color: var(--white);
+      }
+
+      .wl-table-head {
+        position: sticky;
+        left: 0;
+        min-width: 100px;
+        border-bottom: 2px solid var(--brandSecondary100);
+        font-size: 12px;
+        line-height: 1.67;
+        white-space: nowrap;
+      }
+
+      .wl-sub-table-head {
+        position: relative;
+      }
+
+      .wl-table-body {
+        display: table-row-group;
+      }
+
+      .wl-table-row .wl-table-cell:first-child{
+        position: sticky;
+        left: 0;
+        background-color: var(--white);
+        border-right-width: 2px;
+      }
+
+      /* Table custom style */
+
+      .wl-table-cell__title-wrap {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .wl-table-cell__title {
+        height: 25px;
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .wl-table-cell__bedge-wrap {
+        padding: 2px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        font-style: italic;
+        text-align: center;
+        color: var(--brandSecondary400);
+      }
+      .wl-table-cell__bedge {
+        height: 24px;
+        margin: 1px;
+        padding: 2px 8px;
+        border: 1px solid var(--brandSecondary400);
+        font-style: normal;
+        color: var(--brandSecondary900);
+        border-radius: 20px;
+        white-space: nowrap;
+      }
+
+      /* Property side panel */
+
+      .wl-compare-profile {
+        position: relative;
+        left: 0;
+        padding: 18px;
+        background: var(--white);;
+        border-bottom: 1px solid var(--brandSecondary200);
+      }
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .space-between {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .align-items {
+        display: flex;
+        align-items: center;
+      }
+
+      .display-flex{
+        display: flex;
+      }
+
+      .table-border-none {
+        padding: 0;
+        border: none;
+      }
+
+      .flex-direction-colum {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .align-items {
+        align-items: center;
+      }
+
+      .search-input{
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+      }
+
+      .search-input input{
+        border: none;
+        background: none;
+        outline: none;
+        height: 40px;
+        width: 100%;
+        font-size: 14px;
+      }
+
+      .search-input img{
+        height: 19px;
+        pointer-events: none;
+      }
+
+      input::placeholder {
+        color: var(--secondaryLight1000);
+      }
+
+      .text-align-center {
+        text-align: center;
+      }
+
+      .text-align-end {
+        text-align: end;
+      }
+
+      .drift-detection {
+        justify-content: space-between;
+        align-items: center;
+      }
+
+     .drift-detection-info-circle {
+       width: 15px;
+       height: 15px;
+       border-radius: 50px;
+       display: inline-block;
+       margin-right: 8px;
+     }
+
+     .severe-drift-circle-color {
+         background: #D40D00;
+     }
+
+     .moderate-drift-circle-color {
+         background: #F5843C;
+     }
+
+     .mild-drift-circle-color {
+         background: #F2C142;
+     }
+
+     .minimal-drift-circle-color {
+         background: #ABCA52;
+     }
+
+     .drift-detection-info-drifts-item {
+         padding-right: 20px;
+     }
+
+     .drift-detection-info-title {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 16px;
+       line-height: 130%;
+       color: #313B3D;
+     }
+
+     .drift-detection-info-drifts-item-count {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 14px;
+       line-height: 16px;
+       color: #000000;
+       padding-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item-name {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 12px;
+       line-height: 14px;
+       color: #000000;
+     }
+
+     .drift-detection-info-drifts-item-range {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 11px;
+       line-height: 13px;
+       color: #6C757D;
+     }
+
+     .drift-detection-search-input {
+       display: flex;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 170px;
+       padding-left: 10px;
+     }
+
+     .drift-detection-search-input img{
+       margin-right: 5px;
+     }
+
+     .drift-detection-search-input input::placeholder {
+       font-family: Arial;
+       font-weight: normal;
+       font-size: 13px;
+       line-height: 16px;
+       color: #313B3D;
+     }
+
+     .close-filter-button {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #369BAC;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 40px;
+       height: 40px;
+       cursor: pointer;
+       margin-left: 10px;
+     }
+
+     .filter-options-title {
+       width: 240px;
+     }
+
+     .filter-options-title p {
+       margin: 0;
+     }
+
+     .dropdown-container {
+       position: absolute;
+       right: 18px;
+       z-index: 999;
+       background: #FFFFFF;
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+       border-radius: 4px;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 2px;
+     }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .wl-table-cell__graph-wrap {
+        width: 0;
+      }
+
+      .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 85%;
+        padding-bottom: 17%;
+        vertical-align: top;
+        overflow: hidden;
+      }
+
+      .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+      }
+
+      .reference-table-head {
+        min-width: 250px;
+      }
+
+      .wl__dropdown_arrow-icon {
+        position: relative;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #0E7384;
+      }
+
+      .statistic-measurement {
+        font-size: 15px !important;
+        margin-left: 3px;
+      }
+
+      .statistic-measurement-percent {
+        font-size: 15px !important;
+      }
+
+      .question-mark {
+        font-size: 10px;
+        font-weight: 900;
+        color: #0E7384;
+        border-radius: 50px;
+        border: 2px solid #0E7384;
+        padding: 0px 4px;
+        transition: 0.5s;
+        cursor: pointer;
+      }
+
+      .question-mark:hover {
+        color: white;
+        background: #0E7384;
+        border: 2px solid none;
+        transition: 0.5s;
+      }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .flex-direction-column {
+        flex-direction: column;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+      .padding-5 {
+        padding: 5px;
+      }
+
+      .text-color {
+        color: var(--secondaryLight1000);
+      }
+
+      .error-message {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: rgb(255, 114, 71);
+        font-size: 30px;
+        font-weight: 900;
+      }
+     
+      @media screen and (min-width: 500px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body id="generated-html"></body>
+
+  <script id="entry-template" type="text/x-handlebars-template">
+    {{{{raw}}}}
+      <div class="desktop-content">
+        <div class="container-fluid">
+          <div class="feature-summary-statistics-wrap">
+            <div class="feature-summary-statistics">
+              <div class="mb-4">
+                  <strong class="header-title">Profile Summary: {{getProfileName this}}_{{getProfileTimeStamp this}}</strong>
+              </div>
+              <div class="display-flex statistics">
+                  <div class="padding-right-30">
+                    <div class="statistic-number-title">Observations</div>
+                    <div class="statistic-number">{{{observations this}}}</div>
+                  </div>
+                  <div class="padding-right-30">
+                    <div class="statistic-number-title">Missing Cells</div>
+                    <div class="statistic-number">
+                      {{{missingCells this}}}
+                      <div>{{{missingCellsPercentage this}}}</div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="main">
+              <div class="wl-compare-profile" id="compare-profile">
+               <div class="drift-detection-wrap">
+                 <div class="drift-detection display-flex">
+                   <div class="drift-detection-info flex-direction-colum">
+                     <div class="drift-detection-info-title-wrap display-flex">
+                       <p class="drift-detection-info-title">
+                         Drift detected in
+                         <span class="drift-count"></span>
+                         of
+                         <span class="all-features"></span>
+                         features
+                       </p>
+                     </div>
+                     <div class="drift-detection-info-drifts display-flex" id="drift-detection-info-drifts">
+                     </div>
+                   </div>
+                   <div class="drift-detection-search-input-wrap display-flex">
+                     <div class="drift-detection-search-input search-input">
+                       <input type="text" id="wl__feature-search" placeholder="Quick search..."/>
+                       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg=="/>
+                     </div>
+                     <div class="wl__dropdown_arrow-icon">
+                       <div onclick="openFilter()" class="close-filter-button">
+                         <div class="display-flex close-filter-icon d-none">
+                           <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/>
+                         </div>
+                         <div class="display-flex filter-icon">
+                           <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
+                         </div>
+                       </div>
+                       <span class="notif-circle-container">
+                         <span class="notif-circle"></span>
+                       </span>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+               <div class="dropdown-container flex-direction-colum mb-2 d-none" id="dropdown-container">
+                 <div class="filter-options">
+                   <div class="filter-options-title space-between dropdown">
+                     <p>Filter by type</p>
+                   </div>
+                   <div class="form-check mb-1 mt-2">
+                     <input
+                       class="form-check-input wl__feature-filter-input"
+                       type="checkbox"
+                       name="checkbox"
+                       value="Discrete"
+                       id="inferredDiscrete"
+                       onclick="changeDiscreteValue()"
+                       checked
+                     />
+                     <label class="form-check-label" for="inferredDiscrete">
+                       Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                     </label>
+                   </div>
+                   <div class="form-check mb-1">
+                     <input
+                       class="form-check-input wl__feature-filter-input"
+                       type="checkbox"
+                       name="checkbox"
+                       value="Non-discrete"
+                       id="inferredNonDiscrete"
+                       onclick="changeNonDiscreteValue()"
+                       checked
+                     />
+                     <label class="form-check-label" for="inferredNonDiscrete">
+                       Inferred non-discrete (<span
+                         class="wl__feature-count--non-discrete"
+                       >{{getNonDiscreteTypeCount}}</span>)
+                     </label>
+                   </div>
+                   <div class="form-check mb-1">
+                     <input
+                       class="form-check-input wl__feature-filter-input"
+                       type="checkbox"
+                       name="checkbox"
+                       value="Unknown"
+                       id="inferredUnknown"
+                       onclick="changeUnknwonValue()"
+                       checked
+                     />
+                     <label class="form-check-label" for="inferredUnknown">
+                       Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                     </label>
+                   </div>
+                 </div>
+               </div>
+              </div>
+              <div class="wl-table-wrap" id="table-content">
+                <div class="wl-table">
+                  <div class="wl-table-heading">
+                    <div class="wl-table-row wl-table-row--bottom-shadow">
+                      <div class="wl-table-head wl-table-head-wraper">
+                        <div class="wl-table-head table-border-none graph-table-head">Feature</div>
+                        <div class="wl-table-head table-border-none reference-table-head">Reference</div>
+                      </div>
+                      <div class="wl-table-head wl-sub-table-head text-align-center" id="diff-from-ref">
+                        Diff from ref.
+                        <div class="tooltip-full-number">
+                            <span class="question-mark">?</span>
+                          <span class="tooltiptext">
+                           <div class="mb-1">Lorem Ipsum is simply dummy</div> 
+                           <div>text of the printing and typesetting.</div>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="wl-table-head wl-sub-table-head text-align-center">Total count</div>
+                      <div class="wl-table-head wl-sub-table-head text-align-center">Mean</div>
+                    </div>
+                  </div>
+                  <ul class="wl-table-body wl__table-body" id="table-body">
+                    {{#each this.columns}}
+                    <li
+                    {{#if this.numberSummary}} class="wl-table-row wl-table-row--clickable" {{else}} class="wl-table-row" {{/if}}
+                    data-feature-name={{@key}}
+                    data-inferred-type={{inferredType this}}
+                    data-scroll-to-feature-name={{@key}}
+                  >
+                      <div class="wl-table-cell wl-table-cell__graph-wrap">
+                        <div class="wl-table-cell__title-wrap">
+                          <h4 class="wl-table-cell__title">{{@key}}</h4>
+                          <div></div>
+                        </div>
+                          <div class="display-flex">
+                              {{{getGraphHtml this}}}
+                              {{{getReferenceGraphHtml this}}}
+                          </div>
+                      </div>
+                      <div
+                        class="diff-from-ref-table-cell wl-table-cell wl-table-cell--top-spacing align-middle"
+                        style="max-width: 270px; padding-right: 18px"
+                      ><div class="wl-table-cell__bedge-wrap text-align-end">
+                           {{{getDiffFromRef this}}}
+                        </div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                      ><div class="text-align-end">{{totalCount this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                      ><div class="text-align-end">{{mean this}}</div></div>
+                    </li>
+                    {{/each}}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="no-responsive">
+        <div class="no-responsive__content">
+          <h1 class="no-responsive__title">Hold on! :)</h1>
+          <p class="no-responsive__text">
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          </p>
+        </div>
+      </div>
+    {{{{/raw}}}}
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    const getReferenceProfile = () => { return {{{reference_profile_from_whylogs}}} }
+    const referenceProfile = getReferenceProfile()
+
+    function fixNumberTo(number, decimals = 3) {
+      const fractionalDigits = String(number % 1).split('').slice(2, 2 + decimals).join('')
+      return `${Math.trunc(number)}.${fractionalDigits}`
+    }
+
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+
+      class GenerateChartParams {
+        constructor(height, width, data, bottomMargin=20, topMargin=5) {
+          this.MARGIN = {
+            TOP: topMargin,
+            RIGHT: 5,
+            BOTTOM: bottomMargin,
+            LEFT: 55,
+          };
+          this.SVG_WIDTH = width;
+          this.SVG_HEIGHT = height;
+          this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
+          this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
+          this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "30 0 240 400")
+             .classed("svg-content-responsive", true)
+          this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+          this.xScale = d3
+            .scaleBand()
+            .domain(data.map((d) => d.axisX))
+            .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
+          this.yScale = d3
+            .scaleLinear()
+            .domain([0, this.maxYValue * 1.02])
+            .range([this.CHART_HEIGHT, 0]);
+        }
+      }
+
+      function generateChart(data, height = 70, width = 250, index = 0, referenceProfileExist = false) {
+        const sizes = new GenerateChartParams(height, width, data, 5)
+        const {
+          MARGIN,
+          SVG_WIDTH,
+          SVG_HEIGHT,
+          CHART_WIDTH,
+          CHART_HEIGHT,
+          svgEl,
+          maxYValue,
+          xScale,
+          yScale
+        } = sizes
+        const rectColors = ["#44C0E7", "#F5843C"]
+
+        // Add the y Axis
+        if (!referenceProfileExist) {
+          svgEl
+            .append("g")
+            .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
+            .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]))
+            .selectAll("text")
+            .style("font-size", "8")
+        }
+
+        const gChart = svgEl.append("g");
+        gChart
+          .attr("transform", "translate(" + 20 + ", " + 0 + ")")
+          .selectAll(".bar")
+          .data(data)
+          .enter()
+          .append("rect")
+          .classed("bar", true)
+          .attr("width", xScale.bandwidth() - 1)
+          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("x", (d) => xScale(d.axisX))
+          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+          .attr("fill", rectColors[index]);
+
+        return svgEl._groups[0][0].outerHTML;
+      }
+
+      function chartData(column) {
+        const data = [];
+        if (column.numberSummary?.histogram) {
+          column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+            data.push({
+              axisY: count,
+              axisX: index,
+            });
+          });
+        } else if (column.stringSummary?.frequent) {
+          Object.entries(column.stringSummary.frequent.items).forEach(([key, {value, estimate}], index) => {
+              data.push({
+                axisY: estimate,
+                axisX: value,
+              });
+            });
+        } else if (column.stringSummary?.charPosTracker){
+            Object.entries(column.stringSummary.charPosTracker.charPosMap).forEach(([key, {count}], index) => {
+              data.push({
+                axisY: count,
+                axisX: key,
+              });
+            });
+          }
+
+        return data
+      }
+
+      function graph(column, key, referenceColumn) {
+        let data = [];
+        const columnKey = key.data.key
+        let chartValue = false
+        let chartColor = undefined
+        if(!!referenceColumn){
+          column = referenceColumn.columns[columnKey]
+          chartValue = true
+          chartColor = 1
+        } else if (referenceColumn === undefined) {
+          column = ""
+        }
+
+        if (column.numberSummary?.histogram || column.stringSummary?.frequent || column.stringSummary?.charPosTracker) {
+          data = chartData(column)
+        } else if (column.numberSummary === undefined && referenceColumn === null ) {
+            $(".svg-container").css("padding-bottom", "0")
+            return '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>';
+        } else if (referenceColumn === undefined) {
+            $(document).ready(function() {
+              $(".reference-table-head").addClass("d-none")
+            });
+            return ''
+        } else if (referenceColumn.frequentItems === undefined){
+            return '';
+        }
+        return `
+          <div class="svg-container">
+            ${generateChart(data, ...[,,], chartColor, chartValue)}
+          </div>
+        `;
+      }
+
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
+        return format(date);
+      }
+
+      const driftCountElement = (driftCount, driftColor, driftName, driftRange) => `
+      <div class="display-flex flex-direction-column">
+        <div class="drift-detection-info-drifts-item display-flex align-items">
+          <div class="drift-detection-info-drifts-item-text display-flex align-items">
+            <p class="drift-detection-info-drifts-item-count mb-0">${driftCount}</p>
+            <p class="drift-detection-info-drifts-item-range display-flex justify-content-center mb-0">${driftRange}</p>
+          </div>
+        </div>
+      </div>
+      `
+
+      const drifts = {
+        severe: {
+          count: 0,
+          range: "with severe drift (0.00 - 0.05)",
+        },
+        moderate: {
+          count: 0,
+          range: "with moderate drift (0.05 - 0.3)",
+        },
+        mild: {
+          count: 0,
+          range: "with mild drift (0.3 - 0.6)",
+        },
+        minimal: {
+          count: 0,
+          range: "with minimal drift (0.6 - 1.0)",
+        }
+      };
+
+      const countOfDrifts = (driftNumber, dividedNumber) => {
+        const divide = 1 / dividedNumber;
+        for(let i = 1; i <= dividedNumber; i++){
+          if(driftNumber >= 0 && driftNumber <= 0.05) {
+            Object.values(drifts)[0].count++
+            return 0
+          } else if(driftNumber <= divide*i) {
+            const {severe, ...otherValues} = drifts
+            Object.values(otherValues)[i-1].count++
+            return i
+          }
+        }
+      }
+
+    abbreviate_number = function(value, fixed = 0) {
+      value = +value
+      if (value === null) { return null; } // terminate early
+      if (value === 0) { return '0'; } // terminate early
+      fixed = (!fixed || fixed < 0) ? 0 : fixed; // number of decimal places to show
+      var b = (value).toPrecision(2).split("e"), // get power
+          k = b.length === 1 ? 0 : Math.floor(Math.min(b[1].slice(1), 14) / 3), // floor at decimals, ceiling at trillions
+          c = k < 1 ? value.toFixed(0 + fixed) : (value / Math.pow(10, k * 3) ).toFixed(1 + fixed), // divide by power
+          d = c < 0 ? c : Math.abs(c), // enforce -0 is 0
+          newValue = d,
+          suffixe = ['', 'K', 'M', 'B', 'T'][k]; // append power
+      return {value, newValue, suffixe};
+    }
+
+     function formatBytes(bytes, decimals = 2) {
+       let newValue,
+       suffixe = ""
+       if (bytes === 0) return '0 Bytes';
+
+       const k = 1024;
+       const dm = decimals < 0 ? 0 : decimals;
+       const sizes = ['Bytes', 'KiB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+       const i = Math.floor(Math.log(bytes) / Math.log(k));
+       newValue = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+       suffixe = sizes[i]
+       return {bytes, newValue, suffixe};
+     }
+
+     const valueSuffixe = (newNumber) => `
+       <div class="statistic-measurement">
+        ${newNumber}
+       </div>`
+     const valueNumber = (newNumber) => `
+       <div class="statistic-number">
+        ${newNumber}
+       </div>`
+
+     const numberWithSuffixe = (number, newNumber, suffixe) =>
+       `<div class="tooltip-full-number">
+          <div class="statistic-number">
+             ${newNumber}
+            <div class="statistic-measurement">${suffixe}</div>
+          </div>
+          <span class="tooltiptext">${number}</span>
+        </div>`
+
+     Handlebars.registerHelper("observations", function (properties) {
+       const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.observations)
+       return numberWithSuffixe(value, valueNumber(newValue), valueNumber(suffixe));
+     });
+
+     Handlebars.registerHelper("missingCells", function (properties) {
+       const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_cells)
+       return numberWithSuffixe(value, valueNumber(newValue), valueNumber(suffixe));
+     });
+
+     Handlebars.registerHelper("missingCellsPercentage", function (properties) {
+       const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_percentage)
+       return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
+     });
+
+     Handlebars.registerHelper("getProfileTimeStamp", function (properties) {
+       return formatLabelDate(+properties.properties.dataTimestamp)
+     });
+
+     Handlebars.registerHelper("getProfileName", function (properties) {
+       return properties.properties.tags.name
+     });
+
+      let driftCount = 0;
+      const diffFromRefTableElement = (driftFromRefNumber, circleColor) => `
+         <div class="text-color padding-5 text-align-end justify-content-center">
+           ${driftFromRefNumber}
+         </div>
+       `
+
+       const cheqValueTypeNumber = (profile, profileValue) => {
+         let validValue;
+         if (profile && profileValue !== undefined && typeof profileValue === "number") { 
+           return true
+         } else if (profileValue !== undefined && typeof profileValue !== "number") {
+           return false
+         }
+       }
+
+      Handlebars.registerHelper("getDiffFromRef", function (column, key) {
+        const columnKey = key.data.key
+        const {drift_from_ref} = referenceProfile.columns[columnKey]
+
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
+          driftCount++
+          const driftFromRefNumber = drift_from_ref % 1 ? fixNumberTo(drift_from_ref, 2) : drift_from_ref
+          const circleColor = Object.values(drifts)[countOfDrifts(driftFromRefNumber, 3)].colorClass
+
+          $(document).ready(() => {
+             $(".drift-count").html(driftCount)
+             $(".all-features").html(Object.keys(referenceProfile.columns).length)
+           })
+
+          return diffFromRefTableElement(driftFromRefNumber, circleColor)
+
+        } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref) !== undefined) {
+          driftCount++
+          Object.values(drifts)[0].count++
+          return diffFromRefTableElement("undefined", "severe-drift-circle-color")
+        }
+
+        return '<p style="color: black">-</p>';
+      });
+
+      $(document).ready(() =>
+        Object.values(drifts).map(({count, name, colorClass, range}) =>{
+          $("#drift-detection-info-drifts")
+          .append(driftCountElement(count, colorClass, name, range))
+        })
+      )
+
+      Handlebars.registerHelper("inferredType", function (column) {
+        let infferedType = "";
+
+        if (column.numberSummary) {
+          if (column.numberSummary.isDiscrete) {
+            infferedType = "Discrete";
+          } else {
+            infferedType = "Non-discrete";
+          }
+        } else {
+          infferedType = "Unknown";
+        }
+        return infferedType;
+      });
+
+      Handlebars.registerHelper("frequentItems", function (column) {
+        frequentItemsElemString = "";
+        if (column.numberSummary && column.numberSummary.isDiscrete) {
+          const slicedFrequentItems = column.frequentItems.items.slice(0, 5);
+          for (let fi = 0; fi < slicedFrequentItems.length; fi++) {
+            frequentItemsElemString +=
+              '<span class="wl-table-cell__bedge">' + slicedFrequentItems[fi].jsonValue + "</span>";
+          }
+        } else {
+          frequentItemsElemString += "No data to show";
+        }
+        return frequentItemsElemString;
+      });
+
+      Handlebars.registerHelper("totalCount", function (column) {
+        if (column.numberSummary || column.stringSummary) {
+          return column.counters.count;
+        }
+
+        return "-";
+      });
+
+      Handlebars.registerHelper("mean", function (column) {
+        if (column.numberSummary) {
+          return fixNumberTo(column.numberSummary.mean);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("getGraphHtml",(column,key) => graph(column, key, null));
+      Handlebars.registerHelper("getReferenceGraphHtml",(column,key) => graph(column, key, referenceProfile));
+
+      Handlebars.registerHelper("getDiscreteTypeCount", function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) => {
+          if (feature[1].numberSummary && feature[1].numberSummary.isDiscrete === true) {
+            count++;
+          }
+        });
+        return count.toString();
+      });
+
+      Handlebars.registerHelper("getNonDiscreteTypeCount", function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) => {
+          if (feature[1].numberSummary && feature[1].numberSummary.isDiscrete === false) {
+            count++;
+          }
+        });
+        return count;
+      });
+
+      Handlebars.registerHelper("getUnknownTypeCount", function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) => {
+          if (!feature[1].numberSummary) {
+            count++;
+          }
+        });
+        return count;
+      });
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = {{{profile_from_whylogs}}};
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById("entry-template").innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById("generated-html");
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      const $featureSearch = document.getElementById("wl__feature-search");
+      const $tableBody = document.getElementById("table-body");
+      const $discrete = document.getElementById("inferredDiscrete");
+      const $nonDiscrete = document.getElementById("inferredNonDiscrete");
+      const $unknown = document.getElementById("inferredUnknown");
+
+      const activeTypes = {
+        discrete: true,
+        "non-discrete": true,
+        unknown: true,
+      };
+
+      let searchString = "";
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate && !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function filterNotification() {
+        const $notifCircleContainer = $(".notif-circle-container")
+        const $boxes = $('.wl_filter-options>.form-check>input[name=checkbox]:checked');
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass("d-none")
+        } else {
+          $notifCircleContainer.addClass("d-none")
+        }
+      }
+
+      function handleSearch() {
+        const tableBodyChildren = $tableBody.children;
+
+        for (let i = 0; i < tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = tableBodyChildren[i].dataset.featureName.toLowerCase();
+
+          if (activeTypes[type] && name.startsWith(searchString)) {
+            tableBodyChildren[i].style.display = "";
+          } else {
+            tableBodyChildren[i].style.display = "none";
+          }
+        }
+      }
+
+      $featureSearch.addEventListener(
+        "keyup",
+        debounce((event) => {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
+
+      $discrete.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["discrete"] = true;
+        } else {
+          activeTypes["discrete"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $nonDiscrete.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["non-discrete"] = true;
+        } else {
+          activeTypes["non-discrete"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $unknown.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["unknown"] = true;
+        } else {
+          activeTypes["unknown"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      function checkCurrentProfile(item, referenceItem) {
+        if (referenceProfile && Object.values(referenceProfile)) {
+          return referenceItem
+        } else {
+          return item
+        }
+      }
+
+      if(checkCurrentProfile(true, false)) {
+        $(".svg-container").css("padding-bottom", "27%")
+        $("#diff-from-ref").addClass("d-none")
+        $(".diff-from-ref-table-cell").addClass("d-none")
+      } else {
+        $("#diff-from-ref").removeClass("d-none")
+        $(".diff-from-ref-table-cell").removeClass("d-none")
+      }
+    }
+
+    function checkedBoxes() {
+      const $boxes = $('input[name=checkbox]:checked');
+      const $notifCircleContainer = $(".notif-circle-container")
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass("d-none")
+      }
+    }
+
+    function openFilter() {
+      const $filterOptions = $(".dropdown-container");
+      const $notifCircleContainer = $(".notif-circle-container")
+      const filterClass = $filterOptions.attr("class");
+
+      if (filterClass.indexOf("d-none") > 0) {
+        $notifCircleContainer.addClass("d-none")
+        $filterOptions.removeClass("d-none");
+        $(".filter-icon").addClass("d-none")
+        $(".close-filter-icon").removeClass("d-none")
+      } else {
+        $filterOptions.addClass("d-none");
+        $(".close-filter-icon").addClass("d-none")
+        $(".filter-icon").removeClass("d-none")
+        checkedBoxes()
+      }
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  </script>
+</html>
