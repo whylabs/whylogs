@@ -19,8 +19,8 @@ spotless {
     }
 }
 
-val scalaVersion = project.properties.getOrDefault("scalaVersion", "2.12")
-val sparkVersion = project.properties.getOrDefault("sparkVersion", "3.1.1") as String
+val scalaVersion = System.getenv("SCALA_VERSION") ?: "2.12"
+val sparkVersion = System.getenv("SPARK_VERSION") ?: "3.1.1"
 val artifactBaseName = "${rootProject.name}-spark_$sparkVersion-scala_$scalaVersion"
 
 tasks.jar {
@@ -32,7 +32,7 @@ tasks.withType<Jar> {
 }
 
 fun scalaPackage(groupId: String, name: String, version: String) =
-    "$groupId:${name}_$scalaVersion:$version"
+    "$groupId:${name}_${scalaVersion}:${version}"
 
 sourceSets {
     main {

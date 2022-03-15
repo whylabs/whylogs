@@ -1,0 +1,2822 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Profile Viewer | whylogs</title>
+
+    <link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <style type="text/css">
+      :root {
+        /* CONSTANTS */
+        --SIDE-PANEL-WIDTH: 320px;
+        --PROPERTY-PANEL-WIDTH: 420px;
+
+        /* COLOR VARIABLES */
+        /** Standard colors */
+        --red: #d11010;
+        --orange: #f07028;
+        --yellow: #faaf40;
+        --olive: #b5cc18;
+        --green: #1dbb42;
+        --teal: #00b5ad;
+        --blue: #2683c9;
+        --violet: #6435c9;
+        --purple: #a333c8;
+        --pink: #ed45a4;
+        --brown: #ac724d;
+        --grey: #778183;
+        --black: #1b1c1d;
+        --white: #ffffff;
+
+        /** Branded colors */
+        --brandPrimary900: #0e7384;
+        --brandPrimary800: #228798;
+        --brandPrimary700: #369bac;
+        --brandPrimary600: #4aafc0;
+        --brandPrimary500: #5ec3d4;
+        --brandPrimary400: #72d7e8;
+        --brandPrimary300: #86ebfc;
+        --brandPrimary200: #a6f2ff;
+        --brandPrimary100: #cdf8ff;
+        --brandSecondary900: #4f595b;
+        --brandSecondary800: #636d6f;
+        --brandSecondary700: #778183;
+        --brandSecondary600: #8b9597;
+        --brandSecondary500: #9fa9ab;
+        --brandSecondary400: #b3bdbf;
+        --brandSecondary300: #c7d1d3;
+        --brandSecondary200: #dbe5e7;
+        --brandSecondary100: #ebf2f3;
+        --secondaryLight1000: #313b3d;
+        --brandRed4: #b30000;
+        --brandRed3: #d72424;
+        --brandRed2: #eb5656;
+        --brandRed1: #ff8282;
+        --night1: #021826;
+        /** Purpose colors */
+        --textColor: #4f595b;
+        --linkColor: #369bac;
+        --infoColor: #2683c9;
+        --warningColor: #faaf40;
+        --tealBackground: #eaf2f3;
+        --pageBackground: #e5e5e5;
+        --contrastTableRow: #fafafa;
+        --whiteBackground: #ffffff;
+        --primaryBackground: #e5e5e5;
+      }
+
+      /* RESET STYLE */
+      *,
+      *::after,
+      *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Asap", Arial, Helvetica, sans-serif;
+        color: var(--secondaryLight1000);
+      }
+
+      /* Hide for mobile, show later */
+      .sidebar {
+        display: none;
+      }
+      @media (min-width: 768px) {
+        .sidebar {
+          position: fixed;
+          top: 48px;
+          bottom: 0;
+          left: 0;
+          z-index: 1000;
+          display: block;
+          padding: 20px;
+          overflow-x: hidden;
+          overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+          background-color: var(--brandSecondary100);
+          border-right: 1px solid var(--brandSecondary200);
+          width: var(--SIDE-PANEL-WIDTH);
+        }
+      }
+
+      /* Sidebar navigation */
+      .nav-sidebar {
+        margin-right: -21px; /* 20px padding + 1px border */
+        margin-bottom: 20px;
+        margin-left: -20px;
+      }
+      .nav-sidebar > li > a {
+        padding-right: 20px;
+        padding-left: 20px;
+      }
+      .nav-sidebar > .active > a,
+      .nav-sidebar > .active > a:hover,
+      .nav-sidebar > .active > a:focus {
+        color: var(--white);
+        background-color: var(--linkColor);
+      }
+
+      /*
+      * Main content
+      */
+      .main {
+        position: relative;
+        padding-top: 48px;
+      }
+      @media (min-width: 768px) {
+        .main {
+          padding-right: 0;
+          padding-left: var(--SIDE-PANEL-WIDTH);
+        }
+      }
+      .main .page-header {
+        margin-top: 0;
+      }
+
+      /*
+      * Custom styles
+      */
+
+      .navbar-inverse {
+        background-color: var(--night1);
+      }
+      a.navbar-link {
+        display: inline-block;
+      }
+
+      a.navbar-link svg {
+        width: 145px;
+        display: inline-block;
+        margin-left: 5px;
+        position: relative;
+        top: -2px;
+      }
+      a.navbar-brand {
+        display: inline-block;
+      }
+      .navbar-header h5 {
+        color: var(--white);
+        display: inline-block;
+        position: relative;
+        font-weight: lighter;
+        position: relative;
+        top: 3px;
+        margin-left: 8px;
+      }
+      ul.navbar-nav {
+        position: absolute;
+        right: 20px;
+      }
+      li.nav-item p {
+        color: var(--white);
+        font-size: 0.9em;
+        margin-top: 7px;
+        margin-bottom: 0;
+      }
+      ul.nav li.list-group-item {
+        background: none;
+        border: none;
+        padding: 5px 0;
+        font-size: 14px;
+      }
+      ul.nav li.list-group-item span {
+        position: relative;
+        color: var(--brandPrimary900);
+        cursor: pointer;
+        transition: color 150ms linear;
+      }
+
+      ul.nav li.list-group-item span::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -3px;
+        height: 1px;
+        width: 100%;
+        background-color: var(--brandPrimary700);
+        transform: translateX(-50%) scaleX(0);
+        transition: transform 150ms linear;
+      }
+
+      ul.nav li.list-group-item span:hover {
+        color: var(--brandPrimary700);
+      }
+
+      ul.nav li.list-group-item span:hover::before {
+        transform: translateX(-50%) scaleX(1);
+      }
+
+      ul.nav li.list-group-item a {
+        color: var(--brandPrimary900);
+      }
+      .gray600 {
+        color: var(--brandSecondary600);
+      }
+      .accordion-header {
+        background-color: var(--brandSecondary100);
+      }
+
+      .feature-count {
+        font-weight: 700;
+        color: var(--brandPrimary900);
+      }
+      .left-rail h5 {
+        color: var(--brandPrimary900);
+      }
+      .accordion-button:not(.collapsed) {
+        color: var(--brandPrimary900);
+        background-color: var(--brandSecondary200);
+      }
+      .cta-button {
+        background-color: var(--brandPrimary900);
+        font-weight: 700;
+        width: 100%;
+        text-align: center;
+        border-color: var(--brandPrimary900);
+      }
+
+      .cta-button--outline {
+        background-color: transparent;
+        color: var(--brandPrimary900);
+      }
+
+      .cta-button:focus,
+      .cta-button:active,
+      .cta-button:hover {
+        background-color: var(--brandPrimary800);
+        border-color: var(--brandPrimary800);
+      }
+
+      /* CSS DIV TABLE BASIC STYLE */
+      .wl-table-wrap {
+        position: relative;
+        height: calc(100vh - 48px);
+        width: 100vw;
+        overflow: auto;
+      }
+      .wl-table-wrap--narrow {
+        width: calc(100vw - var(--PROPERTY-PANEL-WIDTH));
+      }
+      @media (min-width: 768px) {
+        .wl-table-wrap {
+          width: calc(100vw - var(--SIDE-PANEL-WIDTH));
+        }
+        .wl-table-wrap--narrow {
+          width: calc(100vw - var(--SIDE-PANEL-WIDTH) - var(--PROPERTY-PANEL-WIDTH));
+        }
+      }
+
+      .wl-table__text-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: calc(100vh - 48px);
+        max-width: 400px;
+        text-align: center;
+        padding: 20px;
+        margin: 0 auto;
+      }
+
+      .wl-table__text-message p {
+        color: var(--brandPrimary900);
+      }
+
+      .wl-table {
+        display: table;
+        width: 100%;
+      }
+
+      .wl-table-row {
+        display: table-row;
+      }
+
+      .wl-table-row:hover,
+      .wl-table-row:hover .wl-table-cell:first-child {
+        background-color: var(--brandSecondary100);
+      }
+      .wl-table-row--clickable:hover .wl-table-cell__title-button {
+        visibility: visible;
+      }
+
+      a .wl-table-row--bottom-shadow {
+        box-shadow: 0 0 8px 2px var(--brandSecondary400);
+      }
+
+      .wl-table-heading {
+        position: relative;
+        z-index: 1;
+        display: table-header-group;
+        font-weight: 700;
+      }
+
+      .wl-table-cell,
+      .wl-table-head {
+        border-bottom: 1px solid var(--brandSecondary200);
+        display: table-cell;
+        padding: 12px 18px;
+      }
+
+      .wl-table-cell {
+        font-size: 12px;
+      }
+
+      .wl-table-cell--top-spacing {
+        padding-top: 35px; /* cell-top-padding + cell-title-height */
+      }
+
+      .wl-table-head {
+        position: sticky;
+        top: 0;
+        min-width: 130px;
+        background-color: var(--white);
+        border-bottom: 2px solid var(--brandSecondary100);
+        font-size: 12px;
+        line-height: 1.67;
+        white-space: nowrap;
+      }
+
+      .wl-table-body {
+        display: table-row-group;
+      }
+
+      .wl-table-row .wl-table-cell:first-child,
+      .wl-table-row .wl-table-head:first-child {
+        position: sticky;
+        left: 0;
+        background-color: var(--white);
+        border-right-width: 2px;
+      }
+
+      .wl-table-row .wl-table-head:first-child {
+        min-width: 360px;
+        z-index: 2;
+      }
+
+      /* Table custom style */
+      .wl-table-cell__title-wrap {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .wl-table-cell__title {
+        height: 25px;
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .wl-table-cell__title-button {
+        visibility: hidden;
+        height: 100%;
+        margin-top: -7px;
+        padding: 5px 10px;
+        background-color: var(--white);
+        border: 1px solid var(--brandSecondary400);
+        border-radius: 4px;
+        transition: visibility 150ms linear, background-color 150ms linear;
+      }
+
+      .wl-table-cell__title-button:hover {
+        background-color: var(--brandSecondary100);
+      }
+
+      .wl-table-cell__bedge-wrap {
+        padding: 2px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        font-style: italic;
+        text-align: center;
+        color: var(--brandSecondary400);
+      }
+      .wl-table-cell__bedge {
+        display: flex;
+        align-items: center;
+        height: 24px;
+        margin: 1px;
+        padding: 2px 8px;
+        border: 1px solid var(--brandSecondary400);
+        font-style: normal;
+        color: var(--brandSecondary900);
+        border-radius: 20px;
+        white-space: nowrap;
+      }
+
+      /* Property side panel */
+      .wl-property-panel {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        z-index: 5;
+        width: var(--PROPERTY-PANEL-WIDTH);
+        height: calc(100vh - 48px);
+        padding: 15px 25px;
+        background: var(--white);
+        border-left: 1px solid var(--brandPrimary700);
+        transform: translateX(100%);
+        overflow: auto;
+      }
+
+      .wl-property-panel__chart {
+        margin-bottom: 60px;
+      }
+
+      .wl-compare-profile {
+        position: sticky;
+        left: 0;
+        display: flex;
+        padding: 18px;
+        justify-content: flex-end;
+        flex-direction: row-reverse;
+      }
+
+      .wl-property-panel__chart--single {
+        padding-bottom: 17px;
+      }
+
+      .wl-property-panel__chart-title {
+        color: var(--brandSecondary900);
+        font-size: 14px;
+        font-family: Asap, sans-serif;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+
+      .wl-property-panel--open {
+        transform: translateX(0);
+      }
+
+      .wl-property-panel__title {
+        font-size: 14px;
+        font-weight: bold;
+        font-family: "Asap", Arial, Helvetica, sans-serif;
+        line-height: 1.5;
+      }
+
+      .wl-property-panel__frequent-items span {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 2px 5px 0;
+      }
+
+      .wl-property-panel__button {
+        position: relative;
+        display: block;
+        margin-left: auto;
+        padding: 5px;
+        border: 1px solid var(--brandSecondary700);
+        font-size: 14;
+        color: var(--brandSecondary900);
+      }
+
+      .sidebar-content__profile-dropdown-outer-container {
+        display: flex;
+      }
+      .sidebar-content__profile-dropdown-inner-container {
+        position: relative;
+        width: 100%;
+      }
+
+      .sidebar-content__profile-dropdown {
+        display: block;
+        width: 100%;
+        /* for Firefox */
+        -moz-appearance: none;
+        /* for Chrome */
+        -webkit-appearance: none;
+      }
+
+      /* For IE10 */
+      .sidebar-content__profile-dropdown::-ms-expand {
+        display: none;
+      }
+
+      .sidebar-content__profile-dropdown:read-only {
+        background-color: var(--white);
+      }
+
+      .sidebar-content__profile-dropdown-bar {
+        width: 5px;
+        margin-right: 5px;
+        border-radius: 2px;
+        background-color: var(--brandPrimary900);
+      }
+
+      .sidebar-content__profile-dropdown-label {
+        font-size: 12px;
+        font-weight: bold;
+        color: var(--brandSecondary900);
+      }
+
+      .sidebar-content__profile-dropdown-chevron {
+        position: absolute;
+        bottom: 7px;
+        right: 5px;
+      }
+
+      .wl-property-panel__table {
+        width: 100%;
+      }
+
+      .wl-property-panel__table-tr {
+        height: 42px;
+      }
+
+      .wl-property-panel__table-th {
+        border-top: 2px solid var(--brandSecondary200);
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .wl-property-panel__table-th:nth-child(2) {
+        border-top: 2px solid var(--brandPrimary900);
+      }
+      .wl-property-panel__table-th:nth-child(3) {
+        border-top: 2px solid var(--brandPrimary900);
+      }
+      .wl-property-panel__table-th:nth-child(4) {
+        border-top: 2px solid var(--brandPrimary900);
+      }
+
+      .wl-property-panel__table-th-profile {
+        text-align: right;
+      }
+
+      .wl-property-panel__table-td {
+        font-size: 13px;
+        font-family: "Asap", Arial, Helvetica, sans-serif;
+      }
+
+      .wl-property-panel__table-td-profile {
+        text-align: right;
+      }
+
+      .add-profile-sidebar-button {
+        background-color: var(--white);
+        border: 1px solid var(--brandSecondary300);
+        border-radius: 10%;
+        font-size: 14px;
+        padding: 7px 10px 7px 10px;
+        position: relative;
+        left: 68%;
+        margin-top: 6px;
+        margin-bottom: 5px;
+        color: var(--brandSecondary800);
+      }
+
+      .add-profile-sidebar-button:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+      .remove-button {
+        background-color: var(--white);
+        padding: 6px 10px 6px 10px;
+        border: 1px solid var(--brandSecondary300);
+        margin-left: 5px;
+        border-radius: 10%;
+        color: var(--brandSecondary800);
+        height: 80%;
+        width: 15%;
+        align-self: flex-end;
+      }
+      .button-remove-select {
+        margin-top: 20px;
+      }
+      .label-select {
+        font-size: 12px;
+      }
+      .already-choosen-data {
+        opacity: 0.5;
+      }
+      .div-select-0 {
+        width: 5px;
+        margin-right: 5px;
+        border-radius: 2px;
+        background-color: #0e7384;
+      }
+      .div-select-1 {
+        width: 5px;
+        margin-right: 5px;
+        border-radius: 2px;
+        background-color: #2683c9;
+      }
+      .div-select-2 {
+        width: 5px;
+        margin-right: 5px;
+        border-radius: 2px;
+        background-color: #44c0e7;
+      }
+      /* Load JSON file form */
+      .wl__json-form-input {
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media screen and (min-width: 1000px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .wl__unlock-the-power {
+        padding: 15px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999999;
+        background: #F1F6F6;
+        margin-bottom: 0 !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        -webkit-box-shadow: 0px -6px 13px 0px rgba(0,0,0,0.32);
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.05);
+        width: var(--SIDE-PANEL-WIDTH);
+      }
+
+      .wl__btn-signup {
+        font-size: 13px;
+        padding: 13px;
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .wl__close-icon {
+        width: 15px;
+        height: 15px;
+      }
+
+      .wl__close-icon img{
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      .count-color {
+        color: black;
+      }
+
+      .wl__dropdown_arrow-icon_container {
+        width: 18px;
+        height: 16px;
+      }
+
+      .wl__dropdown_arrow-icon_container img{
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+
+      .wl__dropdown_arrow-icon, .open-sign-up-text{
+        position: relative;
+      }
+
+      .notif-circle-container, .open-sign-up-text-notif-container{
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: var(--brandSecondary100);
+        cursor: pointer;
+      }
+
+      .open-sign-up-text-notif-container {
+        padding: 10.3px;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+      .open-sign-up-text-notif {
+        display: flex;
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 2.5px 6px;
+        color: #FFF;
+        border-radius: 50%;
+        background-color: #5CAEBC;
+      }
+
+      .space-between {
+        display: flex;
+        justify-content: space-between;
+      }
+
+     .align-items {
+       display: flex;
+       align-items: center;
+     }
+
+     .display-flex{
+       display: flex;
+     }
+
+     .feature-count-title {
+       font-size: 22px;
+     }
+
+     .wl_filter-options {
+       background: rgba(255, 255, 255, 0.5);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       padding: 10px;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 1.25em;
+     }
+
+     .not-clickable {
+       pointer-events: none;
+     }
+
+     .wl_arrow-icon {
+       width: 15px;
+       height: 15px;
+     }
+
+     .arrow-icon-container {
+       height: 100%;
+       cursor: pointer;
+     }
+
+     .wl_list-item-dot {
+       background: #b0d2d7;
+       width: 8px;
+       height: 8px;
+       border-radius: 50px;
+     }
+
+     .wl_filter-list-item {
+       display: flex;
+       align-items: center;
+     }
+
+     .wl_filter-list-item>span{
+       padding-left: 15px;
+     }
+
+     .table-border-none {
+       padding: 0;
+       border: none;
+     }
+
+     .clickable-test-feature-wrap {
+       background: #F8FAFB;
+     }
+
+     .clickable-test-feature-heading {
+       display: flex;
+       flex-direction: column;
+     }
+
+     .clickable-test-feature-heading-wrap {
+       padding: 35px;
+       padding-bottom: 0;
+       border-bottom: 2px solid #EBF2F3;
+     }
+
+     .pages-button-wrap {
+       display: flex;
+       align-items: flex-end;
+     }
+
+     .page-button-wrap {
+      padding-right: 60px;
+     }
+
+     .page-button{
+       border: none;
+       background: no-repeat;
+       color: #6C757D;
+       font-weight: 600;
+       font-size: 16px;
+       letter-spacing: -0.01em;
+       padding-bottom: 25px;
+     }
+
+     .activ-pages-button{
+       color: #369BAC !important;
+       border-bottom: 4px solid #369BAC !important;
+       padding-bottom: 21px !important;
+     }
+
+     .title p {
+      font-weight: 600;
+      font-size: 24px;
+      color: #313B3D;
+     }
+
+     .info p {
+       font-weight: 600;
+       font-size: 12px;
+       color: #313B3D;
+     }
+
+     .info div {
+       font-weight: 600;
+       font-size: 18px;
+       line-height: 20px;
+       color: #0E7384;
+     }
+
+     .chart, .info {
+       display: flex;
+       flex-direction: column;
+       align-items: flex-end;
+       padding-right: 20px;
+     }
+
+     .chart {
+       margin-bottom: 1rem;
+     }
+
+     .info:last-child {
+       padding: 0;
+     }
+
+     .clickable-test-feature-body {
+       display: flex;
+       flex-direction: column;
+     }
+
+     .chart-box-wrap {
+       display: flex;
+       justify-content: center;
+     }
+
+     .chart-box {
+       display: flex;
+       align-items: center;
+       justify-content: center;
+       flex-direction: column;
+       width: 75%;
+       height: 340px;
+       border: 2px solid #EBF2F3;
+       background: #FFF;
+       border-radius: 4px;
+     }
+
+     .chart-box-title {
+       width: 80%;
+       justify-content: space-between;
+     }
+
+     .chart-box-title p{
+       font-family: Asap;
+       font-weight: bold;
+       font-size: 18px;
+       line-height: 16px;
+       color: #4F595B;
+     }
+
+     .chart-info-wrap {
+       display: flex;
+       align-items: flex-end;
+     }
+
+     .chart-info {
+       display: flex;
+       align-items: flex-end;
+     }
+
+     .property-panel-close-icon {
+       cursor: pointer;
+     }
+
+     .flex-direction-colum {
+       display: flex;
+       flex-direction: column;
+     }
+
+     .feature-file-name {
+       font-size: 17px;
+       font-weight: 900;
+       color: #6C757D;
+     }
+
+     .dropdown-container {
+       background: rgba(255, 255, 255, 0.5) !important;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .dropdown {
+       align-items: center;
+     }
+
+     .align-items {
+       align-items: center;
+     }
+
+     .dropdown p {
+       font-family: Asap;
+       font-size: 15px;
+       line-height: 150%;
+       margin: 0;
+     }
+     .dropdown img {
+       height: 10px;
+       cursor: pointer;
+     }
+
+     .search-input{
+       padding-top: 0 !important;
+       padding-bottom: 0 !important;
+     }
+
+     .search-input input{
+       border: none;
+       background: none;
+       outline: none;
+       height: 40px;
+       width: 100%;
+       font-size: 17px;
+     }
+
+     .search-input img{
+       height: 19px;
+       pointer-events: none;
+     }
+
+     input::placeholder {
+       color: var(--secondaryLight1000);
+     }
+
+     .wl-selected-profile {
+       position: sticky;
+       left: 0;
+     }
+
+     .circle-color {
+       display: inline-block;
+       padding: 5px;
+       border-radius: 50px;
+     }
+
+     .colors-for-distingushing-charts {
+       padding-right: 10px;
+     }
+
+     .summary-statistic {
+       padding-right: 20px;
+     }
+
+     .summary {
+       font-family: Asap;
+       font-style: normal;
+       font-weight: 600;
+       font-size: 14px;
+       line-height: 16px;
+       color: #6C757D;
+       padding-right: 10px;
+     }
+
+     .summary-title {
+       font-family: Asap;
+       font-weight: normal;
+       font-size: 15px;
+       line-height: 14px;
+       color: #6C757D;
+     }
+
+     .wl-selected-reference-profile {
+       font-weight: 900;
+     }
+
+     .reference-profile-time-stamp{
+       padding-left: 20px;
+     }
+
+     .reference-profile-time-stamp>strong{
+       font-size: 1rem;
+     }
+
+     .bar.positive {
+       fill: #369BACB2;
+     }
+
+     .bar.negative {
+       fill: #2683C9E5;
+     }
+
+     .frequent-item-box {
+       width: 90%;
+       height: 50px;
+       align-items: flex-start;
+       display: flex;
+       justify-content: center;
+       flex-direction: column;
+       border: 2px solid #EBF2F3;
+       background: #FFF;
+       border-radius: 4px;
+     }
+
+     .frequent-item-box-wrap {
+       display: flex;
+       justify-content: center;
+     }
+
+     .frequent-item-box-to-title {
+       padding-left: 20px;
+       font-family: Asap;
+       font-weight: bold;
+       font-size: 16px;
+       line-height: 16px;
+       color: #4F595B;
+     }
+
+     .frequent-items-body {
+       display: flex;
+       flex-direction: column;
+     }
+
+
+     .text-align-center {
+       text-align: center;
+      }
+
+      .frequent-item-box {
+        padding: 20px;
+        width: 90%;
+        align-items: flex-start;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        border: 2px solid #EBF2F3;
+        background: #FFF;
+        border-radius: 4px;
+      }
+
+      .frequent-item-box-wrap {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+
+      .frequent-item-box-to-title {
+        margin-left: 30px;
+        margin-bottom: 20px;
+        font-family: Asap;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 16px;
+        color: #4F595B;
+      }
+
+      .frequent-items-body {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .text-align-center {
+        text-align: center;
+      }
+
+      .fequent-items-wrap {
+        width: 100%;
+      }
+
+      .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 85%;
+        padding-bottom: 34%;
+        vertical-align: top;
+        overflow: hidden;
+      }
+
+      .graph-svg-container {
+        padding-bottom: 13%;
+      }
+
+      .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+      }
+
+      .reference-table-head {
+        min-width: 305px;
+      }
+
+     @media screen and (min-width: 1000px) {
+       .desktop-content {
+         display: block;
+       }
+       .no-responsive {
+         display: none;
+       }
+       .wl__unlock-the-power {
+         z-index: 999999;
+       }
+     }
+
+     @media only screen and (min-width: 1350px) {
+       .clickable-test-feature-body {
+         display: flex;
+         flex-direction: row;
+         flex-wrap: wrap;
+         justify-content: center;
+         row-gap: 20px;
+         column-gap: 20px;
+       }
+
+       .chart-box-wrap {
+         width: 45%;
+         display: flex;
+         justify-content: center;
+         margin-bottom: 0 !important;
+       }
+
+       .chart-box {
+         width: 100%;
+         height: 310px;
+         border: 2px solid #EBF2F3;
+         background: #FFF;
+         border-radius: 4px;
+       }
+     }
+
+    </style>
+  </head>
+
+  <body id="generated-html"></body>
+
+  <script id="entry-template" type="text/x-handlebars-template">
+    {{{{raw}}}}
+      <div class="desktop-content">
+        <nav class="navbar navbar-inverse fixed-top">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <h5>Profile viewer for whylogs</h5>
+              <ul class="navbar-nav d-inline-block">
+                <li class="nav-item">
+                  <p>
+                    Maintained by
+                    <a
+                      class="navbar-link"
+                      href="https://try.whylabsapp.com?utm_source=whylogs_html_viewer"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                    >
+                      <svg
+                          width="145"
+                          height="21.37"
+                          viewBox="0 0 145 21.37"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          xmlns:xlink="http://www.w3.org/1999/xlink"
+                      >
+                        <rect width="145" height="21.37" fill="url(#pattern0)"></rect>
+                        <defs>
+                          <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+                            <use xlink:href="#image0" transform="scale(0.0025 0.0169492)"></use>
+                          </pattern>
+                          <image
+                            id="image0"
+                            width="400"
+                            height="59"
+                            xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHYAAAASCAYAAACOwipdAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAARKSURBVHgB3VqBcdswDKSzQLVB2QmqEdQJ6k4QblB1AisTRJnAzgRJJpA2sDuBnAmcTICSEWVDEEhCdtK79u94UsAHCIAUBcpZAIBWShnbHheLxU4F4HmlbS+21Zb7kuDtLGdD+oy95F5/ryKwXGdD21YNY1lZZi8/bXumtiO+rL2dHzg+21fYy1LiS8C2UfJYtOpz8ilCe7attbbaiJ0hfue3ts39vfPtfqRryVvocfCKIaMNnFAJeQWSayRvVAS2f4m4NZIbJC9VApazQfxHJM+QfKtmwsUljYXxI4XbgA3t5yiGzrZ8UNhDIlkwnpQ3A0JeEUhGl0gEnsA1kpdI7oLUQhuj2KifaiZgvHhHcQr5KdwyNjqh7mFQqJCwCThWMQYKFU9mR/ounljft0V924A+Xd0t03+EmgESRzRvSKdB3AefT9q2xGaG9Jekr/Iy54tb7C3Q3NqbnChpxrEOpqgTAdSRhFwysXTSUqu7ozHBZRPbAI9CqGMivAPHg/GDtQ7oFp6n3d9XvqBoEccQBbdna8bWNeE5ToFEtfoA+ELlBolKGG/5KzX29+ac4oiDH6dAIlxsrtTl2Ak4r5zQFU62VUOsV17+hDjXRKckAw/VcEZWqcG890omB2vbLZoWid589IurQvI7SfU8A3jyNrb9Qn8XkHjXcvC7h2su7wXq2qN7fAK5jj311HgW2lbItua2yA23LVAeMwbeig9+ewq1jhuDSciwdZWMD+4+i+geoWQ5ou9W7eUNkoVqlIbLDYQLIlqfZDCtiIcclhApItn3IxNMBtMJcjLJe5orOiRYR3x2E5T7+1XKB6J3hBIAxvlZR+IqErrGy/JIzB1M6wI3Tuy4swUuZiBHCS8LPZ2jlzzhtYHEvPvEItua6FRz+AL77NOK+hvU1zD6uN8E5BRdwO8NxLGiSvRxpytkibg1DgQS2zCTHGfXRBq7oCKJx/48CPhzJ7ah/rgrhFFE9E1knDJmB/HcXC19nrrU+E7hEXVihdiZlCL0XnuX406AjxdCJeCLJ5aJVcN0h6BoiI0G9ZnEeM2cWJCPHc7ZFeHgI4pG9y0m+W+S3LfiTegb8j+MUSXsqn1f8e8jOi7RWp2H15n8YT7wEfDLFUPgJuaekd0xsif1HwGm59Zj8myuvtjLN9JaxJ19rvXjfUeinZffDk9iZMF8VQnjNdlWQt+FcwkPOz2D+1e3Yr+NcS34WVIQIwB/JDpExpvkE6ZH0becwOmToruuSL+ROFdHAmnwYDOC/siJlfzqk3pHciiUAMC8I2H+jwBu8vOAzRQ6CD3VcFo9qV9QcBWnEwFnyG6d4OZwelqMSgD6idpB/zFcC/jYFwmSiwvZxgvYeFk5YywXQ87YrQQ+d4PuIuCcVn3xtEsVQ97QXlI0ebtZ7Af9c7jnAPrqPRdQX+b6wPkOsid+H/sUC6fv8Ub18/NZ9TXRb9W/34//APEHP1OPMOvpfaEAAAAASUVORK5CYII="
+                          />
+                        </defs>
+                      </svg>
+                    </a>
+                  </p>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+        <div class="container-fluid">
+          <div class="row">
+          <div class="sidebar-wrap">
+            <div class="sidebar">
+              <div id="sidebar-content">
+                <div id="total-feature-count">
+                  <div class="feature-count-title space-between">
+                    <div class="flex-direction-colum mb-3">
+                      <div class="mb-3">
+                        <strong class="feature-count count-color mb-3 wl__feature-count">{{getTotalFeatureCount}}</strong>
+                        <strong>features</strong>
+                      </div>
+                      <div class="flex-direction-colum mb-3">
+                        <strong class="feature-count count-color">Profile time stamp:</strong>
+                        <strong class="wl__feature-file-name feature-file-name count-color">{{getProfileTimeStamp this}}</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <div class="mb-4">
+                <div class="flex-direction-colum">
+                  <div class="form-control dropdown-container dropdown space-between search-input mb-2">
+                    <input type="text" id="wl__feature-search" placeholder="Quick search..." />
+                    <img
+                      src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC44IiBkPSJNMTQuODgyOCAxNC42MTUyTDExLjMzNzkgMTEuMDcwM0MxMS4yNSAxMS4wMTE3IDExLjE2MjEgMTAuOTUzMSAxMS4wNzQyIDEwLjk1MzFIMTAuNjkzNEMxMS42MDE2IDkuODk4NDQgMTIuMTg3NSA4LjQ5MjE5IDEyLjE4NzUgNi45Njg3NUMxMi4xODc1IDMuNjI4OTEgOS40MzM1OSAwLjg3NSA2LjA5Mzc1IDAuODc1QzIuNzI0NjEgMC44NzUgMCAzLjYyODkxIDAgNi45Njg3NUMwIDEwLjMzNzkgMi43MjQ2MSAxMy4wNjI1IDYuMDkzNzUgMTMuMDYyNUM3LjYxNzE5IDEzLjA2MjUgOC45OTQxNCAxMi41MDU5IDEwLjA3ODEgMTEuNTk3N1YxMS45Nzg1QzEwLjA3ODEgMTIuMDY2NCAxMC4xMDc0IDEyLjE1NDMgMTAuMTY2IDEyLjI0MjJMMTMuNzEwOSAxNS43ODcxQzEzLjg1NzQgMTUuOTMzNiAxNC4wOTE4IDE1LjkzMzYgMTQuMjA5IDE1Ljc4NzFMMTQuODgyOCAxNS4xMTMzQzE1LjAyOTMgMTQuOTk2MSAxNS4wMjkzIDE0Ljc2MTcgMTQuODgyOCAxNC42MTUyWk02LjA5Mzc1IDExLjY1NjJDMy40ODYzMyAxMS42NTYyIDEuNDA2MjUgOS41NzYxNyAxLjQwNjI1IDYuOTY4NzVDMS40MDYyNSA0LjM5MDYyIDMuNDg2MzMgMi4yODEyNSA2LjA5Mzc1IDIuMjgxMjVDOC42NzE4OCAyLjI4MTI1IDEwLjc4MTIgNC4zOTA2MiAxMC43ODEyIDYuOTY4NzVDMTAuNzgxMiA5LjU3NjE3IDguNjcxODggMTEuNjU2MiA2LjA5Mzc1IDExLjY1NjJaIiBmaWxsPSIjMzY5QkFDIi8+Cjwvc3ZnPgo="
+                    />
+                  </div>
+                  <div class="wl__dropdown_arrow-icon">
+                    <div class="form-control dropdown-container flex-direction-colum mb-2" id="dropdown-container">
+                      <div onclick="openFilter()" class="space-between dropdown">
+                        <p>Filter by type</p>
+                        <img
+                          id="dropdown-arrow-icon"
+                          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTMiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEzIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMi4wNTg2IDEuMzQzNzVMMTEuNTM5MSAwLjc5Njg3NUMxMS40MDIzIDAuNjYwMTU2IDExLjE4MzYgMC42NjAxNTYgMTEuMDc0MiAwLjc5Njg3NUw2LjEyNSA1Ljc0NjA5TDEuMTQ4NDQgMC43OTY4NzVDMS4wMzkwNiAwLjY2MDE1NiAwLjgyMDMxMiAwLjY2MDE1NiAwLjY4MzU5NCAwLjc5Njg3NUwwLjE2NDA2MiAxLjM0Mzc1QzAuMDI3MzQzOCAxLjQ1MzEyIDAuMDI3MzQzOCAxLjY3MTg4IDAuMTY0MDYyIDEuODA4NTlMNS44Nzg5MSA3LjUyMzQ0QzYuMDE1NjIgNy42NjAxNiA2LjIwNzAzIDcuNjYwMTYgNi4zNDM3NSA3LjUyMzQ0TDEyLjA1ODYgMS44MDg1OUMxMi4xOTUzIDEuNjcxODggMTIuMTk1MyAxLjQ1MzEyIDEyLjA1ODYgMS4zNDM3NVoiIGZpbGw9IiMzNjlCQUMiLz4KPC9zdmc+Cg=="
+                        />
+                      </div>
+                      <div class="filter-options d-none">
+                        <div class="form-check mb-1 mt-2">
+                          <input
+                            class="form-check-input wl__feature-filter-input"
+                            type="checkbox"
+                            name="checkbox"
+                            value="Discrete"
+                            id="inferredDiscrete"
+                            onclick="changeDiscreteValue()"
+                            checked
+                          />
+                          <label class="form-check-label" for="inferredDiscrete">
+                            Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                          </label>
+                        </div>
+                        <div class="form-check mb-1">
+                          <input
+                            class="form-check-input wl__feature-filter-input"
+                            type="checkbox"
+                            name="checkbox"
+                            value="Non-discrete"
+                            id="inferredNonDiscrete"
+                            onclick="changeNonDiscreteValue()"
+                            checked
+                          />
+                          <label class="form-check-label" for="inferredNonDiscrete">
+                            Inferred non-discrete (<span
+                              class="wl__feature-count--non-discrete"
+                            >{{getNonDiscreteTypeCount}}</span>)
+                          </label>
+                        </div>
+                        <div class="form-check mb-1">
+                          <input
+                            class="form-check-input wl__feature-filter-input"
+                            type="checkbox"
+                            name="checkbox"
+                            value="Unknown"
+                            id="inferredUnknown"
+                            onclick="changeUnknwonValue()"
+                            checked
+                          />
+                          <label class="form-check-label" for="inferredUnknown">
+                            Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <span class="notif-circle-container">
+                      <span class="notif-circle"></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3">
+                <ul
+                  id="feature-list"
+                  class="nav list-group list-group-flush wl__sidebar-feature-name-list"
+                >{{{getFeatureList}}}</ul>
+              </div>
+            </div>
+          </div>
+          <div class="wl__unlock-the-power sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
+            <div class="sign-up-text d-none">
+              <div class="space-between align-items">
+                <strong>Unlock the power of WhyLabs:</strong>
+                <div class="wl__close-icon" id="close-icon">
+                  <img
+                    onclick="closeSignUpText()"
+                    src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTEiIGhlaWdodD0iMTEiIHZpZXdCb3g9IjAgMCAxMSAxMSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC41IiBkPSJNNi42NTQzIDUuMzc1TDkuNjcxODggMi4zODY3MkwxMC4yODcxIDEuNzcxNDhDMTAuMzc1IDEuNjgzNTkgMTAuMzc1IDEuNTM3MTEgMTAuMjg3MSAxLjQxOTkyTDkuNjQyNTggMC43NzUzOTFDOS41MjUzOSAwLjY4NzUgOS4zNzg5MSAwLjY4NzUgOS4yOTEwMiAwLjc3NTM5MUw1LjY4NzUgNC40MDgyTDIuMDU0NjkgMC43NzUzOTFDMS45NjY4IDAuNjg3NSAxLjgyMDMxIDAuNjg3NSAxLjcwMzEyIDAuNzc1MzkxTDEuMDU4NTkgMS40MTk5MkMwLjk3MDcwMyAxLjUzNzExIDAuOTcwNzAzIDEuNjgzNTkgMS4wNTg1OSAxLjc3MTQ4TDQuNjkxNDEgNS4zNzVMMS4wNTg1OSA5LjAwNzgxQzAuOTcwNzAzIDkuMDk1NyAwLjk3MDcwMyA5LjI0MjE5IDEuMDU4NTkgOS4zNTkzOEwxLjcwMzEyIDEwLjAwMzlDMS44MjAzMSAxMC4wOTE4IDEuOTY2OCAxMC4wOTE4IDIuMDU0NjkgMTAuMDAzOUw1LjY4NzUgNi4zNzEwOUw4LjY3NTc4IDkuMzg4NjdMOS4yOTEwMiAxMC4wMDM5QzkuMzc4OTEgMTAuMDkxOCA5LjUyNTM5IDEwLjA5MTggOS42NDI1OCAxMC4wMDM5TDEwLjI4NzEgOS4zNTkzOEMxMC4zNzUgOS4yNDIxOSAxMC4zNzUgOS4wOTU3IDEwLjI4NzEgOS4wMDc4MUw2LjY1NDMgNS4zNzVaIiBmaWxsPSIjNkM3NTdEIi8+Cjwvc3ZnPgo='
+                  />
+                </div>
+              </div>
+              <ul class="small mt-1 mb-3">
+                <li>Generate an API token to upload and save profiles to the platform</li>
+                <li>Analyze and compare profiles to identify data drift and other anomalies</li>
+                <li>Turn on monitoring with a single click, no manual set up required!</li>
+                <li>Get alerted in real time when data and model health issues arise</li>
+              </ul>
+            </div>
+            <div class="wl__dropdown_arrow-icon open-sign-up-text" id="open-sign-up-text">
+              <a
+                class="btn btn-warning wl__btn-signup btn-signup"
+                target="_blank"
+                href="http://bit.ly/whylogs-to-whylabs-free-signup"
+              >
+                Sign up for a free WhyLabs account
+              </a>
+            <span
+              onclick="openSignUpText()"
+              class="open-sign-up-text-notif-container"
+            >
+              <span class="open-sign-up-text-notif">
+                <img
+                  src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSIxMSIgdmlld0JveD0iMCAwIDQgMTEiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wLjUxNTYyNSA4LjU1MDc4QzAuMjgxMjUgOC41NTA3OCAwLjEyNSA4LjcyNjU2IDAuMTI1IDguOTQxNDFWOS44NTkzOEMwLjEyNSAxMC4wOTM4IDAuMjgxMjUgMTAuMjUgMC41MTU2MjUgMTAuMjVIMy40ODQzOEMzLjY5OTIyIDEwLjI1IDMuODc1IDEwLjA5MzggMy44NzUgOS44NTkzOFY4Ljk0MTQxQzMuODc1IDguNzI2NTYgMy42OTkyMiA4LjU1MDc4IDMuNDg0MzggOC41NTA3OEgzLjA5Mzc1VjQuMzkwNjJDMy4wOTM3NSA0LjE3NTc4IDIuOTE3OTcgNCAyLjcwMzEyIDRIMC41MTU2MjVDMC4yODEyNSA0IDAuMTI1IDQuMTc1NzggMC4xMjUgNC4zOTA2MlY1LjMyODEyQzAuMTI1IDUuNTQyOTcgMC4yODEyNSA1LjcxODc1IDAuNTE1NjI1IDUuNzE4NzVIMC45MDYyNVY4LjU1MDc4SDAuNTE1NjI1Wk0yIDAuMjVDMS4yMTg3NSAwLjI1IDAuNTkzNzUgMC44OTQ1MzEgMC41OTM3NSAxLjY1NjI1QzAuNTkzNzUgMi40Mzc1IDEuMjE4NzUgMy4wNjI1IDIgMy4wNjI1QzIuNzYxNzIgMy4wNjI1IDMuNDA2MjUgMi40Mzc1IDMuNDA2MjUgMS42NTYyNUMzLjQwNjI1IDAuODk0NTMxIDIuNzYxNzIgMC4yNSAyIDAuMjVaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K"
+                />
+              </span>
+            </span>
+          </div>
+          </div>
+          </div>
+            <div class="main">
+              <div class="d-none clickable-test-feature-wrap">
+                <div class="clickable-test-feature">
+                  <div class="clickable-test-feature-heading-wrap mb-5">
+                    <div class="clickable-test-feature-heading">
+                      <div class="title-wrap space-between">
+                        <div class="title">
+                          <p>Clickable test feature</p>
+                        </div>
+                        <div class="property-panel-close-icon" onclick="closeFeatureHeading()">
+                          <img
+                            src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTEiIGhlaWdodD0iMTEiIHZpZXdCb3g9IjAgMCAxMSAxMSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC41IiBkPSJNNi42NTQzIDUuMzc1TDkuNjcxODggMi4zODY3MkwxMC4yODcxIDEuNzcxNDhDMTAuMzc1IDEuNjgzNTkgMTAuMzc1IDEuNTM3MTEgMTAuMjg3MSAxLjQxOTkyTDkuNjQyNTggMC43NzUzOTFDOS41MjUzOSAwLjY4NzUgOS4zNzg5MSAwLjY4NzUgOS4yOTEwMiAwLjc3NTM5MUw1LjY4NzUgNC40MDgyTDIuMDU0NjkgMC43NzUzOTFDMS45NjY4IDAuNjg3NSAxLjgyMDMxIDAuNjg3NSAxLjcwMzEyIDAuNzc1MzkxTDEuMDU4NTkgMS40MTk5MkMwLjk3MDcwMyAxLjUzNzExIDAuOTcwNzAzIDEuNjgzNTkgMS4wNTg1OSAxLjc3MTQ4TDQuNjkxNDEgNS4zNzVMMS4wNTg1OSA5LjAwNzgxQzAuOTcwNzAzIDkuMDk1NyAwLjk3MDcwMyA5LjI0MjE5IDEuMDU4NTkgOS4zNTkzOEwxLjcwMzEyIDEwLjAwMzlDMS44MjAzMSAxMC4wOTE4IDEuOTY2OCAxMC4wOTE4IDIuMDU0NjkgMTAuMDAzOUw1LjY4NzUgNi4zNzEwOUw4LjY3NTc4IDkuMzg4NjdMOS4yOTEwMiAxMC4wMDM5QzkuMzc4OTEgMTAuMDkxOCA5LjUyNTM5IDEwLjA5MTggOS42NDI1OCAxMC4wMDM5TDEwLjI4NzEgOS4zNTkzOEMxMC4zNzUgOS4yNDIxOSAxMC4zNzUgOS4wOTU3IDEwLjI4NzEgOS4wMDc4MUw2LjY1NDMgNS4zNzVaIiBmaWxsPSIjNkM3NTdEIi8+Cjwvc3ZnPgo='
+                          />
+                        </div>
+                      </div>
+                      <div class="clickable-test-feature-heading-pages-wrap space-between">
+                        <div class="pages-button-wrap display-flex">
+                          <div class="page-button-wrap">
+                            <button class="page-button" id="page-button">Numerical Data</button>
+                          </div>
+                          <div class="page-button-wrap">
+                            <button class="page-button" id="frequent-item-button">Frequent items</button>
+                          </div>
+                        </div>
+                        <div class="chart-info-wrap">
+                          <div class="chart" id="chart"></div>
+                          <div class="chart-info"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="clickable-test-featurmake-body-wrap">
+                    <div class="clickable-test-feature-body"></div>
+                    <div class="frequent-items-body"></div>
+                  </div>
+                </div>
+               </div>
+                 <div class="wl-table-cell wl-compare-profile" id="compare-profile">
+                   <div class="flex-direction-colum mb-3">
+                     <h5 id="reference-profile-time-stamp" class="feature-count count-color">Reference profile time stamp:</h5>
+                     <strong class="wl__feature-file-name feature-file-name count-color">{{getReferenceProfileTimeStamp}}</strong>
+                   </div>
+               </div>
+              <div class="wl-table-wrap" id="table-content">
+                <div class="wl-table">
+                  <div class="wl-table-heading">
+                    <div class="wl-table-row wl-table-row--bottom-shadow">
+                      <div class="wl-table-head">
+                        <div class="wl-table-head table-border-none graph-table-head">Feature</div>
+                        <div class="wl-table-head table-border-none reference-table-head">Reference</div>
+                      </div>
+                      <div class="wl-table-head" id="diff-from-ref">Diff from ref</div>
+                      <div class="wl-table-head">Frequent items</div>
+                      <div class="wl-table-head">Inf. feature type</div>
+                      <div class="wl-table-head text-end">Total count</div>
+                      <div class="wl-table-head text-end">Null fraction</div>
+                      <div class="wl-table-head text-end">Est. unique values</div>
+                      <div class="wl-table-head">Data type</div>
+                      <div class="wl-table-head text-end">Data type count</div>
+                      <div class="wl-table-head text-end">Mean</div>
+                      <div class="wl-table-head text-end">Std. dev</div>
+                      <div class="wl-table-head text-end">Min</div>
+                      <div class="wl-table-head text-end">First quantile</div>
+                      <div class="wl-table-head text-end">Median</div>
+                      <div class="wl-table-head text-end">Third quantile</div>
+                      <div class="wl-table-head text-end">Max</div>
+                    </div>
+                  </div>
+                  <ul class="wl-table-body wl__table-body" id="table-body">
+                    {{#each this.columns}}
+                    <li
+                    {{#if this.numberSummary}} class="wl-table-row wl-table-row--clickable" {{else}} class="wl-table-row" {{/if}}
+                    data-feature-name={{@key}}
+                    data-inferred-type={{inferredType this}}
+                    data-scroll-to-feature-name={{@key}}
+                  >
+                      <div class="wl-table-cell">
+                        <div class="wl-table-cell__title-wrap">
+                          <h4 class="wl-table-cell__title">{{@key}}</h4>
+                          <button
+                            class="wl-table-cell__title-button"
+                            onclick="
+                              openPropertyPanel('{{@key}}',
+                              '{{json this}}',
+                              '{{inferredType this}}',
+                              '{{getPropertyPanelGraphHtml this}}',
+                              '{{getDoubleHistogramChart this}}',
+                              '{{getBarChart this}}',
+                              '{{getPositiveNegativeChart this}}')"
+                            type="button"
+                          >View details</button>
+                        </div>
+                        <div class="wl-table-cell__graph-wrap">
+                          <div class="display-flex">
+                              {{{getGraphHtml this}}}
+                              {{{getReferenceGraphHtml this}}}
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        class="diff-from-ref-table-cell wl-table-cell wl-table-cell--top-spacing align-middle"
+                        style="max-width: 270px; padding-right: 18px"
+                      ><div class="wl-table-cell__bedge-wrap">{{{getDiffFromRef this}}}</div></div>
+                      <div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                        style="max-width: 270px; padding-right: 18px"
+                      ><div class="wl-table-cell__bedge-wrap">{{{frequentItems this}}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                      ><div>{{inferredType this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{totalCount this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{nullFraction this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{estUniqValue this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                      ><div>{{dataType this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                      ><div>{{dataTypeCount this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{mean this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{stddev this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{min this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{firstQuantile this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{median this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{thirdQuantile this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{max this}}</div></div>
+                    </li>
+                    {{/each}}
+                  </ul>
+                  <div class="wl-property-panel">
+                    <button type="button" class="wl-property-panel__button btn-close" onclick="handleClosePropertyPanel()" aria-label="Close"></button>
+
+                    <div id="wl-property-panel__chart" class="wl-property-panel__chart"></div>
+
+                    <h5 class="wl-property-panel__title"></h5>
+                    <div>
+                      <table class="wl-property-panel__table">
+                        <thead class="wl-property-panel__table-head">
+                          <tr class="wl-property-panel__table-tr">
+                            <th class="wl-property-panel__table-th">Item</th>
+                            <th class="wl-property-panel__table-th wl-property-panel__table-th-profile"></th>
+                          </tr>
+                        </thead>
+                        <tbody class="wl-property-panel__frequent-items">
+                          <!-- CONTENT IS GENERATED -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="no-responsive">
+        <div class="no-responsive__content">
+          <h1 class="no-responsive__title">Hold on! :)</h1>
+          <p class="no-responsive__text">
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          </p>
+        </div>
+      </div>
+    {{{{/raw}}}}
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    function fixNumberTo(number, decimals = 3) {
+      return parseFloat(number).toFixed(decimals);
+    }
+
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+
+      class GenerateChartParams {
+        constructor(height, width, data, bottomMargin=20, topMargin=5) {
+          this.MARGIN = {
+            TOP: topMargin,
+            RIGHT: 5,
+            BOTTOM: bottomMargin,
+            LEFT: 55,
+          };
+          this.SVG_WIDTH = width;
+          this.SVG_HEIGHT = height;
+          this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
+          this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
+          this.svgEl = d3.create("svg").attr("width", this.SVG_WIDTH).attr("height", this.SVG_HEIGHT);
+          this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+          this.xScale = d3
+            .scaleBand()
+            .domain(data.map((d) => d.axisX))
+            .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
+          this.yScale = d3
+            .scaleLinear()
+            .domain([0, this.maxYValue * 1.02])
+            .range([this.CHART_HEIGHT, 0]);
+        }
+      }
+
+      function generateChart(data, height = 75, width = 350, index = 0, referenceProfile = false, propertyPanelGraph = false) {
+        const sizes = new GenerateChartParams(height, width, data, 5)
+        const {
+          MARGIN,
+          SVG_WIDTH,
+          SVG_HEIGHT,
+          CHART_WIDTH,
+          CHART_HEIGHT,
+          maxYValue,
+          xScale,
+          yScale
+        } = sizes
+        const color = ["#369BAC", '#2683C9']
+
+        let svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "30 0 320 400")
+             .classed("svg-content-responsive", true)
+
+        if (propertyPanelGraph) {
+          svgEl = d3.create("svg").attr("width", width).attr("height", height);
+        }
+
+        // Add the y Axis
+        if (!referenceProfile) {
+          svgEl
+            .append("g")
+            .style("font-size", "12")
+            .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
+            .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]));
+        }
+
+        const gChart = svgEl.append("g");
+        gChart
+          .selectAll(".bar")
+          .data(data)
+          .enter()
+          .append("rect")
+          .classed("bar", true)
+          .attr("width", xScale.bandwidth() - 1)
+          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("x", (d) => xScale(d.axisX))
+          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+          .attr("fill", color[index]);
+
+        return svgEl._groups[0][0].outerHTML;
+      }
+
+      function chartData(column) {
+        const data = [];
+        if (column.numberSummary.isDiscrete) {
+            column.frequentItems.items.forEach((item, index) => {
+              data.push({
+                axisY: item.estimate,
+                axisX: index,
+              });
+            });
+        } else {
+          column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+            data.push({
+              axisY: count,
+              axisX: index,
+            });
+          });
+        }
+        return data
+      }
+
+      function CheckNumberSummary(column) {
+        if (column.numberSummary) {
+          return true
+        } else {
+          return false
+        }
+      }
+
+      function generateDoubleHistogramChart(currentWidth, key, data, referenceData) {
+        let histogramData = [],
+            overlappedHistogramData = [];
+
+        if (CheckNumberSummary(data) && referenceData && CheckNumberSummary(referenceData.columns[key.data.key])) {
+          histogramData = chartData(data)
+          overlappedHistogramData = chartData(referenceData.columns[key.data.key])
+        }
+
+        let yFormat,
+            xFormat,
+            sizes;
+
+           sizes = new GenerateChartParams(230, currentWidth, histogramData)
+
+        const {
+          MARGIN,
+          SVG_WIDTH,
+          SVG_HEIGHT,
+          CHART_WIDTH,
+          CHART_HEIGHT,
+          maxYValue,
+          xScale,
+          yScale
+        } = sizes
+
+        this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "0 0 600 400")
+             .classed("svg-content-responsive", true)
+
+        const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+        yFormat = yScale.tickFormat(100, yFormat);
+
+        svgEl.append("g")
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+          .call(yAxis)
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick line")
+              .attr("x2", CHART_WIDTH)
+              .attr("stroke-opacity", 0.1))
+          .call(g => g.append("text")
+              .attr("x", -MARGIN.LEFT)
+              .attr("y", 10)
+              .attr("fill", "currentColor")
+              .attr("text-anchor", "start"));
+
+        svgEl.append("g")
+            .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+            .call(xAxis)
+            .call(g => g.select(".domain").remove())
+            .call(g => g.selectAll(".tick line").remove())
+            .call(g => g.append("text")
+                .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+                .attr("y", 27)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "end"));
+
+          const gChart = svgEl.append("g");
+          gChart
+          .selectAll(".bar")
+          .data(histogramData)
+          .enter()
+          .append("rect")
+          .classed("bar", true)
+          .attr("width", xScale.bandwidth())
+          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("x", (d) => xScale(d.axisX))
+          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+          .attr("fill", "#369BAC")
+          .style("opacity","0.6");
+
+          const gChart1 = svgEl.append("g");
+          gChart1
+            .selectAll(".bar")
+            .data(overlappedHistogramData)
+            .enter()
+            .append("rect")
+            .classed("bar", true)
+            .attr("width", xScale.bandwidth())
+            .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+            .attr("x", (d) => xScale(d.axisX))
+            .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+            .attr("fill", "#2683C9")
+            .style("opacity", "0.6");
+
+        return svgEl._groups[0][0].outerHTML;
+      }
+
+      function generateBarChart(currentWidth, key, datas, referenceData) {
+        let histogramData = [],
+            overlappedHistogramData = [];
+
+        if (CheckNumberSummary(datas) && referenceData && CheckNumberSummary(referenceData.columns[key.data.key])) {
+          histogramData = chartData(datas)
+          overlappedHistogramData = chartData(referenceData.columns[key.data.key])
+        }
+        let yFormat,
+            xFormat;
+        const data = histogramData.map((profile, index) => {
+          return {
+            group: index,
+            profile: profile.axisY,
+            reference_profile: overlappedHistogramData[index].axisY
+          }
+        }).slice(0, 20)
+
+        const sizes = new GenerateChartParams(230, currentWidth, histogramData, undefined, 1)
+        const {
+          MARGIN,
+          SVG_WIDTH,
+          SVG_HEIGHT,
+          CHART_WIDTH,
+          CHART_HEIGHT,
+          maxYValue,
+          yScale
+        } = sizes
+
+        this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "0 0 600 400")
+             .classed("svg-content-responsive", true)
+
+        const groups = d3.map(data, function(d){return(d.group)}).keys()
+        const subgroups = ['profile', 'reference_profile']
+
+        const xScale = d3
+          .scaleBand()
+          .domain(groups)
+          .range([MARGIN.LEFT, SVG_WIDTH])
+          .padding([0.3])
+
+        const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+        yFormat = yScale.tickFormat(100, yFormat);
+
+        svgEl.append("g")
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+          .call(yAxis)
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick line")
+              .attr("x2", CHART_WIDTH)
+              .attr("stroke-opacity", 0.1))
+          .call(g => g.append("text")
+              .attr("x", -MARGIN.LEFT)
+              .attr("y", 10)
+              .attr("fill", "currentColor")
+              .attr("text-anchor", "start"));
+
+        svgEl.append("g")
+            .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+            .call(xAxis)
+            .call(g => g.select(".domain").remove())
+            .call(g => g.selectAll(".tick line").remove())
+            .call(g => g.append("text")
+                .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+                .attr("y", 27)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "end"));
+        // Another scale for subgroup position?
+        const xSubgroup = d3.scaleBand()
+          .domain(subgroups)
+          .range([0, xScale.bandwidth()])
+
+        // color palette = one color per subgroup
+        const color = d3.scaleOrdinal()
+          .domain(subgroups)
+          .range(['#369BAC', '#2683C9'])
+
+        svgEl.append("g")
+           .selectAll("g")
+           // Enter in data = loop group per group
+           .data(data)
+           .enter()
+           .append("g")
+             .attr("transform", function(d) { return "translate(" + xScale(d.group) + ",0)"; })
+           .selectAll("rect")
+           .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key]}; }); })
+           .enter().append("rect")
+             .attr("x", function(d) { return xSubgroup(d.key); })
+             .attr("y", function(d) { return yScale(d.value); })
+             .attr("width", xSubgroup.bandwidth())
+             .attr("height", function(d) { return (CHART_HEIGHT - yScale(d.value)); })
+             .attr("fill", function(d) { return color(d.key); })
+             .style("opacity", "0.6");
+
+
+         return svgEl._groups[0][0].outerHTML;
+      }
+
+      function generatePositiveNegativeChart(currentWidth, key, datas, referenceData) {
+        let histogramData = [],
+            overlappedHistogramData = [];
+
+        if (CheckNumberSummary(datas) && referenceData && CheckNumberSummary(referenceData.columns[key.data.key])) {
+          histogramData = chartData(datas)
+          overlappedHistogramData = chartData(referenceData.columns[key.data.key])
+        }
+        const data = histogramData.map((value, index) => {
+          const difference = value.axisY - overlappedHistogramData[index].axisY
+          const negativeValues = difference < 0 ? difference : 0
+          return [+value.axisY, negativeValues]
+        }).slice(0, 20).flat()
+
+        let yFormat,
+            xFormat;
+
+        const sizes = new GenerateChartParams(230, currentWidth, histogramData, undefined, 1)
+        const {
+         MARGIN,
+         SVG_WIDTH,
+         SVG_HEIGHT,
+         CHART_WIDTH,
+         CHART_HEIGHT
+        } = sizes
+
+        this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", "0 0 600 400")
+             .classed("svg-content-responsive", true)
+
+        const y0 = Math.max(Math.abs(d3.min(data)), Math.abs(d3.max(data)));
+
+        const yScale = d3.scaleLinear()
+            .domain([-y0 * 1.02, y0 * 1.02])
+            .range([CHART_HEIGHT,0])
+
+        const xScale = d3.scaleBand()
+            .domain(d3.range(data.length)) // so that chart's height has 102% height of the maximum value
+            .rangeRound([MARGIN.LEFT, SVG_WIDTH])
+            .padding([0.1]);
+
+        const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+        yFormat = yScale.tickFormat(100, yFormat);
+
+          svgEl.append("g")
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+          .call(yAxis)
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick line")
+          .attr("x2", CHART_WIDTH )
+          .attr("stroke-opacity", 0.1))
+          .call(g => g.append("text")
+          .attr("x", - MARGIN.LEFT)
+          .attr("y", 10)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "start"));
+
+          svgEl
+          .append("g")
+          .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+          .call(xAxis)
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick>line").remove())
+          .call(g => g.append("text")
+              .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+              .attr("y", 27)
+              .attr("fill", "currentColor")
+              .attr("text-anchor", "end"));
+
+        svgEl.selectAll(".bar")
+            .data(data)
+          .enter().append("rect")
+            .attr("class", function(d) { return d < 0 ? "bar negative" : "bar positive"; })
+            .attr("y", function(d) { return yScale(Math.max(0, d)); })
+            .attr("x", function(d, i) { return xScale(i); })
+            .attr("height", function(d) { return Math.abs(yScale(d) - yScale(0)); })
+            .attr("width", xScale.bandwidth());
+
+            return svgEl._groups[0][0].outerHTML;
+      }
+
+      function graph(column, key, referenceColumn) {
+        let data = [];
+        const columnKey = key.data.key
+        let chartValue = false
+        let chartColor = undefined
+        if(!!referenceColumn){
+          column = referenceColumn.columns[columnKey]
+          chartValue = true
+          chartColor = 1
+        } else if (referenceColumn === undefined) {
+          column = ""
+        }
+
+        if (column.numberSummary) {
+          data = chartData(column)
+        } else if (column.numberSummary === undefined && referenceColumn === null ) {
+            return '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>';
+        } else if (referenceColumn === undefined) {
+            $(document).ready(function() {
+              $(".reference-table-head").addClass("d-none")
+            });
+            return ''
+        } else if (referenceColumn.frequentItems === undefined){
+            return '';
+        }
+        return `
+          <div class="svg-container graph-svg-container">
+            ${generateChart(data, ...[,,], chartColor, chartValue)}
+          </div>
+        `;
+      }
+
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
+        return format(date);
+      }
+
+      const profileFromCSVfile = {{{reference_profile}}}
+
+      Handlebars.registerHelper("json", function (context) {
+        return JSON.stringify(context);
+      });
+
+      Handlebars.registerHelper("getDiffFromRef", function () {
+        if (profileFromCSVfile && profileFromCSVfile.columns) {
+          return Math.floor(Math.random() * 10)
+        }
+      });
+
+      Handlebars.registerHelper("getReferenceProfileTimeStamp", function () {
+        if (profileFromCSVfile && profileFromCSVfile.properties) {
+          return formatLabelDate(+profileFromCSVfile.properties.dataTimestamp)
+        }
+      });
+
+      Handlebars.registerHelper("getProfileTimeStamp", function (properties) {
+        return formatLabelDate(+properties.properties.dataTimestamp)
+      });
+
+      Handlebars.registerHelper("inferredType", function (column) {
+        let infferedType = "";
+
+        if (column.numberSummary) {
+          if (column.numberSummary.isDiscrete) {
+            infferedType = "Discrete";
+          } else {
+            infferedType = "Non-discrete";
+          }
+        } else {
+          infferedType = "Unknown";
+        }
+        return infferedType;
+      });
+
+      Handlebars.registerHelper("frequentItems", function (column) {
+        frequentItemsElemString = "";
+        if (column.numberSummary && column.numberSummary.isDiscrete) {
+          const slicedFrequentItems = column.frequentItems.items.slice(0, 5);
+          for (let fi = 0; fi < slicedFrequentItems.length; fi++) {
+            frequentItemsElemString +=
+              '<span class="wl-table-cell__bedge">' + slicedFrequentItems[fi].jsonValue + "</span>";
+          }
+        } else {
+          frequentItemsElemString += "No data to show";
+        }
+        return frequentItemsElemString;
+      });
+
+      Handlebars.registerHelper("totalCount", function (column) {
+        if (column.numberSummary || column.stringSummary) {
+          return column.counters.count.toString();
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("nullFraction", function (column) {
+        nullRatio = column.schema.typeCounts.NULL ? column.schema.typeCounts.NULL : "0";
+
+        return nullRatio;
+      });
+
+      Handlebars.registerHelper("estUniqValue", function (column) {
+        estUniqueVal = column.uniqueCount ? fixNumberTo(column.uniqueCount.estimate) : "-";
+        return estUniqueVal;
+      });
+
+      Handlebars.registerHelper("dataType", function (column) {
+        return column.schema.inferredType.type;
+      });
+
+      Handlebars.registerHelper("dataTypeCount", function (column) {
+        dataType = column.schema.inferredType.type;
+        return column.schema.typeCounts[dataType];
+      });
+
+      Handlebars.registerHelper("mean", function (column) {
+        if (column.numberSummary) {
+          return fixNumberTo(column.numberSummary.mean);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("stddev", function (column) {
+        if (column.numberSummary) {
+          return fixNumberTo(column.numberSummary.stddev);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("min", function (column) {
+        if (column.numberSummary && column.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(column.numberSummary.quantiles.quantileValues[0]);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("firstQuantile", function (column) {
+        if (column.numberSummary && column.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(column.numberSummary.quantiles.quantileValues[3]);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("median", function (column) {
+        if (column.numberSummary && column.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(column.numberSummary.quantiles.quantileValues[4]);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("thirdQuantile", function (column) {
+        if (column.numberSummary && column.numberSummary.quantiles.quantileValueregisterHandlebarHelperFunctionss) {
+          return fixNumberTo(column.numberSummary.quantiles.quantileValues[5]);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("max", function (column) {
+        if (column.numberSummary && column.numberSummary.quantiles.quantileValues) {
+          return fixNumberTo(column.numberSummary.quantiles.quantileValues[8]);
+        }
+        return "-";
+      });
+
+      Handlebars.registerHelper("getTotalFeatureCount", function () {
+        return Object.values(this.columns).length.toString() || "0";
+      });
+
+      Handlebars.registerHelper("getFeatureList", function () {
+        let featureListHTML = "";
+
+        Object.entries(this.columns).forEach((feature) => {
+          let inferredType = "Unknown";
+          if (feature[1].numberSummary) {
+            if (feature[1].numberSummary.isDiscrete) {
+              inferredType = "Discrete";
+            } else {
+              inferredType = "Non-discrete";
+            }
+          }
+
+          featureListHTML += `
+            <li id="filter-list-item" class="wl_filter-list-item list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${inferredType}">
+              <div class="arrow-icon-container">
+                <div class="wl_list-item-dot"></div>
+                  <img
+                    class="d-none wl_arrow-icon"
+                    src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCAxMiAxMyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC44IiBkPSJNNiAwLjY4NzVDMi43ODkwNiAwLjY4NzUgMC4xODc1IDMuMjg5MDYgMC4xODc1IDYuNUMwLjE4NzUgOS43MTA5NCAyLjc4OTA2IDEyLjMxMjUgNiAxMi4zMTI1QzkuMjEwOTQgMTIuMzEyNSAxMS44MTI1IDkuNzEwOTQgMTEuODEyNSA2LjVDMTEuODEyNSAzLjI4OTA2IDkuMjEwOTQgMC42ODc1IDYgMC42ODc1Wk01LjMyMDMxIDQuMDYyNUM1LjA4NTk0IDMuODUxNTYgNS4wODU5NCAzLjQ3NjU2IDUuMjk2ODggMy4yNjU2Mkw1LjU1NDY5IDMuMDA3ODFDNS43ODkwNiAyLjc3MzQ0IDYuMTQwNjIgMi43NzM0NCA2LjM1MTU2IDMuMDA3ODFMOS40Njg3NSA2LjEyNUM5LjY3OTY5IDYuMzM1OTQgOS42Nzk2OSA2LjY4NzUgOS40Njg3NSA2Ljg5ODQ0TDYuMzUxNTYgMTAuMDE1NkM2LjE0MDYyIDEwLjIyNjYgNS43ODkwNiAxMC4yMjY2IDUuNTU0NjkgMTAuMDE1Nkw1LjI5Njg4IDkuNzU3ODFDNS4wODU5NCA5LjU0Njg4IDUuMDg1OTQgOS4xNzE4OCA1LjMyMDMxIDguOTYwOTRMNy4wNzgxMiA3LjI1SDIuODEyNUMyLjQ4NDM4IDcuMjUgMi4yNSA3LjAxNTYyIDIuMjUgNi42ODc1VjYuMzEyNUMyLjI1IDYuMDA3ODEgMi40ODQzOCA1Ljc1IDIuODEyNSA1Ljc1SDcuMDc4MTJMNS4zMjAzMSA0LjA2MjVaIiBmaWxsPSIjMEU3Mzg0Ii8+Cjwvc3ZnPgo="
+                  />
+                </div>
+              <span data-feature-name-id="${feature[0]}" >${feature[0]}</span>
+            </li>
+          `;
+        });
+
+        return featureListHTML;
+      });
+
+      Handlebars.registerHelper("getDiscreteTypeCount", function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) => {
+          if (feature[1].numberSummary && feature[1].numberSummary.isDiscrete === true) {
+            count++;
+          }
+        });
+        return count.toString();
+      });
+
+      Handlebars.registerHelper("getNonDiscreteTypeCount", function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) => {
+          if (feature[1].numberSummary && feature[1].numberSummary.isDiscrete === false) {
+            count++;
+          }
+        });
+        return count;
+      });
+
+      Handlebars.registerHelper("getUnknownTypeCount", function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) => {
+          if (!feature[1].numberSummary) {
+            count++;
+          }
+        });
+        return count;
+      });
+
+      Handlebars.registerHelper("getGraphHtml",(column,key) => graph(column, key, null));
+      Handlebars.registerHelper("getReferenceGraphHtml",(column,key) => graph(column, key, profileFromCSVfile));
+
+      Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => generateDoubleHistogramChart(600, key, column, profileFromCSVfile));
+      Handlebars.registerHelper("getBarChart",(column,key) => generateBarChart(600, key, column, profileFromCSVfile));
+      Handlebars.registerHelper("getPositiveNegativeChart",(column,key) => generatePositiveNegativeChart(600, key, column, profileFromCSVfile));
+
+      Handlebars.registerHelper("getPropertyPanelGraphHtml", function (column, key) {
+        let chartString = "";
+        const columnKey = key.data.key
+        let chartValue = false;
+        let chartHeight = 130;
+        let chartWidth = undefined;
+        const chartTitle = `<div class="-title">Frequent Items Data</div>`
+        const freqData = [];
+        const histData = [];
+        let data = [];
+
+        const freqChart = (chart) =>
+          `<div class="wl-property-panel__chart--single">${!chartValue ? chartTitle : ""}${chart}</div>`;
+        const histChart = (chart) =>
+          `<div class="wl-property-panel__chart--single"><div class="wl-property-panel__chart-title">Histogram Data</div>${chart}</div>`;
+        if (column.numberSummary) {
+          if (column.frequentItems && column.frequentItems.items) {
+            column.frequentItems.items.forEach((item, index) => {
+              freqData.push({
+                axisY: item.estimate,
+                axisX: index,
+              });
+            });
+          }
+
+          if (column.numberSummary.histogram && column.numberSummary.histogram.counts) {
+            column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+              histData.push({
+                axisY: count,
+                axisX: index,
+              });
+            });
+          }
+          if (profileFromCSVfile) {
+            data = chartData(profileFromCSVfile.columns[columnKey])
+          }
+
+          if (column.numberSummary.isDiscrete) {
+            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, undefined, chartValue, true));
+            if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130, ...[,,,], true));
+          } else {
+            if (histData.length > 0 && !chartValue) chartString += histChart(generateChart(histData, 130, ...[,,,], true));
+            if (freqData.length > 0) chartString += freqChart(generateChart(freqData, chartHeight, chartWidth, undefined, chartValue, true));
+          }
+          if (profileFromCSVfile && Object.values(profileFromCSVfile)) {
+            chartString = '';
+            let propertyPanelGraph = true;
+            chartString += generateChart(data, 50, 280, 0, true, propertyPanelGraph);
+          }
+        }
+        return chartString;
+      });
+    }
+
+    function sidebarContentHeight() {
+        const $sidebarContentPadding = +$("#sidebar-content-single-profile").css("padding").replace('px','') * 2
+        const $sidebarContentHeight = $("#sidebar-content-single-profile").height() + $sidebarContentPadding
+        const $sidebar = $(".sidebar")
+
+        $sidebar.css("margin-bottom", `${$sidebarContentHeight}px`)
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = {{{profile_from_whylogs}}};
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById("entry-template").innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById("generated-html");
+      target.innerHTML = html;
+    }
+
+    function filterNotification() {
+      const $notifCircleContainer = $(".notif-circle-container")
+      const $boxes = $('.wl_filter-options>.form-check>input[name=checkbox]:checked');
+      const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+      if (item === undefined) {
+        $notifCircleContainer.removeClass("d-none")
+      } else {
+        $notifCircleContainer.addClass("d-none")
+      }
+    }
+
+    function initWebsiteScripts() {
+      // Target HTML elements
+      const $discrete = document.getElementById("inferredDiscrete");
+      const $nonDiscrete = document.getElementById("inferredNonDiscrete");
+      const $unknown = document.getElementById("inferredUnknown");
+      const $sidebarFeatureNameList = document.getElementById("feature-list");
+      const $featureSearch = document.getElementById("wl__feature-search");
+      const $tableBody = document.getElementById("table-body");
+      const $fileInput = $("#file-input");
+      const $referencefileInput = $("#reference-file-input");
+      const $filterOptions = $(".filter-options");
+      const $dropdownArrowIcon = $("#dropdown-arrow-icon")
+      const $notifCircleContainer = $(".notif-circle-container")
+
+      // Global variables
+      const activeTypes = {
+        discrete: true,
+        "non-discrete": true,
+        unknown: true,
+      };
+      let searchString = "";
+
+      sidebarContentHeight()
+      $filterOptions.removeClass("d-none");
+      $dropdownArrowIcon.css("transform","rotate(180deg)")
+      $notifCircleContainer.addClass("d-none")
+
+      function handleSearch() {
+        const featureListChildren = $sidebarFeatureNameList.children;
+        const tableBodyChildren = $tableBody.children;
+
+        for (let i = 0; i < tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = tableBodyChildren[i].dataset.featureName.toLowerCase();
+
+          if (activeTypes[type] && name.startsWith(searchString)) {
+            tableBodyChildren[i].style.display = "";
+          } else {
+            tableBodyChildren[i].style.display = "none";
+          }
+        }
+
+        for (let i = 0; i < featureListChildren.length; i++) {
+          const name = featureListChildren[i].dataset.featureName.toLowerCase();
+          const type = featureListChildren[i].dataset.inferredType.toLowerCase();
+
+          if (activeTypes[type] && name.startsWith(searchString)) {
+            featureListChildren[i].style.display = "";
+          } else {
+            featureListChildren[i].style.display = "none";
+          }
+        }
+      }
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate && !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function scrollToFeatureNameId(featureNameId) {
+        const TABLE_HEADER_OFFSET = 90;
+        const $tableWrap = $(".wl-table-wrap");
+        const currentOffsetTop = $tableWrap.scrollTop();
+        const offsetTop = $('[data-scroll-to-feature-name="' + featureNameId + '"]').offset().top;
+        $tableWrap.animate(
+          {
+            scrollTop: currentOffsetTop + offsetTop - TABLE_HEADER_OFFSET,
+          },
+          500,
+        );
+      }
+      const getReferenceProfile = () => { return {{{reference_profile}}} }
+
+      function checkCurrentProfile(item, referenceItem) {
+        const refData = getReferenceProfile()
+        if (refData && Object.values(refData)) {
+          return referenceItem
+        } else {
+          return item
+        }
+      }
+
+      if(checkCurrentProfile(true, false)) {
+        $(".svg-container").css("padding-bottom", "27%")
+        $("#diff-from-ref").addClass("d-none")
+        $(".diff-from-ref-table-cell").addClass("d-none")
+        $("#reference-profile-time-stamp").addClass("d-none");
+        $("#compare-profile").addClass("d-none");
+      } else {
+        $("#diff-from-ref").removeClass("d-none")
+        $(".diff-from-ref-table-cell").removeClass("d-none")
+        $("#reference-profile-time-stamp").removeClass("d-none");
+        $("#compare-profile").removeClass("d-none");
+      }
+
+      $featureSearch.addEventListener(
+        "keyup",
+        debounce((event) => {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
+
+      $discrete.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["discrete"] = true;
+        } else {
+          activeTypes["discrete"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $nonDiscrete.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["non-discrete"] = true;
+        } else {
+          activeTypes["non-discrete"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $unknown.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+          activeTypes["unknown"] = true;
+        } else {
+          activeTypes["unknown"] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $sidebarFeatureNameList.addEventListener("click", (event) => {
+        if (event.target && event.target.dataset && event.target.dataset.featureNameId) {
+          scrollToFeatureNameId(event.target.dataset.featureNameId)
+        }
+      });
+    }
+
+    function checkedBoxes() {
+      const $boxes = $('input[name=checkbox]:checked');
+      const $notifCircleContainer = $(".notif-circle-container")
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass("d-none")
+      }
+    }
+
+    function openFilter() {
+      const $notClickableBurgerIcon = $("#not_clickable_dropdown_arrow-icon")
+      const $filterOptions = $(".filter-options");
+      const $dropdownArrowIcon = $("#dropdown-arrow-icon")
+      const $notifCircleContainer = $(".notif-circle-container")
+      const filterClass = $filterOptions.attr("class");
+
+      if (filterClass.indexOf("d-none") > 0) {
+        $notifCircleContainer.addClass("d-none")
+        $filterOptions.removeClass("d-none");
+        $("#dropdown-container").css("background-color", '#FFF')
+        $dropdownArrowIcon.css("transform","rotate(180deg)")
+      } else {
+        $filterOptions.addClass("d-none");
+        $("#dropdown-container").css("background-color", 'none')
+        $dropdownArrowIcon.css("transform","rotate(0)")
+        checkedBoxes()
+      }
+    }
+
+    function closeFilter() {
+      const $notClickableBurgerIcon = $("#not_clickable_dropdown_arrow-icon")
+      const $filterOptions = $(".filter-options");
+      const $dropdownArrowIcon = $("#dropdown-arrow-icon")
+
+      $filterOptions.addClass("d-none");
+      $dropdownArrowIcon.removeClass("d-none");
+      $notClickableBurgerIcon.addClass("d-none");
+    }
+
+    function closeSignUpText() {
+      const $signUpText = $(".sign-up-text")
+
+      $signUpText.addClass("d-none");
+      sidebarContentHeight()
+      $(".open-sign-up-text-notif-container").removeClass("d-none")
+    }
+
+    function openSignUpText() {
+      const $signUpText = $(".sign-up-text");
+      $signUpText.removeClass("d-none");
+      sidebarContentHeight()
+      $(".open-sign-up-text-notif-container").addClass("d-none")
+    };
+
+    $(document).ready(function() {
+      const $signUpText = $(".sign-up-text");
+      sidebarContentHeight()
+    })
+
+    $(document).on("click", ".js-list-group-item span", function (e) {
+      const listItem = $("li>span"),
+        listItemIndex = listItem.index(e.target),
+        $listItemDot = $(".wl_list-item-dot")[listItemIndex],
+        $arrowIcon = $(".wl_arrow-icon")[listItemIndex]
+
+      listItem.css("padding-left", "15px")
+      $(".wl_list-item-dot").removeClass("d-none")
+      $(".wl_arrow-icon").addClass("d-none")
+      $($arrowIcon).removeClass("d-none")
+      $($listItemDot).addClass("d-none")
+      $(listItem[listItemIndex]).css("padding-left", "8px")
+    })
+
+    const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
+    const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
+
+    const chartBoxElement = (chartTitle, chart) => `
+      <div class="chart-box-wrap mb-4">
+        <div class="chart-box" id="chart-box">
+          <div class="chart-box-title display-flex">${chartTitle}</div>
+          <div class="svg-container">${chart}</div>
+        </div>
+      </div>
+    `
+
+    const frequentItemBoxElement = (chartTitle, items) => `
+    <div class="frequent-item-box-wrap mb-4">
+      <div class="frequent-item-box display-flex" id="chart-box">
+          <tbody class="wl-property-panel__frequent-items">
+            ${items}
+          </tbody>
+        </div>
+    </div>
+  `
+
+    const colorsForDistingushingCharts = (color, text) => `
+      <div class="colors-for-distingushing-charts">
+        <div class="circle-color" style="background: ${color};"></div>
+        <text alignment-baseline="middle" style="font-size: 15px;">${text}</text>
+      </div>
+    `
+
+    function numericalDriftChart(getDoubleHistogramChart) {
+      let colorsForDistingushingChartHTMLElement = '';
+
+      colorsForDistingushingChartHTMLElement +=`
+        <p>Data Distribution Chart</p>
+        <div class="display-flex">
+          ${colorsForDistingushingCharts("#369BAC", "Current")}
+          ${colorsForDistingushingCharts("#2683C9", "Reference")}
+        </div>
+      `
+      $(".clickable-test-feature-body").html(`
+        ${chartBoxElement(colorsForDistingushingChartHTMLElement, getDoubleHistogramChart)}
+      `);
+    }
+
+    function categoricalDriftChart(getBarChart, getPositiveNegative) {
+      $(".clickable-test-feature-body").html(`
+        ${chartBoxElement('<p>Bar Chart</p>', getBarChart)}
+        ${chartBoxElement('<p>Difference Bar Chart</p>', getPositiveNegative)}
+      `);
+    }
+
+    const getReferenceProfile = () => { return {{{reference_profile}}} }
+
+    function getProfileCharts(jsonData, key, getDoubleHistogramChart, getBarChart, getPositiveNegative) {
+    if (jsonData.numberSummary.isDiscrete) {
+      $("#page-button").text("Categorical Data")
+      categoricalDriftChart(getBarChart, getPositiveNegative)
+    } else {
+      $("#page-button").text("Numerical Data")
+      numericalDriftChart(getDoubleHistogramChart)
+    }
+  }
+
+    function openProfilePropertyPanel(
+      chart,
+      propertyPanelData,
+      infType
+    ) {
+
+      const $propertyPanelTitle = $(".wl-property-panel__title");
+      const $propertyPanelProfileName = $(".wl-property-panel__table-th-profile");
+      const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
+      const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
+      const chipElementEstimation = (count) =>
+        `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
+      let chipString = ""
+
+      $("#wl-property-panel__chart").html(chart);
+      propertyPanelData.forEach((item) => {
+      chipString += `
+        <tr class="wl-property-panel__table-tr">
+          ${chipElementTableData(item.value)}
+          ${chipElementEstimation(item.count)}
+        </tr>`;
+      });
+      $(".wl-property-panel__frequent-items").html(chipString);
+      if (infType === "Non-discrete") {
+        $propertyPanelTitle.html("Histogram data:");
+        $propertyPanelProfileName.html("Bin values");
+      } else if (infType === "Discrete") {
+        $propertyPanelTitle.html("Frequent items:");
+        $propertyPanelProfileName.html("Counts");
+      }
+      $(".wl-property-panel").addClass("wl-property-panel--open");
+      $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
+    }
+
+    function sortWithIndeces(toSort) {
+    for (let i = 0; i < toSort.length; i++) {
+      toSort[i] = [toSort[i], i];
+    }
+    toSort.sort((left, right) => {
+      return  right[0] < left[0] ? -1 : 1;
+    });
+    toSort.sortIndices = [];
+    for (let j = 0; j < toSort.length; j++) {
+      toSort.sortIndices.push(toSort[j][1]);
+      toSort[j] = toSort[j][0];
+    }
+    return toSort;
+  }
+
+  function referenceProfilePanelHeight() {
+      const pageHeight = $(document).height() - 48;
+      if ($(".clickable-test-feature-wrap").height() <= pageHeight) {
+        $(".clickable-test-feature-wrap").css("height", pageHeight)
+      } else {
+        $(".clickable-test-feature-wrap").css("height", "auto")
+      }
+    }
+
+    function openReferencePropertyPanel(
+      getBarChart,
+      getPositiveNegativeChart,
+      getDoubleHistogramChart,
+      chart,
+      feature,
+      items,
+      referenceItems,
+      key
+    ) {
+      const chartInfoItem = (drift, driftName) => `
+        <div class="info">
+            <div>${drift}</div>
+            <p>${driftName}</p>
+        </div>
+      `
+      const $tableContent = $("#table-content");
+      const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap");
+      const $pagesButtons = $(".page-button");
+      const $pagesButton = $pagesButtons[0];
+      let chipString = "",
+          frequentItemString = "",
+          referenceFrequentItemString = "";
+
+      $pagesButtons.removeClass("activ-pages-button")
+      $($pagesButton).addClass("activ-pages-button")
+      $tableContent.addClass("d-none")
+      $clickableTestFeatureWrap.removeClass("d-none")
+
+    const sortedItems = items.map((item) => +Object.values(item)[0])
+    sortWithIndeces(sortedItems).sortIndices.forEach(
+      (item) => {
+        frequentItemString += `
+          ${frequentItemBoxElement('',chipElementTableData(items[item].value))}
+        `
+        referenceFrequentItemString += `
+          ${frequentItemBoxElement('',chipElementTableData(referenceItems[item].value))}
+        `
+      }
+    );
+
+      $("#page-button").on("click", function () {
+        getProfileCharts(
+          feature,
+          feature[0],
+          getDoubleHistogramChart,
+          getBarChart,
+          getPositiveNegativeChart
+        )
+
+        $(".frequent-items-body").html(``);
+        referenceProfilePanelHeight()
+      })
+
+        getProfileCharts(
+          feature,
+          feature[0],
+          getDoubleHistogramChart,
+          getBarChart,
+          getPositiveNegativeChart
+        )
+      $(".frequent-items-body").html(``);
+
+      $("#frequent-item-button").on("click", function () {
+      $(".frequent-items-body").html(`
+      <div class="display-flex">
+        <div class="fequent-items-wrap">
+          <div class="chart-box-title frequent-item-box-to-title display-flex">
+            items
+          </div>
+          ${frequentItemString}
+        </div>
+        <div class="fequent-items-wrap">
+          <div class="chart-box-title frequent-item-box-to-title display-flex">
+            reference profile items
+          </div>
+          ${referenceFrequentItemString}
+        </div>
+      </div>
+    `);
+
+    $(".clickable-test-feature-body").html(``);
+    referenceProfilePanelHeight()
+    })
+      $("#chart").html(chart);
+      chipString += `
+        ${chartInfoItem(feature.numberSummary.count.toString(), "Total Count")}
+        ${chartInfoItem(fixNumberTo(feature.numberSummary.mean), "Mean")}
+      `
+      $(".chart-info").html(chipString);
+      referenceProfilePanelHeight()
+    }
+
+    function getPropertyPanelData(feature) {
+      let propertyPanelData = [];
+
+      if (feature.numberSummary) {
+        if (feature.numberSummary.isDiscrete) {
+          propertyPanelData = feature.frequentItems.items.reduce((acc, item) => {
+            acc.push({
+              value: item.jsonValue,
+              count: item.estimate,
+            });
+            return acc;
+          }, []);
+        } else {
+          propertyPanelData = feature.numberSummary.histogram.counts.reduce((acc, value, index) => {
+            acc.push({
+              value: value,
+              count: feature.numberSummary.histogram.bins[index],
+            });
+            return acc;
+          }, []);
+        }
+      }
+      return propertyPanelData
+    }
+
+    function openPropertyPanel(
+      key,
+      column,
+      infType,
+      chart,
+      getDoubleHistogramChart,
+      getBarChart,
+      getPositiveNegativeChart
+    ) {
+      $("#compare-profile").addClass("d-none")
+      let profileColumns = null;
+      let feature = JSON.parse(column);
+      let referenceFeature,
+          referencePropertyPanelData;
+      const profileFromCSVfile = getReferenceProfile();
+
+      if (profileFromCSVfile) {
+        referenceFeature = profileFromCSVfile.columns[key]
+        referencePropertyPanelData = getPropertyPanelData(referenceFeature);
+      }
+
+      let propertyPanelData = getPropertyPanelData(feature);
+      if (profileFromCSVfile && feature.numberSummary) {
+        openReferencePropertyPanel(
+          getBarChart,
+          getPositiveNegativeChart,
+          getDoubleHistogramChart,
+          chart,
+          feature,
+          propertyPanelData,
+          referencePropertyPanelData,
+          key
+        )
+      } else {
+        openProfilePropertyPanel(
+          chart,
+          propertyPanelData,
+          infType
+        )
+      }
+    }
+
+    function closeFeatureHeading() {
+      const $tableContent = $("#table-content")
+      const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap")
+
+      $("#compare-profile").remove("d-none")
+      $tableContent.removeClass("d-none")
+      $clickableTestFeatureWrap.addClass("d-none")
+    }
+
+    $(document).on("click", ".page-button", function(e) {
+      const $pagesButtons = $(".page-button"),
+        $pagesButtonIndex = $pagesButtons.index(e.target),
+        $pagesButton = $(".page-button")[$pagesButtonIndex]
+
+      $pagesButtons.removeClass("activ-pages-button")
+      $($pagesButton).addClass("activ-pages-button")
+    })
+
+    function handleClosePropertyPanel() {
+      $(".wl-property-panel").removeClass("wl-property-panel--open");
+      $(".wl-table-wrap").removeClass("wl-table-wrap--narrow");
+      $(".wl-property-panel__frequent-items").html("");
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  </script>
+</html>

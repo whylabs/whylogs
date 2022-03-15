@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Profile Viewer | whylogs</title>
+
+    <link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <style type="text/css">
+
+      :root {
+        /** Branded colors */
+        --brandSecondary900: #4f595b;
+        --secondaryLight1000: #313b3d;
+        /** Purpose colors */
+        --tealBackground: #eaf2f3;
+      }
+
+      /* RESET STYLE */
+      *,
+      *::after,
+      *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        overflow-y: hidden;
+      }
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .desktop-content {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 100%;
+        vertical-align: top;
+        overflow: hidden;
+      }
+
+      .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+      }
+
+      .circle-color {
+       display: inline-block;
+       padding: 5px;
+       border-radius: 50px;
+     }
+
+     .colors-for-distingushing-charts {
+       padding-right: 10px;
+     }
+
+     .display-flex{
+       display: flex;
+     }
+
+     .align-items-flex-end {
+       align-items: flex-end;
+     }
+
+     .chart-box-title {
+       width: 88%;
+       justify-content: space-between;
+       margin: 10px;
+       margin-top: 15px;
+       bottom: 0;
+     }
+
+     .chart-box-title p{
+       margin-bottom: 0;
+       font-family: Asap;
+       font-weight: bold;
+       font-size: 18px;
+       line-height: 16px;
+       color: #4F595B;
+     }
+    
+    .bar {
+      font: 10px sans-serif;
+    }
+  
+    .bar path,
+    .bar line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .error-message {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: rgb(255, 114, 71);
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+     @media screen and (min-width: 500px) {
+       .desktop-content {
+         display: block;
+       }
+       .no-responsive {
+         display: none;
+       }
+     }
+    </style>
+  </head>
+
+  <body id="generated-html"></body>
+  <script id="entry-template" type="text/x-handlebars-template">
+    {{{{raw}}}}
+      <div class="desktop-content">
+        {{#each this}}
+              <div class="chart-box" id="chart-box">
+                <div class="chart-box-title display-flex">
+                  <p>{{@key}}</p>
+                  <div class="display-flex">
+                    <div class="colors-for-distingushing-charts">
+                      <div class="circle-color" style="background: #44C0E7;"></div>
+                      <text alignment-baseline="middle" style="font-size: 15px;">Current</text>
+                    </div>
+                    <div class="colors-for-distingushing-charts">
+                      <div class="circle-color" style="background: #F5843C"></div>
+                      <text alignment-baseline="middle" style="font-size: 15px;">Reference</text>
+                    </div>
+                  </div></div>
+                <div class="svg-container">{{{getDoubleHistogramChart this}}}</div>
+              </div>
+        {{/each}}
+      </div>
+      <div class="no-responsive">
+        <div class="no-responsive__content">
+          <h1 class="no-responsive__title">Hold on! :)</h1>
+          <p class="no-responsive__text">
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          </p>
+        </div>
+      </div>
+    {{{{/raw}}}}
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+
+      class GenerateChartParams {
+        constructor(height, width, targetData, referenceData, bottomMargin=30, topMargin=5) {
+          this.MARGIN = {
+            TOP: topMargin,
+            RIGHT: 5,
+            BOTTOM: bottomMargin,
+            LEFT: 55,
+          };
+          this.SVG_WIDTH = width;
+          this.SVG_HEIGHT = height;
+          this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
+          this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
+          this.svgEl = d3.create("svg")
+             .attr("preserveAspectRatio", "xMinYMin meet")
+             .attr("viewBox", `0 0 ${$(window).width()+100} ${$(window).height()-30}`)
+             .classed("svg-content-responsive", true)
+          this.maxYValue = d3.max(targetData, (d) => Math.abs(d.axisY));
+          this.minYValue = d3.min(targetData, (d) => Math.abs(d.axisY));
+          const mergedReferenceData = referenceData.map(({axisX, axisY}) => {
+            return {axisX, axisY}
+          })
+          const mergedTargetedData = targetData.map(({axisX, axisY}) => {
+            return {axisX, axisY}
+          })
+
+          this.charts2 = mergedReferenceData.concat(mergedTargetedData)
+          this.charts2 = this.charts2.sort(function(a, b) { return a - b; });
+
+          this.targetBinWidth = targetData[1]?.axisX - targetData[0]?.axisX
+          this.referenceBinWidth = referenceData[1]?.axisX - referenceData[0]?.axisX
+          this.maxTargetXValue = d3.max(targetData, (d) => d.axisX);
+
+          this.maxReferenceXValue = d3.max(referenceData, (d) => d.axisX);
+
+          this.xScale = d3
+              .scaleLinear()
+         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth >= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])     // I was too lazy to do basic math of max(bin_start + width for each distribution)
+         .range([0, this.CHART_WIDTH ]);
+
+         this.svgEl.append("g")
+             .attr("transform", "translate("+ this.MARGIN.LEFT +"," + this.SVG_HEIGHT + ")")
+             .call(d3.axisBottom(this.xScale));
+          this.yScale = d3.scaleLinear()
+              .range([this.CHART_HEIGHT , 0])
+              this.yScale.domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisY); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisY); })]);
+        }
+      }
+
+      function chartData(column) {
+        const data = [];
+        if (column.numberSummary?.histogram) {
+          for (let i = 0; i<column.numberSummary.histogram.bins.length; i++) {
+            data.push({
+              axisY: column.numberSummary.histogram.counts[i] || 0,
+              axisX: column.numberSummary.histogram.bins[i] || 0,
+            });
+          }
+        } else {
+            $(document).ready(() => 
+              $(".desktop-content").html(`
+                <p style="height: ${$(window).height()}px" class="error-message"> 
+                  Something went wrong. Please try again.
+                </p>
+              `)
+            )
+          }
+
+        return data
+      }
+
+      function generateDoubleHistogramChart(targetData, referenceData) {
+        let histogramData = [],
+            overlappedHistogramData = [];
+        let yFormat;
+
+        histogramData = chartData(targetData)
+        overlappedHistogramData = chartData(referenceData)
+
+        const sizes = new GenerateChartParams($(window).height()-80, $(window).width(), histogramData, overlappedHistogramData)
+        const {
+          MARGIN,
+          SVG_WIDTH,
+          SVG_HEIGHT,
+          CHART_WIDTH,
+          CHART_HEIGHT,
+          svgEl,
+          maxYValue,
+          minYValue,
+          xScale,
+          yScale
+        } = sizes
+
+        const rectColors = ["#44C0E7", "#F5843C"]
+        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+        yFormat = yScale.tickFormat(100, yFormat);
+
+        svgEl.append("g")
+          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
+          .call(yAxis)
+          .call(g => g.select(".domain").remove())
+          .call(g => g.selectAll(".tick line")
+              .attr("x2", CHART_WIDTH)
+              .attr("stroke-opacity", 0.1))
+          .call(g => g.append("text")
+              .attr("x", -MARGIN.LEFT)
+              .attr("y", 10)
+              .attr("fill", "currentColor")
+              .attr("text-anchor", "start"))
+
+        svgEl.append("text")
+          .attr("transform",
+                "translate(" + (CHART_WIDTH/2) + " ," +
+                               (CHART_HEIGHT + MARGIN.TOP + 75) + ")")
+          .style("text-anchor", "middle")
+          .text("Values")
+          .style("font-size", "15")
+          .style("opacity", "0.6")
+
+        svgEl.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0)
+          .attr("x", 0 - (SVG_HEIGHT / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Counts")
+          .style("font-size", "15")
+          .style("opacity", "0.6")
+
+          const gChart = svgEl.append("g");
+          gChart
+          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
+          .selectAll(".bar")
+          .data(histogramData)
+          .enter()
+          .append("rect")
+          .style("stroke", "#021826")
+          .classed("bar", true)
+          .attr("width", function(d) { return xScale(histogramData[1]?.axisX)-xScale(histogramData[0]?.axisX); })
+          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("x", 1)
+          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
+          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr("fill", rectColors[0])
+          .style("opacity","0.6")
+
+          const gChart1 = svgEl.append("g");
+          gChart1
+          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
+          .selectAll(".bar")
+          .data(overlappedHistogramData)
+          .enter()
+          .append("rect")
+          .style("stroke", "#021826")
+          .classed("bar", true)
+          .attr("width", function(d) { return xScale(overlappedHistogramData[1]?.axisX)-xScale(overlappedHistogramData[0]?.axisX); })
+          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+          .attr("x", 1)
+          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
+          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr("fill", rectColors[1])
+          .style("opacity","0.6")
+
+        return svgEl._groups[0][0].outerHTML;
+      }
+
+      const profileFromCSVfile = {{{reference_profile_from_whylogs}}}
+
+      Handlebars.registerHelper("getDoubleHistogramChart",(column,key) => {
+          const columnKey = key.data.key
+        try {
+          if (profileFromCSVfile) {
+          return  generateDoubleHistogramChart (
+              column,
+              profileFromCSVfile[columnKey]
+            )
+          }
+        } catch (err) {
+          $(document).ready(() => 
+            $(".desktop-content").html(`
+              <p style="height: ${$(window).height()}px" class="error-message"> 
+                Something went wrong. Please try again.
+              </p>
+            `)
+          )
+        }
+      });
+    }
+
+    function initWebsiteScripts() {
+      $(".svg-container").css("height", $(window).height() - 32)
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = {{{profile_from_whylogs}}};
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById("entry-template").innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById("generated-html");
+      target.innerHTML = html;
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  </script>
+</html>

@@ -5,6 +5,7 @@ import com.whylogs.spark.ModelProfileSession
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
 import org.apache.spark.sql.expressions.Aggregator
 import org.apache.spark.sql.{Encoder, Encoders, Row}
+import org.slf4j.LoggerFactory
 
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}
@@ -33,6 +34,8 @@ case class DatasetProfileAggregator(datasetName: String,
   extends Aggregator[Row, DatasetProfile, Array[Byte]] with Serializable {
 
   private val allGroupByColumns = (groupByColumns ++ Option(timeColumn).toSeq).toSet
+
+  private val logger = LoggerFactory.getLogger(getClass)
 
   override def zero: DatasetProfile = new DatasetProfile(sessionId, Instant.ofEpochMilli(0))
     .withTag("Name", datasetName)
@@ -96,6 +99,8 @@ case class DatasetProfileAggregator(datasetName: String,
       .toMap.asJava
     timedProfile.track(values);
 
+    logger.debug(s"whylogs profile Aggregator reduce with timeColumn value: [${timedProfile.getDataTimestamp}] and tags: ${timedProfile.getTags}")
+
     timedProfile
   }
 
@@ -119,6 +124,7 @@ case class DatasetProfileAggregator(datasetName: String,
   }
 
   override def finish(reduction: DatasetProfile): Array[Byte] = {
+    logger.info(s"whylogs profile Aggregator finish using timeColumn: [${reduction.getDataTimestamp}] and tags: ${reduction.getTags}")
     reduction.toBytes
   }
 
