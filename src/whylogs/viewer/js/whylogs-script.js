@@ -14,7 +14,19 @@
   };
 
   // HTML Elements
+  const $selectedReferenceProfile = $(".wl__selected-reference-profile");
   const $selectedProfile = $(".wl__selected-profile");
+  const $removeReferenceProfileButton = $("#remove-reference-profile-button")
+  const $featureFileName = $(".wl__feature-file-name")
+  const $notifCircleContainer = $(".notif-circle-container")
+  const $boxes = $('input[name=checkbox]:checked');
+  const $closeIcon = $("#close-icon");
+  const $openSignUpText = $("#open-sign-up-text")
+  const $signUpText = $(".sign-up-text");
+  const $dropdownArrowIcon = $("#dropdown-arrow-icon");
+  const $referenceJsonForm = $("#reference-json-form");
+  const $referencefileInput = $("#reference-file-input");
+  const $compareProfile = $("#compare-profile");
   const $featureCount = $(".wl__feature-count");
   const $sidebarFeatureNameList = $(".wl__sidebar-feature-name-list");
   const $featureCountDiscrete = $(".wl__feature-count--discrete");
@@ -28,22 +40,18 @@
   const $tableContent = $("#table-content");
   const $tableMessage = $("#table-message");
   const $sidebarContent = $("#sidebar-content");
-  const $singleProfileWrap = $("#sidebar-content-single-profile");
   const $multiProfileWrap = $("#sidebar-content-multi-profile");
-  const $profileDropdown = $(".sidebar-content__profile-dropdown");
   const $propertyPanelTitle = $(".wl-property-panel__title");
   const $propertyPanelProfileName = $(".wl-property-panel__table-th-profile");
   const $filterOptions = $(".filter-options");
-  const $selectOptionFirstTime = $("#select-option-first-time");
-  const $removeButton = $(`#remove-button-1`);
-  const $removeButton2 = $("#remove-button-2");
 
   // Constants and variables
   let featureSearchValue = "";
   let isActiveInferredType = {};
   let propertyPanelData = [];
-  let profiles = [];
+  let referencePropertyPanelData = [];
   let jsonData = {};
+  let referenceJsonData = {};
   let dataForRead = {};
   let featureDataForTableForAllProfiles = {};
   let numOfProfilesBasedOnType = {};
@@ -51,11 +59,6 @@
   selectedProfiles.push("0");
   // Util functions
 
-  const colors = {
-    0: "#0e7384",
-    1: "#2683c9",
-    2: "#44c0e7",
-  };
   function debounce(func, wait, immediate) {
     let timeout;
 
@@ -90,24 +93,11 @@
       }
     }
 
-    if (!checkJSONValidityForMultiProfile(jsonData)) {
+    if (jsonData) {
       for (let i = 0; i < featureListChildren.length; i++) {
         const name = featureListChildren[i].dataset.featureName.toLowerCase();
         const type = featureListChildren[i].dataset.inferredType.toLowerCase();
         if (isActiveInferredType[type] && name.startsWith(featureSearchValue)) {
-          featureListChildren[i].style.display = "";
-        } else {
-          featureListChildren[i].style.display = "none";
-        }
-      }
-    }
-    if (checkJSONValidityForMultiProfile(jsonData)) {
-      for (let i = 0; i < featureListChildren.length; i++) {
-        const name = featureListChildren[i].dataset.featureName.toLowerCase();
-        const type = featureListChildren[i].dataset.inferredType.toLowerCase();
-
-        const typeOfFirst = type.split(",")[0];
-        if (isActiveInferredType[typeOfFirst] && name.startsWith(featureSearchValue)) {
           featureListChildren[i].style.display = "";
         } else {
           featureListChildren[i].style.display = "none";
@@ -152,80 +142,556 @@
     );
   }
 
-  function openPropertyPanel(items, infType, infTypeSecond = null) {
-    const types = [infType, infTypeSecond];
-    $(".wl-property-panel__table-th-profile").addClass("d-none");
-    $("#property-panel-0").removeClass("d-none");
-    if (!checkJSONValidityForMultiProfile(jsonData)) {
-      if (items.length > 0 && items !== "undefined") {
-        let chipString = "";
-        const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
-        const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
-        const chipElementEstimation = (count) =>
-          `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
-        items.forEach((item) => {
-          chipString += `
-        <tr class="wl-property-panel__table-tr">
-          ${chipElementTableData(item.value)}
-          ${chipElementEstimation(item.count)}
-        </tr>
-        `;
-        });
-        $(".wl-property-panel__frequent-items").html(chipString);
-        if (infType === "non-discrete") {
-          $propertyPanelTitle.html("Histogram data:");
-          $propertyPanelProfileName.html("Bin values");
-        } else if (infType === "discrete") {
-          $propertyPanelTitle.html("Frequent items:");
-          $propertyPanelProfileName.html("Counts");
-        }
+  const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
+  const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
 
-        $(".wl-property-panel").addClass("wl-property-panel--open");
-        $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
-      }
+  const chartBoxElement = (chartTitle, chart) => `
+    <div class="chart-box-wrap mb-4">
+      <div class="chart-box" id="chart-box">
+        <div class="chart-box-title display-flex">${chartTitle}</div>
+        <div class="svg-container">${chart}</div>
+      </div>
+    </div>
+  `
+
+  const frequentItemBoxElement = (chartTitle, items) => `
+    <div class="frequent-item-box-wrap mb-4">
+      <div class="frequent-item-box display-flex" id="chart-box">
+          <tbody class="wl-property-panel__frequent-items">
+            ${items}
+          </tbody>
+        </div>
+    </div>
+  `
+
+  const colorsForDistingushingCharts = (color, text) => `
+    <div class="colors-for-distingushing-charts">
+      <div class="circle-color" style="background: ${color};"></div>
+      <text alignment-baseline="middle" style="font-size: 15px;">${text}</text>
+    </div>
+  `
+
+  class GenerateChartParams {
+    constructor(height, width, data, bottomMargin=20, topMargin=5) {
+      this.MARGIN = {
+        TOP: topMargin,
+        RIGHT: 5,
+        BOTTOM: bottomMargin,
+        LEFT: 55,
+      };
+      this.SVG_WIDTH = width;
+      this.SVG_HEIGHT = height;
+      this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
+      this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
+      this.svgEl = d3.create("svg").attr("width", this.SVG_WIDTH).attr("height", this.SVG_HEIGHT);
+      this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+      this.xScale = d3
+        .scaleBand()
+        .domain(data.map((d) => d.axisX))
+        .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
+      this.yScale = d3
+        .scaleLinear()
+        .domain([0, this.maxYValue * 1.02])
+        .range([this.CHART_HEIGHT, 0]);
+    }
+  }
+
+  const referenceProfilePanelHeight = () => {
+    const pageHeight = $(document).height() - 48;
+    if ($(".clickable-test-feature-wrap").height() <= pageHeight) {
+      $(".clickable-test-feature-wrap").css("height", pageHeight)
     } else {
-      let chipString = "";
-      $propertyPanelTitle.html("");
-      const chipElement = (chip) => `<span class="wl-table-cell__bedge">${chip}</span>`;
-      const chipElementTableData = (value) => `<td class="wl-property-panel__table-td" >${chipElement(value)}</td>`;
-      const chipElementEstimation = (count) =>
-        `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
-      const columns = [];
-      let itemsLength = items[0].length;
-      selectedProfiles.forEach((selected, index) => {
-        if (selected !== null && items[parseInt(selected)].length > 0 && items !== "undefined") {
-          columns[index] = [];
-          items[parseInt(selected)].forEach((item, i) => {
-            columns[index][i] = "";
+      $(".clickable-test-feature-wrap").css("height", "auto")
+    }
+  }
 
-            if (index === 0) {
-              columns[index][i] += `${chipElementTableData(item.value)}`;
-            }
-            let value = Number.isInteger(Number(item.count)) ? item.count : roundToThreeDecimals(item.count);
-            columns[index][i] += `${chipElementEstimation(value)}`;
-          });
-        } else {
-          columns[index] = [];
-          for (let i = 0; i < itemsLength; i++) {
-            columns[index][i] = "<td></td>";
-          }
-        }
+  function getGraphHtml(data, height = 75, width = 350, index = 0, referenceProfile = false, propertyPanelGraph = false) {
+    const sizes = new GenerateChartParams(height, width, data, 5)
+    let {
+      MARGIN,
+      CHART_HEIGHT,
+      svgEl,
+      maxYValue,
+      xScale,
+      yScale
+    } = sizes
+    const color = ["#369BAC", '#2683C9']
 
-        $(`#property-panel-${index}`).html(`Profile ${index + 1}`);
-        $(`#property-panel-${index}`).removeClass("d-none");
-      });
-      for (let i = 0; i < items[0].length; i++) {
-        chipString += `
-          <tr class="wl-property-panel__table-tr">`;
-        for (let j = 0; j < selectedProfiles.length; j++) {
-          chipString += columns[j][i];
-        }
-        chipString += `</tr>`;
+    if (propertyPanelGraph) {
+     svgEl = d3.create("svg").attr("width", width).attr("height", height);
+    }
+
+    // Add the y Axis
+    if (!referenceProfile) {
+      svgEl
+        .append("g")
+        .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
+        .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]));
+    }
+
+    const gChart = svgEl.append("g");
+    gChart
+      .selectAll(".bar")
+      .data(data)
+      .enter()
+      .append("rect")
+      .classed("bar", true)
+      .attr("width", xScale.bandwidth() - 1)
+      .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+      .attr("x", (d) => xScale(d.axisX))
+      .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+      .attr("fill", color[index]);
+
+    return svgEl._groups[0][0].outerHTML;
+  }
+
+  function generateDoubleHistogramChart(currentWidth, histogramData, overlappedHistogramData) {
+    let yFormat,
+        xFormat;
+
+    const sizes = new GenerateChartParams(230, currentWidth, histogramData)
+    let {
+      MARGIN,
+      SVG_WIDTH,
+      SVG_HEIGHT,
+      CHART_WIDTH,
+      CHART_HEIGHT,
+      svgEl,
+      xScale,
+      yScale
+    } = sizes
+    
+    svgEl = d3.create("svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "0 0 600 400")
+    .classed("svg-content-responsive", true)
+
+    const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).ticks(CHART_HEIGHT / 40, yFormat);
+    yFormat = yScale.tickFormat(100, yFormat);
+
+    svgEl.append("g")
+      .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+      .call(yAxis)
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll(".tick line")
+          .attr("x2", CHART_WIDTH)
+          .attr("stroke-opacity", 0.1))
+      .call(g => g.append("text")
+          .attr("x", -MARGIN.LEFT)
+          .attr("y", 10)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "start"));
+
+          svgEl.append("g").append("g")
+        .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+        .call(xAxis)
+        .call(g => g.select(".domain").remove())
+        .call(g => g.selectAll(".tick line").remove())
+        .call(g => g.append("text")
+            .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+            .attr("y", 27)
+            .attr("fill", "currentColor")
+            .attr("text-anchor", "end"));
+
+      const gChart = svgEl.append("g");
+      gChart
+      .selectAll(".bar")
+      .data(histogramData)
+      .enter()
+      .append("rect")
+      .classed("bar", true)
+      .attr("width", xScale.bandwidth())
+      .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+      .attr("x", (d) => xScale(d.axisX))
+      .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+      .attr("fill", "#369BAC")
+      .style("opacity","0.6");
+
+      const gChart1 = svgEl.append("g");
+      gChart1
+        .selectAll(".bar")
+        .data(overlappedHistogramData)
+        .enter()
+        .append("rect")
+        .classed("bar", true)
+        .attr("width", xScale.bandwidth())
+        .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
+        .attr("x", (d) => xScale(d.axisX))
+        .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
+        .attr("fill", "#2683C9")
+        .style("opacity", "0.6");
+
+    return svgEl._groups[0][0].outerHTML;
+  }
+
+  function generateBarChart(currentWidth, histogramData, overlappedHistogramData) {
+    let yFormat,
+        xFormat;
+    const data = histogramData.map((profile, index) => {
+      return {
+        group: index,
+        profile: profile.axisY,
+        reference_profile: overlappedHistogramData[index].axisY
       }
+    }).slice(0, 20)
 
-      $(".wl-property-panel").addClass("wl-property-panel--open");
-      $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
-      $(".wl-property-panel__frequent-items").html(chipString);
+    const sizes = new GenerateChartParams(230, currentWidth, histogramData, undefined, 1)
+    let {
+      MARGIN,
+      SVG_WIDTH,
+      SVG_HEIGHT,
+      CHART_WIDTH,
+      CHART_HEIGHT,
+      svgEl,
+      xScale,
+      yScale
+    } = sizes
+
+    svgEl = d3.create("svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "0 0 600 400")
+    .classed("svg-content-responsive", true)
+
+    const subgroups = ['profile', 'reference_profile']
+
+    xScale.padding([0.3])
+
+    const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
+    yFormat = yScale.tickFormat(100, yFormat);
+
+    svgEl.append("g")
+      .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+      .call(yAxis)
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll(".tick line")
+          .attr("x2", CHART_WIDTH)
+          .attr("stroke-opacity", 0.1))
+      .call(g => g.append("text")
+          .attr("x", -MARGIN.LEFT)
+          .attr("y", 10)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "start"));
+
+    svgEl.append("g")
+        .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+        .call(xAxis)
+        .call(g => g.select(".domain").remove())
+        .call(g => g.selectAll(".tick line").remove())
+        .call(g => g.append("text")
+            .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+            .attr("y", 27)
+            .attr("fill", "currentColor")
+            .attr("text-anchor", "end"));
+    // Another scale for subgroup position?
+    const xSubgroup = d3.scaleBand()
+      .domain(subgroups)
+      .range([0, xScale.bandwidth()])
+
+    // color palette = one color per subgroup
+    const color = d3.scaleOrdinal()
+      .domain(subgroups)
+      .range(['#369BAC', '#2683C9'])
+
+    svgEl.append("g")
+       .selectAll("g")
+       // Enter in data = loop group per group
+       .data(data)
+       .enter()
+       .append("g")
+         .attr("transform", function(d) { return "translate(" + xScale(d.group) + ",0)"; })
+       .selectAll("rect")
+       .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d[key]}; }); })
+       .enter().append("rect")
+         .attr("x", function(d) { return xSubgroup(d.key); })
+         .attr("y", function(d) { return yScale(d.value); })
+         .attr("width", xSubgroup.bandwidth())
+         .attr("height", function(d) { return (CHART_HEIGHT - yScale(d.value)); })
+         .attr("fill", function(d) { return color(d.key); })
+         .style("opacity", "0.6");
+
+
+     return svgEl._groups[0][0].outerHTML;
+  }
+
+  function generatePositiveNegativeChart(currentWidth, histogramData, overlappedHistogramData) {
+    const data = histogramData.map((value, index) => {
+      const difference = value.axisY - overlappedHistogramData[index].axisY
+      const negativeValues = difference < 0 ? difference : 0
+      return [+value.axisY, negativeValues]
+    }).flat().slice(0, 20)
+
+    let yFormat,
+        xFormat;
+
+    const sizes = new GenerateChartParams(230, currentWidth, histogramData, undefined, 1)
+    let {
+     MARGIN,
+     SVG_WIDTH,
+     SVG_HEIGHT,
+     CHART_WIDTH,
+     CHART_HEIGHT,
+     svgEl
+    } = sizes
+
+    svgEl = d3.create("svg")
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "0 0 600 400")
+    .classed("svg-content-responsive", true)
+
+    const y0 = Math.max(Math.abs(d3.min(data)), Math.abs(d3.max(data)));
+
+    const yScale = d3.scaleLinear()
+        .domain([-y0 * 1.02, y0 * 1.02])
+        .range([CHART_HEIGHT,0])
+
+    const xScale = d3.scaleBand()
+        .domain(d3.range(data.length)) // so that chart's height has 102% height of the maximum value
+        .rangeRound([MARGIN.LEFT, SVG_WIDTH])
+        .padding([0.1]);
+
+    const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).ticks(CHART_HEIGHT / 40, yFormat);
+    yFormat = yScale.tickFormat(100, yFormat);
+
+      svgEl.append("g")
+      .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.TOP})`)
+      .call(yAxis)
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll(".tick line")
+      .attr("x2", CHART_WIDTH )
+      .attr("stroke-opacity", 0.1))
+      .call(g => g.append("text")
+      .attr("x", - MARGIN.LEFT)
+      .attr("y", 10)
+      .attr("fill", "currentColor")
+      .attr("text-anchor", "start"));
+
+      svgEl
+      .append("g")
+      .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+      .call(xAxis)
+      .call(g => g.select(".domain").remove())
+      .call(g => g.selectAll(".tick>line").remove())
+      .call(g => g.append("text")
+          .attr("x", SVG_WIDTH - MARGIN.RIGHT)
+          .attr("y", 27)
+          .attr("fill", "currentColor")
+          .attr("text-anchor", "end"));
+
+    svgEl.selectAll(".bar")
+        .data(data)
+      .enter().append("rect")
+        .attr("class", function(d) { return d < 0 ? "bar negative" : "bar positive"; })
+        .attr("y", function(d) { return yScale(Math.max(0, d)); })
+        .attr("x", function(d, i) { return xScale(i); })
+        .attr("height", function(d) { return Math.abs(yScale(d) - yScale(0)); })
+        .attr("width", xScale.bandwidth());
+
+        return svgEl._groups[0][0].outerHTML;
+  }
+
+  function numericalDriftChart(getDoubleHistogramChart) {
+    let colorsForDistingushingChartHTMLElement = '';
+
+    colorsForDistingushingChartHTMLElement +=`
+      <p>Data Distribution Chart</p>
+      <div class="display-flex">
+        ${colorsForDistingushingCharts("#369BAC", "Current")}
+        ${colorsForDistingushingCharts("#2683C9", "Reference")}
+      </div>
+    `
+    $(".clickable-test-feature-body").html(`
+      ${chartBoxElement(colorsForDistingushingChartHTMLElement, getDoubleHistogramChart)}
+    `);
+  }
+
+  function categoricalDriftChart(getBarChart, getPositiveNegative) {
+    $(".clickable-test-feature-body").html(`
+      ${chartBoxElement('<p>Bar Chart</p>', getBarChart)}
+      ${chartBoxElement('<p>Difference Bar Chart</p>', getPositiveNegative)}
+    `);
+  }
+
+  function sortWithIndeces(toSort) {
+    for (let i = 0; i < toSort.length; i++) {
+      toSort[i] = [toSort[i], i];
+    }
+    toSort.sort((left, right) => {
+      return  right[0] < left[0] ? -1 : 1;
+    });
+    toSort.sortIndices = [];
+    for (let j = 0; j < toSort.length; j++) {
+      toSort.sortIndices.push(toSort[j][1]);
+      toSort[j] = toSort[j][0];
+    }
+    return toSort;
+  }
+
+  const getProfileCharts = (key, getDoubleHistogramChart, getBarChart, getPositiveNegative) => {
+    if (jsonData.columns[key].numberSummary.isDiscrete) {
+      $("#page-button").text("Categorical Data")
+      categoricalDriftChart(getBarChart, getPositiveNegative)
+    } else {
+      $("#page-button").text("Numerical Data")
+      numericalDriftChart(getDoubleHistogramChart)
+    }
+  }
+
+  function openReferencePropertyPanel(referenceItems, items, profileItems, key, chart, getDoubleHistogramChart, getBarChart, getPositiveNegative) {
+    const chartInfoItem = (drift, driftName) => `
+      <div class="info">
+          <div>${drift}</div>
+          <p>${driftName}</p>
+     </div>
+    `
+    const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap");
+    const $pagesButtons = $(".page-button");
+    const $pagesButton = $pagesButtons[0];
+    let chipString = "",
+        frequentItemString = "",
+        referenceFrequentItemString = "";
+  
+    $pagesButtons.removeClass("activ-pages-button")
+    $($pagesButton).addClass("activ-pages-button")
+    $tableContent.addClass("d-none")
+    $clickableTestFeatureWrap.removeClass("d-none")
+
+    // frequentItemString += `${items.forEach((item) => {chipElementTableData(item.value)})}`
+    const sortedItems = items.map((item) => +Object.values(item)[0])
+    // .sort((a,b) => +b.value - (+a.value))
+    sortWithIndeces(sortedItems).sortIndices.forEach(
+      (item) => {
+        frequentItemString += `
+          ${frequentItemBoxElement('',chipElementTableData(items[item].value))}
+        `
+        referenceFrequentItemString += `
+          ${frequentItemBoxElement('',chipElementTableData(referenceItems[item].value))}
+        `
+      }
+    );
+
+    $("#page-button").on("click", function () {
+      getProfileCharts(
+        key, 
+        getDoubleHistogramChart, 
+        getBarChart, 
+        getPositiveNegative
+      )
+      $(".clickable-test-feature-body").removeClass("d-none");
+      $(".frequent-items-body").html(``);
+      referenceProfilePanelHeight()
+    })
+
+    getProfileCharts(
+      key, 
+      getDoubleHistogramChart, 
+      getBarChart, 
+      getPositiveNegative
+    )
+    $(".clickable-test-feature-body").removeClass("d-none");
+    $(".frequent-items-body").html(``);
+
+    $("#frequent-item-button").on("click", function () {
+      $(".frequent-items-body").html(`
+      <div class="display-flex">
+        <div class="fequent-items-wrap">
+          <div class="chart-box-title frequent-item-box-to-title display-flex">
+            items
+          </div>
+          ${frequentItemString}
+        </div>
+        <div class="fequent-items-wrap">
+          <div class="chart-box-title frequent-item-box-to-title display-flex">
+            reference profile items
+          </div>
+          ${referenceFrequentItemString}
+        </div>
+      </div>
+    `);
+  
+    $(".clickable-test-feature-body").addClass("d-none");
+
+    referenceProfilePanelHeight()
+    })
+
+
+    $("#chart").html(chart);
+
+    chipString += `
+      ${chartInfoItem(profileItems.numberSummary.count.toString(), "Total Count")}
+      ${chartInfoItem(fixNumberTo(profileItems.numberSummary.mean), "Mean")}
+    `
+    $(".chart-info").html(chipString);
+    referenceProfilePanelHeight()
+  }
+
+  function openProfilePropertyPanel(items, infType, chart) {
+    $("#wl-property-panel__chart").html(chart);
+    let chipString = "";
+    const chipElementEstimation = (count) =>
+      `<td class="wl-property-panel__table-td wl-property-panel__table-td-profile" >${count}</td>`;
+    items.forEach((item) => {
+      chipString += `
+    <tr class="wl-property-panel__table-tr">
+      ${chipElementTableData(item.value)}
+      ${chipElementEstimation(item.count)}
+    </tr>
+    `;
+    });
+    $(".wl-property-panel__frequent-items").html(chipString);
+    if (infType === "non-discrete") {
+      $propertyPanelTitle.html("Histogram data:");
+      $propertyPanelProfileName.html("Bin values");
+    } else if (infType === "discrete") {
+      $propertyPanelTitle.html("Frequent items:");
+      $propertyPanelProfileName.html("Counts");
+    }
+
+    $(".wl-property-panel").addClass("wl-property-panel--open");
+    $(".wl-table-wrap").addClass("wl-table-wrap--narrow");
+  }
+
+  function openPropertyPanel(referenceItems, items, infType, feature) {
+    let getGraph = null,
+        getPropertyPanelGraph = null,
+        getDoubleHistogramChart,
+        getBarChart,
+        getPositiveNegative,
+        currentWidth = 600,
+        propertyPanelGraph = true; 
+  
+
+    if (referencePropertyPanelData[feature[0]][0]) {
+      getDoubleHistogramChart = generateDoubleHistogramChart(currentWidth, feature[1].chartData[0], feature[1].chartData[1])
+      getBarChart = generateBarChart(currentWidth, feature[1].chartData[0], feature[1].chartData[1])
+      getPositiveNegative = generatePositiveNegativeChart(currentWidth, feature[1].chartData[0], feature[1].chartData[1])
+      items = referencePropertyPanelData[feature[0]][0]
+      getGraph = getGraphHtml(feature[1].chartData[1], 50, 280, 0, true, propertyPanelGraph)
+    }
+
+    getPropertyPanelGraph = getPropertyPanelGraphHtml(jsonData.columns[feature[0]], feature[0])
+
+    if (jsonData) {
+      if (items.length > 0 && items !== "undefined") {
+        if (referencePropertyPanelData[feature[0]][0]) {
+          openReferencePropertyPanel(
+            referenceItems,
+            items,
+            referenceJsonData.columns[feature[0]], 
+            feature[0], 
+            getGraph,
+            getDoubleHistogramChart, 
+            getBarChart,
+            getPositiveNegative
+          )
+        } else {
+          openProfilePropertyPanel(items, infType, getPropertyPanelGraph)
+        }
+      } else {
+
+      }
     }
   }
 
@@ -235,81 +701,106 @@
     $(".wl-property-panel__frequent-items").html("");
   }
 
-  function roundToThreeDecimals(str) {
-    let floatNum = parseFloat(str);
-    let floatRounded = floatNum.toFixed(3);
+  function getPropertyPanelGraphHtml (column) {
+    let chartString = "";
+    const freqData = [];
+    const histData = [];
 
-    return String(floatRounded);
+    const freqChart = (chart) =>
+      `<div class="wl-property-panel__chart--single"><div class="wl-property-panel__chart-title">Frequent Items Data</div>${chart}</div>`;
+    const histChart = (chart) =>
+      `<div class="wl-property-panel__chart--single"><div class="wl-property-panel__chart-title">Histogram Data</div>${chart}</div>`;
+
+    if (column.numberSummary) {
+      if (column.frequentItems && column.frequentItems.items) {
+        column.frequentItems.items.forEach((item, index) => {
+          freqData.push({
+            axisY: item.estimate,
+            axisX: index,
+          });
+        });
+      }
+
+      if (column.numberSummary.histogram && column.numberSummary.histogram.counts) {
+        column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+          histData.push({
+            axisY: count,
+            axisX: index,
+          });
+        });
+      }
+      if (column.numberSummary.isDiscrete) {
+        if (freqData.length > 0) chartString += freqChart(getGraphHtml(freqData, 130));
+        if (histData.length > 0) chartString += histChart(getGraphHtml(histData, 130));
+      } else {
+        if (histData.length > 0) chartString += histChart(getGraphHtml(histData, 130));
+        if (freqData.length > 0) chartString += freqChart(getGraphHtml(freqData, 130));
+      }
+    }
+    return chartString;
   }
+
+  function sidebarContentHeight() {
+    const $sidebarContentPadding = +$("#sidebar-content-single-profile").css("padding").replace('px','') * 2
+    const $sidebarContentHeight = $("#sidebar-content-single-profile").height() + $sidebarContentPadding
+    const $sidebar = $(".sidebar")
+
+    $sidebar.css("margin-bottom", `${$sidebarContentHeight}px`)
+  }
+
+  function checkCurrentProfile(item, referenceItem) {
+    if (referenceJsonData && Object.values(referenceJsonData)) {
+      return referenceItem
+    } else {
+      return item
+    }
+  }
+
   // Override and populate HTML element values
-  function updateHtmlElementValues(index) {
+  function updateHtmlElementValues() {
+    $notifCircleContainer.addClass("d-none")
+    $dropdownArrowIcon.css("transform","rotate(180deg)")
+    $filterOptions.removeClass("d-none");
+
+    checkCurrentProfile(true, false) ?
+    $("#dif-from-ref").addClass("d-none"):
+    $("#dif-from-ref").removeClass("d-none")
+
+    sidebarContentHeight()
     $sidebarFeatureNameList.html("");
     $tableMessage.addClass("d-none");
     Object.entries(featureDataForTableForAllProfiles).forEach((feature) => {
-      function getGraphHtml(data, index) {
-        const SINGLE_PROFILE_JSON = !profiles.length;
-        const MARGIN = {
-          TOP: 5,
-          RIGHT: 5,
-          BOTTOM: 5,
-          LEFT: 55,
-        };
-        const SVG_WIDTH = 350;
-        const SVG_HEIGHT = SINGLE_PROFILE_JSON ? 75 : 35;
-        const CHART_WIDTH = SVG_WIDTH - MARGIN.LEFT - MARGIN.RIGHT;
-        const CHART_HEIGHT = SVG_HEIGHT - MARGIN.TOP - MARGIN.BOTTOM;
-
-        const svgEl = d3.create("svg").attr("width", SVG_WIDTH).attr("height", SVG_HEIGHT);
-
-        const maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
-
-        const xScale = d3
-          .scaleBand()
-          .domain(data.map((d) => d.axisX))
-          .range([MARGIN.LEFT, MARGIN.LEFT + CHART_WIDTH]);
-        const yScale = d3
-          .scaleLinear()
-          .domain([0, maxYValue * 1.02]) // so that chart's height has 102% height of the maximum value
-          .range([CHART_HEIGHT, 0]);
-
-        // Add the y Axis
-        svgEl
-          .append("g")
-          .attr("transform", "translate(" + MARGIN.LEFT + ", " + MARGIN.TOP + ")")
-          .call(d3.axisLeft(yScale).tickValues([0, maxYValue]));
-
-        const gChart = svgEl.append("g");
-        gChart
-          .selectAll(".bar")
-          .data(data)
-          .enter()
-          .append("rect")
-          .classed("bar", true)
-          .attr("width", xScale.bandwidth() - 1)
-          .attr("height", (d) => CHART_HEIGHT - yScale(d.axisY))
-          .attr("x", (d) => xScale(d.axisX))
-          .attr("y", (d) => yScale(d.axisY) + MARGIN.TOP)
-          .attr("fill", colors[index]);
-
-        return svgEl._groups[0][0].outerHTML;
-      }
       // strings for tableToShow
       let tempChartDataString = "";
+      let referenceTempChartDataString = "";
       feature[1].chartData.forEach((chartData, index) => {
         if (selectedProfiles.includes(String(index))) {
-          let profileSelected = selectedProfiles.indexOf(String(index));
           tempChartDataString += `<div>${
             chartData.length > 0
-              ? getGraphHtml(chartData, profileSelected)
+              ? getGraphHtml(feature[1].chartData[0])
               : '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>'
           }</div>`;
+          if (feature[1].chartData[1] && feature[1].chartData[1].length > 0) {
+            referenceTempChartDataString+= `<div>${
+              chartData.length > 0
+                ? getGraphHtml(feature[1].chartData[1], ...[,,], 1, true)
+                : '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>'
+            }</div>`;
+          }
+        }
+      });
+
+      let diffFromRef = "";
+      feature[1].frequentItemsElemString.forEach((frequentItemElemString, index) => {
+        if (selectedProfiles.includes(String(index))) {
+          diffFromRef += ` <div class="wl-table-cell__bedge-wrap">${Math.floor(Math.random() * 10)}</div>`;
         }
       });
 
       let freaquentItemsElmString = "";
       feature[1].frequentItemsElemString.forEach((frequentItemElemString, index) => {
         if (selectedProfiles.includes(String(index))) {
-          freaquentItemsElmString += ` <div class="wl-table-cell__bedge-wrap">${frequentItemElemString}</div>`;
+          freaquentItemsElmString += ` <div class="wl-table-cell__bedge-wrap text-align-center">${frequentItemElemString}</div>`;
         }
       });
       let inferredTypeString = "";
@@ -418,9 +909,15 @@
           <div class="wl-table-cell__title-wrap">
             <h4 class="wl-table-cell__title">${feature[0]}</h4>
           </div>
-          <div class="wl-table-cell__graph-wrap">` +
-          tempChartDataString +
-          `</div></div><div class="wl-table-cell wl-table-cell--top-spacing align-middle" style="max-width: 270px; padding-right: 18px">` +
+          <div class="wl-table-cell__graph-wrap">
+            <div class="display-flex">` +
+            tempChartDataString +
+            referenceTempChartDataString +
+            `</div>
+          </div></div>
+          <div class="wl-table-cell wl-table-cell--top-spacing align-middle ${checkCurrentProfile(`d-none`, ``)}" style="max-width: 270px; padding-right: 18px">` +
+          checkCurrentProfile(``, diffFromRef) +
+          `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle">` +
           freaquentItemsElmString +
           `</div><div class="wl-table-cell wl-table-cell--top-spacing align-middle">` +
           inferredTypeString +
@@ -450,26 +947,17 @@
           quantilesMaxString +
           `</div></li>`,
       );
-      if (!checkJSONValidityForMultiProfile(jsonData)) {
-        const $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
 
-        $tableRowButton.on(
-          "click",
-          openPropertyPanel.bind(this, propertyPanelData[feature[0]][0], feature[1].inferredType[0].toLowerCase()),
-        );
-        $tableRow.find(".wl-table-cell__title-wrap").append($tableRowButton);
-      } else {
+      if (jsonData) {
         const $tableRowButton = $(`<button class="wl-table-cell__title-button" type="button">View details</button>`);
-
-        let secondType = feature[1].inferredType[selectedProfiles[1]] || null;
-        if (typeof secondType === "string") secondType = secondType.toLowerCase();
         $tableRowButton.on(
           "click",
           openPropertyPanel.bind(
             this,
-            propertyPanelData[feature[0]],
-            feature[1].inferredType[selectedProfiles[0]].toLowerCase(),
-            secondType,
+            referencePropertyPanelData[feature[0]][0],
+            propertyPanelData[feature[0]][0],
+            feature[1].inferredType[0].toLowerCase(),
+            feature
           ),
         );
         $tableRow.find(".wl-table-cell__title-wrap").append($tableRowButton);
@@ -478,10 +966,22 @@
       $tableBody.append($tableRow);
 
       $sidebarFeatureNameList.append(
-        `<li class="list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${feature[1].inferredType}"><span data-feature-name-id="${feature[0]}" >${feature[0]}</span></li>`,
+        `
+          <li id="filter-list-item" class="wl_filter-list-item list-group-item js-list-group-item" data-feature-name="${feature[0]}" data-inferred-type="${feature[1].inferredType}">
+            <div class="arrow-icon-container">
+              <div class="wl_list-item-dot"></div>
+              <img
+                class="d-none wl_arrow-icon"
+                src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCAxMiAxMyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC44IiBkPSJNNiAwLjY4NzVDMi43ODkwNiAwLjY4NzUgMC4xODc1IDMuMjg5MDYgMC4xODc1IDYuNUMwLjE4NzUgOS43MTA5NCAyLjc4OTA2IDEyLjMxMjUgNiAxMi4zMTI1QzkuMjEwOTQgMTIuMzEyNSAxMS44MTI1IDkuNzEwOTQgMTEuODEyNSA2LjVDMTEuODEyNSAzLjI4OTA2IDkuMjEwOTQgMC42ODc1IDYgMC42ODc1Wk01LjMyMDMxIDQuMDYyNUM1LjA4NTk0IDMuODUxNTYgNS4wODU5NCAzLjQ3NjU2IDUuMjk2ODggMy4yNjU2Mkw1LjU1NDY5IDMuMDA3ODFDNS43ODkwNiAyLjc3MzQ0IDYuMTQwNjIgMi43NzM0NCA2LjM1MTU2IDMuMDA3ODFMOS40Njg3NSA2LjEyNUM5LjY3OTY5IDYuMzM1OTQgOS42Nzk2OSA2LjY4NzUgOS40Njg3NSA2Ljg5ODQ0TDYuMzUxNTYgMTAuMDE1NkM2LjE0MDYyIDEwLjIyNjYgNS43ODkwNiAxMC4yMjY2IDUuNTU0NjkgMTAuMDE1Nkw1LjI5Njg4IDkuNzU3ODFDNS4wODU5NCA5LjU0Njg4IDUuMDg1OTQgOS4xNzE4OCA1LjMyMDMxIDguOTYwOTRMNy4wNzgxMiA3LjI1SDIuODEyNUMyLjQ4NDM4IDcuMjUgMi4yNSA3LjAxNTYyIDIuMjUgNi42ODc1VjYuMzEyNUMyLjI1IDYuMDA3ODEgMi40ODQzOCA1Ljc1IDIuODEyNSA1Ljc1SDcuMDc4MTJMNS4zMjAzMSA0LjA2MjVaIiBmaWxsPSIjMEU3Mzg0Ii8+Cjwvc3ZnPgo="
+              />
+            </div>
+            <span data-feature-name-id="${feature[0]}" >${feature[0]}</span>
+          </li>
+        `,
       );
     });
-    if (!checkJSONValidityForMultiProfile(jsonData)) {
+
+    if (jsonData) {
       const countDiscrete = Object.values(numOfProfilesBasedOnType).reduce(
         (acc, feature) => (acc += feature.discrete.length),
         0,
@@ -498,7 +998,10 @@
       $featureCountDiscrete.html(countDiscrete);
       $featureCountNonDiscrete.html(countNonDiscrete);
       $featureCountUnknown.html(countUnknown);
-      $selectedProfile.html(formatLabelDate(+dataForRead.properties.dataTimestamp));
+      $selectedProfile.html(formatLabelDate(+dataForRead.properties[0].dataTimestamp));
+      if (checkCurrentProfile(false, true) && dataForRead.properties[1]) {
+        $selectedReferenceProfile.html(formatLabelDate(+dataForRead.properties[1].dataTimestamp))
+      }
     }
   }
 
@@ -511,7 +1014,6 @@
     });
 
     for (let i = 0; i < tableBodyChildrens.length; i++) {
-      const name = tableBodyChildrens[i].dataset.featureName.toLowerCase();
       const type = tableBodyChildrens[i].dataset.inferredType.toLowerCase();
 
       if (isActiveInferredType[type]) {
@@ -520,7 +1022,6 @@
       }
     }
     for (let i = 0; i < featureListChildren.length; i++) {
-      const name = featureListChildren[i].dataset.featureName.toLowerCase();
       const type = featureListChildren[i].dataset.inferredType.toLowerCase();
 
       if (isActiveInferredType[type]) {
@@ -530,96 +1031,45 @@
     $featureCount.html(featureCount);
   }
 
-  function renderProfileDropdown(id) {
-    $profileDropdown.html("");
+  function getDataForRead(dataForRead, jsonData, referneceData) {
+    if (!dataForRead.properties) {
+      dataForRead.properties = [];
+    }
+    dataForRead.properties.push(jsonData.properties);
 
-    $profileDropdown.append(
-      `<option id="select-option-first-time" selected disabled value="none">Select your profile</option>`,
-    );
-    for (let i = 0; i < profiles.length; i++) {
-      if (selectedProfiles.includes(String(i))) {
-        const option = `<option  disabled value="${i}">${profiles[i].label}</option>`;
-        $profileDropdown.append(option);
-      } else {
-        const option = `<option value="${i}">${profiles[i].label}</option>`;
-        $profileDropdown.append(option);
+    Object.entries(jsonData.columns).forEach((feature) => {
+      let tempFeatureName = feature[0];
+      if (!dataForRead.columns) {
+        dataForRead.columns = [];
       }
-    }
-  }
-
-  function reRenderProfileDropdown(id) {
-    $(`#sidebar-content-multi-profile-dropdown-${id}`).html("");
-    let selected = "";
-    if (selectedProfiles[id] === null || selectedProfiles.length - 1 < id) {
-      selected = "selected";
-    }
-    $(`#sidebar-content-multi-profile-dropdown-${id}`).append(
-      `<option id="select-option-first-time" ${selected} disabled value="none">Select your profile</option>`,
-    );
-    for (let i = 0; i < profiles.length; i++) {
-      if (selectedProfiles.includes(String(i))) {
-        let selected = "";
-        if (selectedProfiles[id] === String(i)) {
-          selected = "selected";
-        }
-        const option = `<option ${selected} disabled value="${i}">${profiles[i].label}</option>`;
-        $(`#sidebar-content-multi-profile-dropdown-${id}`).append(option);
-      } else {
-        const option = `<option value="${i}">${profiles[i].label}</option>`;
-        $(`#sidebar-content-multi-profile-dropdown-${id}`).append(option);
-      }
-    }
-  }
-
-  function handleProfileChange(event) {
-    handleClosePropertyPanel();
-    $tableContent.removeClass("d-none");
-    $("#table-content-wrapper").removeClass("d-none");
-    const value = event.target.value;
-    const id = event.target.dataset;
-    selectedProfiles[parseInt(id.id)] = value;
-    let addButton = $(`#add-profile-sidebar-button-${id.id}`);
-    addButton.attr("disabled", false);
-    for (let i = 0; i < selectedProfiles.length; i++) {
-      reRenderProfileDropdown(i);
-    }
-    $selectOptionFirstTime.addClass("d-none");
-    $tableBody.html("");
-    updateHtmlElementValues();
-    renderList();
-  }
-
-  function mapProfileDataToReadData(jsonData, dataForRead) {
-    if (checkJSONValidityForMultiProfile(jsonData)) {
-      Object.entries(jsonData).forEach((profile) => {
-        if (!dataForRead.properties) {
-          dataForRead.properties = [];
-        }
-        dataForRead.properties.push(profile[1].properties);
-
-        Object.entries(profile[1].columns).forEach((feature) => {
-          let tempFeatureName = feature[0];
-          if (!dataForRead.columns) {
-            dataForRead.columns = [];
-          }
-          if (!dataForRead.columns[tempFeatureName]) dataForRead.columns[tempFeatureName] = [];
-          dataForRead.columns[tempFeatureName].push(feature[1]);
-        });
-      });
-    } else {
-      if (!dataForRead.properties) {
-        dataForRead.properties = [];
-      }
-      dataForRead.properties.push(jsonData.properties);
-
-      Object.entries(jsonData.columns).forEach((feature) => {
-        let tempFeatureName = feature[0];
-        if (!dataForRead.columns) {
-          dataForRead.columns = [];
-        }
-        if (!dataForRead.columns[tempFeatureName]) dataForRead.columns[tempFeatureName] = [];
+      if (!dataForRead.columns[tempFeatureName]) dataForRead.columns[tempFeatureName] = [];
         dataForRead.columns[tempFeatureName].push(feature[1]);
-      });
+          if (
+            referneceData &&
+            referneceData.columns[tempFeatureName].numberSummary
+          ) {
+            dataForRead.properties.push(referenceJsonData.properties)
+            const {
+              numberSummary,
+              frequentItems,
+              ...referenceDataForRead
+            } = dataForRead.columns[tempFeatureName][0]
+            dataForRead.columns[tempFeatureName].push({
+              ...referenceDataForRead,
+              referenceNumberSummary: referneceData.columns[tempFeatureName].numberSummary,
+              referenceFrequentItems: referneceData.columns[tempFeatureName].frequentItems
+            })
+          }
+    });
+    return dataForRead
+  }
+
+  function mapProfileDataToReadData(jsonData, dataForRead, referneceData) {
+    try {
+      dataForRead = getDataForRead(dataForRead, jsonData, referneceData)
+    } catch (e) {
+      alert("You selected wrong reference profile. Please select again.")
+      removeReferenceProfile()
     }
     makeFeatureDataForAllProfilesToShowOnTable(
       featureDataForTableForAllProfiles,
@@ -627,6 +1077,7 @@
       numOfProfilesBasedOnType,
     );
   }
+
 
   function makeFeatureDataForAllProfilesToShowOnTable(
     featureDataForTableForAllProfiles,
@@ -652,6 +1103,7 @@
           mean: [],
           stddev: [],
           chartData: [],
+          refereneChartData: [],
           frequentItemsElemString: [],
         };
         numOfProfilesBasedOnType[feature[0]] = {
@@ -660,6 +1112,7 @@
           unknown: [],
         };
         propertyPanelData[feature[0]] = [];
+        referencePropertyPanelData[feature[0]] = [];
       }
       let iteration = 0;
       feature[1].forEach((tempFeatureValues) => {
@@ -717,6 +1170,14 @@
               axisX: index,
             });
           });
+          if (tempFeatureValues.referenceFrequentItems) {
+            tempFeatureValues.referenceFrequentItems.items.forEach((item, index) => {
+              featureDataForTableForAllProfiles[feature[0]].chartData[1].push({
+                axisY: item.estimate,
+                axisX: index,
+              });
+            });
+          }
 
           // Frequent item chips / bedge
           propertyPanelData[feature[0]][iteration] = tempFeatureValues.frequentItems.items.reduce((acc, item) => {
@@ -737,7 +1198,7 @@
             // Chart
             if (tempFeatureValues.numberSummary) {
               // Histogram chips / bedge
-              propertyPanelData[feature[0]][iteration] = tempFeatureValues.numberSummary.histogram.counts.reduce(
+              propertyPanelData[feature[0]][0] = tempFeatureValues.numberSummary.histogram.counts.reduce(
                 (acc, value, index) => {
                   acc.push({
                     value: value,
@@ -749,7 +1210,7 @@
               );
 
               tempFeatureValues.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
-                featureDataForTableForAllProfiles[feature[0]].chartData[iteration].push({
+                featureDataForTableForAllProfiles[feature[0]].chartData[0].push({
                   axisY: count,
                   axisX: index,
                 });
@@ -763,7 +1224,37 @@
             featureDataForTableForAllProfiles[feature[0]].chartData[iteration] = [];
             propertyPanelData[feature[0]] = [];
           }
+          if (tempFeatureValues.referenceNumberSummary) {
+            referencePropertyPanelData[feature[0]][0] = tempFeatureValues.referenceNumberSummary.histogram.counts.reduce(
+              (acc, value, index) => {
+                acc.push({
+                  value: value,
+                  count: tempFeatureValues.referenceNumberSummary.histogram.bins[index],
+                });
+                return acc;
+              },
+              [],
+            );
+
+            tempFeatureValues.referenceNumberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+              featureDataForTableForAllProfiles[feature[0]].chartData[1].push({
+                axisY: count,
+                axisX: index,
+              });
+            });
+          }
         }
+        if(tempFeatureValues.referenceFrequentItems &&
+           featureDataForTableForAllProfiles[feature[0]].inferredType[0] === "Discrete"
+        ){
+               featureDataForTableForAllProfiles[feature[0]].chartData[1] = []
+               tempFeatureValues.referenceFrequentItems.items.forEach((item, index) => {
+                 featureDataForTableForAllProfiles[feature[0]].chartData[1].push({
+                   axisY: item.estimate,
+                   axisX: index,
+                 });
+               });
+           }
         iteration += 1;
       });
     });
@@ -772,14 +1263,6 @@
 
   function updateTableMessage(message) {
     $tableMessage.find("p").html(message);
-  }
-
-  function collectProfilesFromJSON(data) {
-    return Object.keys(data).map((profile, i) => ({
-      label: profile,
-      value: profile,
-      index: i,
-    }));
   }
 
   function compareArrays(array, target) {
@@ -793,7 +1276,6 @@
         return false;
       }
     }
-
     return true;
   }
 
@@ -827,15 +1309,39 @@
     $tableMessage.removeClass("d-none");
     $sidebarContent.addClass("d-none");
     $tableContent.addClass("d-none");
+    $compareProfile.removeClass("d-none");
   }
 
-  function loadFile() {
-    profiles = [];
+  function addFileName() {
+    const fileName = $fileInput.val().split('\\').pop();
+    if (fileName) {
+      $featureFileName.html(fileName.split('.json'))
+    }
+  }
+
+  function removeReferenceProfile() {
+    referenceJsonData = undefined
+    dataForRead = {};
+    featureDataForTableForAllProfiles = {};
+    numOfProfilesBasedOnType = {};
+
+    $(".reference-table-head").addClass("d-none")
+
+    mapProfileDataToReadData(jsonData, dataForRead, referenceJsonData);
+    $tableBody.html("");
+    updateHtmlElementValues();
+    renderList();
+    $(".wl-selected-profile").addClass("d-none")
+    $(".wl-compare-profile").removeClass("d-none")
+  }
+
+  function loadFile(inputId, jsonForm) {
     isActiveInferredType = {};
     $featureFilterInput.html("");
     $sidebarFeatureNameList.html("");
     $tableBody.html("");
     $(".form-check-input").prop("checked", true);
+    addFileName()
     if (typeof window.FileReader !== "function") {
       updateTableMessage(MESSAGES.error.fileAPINotSupported);
       return;
@@ -845,7 +1351,7 @@
     numOfProfilesBasedOnType = {};
 
     handleClosePropertyPanel();
-    const input = document.getElementById("file-input");
+    const input = document.getElementById(inputId);
     if (!input) {
       updateTableMessage(MESSAGES.error.noInputElementFound);
     } else if (!input.files) {
@@ -855,53 +1361,44 @@
     } else {
       const file = input.files[0];
       const fr = new FileReader();
-      fr.onload = receivedText;
+      fr.onload = (e) => receivedText(e, jsonForm, inputId);
       fr.readAsText(file);
     }
   }
 
-  function receivedText(e) {
+  function receivedText(e, jsonForm, inputId) {
     const lines = e.target.result;
-    jsonData = JSON.parse(lines);
-    if (Object.keys(dataForRead).length !== 0) {
-      dataForRead = {};
-    }
-    mapProfileDataToReadData(jsonData, dataForRead);
-    if (selectedProfiles.length > 0) {
-      selectedProfiles = [];
-    }
-
-    if (checkJSONValidityForMultiProfile(jsonData)) {
-      for (let i = 0; i < 2; i++) {
-        let addButton = $(`#add-profile-sidebar-button-${i}`);
-        addButton.removeClass("d-none");
-        addButton.attr("disabled", true);
+    let data = JSON.parse(lines);
+    if (inputId === "file-input") {
+      if (checkJSONValidityForMultiProfile(data)) {
+        jsonData = Object.values(data)[0]
+      } else {
+        jsonData = data;
       }
-
-      profiles = collectProfilesFromJSON(jsonData);
-      renderProfileDropdown();
+      removeReferenceProfile()
+      $(".reference-table-head").addClass("d-none")
+      $(".wl-selected-profile").addClass("d-none")
+      $compareProfile.removeClass("d-none");
+    } else {
+      if (checkJSONValidityForMultiProfile(data)) {
+        referenceJsonData = Object.values(data)[0]
+      } else {
+        referenceJsonData = data;
+      }
+      $(".reference-table-head").removeClass("d-none")
+      $(".wl-selected-profile").removeClass("d-none")
+      $(".wl-compare-profile").addClass("d-none")
+    }
+    mapProfileDataToReadData(jsonData, dataForRead, referenceJsonData);
+    if (data) {
       $(".compare-select").addClass("d-none");
-      $tableMessage.removeClass("d-none");
-      $tableContent.addClass("d-none");
-      $("#table-content-wrapper").addClass("d-none");
-      updateTableMessage(MESSAGES.error.noProfileSelected);
       $multiProfileWrap.removeClass("d-none");
-      $singleProfileWrap.addClass("d-none");
-      $filterOptions.addClass("d-none");
-      $sidebarContent.removeClass("d-none");
-      renderList();
-      $jsonForm.trigger("reset");
-    } else if (checkJSONValidityForSingleProfile(jsonData)) {
-      $(".compare-select").addClass("d-none");
-      $multiProfileWrap.addClass("d-none");
-      $singleProfileWrap.removeClass("d-none");
-      $filterOptions.removeClass("d-none");
       selectedProfiles[0] = "0";
       $tableBody.html("");
       updateHtmlElementValues();
       renderList();
       showDataVisibility();
-      $jsonForm.trigger("reset");
+      jsonForm.trigger("reset");
     } else {
       $tableBody.html("");
       updateTableMessage(MESSAGES.error.invalidJSONFile);
@@ -910,60 +1407,87 @@
     }
   }
 
-  for (let i = 0; i < 2; i++) {
-    let addButton = $(`#add-profile-sidebar-button-${i}`);
-
-    addButton.on("click", function () {
-      reRenderProfileDropdown(i + 1);
-      if ($(`#sidebar-content-multi-profile-dropdown-${i} option:selected`).text() !== "Select your profile") {
-        addButton.addClass("d-none");
-
-        $(`#add-profile-wrap-${i + 1}`).addClass("button-remove-select");
-        $(`#add-profile-wrap-${i + 1}`).removeClass("d-none");
-        $(`#remove-button-${i + 1}`).removeClass("d-none");
-      } else {
+  function checkedBoxes() {
+    const item = Object.values($boxes).find(
+      function(value) {
+        return $('#' + $(value)[0].id).is(":checked")
       }
-    });
+    );
+
+    if (item) {
+      $notifCircleContainer.removeClass("d-none")
+    }
   }
 
-  $removeButton.on("click", function () {
-    handleClosePropertyPanel();
-    $(`#add-profile-wrap-1`).addClass("d-none");
-    $("#sidebar-content-multi-profile-dropdown-1").val("none");
-    $removeButton.addClass("d-none");
-    let addButton = $(`#add-profile-sidebar-button-1`);
-    addButton.attr("disabled", true);
-    $(`#add-profile-wrap-0`).removeClass("button-remove-select");
-    $(`#remove-button-0`).addClass("d-none");
-    $(`#add-profile-sidebar-button-0`).removeClass("d-none");
-    selectedProfiles[1] = null;
-    for (let i = 0; i < selectedProfiles.length; i++) {
-      reRenderProfileDropdown(i);
-    }
-    $tableBody.html("");
-    updateHtmlElementValues();
-    renderList();
+  $removeReferenceProfileButton.on("click", removeReferenceProfile)
+
+  $(document).on("click", ".page-button", function(e) {
+    const $pagesButtons = $(".page-button"),
+      $pagesButtonIndex = $pagesButtons.index(e.target),
+      $pagesButton = $(".page-button")[$pagesButtonIndex]
+
+    $pagesButtons.removeClass("activ-pages-button")
+    $($pagesButton).addClass("activ-pages-button")
+  })
+
+  $(window).ready(function() {
+    sidebarContentHeight()
+  })
+
+  $("#property-panel-close-icon").on("click", function (e) {
+    const $clickableTestFeatureWrap = $(".clickable-test-feature-wrap")
+
+    $tableContent.removeClass("d-none")
+    $clickableTestFeatureWrap.addClass("d-none")
   });
 
-  $removeButton2.on("click", function () {
-    handleClosePropertyPanel();
-    $(`#add-profile-wrap-2`).addClass("d-none");
-    $("#sidebar-content-multi-profile-dropdown-1").val("none");
-    $removeButton2.addClass("d-none");
-    $(`#add-profile-wrap-1`).removeClass("button-remove-select");
-    $(`#add-profile-sidebar-button-1`).removeClass("d-none");
-    selectedProfiles[2] = null;
-    for (let i = 0; i < selectedProfiles.length; i++) {
-      reRenderProfileDropdown(i);
+  $dropdownArrowIcon.on("click", function () {
+    const filterClass = $filterOptions.attr("class");
+
+    if (filterClass.indexOf("d-none") > 0) {
+      $notifCircleContainer.addClass("d-none")
+      $filterOptions.removeClass("d-none");
+      $("#dropdown-container").css("background-color", '#FFF')
+      $dropdownArrowIcon.css("transform","rotate(180deg)")
+    } else {
+      $filterOptions.addClass("d-none");
+      checkedBoxes()
+      $("#dropdown-container").css("background-color", 'none')
+      $dropdownArrowIcon.css("transform","rotate(0)")
     }
-    $tableBody.html("");
-    updateHtmlElementValues();
-    renderList();
   });
+
+  $closeIcon.on("click", function () {
+    $signUpText.addClass("d-none");
+    sidebarContentHeight()
+    $(".open-sign-up-text-notif-container").removeClass("d-none")
+  });
+
+  $openSignUpText.on("click", function () {
+    $signUpText.removeClass("d-none");
+    sidebarContentHeight()
+    $(".open-sign-up-text-notif-container").addClass("d-none")
+  });
+
+
+  $(document).on("click", ".js-list-group-item span", function (e) {
+    const listItem = $("li>span"),
+      listItemIndex = listItem.index(e.target),
+      $listItemDot = $(".wl_list-item-dot")[listItemIndex],
+      $arrowIcon = $(".wl_arrow-icon")[listItemIndex]
+
+    listItem.css("padding-left", "15px")
+    $(".wl_list-item-dot").removeClass("d-none")
+    $(".wl_arrow-icon").addClass("d-none")
+    $($arrowIcon).removeClass("d-none")
+    $($listItemDot).addClass("d-none")
+    $(listItem[listItemIndex]).css("padding-left", "8px")
+  });
+
   // Bind event listeners
-  $fileInput.on("change", loadFile);
+  $fileInput.on("change", () => loadFile("file-input", $jsonForm));
+  $referencefileInput.on("change", () => loadFile("reference-file-input", $referenceJsonForm));
 
-  $profileDropdown.on("change", handleProfileChange);
   $(document).on("click", ".js-list-group-item span", scrollToFeatureName);
   $featureSearch.on(
     "input",
