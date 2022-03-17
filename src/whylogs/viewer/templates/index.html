@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Profile Viewer | whylogs</title>
+
+    <link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" href="../css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../css/whylogs-styles.css" />
+  </head>
+
+  <body>
+    <div class="desktop-content">
+      <nav class="navbar navbar-inverse fixed-top">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <h5>Profile viewer for whylogs</h5>
+            <ul class="navbar-nav d-inline-block">
+              <li class="nav-item">
+                <p>
+                  Maintained by
+                  <a
+                    class="navbar-link"
+                    href="https://try.whylabsapp.com?utm_source=whylogs_html_viewer"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    <svg
+                      width="145"
+                      height="21.37"
+                      viewBox="0 0 145 21.37"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                    >
+                      <rect width="145" height="21.37" fill="url(#pattern0)" />
+                      <defs>
+                        <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+                          <use xlink:href="#image0" transform="scale(0.0025 0.0169492)" />
+                        </pattern>
+                        <image
+                          id="image0"
+                          width="400"
+                          height="59"
+                          xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHYAAAASCAYAAACOwipdAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAARKSURBVHgB3VqBcdswDKSzQLVB2QmqEdQJ6k4QblB1AisTRJnAzgRJJpA2sDuBnAmcTICSEWVDEEhCdtK79u94UsAHCIAUBcpZAIBWShnbHheLxU4F4HmlbS+21Zb7kuDtLGdD+oy95F5/ryKwXGdD21YNY1lZZi8/bXumtiO+rL2dHzg+21fYy1LiS8C2UfJYtOpz8ilCe7attbbaiJ0hfue3ts39vfPtfqRryVvocfCKIaMNnFAJeQWSayRvVAS2f4m4NZIbJC9VApazQfxHJM+QfKtmwsUljYXxI4XbgA3t5yiGzrZ8UNhDIlkwnpQ3A0JeEUhGl0gEnsA1kpdI7oLUQhuj2KifaiZgvHhHcQr5KdwyNjqh7mFQqJCwCThWMQYKFU9mR/ounljft0V924A+Xd0t03+EmgESRzRvSKdB3AefT9q2xGaG9Jekr/Iy54tb7C3Q3NqbnChpxrEOpqgTAdSRhFwysXTSUqu7ozHBZRPbAI9CqGMivAPHg/GDtQ7oFp6n3d9XvqBoEccQBbdna8bWNeE5ToFEtfoA+ELlBolKGG/5KzX29+ac4oiDH6dAIlxsrtTl2Ak4r5zQFU62VUOsV17+hDjXRKckAw/VcEZWqcG890omB2vbLZoWid589IurQvI7SfU8A3jyNrb9Qn8XkHjXcvC7h2su7wXq2qN7fAK5jj311HgW2lbItua2yA23LVAeMwbeig9+ewq1jhuDSciwdZWMD+4+i+geoWQ5ou9W7eUNkoVqlIbLDYQLIlqfZDCtiIcclhApItn3IxNMBtMJcjLJe5orOiRYR3x2E5T7+1XKB6J3hBIAxvlZR+IqErrGy/JIzB1M6wI3Tuy4swUuZiBHCS8LPZ2jlzzhtYHEvPvEItua6FRz+AL77NOK+hvU1zD6uN8E5BRdwO8NxLGiSvRxpytkibg1DgQS2zCTHGfXRBq7oCKJx/48CPhzJ7ah/rgrhFFE9E1knDJmB/HcXC19nrrU+E7hEXVihdiZlCL0XnuX406AjxdCJeCLJ5aJVcN0h6BoiI0G9ZnEeM2cWJCPHc7ZFeHgI4pG9y0m+W+S3LfiTegb8j+MUSXsqn1f8e8jOi7RWp2H15n8YT7wEfDLFUPgJuaekd0xsif1HwGm59Zj8myuvtjLN9JaxJ19rvXjfUeinZffDk9iZMF8VQnjNdlWQt+FcwkPOz2D+1e3Yr+NcS34WVIQIwB/JDpExpvkE6ZH0becwOmToruuSL+ROFdHAmnwYDOC/siJlfzqk3pHciiUAMC8I2H+jwBu8vOAzRQ6CD3VcFo9qV9QcBWnEwFnyG6d4OZwelqMSgD6idpB/zFcC/jYFwmSiwvZxgvYeFk5YywXQ87YrQQ+d4PuIuCcVn3xtEsVQ97QXlI0ebtZ7Af9c7jnAPrqPRdQX+b6wPkOsid+H/sUC6fv8Ub18/NZ9TXRb9W/34//APEHP1OPMOvpfaEAAAAASUVORK5CYII="
+                        />
+                      </defs>
+                    </svg>
+                  </a>
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="sidebar-wrap">
+            <div class="sidebar">
+              <form class="mb-4" id="json-form" name="json-form" enctype="multipart/form-data" method="post">
+                <fieldset>
+                  <div class="file-input">
+                    <input type="file" id="file-input" class="wl__json-form-input" accept=".json" />
+                    <label for="file-input" class="btn btn-primary cta-button cta-button--outline"
+                      >Select JSON profile</label
+                    >
+                  </div>
+                </fieldset>
+              </form>
+              <div class="d-none" id="sidebar-content">
+                <div class="d-none sidebar-content__profile-dropdown-wrap mb-3" id="sidebar-content-multi-profile">
+                  <div id="total-feature-count">
+                   <div class="feature-count-title space-between">
+                      <div class="flex-direction-colum mb-3">
+                        <div class="mb-3">
+                          <strong class="feature-count count-color mb-3 wl__feature-count">0</strong>
+                          <strong>features</strong>
+                        </div>
+                        <div class="sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
+                          <strong>Profile time stamp:</strong>
+                          <h5 class="mt-1 feature-file-name wl__selected-profile">2020-02-26 12:23:32 PM PST</h5>
+                        </div>
+                        <div class="flex-direction-colum mb-3">
+                          <strong class="feature-count count-color">Currently selected profile:</strong>
+                          <strong class="wl__feature-file-name feature-file-name count-color"></strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-4">
+                    <div class="flex-direction-colum">
+                      <div class="form-control dropdown-container dropdown space-between search-input mb-2">
+                        <input type="text" id="wl__feature-search" placeholder="Quick search..." />
+                        <img
+                          src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC44IiBkPSJNMTQuODgyOCAxNC42MTUyTDExLjMzNzkgMTEuMDcwM0MxMS4yNSAxMS4wMTE3IDExLjE2MjEgMTAuOTUzMSAxMS4wNzQyIDEwLjk1MzFIMTAuNjkzNEMxMS42MDE2IDkuODk4NDQgMTIuMTg3NSA4LjQ5MjE5IDEyLjE4NzUgNi45Njg3NUMxMi4xODc1IDMuNjI4OTEgOS40MzM1OSAwLjg3NSA2LjA5Mzc1IDAuODc1QzIuNzI0NjEgMC44NzUgMCAzLjYyODkxIDAgNi45Njg3NUMwIDEwLjMzNzkgMi43MjQ2MSAxMy4wNjI1IDYuMDkzNzUgMTMuMDYyNUM3LjYxNzE5IDEzLjA2MjUgOC45OTQxNCAxMi41MDU5IDEwLjA3ODEgMTEuNTk3N1YxMS45Nzg1QzEwLjA3ODEgMTIuMDY2NCAxMC4xMDc0IDEyLjE1NDMgMTAuMTY2IDEyLjI0MjJMMTMuNzEwOSAxNS43ODcxQzEzLjg1NzQgMTUuOTMzNiAxNC4wOTE4IDE1LjkzMzYgMTQuMjA5IDE1Ljc4NzFMMTQuODgyOCAxNS4xMTMzQzE1LjAyOTMgMTQuOTk2MSAxNS4wMjkzIDE0Ljc2MTcgMTQuODgyOCAxNC42MTUyWk02LjA5Mzc1IDExLjY1NjJDMy40ODYzMyAxMS42NTYyIDEuNDA2MjUgOS41NzYxNyAxLjQwNjI1IDYuOTY4NzVDMS40MDYyNSA0LjM5MDYyIDMuNDg2MzMgMi4yODEyNSA2LjA5Mzc1IDIuMjgxMjVDOC42NzE4OCAyLjI4MTI1IDEwLjc4MTIgNC4zOTA2MiAxMC43ODEyIDYuOTY4NzVDMTAuNzgxMiA5LjU3NjE3IDguNjcxODggMTEuNjU2MiA2LjA5Mzc1IDExLjY1NjJaIiBmaWxsPSIjMzY5QkFDIi8+Cjwvc3ZnPgo="
+                        />
+                      </div>
+                      <div class="wl__dropdown_arrow-icon">
+                        <div class="form-control dropdown-container flex-direction-colum mb-2" id="dropdown-container">
+                          <div class="space-between dropdown">
+                            <p>Filter by type</p>
+                            <img
+                              id="dropdown-arrow-icon"
+                              src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTMiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEzIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMi4wNTg2IDEuMzQzNzVMMTEuNTM5MSAwLjc5Njg3NUMxMS40MDIzIDAuNjYwMTU2IDExLjE4MzYgMC42NjAxNTYgMTEuMDc0MiAwLjc5Njg3NUw2LjEyNSA1Ljc0NjA5TDEuMTQ4NDQgMC43OTY4NzVDMS4wMzkwNiAwLjY2MDE1NiAwLjgyMDMxMiAwLjY2MDE1NiAwLjY4MzU5NCAwLjc5Njg3NUwwLjE2NDA2MiAxLjM0Mzc1QzAuMDI3MzQzOCAxLjQ1MzEyIDAuMDI3MzQzOCAxLjY3MTg4IDAuMTY0MDYyIDEuODA4NTlMNS44Nzg5MSA3LjUyMzQ0QzYuMDE1NjIgNy42NjAxNiA2LjIwNzAzIDcuNjYwMTYgNi4zNDM3NSA3LjUyMzQ0TDEyLjA1ODYgMS44MDg1OUMxMi4xOTUzIDEuNjcxODggMTIuMTk1MyAxLjQ1MzEyIDEyLjA1ODYgMS4zNDM3NVoiIGZpbGw9IiMzNjlCQUMiLz4KPC9zdmc+Cg=="
+                            />
+                          </div>
+                          <div class="filter-options d-none">
+                            <div class="form-check mb-1 mt-2">
+                              <input
+                                class="form-check-input wl__feature-filter-input"
+                                type="checkbox"
+                                name="checkbox"
+                                value="Discrete"
+                                id="inferredDiscrete"
+                                checked
+                              />
+                              <label class="form-check-label" for="inferredDiscrete">
+                                Inferred discrete (<span class="wl__feature-count--discrete"></span>)
+                              </label>
+                            </div>
+                            <div class="form-check mb-1">
+                              <input
+                                class="form-check-input wl__feature-filter-input"
+                                type="checkbox"
+                                name="checkbox"
+                                value="Non-discrete"
+                                id="inferredNonDiscrete"
+                                checked
+                              />
+                              <label class="form-check-label" for="inferredNonDiscrete">
+                                Inferred non-discrete (<span class="wl__feature-count--non-discrete"></span>)
+                              </label>
+                            </div>
+                            <div class="form-check mb-1">
+                              <input
+                                class="form-check-input wl__feature-filter-input"
+                                type="checkbox"
+                                name="checkbox"
+                                value="Unknown"
+                                id="inferredUnknown"
+                                checked
+                              />
+                              <label class="form-check-label" for="inferredUnknown">
+                                Unknown (<span class="wl__feature-count--unknown"></span>)
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <span class="notif-circle-container">
+                          <span class="notif-circle"></span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mt-3">
+                    <ul id="filter-list" class="nav list-group list-group-flush wl__sidebar-feature-name-list"></ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+              <div class="wl__unlock-the-power sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
+                <div class="sign-up-text d-none">
+                  <div class="space-between">
+                    <strong>Unlock the power of WhyLabs:</strong>
+                    <div class="wl__close-icon" id="close-icon">
+                      <img
+                       src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTEiIGhlaWdodD0iMTEiIHZpZXdCb3g9IjAgMCAxMSAxMSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC41IiBkPSJNNi42NTQzIDUuMzc1TDkuNjcxODggMi4zODY3MkwxMC4yODcxIDEuNzcxNDhDMTAuMzc1IDEuNjgzNTkgMTAuMzc1IDEuNTM3MTEgMTAuMjg3MSAxLjQxOTkyTDkuNjQyNTggMC43NzUzOTFDOS41MjUzOSAwLjY4NzUgOS4zNzg5MSAwLjY4NzUgOS4yOTEwMiAwLjc3NTM5MUw1LjY4NzUgNC40MDgyTDIuMDU0NjkgMC43NzUzOTFDMS45NjY4IDAuNjg3NSAxLjgyMDMxIDAuNjg3NSAxLjcwMzEyIDAuNzc1MzkxTDEuMDU4NTkgMS40MTk5MkMwLjk3MDcwMyAxLjUzNzExIDAuOTcwNzAzIDEuNjgzNTkgMS4wNTg1OSAxLjc3MTQ4TDQuNjkxNDEgNS4zNzVMMS4wNTg1OSA5LjAwNzgxQzAuOTcwNzAzIDkuMDk1NyAwLjk3MDcwMyA5LjI0MjE5IDEuMDU4NTkgOS4zNTkzOEwxLjcwMzEyIDEwLjAwMzlDMS44MjAzMSAxMC4wOTE4IDEuOTY2OCAxMC4wOTE4IDIuMDU0NjkgMTAuMDAzOUw1LjY4NzUgNi4zNzEwOUw4LjY3NTc4IDkuMzg4NjdMOS4yOTEwMiAxMC4wMDM5QzkuMzc4OTEgMTAuMDkxOCA5LjUyNTM5IDEwLjA5MTggOS42NDI1OCAxMC4wMDM5TDEwLjI4NzEgOS4zNTkzOEMxMC4zNzUgOS4yNDIxOSAxMC4zNzUgOS4wOTU3IDEwLjI4NzEgOS4wMDc4MUw2LjY1NDMgNS4zNzVaIiBmaWxsPSIjNkM3NTdEIi8+Cjwvc3ZnPgo='
+                       />
+                    </div>
+                  </div>
+                  <ul class="small mt-1 mb-3">
+                    <li>Generate an API token to upload and save profiles to the platform</li>
+                    <li>Analyze and compare profiles to identify data drift and other anomalies</li>
+                    <li>Turn on monitoring with a single click, no manual set up required!</li>
+                    <li>Get alerted in real time when data and model health issues arise</li>
+                  </ul>
+                </div>
+                <div class="wl__dropdown_arrow-icon open-sign-up-text" id="open-sign-up-text">
+                  <a
+                    class="btn btn-warning wl__btn-signup btn-signup"
+                    target="_blank"
+                    href="http://bit.ly/whylogs-to-whylabs-free-signup"
+                  >
+                    Sign up for a free WhyLabs account
+                  </a>
+                <span class="open-sign-up-text-notif-container">
+                  <span class="open-sign-up-text-notif">
+                    <img
+                      src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSIxMSIgdmlld0JveD0iMCAwIDQgMTEiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0wLjUxNTYyNSA4LjU1MDc4QzAuMjgxMjUgOC41NTA3OCAwLjEyNSA4LjcyNjU2IDAuMTI1IDguOTQxNDFWOS44NTkzOEMwLjEyNSAxMC4wOTM4IDAuMjgxMjUgMTAuMjUgMC41MTU2MjUgMTAuMjVIMy40ODQzOEMzLjY5OTIyIDEwLjI1IDMuODc1IDEwLjA5MzggMy44NzUgOS44NTkzOFY4Ljk0MTQxQzMuODc1IDguNzI2NTYgMy42OTkyMiA4LjU1MDc4IDMuNDg0MzggOC41NTA3OEgzLjA5Mzc1VjQuMzkwNjJDMy4wOTM3NSA0LjE3NTc4IDIuOTE3OTcgNCAyLjcwMzEyIDRIMC41MTU2MjVDMC4yODEyNSA0IDAuMTI1IDQuMTc1NzggMC4xMjUgNC4zOTA2MlY1LjMyODEyQzAuMTI1IDUuNTQyOTcgMC4yODEyNSA1LjcxODc1IDAuNTE1NjI1IDUuNzE4NzVIMC45MDYyNVY4LjU1MDc4SDAuNTE1NjI1Wk0yIDAuMjVDMS4yMTg3NSAwLjI1IDAuNTkzNzUgMC44OTQ1MzEgMC41OTM3NSAxLjY1NjI1QzAuNTkzNzUgMi40Mzc1IDEuMjE4NzUgMy4wNjI1IDIgMy4wNjI1QzIuNzYxNzIgMy4wNjI1IDMuNDA2MjUgMi40Mzc1IDMuNDA2MjUgMS42NTYyNUMzLjQwNjI1IDAuODk0NTMxIDIuNzYxNzIgMC4yNSAyIDAuMjVaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K"
+                    />
+                  </span>
+                </span>
+              </div>
+             </div>
+          </div>
+          <div class="main">
+            <div class="d-none clickable-test-feature-wrap">
+              <div class="clickable-test-feature">
+                <div class="clickable-test-feature-heading-wrap mb-5">
+                  <div class="clickable-test-feature-heading">
+                    <div class="title-wrap space-between">
+                      <div class="title">
+                        <p>Clickable test feature</p>
+                      </div>
+                      <div class="property-panel-close-icon" id="property-panel-close-icon">
+                        <img
+                          src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTEiIGhlaWdodD0iMTEiIHZpZXdCb3g9IjAgMCAxMSAxMSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC41IiBkPSJNNi42NTQzIDUuMzc1TDkuNjcxODggMi4zODY3MkwxMC4yODcxIDEuNzcxNDhDMTAuMzc1IDEuNjgzNTkgMTAuMzc1IDEuNTM3MTEgMTAuMjg3MSAxLjQxOTkyTDkuNjQyNTggMC43NzUzOTFDOS41MjUzOSAwLjY4NzUgOS4zNzg5MSAwLjY4NzUgOS4yOTEwMiAwLjc3NTM5MUw1LjY4NzUgNC40MDgyTDIuMDU0NjkgMC43NzUzOTFDMS45NjY4IDAuNjg3NSAxLjgyMDMxIDAuNjg3NSAxLjcwMzEyIDAuNzc1MzkxTDEuMDU4NTkgMS40MTk5MkMwLjk3MDcwMyAxLjUzNzExIDAuOTcwNzAzIDEuNjgzNTkgMS4wNTg1OSAxLjc3MTQ4TDQuNjkxNDEgNS4zNzVMMS4wNTg1OSA5LjAwNzgxQzAuOTcwNzAzIDkuMDk1NyAwLjk3MDcwMyA5LjI0MjE5IDEuMDU4NTkgOS4zNTkzOEwxLjcwMzEyIDEwLjAwMzlDMS44MjAzMSAxMC4wOTE4IDEuOTY2OCAxMC4wOTE4IDIuMDU0NjkgMTAuMDAzOUw1LjY4NzUgNi4zNzEwOUw4LjY3NTc4IDkuMzg4NjdMOS4yOTEwMiAxMC4wMDM5QzkuMzc4OTEgMTAuMDkxOCA5LjUyNTM5IDEwLjA5MTggOS42NDI1OCAxMC4wMDM5TDEwLjI4NzEgOS4zNTkzOEMxMC4zNzUgOS4yNDIxOSAxMC4zNzUgOS4wOTU3IDEwLjI4NzEgOS4wMDc4MUw2LjY1NDMgNS4zNzVaIiBmaWxsPSIjNkM3NTdEIi8+Cjwvc3ZnPgo='
+                        />
+                      </div>
+                    </div>
+                    <div class="clickable-test-feature-heading-pages-wrap space-between">
+                      <div class="pages-button-wrap display-flex">
+                        <div class="page-button-wrap">
+                          <button class="page-button" id="page-button">Numerical Data</button>
+                        </div>
+                        <div class="page-button-wrap">
+                          <button class="page-button" id="frequent-item-button">Frequent items</button>
+                        </div>
+                      </div>
+                      <div class="chart-info-wrap">
+                        <div class="chart" id="chart"></div>
+                        <div class="chart-info"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="clickable-test-featurmake-body-wrap">
+                  <div class="clickable-test-feature-body"></div>
+                  <div class="frequent-items-body"></div>
+                </div>
+              </div>
+             </div>
+            <div class="wl-table-wrap d-none" id="table-content">
+              <div class="wl-table-cell wl-compare-profile" id="compare-profile">
+                <h6 class="wl-select-reference-profile mt-1 mb-2">Compare profile to reference profile, such as training data</h6>
+                 <form class="reference-json-form" id="reference-json-form" name="reference-json-form" enctype="multipart/form-data" method="post">
+                   <fieldset>
+                     <div class="reference-file-input">
+                       <label for="reference-file-input" class="btn btn-primary cta-button cta-button--outline">
+                         Add reference JSON profile
+                       </label>
+                       <input type="file" id="reference-file-input" class="wl__json-form-input" accept=".json" />
+                     </div>
+                   </fieldset>
+                 </form>
+               </div>
+               <div class="wl-table-cell wl-selected-profile display-flex d-none flex-direction-colum" id="selected-profile">
+                 <div class="display-flex">
+                 <div class="flex-direction-colum">
+                <h6 class="wl-selected-reference-profile mt-1 mb-2">Reference profile</h6>
+                <div class="reference-profile-buttons display-flex align-items">
+                  <div class="edit-button-wrap">
+                    <div class="edit-button">
+                      <form id="reference-json-form" name="reference-json-form" enctype="multipart/form-data" method="post">
+                        <fieldset>
+                          <div class="reference-file-input">
+                            <label for="reference-file-input">
+                              Edit
+                            </label>
+                            <input type="file" id="reference-file-input" class="wl__json-form-input" accept=".json" />
+                          </div>
+                        </fieldset>
+                      </form>
+                    </div>
+                  </div>
+                  <div class="remove-reference-profile-button-wrap">
+                    <div class="remove-reference-profile-button" id="remove-reference-profile-button">
+                      <img
+                        src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTEiIGhlaWdodD0iMTEiIHZpZXdCb3g9IjAgMCAxMSAxMSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC41IiBkPSJNNi42NTQzIDUuMzc1TDkuNjcxODggMi4zODY3MkwxMC4yODcxIDEuNzcxNDhDMTAuMzc1IDEuNjgzNTkgMTAuMzc1IDEuNTM3MTEgMTAuMjg3MSAxLjQxOTkyTDkuNjQyNTggMC43NzUzOTFDOS41MjUzOSAwLjY4NzUgOS4zNzg5MSAwLjY4NzUgOS4yOTEwMiAwLjc3NTM5MUw1LjY4NzUgNC40MDgyTDIuMDU0NjkgMC43NzUzOTFDMS45NjY4IDAuNjg3NSAxLjgyMDMxIDAuNjg3NSAxLjcwMzEyIDAuNzc1MzkxTDEuMDU4NTkgMS40MTk5MkMwLjk3MDcwMyAxLjUzNzExIDAuOTcwNzAzIDEuNjgzNTkgMS4wNTg1OSAxLjc3MTQ4TDQuNjkxNDEgNS4zNzVMMS4wNTg1OSA5LjAwNzgxQzAuOTcwNzAzIDkuMDk1NyAwLjk3MDcwMyA5LjI0MjE5IDEuMDU4NTkgOS4zNTkzOEwxLjcwMzEyIDEwLjAwMzlDMS44MjAzMSAxMC4wOTE4IDEuOTY2OCAxMC4wOTE4IDIuMDU0NjkgMTAuMDAzOUw1LjY4NzUgNi4zNzEwOUw4LjY3NTc4IDkuMzg4NjdMOS4yOTEwMiAxMC4wMDM5QzkuMzc4OTEgMTAuMDkxOCA5LjUyNTM5IDEwLjA5MTggOS42NDI1OCAxMC4wMDM5TDEwLjI4NzEgOS4zNTkzOEMxMC4zNzUgOS4yNDIxOSAxMC4zNzUgOS4wOTU3IDEwLjI4NzEgOS4wMDc4MUw2LjY1NDMgNS4zNzVaIiBmaWxsPSIjNkM3NTdEIi8+Cjwvc3ZnPgo='
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+                <div class="sidebar-content__single-profile reference-profile-time-stamp mb-4" id="sidebar-content-single-profile">
+                 <strong>Reference profile time stamp:</strong>
+                 <h5 class="mt-1 feature-file-name wl__selected-reference-profile">2020-02-26 12:23:32 PM PST</h5>
+               </div>
+             </div>
+               <div class="display-flex summary-statistic-wrap">
+                 <div class="display-flex summary-statistic">
+                   <p class="summary">58</p>
+                   <p class="summary-title">Summary</p>
+                 </div>
+                 <div class="display-flex summary-statistic">
+                  <p class="summary">54</p>
+                  <p class="summary-title">Summary</p>
+                </div>
+                <div class="display-flex summary-statistic">
+                  <p class="summary">131</p>
+                  <p class="summary-title">Summary</p>
+                </div>
+               </div>
+               </div>
+              <div class="wl-table" id="table-content-wrapper">
+                <div class="wl-table-heading">
+                  <div class="wl-table-row wl-table-row--bottom-shadow">
+                    <div class="wl-table-head">
+                      <div class="wl-table-head table-border-none graph-table-head">Feature</div>
+                      <div class="wl-table-head table-border-none reference-table-head">Reference</div>
+                    </div>
+                    <div class="wl-table-head d-none" id="dif-from-ref">Diff from ref</div>
+                    <div class="wl-table-head text-align-center">Frequent items</div>
+                    <div class="wl-table-head">Inf. feature type</div>
+                    <div class="wl-table-head text-end">Total count</div>
+                    <div class="wl-table-head text-end">Null fraction</div>
+                    <div class="wl-table-head text-end">Est. unique values</div>
+                    <div class="wl-table-head">Data type</div>
+                    <div class="wl-table-head text-end">Data type count</div>
+                    <div class="wl-table-head text-end">Mean</div>
+                    <div class="wl-table-head text-end">Std. dev</div>
+                    <div class="wl-table-head text-end">Min</div>
+                    <div class="wl-table-head text-end">First quantile</div>
+                    <div class="wl-table-head text-end">Median</div>
+                    <div class="wl-table-head text-end">Third quantile</div>
+                    <div class="wl-table-head text-end">Max</div>
+                  </div>
+                </div>
+                <ul class="wl-table-body wl__table-body"></ul>
+              </div>
+            </div>
+            <div class="wl-table__text-message" id="table-message">
+              <p>Please select and load a JSON profile from your local drive.</p>
+            </div>
+            <div class="wl-property-panel">
+              <button type="button" class="wl-property-panel__button btn-close" aria-label="Close"></button>
+              <div id="wl-property-panel__chart" class="wl-property-panel__chart"></div>
+              <h5 class="wl-property-panel__title"></h5>
+              <div>
+                <table class="wl-property-panel__table">
+                  <thead class="wl-property-panel__table-head">
+                    <tr class="wl-property-panel__table-tr">
+                      <th class="wl-property-panel__table-th">Item</th>
+                      <th class="wl-property-panel__table-th wl-property-panel__table-th-profile"></th>
+                    </tr>
+                  </thead>
+                  <tbody class="wl-property-panel__frequent-items">
+                    <!-- CONTENT IS GENERATED -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="no-responsive">
+      <div class="no-responsive__content">
+        <h1 class="no-responsive__title">Hold on! :)</h1>
+        <p class="no-responsive__text">
+          It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+          best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+          are working on adding support for a larger variety of devices.
+        </p>
+      </div>
+    </div>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script src="../js/d3.min.js"></script>
+    <script src="../js/whylogs-script.js"></script>
+  </body>
+</html>
