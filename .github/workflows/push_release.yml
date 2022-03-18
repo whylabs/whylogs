@@ -4,7 +4,7 @@ name: Upload Whylogs Packages
 on:
   release:
     types: [ released, prereleased]
-  workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   deploy:
