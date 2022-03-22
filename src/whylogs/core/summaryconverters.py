@@ -294,7 +294,6 @@ def ks_test_compute_p_value(target_distribution: kll_floats_sketch, reference_di
 
     p_value = stats.distributions.kstwo.sf(D_max, np.round(en))
 
-
     return type("Object", (), {"ks_test": p_value})
 
 
