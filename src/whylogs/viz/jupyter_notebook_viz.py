@@ -48,7 +48,9 @@ class NotebookProfileViewer:
         except ImportError as e:
             Compiler = None
             logger.debug(str(e))
-            logger.debug("Unable to load pybars; install pybars3 to load profile from directly from the current session ")
+            logger.debug("Unable to load pybars; install pybars3 to load profile directly from the current session ")
+            logger.warning("Unable to load pybars; install pybars3 to load profile directly from the current session ")
+
         with open(template_path, "r") as file_with_template:
             source = file_with_template.read()
         compiler = Compiler()
