@@ -19,9 +19,6 @@
 <a href="https://github.com/python/black" target="_blank">
     <img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code style: black">
 </a>
-<a href="https://bestpractices.coreinfrastructure.org/projects/4490" target="_blank">
-    <img src="https://bestpractices.coreinfrastructure.org/projects/4490/badge" alt="CI Best Practices">
-</a>
 <a href="https://pepy.tech/project/whylogs" target="_blank">
     <img src="https://pepy.tech/badge/whylogs" alt="PyPi Downloads">
 </a>
