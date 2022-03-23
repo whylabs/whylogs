@@ -1090,12 +1090,18 @@
 
      Handlebars.registerHelper("missingCells", function (properties) {
        const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_cells)
-       return numberWithSuffixe(value, valueNumber(newValue), valueNumber(suffixe));
+       if (typeof value !== 'undefined' && typeof newValue !== 'undefined'  && typeof suffixe !== 'undefined' ) {
+        return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
+       }
+       return numberWithSuffixe(0, valueNumber(0), valueNumber(''));
      });
 
      Handlebars.registerHelper("missingCellsPercentage", function (properties) {
        const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_percentage)
-       return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
+       if (typeof value !== 'undefined' && typeof newValue !== 'undefined'  && typeof suffixe !== 'undefined' ) {
+        return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
+       }
+       return numberWithSuffixe(0, valueSuffixe(`(${0}%)`), '');
      });
 
      Handlebars.registerHelper("getProfileTimeStamp", function (properties) {
