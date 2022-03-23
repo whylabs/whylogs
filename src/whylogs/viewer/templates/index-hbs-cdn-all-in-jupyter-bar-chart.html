@@ -168,7 +168,7 @@
                   <div class="display-flex">
                     <div class="colors-for-distingushing-charts">
                       <div class="circle-color" style="background: #44C0E7;"></div>
-                      <text alignment-baseline="middle" style="font-size: 15px;">Current</text>
+                      <text alignment-baseline="middle" style="font-size: 15px;">Target</text>
                     </div>
                     <div class="colors-for-distingushing-charts">
                       <div class="circle-color" style="background: #F5843C"></div>
@@ -242,7 +242,7 @@
              .attr("preserveAspectRatio", "xMinYMin meet")
              .attr("viewBox", `0 0 ${$(window).width()} ${$(window).height()-30}`)
              .classed("svg-content-responsive", true)
-          this.maxYValue = d3.max(data, (d) => Math.abs(d.axisY));
+          this.maxYValue = d3.max([...data, ...referenceData], (d) => Math.abs(d.axisY));
           this.xScale = d3
             .scaleBand()
             .domain(filterAndSortChartData(data, referenceData).map((sortedCounts) => sortedCounts?.axisX))
@@ -341,7 +341,7 @@
               .attr("fill", "currentColor")
               .attr("text-anchor", "start"));
 
-        svgEl.append("text")             
+        svgEl.append("text")
           .attr("transform",
                 "translate(" + (CHART_WIDTH/2) + " ," + 
                                (CHART_HEIGHT + MARGIN.TOP + 40) + ")")
