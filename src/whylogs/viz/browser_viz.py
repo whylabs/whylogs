@@ -21,7 +21,6 @@ def profile_viewer(profiles: List[DatasetProfile] = None, reference_profiles: Li
     except ImportError as e:
         Compiler = None
         logger.debug(str(e))
-        logger.debug("Unable to load pybars; install pybars3 to load profile directly from the current session ")
         logger.warning("Unable to load pybars; install pybars3 to load profile directly from the current session ")
         index_path = os.path.abspath(os.path.join(_MY_DIR, os.pardir, "viewer/templates", "index.html"))
         webbrowser.open_new_tab(f"file:{index_path}#")
