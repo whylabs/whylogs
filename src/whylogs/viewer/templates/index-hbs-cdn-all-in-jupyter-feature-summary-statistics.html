@@ -393,7 +393,7 @@
         const feature = Object.values(column)[1]
 
         if (feature.numberSummary && feature.numberSummary.uniqueCount) {
-          return feature.numberSummary.uniqueCount.estimate;
+          return (feature.numberSummary.uniqueCount.estimate/feature.numberSummary.count)*100;
         }
         return "0";
       });
