@@ -12,7 +12,7 @@ from datasketches import (
     kll_floats_sketch,
     update_theta_sketch,
 )
-from scipy import special, stats
+from scipy import stats
 
 from whylogs.proto import (
     ColumnSummary,
@@ -289,8 +289,11 @@ def ks_test_compute_p_value(target_distribution: kll_floats_sketch, reference_di
             D_max = D
         j += 1
 
-    n_samples = min(target_distribution.get_n(), reference_distribution.get_n())
-    p_value = special.kolmogorov(np.sqrt(n_samples) * D_max)
+    m, n = sorted([target_distribution.get_n(), reference_distribution.get_n()], reverse=True)
+    en = m * n / (m + n)
+
+    p_value = stats.distributions.kstwo.sf(D_max, np.round(en))
+
     return type("Object", (), {"ks_test": p_value})
 
 
