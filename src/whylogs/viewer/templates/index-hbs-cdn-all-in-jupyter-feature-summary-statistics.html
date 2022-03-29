@@ -391,9 +391,10 @@
 
       Handlebars.registerHelper("distinct", function (column) {
         const feature = Object.values(column)[1]
+        const distinct_pct = (feature.numberSummary.uniqueCount.estimate/feature.numberSummary.count)*100
 
         if (feature.numberSummary && feature.numberSummary.uniqueCount) {
-          return (feature.numberSummary.uniqueCount.estimate/feature.numberSummary.count)*100;
+          return fixNumberTo(distinct_pct,2);
         }
         return "0";
       });
