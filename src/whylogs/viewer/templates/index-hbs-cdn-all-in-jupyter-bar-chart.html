@@ -203,7 +203,12 @@
      
     const findAndDeleteUndefined = (axisData) => {
       const undefinedAxisIndex = axisData.findIndex((axis) => axis === undefined)
-      return [...axisData.slice(0, undefinedAxisIndex), ...axisData.slice(undefinedAxisIndex + 1)]
+      if (undefinedAxisIndex == -1) {
+        return axisData;
+      }
+
+      const result = [...axisData.slice(0, undefinedAxisIndex), ...axisData.slice(undefinedAxisIndex + 1)]
+      return result
     }
 
     const filterAndSortChartData = (overlappedHistogramData, histogramData) => {
@@ -330,6 +335,7 @@
     
         svgEl.append("g")
           .attr("transform", `translate(${MARGIN.LEFT}, 0)`)
+          .attr("id", "g1")
           .call(yAxis)
           .call(g => g.select(".domain").remove())
           .call(g => g.selectAll(".tick line")
@@ -362,6 +368,7 @@
     
         svgEl.append("g")
             .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM})`)
+            .attr("id", "g2")
             .call(xAxis)
             .call(g => g.select(".domain").remove())
             .call(g => g.selectAll(".tick line").remove())
@@ -380,11 +387,13 @@
           .range(rectColors)
     
         svgEl.append("g")
+           .attr("id", "g3")
            .selectAll("g")
            .data(data)
            .enter()
            .append("g")
              .attr("transform", function(d) { return "translate(" + xScale(d?.group) + ",0)"; })
+             .attr("id", "g4")
            .selectAll("rect")
            .data(function(d) { return subgroups.map(function(key) { return {key: key, value: d && d[key]}; }); })
            .enter().append("rect")
@@ -398,6 +407,7 @@
     
          return svgEl._groups[0][0].outerHTML;
       }    
+
 
       const profileFromCSVfile = {{{reference_profile_from_whylogs}}}
 
