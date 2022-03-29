@@ -1091,7 +1091,7 @@
      Handlebars.registerHelper("missingCells", function (properties) {
        const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_cells)
        if (typeof value !== 'undefined' && typeof newValue !== 'undefined'  && typeof suffixe !== 'undefined' ) {
-        return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
+        return numberWithSuffixe(value, valueSuffixe(`${newValue}`), suffixe);
        }
        return numberWithSuffixe(0, valueNumber(0), valueNumber(''));
      });
