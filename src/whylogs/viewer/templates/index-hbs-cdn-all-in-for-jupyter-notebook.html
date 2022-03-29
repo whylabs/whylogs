@@ -1134,7 +1134,7 @@
 
         if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
           driftCount++
-          const driftFromRefNumber = drift_from_ref % 1 ? fixNumberTo(drift_from_ref, 2) : drift_from_ref
+          const driftFromRefNumber = drift_from_ref.toPrecision(2)
           const circleColor = Object.values(drifts)[countOfDrifts(driftFromRefNumber, 3)].colorClass
 
           $(document).ready(() => {
