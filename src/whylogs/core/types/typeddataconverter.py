@@ -4,8 +4,8 @@ TODO: implement this using something other than yaml
 """
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_timedelta64_dtype
 import yaml
+from pandas.api.types import is_timedelta64_dtype
 
 from whylogs.proto import InferredType
 

@@ -17,8 +17,9 @@ from whylogs.util import time
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 _TEST_DATA_TYPES = [
-    (pd.DataFrame([[np.timedelta64(0, 'ns')], [np.timedelta64(1, 'ns')]], columns=['duration'])),
+    (pd.DataFrame([[np.timedelta64(0, "ns")], [np.timedelta64(1, "ns")]], columns=["duration"])),
 ]
+
 
 def test_write_template_path():
     data_time = time.from_utc_ms(9999)
@@ -46,6 +47,7 @@ def test_config_api(tmpdir):
         logger.log_dataframe(pd.DataFrame())
     session.close()
 
+
 @pytest.mark.parametrize("data", _TEST_DATA_TYPES)
 def test_numpy_types_do_not_throw(data):
     # create a session with no writers
@@ -54,6 +56,7 @@ def test_numpy_types_do_not_throw(data):
     with session.logger("test_name") as logger:
         logger.log_dataframe(data)
     session.close()
+
 
 def test_load_config(tmpdir):
     original_dir = os.curdir

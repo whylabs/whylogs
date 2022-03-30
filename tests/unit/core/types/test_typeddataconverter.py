@@ -27,8 +27,9 @@ def test_invalid_yaml_returns_string():
     except yaml.scanner.ScannerError:
         pass
 
+
 def test_timedelta64_type():
-    typed_data = np.timedelta64(0, 'ns')
+    typed_data = np.timedelta64(0, "ns")
 
     dtype = TypedDataConverter.get_type(typed_data)
     assert dtype == InferredType.Type.UNKNOWN
