@@ -15,7 +15,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-  implementation "ai.whylabs:core:0.0.1-dev100"
+  implementation "ai.whylabs:core:0.0.1-dev101"
 
   implementation "org.apache.datasketches:datasketches-java:1.3.0-incubating"
   implementation "com.google.protobuf:protobuf-java:3.13.0"
