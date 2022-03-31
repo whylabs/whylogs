@@ -1,16 +1,18 @@
 import datetime
 import os
+import shutil
+from logging import getLogger
+
 import pandas as pd
 import pytest
-import shutil
 from freezegun import freeze_time
-from logging import getLogger
 
 from whylogs.app.config import SessionConfig, WriterConfig
 from whylogs.app.logger import _TAG_PREFIX, _TAG_VALUE
 from whylogs.app.session import session_from_config
 
 TEST_LOGGER = getLogger(__name__)
+
 
 def test_segments(df_lending_club, tmpdir):
     output_path = tmpdir.mkdir("whylogs")
@@ -81,12 +83,12 @@ def test_segments_single_key(df_lending_club, tmpdir):
     TEST_LOGGER.info(f"Unique home_ownership values are: {home_ownership_values}")
     with session.logger("test", segments=["home_ownership"], cache_size=1) as logger:
         logger.log_dataframe(df_lending_club)
-        
+
         profiles1 = logger.segmented_profiles
         assert len(profiles1) == len(home_ownership_values)
         for _, prof in profiles1.items():
-            assert prof.tags['whylogs.tag.home_ownership'] in home_ownership_values
-            
+            assert prof.tags["whylogs.tag.home_ownership"] in home_ownership_values
+
     with session.logger("test2") as logger:
         logger.log_dataframe(df_lending_club, segments=["home_ownership"])
         profiles2 = logger.segmented_profiles
