@@ -161,4 +161,3 @@ def test_log_multiple_segments(tmpdir):
     with session.logger("image_test", segments=["x", "y"]) as logger:
         logger.log_segments(df)
         assert len(logger.segmented_profiles) == 9
-        
