@@ -591,8 +591,12 @@ class Logger:
 
         for each_segment in segments:
             try:
-                segment_df = grouped_data.get_group(each_segment)
-                segment_tags = [{"key": self.segments[i], "value": each_segment[i]} for i in range(len(self.segments))]
+                if len(self.segments) == 1:
+                    segment_df = grouped_data.get_group(each_segment)
+                    segment_tags = [{"key": self.segments[0], "value": each_segment}]
+                else:
+                    segment_df = grouped_data.get_group(each_segment)
+                    segment_tags = [{"key": self.segments[i], "value": each_segment[i]} for i in range(len(self.segments))]
 
                 self.log_df_segment(segment_df, segment_tags)
             except KeyError:

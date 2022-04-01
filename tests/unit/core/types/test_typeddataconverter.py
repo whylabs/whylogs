@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from whylogs.core.types import TypedDataConverter
+from whylogs.proto import InferredType
 
 _TEST_NULL_DATA = [
     ([None, np.nan, None] * 3, 9),
@@ -25,6 +26,13 @@ def test_invalid_yaml_returns_string():
         raise RuntimeError("Should raise exception")
     except yaml.scanner.ScannerError:
         pass
+
+
+def test_timedelta64_type():
+    typed_data = np.timedelta64(0, "ns")
+
+    dtype = TypedDataConverter.get_type(typed_data)
+    assert dtype == InferredType.Type.UNKNOWN
 
 
 @pytest.mark.parametrize("data,nulls_expected", _TEST_NULL_DATA)

@@ -128,7 +128,8 @@ class ColumnProfile:
             # for bool type first
             self.counters.increment_bool()
 
-        if TypedDataConverter._is_array_like(typed_data):
+        # prevent errors in number tracker on unknown types
+        if TypedDataConverter._is_array_like(typed_data) or dtype == _TYPES.UNKNOWN:
             return
 
         self.number_tracker.track(typed_data)

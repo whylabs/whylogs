@@ -5,6 +5,7 @@ TODO: implement this using something other than yaml
 import numpy as np
 import pandas as pd
 import yaml
+from pandas.api.types import is_timedelta64_dtype
 
 from whylogs.proto import InferredType
 
@@ -82,7 +83,8 @@ class TypedDataConverter:
         elif isinstance(typed_data, FLOAT_TYPES):
             dtype = TYPES.FRACTIONAL
         elif isinstance(typed_data, INTEGRAL_TYPES):
-            dtype = TYPES.INTEGRAL
+            if not is_timedelta64_dtype(typed_data):
+                dtype = TYPES.INTEGRAL
         elif isinstance(typed_data, str):
             dtype = TYPES.STRING
         elif TypedDataConverter._are_nulls(typed_data):

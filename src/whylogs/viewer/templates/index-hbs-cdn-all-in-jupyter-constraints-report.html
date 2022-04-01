@@ -548,10 +548,14 @@
         return column.properties.tags.name
       });
 
+
       Handlebars.registerHelper("alertLIst", function (column) {
         let alertListItem = column.map((value) => {
           if (value[1][0]) {
-            return alertListElement(value[0], value[1][0][0], value[1][0][value[1][0].length - 1] === 0 || (failedConstraints++, false))
+            let alertListValue = value[1].map((cstr)=>{
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+            })
+            return alertListValue.join(' ')
           } else {
             return alertListElement('', value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
           }
@@ -563,6 +567,7 @@
          })
         return alertListItem.join(' ')
       });
+
     }
 
     function openFilter() {
