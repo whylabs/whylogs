@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest]
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.7", "3.8", "3.9"]
     env:
       CODECOV_UPLOAD: false
       PIPX_VERSION: "0.16.4"
@@ -93,19 +93,3 @@ jobs:
         with:
           fail_ci_if_error: true
           flags: unit
-      - name: Build Python package with latest stable Python version and publish to PyPI
-        if: >
-          env.PYPI_PUBLISH == 'true' &&
-          matrix.python-version == '3.10' &&
-          startsWith(github.ref, 'refs/tags/')
-        run: |
-          PACKAGE_VERSION=$(poetry version -s)
-          GIT_TAG_VERSION=$(echo ${{ github.ref }} | cut -d / -f 3)
-          echo "The Python package version is $PACKAGE_VERSION."
-          echo "The Git tag version is $GIT_TAG_VERSION."
-          if [ "$PACKAGE_VERSION" = "$GIT_TAG_VERSION" ]; then
-            echo "Versions match."
-          else
-            echo "Versions do not match." && exit 1
-          fi
-          poetry publish --build -u __token__ -p ${{ secrets.PYPI_TOKEN }}

@@ -1,6 +1,6 @@
-import datasketches
+import whylogs_datasketches as datasketches  # type: ignore
 
-from whylogs_v1.proto import HllSketchMessage
+from whylogs_v1.core.proto import HllSketchMessage
 
 
 def test_hllSketch() -> None:

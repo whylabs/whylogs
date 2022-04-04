@@ -9,9 +9,12 @@ multi_line_output = 3
 disallow_incomplete_defs = true
 disallow_untyped_defs = true
 explicit_package_bases = true
-files = ["**/*.py"]
+files = ["whylogs_v1/**/*.py"]
 namespace_packages = true
 show_error_codes = true
+plugins = [
+    "numpy.typing.mypy_plugin"
+]
 
 [tool.poetry]
 name = "whylogs_v1"
@@ -24,8 +27,8 @@ readme = "README.md"
 include = ["whylogs_v1/py.typed"]
 
 [tool.poetry.dependencies]
-python = ">=3.6.1, <4.0"
-whylabs-datasketches = ">=2.2.0b1"
+python = ">=3.7.1, <4.0"
+whylogs-datasketches = "3.4.0.dev2"
 protobuf = ">=3.15.5"
 importlib-metadata = {version = ">=0.23", python = "<3.8"}
 
@@ -34,12 +37,18 @@ black = {version = "*", allow-prereleases = true}
 flake8 = "*"
 isort = "^5.6"
 mkdocs-material = "^8"
-mypy = ">0.900,<1"
+mypy = ">=0.910,<1"
 pre-commit = "^2.8"
 pytest = "^6.2"
 pytest-cov = "^3"
 pytest-mock = "^3.3"
 autoflake = "^1.4"
+mypy-protobuf = ">=3.2.0"
+types-protobuf = ">=0.1.14"
+pandas = ">=1.3"
+pandas-stubs = ">=1.2"
+ipykernel = ">=6.11" # for developing in Jupyter notebook
+
 
 [tool.pytest.ini_options]
 addopts = "-q"

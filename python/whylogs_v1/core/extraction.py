@@ -1,0 +1,217 @@
+import itertools
+import logging
+from dataclasses import dataclass
+from typing import Any, Iterable, Iterator, List, Optional, Union
+
+from whylogs_v1.core.utils import numpy as np
+from whylogs_v1.core.utils import pandas as pd
+
+logger = logging.getLogger("whylogs.core.views")
+
+try:
+    import pandas.core.dtypes.common as pdc
+except:  # noqa
+    pass
+
+
+@dataclass
+class ListView:
+    ints: Optional[List[int]] = None
+    floats: Optional[List[float]] = None
+    strings: Optional[List[str]] = None
+    objs: Optional[List[Any]] = None
+
+    def iterables(self) -> List[List[Any]]:
+        it_list = []
+        for lst in [self.ints, self.floats, self.strings, self.objs]:
+            if lst is not None and len(lst) > 0:
+                it_list.append(lst)
+        return it_list
+
+
+@dataclass
+class NumpyView:
+    ints: Optional[np.ndarray] = None
+    floats: Optional[np.ndarray] = None
+
+    def iterables(self) -> List[np.ndarray]:
+        it_list = []
+        for lst in [self.ints, self.floats]:
+            if lst is not None and len(lst) > 0:
+                it_list.append(lst)
+        return it_list
+
+    @property
+    def len(self) -> int:
+        length = 0
+        if self.ints is not None:
+            length += len(self.ints)
+        if self.floats is not None:
+            length += len(self.floats)
+
+        return length
+
+
+@dataclass
+class PandasView:
+    strings: Optional[pd.Series] = None
+    objs: Optional[pd.Series] = None
+
+    def iterables(self) -> List[pd.Series]:
+        it_list = []
+        for lst in [self.strings, self.objs]:
+            if lst is not None and len(lst) > 0:
+                it_list.append(lst)
+        return it_list
+
+
+@dataclass(init=False)
+class ExtractedColumn:
+    """Extract a column of data into various underlying storage.
+
+    If Pandas is available, we will use Pandas to handle batch processing.
+    If numpy is available, we will use ndarray for numerical values.
+    Otherwise, we preprocess values into typed lists for downstream consumers.
+    We also track the null count and ensure that processed lists/Series don't contain null values.
+    """
+
+    numpy: NumpyView
+    pandas: PandasView
+    list: ListView
+    # TODO: other data sources such as Apache Arrow here
+
+    null_count: int = 0
+    len: int = 0
+    original: Any = None
+
+    def __init__(self) -> None:
+        self.numpy = NumpyView()
+        self.pandas = PandasView()
+        self.list = ListView()
+        self.null_count = 0
+        self.len = -1
+
+    def _pandas_split(
+        self, series: Union[pd.Series], parse_numeric_string: bool = False
+    ) -> None:
+        """
+        Split a Pandas Series into numpy array and other Pandas series.
+
+        Args:
+            series: the original Pandas series
+            parse_numeric_string: if set, this will coerce values into integer using pands.to_numeric() method.
+
+        Returns:
+            SplitSeries with multiple values, including numpy arrays for numbers, and strings as a Pandas Series.
+        """
+        if series is None:
+            return None
+        if pd.Series is None:
+            return None
+
+        self.null_count = len(series[series.isnull()])
+
+        non_null_ser = series[series.notnull()]
+        if pdc.is_numeric_dtype(series.dtype):
+            if pdc.is_float_dtype(series.dtype):
+                floats = non_null_ser.astype(float)
+                self.numpy.floats = floats
+                return
+            else:
+                ints = non_null_ser.astype(int)
+                self.numpy.ints = ints
+                return
+
+        if issubclass(series.dtype.type, str):
+            self.pandas.strings = non_null_ser
+            return
+
+        if parse_numeric_string:
+            non_null_ser = pd.to_numeric(non_null_ser, errors="ignore")
+
+        float_mask = non_null_ser.apply(lambda x: pdc.is_float(x))
+        int_mask = non_null_ser.apply(
+            lambda x: pdc.is_number(x) and not pdc.is_float(x)
+        )
+        str_mask = non_null_ser.apply(lambda x: isinstance(x, str))
+
+        floats = non_null_ser[float_mask]
+        ints = non_null_ser[int_mask]
+        strings = non_null_ser[str_mask]
+        objs = non_null_ser[~(float_mask | str_mask | int_mask)]
+
+        self.numpy = NumpyView(floats=floats, ints=ints)
+        self.pandas.strings = strings
+        self.pandas.objs = objs
+
+    def raw_iterator(self) -> Iterator[Any]:
+        iterables = [
+            *self.numpy.iterables(),
+            *self.pandas.iterables(),
+            *self.list.iterables(),
+        ]
+        return itertools.chain(iterables)
+
+    @staticmethod
+    def apply(data: Any) -> "ExtractedColumn":
+        result = ExtractedColumn()
+        result.original = data
+        if isinstance(data, pd.Series):
+            result._pandas_split(data)
+            result.len = len(data)
+            return result
+
+        if isinstance(data, np.ndarray):
+            result.len = len(data)
+            if issubclass(data.dtype.type, np.floating):
+                result.numpy = NumpyView(floats=data.astype(float))
+            else:
+                result.numpy = NumpyView(ints=data.astype(int))
+            return result
+
+        if isinstance(data, List):
+            result.len = len(data)
+            if pd.Series:
+                return ExtractedColumn.apply(pd.Series(data))
+
+            int_list = []
+            float_list = []
+            string_list = []
+            obj_list = []
+            null_count = 0
+            for x in data:
+                if isinstance(x, int):
+                    int_list.append(x)
+                elif isinstance(x, float):
+                    float_list.append(x)
+                elif isinstance(x, str):
+                    string_list.append(x)
+                elif x is not None:
+                    obj_list.append(x)
+                else:
+                    null_count += 1
+
+            result.null_count = null_count
+            if np.ndarray:
+                ints = np.asarray(int_list, dtype=int)
+                floats = np.asarray(float_list, dtype=float)
+
+                result.numpy = (NumpyView(ints=ints, floats=floats),)
+                result.list = ListView(strings=string_list, objs=obj_list)
+                return result
+            else:
+                result.list = ListView(
+                    ints=int_list, floats=float_list, strings=string_list, objs=obj_list
+                )
+                return result
+
+        if isinstance(data, Iterable) or isinstance(data, Iterator):
+            logger.warning(
+                "Materializing an Iterable or Iterator into a list for processing. This could cause memory issue"
+            )
+            list_format = list(data)
+            return ExtractedColumn.apply(list_format)
+
+        logger.error(f"Failed to extract columnar data from type: {type(data)}")
+
+        return result

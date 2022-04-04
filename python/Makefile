@@ -12,7 +12,7 @@ build.dir := build
 # This isn't exactly true but its the only thing that we easily know the name of at this point. Its a good proxy for
 # the wheel since its created along with it.
 build.wheel := $(dist.dir)/whylogs-v1-$(version).tar.gz
-build.proto.dir := whylogs_v1/proto
+build.proto.dir := whylogs_v1/core/proto
 build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$(src.proto))
 
 default: dist
@@ -76,7 +76,8 @@ requirements.txt:
 
 $(build.proto): $(src.proto)
 	@$(call i, Generating python source for protobuf)
-	protoc -I $(src.proto.dir) --python_out=$(build.proto.dir) $(src.proto)
+	$(eval MYPY := $(shell poetry run which protoc-gen-mypy))
+	protoc -I $(src.proto.dir) --plugin=protoc-gen-mypy=$(MYPY) --python_out=$(build.proto.dir) $(src.proto) --mypy_out=$(build.proto.dir)
 
 lint: ## Check code for lint errors.
 	@$(call i, Running the linter)

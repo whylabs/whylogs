@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 import "google/protobuf/struct.proto";
-import "google/protobuf/wrappers.proto";
 
 option java_package = "com.whylogs.core.message";
 option java_outer_classname = "Messages";
@@ -85,4 +84,8 @@ message DatasetProfileMessage {
   DatasetProperties properties = 1;
   map<string, ColumnMessage> columns = 2;
   map<string, TrackerMessage> metric_plugins = 3;
+}
+
+message CountMessage {
+  int64 value = 1;
 }

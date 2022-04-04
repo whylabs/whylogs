@@ -1,2 +1,3 @@
 *.py
+*.pyi
 !__init__.py

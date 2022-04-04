@@ -2,14 +2,25 @@ minimum_pre_commit_version: 2.8.0
 default_stages: [commit, push, manual]
 repos:
   - repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.3.0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/flake8
     rev: 4.0.1
     hooks:
       - id: flake8
-        args: [--max-line-length=88]
+        args:
+          - --max-line-length=160
+          - --exclude="""\.tox |
+            build |
+            dist |
+            \.eggs |
+            docs |
+            whylogs_v1/core/proto |
+            \.venv"""
+          - --extend-ignore=E203,W503
+          - --max-complexity=20
+
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
