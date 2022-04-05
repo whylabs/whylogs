@@ -30,8 +30,9 @@ jobs:
       with:
         poetry-version: 1.1.5
     - name: Install Protoc
-      uses: arduino/setup-protoc@master
+      uses: arduino/setup-protoc@v1
       with:
+        version: '3.19.4'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Cache Python dependencies
       uses: actions/cache@v2
