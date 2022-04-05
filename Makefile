@@ -140,6 +140,7 @@ test-notebooks: ## Run tests for the notebooks
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
+	$(source HOME/.poetry/env)
 	poetry install
 
 coverage: ## Generate test coverage reports.
