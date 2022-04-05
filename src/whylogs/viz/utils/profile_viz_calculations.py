@@ -143,7 +143,7 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
                     frequent_items=reference_frequent_items_sketch.to_summary(), total_count=ref_total_count
                 )
                 chi_squared_p_value = compute_chi_squared_test_p_value(target_message, reference_message)
-                if chi_squared_p_value.chi_squared_test:
+                if chi_squared_p_value.chi_squared_test is not None:
                     reference_profile_json["columns"][target_col_name]["drift_from_ref"] = chi_squared_p_value.chi_squared_test
                 else:
                     reference_profile_json["columns"][target_col_name]["drift_from_ref"] = None

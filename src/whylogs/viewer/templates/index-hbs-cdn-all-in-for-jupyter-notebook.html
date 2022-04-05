@@ -1091,7 +1091,7 @@
      Handlebars.registerHelper("missingCells", function (properties) {
        const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_cells)
        if (typeof value !== 'undefined' && typeof newValue !== 'undefined'  && typeof suffixe !== 'undefined' ) {
-        return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
+        return numberWithSuffixe(value, valueSuffixe(`${newValue}`), suffixe);
        }
        return numberWithSuffixe(0, valueNumber(0), valueNumber(''));
      });
@@ -1134,7 +1134,7 @@
 
         if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
           driftCount++
-          const driftFromRefNumber = drift_from_ref % 1 ? fixNumberTo(drift_from_ref, 2) : drift_from_ref
+          const driftFromRefNumber = drift_from_ref.toPrecision(2)
           const circleColor = Object.values(drifts)[countOfDrifts(driftFromRefNumber, 3)].colorClass
 
           $(document).ready(() => {

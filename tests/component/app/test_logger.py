@@ -3,15 +3,22 @@
 import datetime
 import os
 
+import numpy as np
 import pandas as pd
+import pytest
 
 from whylogs import DatasetProfile
+from whylogs.app import Session
 from whylogs.app.config import SessionConfig, WriterConfig
 from whylogs.app.session import get_or_create_session, session_from_config
 from whylogs.app.writers import writer_from_config
 from whylogs.util import time
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
+
+_TEST_DATA_TYPES = [
+    (pd.DataFrame([[np.timedelta64(0, "ns")], [np.timedelta64(1, "ns")]], columns=["duration"])),
+]
 
 
 def test_write_template_path():
@@ -38,6 +45,16 @@ def test_config_api(tmpdir):
 
     with session.logger("test_name") as logger:
         logger.log_dataframe(pd.DataFrame())
+    session.close()
+
+
+@pytest.mark.parametrize("data", _TEST_DATA_TYPES)
+def test_numpy_types_do_not_throw(data):
+    # create a session with no writers
+    session = Session(writers=[])
+
+    with session.logger("test_name") as logger:
+        logger.log_dataframe(data)
     session.close()
 
 
