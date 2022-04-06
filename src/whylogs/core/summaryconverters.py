@@ -2,6 +2,7 @@
 Library module defining function for generating summaries
 """
 import math
+from logging import getLogger
 from typing import Union
 
 import datasketches
@@ -27,6 +28,8 @@ from whylogs.proto import (
 MAX_HIST_BUCKETS = 30
 HIST_AVG_NUMBER_PER_BUCKET = 4.0
 QUANTILES = [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]
+
+logger = getLogger(__name__)
 
 
 def from_sketch(sketch: update_theta_sketch, num_std_devs: float = 1):
@@ -118,6 +121,38 @@ def single_quantile_from_sketch(sketch: kll_floats_sketch, quantile: float):
     return type("Object", (), {"quantile": qval[0]})
 
 
+def _calculate_bins(end: float, start: float, n: int, avg_per_bucket: float, max_buckets: int):
+    # Include the max value in the right-most bin
+    end += abs(end) * 1e-7
+
+    # the kll_floats_sketch use 32bit floats, so we check precision against np.float32
+    float_mantissa_bits = np.finfo(np.float32).nmant
+
+    # Include the right edge in the bin edges
+    n_buckets = min(math.ceil(n / avg_per_bucket), max_buckets)
+    width = (end - start) / n_buckets
+
+    # check for precision of width with respect to float_mantissa_bits and bin width:
+    bits_in_max = math.floor(math.log2(end))
+    width_bits = math.floor(math.log2((end - start) / n_buckets))
+    logger.debug(f"bits_in_max is: {bits_in_max}")
+    logger.debug(f"width_bits is: {width_bits}")
+
+    if bits_in_max - float_mantissa_bits > width_bits:
+        bits_in_width = bits_in_max - float_mantissa_bits
+        logger.info(f"Width must be larger than {bits_in_width} bits.")
+        new_buckets = math.floor((end - start) / math.pow(2, bits_in_width))
+        logger.warn(f"Avoiding bin edge collisions by resizing to {new_buckets} buckets")
+        n_buckets = new_buckets
+        width = (end - start) / n_buckets
+
+    # Calculate histograms from the Probability Mass Function
+    bins = [start + i * width for i in range(n_buckets + 1)]
+    logger.info(f"about to get pmf using start: {start} end:{end} width:{width} and n_buckets:{n_buckets}")
+    logger.debug(f"bin: {bins}")
+    return bins, end, start
+
+
 def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int = None, avg_per_bucket: int = None):
     """
     Generate a summary of a kll_floats_sketch, including a histogram
@@ -151,13 +186,7 @@ def histogram_from_sketch(sketch: kll_floats_sketch, max_buckets: int = None, av
         bins = [start, end]
         counts = [n]
     else:
-        # Include the max value in the right-most bin
-        end += abs(end) * 1e-7
-        # Include the right edge in the bin edges
-        n_buckets = min(math.ceil(n / avg_per_bucket), max_buckets)
-        width = (end - start) / n_buckets
-        # Calculate histograms from the Probability Mass Function
-        bins = [start + i * width for i in range(n_buckets + 1)]
+        bins, end, start = _calculate_bins(end, start, n, avg_per_bucket, max_buckets)
         pmf = sketch.get_pmf(bins)
         counts = [round(p * n) for p in pmf]
         counts = counts[1:-1]
