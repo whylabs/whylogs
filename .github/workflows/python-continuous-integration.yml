@@ -32,13 +32,12 @@ jobs:
       with:
         version: '3.19.4'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Cache Python dependencies
+    - name: Set up Poetry cache for Python dependencies
       uses: actions/cache@v2
       with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: ${{ runner.os }}-poetry-
     - name: Install dependencies
       run: make install
     - name: Run build, style, and lint checks
