@@ -1,5 +1,6 @@
 from logging import getLogger
 
+import pandas as pd
 import pytest
 
 from whylogs.app.config import SessionConfig
@@ -76,6 +77,19 @@ def test_session_profile_small(df_single):
         flat_summary = summary["summary"]
         TEST_LOGGER.info(f"logged {i} rows and summary is {flat_summary}")
         assert len(flat_summary) == 1
+
+
+def test_session_profile_negative_ints():
+    df = pd.DataFrame(range(-22335544310, -22335542310), columns=["negative"])
+    session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
+    profile = session.log_dataframe(df)
+    TEST_LOGGER.debug(f"logged df: {df.shape} ")
+    TEST_LOGGER.debug(f"logged profile: {profile} ")
+    summary = profile.flat_summary()
+    TEST_LOGGER.debug(f"logged summary: {summary} ")
+    flat_summary = summary["summary"]
+    TEST_LOGGER.debug(f"logged flat_summary: {flat_summary} ")
+    assert len(flat_summary) == 1
 
 
 def test_session_profile_two_column(df_two_int_col):
