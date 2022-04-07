@@ -135,23 +135,27 @@ def _calculate_bins(end: float, start: float, n: int, avg_per_bucket: float, max
     n_buckets = min(math.ceil(n / avg_per_bucket), max_buckets)
     width = (end - start) / n_buckets
 
-    # check for precision of width with respect to float_mantissa_bits and bin width:
-    bits_in_max = math.floor(math.log2(max_magnitude))
-    width_bits = math.floor(math.log2((end - start) / n_buckets))
-    logger.debug(f"bits_in_max is: {bits_in_max}")
-    logger.debug(f"width_bits is: {width_bits}")
+    # Figure out the floating point precision at the scale of the bin boundaries
+    # min_interval is the smallest difference between floats at this scale
+    log_min_interval = math.floor(math.log2(max_magnitude)) - float_mantissa_bits
+    min_interval = math.pow(2, log_min_interval)
 
-    if bits_in_max - float_mantissa_bits > width_bits:
-        bits_in_width = bits_in_max - float_mantissa_bits
-        logger.info(f"Width must be larger than {bits_in_width} bits.")
-        new_buckets = math.floor((end - start) / math.pow(2, bits_in_width))
-        logger.warn(f"Avoiding bin edge collisions by resizing to {new_buckets} buckets")
+    # If the bin width is smaller than min_interval, we need bigger bins
+    if width < min_interval:
+        new_buckets = math.floor((end - start) / min_interval)
+        logger.warning(
+            f"A bin width of {width} won't work with values in range of [{start}, {end}] "
+            f"because numbers closer to eachother than {int(min_interval)} might not be distinct "
+            "when passed as float32: avoiding bin edge collisions by resizing from: "
+            f"{n_buckets} to: {new_buckets} histogram buckets in summary."
+        )
         n_buckets = max(new_buckets, 1)
         width = (end - start) / n_buckets
+        logger.info(f"New bin widh is: {width} across {n_buckets} buckets")
 
     # Calculate histograms from the Probability Mass Function
     bins = [start + i * width for i in range(n_buckets + 1)]
-    logger.info(f"about to get pmf using start: {start} end:{end} width:{width} and n_buckets:{n_buckets}")
+    logger.debug(f"about to get pmf using start: {start} end:{end} width:{width} and n_buckets:{n_buckets}")
     logger.debug(f"bin: {bins}")
     return bins, end, start
 
