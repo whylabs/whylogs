@@ -145,7 +145,7 @@ def _calculate_bins(end: float, start: float, n: int, avg_per_bucket: float, max
         new_buckets = math.floor((end - start) / min_interval)
         logger.warning(
             f"A bin width of {width} won't work with values in range of [{start}, {end}] "
-            f"because numbers closer to eachother than {int(min_interval)} might not be distinct "
+            f"because numbers closer to each other than {int(min_interval)} might not be distinct "
             "when passed as float32: avoiding bin edge collisions by resizing from: "
             f"{n_buckets} to: {new_buckets} histogram buckets in summary."
         )
