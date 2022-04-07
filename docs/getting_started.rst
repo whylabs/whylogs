@@ -72,7 +72,7 @@ Loggers log statistical information about your data. They have the following par
 
 For more information, see the `documentation <https://whylogs.readthedocs.io/en/latest/autoapi/whylogs/app/logger/index.html>`_ for the logger class.
 
-`This example code <https://whylogs.readthedocs.io/en/latest/auto_examples/configure_logger.html>`_ uses logger options to control the output location. 
+`This example code <https://github.com/whylabs/whylogs/blob/mainline/examples/configure_logger.py>`_ uses logger options to control the output location.
 
 Configure a Writer
 ########################
