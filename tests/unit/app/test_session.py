@@ -1,3 +1,7 @@
+from logging import getLogger
+
+import numpy as np
+import pandas as pd
 import pytest
 
 from whylogs.app.config import SessionConfig
@@ -8,6 +12,8 @@ from whylogs.app.session import (
     reset_default_session,
     session_from_config,
 )
+
+TEST_LOGGER = getLogger(__name__)
 
 
 def test_get_global_session():
@@ -27,7 +33,6 @@ def test_reset():
 
 
 def test_session_log_dataframe(df):
-    pass
 
     session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
     session.log_dataframe(df)
@@ -47,6 +52,82 @@ def test_session_profile(df):
 
     flat_summary = summary["summary"]
     assert len(flat_summary) == 4
+
+
+def test_session_profile_single_column(df_single):
+    TEST_LOGGER.debug(f"About to log {df_single.describe()} with columns {df_single.columns}")
+    # session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
+    session = get_or_create_session()
+    df = pd.DataFrame(range(22335544310, 22335545310), columns=["A"])
+    profile = session.log_dataframe(df)  # df_single)
+    assert profile is not None
+
+    summary = profile.flat_summary()
+
+    flat_summary = summary["summary"]
+    assert len(flat_summary) == 1
+
+
+def test_session_profile_small(df_single):
+    TEST_LOGGER.debug(f"About to log {df_single.describe()} with columns {df_single.columns}")
+    session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
+    for i in range(1, 5):
+        profile = session.log_dataframe(df_single.head(i))
+        assert profile is not None
+
+        summary = profile.flat_summary()
+
+        flat_summary = summary["summary"]
+        TEST_LOGGER.info(f"logged {i} rows and summary is {flat_summary}")
+        assert len(flat_summary) == 1
+
+
+def test_session_profile_negative_ints():
+    df = pd.DataFrame(range(-22335544310, -22335542310), columns=["negative"])
+    session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
+    profile = session.log_dataframe(df)
+    TEST_LOGGER.debug(f"logged df: {df.shape} ")
+    summary = profile.flat_summary()
+    TEST_LOGGER.debug(f"logged summary: {summary} ")
+    flat_summary = summary["summary"]
+    TEST_LOGGER.debug(f"logged flat_summary: {flat_summary} ")
+    assert len(flat_summary) == 1
+
+
+def test_session_profile_negative_to_zero():
+    df = pd.DataFrame(range(-1000, 1), columns=["negative_to_zero"])
+    session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
+    profile = session.log_dataframe(df)
+    TEST_LOGGER.debug(f"logged df: {df.shape} ")
+    summary = profile.flat_summary()
+    TEST_LOGGER.debug(f"logged summary: {summary} ")
+    flat_summary = summary["summary"]
+    TEST_LOGGER.debug(f"logged flat_summary: {flat_summary} ")
+    assert len(flat_summary) == 1
+
+
+def test_session_profile_all_close_to_zero():
+    df = pd.DataFrame(np.arange(-1.00000001e-20, -1e-20, 1e-30), columns=["close_to_zero"])
+    session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
+    profile = session.log_dataframe(df)
+    TEST_LOGGER.debug(f"logged df: {df.shape} ")
+    summary = profile.flat_summary()
+    TEST_LOGGER.debug(f"logged summary: {summary} ")
+    flat_summary = summary["summary"]
+    TEST_LOGGER.debug(f"logged flat_summary: {flat_summary} ")
+    assert len(flat_summary) == 1
+
+
+def test_session_profile_two_column(df_two_int_col):
+    TEST_LOGGER.debug(f"About to log {df_two_int_col.describe()} with columns {df_two_int_col.columns}")
+    session = session_from_config(SessionConfig("default-project", "default-pipeline", [], False))
+    profile = session.log_dataframe(df_two_int_col)
+    assert profile is not None
+
+    summary = profile.flat_summary()
+
+    flat_summary = summary["summary"]
+    assert len(flat_summary) == 2
 
 
 def test_profile_df(df):

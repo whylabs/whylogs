@@ -81,6 +81,16 @@ def df():
 
 
 @pytest.fixture(scope="session")
+def df_single():
+    return pd.DataFrame((np.random.randint(low=6092996828, high=6093000284, size=(100, 1))), columns=["id"], dtype=np.int64)
+
+
+@pytest.fixture(scope="session")
+def df_two_int_col():
+    return pd.DataFrame((np.random.randint(low=6092996828, high=6093000284, size=(100, 2))), columns=["id", "A"])
+
+
+@pytest.fixture(scope="session")
 def test_data_path():
 
     imag_path = os.path.join(_MY_DIR, os.pardir, "testdata")
