@@ -18,13 +18,6 @@ Install our library in a Python 3.6+ environment.
 
    pip install whylogs
 
-Demo CLI
-#######################
-Our demo CLI will walk you through setting up a whylogs project.
-
-.. code-block:: bash
-
-   whylogs-demo init
 
 Configuration
 ===================
