@@ -146,3 +146,10 @@ message RecallCurve {
 message DatasetSummaries {
   map<string, DatasetSummary> profiles = 1;
 }
+
+message NLPSummary {
+  NumberSummary doc_length = 1;
+  NumberSummary term_length = 2;
+  NumberSummary similarity = 3;
+  FrequentStringsSummary frequent_terms = 4;
+}

@@ -208,3 +208,18 @@ message KllFloatsSketchMessage {
   bytes sketch = 1;
   int32 lg_k = 2;
 }
+
+message VectorsMessage {
+  int32 rows = 1;
+  int32 truncation = 2;
+  float decay = 3;
+  bytes U = 4; // left singular vectors
+  bytes S = 5; // singular values
+}
+
+message NLPTrackerMessage {
+  NumbersMessage doc_length = 1;
+  NumbersMessage term_length = 2;
+  NumbersMessage similarity = 3;
+  bytes frequent_terms = 4;
+}
