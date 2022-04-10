@@ -3,8 +3,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Iterable, Iterator, List, Optional, Union
 
-from whylogs_v1.core.utils import numpy as np
-from whylogs_v1.core.utils import pandas as pd
+from whylogs_v1.core.stubs import np as np
+from whylogs_v1.core.stubs import pd as pd
 
 logger = logging.getLogger("whylogs.core.views")
 
@@ -66,8 +66,8 @@ class PandasView:
 
 
 @dataclass(init=False)
-class ExtractedColumn:
-    """Extract a column of data into various underlying storage.
+class PreprocessColumn:
+    """View of a column with data of various underlying storage.
 
     If Pandas is available, we will use Pandas to handle batch processing.
     If numpy is available, we will use ndarray for numerical values.
@@ -91,9 +91,7 @@ class ExtractedColumn:
         self.null_count = 0
         self.len = -1
 
-    def _pandas_split(
-        self, series: Union[pd.Series], parse_numeric_string: bool = False
-    ) -> None:
+    def _pandas_split(self, series: Union[pd.Series], parse_numeric_string: bool = False) -> None:
         """
         Split a Pandas Series into numpy array and other Pandas series.
 
@@ -130,9 +128,7 @@ class ExtractedColumn:
             non_null_ser = pd.to_numeric(non_null_ser, errors="ignore")
 
         float_mask = non_null_ser.apply(lambda x: pdc.is_float(x))
-        int_mask = non_null_ser.apply(
-            lambda x: pdc.is_number(x) and not pdc.is_float(x)
-        )
+        int_mask = non_null_ser.apply(lambda x: pdc.is_number(x) and not pdc.is_float(x))
         str_mask = non_null_ser.apply(lambda x: isinstance(x, str))
 
         floats = non_null_ser[float_mask]
@@ -153,8 +149,8 @@ class ExtractedColumn:
         return itertools.chain(iterables)
 
     @staticmethod
-    def apply(data: Any) -> "ExtractedColumn":
-        result = ExtractedColumn()
+    def apply(data: Any) -> "PreprocessColumn":
+        result = PreprocessColumn()
         result.original = data
         if isinstance(data, pd.Series):
             result._pandas_split(data)
@@ -172,7 +168,7 @@ class ExtractedColumn:
         if isinstance(data, List):
             result.len = len(data)
             if pd.Series:
-                return ExtractedColumn.apply(pd.Series(data))
+                return PreprocessColumn.apply(pd.Series(data))
 
             int_list = []
             float_list = []
@@ -200,9 +196,7 @@ class ExtractedColumn:
                 result.list = ListView(strings=string_list, objs=obj_list)
                 return result
             else:
-                result.list = ListView(
-                    ints=int_list, floats=float_list, strings=string_list, objs=obj_list
-                )
+                result.list = ListView(ints=int_list, floats=float_list, strings=string_list, objs=obj_list)
                 return result
 
         if isinstance(data, Iterable) or isinstance(data, Iterator):
@@ -210,7 +204,7 @@ class ExtractedColumn:
                 "Materializing an Iterable or Iterator into a list for processing. This could cause memory issue"
             )
             list_format = list(data)
-            return ExtractedColumn.apply(list_format)
+            return PreprocessColumn.apply(list_format)
 
         logger.error(f"Failed to extract columnar data from type: {type(data)}")
 

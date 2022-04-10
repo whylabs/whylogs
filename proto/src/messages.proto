@@ -31,7 +31,9 @@ message FrequentItemsSketchMessage {
 
 message KllSketchMessage {
   bytes sketch = 1;
-  int32 k = 2;
+  int32 k = 2 [deprecated = true];
+  double mean = 3;
+  double m2 = 4;
 }
 
 message TrackerMessage {

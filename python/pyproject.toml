@@ -1,7 +1,7 @@
 [tool.isort]
 profile = "black"
 src_paths = ["whylogs_v1", "tests"]
-skip = ["whylogs_v1/proto/", ".venv"]
+skip = ["whylogs_v1/core/proto/", ".venv"]
 multi_line_output = 3
 
 
@@ -15,6 +15,28 @@ show_error_codes = true
 plugins = [
     "numpy.typing.mypy_plugin"
 ]
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | tests
+    | whylogs_v1/core/proto
+    | *.pyi
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
+
 
 [tool.poetry]
 name = "whylogs_v1"
@@ -28,12 +50,12 @@ include = ["whylogs_v1/py.typed"]
 
 [tool.poetry.dependencies]
 python = ">=3.7.1, <4.0"
-whylogs-datasketches = "3.4.0.dev2"
+whylogs-datasketches = "3.4.0.dev3"
 protobuf = ">=3.15.5"
-importlib-metadata = {version = ">=0.23", python = "<3.8"}
+importlib-metadata = { version = ">=0.23", python = "<3.8" }
 
 [tool.poetry.dev-dependencies]
-black = {version = "*", allow-prereleases = true}
+black = { version = "*", allow-prereleases = true }
 flake8 = "*"
 isort = "^5.6"
 mkdocs-material = "^8"
@@ -58,3 +80,29 @@ testpaths = ["tests"]
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.black]
+line-length = 120
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | tests
+    | whylogs_v1/core/proto
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''

@@ -1,4 +1,6 @@
-from .column_profile import ColumnProfile, ColumnSchema
+from .column_profile import ColumnProfile
+from .dataset_profile import DatasetProfile
+from .datatypes import TypeMapper
 from .metrics import (
     CustomMetricMixin,
     MergeableCountMetric,
@@ -6,6 +8,9 @@ from .metrics import (
     UpdatableCountMetric,
     UpdatableMetric,
 )
+from .resolvers import Resolver
+from .schema import ColumnSchema, DatasetSchema
+from .view import ColumnProfileView, DatasetProfileView
 
 __ALL__ = [
     UpdatableMetric,
@@ -16,5 +21,13 @@ __ALL__ = [
     MergeableCountMetric,
     # column
     ColumnProfile,
+    DatasetProfile,
+    DatasetSchema,
     ColumnSchema,
+    # Typing
+    TypeMapper,
+    Resolver,
+    # Views
+    ColumnProfileView,
+    DatasetProfileView,
 ]

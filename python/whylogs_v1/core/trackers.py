@@ -1,8 +1,10 @@
-from typing import Any, Callable, Generic, Type, TypeVar
+from typing import TypeVar
 
-from whylogs_v1.core.datatypes import DataType, NumericColumnType
-from whylogs_v1.core.extraction import ExtractedColumn
+from whylogs_v1.core.datatypes import DataType
 from whylogs_v1.core.metrics import UpdatableMetric
+from whylogs_v1.core.metrics.metrics import MergeableMetric, OperationResult
+from whylogs_v1.core.preprocessing import PreprocessColumn
+from whylogs_v1.core.proto import TrackerMessage
 
 
 class Tracker(object):
@@ -10,14 +12,7 @@ class Tracker(object):
         self._data_type = data_type
         self._metric = metric
 
-    def track(self, value: Any) -> int:
-        if not self._data_type.is_compatible(value):
-            return 1
-        normalized_value = self._data_type.normalize(value)
-        self._metric.update(normalized_value)
-        return 0
-
-    def track_column(self, series: ExtractedColumn) -> int:
+    def track_column(self, series: PreprocessColumn) -> OperationResult:
         """
         Track a series of values in 'ExtractedColumn'
 
@@ -27,14 +22,19 @@ class Tracker(object):
         Returns:
             Number of successful operations
         """
-        self._metric.columnar_update(series)
-        return 0
+        return self._metric.columnar_update(series)
+
+    def serialize(self) -> TrackerMessage:
+        return self._metric.serialize()
+
+    def to_mergeable(self) -> MergeableMetric:
+        return self._metric.to_mergeable()
 
 
-N = TypeVar("N", float, int)
+N = TypeVar("N", bound=DataType)
 
 
-class NumericTracker(Tracker, Generic[N]):
+class NumericTracker(Tracker):
     """
     A tracker for numbers.
 
@@ -42,9 +42,5 @@ class NumericTracker(Tracker, Generic[N]):
     time specify the expected type in the constructor.
     """
 
-    def __init__(self, tpe: Type[N], metric: UpdatableMetric):
-        super().__init__(NumericColumnType(tpe), metric)
-
-
-METRIC = TypeVar("METRIC")
-_TrackerFactory = Callable[[], Tracker]
+    def __init__(self, tpe: DataType, metric: UpdatableMetric):
+        super().__init__(tpe, metric)

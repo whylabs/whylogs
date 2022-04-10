@@ -331,7 +331,7 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "jupyter-client"
-version = "7.2.1"
+version = "7.2.2"
 description = "Jupyter protocol implementation and client libraries"
 category = "dev"
 optional = false
@@ -517,7 +517,7 @@ python-versions = "*"
 name = "numpy"
 version = "1.21.5"
 description = "NumPy is the fundamental package for array computing with Python."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7,<3.11"
 
@@ -525,7 +525,7 @@ python-versions = ">=3.7,<3.11"
 name = "numpy"
 version = "1.22.3"
 description = "NumPy is the fundamental package for array computing with Python."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8"
 
@@ -563,7 +563,7 @@ test = ["hypothesis (>=3.58)", "pytest (>=6.0)", "pytest-xdist"]
 
 [[package]]
 name = "pandas-stubs"
-version = "1.2.0.56"
+version = "1.2.0.57"
 description = "Type annotations for Pandas"
 category = "dev"
 optional = false
@@ -971,14 +971,11 @@ python-versions = "*"
 
 [[package]]
 name = "whylogs-datasketches"
-version = "3.4.0.dev2"
+version = "3.4.0.dev3"
 description = "The fork for whylogs for Apache DataSketches Library for Python"
 category = "main"
 optional = false
 python-versions = "*"
-
-[package.dependencies]
-numpy = "*"
 
 [[package]]
 name = "zipp"
@@ -995,7 +992,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1, <4.0"
-content-hash = "90907cfc8bd537665b66716da00a4181f3b83f513617f955e69e51fa49203e41"
+content-hash = "2f23df63765235c65f6cd7217f34d15aea5b70d241b22c9a3b56f7a4e89bbf00"
 
 [metadata.files]
 appnope = [
@@ -1226,8 +1223,8 @@ jinja2 = [
     {file = "Jinja2-3.1.1.tar.gz", hash = "sha256:640bed4bb501cbd17194b3cace1dc2126f5b619cf068a726b98192a0fde74ae9"},
 ]
 jupyter-client = [
-    {file = "jupyter_client-7.2.1-py3-none-any.whl", hash = "sha256:d10e31ac4b8364d1cb30ebcee9e5cc7b7eb5d23b76912be9ef3d4c75167fbc68"},
-    {file = "jupyter_client-7.2.1.tar.gz", hash = "sha256:aa177279e93205d0681ec0e2e210da01b22c5a1464a56abd455adcac64f0de91"},
+    {file = "jupyter_client-7.2.2-py3-none-any.whl", hash = "sha256:44045448eadc12493d819d965eb1dc9d10d1927698adbb9b14eb9a3a4a45ba53"},
+    {file = "jupyter_client-7.2.2.tar.gz", hash = "sha256:8fdbad344a8baa6a413d86d25bbf87ce21cb2b4aa5a8e0413863b9754eb8eb8a"},
 ]
 jupyter-core = [
     {file = "jupyter_core-4.9.2-py3-none-any.whl", hash = "sha256:f875e4d27e202590311d468fa55f90c575f201490bd0c18acabe4e318db4a46d"},
@@ -1428,8 +1425,8 @@ pandas = [
     {file = "pandas-1.3.5.tar.gz", hash = "sha256:1e4285f5de1012de20ca46b188ccf33521bff61ba5c5ebd78b4fb28e5416a9f1"},
 ]
 pandas-stubs = [
-    {file = "pandas-stubs-1.2.0.56.tar.gz", hash = "sha256:c1cf75b216fb50f205a16e8cdb7d4180654d8982be92c5b314329bc29531baac"},
-    {file = "pandas_stubs-1.2.0.56-py3-none-any.whl", hash = "sha256:37871b3d11dfbddfd582630dfef2fd8451f99c0ffbcc931a4b75489140555bbf"},
+    {file = "pandas-stubs-1.2.0.57.tar.gz", hash = "sha256:5b8a40cc2205fbb848b88d4ec7c01cc2ddead88954f005518e26577e339c6028"},
+    {file = "pandas_stubs-1.2.0.57-py3-none-any.whl", hash = "sha256:c0933322d6805cc7d2faa5614a5ef8d8164e95dc7b8f6b6cd2d8971cb69643b5"},
 ]
 parso = [
     {file = "parso-0.8.3-py2.py3-none-any.whl", hash = "sha256:c001d4636cd3aecdaf33cbb40aebb59b094be2a74c556778ef5576c175e19e75"},
@@ -1805,16 +1802,15 @@ wcwidth = [
     {file = "wcwidth-0.2.5.tar.gz", hash = "sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"},
 ]
 whylogs-datasketches = [
-    {file = "whylogs-datasketches-3.4.0.dev2.tar.gz", hash = "sha256:92105684bbe8a8ae8b5c3e51e6152e992a7d19bcbaa1fd4d11b8668d78752eb6"},
-    {file = "whylogs_datasketches-3.4.0.dev2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:22a5dc3502dc9eba99513c112d094452e1dc3095a17fe51fffee267703d63df4"},
-    {file = "whylogs_datasketches-3.4.0.dev2-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:e25bc0752a1c19ea65d932fb53c617fb774c8eb8625b31780c75a4a1ae7d243e"},
-    {file = "whylogs_datasketches-3.4.0.dev2-cp37-cp37m-win_amd64.whl", hash = "sha256:db1f3070b47ad9dd1dbd88bcbd250281aac2cd2531c9c79947876abcbdb69c3b"},
-    {file = "whylogs_datasketches-3.4.0.dev2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:98edd6a114dd0e988fdf1e6e64252a2568f2237c6a473351c0d3bd8d3f058b72"},
-    {file = "whylogs_datasketches-3.4.0.dev2-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:cefb77d41dd7b047827154d98d07f594d9775a7cda2f2779fa579dfaaa462dfe"},
-    {file = "whylogs_datasketches-3.4.0.dev2-cp38-cp38-win_amd64.whl", hash = "sha256:fae7dad8f57941117e316dea9005d78eb64cd30b3fa66210a437f8cd9449daf2"},
-    {file = "whylogs_datasketches-3.4.0.dev2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:c46aefe1e33518c83b745d779eca056120dad5b80c4feaf646cc4480cf9206d9"},
-    {file = "whylogs_datasketches-3.4.0.dev2-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:08ecfc6606ac339dc8e96c21aa0d5e4ea5c683850e7f75ea143a6f9d8c110032"},
-    {file = "whylogs_datasketches-3.4.0.dev2-cp39-cp39-win_amd64.whl", hash = "sha256:6cff869118da061755d64aae096d4774e422e66b1a2a6891ed8a81e4e9f8845d"},
+    {file = "whylogs_datasketches-3.4.0.dev3-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:0b34529b8aaacced47efdb52ffc4502788f0d12efc59e5336679859f912a6c89"},
+    {file = "whylogs_datasketches-3.4.0.dev3-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:d1c97ebc98aaee95ad5538318624f449cc5c1ae4e06189be263fe3c7458a0927"},
+    {file = "whylogs_datasketches-3.4.0.dev3-cp37-cp37m-win_amd64.whl", hash = "sha256:7f3e671fdba96434d39f90fa667dd573115d0d460653bfdc67594cc56549bd2c"},
+    {file = "whylogs_datasketches-3.4.0.dev3-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:245720b0995a6d25d8291b4bd4096294c945c1452ac9f788ffeb179962a798b6"},
+    {file = "whylogs_datasketches-3.4.0.dev3-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:4e3c501969f7a3804bb47d847ef45c2afe0de031781bf039cd24803fdf50b69b"},
+    {file = "whylogs_datasketches-3.4.0.dev3-cp38-cp38-win_amd64.whl", hash = "sha256:2671bc0236a6ef241d88460fb0dc2628693b2fe5b2794364c2e87d79a97a224f"},
+    {file = "whylogs_datasketches-3.4.0.dev3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:ef52fa00d814dce26789a4cd21b91fd4fe6739017f7966dcc45f08e8296857ab"},
+    {file = "whylogs_datasketches-3.4.0.dev3-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:e0a4f42dfd80feea14ab53d839c461fa7bb4a1bc6f2435a9b312d80eb6ad7285"},
+    {file = "whylogs_datasketches-3.4.0.dev3-cp39-cp39-win_amd64.whl", hash = "sha256:3287e232eb9eb016b397e0f4d4578a4af3aaabe8fe871b34d16b131d00c56297"},
 ]
 zipp = [
     {file = "zipp-3.8.0-py3-none-any.whl", hash = "sha256:c4f6e5bbf48e74f7a38e7cc5b0480ff42b0ae5178957d564d18932525d5cf099"},
