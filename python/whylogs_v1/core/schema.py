@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, TypeVar, Union
+from typing import Any, Dict, Mapping, Optional, TypeVar, Union
 
 from whylogs_v1.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs_v1.core.resolvers import Resolver, StandardResolver
@@ -99,9 +99,20 @@ class DatasetSchema:
 
         return copy
 
-    def resolve(self, dataset_or_row: Union[pd.DataFrame, Dict[str, Any]]) -> bool:
+    def resolve(self, dataset_or_row: Union[pd.DataFrame, Mapping[str, Any]]) -> bool:
         if isinstance(dataset_or_row, pd.DataFrame):
             return self._resolve_pdf(dataset_or_row)
+
+        if isinstance(dataset_or_row, Mapping):
+            for k, v in dataset_or_row.items():
+                if k in self._columns:
+                    continue
+                self._columns[k] = ColumnSchema(
+                    dtype=type(v),
+                    resolver=self.resolvers,
+                    type_mapper=self.type_mapper,
+                )
+            return True
         raise NotImplementedError
 
     def _resolve_pdf(self, df: pd.DataFrame, force_resolve: bool = False) -> bool:

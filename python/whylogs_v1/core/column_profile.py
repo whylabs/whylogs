@@ -35,6 +35,8 @@ class ColumnProfile(object):
 
     def flush(self) -> None:
         """Force emptying the cache and update the internal metrics."""
+
+        logger.debug("Flushing out the cache for col: %s. Cache size: %s", self._name, self._cache_size)
         old_cache = self._cache
         self._cache = []
         self.track_column(old_cache)

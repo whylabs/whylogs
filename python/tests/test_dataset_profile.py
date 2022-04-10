@@ -37,3 +37,16 @@ def test_override_schema_col2_as_string() -> None:
     assert profile._columns["col1"]._schema.dtype == numpy.int64
     assert profile._columns["col2"]._schema.dtype == str
     assert profile._columns["col3"]._schema.dtype.name == "object"
+
+
+def test_basic_iter_row() -> None:
+    d = {"col1": [1, 2, 3], "col2": [3.0, 4.0, "c"], "col3": ["a", "b", "c"]}
+    df = pd.DataFrame(data=d)
+
+    profile = DatasetProfile()
+    for row in df.iterrows():
+        profile.track(row[1].to_dict())  # type: ignore
+
+    assert profile._columns["col1"]._schema.dtype == int
+    assert profile._columns["col2"]._schema.dtype == float
+    assert profile._columns["col3"]._schema.dtype == str

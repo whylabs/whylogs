@@ -1,7 +1,7 @@
 import logging
 import os.path
 import time
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Mapping, Optional, Union
 
 from .column_profile import ColumnProfile
 from .proto import DatasetProfileMessage
@@ -29,7 +29,7 @@ class DatasetProfile(object):
         self._schema = schema
         self._columns: Dict[str, ColumnProfile] = dict()
 
-    def track(self, dataset_or_row: Union[pd.DataFrame, Dict[str, Any]]) -> None:
+    def track(self, dataset_or_row: Union[pd.DataFrame, Mapping[str, Any]]) -> None:
         # TODO: do this less frequently when operating at row level
         dirty = self._schema.resolve(dataset_or_row)
         if dirty:
@@ -44,8 +44,14 @@ class DatasetProfile(object):
         if isinstance(dataset_or_row, pd.DataFrame):
             for k in dataset_or_row.keys():
                 self._columns[k].track_column(dataset_or_row[k])
-        else:
-            raise NotImplementedError
+            return
+
+        if isinstance(dataset_or_row, Mapping):
+            for k in dataset_or_row.keys():
+                self._columns[k].track_column(dataset_or_row[k])
+            return
+
+        raise NotImplementedError
 
     def view(self) -> DatasetProfileView:
         columns = {}
