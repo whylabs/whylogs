@@ -1,7 +1,7 @@
 import logging
 import math
 from abc import ABC
-from typing import Any, Generic, Optional, Type, TypeVar
+from typing import Any, Generic, List, Optional, Type, TypeVar
 
 import whylogs_datasketches as ds  # type: ignore
 
@@ -21,10 +21,8 @@ MERGE_INT = TypeVar("MERGE_INT", bound="MergeableNumberMetric")
 
 
 class MergeableNumberMetric(MergeableMetric[NUM], Generic[NUM], ABC):
-    def __init__(self, value: NUM = 0):
-        if value is None:
-            value = 0
-        self._value: NUM = value
+    def __init__(self, value: Optional[NUM] = None):
+        self._value: Optional[NUM] = value
 
     def serialize(self: MERGE_INT) -> TrackerMessage:
         value = self._value
@@ -44,7 +42,7 @@ UP_INT = TypeVar("UP_INT", bound="UpdatableNumberMetric")
 
 
 class UpdatableNumberMetric(UpdatableMetric[MERGE_INT], Generic[NUM, MERGE_INT], ABC):
-    def __init__(self, value: NUM = None) -> None:
+    def __init__(self, value: Optional[NUM] = None) -> None:
         self._value: Optional[NUM] = value
 
     def serialize(self) -> TrackerMessage:
@@ -67,6 +65,16 @@ class UpdatableNumberMetric(UpdatableMetric[MERGE_INT], Generic[NUM, MERGE_INT],
 
 
 class MergeableCountMetric(MergeableNumberMetric[int]):
+    _value: int
+
+    def __init__(self, value: int = 0):
+        if value is None:
+            value = 0
+        super().__init__(value)
+
+    def count(self) -> int:
+        return self._value
+
     def merge(self, other: "MergeableCountMetric") -> "MergeableCountMetric":
         if self._value is None:
             self._value = 0
@@ -77,6 +85,8 @@ class MergeableCountMetric(MergeableNumberMetric[int]):
 
 
 class UpdatableCountMetric(UpdatableNumberMetric[int, MergeableCountMetric]):
+    _value: int
+
     def __init__(self, value: int = 0):
         if value is None:
             value = 0
@@ -101,7 +111,7 @@ class UpdatableCountMetric(UpdatableNumberMetric[int, MergeableCountMetric]):
             return MergeableCountMetric()
 
 
-class UpdatableNullCountMetric(UpdatableNumberMetric[int, MergeableCountMetric]):
+class UpdatableNullCountMetric(UpdatableCountMetric):
     def columnar_update(self, data: PreprocessColumn) -> OperationResult:
         if data.len >= 0:
             if self._value is None:
@@ -121,6 +131,10 @@ class UpdatableNullCountMetric(UpdatableNumberMetric[int, MergeableCountMetric])
 
 
 class MergeableMaxMetric(MergeableNumberMetric[int]):
+    @property
+    def value(self) -> Optional[int]:
+        return self._value
+
     def merge(self, other: "MergeableMaxMetric") -> "MergeableMaxMetric":
         if self._value is None and other._value is None:
             return MergeableMaxMetric()
@@ -166,6 +180,10 @@ class UpdatableMaxIntMetric(UpdatableNumberMetric[int, MergeableMaxMetric]):
 
 
 class MergeableMinIntMetric(MergeableNumberMetric[int]):
+    @property
+    def value(self) -> Optional[int]:
+        return self._value
+
     def merge(self, other: "MergeableMinIntMetric") -> "MergeableMinIntMetric":
         if self._value is None and other._value is None:
             return MergeableMinIntMetric()
@@ -243,6 +261,23 @@ class MergeableDistribution(MergeableMetric[Any]):
     @property
     def stddev(self) -> float:
         return math.sqrt(self.variance)
+
+    @property
+    def max(self) -> float:
+        return self._histogram.get_max_value()
+
+    @property
+    def min(self) -> float:
+        return self._histogram.get_min_value()
+
+    def get_cdf(self, split_points: List[float], p_float: float = None, inclusive: bool = False) -> List[float]:
+        return self._histogram.get_cdf(split_points=split_points, p_float=p_float, inclusive=inclusive)
+
+    def get_pmf(self, split_points: List[float], p_float: float = None, inclusive: bool = False) -> List[float]:
+        return self._histogram.get_pmf(split_points=split_points, p_float=p_float, inclusive=inclusive)
+
+    def get_histogram(self, fractions: List[float], p_float: float = None, inclusive: bool = False) -> List[float]:
+        return self._histogram.get_quantiles(fractions=fractions, p_float=p_float, inclusive=inclusive)
 
     def merge(self, other: "MergeableDistribution") -> "MergeableDistribution":  # type: ignore
         hist_copy = ds.kll_doubles_sketch(self._histogram)

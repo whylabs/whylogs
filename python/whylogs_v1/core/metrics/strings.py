@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Optional
+from dataclasses import dataclass
+from typing import Any, List, Optional
 
 import whylogs_datasketches as wd
 
@@ -9,6 +10,16 @@ from whylogs_v1.core.proto import FrequentItemsSketchMessage, TrackerMessage
 
 logger = logging.getLogger(__name__)
 
+_NO_FALSE_NEGATIVES = wd.frequent_items_error_type.NO_FALSE_NEGATIVES
+
+
+@dataclass
+class FrequentItemResult:
+    value: str
+    upper: int
+    est: int
+    lower: int
+
 
 class MergeableFrequentItemsMetric(MergeableMetric[Any]):
     def __init__(self, k: int = 12, sketch: Optional[wd.frequent_strings_sketch] = None):
@@ -16,6 +27,14 @@ class MergeableFrequentItemsMetric(MergeableMetric[Any]):
         if sketch is None:
             sketch = wd.frequent_strings_sketch(lg_max_k=k)
         self._sketch = sketch
+
+    def get_top_k(
+        self, err_type: wd.frequent_items_error_type = _NO_FALSE_NEGATIVES, threshold: float = 0
+    ) -> List[FrequentItemResult]:
+        res = []
+        for item in self._sketch.get_frequent_items(err_type, threshold):
+            res.append(FrequentItemResult(value=item[0], upper=item[1], est=item[2], lower=item[3]))
+        return res
 
     def merge(self, other: "MergeableFrequentItemsMetric") -> "MergeableFrequentItemsMetric":
         res = wd.frequent_strings_sketch(max([self._k, other._k]))

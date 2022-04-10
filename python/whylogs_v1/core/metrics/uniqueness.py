@@ -13,6 +13,16 @@ class MergeableUniquenessMetric(MergeableMetric[Any]):
             sketch = ds.hll_union(lg_max_k=k)
         self._sketch = sketch
 
+    @property
+    def estimate(self) -> int:
+        return self._sketch.get_estimate()
+
+    def upper(self, num_std_devs: int = 1) -> int:
+        return self._sketch.get_upper_bound(num_std_devs)
+
+    def lower(self, num_std_devs: int = 1) -> int:
+        return self._sketch.get_lower_bound(num_std_devs)
+
     def merge(self, other: "MergeableUniquenessMetric") -> "MergeableUniquenessMetric":
         k = max([self._sketch.lg_config_k, other._sketch.lg_config_k])
         res = ds.hll_union(k)
