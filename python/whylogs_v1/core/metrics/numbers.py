@@ -83,7 +83,7 @@ class UpdatableCountMetric(UpdatableNumberMetric[int, MergeableCountMetric]):
         super().__init__(value)
 
     def columnar_update(self, data: PreprocessColumn) -> OperationResult:
-        if data.len > 0:
+        if data.len >= 0:
             if self._value is None:
                 self._value = data.len
             else:
@@ -103,7 +103,7 @@ class UpdatableCountMetric(UpdatableNumberMetric[int, MergeableCountMetric]):
 
 class UpdatableNullCountMetric(UpdatableNumberMetric[int, MergeableCountMetric]):
     def columnar_update(self, data: PreprocessColumn) -> OperationResult:
-        if data.len > 0:
+        if data.len >= 0:
             if self._value is None:
                 self._value = data.null_count
             else:
@@ -135,7 +135,7 @@ class MergeableMaxMetric(MergeableNumberMetric[int]):
 
 class UpdatableMaxIntMetric(UpdatableNumberMetric[int, MergeableMaxMetric]):
     def columnar_update(self, data: PreprocessColumn) -> OperationResult:
-        if data.len > 0:
+        if data.len >= 0:
             successes = 0
             candidates = []
             if data.numpy.ints is not None:
@@ -180,7 +180,7 @@ class MergeableMinIntMetric(MergeableNumberMetric[int]):
 
 class UpdatableMinIntMetric(UpdatableNumberMetric[int, MergeableMaxMetric]):
     def columnar_update(self, data: PreprocessColumn) -> OperationResult:
-        if data.len > 0:
+        if data.len >= 0:
             successes = 0
             candidates = []
             if data.numpy.ints is not None:
