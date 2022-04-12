@@ -2,16 +2,18 @@ import cProfile
 import json
 import os
 import pstats
+from io import StringIO
 from logging import getLogger
 from shutil import rmtree
 from time import sleep
 from typing import List
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from whylogs.app.config import SessionConfig, WriterConfig
-from whylogs.app.session import session_from_config
+from whylogs.app.session import Session, session_from_config
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 TEST_LOGGER = getLogger(__name__)
@@ -65,6 +67,7 @@ def test_log_rotation_concurrency(tmpdir):
     session = session_from_config(session_config)
 
     TEST_LOGGER.info(f"Running rotate log test with {log_rotation_interval} flush intervals and {sleep_interval}s pause")
+    string_output_stream = StringIO()
     profiler = cProfile.Profile()
     profiler.enable()
     with session.logger(tags={"datasetId": "model-1"}, with_rotation_time=log_rotation_interval) as ylog:
@@ -73,8 +76,9 @@ def test_log_rotation_concurrency(tmpdir):
         ylog.log_dataframe(full_df.head(n=2))  # Log a smaller dataframe to get more features before rotation
         sleep(sleep_interval)
     profiler.disable()
-    stats = pstats.Stats(profiler).sort_stats("cumulative")
-    TEST_LOGGER.info(stats.print_stats(10))
+    stats = pstats.Stats(profiler, stream=string_output_stream).sort_stats("cumulative")
+    stats.print_stats(10)
+    TEST_LOGGER.info(f"stats are {string_output_stream.getvalue()}")
 
     output_files = []
     for root, subdir, file_names in os.walk(test_path):
@@ -105,3 +109,26 @@ def test_log_rotation_concurrency(tmpdir):
     assert_all_elements_equal(feature_counts)
     rmtree(test_path, ignore_errors=True)
     TEST_LOGGER.debug(f"End cleaning up test directory {test_path}")
+
+
+@pytest.mark.load
+def test_log_dataframe_benchmark():
+    row_counts = [120000]
+    TEST_LOGGER.info(f"Running log_dataframe_benchmark")
+    for i in range(len(row_counts)):
+        # TODO: parameterize the number of columns, consider moving to a fixture
+        full_df = pd.DataFrame((np.random.rand(row_counts[i], 1) - 0.5) * 3, columns=["A"])
+
+        # Create a whylogs logging session without writers
+        session = Session(writers=[])
+        string_output_stream = StringIO()
+        profiler = cProfile.Profile()
+        profiler.enable()
+        with session.logger() as ylog:
+            ylog.log_dataframe(full_df)
+        profiler.disable()
+        stats = pstats.Stats(profiler, stream=string_output_stream).sort_stats("cumulative")
+        stats.print_stats(30)
+        TEST_LOGGER.info(f"stats for {full_df.shape} are \n{string_output_stream.getvalue()}")
+        # Not that you can store these results to a file with something like:
+        # stats.dump_stats("log_dataframe_benchmark_results.txt"))
