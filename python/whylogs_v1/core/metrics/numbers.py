@@ -1,7 +1,7 @@
 import logging
 import math
 from abc import ABC
-from typing import Any, Generic, List, Optional, Type, TypeVar
+from typing import Generic, List, Optional, Type, TypeVar
 
 import whylogs_datasketches as ds  # type: ignore
 
@@ -20,7 +20,7 @@ NUM = TypeVar("NUM", float, int)
 MERGE_INT = TypeVar("MERGE_INT", bound="MergeableNumberMetric")
 
 
-class MergeableNumberMetric(MergeableMetric[NUM], Generic[NUM], ABC):
+class MergeableNumberMetric(MergeableMetric, Generic[NUM], ABC):
     def __init__(self, value: Optional[NUM] = None):
         self._value: Optional[NUM] = value
 
@@ -231,7 +231,7 @@ class UpdatableMinIntMetric(UpdatableNumberMetric[int, MergeableMaxMetric]):
 _DEFAULT_HIST_K = 256
 
 
-class MergeableDistribution(MergeableMetric[Any]):
+class MergeableDistribution(MergeableMetric):
     def __init__(
         self,
         k: int = 256,

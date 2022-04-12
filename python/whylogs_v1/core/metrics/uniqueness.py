@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Optional
 
 import whylogs_datasketches as ds  # type: ignore
 
@@ -7,7 +7,7 @@ from whylogs_v1.core.preprocessing import PreprocessColumn
 from whylogs_v1.core.proto import HllSketchMessage, TrackerMessage
 
 
-class MergeableUniquenessMetric(MergeableMetric[Any]):
+class MergeableUniquenessMetric(MergeableMetric):
     def __init__(self, k: int = 12, sketch: Optional[ds.hll_union] = None):
         if sketch is None:
             sketch = ds.hll_union(lg_max_k=k)

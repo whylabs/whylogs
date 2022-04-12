@@ -27,7 +27,7 @@ class OperationResult:
     def failed(cls, cnt: int = 1) -> "OperationResult":
         return OperationResult(successes=0, failures=cnt)
 
-    def __add__(self, other: "OperationResult"):
+    def __add__(self, other: "OperationResult") -> "OperationResult":
         return OperationResult(
             successes=self.successes + other.successes,
             failures=self.failures + other.failures,
@@ -55,7 +55,7 @@ class UpdatableMetric(Generic[MM], SerializableMetric):
         raise NotImplementedError
 
 
-class MergeableMetric(Generic[SUMMARY], SerializableMetric):
+class MergeableMetric(SerializableMetric):
     def __add__(self: MM, other: MM) -> MM:
         return self.merge(other)
 
@@ -66,8 +66,7 @@ class MergeableMetric(Generic[SUMMARY], SerializableMetric):
 
 class CustomMetricMixin(
     UpdatableMetric["CustomMetricMixin"],
-    MergeableMetric[SUMMARY],
-    Generic[SUMMARY],
+    MergeableMetric,
     ABC,
 ):
     """Custom metrics that can be both mergeable and updatable.

@@ -1,8 +1,8 @@
 import logging
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import List, Optional
 
-import whylogs_datasketches as wd
+import whylogs_datasketches as wd  # type: ignore
 
 from whylogs_v1.core.metrics import MergeableMetric, OperationResult, UpdatableMetric
 from whylogs_v1.core.preprocessing import PreprocessColumn
@@ -21,7 +21,7 @@ class FrequentItemResult:
     lower: int
 
 
-class MergeableFrequentItemsMetric(MergeableMetric[Any]):
+class MergeableFrequentItemsMetric(MergeableMetric):
     def __init__(self, k: int = 12, sketch: Optional[wd.frequent_strings_sketch] = None):
         self._k = k
         if sketch is None:
