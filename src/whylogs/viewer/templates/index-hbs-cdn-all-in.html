@@ -1776,6 +1776,10 @@
         return svgEl._groups[0][0].outerHTML;
       }
 
+      function range_arr(size, startAt = 0) {
+        return [...Array(size).keys()].map(i => i + startAt);
+}
+
       function generateBarChart(currentWidth, key, datas, referenceData) {
         let histogramData = [],
             overlappedHistogramData = [];
@@ -1786,10 +1790,13 @@
         }
         let yFormat,
             xFormat;
-        const data = histogramData.map((profile, index) => {
+        
+
+        minArray = range_arr(Math.min(histogramData.length,overlappedHistogramData.length))
+        const data = minArray.map((profile, index) => {
           return {
             group: index,
-            profile: profile.axisY,
+            profile: histogramData[index].axisY,
             reference_profile: overlappedHistogramData[index].axisY
           }
         }).slice(0, 20)
@@ -1885,10 +1892,13 @@
           histogramData = chartData(datas)
           overlappedHistogramData = chartData(referenceData.columns[key.data.key])
         }
-        const data = histogramData.map((value, index) => {
-          const difference = value.axisY - overlappedHistogramData[index].axisY
+
+        minArray = range_arr(Math.min(histogramData.length,overlappedHistogramData.length))
+
+        const data = minArray.map((value, index) => {
+          const difference = histogramData[index].axisY - overlappedHistogramData[index].axisY
           const negativeValues = difference < 0 ? difference : 0
-          return [+value.axisY, negativeValues]
+          return [+histogramData[index].axisY, negativeValues]
         }).slice(0, 20).flat()
 
         let yFormat,
@@ -2666,7 +2676,7 @@
           ${frequentItemBoxElement('',chipElementTableData(items[item].value))}
         `
         referenceFrequentItemString += `
-          ${frequentItemBoxElement('',chipElementTableData(referenceItems[item].value))}
+          ${frequentItemBoxElement('',chipElementTableData(referenceItems[item]?.value ?? ''))}
         `
       }
     );
