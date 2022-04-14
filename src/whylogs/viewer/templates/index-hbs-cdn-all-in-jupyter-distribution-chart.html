@@ -387,7 +387,7 @@
           $(document).ready(() => 
             $(".desktop-content").html(`
               <p style="height: ${$(window).height()}px" class="error-message"> 
-                Double Histogram chart failed. Check variables are supported.
+                Error: ${$(err).message}
               </p>
             `)
           )
