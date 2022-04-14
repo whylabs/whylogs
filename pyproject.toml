@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "0.7.3"
+version = "0.7.4"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
