@@ -86,11 +86,12 @@ class NotebookProfileViewer:
         if not feature_names:
             return None
 
+        template = self.__get_compiled_template(template_name)
         reference_profile_features, target_profile_features = self.__get_feature_data(feature_names)
-        distribution_chart = self.__convert_feature_to_json(reference_profile_features, target_profile_features)
+        distribution_chart = self.__convert_feature_to_json(template, reference_profile_features, target_profile_features)
         return self.__display_rendered_template(distribution_chart, template_name, preferred_cell_height)
 
-    def __convert_feature_to_json(self, reference_profile_features, target_profile_features):
+    def __convert_feature_to_json(self, template, reference_profile_features, target_profile_features):
         distribution_chart = template(
             {"profile_from_whylogs": json.dumps(target_profile_features),
              "reference_profile_from_whylogs": json.dumps(reference_profile_features)}
