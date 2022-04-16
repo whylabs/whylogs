@@ -56,24 +56,55 @@ class NotebookProfileViewer:
         template = compiler.compile(source)
         return template
 
-    def __display_feature_chart(self, feature_names, template_name, preferred_cell_height=None):
-        if type(feature_names) is not list:
-            feature_names = [feature_names]
-        template = self.__get_compiled_template(template_name)
-        if self._reference_profile:
-            target_profile_columns = json.loads(self._target_profile_json).get("columns")
-            reference_profile_columns = json.loads(self._reference_profile_json).get("columns")
-            target_profile_features, reference_profile_features = {}, {}
-            for feature_name in feature_names:
-                target_profile_features[feature_name] = target_profile_columns.get(feature_name)
-                reference_profile_features[feature_name] = reference_profile_columns.get(feature_name)
-            distribution_chart = template(
-                {"profile_from_whylogs": json.dumps(target_profile_features), "reference_profile_from_whylogs": json.dumps(reference_profile_features)}
-            )
-            return self.__display_rendered_template(distribution_chart, template_name, preferred_cell_height)
-        else:
+    def __display_histogram_chart(self, feature_names, template_name, range=None, preferred_cell_height=None):
+        feature_names = self.__pre_feature_chart_checks(feature_names)
+        if not feature_names:
+            return None
+
+        reference_profile_features, target_profile_features = self.__get_feature_data(feature_names)
+
+        for feature_name in feature_names:
+            pass # this is where to implement the histogram
+
+        distribution_chart = self.__convert_feature_to_json(reference_profile_features, target_profile_features)
+        return self.__display_rendered_template(distribution_chart, template_name, preferred_cell_height)
+
+    def __pre_feature_chart_checks(self, feature_names):
+        # Check it's a reference profile
+        if not self._reference_profile:
             logger.warning("This method has to get both target and reference profiles, with valid feature title")
             return None
+
+        # If it's not a list make it a list with one element
+        if type(feature_names) is not list:
+            feature_names = [feature_names]
+
+        return feature_names
+
+    def __display_feature_chart(self, feature_names, template_name, preferred_cell_height=None):
+        feature_names = self.__pre_feature_chart_checks(feature_names)
+        if not feature_names:
+            return None
+
+        reference_profile_features, target_profile_features = self.__get_feature_data(feature_names)
+        distribution_chart = self.__convert_feature_to_json(reference_profile_features, target_profile_features)
+        return self.__display_rendered_template(distribution_chart, template_name, preferred_cell_height)
+
+    def __convert_feature_to_json(self, reference_profile_features, target_profile_features):
+        distribution_chart = template(
+            {"profile_from_whylogs": json.dumps(target_profile_features),
+             "reference_profile_from_whylogs": json.dumps(reference_profile_features)}
+        )
+        return distribution_chart
+
+    def __get_feature_data(self, feature_names):
+        target_profile_columns = json.loads(self._target_profile_json).get("columns")
+        reference_profile_columns = json.loads(self._reference_profile_json).get("columns")
+        target_profile_features, reference_profile_features = {}, {}
+        for feature_name in feature_names:
+            target_profile_features[feature_name] = target_profile_columns.get(feature_name)
+            reference_profile_features[feature_name] = reference_profile_columns.get(feature_name)
+        return reference_profile_features, target_profile_features
 
     def __display_rendered_template(self, template, template_name, height):
         if not height:
