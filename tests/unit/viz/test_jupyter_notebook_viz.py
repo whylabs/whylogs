@@ -16,7 +16,7 @@ from whylogs.core.statistics.constraints import (
     columnValuesUniqueWithinRow,
     sumOfRowValuesOfMultipleColumnsEqualsConstraint,
 )
-from whylogs.viz import NotebookProfileViewer
+from whylogs.viz import NotebookProfileVisualizer
 
 
 def __generate_target_profile():
@@ -96,17 +96,17 @@ def _get_sample_dataset_constraints():
     )
 
 
-def test_notebook_profile_viewer_set_profiles():
+def test_notebook_profile_visualizer_set_profiles():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
 
 
 def test_summary_drift_report_without_preferred_height():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.summary_drift_report()
 
@@ -114,7 +114,7 @@ def test_summary_drift_report_without_preferred_height():
 def test_summary_drift_report_with_preferred_height():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.summary_drift_report()
 
@@ -122,7 +122,7 @@ def test_summary_drift_report_with_preferred_height():
 def test_feature_statistics_not_passing_profile_type():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.feature_statistics("uniform_integers")
 
@@ -130,7 +130,7 @@ def test_feature_statistics_not_passing_profile_type():
 def test_feature_statistics_passing_profile_type():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.feature_statistics("uniform_integers", "target")
 
@@ -138,7 +138,7 @@ def test_feature_statistics_passing_profile_type():
 def test_feature_statistics_passing_profile_type_and_prefered_height():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.feature_statistics("uniform_integers", "target", "1000px")
 
@@ -146,7 +146,7 @@ def test_feature_statistics_passing_profile_type_and_prefered_height():
 def test_download_passing_all_arguments(tmpdir):
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
 
     download = viz.download(viz.summary_drift_report(), tmpdir, html_file_name="foo")
@@ -156,7 +156,7 @@ def test_download_passing_all_arguments(tmpdir):
 def test_constraints_report_without_preferred_height():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     dc = _get_sample_dataset_constraints()
     viz.constraints_report(dc)
@@ -165,7 +165,7 @@ def test_constraints_report_without_preferred_height():
 def test_constraints_report_with_preferred_height():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     dc = _get_sample_dataset_constraints()
     viz.constraints_report(dc, preferred_cell_height="1000px")
@@ -174,7 +174,7 @@ def test_constraints_report_with_preferred_height():
 def test_double_histogram_without_height():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.double_histogram("uniform_integers")
 
@@ -182,7 +182,7 @@ def test_double_histogram_without_height():
 def test_double_histogram_with_height():
     target_profile = __generate_target_profile()
     reference_profile = __generate_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.double_histogram("uniform_integers", "1000px")
 
@@ -190,7 +190,7 @@ def test_double_histogram_with_height():
 def test_distribution_chart_without_height():
     target_profile = __generate_categorical_target_profile()
     reference_profile = __generate_categorical_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.distribution_chart("credit_card")
 
@@ -198,7 +198,7 @@ def test_distribution_chart_without_height():
 def test_distribution_chart_with_height():
     target_profile = __generate_categorical_target_profile()
     reference_profile = __generate_categorical_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.distribution_chart("credit_card", "1000px")
 
@@ -206,7 +206,7 @@ def test_distribution_chart_with_height():
 def test_difference_distribution_chart_without_height():
     target_profile = __generate_categorical_target_profile()
     reference_profile = __generate_categorical_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.difference_distribution_chart("credit_card")
 
@@ -214,6 +214,6 @@ def test_difference_distribution_chart_without_height():
 def test_difference_distribution_chart_with_height():
     target_profile = __generate_categorical_target_profile()
     reference_profile = __generate_categorical_reference_profile()
-    viz = NotebookProfileViewer()
+    viz = NotebookProfileVisualizer()
     viz.set_profiles(target_profile=target_profile, reference_profile=reference_profile)
     viz.difference_distribution_chart("credit_card", "1000px")

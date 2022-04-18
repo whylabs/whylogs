@@ -9,6 +9,7 @@ PARENT_DIR = os.path.join(TEST_DIR, os.pardir)
 
 skip_notebooks = [
     "Guest Session Demo.ipynb",
+    "Auto Segmentation.ipynb",
     "RAPIDS GPU Integration Example.ipynb",
     "Analysis.ipynb",
     "ROV-whylogs.ipynb",
