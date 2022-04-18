@@ -1,0 +1,6 @@
+_toc/*
+_toc
+_build/*
+_build
+samples/*.rst
+autoapi

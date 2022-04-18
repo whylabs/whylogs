@@ -23,7 +23,16 @@ _LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 
 
 class DatasetProfile(object):
+    """Dataset profile represents a collection of in-memory profiling stats for a dataset."""
+
     def __init__(self, schema: Optional[DatasetSchema] = None):
+        """
+        Init func.
+
+        Args:
+            schema: a :class:`DatasetSchema` object that
+        """
+
         if schema is None:
             schema = DatasetSchema()
         self._schema = schema

@@ -47,7 +47,7 @@ class DatasetSchema:
     >>> import pandas as pd
     >>> import numpy as np
     >>> from whylogs.core import DatasetSchema, DatasetProfile
-
+    >>>
     >>> class MySchema(DatasetSchema):
     ...    types = {
     ...        "col1": str,
