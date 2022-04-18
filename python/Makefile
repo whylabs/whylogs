@@ -1,6 +1,6 @@
-src.python := $(shell find ./whylogs_v1 -type f -name "*.py")
+src.python := $(shell find ./whylogs -type f -name "*.py")
 tst.python := $(shell find ./tests -type f -name "*.py")
-src.python.pyc := $(shell find ./whylogs_v1 -type f -name "*.pyc")
+src.python.pyc := $(shell find ./whylogs -type f -name "*.pyc")
 src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 
@@ -11,8 +11,8 @@ egg.dir := .eggs
 build.dir := build
 # This isn't exactly true but its the only thing that we easily know the name of at this point. Its a good proxy for
 # the wheel since its created along with it.
-build.wheel := $(dist.dir)/whylogs-v1-$(version).tar.gz
-build.proto.dir := whylogs_v1/core/proto
+build.wheel := $(dist.dir)/whylogs-$(version).tar.gz
+build.proto.dir := whylogs/core/proto
 build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$(src.proto))
 
 default: dist

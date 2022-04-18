@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from whylogs_v1.core import ColumnProfile, ColumnProfileView, ColumnSchema
+from whylogs.core import ColumnProfile, ColumnProfileView, ColumnSchema
 
 
 class TestListElements(unittest.TestCase):

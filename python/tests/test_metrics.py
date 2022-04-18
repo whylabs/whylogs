@@ -1,9 +1,9 @@
 import numpy as np
 
-from whylogs_v1.core import ColumnSchema
-from whylogs_v1.core.metrics.maths import VarianceM2Result, parallel_variance_m2
-from whylogs_v1.core.metrics.metrics import DistributionMetric
-from whylogs_v1.core.preprocessing import PreprocessColumn
+from whylogs.core import ColumnSchema
+from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2
+from whylogs.core.metrics.metrics import DistributionMetric
+from whylogs.core.preprocessing import PreprocessColumn
 
 
 def test_distribution_metrics_numpy() -> None:

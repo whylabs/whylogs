@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from whylogs_v1.core.configs import SummaryConfig
-from whylogs_v1.core.metrics.metric_components import IntegralComponent
-from whylogs_v1.core.metrics.metrics import ColumnSchema, Metric, OperationResult
-from whylogs_v1.core.preprocessing import PreprocessColumn
+from whylogs.core.configs import SummaryConfig
+from whylogs.core.metrics.metric_components import IntegralComponent
+from whylogs.core.metrics.metrics import ColumnSchema, Metric, OperationResult
+from whylogs.core.preprocessing import PreprocessColumn
 
 
 @dataclass(frozen=True)

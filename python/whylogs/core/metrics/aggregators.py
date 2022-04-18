@@ -2,11 +2,11 @@ from typing import Callable, Dict, Generic, Optional, TypeVar
 
 import whylogs_datasketches as ds  # type: ignore
 
-from whylogs_v1.core.metrics.decorators import DecoratedFunction, _decorate_func
+from whylogs.core.metrics.decorators import DecoratedFunction, _decorate_func
 
 M = TypeVar("M")
 
-_MAX_BUILT_IN_INDEX = 100
+_MAX_BUILT_IN_ID = 100
 
 
 class _Aggregator(DecoratedFunction, Generic[M]):
@@ -27,7 +27,7 @@ class _Aggregator(DecoratedFunction, Generic[M]):
 
 
 _TYPED_AGGREGATORS: Dict[type, _Aggregator] = {}
-_INDEXED_AGGREGATORS: Dict[int, _Aggregator] = {}
+_ID_AGGREGATORS: Dict[int, _Aggregator] = {}
 
 
 def _typed_aggregator(*, mtype: type, name: str) -> Callable[[Callable], _Aggregator]:
@@ -36,13 +36,13 @@ def _typed_aggregator(*, mtype: type, name: str) -> Callable[[Callable], _Aggreg
     return decorated
 
 
-def _indexed_aggregator(*, index: int, name: str):  # type: ignore
-    if index <= 0:
-        raise ValueError("Index must be a positive value")
-    if index > _MAX_BUILT_IN_INDEX:
-        raise ValueError("Built in index must be less than 100")
+def _id_aggregator(*, type_id: int, name: str):  # type: ignore
+    if type_id <= 0:
+        raise ValueError("Id must be a positive value")
+    if type_id > _MAX_BUILT_IN_ID:
+        raise ValueError("Built in id must be less than 100")
 
-    decorated = _decorate_func(key=index, name=f"builtin.{name}", wrapper_dict=_INDEXED_AGGREGATORS, clazz=_Aggregator)
+    decorated = _decorate_func(key=type_id, name=f"builtin.{name}", wrapper_dict=_ID_AGGREGATORS, clazz=_Aggregator)
 
     return decorated
 
@@ -88,15 +88,15 @@ def _fs_merge(lhs: ds.frequent_strings_sketch, rhs: ds.frequent_strings_sketch) 
 
 class AggregatorRegistry:
     def __init__(self) -> None:
-        self._indexed_aggs: Dict[int, _Aggregator] = _INDEXED_AGGREGATORS.copy()
+        self._id_aggs: Dict[int, _Aggregator] = _ID_AGGREGATORS.copy()
         self._typed_aggs = _TYPED_AGGREGATORS.copy()
 
-    def get(self, *, index: int = 0, mtype: Optional[type] = None) -> Optional[_Aggregator]:
-        if mtype is None and index <= 0:
-            raise ValueError("index or metric component type must be set")
+    def get(self, *, type_id: int = 0, mtype: Optional[type] = None) -> Optional[_Aggregator]:
+        if mtype is None and type_id <= 0:
+            raise ValueError("id or metric component type must be set")
         result = None
-        if index > 0:
-            result = self._indexed_aggs.get(index)
+        if type_id > 0:
+            result = self._id_aggs.get(type_id)
         if result is None and mtype:
             result = self._typed_aggs.get(mtype)
         return result
@@ -105,24 +105,22 @@ class AggregatorRegistry:
 _STANDARD_REGISTRY = AggregatorRegistry()
 
 
-def aggregator(*, index: int, registry: Optional[AggregatorRegistry] = None):  # type: ignore
-    if index < _MAX_BUILT_IN_INDEX:
+def aggregator(*, type_id: int, registry: Optional[AggregatorRegistry] = None):  # type: ignore
+    if type_id < _MAX_BUILT_IN_ID:
         raise ValueError("Custom aggregator identifier must be equal or greater than 100")
 
     if registry is None:
         registry = _STANDARD_REGISTRY
 
-    decorated = _decorate_func(
-        key=index, name=f"custom.{index}", wrapper_dict=registry._indexed_aggs, clazz=_Aggregator
-    )
+    decorated = _decorate_func(key=type_id, name=f"custom.{type_id}", wrapper_dict=registry._id_aggs, clazz=_Aggregator)
 
     return decorated
 
 
 def get_aggregator(
-    *, index: int = 0, mtype: Optional[type] = None, registry: Optional[AggregatorRegistry] = None  # force kwargs
+    *, type_id: int = 0, mtype: Optional[type] = None, registry: Optional[AggregatorRegistry] = None  # force kwargs
 ) -> Optional[_Aggregator]:
     if registry is None:
         registry = _STANDARD_REGISTRY
 
-    return registry.get(index=index, mtype=mtype)
+    return registry.get(type_id=type_id, mtype=mtype)

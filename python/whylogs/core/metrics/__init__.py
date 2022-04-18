@@ -1,10 +1,7 @@
 from enum import Enum
 
-from whylogs_v1.core.metrics.column_metrics import (
-    ColumnCountsMetric,
-    TypeCountersMetric,
-)
-from whylogs_v1.core.metrics.metrics import (
+from whylogs.core.metrics.column_metrics import ColumnCountsMetric, TypeCountersMetric
+from whylogs.core.metrics.metrics import (
     CardinalityMetric,
     DistributionMetric,
     FrequentItemsMetric,

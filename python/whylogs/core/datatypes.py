@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, List, Optional, Type, TypeVar, Union
 
-from whylogs_v1.core.common import COMMON_COLUMNAR_TYPES
-from whylogs_v1.core.stubs import np
-from whylogs_v1.core.stubs import pd as pd
+from whylogs.core.common import COMMON_COLUMNAR_TYPES
+from whylogs.core.stubs import np
+from whylogs.core.stubs import pd as pd
 
 try:
     from pandas.core.api import CategoricalDtype

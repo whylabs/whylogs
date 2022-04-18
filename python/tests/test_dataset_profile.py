@@ -1,7 +1,7 @@
 import numpy
 import pandas as pd
 
-from whylogs_v1.core import DatasetProfile, DatasetProfileView, DatasetSchema
+from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 
 
 def test_basic_dataset_profile() -> None:

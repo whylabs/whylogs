@@ -2,10 +2,10 @@ import logging
 from enum import Enum
 from typing import Dict, Optional
 
-from whylogs_v1.core.configs import SummaryConfig
-from whylogs_v1.core.proto import DatasetProfileMessage
-from whylogs_v1.core.stubs import pd
-from whylogs_v1.core.view.column_profile_view import ColumnProfileView
+from whylogs.core.configs import SummaryConfig
+from whylogs.core.proto import DatasetProfileMessage
+from whylogs.core.stubs import pd
+from whylogs.core.view.column_profile_view import ColumnProfileView
 
 logger = logging.getLogger(__name__)
 

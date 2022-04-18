@@ -1,7 +1,7 @@
 [tool.isort]
 profile = "black"
-src_paths = ["whylogs_v1", "tests"]
-skip = ["whylogs_v1/core/proto/", ".venv"]
+src_paths = ["whylogs", "tests"]
+skip = ["whylogs/core/proto/", ".venv"]
 multi_line_output = 3
 
 
@@ -9,7 +9,7 @@ multi_line_output = 3
 disallow_incomplete_defs = true
 disallow_untyped_defs = true
 explicit_package_bases = true
-files = ["whylogs_v1/**/*.py"]
+files = ["whylogs/**/*.py"]
 namespace_packages = true
 show_error_codes = true
 plugins = [
@@ -29,7 +29,7 @@ exclude = '''
     | build
     | dist
     | tests
-    | whylogs_v1/core/proto
+    | whylogs/core/proto
     | *.pyi
   )/
   | foo.py           # also separately exclude a file named foo.py in
@@ -39,14 +39,14 @@ exclude = '''
 
 
 [tool.poetry]
-name = "whylogs_v1"
+name = "whylogs"
 version = "1.0.0"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
 homepage = "https://docs.whylabs.ai"
 readme = "README.md"
-include = ["whylogs_v1/py.typed"]
+include = ["whylogs/py.typed"]
 
 [tool.poetry.dependencies]
 python = ">=3.7.1, <4.0"
@@ -100,7 +100,7 @@ exclude = '''
     | build
     | dist
     | tests
-    | whylogs_v1/core/proto
+    | whylogs/core/proto
   )/
   | foo.py           # also separately exclude a file named foo.py in
                      # the root of the project

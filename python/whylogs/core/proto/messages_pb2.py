@@ -15,7 +15,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0emessages.proto\x1a\x1cgoogle/protobuf/struct.proto\"~\n\x08\x44\x61taType\x12\x1c\n\x04type\x18\x01 \x01(\x0e\x32\x0e.DataType.Type\"T\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04NULL\x10\x01\x12\x0e\n\nFRACTIONAL\x10\x02\x12\x0c\n\x08INTEGRAL\x10\x03\x12\x0b\n\x07\x42OOLEAN\x10\x04\x12\n\n\x06STRING\x10\x05\"0\n\x10HllSketchMessage\x12\x0e\n\x06sketch\x18\x01 \x01(\x0c\x12\x0c\n\x04lg_k\x18\x02 \x01(\x05\">\n\x1a\x46requentItemsSketchMessage\x12\x0e\n\x06sketch\x18\x01 \x01(\x0c\x12\x10\n\x08lg_max_k\x18\x02 \x01(\x05\"1\n\x10KllSketchMessage\x12\x0e\n\x06sketch\x18\x01 \x01(\x0c\x12\r\n\x01k\x18\x02 \x01(\x05\x42\x02\x18\x01\"\x8b\x02\n\x16MetricComponentMessage\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0b\n\x01n\x18\x02 \x01(\x03H\x00\x12\x0b\n\x01\x64\x18\x03 \x01(\x01H\x00\x12\x35\n\x0e\x66requent_items\x18\x04 \x01(\x0b\x32\x1b.FrequentItemsSketchMessageH\x00\x12 \n\x03hll\x18\x05 \x01(\x0b\x32\x11.HllSketchMessageH\x00\x12 \n\x03kll\x18\x06 \x01(\x0b\x32\x11.KllSketchMessageH\x00\x12\x1a\n\x10serialized_bytes\x18\x07 \x01(\x0cH\x00\x12(\n\x06\x63ustom\x18\x0f \x01(\x0b\x32\x16.CustomMetricComponentH\x00\x42\x07\n\x05value\"t\n\x15\x43ustomMetricComponent\x12\x0c\n\x04name\x18\x01 \x01(\t\x12)\n\x06params\x18\x03 \x01(\x0b\x32\x17.google.protobuf.StructH\x00\x12\x1a\n\x10serialized_bytes\x18\x04 \x01(\x0cH\x00\x42\x06\n\x04item\"\xa2\x01\n\rMetricMessage\x12?\n\x11metric_components\x18\x01 \x03(\x0b\x32$.MetricMessage.MetricComponentsEntry\x1aP\n\x15MetricComponentsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.MetricComponentMessage:\x02\x38\x01\"\xa2\x01\n\rColumnMessage\x12?\n\x11metric_components\x18\x01 \x03(\x0b\x32$.ColumnMessage.MetricComponentsEntry\x1aP\n\x15MetricComponentsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.MetricComponentMessage:\x02\x38\x01\"\xd4\x02\n\x11\x44\x61tasetProperties\x12\x1c\n\x14schema_major_version\x18\x01 \x01(\r\x12\x1c\n\x14schema_minor_version\x18\x02 \x01(\r\x12\x12\n\nsession_id\x18\x03 \x01(\t\x12\x19\n\x11session_timestamp\x18\x04 \x01(\x03\x12\x16\n\x0e\x64\x61ta_timestamp\x18\x05 \x01(\x03\x12*\n\x04tags\x18\x06 \x03(\x0b\x32\x1c.DatasetProperties.TagsEntry\x12\x32\n\x08metadata\x18\x07 \x03(\x0b\x32 .DatasetProperties.MetadataEntry\x1a+\n\tTagsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd0\x02\n\x15\x44\x61tasetProfileMessage\x12&\n\nproperties\x18\x01 \x01(\x0b\x32\x12.DatasetProperties\x12\x34\n\x07\x63olumns\x18\x02 \x03(\x0b\x32#.DatasetProfileMessage.ColumnsEntry\x12G\n\x11metric_components\x18\x03 \x03(\x0b\x32,.DatasetProfileMessage.MetricComponentsEntry\x1a>\n\x0c\x43olumnsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1d\n\x05value\x18\x02 \x01(\x0b\x32\x0e.ColumnMessage:\x02\x38\x01\x1aP\n\x15MetricComponentsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.MetricComponentMessage:\x02\x38\x01\"\x99\x01\n\x0cMessageIndex\x12 \n\x04type\x18\x01 \x01(\x0e\x32\x12.MessageIndex.Type\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06offset\x18\x03 \x01(\t\x12\x0e\n\x06length\x18\x04 \x01(\t\x12\x18\n\x10\x65xtension_length\x18\x05 \x01(\t\"\x1f\n\x04Type\x12\x0b\n\x07\x44\x41TASET\x10\x00\x12\n\n\x06\x43OLUMN\x10\x01\"^\n\x14\x44\x61tasetProfileHeader\x12&\n\nproperties\x18\x01 \x01(\x0b\x32\x12.DatasetProperties\x12\x1e\n\x07indices\x18\x02 \x03(\x0b\x32\r.MessageIndex\"\x1d\n\x0c\x43ountMessage\x12\r\n\x05value\x18\x01 \x01(\x03\x42&\n\x18\x63om.whylogs.core.messageB\x08MessagesP\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0emessages.proto\x1a\x1cgoogle/protobuf/struct.proto\"~\n\x08\x44\x61taType\x12\x1c\n\x04type\x18\x01 \x01(\x0e\x32\x0e.DataType.Type\"T\n\x04Type\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x08\n\x04NULL\x10\x01\x12\x0e\n\nFRACTIONAL\x10\x02\x12\x0c\n\x08INTEGRAL\x10\x03\x12\x0b\n\x07\x42OOLEAN\x10\x04\x12\n\n\x06STRING\x10\x05\"0\n\x10HllSketchMessage\x12\x0e\n\x06sketch\x18\x01 \x01(\x0c\x12\x0c\n\x04lg_k\x18\x02 \x01(\x05\">\n\x1a\x46requentItemsSketchMessage\x12\x0e\n\x06sketch\x18\x01 \x01(\x0c\x12\x10\n\x08lg_max_k\x18\x02 \x01(\x05\"1\n\x10KllSketchMessage\x12\x0e\n\x06sketch\x18\x01 \x01(\x0c\x12\r\n\x01k\x18\x02 \x01(\x05\x42\x02\x18\x01\"\x8d\x02\n\x16MetricComponentMessage\x12\x0f\n\x07type_id\x18\x01 \x01(\r\x12\x0b\n\x01n\x18\x02 \x01(\x03H\x00\x12\x0b\n\x01\x64\x18\x03 \x01(\x01H\x00\x12\x35\n\x0e\x66requent_items\x18\x04 \x01(\x0b\x32\x1b.FrequentItemsSketchMessageH\x00\x12 \n\x03hll\x18\x05 \x01(\x0b\x32\x11.HllSketchMessageH\x00\x12 \n\x03kll\x18\x06 \x01(\x0b\x32\x11.KllSketchMessageH\x00\x12\x1a\n\x10serialized_bytes\x18\x07 \x01(\x0cH\x00\x12(\n\x06\x63ustom\x18\x0f \x01(\x0b\x32\x16.CustomMetricComponentH\x00\x42\x07\n\x05value\"t\n\x15\x43ustomMetricComponent\x12\x0c\n\x04name\x18\x01 \x01(\t\x12)\n\x06params\x18\x03 \x01(\x0b\x32\x17.google.protobuf.StructH\x00\x12\x1a\n\x10serialized_bytes\x18\x04 \x01(\x0cH\x00\x42\x06\n\x04item\"\xa2\x01\n\rMetricMessage\x12?\n\x11metric_components\x18\x01 \x03(\x0b\x32$.MetricMessage.MetricComponentsEntry\x1aP\n\x15MetricComponentsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.MetricComponentMessage:\x02\x38\x01\"\xa2\x01\n\rColumnMessage\x12?\n\x11metric_components\x18\x01 \x03(\x0b\x32$.ColumnMessage.MetricComponentsEntry\x1aP\n\x15MetricComponentsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.MetricComponentMessage:\x02\x38\x01\"\xd4\x02\n\x11\x44\x61tasetProperties\x12\x1c\n\x14schema_major_version\x18\x01 \x01(\r\x12\x1c\n\x14schema_minor_version\x18\x02 \x01(\r\x12\x12\n\nsession_id\x18\x03 \x01(\t\x12\x19\n\x11session_timestamp\x18\x04 \x01(\x03\x12\x16\n\x0e\x64\x61ta_timestamp\x18\x05 \x01(\x03\x12*\n\x04tags\x18\x06 \x03(\x0b\x32\x1c.DatasetProperties.TagsEntry\x12\x32\n\x08metadata\x18\x07 \x03(\x0b\x32 .DatasetProperties.MetadataEntry\x1a+\n\tTagsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\x1a/\n\rMetadataEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\xd0\x02\n\x15\x44\x61tasetProfileMessage\x12&\n\nproperties\x18\x01 \x01(\x0b\x32\x12.DatasetProperties\x12\x34\n\x07\x63olumns\x18\x02 \x03(\x0b\x32#.DatasetProfileMessage.ColumnsEntry\x12G\n\x11metric_components\x18\x03 \x03(\x0b\x32,.DatasetProfileMessage.MetricComponentsEntry\x1a>\n\x0c\x43olumnsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x1d\n\x05value\x18\x02 \x01(\x0b\x32\x0e.ColumnMessage:\x02\x38\x01\x1aP\n\x15MetricComponentsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12&\n\x05value\x18\x02 \x01(\x0b\x32\x17.MetricComponentMessage:\x02\x38\x01\"\x99\x01\n\x0cMessageIndex\x12 \n\x04type\x18\x01 \x01(\x0e\x32\x12.MessageIndex.Type\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06offset\x18\x03 \x01(\t\x12\x0e\n\x06length\x18\x04 \x01(\t\x12\x18\n\x10\x65xtension_length\x18\x05 \x01(\t\"\x1f\n\x04Type\x12\x0b\n\x07\x44\x41TASET\x10\x00\x12\n\n\x06\x43OLUMN\x10\x01\"^\n\x14\x44\x61tasetProfileHeader\x12&\n\nproperties\x18\x01 \x01(\x0b\x32\x12.DatasetProperties\x12\x1e\n\x07indices\x18\x02 \x03(\x0b\x32\r.MessageIndex\"\x1d\n\x0c\x43ountMessage\x12\r\n\x05value\x18\x01 \x01(\x03\x42&\n\x18\x63om.whylogs.core.messageB\x08MessagesP\x01\x62\x06proto3')
 
 
 
@@ -208,35 +208,35 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _KLLSKETCHMESSAGE._serialized_start=290
   _KLLSKETCHMESSAGE._serialized_end=339
   _METRICCOMPONENTMESSAGE._serialized_start=342
-  _METRICCOMPONENTMESSAGE._serialized_end=609
-  _CUSTOMMETRICCOMPONENT._serialized_start=611
-  _CUSTOMMETRICCOMPONENT._serialized_end=727
-  _METRICMESSAGE._serialized_start=730
-  _METRICMESSAGE._serialized_end=892
-  _METRICMESSAGE_METRICCOMPONENTSENTRY._serialized_start=812
-  _METRICMESSAGE_METRICCOMPONENTSENTRY._serialized_end=892
-  _COLUMNMESSAGE._serialized_start=895
-  _COLUMNMESSAGE._serialized_end=1057
-  _COLUMNMESSAGE_METRICCOMPONENTSENTRY._serialized_start=812
-  _COLUMNMESSAGE_METRICCOMPONENTSENTRY._serialized_end=892
-  _DATASETPROPERTIES._serialized_start=1060
-  _DATASETPROPERTIES._serialized_end=1400
-  _DATASETPROPERTIES_TAGSENTRY._serialized_start=1308
-  _DATASETPROPERTIES_TAGSENTRY._serialized_end=1351
-  _DATASETPROPERTIES_METADATAENTRY._serialized_start=1353
-  _DATASETPROPERTIES_METADATAENTRY._serialized_end=1400
-  _DATASETPROFILEMESSAGE._serialized_start=1403
-  _DATASETPROFILEMESSAGE._serialized_end=1739
-  _DATASETPROFILEMESSAGE_COLUMNSENTRY._serialized_start=1595
-  _DATASETPROFILEMESSAGE_COLUMNSENTRY._serialized_end=1657
-  _DATASETPROFILEMESSAGE_METRICCOMPONENTSENTRY._serialized_start=812
-  _DATASETPROFILEMESSAGE_METRICCOMPONENTSENTRY._serialized_end=892
-  _MESSAGEINDEX._serialized_start=1742
-  _MESSAGEINDEX._serialized_end=1895
-  _MESSAGEINDEX_TYPE._serialized_start=1864
-  _MESSAGEINDEX_TYPE._serialized_end=1895
-  _DATASETPROFILEHEADER._serialized_start=1897
-  _DATASETPROFILEHEADER._serialized_end=1991
-  _COUNTMESSAGE._serialized_start=1993
-  _COUNTMESSAGE._serialized_end=2022
+  _METRICCOMPONENTMESSAGE._serialized_end=611
+  _CUSTOMMETRICCOMPONENT._serialized_start=613
+  _CUSTOMMETRICCOMPONENT._serialized_end=729
+  _METRICMESSAGE._serialized_start=732
+  _METRICMESSAGE._serialized_end=894
+  _METRICMESSAGE_METRICCOMPONENTSENTRY._serialized_start=814
+  _METRICMESSAGE_METRICCOMPONENTSENTRY._serialized_end=894
+  _COLUMNMESSAGE._serialized_start=897
+  _COLUMNMESSAGE._serialized_end=1059
+  _COLUMNMESSAGE_METRICCOMPONENTSENTRY._serialized_start=814
+  _COLUMNMESSAGE_METRICCOMPONENTSENTRY._serialized_end=894
+  _DATASETPROPERTIES._serialized_start=1062
+  _DATASETPROPERTIES._serialized_end=1402
+  _DATASETPROPERTIES_TAGSENTRY._serialized_start=1310
+  _DATASETPROPERTIES_TAGSENTRY._serialized_end=1353
+  _DATASETPROPERTIES_METADATAENTRY._serialized_start=1355
+  _DATASETPROPERTIES_METADATAENTRY._serialized_end=1402
+  _DATASETPROFILEMESSAGE._serialized_start=1405
+  _DATASETPROFILEMESSAGE._serialized_end=1741
+  _DATASETPROFILEMESSAGE_COLUMNSENTRY._serialized_start=1597
+  _DATASETPROFILEMESSAGE_COLUMNSENTRY._serialized_end=1659
+  _DATASETPROFILEMESSAGE_METRICCOMPONENTSENTRY._serialized_start=814
+  _DATASETPROFILEMESSAGE_METRICCOMPONENTSENTRY._serialized_end=894
+  _MESSAGEINDEX._serialized_start=1744
+  _MESSAGEINDEX._serialized_end=1897
+  _MESSAGEINDEX_TYPE._serialized_start=1866
+  _MESSAGEINDEX_TYPE._serialized_end=1897
+  _DATASETPROFILEHEADER._serialized_start=1899
+  _DATASETPROFILEHEADER._serialized_end=1993
+  _COUNTMESSAGE._serialized_start=1995
+  _COUNTMESSAGE._serialized_end=2024
 # @@protoc_insertion_point(module_scope)

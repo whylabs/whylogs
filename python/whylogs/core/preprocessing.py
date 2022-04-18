@@ -3,8 +3,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Iterable, Iterator, List, Optional, Union
 
-from whylogs_v1.core.stubs import np as np
-from whylogs_v1.core.stubs import pd as pd
+from whylogs.core.stubs import np as np
+from whylogs.core.stubs import pd as pd
 
 logger = logging.getLogger("whylogs.core.views")
 

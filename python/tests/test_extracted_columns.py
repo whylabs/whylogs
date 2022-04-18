@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from pandas.testing import assert_series_equal
 
-from whylogs_v1.core.preprocessing import PreprocessColumn
+from whylogs.core.preprocessing import PreprocessColumn
 
 
 def assert_zero_len(values: Optional[Union[List[Any], np.ndarray, pd.Series]]) -> None:

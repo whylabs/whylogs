@@ -2,12 +2,12 @@ from typing import Callable, Dict, Generic, Optional, TypeVar
 
 import whylogs_datasketches as ds  # type: ignore
 
-from whylogs_v1.core.metrics.decorators import (
+from whylogs.core.metrics.decorators import (
     DecoratedFunction,
     _decorate_func,
     _func_wrapper,
 )
-from whylogs_v1.core.proto import (
+from whylogs.core.proto import (
     FrequentItemsSketchMessage,
     HllSketchMessage,
     KllSketchMessage,
@@ -105,14 +105,14 @@ def _fs_merge(sketch: ds.frequent_strings_sketch) -> MetricComponentMessage:
 class SerializerRegistry:
     def __init__(self) -> None:
         self._typed_serializers = _TYPED_SERIALIZERS.copy()
-        self._indexed_serializer = _INDEXED_SERIALIZERS.copy()
+        self._id_serializer = _INDEXED_SERIALIZERS.copy()
 
-    def get(self, *, mtype: Optional[type] = None, index: int = 0) -> Optional[Serializer]:
-        if mtype is None and index <= 0:
-            raise ValueError("Please specify mtype or index")
+    def get(self, *, mtype: Optional[type] = None, type_id: int = 0) -> Optional[Serializer]:
+        if mtype is None and type_id <= 0:
+            raise ValueError("Please specify mtype or id")
         res: Optional[Serializer] = None
-        if index > 0:
-            res = self._indexed_serializer.get(index)
+        if type_id > 0:
+            res = self._id_serializer.get(type_id)
 
         if res is None and mtype is not None:
             res = self._typed_serializers.get(mtype)
@@ -124,20 +124,18 @@ _STANDARD_REGISTRY = SerializerRegistry()
 
 
 def get_serializer(
-    *, mtype: Optional[type] = None, index: int = 0, registry: Optional[SerializerRegistry] = None
+    *, mtype: Optional[type] = None, type_id: int = 0, registry: Optional[SerializerRegistry] = None
 ) -> Optional[Serializer]:
     if registry is None:
         registry = _STANDARD_REGISTRY
-    return registry.get(mtype=mtype, index=index)
+    return registry.get(mtype=mtype, type_id=type_id)
 
 
-def serializer(*, index: int, registry: SerializerRegistry = _STANDARD_REGISTRY):  # type: ignore
-    if index < _MAX_BUILT_IN_ID:
-        raise ValueError("Custom aggregator identifier must be equal or greater than 100")
+def serializer(*, type_id: int, registry: SerializerRegistry = _STANDARD_REGISTRY):  # type: ignore
+    if type_id < _MAX_BUILT_IN_ID:
+        raise ValueError("Custom aggregator id must be equal or greater than 100")
 
     if registry is None:
         registry = _STANDARD_REGISTRY
 
-    return _decorate_func(
-        key=index, name=f"custom.{index}", wrapper_dict=registry._indexed_serializer, clazz=Serializer
-    )
+    return _decorate_func(key=type_id, name=f"custom.{type_id}", wrapper_dict=registry._id_serializer, clazz=Serializer)

@@ -1,12 +1,12 @@
-import typing
+from typing import Any, Dict, Optional
 
-from whylogs_v1.api.profiling_results import ProfilingResults
-from whylogs_v1.core import DatasetProfile, DatasetProfileView, DatasetSchema
-from whylogs_v1.core.stubs import pd
+from whylogs.api.profiling_results import ProfilingResults
+from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
+from whylogs.core.stubs import pd
 
 
 class BasicCache(object):
-    _cache: typing.Dict[DatasetSchema, DatasetProfile] = {}
+    _cache: Dict[DatasetSchema, DatasetProfile] = {}
 
     def get(self, schema: DatasetSchema) -> DatasetProfile:
         candidate = self._cache.get(schema)
@@ -22,14 +22,17 @@ class Logger(object):
     def log(
         self,
         *,
-        pandas: typing.Optional[pd.DataFrame] = None,
-        row: typing.Optional[typing.Dict[str, typing.Any]] = None,
-        schema: typing.Optional[DatasetSchema] = None,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Dict[str, Any]] = None,
+        schema: Optional[DatasetSchema] = None,
     ) -> ProfilingResults:
         if schema is None:
             schema = DatasetSchema()
-        profile = self._cache.get(schema)
 
+        if schema.schema_based_automerge:
+            profile = self._cache.get(schema)
+        else:
+            profile = DatasetProfile(schema=schema)
         profile.track(pandas=pandas, row=row)
 
         return ProfilingResults(profile=profile)
@@ -40,9 +43,9 @@ _INSTANCE = Logger()
 
 def log(
     *,
-    pandas: typing.Optional[pd.DataFrame] = None,
-    row: typing.Optional[typing.Dict[str, typing.Any]] = None,
-    schema: typing.Optional[DatasetSchema] = None,
+    pandas: Optional[pd.DataFrame] = None,
+    row: Optional[Dict[str, Any]] = None,
+    schema: Optional[DatasetSchema] = None,
 ) -> ProfilingResults:
     return _INSTANCE.log(pandas=pandas, row=row, schema=schema)
 

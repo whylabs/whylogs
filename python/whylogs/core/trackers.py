@@ -1,9 +1,9 @@
 from typing import TypeVar
 
-from whylogs_v1.core.datatypes import DataType
-from whylogs_v1.core.metrics.metrics import Metric, OperationResult
-from whylogs_v1.core.preprocessing import PreprocessColumn
-from whylogs_v1.core.proto import MetricMessage
+from whylogs.core.datatypes import DataType
+from whylogs.core.metrics.metrics import Metric, OperationResult
+from whylogs.core.preprocessing import PreprocessColumn
+from whylogs.core.proto import MetricMessage
 
 
 class Tracker(object):

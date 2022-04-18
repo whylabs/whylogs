@@ -3,9 +3,9 @@ from typing import Dict, List, TypeVar
 
 from typing_extensions import TypeAlias
 
-from whylogs_v1.core.datatypes import DataType, Fractional, Integral, String
-from whylogs_v1.core.metrics import StandardMetric
-from whylogs_v1.core.metrics.metrics import Metric
+from whylogs.core.datatypes import DataType, Fractional, Integral, String
+from whylogs.core.metrics import StandardMetric
+from whylogs.core.metrics.metrics import Metric
 
 M = TypeVar("M", bound=Metric)
 ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore

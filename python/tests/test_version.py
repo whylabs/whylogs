@@ -1,4 +1,4 @@
-from whylogs_v1 import __version__, package_version
+from whylogs import __version__, package_version
 
 current_version = "1.0.0"
 

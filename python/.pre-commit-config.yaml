@@ -5,7 +5,7 @@ repos:
     rev: 22.3.0
     hooks:
       - id: black
-        exclude: python/whylogs_v1/core/proto/
+        exclude: python/whylogs/core/proto/
   - repo: https://github.com/pycqa/flake8
     rev: 4.0.1
     hooks:
@@ -17,7 +17,7 @@ repos:
             python/dist |
             \.eggs |
             python/docs |
-            python/whylogs_v1/core/proto/* |
+            python/whylogs/core/proto/* |
             \.venv"""
           - --extend-ignore=E203,W503
           - --max-complexity=20
@@ -27,13 +27,13 @@ repos:
     hooks:
       - id: isort
         args: [--filter-files]
-        exclude: python/whylogs_v1/core/proto/
+        exclude: python/whylogs/core/proto/
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.930
     hooks:
       - id: mypy
         language: system
-        exclude: python/tests/|python/whylogs_v1/core/proto/
+        exclude: python/tests/|python/whylogs/core/proto/
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.5.1
     hooks:

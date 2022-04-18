@@ -9,13 +9,13 @@ from typing import Any, Dict, Type, TypeVar, Union
 import whylogs_datasketches as ds  # type: ignore
 from typing_extensions import TypeAlias
 
-from whylogs_v1.core.configs import SummaryConfig
-from whylogs_v1.core.metrics.maths import (
+from whylogs.core.configs import SummaryConfig
+from whylogs.core.metrics.maths import (
     VarianceM2Result,
     parallel_variance_m2,
     welford_online_variance_m2,
 )
-from whylogs_v1.core.metrics.metric_components import (
+from whylogs.core.metrics.metric_components import (
     FractionalComponent,
     FrequentItemsComponent,
     HllComponent,
@@ -24,8 +24,8 @@ from whylogs_v1.core.metrics.metric_components import (
     MetricComponent,
     MinIntegralComponent,
 )
-from whylogs_v1.core.preprocessing import PreprocessColumn
-from whylogs_v1.core.proto import MetricMessage
+from whylogs.core.preprocessing import PreprocessColumn
+from whylogs.core.proto import MetricMessage
 
 T = TypeVar("T")
 M = TypeVar("M", bound=MetricComponent)

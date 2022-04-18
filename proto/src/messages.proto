@@ -35,7 +35,7 @@ message KllSketchMessage {
 }
 
 message MetricComponentMessage {
-  uint32 index = 1; // type index. It might determine how a field gets serder and the aggregation logic
+  uint32 type_id = 1; // type ID. It might determine how a field gets serder and the aggregation logic
 
   oneof value {
     // first class citizens
@@ -64,30 +64,6 @@ message MetricMessage {
 }
 
 message ColumnMessage {
-  // key: dist, cnt, int(max, min), fi(fi), card(hll),
-  // cnt: n, null
-  // type_cnt: bool, int, float, str, unknown
-  // int: max, min
-  // dist: hist, mean, m2
-  // fi: fi
-  // card: hll
-
-  // namespacing reserved for constraint checks
-  // chk/name1/n
-  // chk/name1/failed
-  // chk/name2/n
-  // chk/name2
-
-
-  // model perf
-  // confusion metrix: needs to a list of histograms, and indices if sparse matrix, labels that map
-
-
-
-  // custom extension metrics
-  // e.stfx_metric_1/my_bytes
-  // e.stfx_metric_1/my_counter
-
   map<string, MetricComponentMessage> metric_components = 1;
 }
 

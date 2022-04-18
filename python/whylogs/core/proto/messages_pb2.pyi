@@ -89,7 +89,7 @@ global___KllSketchMessage = KllSketchMessage
 
 class MetricComponentMessage(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
-    INDEX_FIELD_NUMBER: builtins.int
+    TYPE_ID_FIELD_NUMBER: builtins.int
     N_FIELD_NUMBER: builtins.int
     D_FIELD_NUMBER: builtins.int
     FREQUENT_ITEMS_FIELD_NUMBER: builtins.int
@@ -97,8 +97,8 @@ class MetricComponentMessage(google.protobuf.message.Message):
     KLL_FIELD_NUMBER: builtins.int
     SERIALIZED_BYTES_FIELD_NUMBER: builtins.int
     CUSTOM_FIELD_NUMBER: builtins.int
-    index: builtins.int
-    """type index. It might determine how a field gets serder and the aggregation logic"""
+    type_id: builtins.int
+    """type ID. It might determine how a field gets serder and the aggregation logic"""
 
     n: builtins.int
     """first class citizens"""
@@ -117,7 +117,7 @@ class MetricComponentMessage(google.protobuf.message.Message):
     def custom(self) -> global___CustomMetricComponent: ...
     def __init__(self,
         *,
-        index: builtins.int = ...,
+        type_id: builtins.int = ...,
         n: builtins.int = ...,
         d: builtins.float = ...,
         frequent_items: typing.Optional[global___FrequentItemsSketchMessage] = ...,
@@ -127,7 +127,7 @@ class MetricComponentMessage(google.protobuf.message.Message):
         custom: typing.Optional[global___CustomMetricComponent] = ...,
         ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["custom",b"custom","d",b"d","frequent_items",b"frequent_items","hll",b"hll","kll",b"kll","n",b"n","serialized_bytes",b"serialized_bytes","value",b"value"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["custom",b"custom","d",b"d","frequent_items",b"frequent_items","hll",b"hll","index",b"index","kll",b"kll","n",b"n","serialized_bytes",b"serialized_bytes","value",b"value"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["custom",b"custom","d",b"d","frequent_items",b"frequent_items","hll",b"hll","kll",b"kll","n",b"n","serialized_bytes",b"serialized_bytes","type_id",b"type_id","value",b"value"]) -> None: ...
     def WhichOneof(self, oneof_group: typing_extensions.Literal["value",b"value"]) -> typing.Optional[typing_extensions.Literal["n","d","frequent_items","hll","kll","serialized_bytes","custom"]]: ...
 global___MetricComponentMessage = MetricComponentMessage
 
@@ -179,14 +179,6 @@ class MetricMessage(google.protobuf.message.Message):
 global___MetricMessage = MetricMessage
 
 class ColumnMessage(google.protobuf.message.Message):
-    """key: dist, cnt, int(max, min), fi(fi), card(hll),
-    cnt: n, null
-    type_cnt: bool, int, float, str, unknown
-    int: max, min
-    dist: hist, mean, m2
-    fi: fi
-    card: hll
-    """
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     class MetricComponentsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -205,22 +197,7 @@ class ColumnMessage(google.protobuf.message.Message):
 
     METRIC_COMPONENTS_FIELD_NUMBER: builtins.int
     @property
-    def metric_components(self) -> google.protobuf.internal.containers.MessageMap[typing.Text, global___MetricComponentMessage]:
-        """namespacing reserved for constraint checks
-        chk/name1/n
-        chk/name1/failed
-        chk/name2/n
-        chk/name2
-
-        model perf
-        confusion metrix: needs to a list of histograms, and indices if sparse matrix, labels that map
-
-        custom extension metrics
-        e.stfx_metric_1/my_bytes
-        e.stfx_metric_1/my_counter
-
-        """
-        pass
+    def metric_components(self) -> google.protobuf.internal.containers.MessageMap[typing.Text, global___MetricComponentMessage]: ...
     def __init__(self,
         *,
         metric_components: typing.Optional[typing.Mapping[typing.Text, global___MetricComponentMessage]] = ...,

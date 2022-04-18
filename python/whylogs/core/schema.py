@@ -2,10 +2,10 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Mapping, Optional, TypeVar
 
-from whylogs_v1.core.datatypes import StandardTypeMapper, TypeMapper
-from whylogs_v1.core.metrics import Metric
-from whylogs_v1.core.resolvers import Resolver, StandardResolver
-from whylogs_v1.core.stubs import pd
+from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
+from whylogs.core.metrics import Metric
+from whylogs.core.resolvers import Resolver, StandardResolver
+from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class DatasetSchema:
     --------
     >>> import pandas as pd
     >>> import numpy as np
-    >>> from whylogs_v1.core import DatasetSchema, DatasetProfile
+    >>> from whylogs.core import DatasetSchema, DatasetProfile
 
     >>> class MySchema(DatasetSchema):
     ...    types = {
@@ -67,6 +67,7 @@ class DatasetSchema:
     type_mapper: TypeMapper = StandardTypeMapper()
     resolvers: Resolver = StandardResolver()
     cache_size: int = 1024
+    schema_based_automerge: bool = False
 
     def __init__(self) -> None:
         self._columns = {}

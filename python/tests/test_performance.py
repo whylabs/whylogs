@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from whylogs_v1.core import ColumnProfile, ColumnSchema
+from whylogs.core import ColumnProfile, ColumnSchema
 
 TEST_LOGGER = getLogger(__name__)
 

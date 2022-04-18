@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from whylogs_v1.core.datatypes import (
+from whylogs.core.datatypes import (
     AnyType,
     Fractional,
     Integral,

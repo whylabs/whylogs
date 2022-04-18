@@ -1,4 +1,4 @@
-from whylogs_v1.core import DatasetProfile, DatasetProfileView
+from whylogs.core import DatasetProfile, DatasetProfileView
 
 
 class ProfilingResults:

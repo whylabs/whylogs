@@ -1,5 +1,5 @@
 """
-whylogs_v1
+whylogs
 ---
 """
 from .api import log, read, write

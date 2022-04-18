@@ -3,14 +3,14 @@ from typing import Generic, Optional, Type, TypeVar
 
 import whylogs_datasketches as ds  # type: ignore
 
-from whylogs_v1.core.metrics.aggregators import (
+from whylogs.core.metrics.aggregators import (
     AggregatorRegistry,
-    _indexed_aggregator,
+    _id_aggregator,
     get_aggregator,
 )
-from whylogs_v1.core.metrics.deserializers import DeserializerRegistry, get_deserializer
-from whylogs_v1.core.metrics.serializers import SerializerRegistry, get_serializer
-from whylogs_v1.core.proto import MetricComponentMessage
+from whylogs.core.metrics.deserializers import DeserializerRegistry, get_deserializer
+from whylogs.core.metrics.serializers import SerializerRegistry, get_serializer
+from whylogs.core.proto import MetricComponentMessage
 
 T = TypeVar("T")
 M = TypeVar("M", bound="MetricComponent")
@@ -35,7 +35,7 @@ class MetricComponent(Generic[T]):
     """
 
     mtype: Optional[Type[T]]
-    index: int = 0
+    type_id: int = 0
     registries: Optional[Registries] = None
 
     def __init__(self, value: T):
@@ -46,10 +46,14 @@ class MetricComponent(Generic[T]):
             registries = Registries()
 
         self._registries = registries
-        self._aggregator = get_aggregator(mtype=self.mtype, index=self.index, registry=registries.aggregatorRegistry)
-        self._serializer = get_serializer(mtype=self.mtype, index=self.index, registry=registries.serializerRegistry)
+        self._aggregator = get_aggregator(
+            mtype=self.mtype, type_id=self.type_id, registry=registries.aggregatorRegistry
+        )
+        self._serializer = get_serializer(
+            mtype=self.mtype, type_id=self.type_id, registry=registries.serializerRegistry
+        )
         self._deserializer = get_deserializer(
-            mtype=self.mtype, index=self.index, registry=registries.deserializerRegistry
+            mtype=self.mtype, type_id=self.type_id, registry=registries.deserializerRegistry
         )
 
         if self._serializer is None and self._deserializer is not None:
@@ -67,20 +71,19 @@ class MetricComponent(Generic[T]):
     def __add__(self: M, other: M) -> M:
         if self._aggregator is None:
             raise ValueError(
-                f"Attempting to aggregate metric component without an aggregator. Type: {self.mtype} with index: "
-                f"{self.index}"
+                f"Attempting to aggregate metric component without an aggregator. Type: {self.mtype} with ID: "
+                f"{self.type_id}"
             )
         return self.__class__(self._aggregator(self.value, other.value))
 
     def serialize(self) -> MetricComponentMessage:
         if self._serializer is None:
             raise ValueError(
-                f"Attempting to serialize metric component without a serializer. Type: {self.mtype} with "
-                f"index: "
-                f"{self.index}"
+                f"Attempting to serialize metric component without a serializer. Type: {self.mtype} with ID: "
+                f"{self.type_id}"
             )
         msg = self._serializer(value=self._value)
-        msg.index = self.index
+        msg.type_id = self.type_id
         return msg
 
     @classmethod
@@ -98,13 +101,13 @@ class MetricComponent(Generic[T]):
             _mtype = ds.hll_sketch
         elif field == "kll":
             _mtype = ds.kll_doubles_sketch
-        _index = msg.index
+        _type_id = msg.type_id
 
         _registries = registries
 
         class DeserializedComponent(MetricComponent[M]):
             mtype = _mtype
-            index = msg.index
+            type_id = msg.type_id
             registries = _registries
 
         component = DeserializedComponent(value=None)  # type: ignore
@@ -112,7 +115,7 @@ class MetricComponent(Generic[T]):
             component._value = component._deserializer(msg=msg)
             return component  # type: ignore
         else:
-            raise ValueError(f"Attempt to deserialize a type without a deserializer. Type: {_mtype}. Index: {_index}")
+            raise ValueError(f"Attempt to deserialize a type without a deserializer. Type: {_mtype}. ID: {_type_id}")
 
 
 class IntegralComponent(MetricComponent[int]):
@@ -121,20 +124,20 @@ class IntegralComponent(MetricComponent[int]):
 
 class MinIntegralComponent(MetricComponent[int]):
     mtype = int
-    index = 1
+    type_id = 1
 
     @staticmethod
-    @_indexed_aggregator(index=index, name="min")
+    @_id_aggregator(type_id=type_id, name="min")
     def min(lhs: int, rhs: int) -> int:
         return min([lhs, rhs])
 
 
 class MaxIntegralComponent(MetricComponent[int]):
     mtype = int
-    index = 2
+    type_id = 2
 
     @staticmethod
-    @_indexed_aggregator(index=index, name="max")
+    @_id_aggregator(type_id=type_id, name="max")
     def max(lhs: int, rhs: int) -> int:
         return max([lhs, rhs])
 
@@ -156,9 +159,9 @@ class FrequentItemsComponent(MetricComponent[ds.frequent_strings_sketch]):
 
 
 class CustomComponent(Generic[T], MetricComponent[T]):
-    index = -1
+    type_id = -1
 
     def __init__(self, value: T) -> None:
-        if self.index < 100:
+        if self.type_id < 100:
             raise ValueError("Custom metric component must have type index greater or equal to 100")
         super().__init__(value)

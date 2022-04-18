@@ -2,12 +2,12 @@ from typing import Any, Callable, Dict, Optional, TypeVar
 
 import whylogs_datasketches as ds  # type: ignore
 
-from whylogs_v1.core.metrics.decorators import (
+from whylogs.core.metrics.decorators import (
     DecoratedFunction,
     _decorate_func,
     _func_wrapper,
 )
-from whylogs_v1.core.proto import MetricComponentMessage
+from whylogs.core.proto import MetricComponentMessage
 
 M = TypeVar("M")
 NUM = TypeVar("NUM", float, int)
@@ -34,7 +34,7 @@ class _Deserializer(DecoratedFunction):
 
 # these are all built in and initialized at imports
 _TYPED_DESERIALIZERS: Dict[type, _Deserializer] = {}
-_INDEXED_DESERIALIZERS: Dict[int, _Deserializer] = {}
+_ID_DESERIALIZERS: Dict[int, _Deserializer] = {}
 
 
 def _builtin_deserializer(*, name: str) -> Callable[[Callable], _Deserializer]:
@@ -111,14 +111,14 @@ def _fs_merge(msg: MetricComponentMessage) -> ds.frequent_strings_sketch:
 class DeserializerRegistry:
     def __init__(self) -> None:
         self._typed_deserializer = _TYPED_DESERIALIZERS.copy()
-        self._indexed_deserializer = _INDEXED_DESERIALIZERS.copy()
+        self._id_deserializer = _ID_DESERIALIZERS.copy()
 
-    def get(self, *, mtype: Optional[type] = None, index: int = 0) -> Optional[_Deserializer]:
-        if mtype is None and index <= 0:
-            raise ValueError("Either mtype or a positive index must be specified")
+    def get(self, *, mtype: Optional[type] = None, type_id: int = 0) -> Optional[_Deserializer]:
+        if mtype is None and type_id <= 0:
+            raise ValueError("Either mtype or a positive ID must be specified")
         result = None
-        if index > 0:
-            result = self._indexed_deserializer.get(index)
+        if type_id > 0:
+            result = self._id_deserializer.get(type_id)
 
         if result is None and mtype is not None:
             result = self._typed_deserializer.get(mtype)
@@ -129,19 +129,19 @@ _STANDARD_REGISTRY = DeserializerRegistry()
 
 
 def get_deserializer(
-    *, mtype: Optional[type] = None, index: int = 0, registry: Optional[DeserializerRegistry] = None
+    *, mtype: Optional[type] = None, type_id: int = 0, registry: Optional[DeserializerRegistry] = None
 ) -> Optional[_Deserializer]:
     if registry is None:
         registry = _STANDARD_REGISTRY
-    return registry.get(mtype=mtype, index=index)
+    return registry.get(mtype=mtype, type_id=type_id)
 
 
-def deserializer(*, index: int, registry: Optional[DeserializerRegistry] = None):  # type: ignore
-    if index < _MAX_BUILT_IN_ID:
-        raise ValueError("Custom aggregator identifier must be equal or greater than 100")
+def deserializer(*, type_id: int, registry: Optional[DeserializerRegistry] = None):  # type: ignore
+    if type_id < _MAX_BUILT_IN_ID:
+        raise ValueError("Custom aggregator ID must be equal or greater than 100")
     if registry is None:
         registry = _STANDARD_REGISTRY
 
     return _decorate_func(
-        key=index, name=f"custom.{index}", wrapper_dict=registry._indexed_deserializer, clazz=_Deserializer
+        key=type_id, name=f"custom.{type_id}", wrapper_dict=registry._id_deserializer, clazz=_Deserializer
     )

@@ -1,10 +1,10 @@
 import logging
 from typing import Any, Dict, Optional
 
-from whylogs_v1.core.configs import SummaryConfig
-from whylogs_v1.core.metrics import StandardMetric
-from whylogs_v1.core.metrics.metrics import Metric
-from whylogs_v1.core.proto import ColumnMessage, MetricComponentMessage, MetricMessage
+from whylogs.core.configs import SummaryConfig
+from whylogs.core.metrics import StandardMetric
+from whylogs.core.metrics.metrics import Metric
+from whylogs.core.proto import ColumnMessage, MetricComponentMessage, MetricMessage
 
 logger = logging.getLogger(__name__)
 
