@@ -31,10 +31,25 @@ class DatasetProfile(object):
 
     def track(
         self,
+        obj: Any = None,
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Mapping[str, Any]] = None,
     ) -> None:
+        if obj is not None:
+            if pandas is not None:
+                raise ValueError("Cannot pass both obj and pandas params")
+            if row is not None:
+                raise ValueError("Cannot pass both obj and row params")
+
+            if isinstance(obj, pd.DataFrame):
+                pandas = obj
+            elif isinstance(obj, (dict, Dict, Mapping)):
+                row = obj
+
+        if pandas is not None and row is not None:
+            raise ValueError("Cannot pass both pandas and row params")
+
         # TODO: do this less frequently when operating at row level
         dirty = self._schema.resolve(pandas=pandas, row=row)
         if dirty:

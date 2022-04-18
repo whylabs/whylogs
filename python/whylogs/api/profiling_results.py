@@ -15,7 +15,7 @@ class ProfilingResults:
     def __init__(self, profile: DatasetProfile):
         self._profile = profile
 
-    def get(self) -> DatasetProfile:
+    def get_profile(self) -> DatasetProfile:
         return self._profile
 
     def view(self) -> DatasetProfileView:

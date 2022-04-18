@@ -21,6 +21,7 @@ class Logger(object):
 
     def log(
         self,
+        obj: Any = None,
         *,
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
@@ -33,7 +34,7 @@ class Logger(object):
             profile = self._cache.get(schema)
         else:
             profile = DatasetProfile(schema=schema)
-        profile.track(pandas=pandas, row=row)
+        profile.track(obj, pandas=pandas, row=row)
 
         return ProfilingResults(profile=profile)
 
@@ -42,12 +43,13 @@ _INSTANCE = Logger()
 
 
 def log(
+    obj: Any = None,
     *,
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
     schema: Optional[DatasetSchema] = None,
 ) -> ProfilingResults:
-    return _INSTANCE.log(pandas=pandas, row=row, schema=schema)
+    return _INSTANCE.log(obj, pandas=pandas, row=row, schema=schema)
 
 
 def read(path: str) -> DatasetProfileView:
