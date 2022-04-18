@@ -64,22 +64,30 @@ class NotebookProfileViewer:
         reference_profile_features, target_profile_features = self.__get_feature_data(feature_names)
 
         for feature_name in feature_names:
-            pass # this is where to implement the histogram
+            pass  # this is where to implement the histogram
 
         distribution_chart = self.__convert_feature_to_json(reference_profile_features, target_profile_features)
         return self.__display_rendered_template(distribution_chart, template_name, preferred_cell_height)
 
-    def __pre_feature_chart_checks(self, feature_names):
-        # Check it's a reference profile
-        if not self._reference_profile:
-            logger.warning("This method has to get both target and reference profiles, with valid feature title")
+    def __display_distribution_chart(self, feature_names, template_name, normalized=False, preferred_cell_height=None):
+        feature_names = self.__pre_feature_chart_checks(feature_names)
+        if not feature_names:
             return None
 
-        # If it's not a list make it a list with one element
-        if type(feature_names) is not list:
-            feature_names = [feature_names]
+        template = self.__get_compiled_template(template_name)
+        reference_profile_features, target_profile_features = self.__get_feature_data(feature_names)
 
-        return feature_names
+        if normalized:
+            for feature_names in feature_names:
+                target_profile_features[feature_names] = self.__normalize_feature_data(target_profile_features[feature_names])
+                reference_profile_features[feature_names] = self.__normalize_feature_data(reference_profile_features[feature_names])
+
+        distribution_chart = self.__convert_feature_to_json(template, reference_profile_features,
+                                                            target_profile_features)
+        return self.__display_rendered_template(distribution_chart, template_name, preferred_cell_height)
+
+    def __normalize_feature_data(self, profile):
+        return None
 
     def __display_feature_chart(self, feature_names, template_name, preferred_cell_height=None):
         feature_names = self.__pre_feature_chart_checks(feature_names)
@@ -88,8 +96,15 @@ class NotebookProfileViewer:
 
         template = self.__get_compiled_template(template_name)
         reference_profile_features, target_profile_features = self.__get_feature_data(feature_names)
-        distribution_chart = self.__convert_feature_to_json(template, reference_profile_features, target_profile_features)
+        distribution_chart = self.__convert_feature_to_json(template, reference_profile_features,
+                                                            target_profile_features)
         return self.__display_rendered_template(distribution_chart, template_name, preferred_cell_height)
+
+    def __display_rendered_template(self, template, template_name, height):
+        if not height:
+            height = self.PAGE_SIZES[template_name]
+        iframe = f"""<div></div><iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>"""
+        return HTML(iframe)
 
     def __convert_feature_to_json(self, template, reference_profile_features, target_profile_features):
         distribution_chart = template(
@@ -107,11 +122,17 @@ class NotebookProfileViewer:
             reference_profile_features[feature_name] = reference_profile_columns.get(feature_name)
         return reference_profile_features, target_profile_features
 
-    def __display_rendered_template(self, template, template_name, height):
-        if not height:
-            height = self.PAGE_SIZES[template_name]
-        iframe = f"""<div></div><iframe srcdoc="{html.escape(template)}" width=100% height={height} frameBorder=0></iframe>"""
-        return HTML(iframe)
+    def __pre_feature_chart_checks(self, feature_names):
+        # Check it's a reference profile
+        if not self._reference_profile:
+            logger.warning("This method has to get both target and reference profiles, with valid feature title")
+            return None
+
+        # If it's not a list make it a list with one element
+        if type(feature_names) is not list:
+            feature_names = [feature_names]
+
+        return feature_names
 
     def set_profiles(self, target_profile: DatasetProfile = None, reference_profile: DatasetProfile = None):
         self._target_profile = target_profile
@@ -122,21 +143,25 @@ class NotebookProfileViewer:
                 self._reference_profile_json = message_to_json(self._reference_profile.to_summary())
 
     def summary_drift_report(self, preferred_cell_height=None):
-        reference_profile = add_drift_val_to_ref_profile_json(self._target_profile, self._reference_profile, json.loads(self._reference_profile_json))
+        reference_profile = add_drift_val_to_ref_profile_json(self._target_profile, self._reference_profile,
+                                                              json.loads(self._reference_profile_json))
         template = self.__get_compiled_template(self.SUMMARY_REPORT_TEMPLATE_NAME)
         profiles_summary = {"profile_from_whylogs": self._target_profile_json}
         if self._reference_profile:
             profiles_summary["reference_profile_from_whylogs"] = json.dumps(reference_profile)
-        return self.__display_rendered_template(template(profiles_summary), self.SUMMARY_REPORT_TEMPLATE_NAME, preferred_cell_height)
+        return self.__display_rendered_template(template(profiles_summary), self.SUMMARY_REPORT_TEMPLATE_NAME,
+                                                preferred_cell_height)
 
     def double_histogram(self, feature_names, preferred_cell_height=None):
         return self.__display_feature_chart(feature_names, self.DOUBLE_HISTOGRAM_TEMPLATE_NAME, preferred_cell_height)
 
-    def distribution_chart(self, feature_names, preferred_cell_height=None):
-        return self.__display_feature_chart(feature_names, self.DISTRIBUTION_CHART_TEMPLATE_NAME, preferred_cell_height)
+    def distribution_chart(self, feature_names, normalized=False, preferred_cell_height=None):
+        return self.__display_distribution_chart(feature_names, self.DISTRIBUTION_CHART_TEMPLATE_NAME, normalized,
+                                                 preferred_cell_height)
 
-    def difference_distribution_chart(self, feature_names, preferred_cell_height=None):
-        return self.__display_feature_chart(feature_names, self.DIFFERENCED_CHART_TEMPLATE_NAME, preferred_cell_height)
+    def difference_distribution_chart(self, feature_names, normalized=False, preferred_cell_height=None):
+        return self.__display_distribution_chart(feature_names, self.DIFFERENCED_CHART_TEMPLATE_NAME, normalized,
+                                                 preferred_cell_height)
 
     def feature_statistics(self, feature_name, profile="reference", preferred_cell_height=None):
         template = self.__get_compiled_template(self.FEATURE_STATISTICS_TEMPLATE_NAME)
@@ -154,7 +179,8 @@ class NotebookProfileViewer:
                     )
                 }
             )
-            return self.__display_rendered_template(rendered_template, self.FEATURE_STATISTICS_TEMPLATE_NAME, preferred_cell_height)
+            return self.__display_rendered_template(rendered_template, self.FEATURE_STATISTICS_TEMPLATE_NAME,
+                                                    preferred_cell_height)
         else:
             logger.warning("Quantile and descriptive statistics can be calculated for numerical features only!")
             return None
@@ -162,7 +188,8 @@ class NotebookProfileViewer:
     def constraints_report(self, constraints, preferred_cell_height=None):
         template = self.__get_compiled_template(self.CONSTRAINTS_REPORT_TEMPLATE_NAME)
         rendered_template = template({"constraints_report": json.dumps(constraints.report())})
-        return self.__display_rendered_template(rendered_template, self.CONSTRAINTS_REPORT_TEMPLATE_NAME, preferred_cell_height)
+        return self.__display_rendered_template(rendered_template, self.CONSTRAINTS_REPORT_TEMPLATE_NAME,
+                                                preferred_cell_height)
 
     def download(self, html, preferred_path=None, html_file_name=None):
         if not html_file_name:
