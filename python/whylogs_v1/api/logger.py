@@ -1,11 +1,12 @@
-from typing import Any, Dict, Optional, Union
+import typing
 
+from whylogs_v1.api.profiling_results import ProfilingResults
 from whylogs_v1.core import DatasetProfile, DatasetProfileView, DatasetSchema
 from whylogs_v1.core.stubs import pd
 
 
 class BasicCache(object):
-    _cache: Dict[DatasetSchema, DatasetProfile] = {}
+    _cache: typing.Dict[DatasetSchema, DatasetProfile] = {}
 
     def get(self, schema: DatasetSchema) -> DatasetProfile:
         candidate = self._cache.get(schema)
@@ -20,25 +21,30 @@ class Logger(object):
 
     def log(
         self,
-        data: Union[pd.DataFrame, Dict[str, Any]],
-        schema: Optional[DatasetSchema] = None,
-    ) -> DatasetProfile:
+        *,
+        pandas: typing.Optional[pd.DataFrame] = None,
+        row: typing.Optional[typing.Dict[str, typing.Any]] = None,
+        schema: typing.Optional[DatasetSchema] = None,
+    ) -> ProfilingResults:
         if schema is None:
             schema = DatasetSchema()
-        prof = self._cache.get(schema)
+        profile = self._cache.get(schema)
 
-        if isinstance(data, pd.DataFrame):
-            prof.track(data)
-            return prof
+        profile.track(pandas=pandas, row=row)
 
-        raise NotImplementedError
+        return ProfilingResults(profile=profile)
 
 
 _INSTANCE = Logger()
 
 
-def log(data: Union[pd.DataFrame, Dict[str, Any]], schema: Optional[DatasetSchema] = None) -> DatasetProfile:
-    return _INSTANCE.log(data, schema)
+def log(
+    *,
+    pandas: typing.Optional[pd.DataFrame] = None,
+    row: typing.Optional[typing.Dict[str, typing.Any]] = None,
+    schema: typing.Optional[DatasetSchema] = None,
+) -> ProfilingResults:
+    return _INSTANCE.log(pandas=pandas, row=row, schema=schema)
 
 
 def read(path: str) -> DatasetProfileView:

@@ -1,36 +1,25 @@
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, Mapping, Optional, TypeVar, Union
+from typing import Any, Dict, Mapping, Optional, TypeVar
 
 from whylogs_v1.core.datatypes import StandardTypeMapper, TypeMapper
+from whylogs_v1.core.metrics import Metric
 from whylogs_v1.core.resolvers import Resolver, StandardResolver
 from whylogs_v1.core.stubs import pd
-from whylogs_v1.core.trackers import Tracker
 
 logger = logging.getLogger(__name__)
 
 LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 
+T = TypeVar("T", bound="DatasetSchema")
+
 
 @dataclass(frozen=True)
-class ColumnSchema:
-    """
-    Schema of a column.
-
-    The main goal is to specify the data type.
-    On top of that, users can configure their own tracker resolution logic (mapping a type to a list of tracker
-    factories) and any additional trackers here.
-    """
-
-    dtype: Any
-    type_mapper: TypeMapper = StandardTypeMapper()
-    resolver: Resolver = StandardResolver()
-
-    def get_trackers(self, name: str) -> Dict[str, Tracker]:
-        return self.resolver.resolve(name=name, why_type=self.type_mapper(self.dtype))
-
-
-T = TypeVar("T", bound="DatasetSchema")
+class ColumnConfig:
+    hll_lg_k: int = 12
+    kll_k: int = 12
+    fi_lg_max_k: int = 12
+    fi_disabled: bool = False
 
 
 class DatasetSchema:
@@ -41,6 +30,17 @@ class DatasetSchema:
     or your own type resolution. Otherwise, you can just use the default DatasetSchema object.
 
     Schema objects are also used to group datasets together.
+
+    Attributes:
+        types: required. a dictionay of column name to the Python type.
+
+        default_configs: optional. Options to configure various behavior of whylogs.
+
+        type_mapper: Optional. a mapper that transates the Python type to standardized whylogs :class:`DataType` object.
+
+        resolvers: Optional. an object that defines how to map from a column name, a whylogs :class:`DataType` and a
+        schema to metrics.
+
 
     Examples
     --------
@@ -58,11 +58,12 @@ class DatasetSchema:
     >>> schema = MySchema()
     >>> prof = DatasetProfile(MySchema())
     >>> df = pd.DataFrame({"col1": ['foo'], "col2": np.array([1], dtype=np.int32), "col3": ['bar']})
-    >>> prof.track(df)
+    >>> prof.track(pandas=df)
 
     """
 
     types: Dict[str, Any] = {}
+    default_configs: ColumnConfig = ColumnConfig()
     type_mapper: TypeMapper = StandardTypeMapper()
     resolvers: Resolver = StandardResolver()
     cache_size: int = 1024
@@ -84,9 +85,7 @@ class DatasetSchema:
         if self.types:
             for col, tpe in self.types.items():
                 self._columns[col] = ColumnSchema(
-                    dtype=tpe,
-                    resolver=self.resolvers,
-                    type_mapper=self.type_mapper,
+                    dtype=tpe, resolver=self.resolvers, type_mapper=self.type_mapper, cfg=self.default_configs
                 )
 
     def copy(self) -> "DatasetSchema":
@@ -99,12 +98,12 @@ class DatasetSchema:
 
         return copy
 
-    def resolve(self, dataset_or_row: Union[pd.DataFrame, Mapping[str, Any]]) -> bool:
-        if isinstance(dataset_or_row, pd.DataFrame):
-            return self._resolve_pdf(dataset_or_row)
+    def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool:
+        if pandas is not None:
+            return self._resolve_pdf(pandas)
 
-        if isinstance(dataset_or_row, Mapping):
-            for k, v in dataset_or_row.items():
+        if row is not None:
+            for k, v in row.items():
                 if k in self._columns:
                     continue
                 self._columns[k] = ColumnSchema(
@@ -139,5 +138,24 @@ class DatasetSchema:
     def get_col_names(self) -> frozenset:
         return frozenset(self._columns.keys())
 
-    def get(self, name: str) -> Optional[ColumnSchema]:
+    def get(self, name: str) -> Optional["ColumnSchema"]:
         return self._columns.get(name)
+
+
+@dataclass(frozen=True)
+class ColumnSchema:
+    """
+    Schema of a column.
+
+    The main goal is to specify the data type.
+    On top of that, users can configure their own tracker resolution logic (mapping a type to a list of tracker
+    factories) and any additional trackers here.
+    """
+
+    dtype: Any
+    cfg: ColumnConfig = ColumnConfig()
+    type_mapper: TypeMapper = StandardTypeMapper()
+    resolver: Resolver = StandardResolver()
+
+    def get_metrics(self, name: str) -> Dict[str, Metric]:
+        return self.resolver.resolve(name=name, why_type=self.type_mapper(self.dtype), column_schema=self)

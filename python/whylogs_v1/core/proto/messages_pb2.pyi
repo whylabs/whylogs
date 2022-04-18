@@ -77,135 +77,155 @@ class KllSketchMessage(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     SKETCH_FIELD_NUMBER: builtins.int
     K_FIELD_NUMBER: builtins.int
-    MEAN_FIELD_NUMBER: builtins.int
-    M2_FIELD_NUMBER: builtins.int
     sketch: builtins.bytes
     k: builtins.int
-    mean: builtins.float
-    m2: builtins.float
     def __init__(self,
         *,
         sketch: builtins.bytes = ...,
         k: builtins.int = ...,
-        mean: builtins.float = ...,
-        m2: builtins.float = ...,
         ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["k",b"k","m2",b"m2","mean",b"mean","sketch",b"sketch"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["k",b"k","sketch",b"sketch"]) -> None: ...
 global___KllSketchMessage = KllSketchMessage
 
-class TrackerMessage(google.protobuf.message.Message):
+class MetricComponentMessage(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    INDEX_FIELD_NUMBER: builtins.int
     N_FIELD_NUMBER: builtins.int
     D_FIELD_NUMBER: builtins.int
-    SERIALIZED_BYTES_FIELD_NUMBER: builtins.int
     FREQUENT_ITEMS_FIELD_NUMBER: builtins.int
-    CARDINALITY_TRACKER_FIELD_NUMBER: builtins.int
-    HISTOGRAM_FIELD_NUMBER: builtins.int
+    HLL_FIELD_NUMBER: builtins.int
+    KLL_FIELD_NUMBER: builtins.int
+    SERIALIZED_BYTES_FIELD_NUMBER: builtins.int
     CUSTOM_FIELD_NUMBER: builtins.int
+    index: builtins.int
+    """type index. It might determine how a field gets serder and the aggregation logic"""
+
     n: builtins.int
+    """first class citizens"""
+
     d: builtins.float
-    serialized_bytes: builtins.bytes
     @property
     def frequent_items(self) -> global___FrequentItemsSketchMessage: ...
     @property
-    def cardinality_tracker(self) -> global___HllSketchMessage: ...
+    def hll(self) -> global___HllSketchMessage: ...
     @property
-    def histogram(self) -> global___KllSketchMessage: ...
+    def kll(self) -> global___KllSketchMessage: ...
+    serialized_bytes: builtins.bytes
+    """extension points"""
+
     @property
-    def custom(self) -> global___PluginMessage: ...
+    def custom(self) -> global___CustomMetricComponent: ...
     def __init__(self,
         *,
+        index: builtins.int = ...,
         n: builtins.int = ...,
         d: builtins.float = ...,
-        serialized_bytes: builtins.bytes = ...,
         frequent_items: typing.Optional[global___FrequentItemsSketchMessage] = ...,
-        cardinality_tracker: typing.Optional[global___HllSketchMessage] = ...,
-        histogram: typing.Optional[global___KllSketchMessage] = ...,
-        custom: typing.Optional[global___PluginMessage] = ...,
+        hll: typing.Optional[global___HllSketchMessage] = ...,
+        kll: typing.Optional[global___KllSketchMessage] = ...,
+        serialized_bytes: builtins.bytes = ...,
+        custom: typing.Optional[global___CustomMetricComponent] = ...,
         ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["cardinality_tracker",b"cardinality_tracker","custom",b"custom","d",b"d","frequent_items",b"frequent_items","histogram",b"histogram","n",b"n","serialized_bytes",b"serialized_bytes","value",b"value"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["cardinality_tracker",b"cardinality_tracker","custom",b"custom","d",b"d","frequent_items",b"frequent_items","histogram",b"histogram","n",b"n","serialized_bytes",b"serialized_bytes","value",b"value"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["value",b"value"]) -> typing.Optional[typing_extensions.Literal["n","d","serialized_bytes","frequent_items","cardinality_tracker","histogram","custom"]]: ...
-global___TrackerMessage = TrackerMessage
+    def HasField(self, field_name: typing_extensions.Literal["custom",b"custom","d",b"d","frequent_items",b"frequent_items","hll",b"hll","kll",b"kll","n",b"n","serialized_bytes",b"serialized_bytes","value",b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["custom",b"custom","d",b"d","frequent_items",b"frequent_items","hll",b"hll","index",b"index","kll",b"kll","n",b"n","serialized_bytes",b"serialized_bytes","value",b"value"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["value",b"value"]) -> typing.Optional[typing_extensions.Literal["n","d","frequent_items","hll","kll","serialized_bytes","custom"]]: ...
+global___MetricComponentMessage = MetricComponentMessage
 
-class PluginType(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-    class _Language:
-        ValueType = typing.NewType('ValueType', builtins.int)
-        V: typing_extensions.TypeAlias = ValueType
-    class _LanguageEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[PluginType._Language.ValueType], builtins.type):
-        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-        PYTHON: PluginType._Language.ValueType  # 0
-        JAVA: PluginType._Language.ValueType  # 1
-    class Language(_Language, metaclass=_LanguageEnumTypeWrapper):
-        pass
-
-    PYTHON: PluginType.Language.ValueType  # 0
-    JAVA: PluginType.Language.ValueType  # 1
-
-    PLUGIN_CLASS_NAME_FIELD_NUMBER: builtins.int
-    LANGUAGE_FIELD_NUMBER: builtins.int
-    plugin_class_name: typing.Text
-    language: global___PluginType.Language.ValueType
-    def __init__(self,
-        *,
-        plugin_class_name: typing.Text = ...,
-        language: global___PluginType.Language.ValueType = ...,
-        ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["language",b"language","plugin_class_name",b"plugin_class_name"]) -> None: ...
-global___PluginType = PluginType
-
-class PluginMessage(google.protobuf.message.Message):
+class CustomMetricComponent(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     NAME_FIELD_NUMBER: builtins.int
-    PLUGIN_TYPES_FIELD_NUMBER: builtins.int
     PARAMS_FIELD_NUMBER: builtins.int
     SERIALIZED_BYTES_FIELD_NUMBER: builtins.int
     name: typing.Text
-    @property
-    def plugin_types(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PluginType]:
-        """The language and corresponding classname that implements this plugin."""
-        pass
     @property
     def params(self) -> google.protobuf.struct_pb2.Struct: ...
     serialized_bytes: builtins.bytes
     def __init__(self,
         *,
         name: typing.Text = ...,
-        plugin_types: typing.Optional[typing.Iterable[global___PluginType]] = ...,
         params: typing.Optional[google.protobuf.struct_pb2.Struct] = ...,
         serialized_bytes: builtins.bytes = ...,
         ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["item",b"item","params",b"params","serialized_bytes",b"serialized_bytes"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["item",b"item","name",b"name","params",b"params","plugin_types",b"plugin_types","serialized_bytes",b"serialized_bytes"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["item",b"item","name",b"name","params",b"params","serialized_bytes",b"serialized_bytes"]) -> None: ...
     def WhichOneof(self, oneof_group: typing_extensions.Literal["item",b"item"]) -> typing.Optional[typing_extensions.Literal["params","serialized_bytes"]]: ...
-global___PluginMessage = PluginMessage
+global___CustomMetricComponent = CustomMetricComponent
 
-class ColumnMessage(google.protobuf.message.Message):
+class MetricMessage(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
-    class TrackersEntry(google.protobuf.message.Message):
+    class MetricComponentsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
         KEY_FIELD_NUMBER: builtins.int
         VALUE_FIELD_NUMBER: builtins.int
         key: typing.Text
         @property
-        def value(self) -> global___TrackerMessage: ...
+        def value(self) -> global___MetricComponentMessage: ...
         def __init__(self,
             *,
             key: typing.Text = ...,
-            value: typing.Optional[global___TrackerMessage] = ...,
+            value: typing.Optional[global___MetricComponentMessage] = ...,
             ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["value",b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["key",b"key","value",b"value"]) -> None: ...
 
-    TRACKERS_FIELD_NUMBER: builtins.int
+    METRIC_COMPONENTS_FIELD_NUMBER: builtins.int
     @property
-    def trackers(self) -> google.protobuf.internal.containers.MessageMap[typing.Text, global___TrackerMessage]: ...
+    def metric_components(self) -> google.protobuf.internal.containers.MessageMap[typing.Text, global___MetricComponentMessage]: ...
     def __init__(self,
         *,
-        trackers: typing.Optional[typing.Mapping[typing.Text, global___TrackerMessage]] = ...,
+        metric_components: typing.Optional[typing.Mapping[typing.Text, global___MetricComponentMessage]] = ...,
         ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["trackers",b"trackers"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["metric_components",b"metric_components"]) -> None: ...
+global___MetricMessage = MetricMessage
+
+class ColumnMessage(google.protobuf.message.Message):
+    """key: dist, cnt, int(max, min), fi(fi), card(hll),
+    cnt: n, null
+    type_cnt: bool, int, float, str, unknown
+    int: max, min
+    dist: hist, mean, m2
+    fi: fi
+    card: hll
+    """
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    class MetricComponentsEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: typing.Text
+        @property
+        def value(self) -> global___MetricComponentMessage: ...
+        def __init__(self,
+            *,
+            key: typing.Text = ...,
+            value: typing.Optional[global___MetricComponentMessage] = ...,
+            ) -> None: ...
+        def HasField(self, field_name: typing_extensions.Literal["value",b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["key",b"key","value",b"value"]) -> None: ...
+
+    METRIC_COMPONENTS_FIELD_NUMBER: builtins.int
+    @property
+    def metric_components(self) -> google.protobuf.internal.containers.MessageMap[typing.Text, global___MetricComponentMessage]:
+        """namespacing reserved for constraint checks
+        chk/name1/n
+        chk/name1/failed
+        chk/name2/n
+        chk/name2
+
+        model perf
+        confusion metrix: needs to a list of histograms, and indices if sparse matrix, labels that map
+
+        custom extension metrics
+        e.stfx_metric_1/my_bytes
+        e.stfx_metric_1/my_counter
+
+        """
+        pass
+    def __init__(self,
+        *,
+        metric_components: typing.Optional[typing.Mapping[typing.Text, global___MetricComponentMessage]] = ...,
+        ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["metric_components",b"metric_components"]) -> None: ...
 global___ColumnMessage = ColumnMessage
 
 class DatasetProperties(google.protobuf.message.Message):
@@ -282,41 +302,99 @@ class DatasetProfileMessage(google.protobuf.message.Message):
         def HasField(self, field_name: typing_extensions.Literal["value",b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["key",b"key","value",b"value"]) -> None: ...
 
-    class MetricPluginsEntry(google.protobuf.message.Message):
+    class MetricComponentsEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
         KEY_FIELD_NUMBER: builtins.int
         VALUE_FIELD_NUMBER: builtins.int
         key: typing.Text
         @property
-        def value(self) -> global___TrackerMessage: ...
+        def value(self) -> global___MetricComponentMessage: ...
         def __init__(self,
             *,
             key: typing.Text = ...,
-            value: typing.Optional[global___TrackerMessage] = ...,
+            value: typing.Optional[global___MetricComponentMessage] = ...,
             ) -> None: ...
         def HasField(self, field_name: typing_extensions.Literal["value",b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing_extensions.Literal["key",b"key","value",b"value"]) -> None: ...
 
     PROPERTIES_FIELD_NUMBER: builtins.int
     COLUMNS_FIELD_NUMBER: builtins.int
-    METRIC_PLUGINS_FIELD_NUMBER: builtins.int
+    METRIC_COMPONENTS_FIELD_NUMBER: builtins.int
     @property
     def properties(self) -> global___DatasetProperties: ...
     @property
     def columns(self) -> google.protobuf.internal.containers.MessageMap[typing.Text, global___ColumnMessage]: ...
     @property
-    def metric_plugins(self) -> google.protobuf.internal.containers.MessageMap[typing.Text, global___TrackerMessage]: ...
+    def metric_components(self) -> google.protobuf.internal.containers.MessageMap[typing.Text, global___MetricComponentMessage]: ...
     def __init__(self,
         *,
         properties: typing.Optional[global___DatasetProperties] = ...,
         columns: typing.Optional[typing.Mapping[typing.Text, global___ColumnMessage]] = ...,
-        metric_plugins: typing.Optional[typing.Mapping[typing.Text, global___TrackerMessage]] = ...,
+        metric_components: typing.Optional[typing.Mapping[typing.Text, global___MetricComponentMessage]] = ...,
         ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["properties",b"properties"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["columns",b"columns","metric_plugins",b"metric_plugins","properties",b"properties"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["columns",b"columns","metric_components",b"metric_components","properties",b"properties"]) -> None: ...
 global___DatasetProfileMessage = DatasetProfileMessage
 
+class MessageIndex(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    class _Type:
+        ValueType = typing.NewType('ValueType', builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+    class _TypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[MessageIndex._Type.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        DATASET: MessageIndex._Type.ValueType  # 0
+        COLUMN: MessageIndex._Type.ValueType  # 1
+    class Type(_Type, metaclass=_TypeEnumTypeWrapper):
+        pass
+
+    DATASET: MessageIndex.Type.ValueType  # 0
+    COLUMN: MessageIndex.Type.ValueType  # 1
+
+    TYPE_FIELD_NUMBER: builtins.int
+    NAME_FIELD_NUMBER: builtins.int
+    OFFSET_FIELD_NUMBER: builtins.int
+    LENGTH_FIELD_NUMBER: builtins.int
+    EXTENSION_LENGTH_FIELD_NUMBER: builtins.int
+    type: global___MessageIndex.Type.ValueType
+    name: typing.Text
+    offset: typing.Text
+    length: typing.Text
+    extension_length: typing.Text
+    """offset + length"""
+
+    def __init__(self,
+        *,
+        type: global___MessageIndex.Type.ValueType = ...,
+        name: typing.Text = ...,
+        offset: typing.Text = ...,
+        length: typing.Text = ...,
+        extension_length: typing.Text = ...,
+        ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["extension_length",b"extension_length","length",b"length","name",b"name","offset",b"offset","type",b"type"]) -> None: ...
+global___MessageIndex = MessageIndex
+
+class DatasetProfileHeader(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    PROPERTIES_FIELD_NUMBER: builtins.int
+    INDICES_FIELD_NUMBER: builtins.int
+    @property
+    def properties(self) -> global___DatasetProperties: ...
+    @property
+    def indices(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___MessageIndex]: ...
+    def __init__(self,
+        *,
+        properties: typing.Optional[global___DatasetProperties] = ...,
+        indices: typing.Optional[typing.Iterable[global___MessageIndex]] = ...,
+        ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["properties",b"properties"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["indices",b"indices","properties",b"properties"]) -> None: ...
+global___DatasetProfileHeader = DatasetProfileHeader
+
 class CountMessage(google.protobuf.message.Message):
+    """[HEADER][len][DATASET MEASURES CHUNK 1][len][DATASET MEASURES CHUNK 2][COLUMN 1][COLUMN1 EXTENSION][COLUMN2]
+
+    """
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     VALUE_FIELD_NUMBER: builtins.int
     value: builtins.int

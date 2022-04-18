@@ -32,43 +32,63 @@ message FrequentItemsSketchMessage {
 message KllSketchMessage {
   bytes sketch = 1;
   int32 k = 2 [deprecated = true];
-  double mean = 3;
-  double m2 = 4;
 }
 
-message TrackerMessage {
+message MetricComponentMessage {
+  uint32 index = 1; // type index. It might determine how a field gets serder and the aggregation logic
+
   oneof value {
-    int64 n = 1;
-    double d = 2;
-    bytes serialized_bytes = 3;
+    // first class citizens
+    int64 n = 2;
+    double d = 3;
     FrequentItemsSketchMessage frequent_items = 4;
-    HllSketchMessage cardinality_tracker = 5;
-    KllSketchMessage histogram = 6;
+    HllSketchMessage hll = 5;
+    KllSketchMessage kll = 6;
 
-    PluginMessage custom = 15;
+    // extension points
+    bytes serialized_bytes = 7;
+    CustomMetricComponent custom = 15;
   }
 }
 
-message PluginType {
-  enum Language {
-    PYTHON = 0;
-    JAVA = 1;
-  }
-  string plugin_class_name = 1;
-  Language language = 2;
-}
-
-message PluginMessage {
+message CustomMetricComponent {
   string name = 1;
-  repeated PluginType plugin_types = 2; // The language and corresponding classname that implements this plugin.
   oneof item {
     google.protobuf.Struct params = 3;
     bytes serialized_bytes = 4;
   }
 }
 
+message MetricMessage {
+  map<string, MetricComponentMessage> metric_components = 1;
+}
+
 message ColumnMessage {
-  map<string, TrackerMessage> trackers = 1;
+  // key: dist, cnt, int(max, min), fi(fi), card(hll),
+  // cnt: n, null
+  // type_cnt: bool, int, float, str, unknown
+  // int: max, min
+  // dist: hist, mean, m2
+  // fi: fi
+  // card: hll
+
+  // namespacing reserved for constraint checks
+  // chk/name1/n
+  // chk/name1/failed
+  // chk/name2/n
+  // chk/name2
+
+
+  // model perf
+  // confusion metrix: needs to a list of histograms, and indices if sparse matrix, labels that map
+
+
+
+  // custom extension metrics
+  // e.stfx_metric_1/my_bytes
+  // e.stfx_metric_1/my_counter
+
+  map<string, MetricComponentMessage> metric_components = 1;
 }
 
 message DatasetProperties {
@@ -85,8 +105,28 @@ message DatasetProperties {
 message DatasetProfileMessage {
   DatasetProperties properties = 1;
   map<string, ColumnMessage> columns = 2;
-  map<string, TrackerMessage> metric_plugins = 3;
+  map<string, MetricComponentMessage> metric_components = 3;
 }
+
+message MessageIndex {
+  enum Type {
+    DATASET = 0;
+    COLUMN = 1;
+  }
+
+  Type type = 1;
+  string name = 2;
+  string offset = 3;
+  string length = 4;
+  string extension_length = 5; // offset + length
+}
+
+message DatasetProfileHeader {
+  DatasetProperties properties = 1;
+  repeated MessageIndex indices = 2;
+}
+
+// [HEADER][len][DATASET MEASURES CHUNK 1][len][DATASET MEASURES CHUNK 2][COLUMN 1][COLUMN1 EXTENSION][COLUMN2]
 
 message CountMessage {
   int64 value = 1;

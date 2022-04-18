@@ -9,7 +9,7 @@ def test_basic_dataset_profile() -> None:
     df = pd.DataFrame(data=d)
 
     profile = DatasetProfile()
-    profile.track(df)
+    profile.track(pandas=df)
     profile.serialize()
 
     assert profile._columns["col1"]._schema.dtype == numpy.int64
@@ -27,16 +27,19 @@ def test_override_schema_col2_as_string() -> None:
         }
 
     profile = DatasetProfile(MyCustomSchema())
-    profile.track(df)
+    profile.track(pandas=df)
     msg = profile.serialize()
     view = DatasetProfileView.deserialize(msg)
     assert view.get_column("col1") is not None
     view2 = profile.view()
     assert view2.get_column("col1") is not None
+    view.merge(view).merge(view)
 
     assert profile._columns["col1"]._schema.dtype == numpy.int64
     assert profile._columns["col2"]._schema.dtype == str
     assert profile._columns["col3"]._schema.dtype.name == "object"
+    pdf = view.to_pandas()
+    print(pdf)
 
 
 def test_basic_iter_row() -> None:
@@ -45,7 +48,7 @@ def test_basic_iter_row() -> None:
 
     profile = DatasetProfile()
     for row in df.iterrows():
-        profile.track(row[1].to_dict())  # type: ignore
+        profile.track(row=row[1].to_dict())  # type: ignore
 
     assert profile._columns["col1"]._schema.dtype == int
     assert profile._columns["col2"]._schema.dtype == float

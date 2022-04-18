@@ -1,14 +1,13 @@
 from typing import TypeVar
 
 from whylogs_v1.core.datatypes import DataType
-from whylogs_v1.core.metrics import UpdatableMetric
-from whylogs_v1.core.metrics.metrics import MergeableMetric, OperationResult
+from whylogs_v1.core.metrics.metrics import Metric, OperationResult
 from whylogs_v1.core.preprocessing import PreprocessColumn
-from whylogs_v1.core.proto import TrackerMessage
+from whylogs_v1.core.proto import MetricMessage
 
 
 class Tracker(object):
-    def __init__(self, data_type: DataType, metric: UpdatableMetric) -> None:
+    def __init__(self, data_type: DataType, metric: Metric) -> None:
         self._data_type = data_type
         self._metric = metric
 
@@ -24,23 +23,8 @@ class Tracker(object):
         """
         return self._metric.columnar_update(series)
 
-    def serialize(self) -> TrackerMessage:
+    def serialize(self) -> MetricMessage:
         return self._metric.serialize()
-
-    def to_mergeable(self) -> MergeableMetric:
-        return self._metric.to_mergeable()
 
 
 N = TypeVar("N", bound=DataType)
-
-
-class NumericTracker(Tracker):
-    """
-    A tracker for numbers.
-
-    Note that you'll need to specify the generic type as well if mypy is enabled, but at the same
-    time specify the expected type in the constructor.
-    """
-
-    def __init__(self, tpe: DataType, metric: UpdatableMetric):
-        super().__init__(tpe, metric)

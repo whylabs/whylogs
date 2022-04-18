@@ -1,7 +1,7 @@
 import logging
 import os.path
 import time
-from typing import Any, Dict, Mapping, Optional, Union
+from typing import Any, Dict, Mapping, Optional
 
 from .column_profile import ColumnProfile
 from .proto import DatasetProfileMessage
@@ -29,9 +29,14 @@ class DatasetProfile(object):
         self._schema = schema
         self._columns: Dict[str, ColumnProfile] = dict()
 
-    def track(self, dataset_or_row: Union[pd.DataFrame, Mapping[str, Any]]) -> None:
+    def track(
+        self,
+        *,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Mapping[str, Any]] = None,
+    ) -> None:
         # TODO: do this less frequently when operating at row level
-        dirty = self._schema.resolve(dataset_or_row)
+        dirty = self._schema.resolve(pandas=pandas, row=row)
         if dirty:
             new_cols = self._schema.get_col_names().difference(self._columns.keys())
             for col in new_cols:
@@ -41,14 +46,14 @@ class DatasetProfile(object):
                 else:
                     logger.warning("Encountered a column without schema: %s", col)
 
-        if isinstance(dataset_or_row, pd.DataFrame):
-            for k in dataset_or_row.keys():
-                self._columns[k].track_column(dataset_or_row[k])
+        if pandas is not None:
+            for k in pandas.keys():
+                self._columns[k].track_column(pandas[k])
             return
 
-        if isinstance(dataset_or_row, Mapping):
-            for k in dataset_or_row.keys():
-                self._columns[k].track_column(dataset_or_row[k])
+        if row is not None:
+            for k in row.keys():
+                self._columns[k].track_column(row[k])
             return
 
         raise NotImplementedError

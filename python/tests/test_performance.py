@@ -30,5 +30,5 @@ def test_track_column_benchmark() -> None:
         stats.print_stats(40)
         TEST_LOGGER.info(f"stats for dataframe of shape: {full_df.shape} are \n{string_output_stream.getvalue()}")
 
-        assert col_prof._trackers["hist"] is not None
-        TEST_LOGGER.info(f"Benchmark was using the following trackers {col_prof._trackers.keys()}")
+        assert col_prof._metrics["hist"] is not None
+        TEST_LOGGER.info(f"Benchmark was using the following trackers {col_prof._metrics.keys()}")

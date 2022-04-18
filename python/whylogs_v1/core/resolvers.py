@@ -1,20 +1,14 @@
 from abc import ABC, abstractmethod
-from enum import Enum
-from typing import Dict
+from typing import Dict, List, TypeVar
 
-from whylogs_v1.core.datatypes import AnyType, DataType, Fractional, Integral, String
-from whylogs_v1.core.metrics import get_registry
-from whylogs_v1.core.trackers import Tracker
+from typing_extensions import TypeAlias
 
+from whylogs_v1.core.datatypes import DataType, Fractional, Integral, String
+from whylogs_v1.core.metrics import StandardMetric
+from whylogs_v1.core.metrics.metrics import Metric
 
-class StandardTrackerNames(str, Enum):
-    hist = "hist"
-    cnt = "cnt"
-    uniq = "uniq"
-    fi = "fi"
-    null = "null"
-    int_max = "int.max"
-    int_min = "int.min"
+M = TypeVar("M", bound=Metric)
+ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
 
 
 class Resolver(ABC):
@@ -23,32 +17,31 @@ class Resolver(ABC):
     Note that the key of the result dictionaries defines the namespaces of the metrics in the serialized form."""
 
     @abstractmethod
-    def resolve(self, name: str, why_type: DataType) -> Dict[str, Tracker]:
+    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
         raise NotImplementedError
 
 
 class StandardResolver(Resolver):
-    """Standard tracker resolution with built in types."""
+    """Standard metric resolution with builtin types."""
 
-    _registry = get_registry()
-
-    def resolve(self, name: str, why_type: DataType) -> Dict[str, Tracker]:
-        result: Dict[str, Tracker] = {}
-        self._add_tracker(mapping=result, name=StandardTrackerNames.cnt, why_type=AnyType())
-        self._add_tracker(mapping=result, name=StandardTrackerNames.null, why_type=AnyType())
+    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        metrics: List[StandardMetric] = [StandardMetric.cnt, StandardMetric.types]
         if isinstance(why_type, Integral):
-            self._add_tracker(mapping=result, name=StandardTrackerNames.int_min, why_type=Integral())
-            self._add_tracker(mapping=result, name=StandardTrackerNames.int_max, why_type=Integral())
-            self._add_tracker(mapping=result, name=StandardTrackerNames.hist, why_type=Fractional())
-            self._add_tracker(mapping=result, name=StandardTrackerNames.uniq, why_type=AnyType())
-            self._add_tracker(mapping=result, name=StandardTrackerNames.fi, why_type=AnyType())
+            metrics.append(StandardMetric.dist)
+            metrics.append(StandardMetric.int)
+            metrics.append(StandardMetric.card)
+            metrics.append(StandardMetric.fi)
         elif isinstance(why_type, Fractional):
-            self._add_tracker(mapping=result, name=StandardTrackerNames.hist, why_type=Fractional())
-            self._add_tracker(mapping=result, name=StandardTrackerNames.uniq, why_type=AnyType())
+            metrics.append(StandardMetric.card)
+            metrics.append(StandardMetric.dist)
         elif isinstance(why_type, String):
-            self._add_tracker(mapping=result, name=StandardTrackerNames.uniq, why_type=AnyType())
-            self._add_tracker(mapping=result, name=StandardTrackerNames.fi, why_type=AnyType())
-        return result
+            metrics.append(StandardMetric.card)
+            metrics.append(StandardMetric.fi)
 
-    def _add_tracker(self, mapping: Dict[str, Tracker], name: str, why_type: DataType) -> None:
-        mapping[name] = Tracker(why_type, self._registry.get_updatable_metric(name))
+        if column_schema.cfg.fi_disabled:
+            metrics.remove(StandardMetric.fi)
+
+        result: Dict[str, Metric] = {}
+        for m in metrics:
+            result[m.name] = m.zero(column_schema)
+        return result
