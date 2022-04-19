@@ -4,6 +4,7 @@ import whylogs_datasketches as ds  # type: ignore
 
 from whylogs.core.metrics.decorators import (
     DecoratedFunction,
+    FuncType,
     _decorate_func,
     _func_wrapper,
 )
@@ -16,7 +17,7 @@ _MAX_BUILT_IN_ID = 100
 
 
 class _Deserializer(DecoratedFunction):
-    def __init__(self, *, func: "function", name: str):  # noqa
+    def __init__(self, *, func: FuncType, name: str):  # noqa
         self._name = name
         self._func = func
 
@@ -28,7 +29,7 @@ class _Deserializer(DecoratedFunction):
         return self._func(msg)
 
     @classmethod
-    def build(cls, func: "function", name: str) -> "_Deserializer":  # noqa
+    def build(cls, func: FuncType, name: str) -> "_Deserializer":  # noqa
         return _Deserializer(func=func, name=name)
 
 
@@ -46,7 +47,7 @@ def _builtin_deserializer(*, name: str) -> Callable[[Callable], _Deserializer]:
 
     """
 
-    def decorated(func: Callable) -> _Deserializer:
+    def decorated(func: FuncType) -> _Deserializer:
         annotations: Dict[str, type] = func.__annotations__.copy()
         r_type = annotations.pop("return")
 
@@ -61,7 +62,7 @@ def _builtin_deserializer(*, name: str) -> Callable[[Callable], _Deserializer]:
             func=func, key=r_type, name=f"builtin.{r_type}", wrapper_dict=_TYPED_DESERIALIZERS, clazz=_Deserializer
         )
 
-    return decorated
+    return decorated  # type: ignore
 
 
 @_builtin_deserializer(name="int")

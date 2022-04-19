@@ -2,7 +2,7 @@ from typing import Callable, Dict, Generic, Optional, TypeVar
 
 import whylogs_datasketches as ds  # type: ignore
 
-from whylogs.core.metrics.decorators import DecoratedFunction, _decorate_func
+from whylogs.core.metrics.decorators import DecoratedFunction, FuncType, _decorate_func
 
 M = TypeVar("M")
 
@@ -10,8 +10,8 @@ _MAX_BUILT_IN_ID = 100
 
 
 class _Aggregator(DecoratedFunction, Generic[M]):
-    def __init__(self, *, func: "function", name: str):  # noqa
-        self._func = func
+    def __init__(self, *, func: FuncType, name: str):  # noqa
+        self._func = func  # type: ignore
         self._name = name
 
     @property
@@ -22,7 +22,7 @@ class _Aggregator(DecoratedFunction, Generic[M]):
         return self._func(lhs, rhs)
 
     @classmethod
-    def build(cls, func: "function", name: str) -> "_Aggregator":  # noqa
+    def build(cls, func: FuncType, name: str) -> "_Aggregator":  # noqa
         return _Aggregator(func=func, name=name)
 
 

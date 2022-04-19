@@ -1,9 +1,10 @@
-from typing import Callable, Dict, Generic, Optional, TypeVar
+from typing import Any, Callable, Dict, Generic, Optional, TypeVar
 
 import whylogs_datasketches as ds  # type: ignore
 
 from whylogs.core.metrics.decorators import (
     DecoratedFunction,
+    FuncType,
     _decorate_func,
     _func_wrapper,
 )
@@ -21,7 +22,7 @@ _MAX_BUILT_IN_ID = 100
 
 
 class Serializer(DecoratedFunction, Generic[M]):
-    def __init__(self, *, func: Callable[[M], MetricComponentMessage], name: str):
+    def __init__(self, *, func: FuncType, name: str):
         self._name = name
         self._func = func
 
@@ -33,7 +34,7 @@ class Serializer(DecoratedFunction, Generic[M]):
         return self._func(value)
 
     @classmethod
-    def build(cls, func: "function", name: str) -> "Serializer":  # noqa
+    def build(cls, func: FuncType, name: str) -> "Serializer":  # noqa
         return Serializer(func=func, name=name)  # type: ignore
 
 
@@ -50,7 +51,7 @@ def _builtin_serializer(*, name: str) -> Callable[[Callable], Serializer]:
 
     """
 
-    def decorated(func: Callable) -> Serializer:
+    def decorated(func: FuncType) -> Serializer:
         annotations: Dict[str, type] = func.__annotations__.copy()
         if annotations["return"] != MetricComponentMessage:
             raise ValueError("Invalid function type: return type is not MetricComponentMessage")
@@ -59,7 +60,7 @@ def _builtin_serializer(*, name: str) -> Callable[[Callable], Serializer]:
         if arg_len != 1:
             raise ValueError(f"Expected 1 argument, got: {arg_len}")
 
-        agg = Serializer(func=func, name=name)
+        ser = Serializer[Any](func=func, name=name)
         input_type = next(iter(annotations.values()))
 
         _func_wrapper(
@@ -70,9 +71,9 @@ def _builtin_serializer(*, name: str) -> Callable[[Callable], Serializer]:
             clazz=Serializer,
         )
 
-        return agg
+        return ser
 
-    return decorated
+    return decorated  # type: ignore
 
 
 @_builtin_serializer(name="n")

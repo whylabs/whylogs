@@ -2,7 +2,7 @@
 whylogs
 ---
 """
-from .api import log, read, write
+from .api import log, profiling, read, write
 
 
 def package_version(package: str = __package__) -> str:
@@ -27,4 +27,5 @@ __ALL__ = [
     log,
     read,
     write,
+    profiling,
 ]
