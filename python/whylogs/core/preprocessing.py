@@ -66,7 +66,7 @@ class PandasView:
 
 
 @dataclass(init=False)
-class PreprocessColumn:
+class PreprocessedColumn:
     """View of a column with data of various underlying storage.
 
     If Pandas is available, we will use Pandas to handle batch processing.
@@ -149,8 +149,8 @@ class PreprocessColumn:
         return itertools.chain(iterables)
 
     @staticmethod
-    def apply(data: Any) -> "PreprocessColumn":
-        result = PreprocessColumn()
+    def apply(data: Any) -> "PreprocessedColumn":
+        result = PreprocessedColumn()
         result.original = data
         if isinstance(data, pd.Series):
             result._pandas_split(data)
@@ -159,16 +159,19 @@ class PreprocessColumn:
 
         if isinstance(data, np.ndarray):
             result.len = len(data)
-            if issubclass(data.dtype.type, np.floating):
-                result.numpy = NumpyView(floats=data.astype(float))
+            if issubclass(data.dtype.type, np.number):
+                if issubclass(data.dtype.type, np.floating):
+                    result.numpy = NumpyView(floats=data.astype(float))
+                else:
+                    result.numpy = NumpyView(ints=data.astype(int))
             else:
-                result.numpy = NumpyView(ints=data.astype(int))
+                raise ValueError(f"Unsupported numpy type: {data.dtype}")
             return result
 
         if isinstance(data, List):
             result.len = len(data)
             if pd.Series:
-                return PreprocessColumn.apply(pd.Series(data))
+                return PreprocessedColumn.apply(pd.Series(data))
 
             int_list = []
             float_list = []
@@ -204,7 +207,7 @@ class PreprocessColumn:
                 "Materializing an Iterable or Iterator into a list for processing. This could cause memory issue"
             )
             list_format = list(data)
-            return PreprocessColumn.apply(list_format)
+            return PreprocessedColumn.apply(list_format)
 
         logger.error(f"Failed to extract columnar data from type: {type(data)}")
 

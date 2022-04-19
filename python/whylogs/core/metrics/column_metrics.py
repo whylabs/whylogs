@@ -4,7 +4,7 @@ from typing import Any, Dict
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.metrics.metrics import ColumnSchema, Metric, OperationResult
-from whylogs.core.preprocessing import PreprocessColumn
+from whylogs.core.preprocessing import PreprocessedColumn
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,7 @@ class TypeCountersMetric(Metric):
             "object": self.object.value,
         }
 
-    def columnar_update(self, data: PreprocessColumn) -> OperationResult:
+    def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         if data.len <= 0:
             return OperationResult.ok(0)
 
@@ -82,7 +82,7 @@ class ColumnCountsMetric(Metric):
     n: IntegralComponent
     null: IntegralComponent
 
-    def columnar_update(self, data: PreprocessColumn) -> OperationResult:
+    def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         n: int = self.n.value
         null: int = self.null.value
         if data.len <= 0:
@@ -91,7 +91,7 @@ class ColumnCountsMetric(Metric):
         self.n.set(n)
 
         null += data.null_count
-        self.null.set(n)
+        self.null.set(null)
         return OperationResult.ok(data.len)
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:

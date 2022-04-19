@@ -24,7 +24,7 @@ from whylogs.core.metrics.metric_components import (
     MetricComponent,
     MinIntegralComponent,
 )
-from whylogs.core.preprocessing import PreprocessColumn
+from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
 
 T = TypeVar("T")
@@ -86,7 +86,7 @@ class Metric(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def columnar_update(self, data: PreprocessColumn) -> OperationResult:
+    def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         raise NotImplementedError
 
     @classmethod
@@ -111,7 +111,7 @@ class IntsMetric(Metric):
     max: MaxIntegralComponent
     min: MinIntegralComponent
 
-    def columnar_update(self, data: PreprocessColumn) -> OperationResult:
+    def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         if data.len <= 0:
             return OperationResult.ok(0)
 
@@ -164,7 +164,7 @@ class DistributionMetric(Metric):
             "q_90": quantiles[4],
         }
 
-    def columnar_update(self, view: PreprocessColumn) -> OperationResult:
+    def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         """
         Update the operation
 
@@ -277,7 +277,7 @@ class FrequentItem:
 class FrequentItemsMetric(Metric):
     fs: FrequentItemsComponent
 
-    def columnar_update(self, view: PreprocessColumn) -> OperationResult:
+    def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         successes = 0
         for arr in [view.numpy.floats, view.numpy.ints]:
             if arr is not None:
@@ -323,7 +323,7 @@ class FrequentItemsMetric(Metric):
 class CardinalityMetric(Metric):
     hll: HllComponent
 
-    def columnar_update(self, view: PreprocessColumn) -> OperationResult:
+    def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         successes = 0
         if view.numpy.len > 0:
             if view.numpy.ints is not None:

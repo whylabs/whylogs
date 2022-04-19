@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Dict, List
 
-from .preprocessing import PreprocessColumn
+from .preprocessing import PreprocessedColumn
 from .projectors import SingleFieldProjector
 from .proto import ColumnMessage, MetricComponentMessage
 from .schema import ColumnSchema
@@ -42,7 +42,7 @@ class ColumnProfile(object):
         self.track_column(old_cache)
 
     def track_column(self, series: Any) -> None:
-        ex_col = PreprocessColumn.apply(series)
+        ex_col = PreprocessedColumn.apply(series)
         for metric in self._metrics.values():
             res = metric.columnar_update(ex_col)
             self._success_count += res.failures
