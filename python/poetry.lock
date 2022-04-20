@@ -16,7 +16,7 @@ python-versions = "*"
 
 [[package]]
 name = "astroid"
-version = "2.11.2"
+version = "2.11.3"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
@@ -1367,7 +1367,7 @@ python-versions = "*"
 
 [[package]]
 name = "whylogs-datasketches"
-version = "3.4.0.dev3"
+version = "3.4.0.dev5"
 description = "The fork for whylogs for Apache DataSketches Library for Python"
 category = "main"
 optional = false
@@ -1399,7 +1399,7 @@ docs = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1, <4.0"
-content-hash = "09eae1d8781f3e94b61975c64ea005281058653103fc7540477509bc0c3c1c48"
+content-hash = "538c54c80183431af28a4b9d9ac1c9ae647ce836e09fcad120eff111c9157203"
 
 [metadata.files]
 alabaster = [
@@ -1411,8 +1411,8 @@ appnope = [
     {file = "appnope-0.1.3.tar.gz", hash = "sha256:02bd91c4de869fbb1e1c50aafc4098827a7a54ab2f39d9dcba6c9547ed920e24"},
 ]
 astroid = [
-    {file = "astroid-2.11.2-py3-none-any.whl", hash = "sha256:cc8cc0d2d916c42d0a7c476c57550a4557a083081976bf42a73414322a6411d9"},
-    {file = "astroid-2.11.2.tar.gz", hash = "sha256:8d0a30fe6481ce919f56690076eafbb2fb649142a89dc874f1ec0e7a011492d0"},
+    {file = "astroid-2.11.3-py3-none-any.whl", hash = "sha256:f1af57483cd17e963b2eddce8361e00fc593d1520fe19948488e94ff6476bd71"},
+    {file = "astroid-2.11.3.tar.gz", hash = "sha256:4e5ba10571e197785e312966ea5efb2f5783176d4c1a73fa922d474ae2be59f7"},
 ]
 atomicwrites = [
     {file = "atomicwrites-1.4.0-py2.py3-none-any.whl", hash = "sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197"},
@@ -2402,15 +2402,16 @@ wcwidth = [
     {file = "wcwidth-0.2.5.tar.gz", hash = "sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"},
 ]
 whylogs-datasketches = [
-    {file = "whylogs_datasketches-3.4.0.dev3-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:0b34529b8aaacced47efdb52ffc4502788f0d12efc59e5336679859f912a6c89"},
-    {file = "whylogs_datasketches-3.4.0.dev3-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:d1c97ebc98aaee95ad5538318624f449cc5c1ae4e06189be263fe3c7458a0927"},
-    {file = "whylogs_datasketches-3.4.0.dev3-cp37-cp37m-win_amd64.whl", hash = "sha256:7f3e671fdba96434d39f90fa667dd573115d0d460653bfdc67594cc56549bd2c"},
-    {file = "whylogs_datasketches-3.4.0.dev3-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:245720b0995a6d25d8291b4bd4096294c945c1452ac9f788ffeb179962a798b6"},
-    {file = "whylogs_datasketches-3.4.0.dev3-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:4e3c501969f7a3804bb47d847ef45c2afe0de031781bf039cd24803fdf50b69b"},
-    {file = "whylogs_datasketches-3.4.0.dev3-cp38-cp38-win_amd64.whl", hash = "sha256:2671bc0236a6ef241d88460fb0dc2628693b2fe5b2794364c2e87d79a97a224f"},
-    {file = "whylogs_datasketches-3.4.0.dev3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:ef52fa00d814dce26789a4cd21b91fd4fe6739017f7966dcc45f08e8296857ab"},
-    {file = "whylogs_datasketches-3.4.0.dev3-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:e0a4f42dfd80feea14ab53d839c461fa7bb4a1bc6f2435a9b312d80eb6ad7285"},
-    {file = "whylogs_datasketches-3.4.0.dev3-cp39-cp39-win_amd64.whl", hash = "sha256:3287e232eb9eb016b397e0f4d4578a4af3aaabe8fe871b34d16b131d00c56297"},
+    {file = "whylogs-datasketches-3.4.0.dev5.tar.gz", hash = "sha256:3cb4a513eaaa1c01c323509f3b99e2c24e49fff9eb66e208b1894144c64b3ab3"},
+    {file = "whylogs_datasketches-3.4.0.dev5-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:8392f55ed75a7fb069948ba0dbc1f2a3870a10fca69446fbca75b7b233cb23a8"},
+    {file = "whylogs_datasketches-3.4.0.dev5-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:b6eed800b78ba992764f7a9a1300a35d5ee2ebceeb5957f556b3fe4c9516f5f1"},
+    {file = "whylogs_datasketches-3.4.0.dev5-cp37-cp37m-win_amd64.whl", hash = "sha256:6976584af42e3e17f31b0cfb81013a08bf16a3aa2b28e3ba798be16625cec95e"},
+    {file = "whylogs_datasketches-3.4.0.dev5-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:4881c13d66233a3e74a332af0f5f02515534622e469d9f2ee4e2c2674b545b37"},
+    {file = "whylogs_datasketches-3.4.0.dev5-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:7909085b0c2ec637ac54e435bd0d275534516630afecb8d279dedac06d83b3ad"},
+    {file = "whylogs_datasketches-3.4.0.dev5-cp38-cp38-win_amd64.whl", hash = "sha256:29c955e74c721ec6c3d86ba5c9d61da6682ca930f961841b94089069b865360b"},
+    {file = "whylogs_datasketches-3.4.0.dev5-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:5463902825c798c505a0c933d9f9c5ed9c6b0ff2702a789cf02df5ebb6ffdf6a"},
+    {file = "whylogs_datasketches-3.4.0.dev5-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:726b857b861cdb4b821f58c4ccb5c156347041166512b7d4e4e52ad0a1ace064"},
+    {file = "whylogs_datasketches-3.4.0.dev5-cp39-cp39-win_amd64.whl", hash = "sha256:c787ab7e8806ddd2b8c5af9354017bdd6a0901240de4f396f2de8dbadecfd1f4"},
 ]
 wrapt = [
     {file = "wrapt-1.14.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:5a9a1889cc01ed2ed5f34574c90745fab1dd06ec2eee663e8ebeefe363e8efd7"},
