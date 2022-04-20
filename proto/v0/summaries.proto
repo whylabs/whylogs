@@ -1,0 +1,147 @@
+syntax = "proto3";
+
+import "messages.proto";
+
+import "google/protobuf/struct.proto";
+
+option java_package = "com.whylogs.v0.core.message";
+option java_outer_classname = "Summaries";
+option java_multiple_files = true;
+
+message UniqueCountSummary {
+  double estimate = 1;
+  double upper = 2;
+  double lower = 3;
+}
+
+message FrequentStringsSummary {
+  message FrequentItem {
+    string value = 1;
+    double estimate = 2;
+  }
+  repeated FrequentItem items = 1;
+}
+
+message FrequentNumbersSummary {
+  message FrequentDoubleItem {
+    int64 estimate = 1;
+    double value = 2;
+    int32 rank = 3;
+  }
+  message FrequentLongItem {
+    int64 estimate = 1;
+    int64 value = 2;
+    int32 rank = 3;
+  }
+  repeated FrequentDoubleItem doubles = 1;
+  repeated FrequentLongItem longs = 2;
+}
+
+message FrequentItemsSummary {
+  message FrequentItem {
+    int64 estimate = 1;
+    string json_value = 2;
+  }
+  repeated FrequentItem items = 1;
+}
+
+
+message CharPosSummary {
+  string character_list=1;
+  map<string, NumberSummary>  char_pos_map =2;
+}
+
+message StringsSummary {
+  UniqueCountSummary unique_count = 1;
+  FrequentStringsSummary frequent = 2;
+  NumberSummary length =3;
+  NumberSummary token_length=4;
+  CharPosSummary char_pos_tracker=5;
+}
+
+message SchemaSummary {
+  InferredType inferred_type = 1;
+  map<string, int64> type_counts = 2;
+}
+
+message HistogramSummary {
+  double start = 1;
+  double end = 2;
+  double width = 3;
+  repeated int64 counts = 4;
+
+  double max = 5;
+  double min = 6;
+  repeated double bins = 7;
+  int64 n = 8;
+
+}
+
+message QuantileSummary {
+  repeated double quantiles = 1;
+  repeated double quantile_values = 2;
+}
+
+message NumberSummary {
+  uint64 count = 1;
+  double min = 2;
+  double max = 3;
+  double mean = 4;
+  double stddev = 5;
+
+  HistogramSummary histogram = 6;
+  UniqueCountSummary unique_count = 7;
+  QuantileSummary quantiles = 8;
+  FrequentNumbersSummary frequent_numbers = 9;
+
+  bool is_discrete = 10;
+}
+
+message ColumnSummary {
+  CountersV0 counters = 1;
+  SchemaSummary schema = 2;
+  NumberSummary number_summary = 3;
+  StringsSummary string_summary = 4;
+  FrequentItemsSummary frequent_items = 5;
+  UniqueCountSummary unique_count = 6;
+}
+
+message DatasetSummary {
+  DatasetPropertiesV0 properties = 1;
+  map<string, ColumnSummary> columns = 2;
+  ModelSummary model = 3;
+}
+
+message ModelSummary {
+  MetricsSummary metrics = 1;
+}
+
+message MetricsSummary {
+  ModelType model_type = 1;
+  ROCCurve roc_fpr_tpr = 2;
+  RecallCurve recall_prec = 3;
+  ConfusionMatrix confusion_matrix = 4;
+}
+
+message ConfusionMatrix {
+  repeated string labels = 1;
+  string target_field = 2;
+  string predictions_field=3;
+  string score_field=4;
+  repeated google.protobuf.ListValue counts = 5;  // e.g. [[33, 6], [11, 27]]
+}
+
+message ROCCurve {
+  // e.g.   "values": [ [1, 0.42857],  [1, 0.42857], ... ]
+  repeated google.protobuf.ListValue values = 1;
+}
+
+
+message RecallCurve {
+  // e.g.   "values": [ [1, 1],  [1, 1], ... ]
+  repeated google.protobuf.ListValue values = 1;
+}
+
+message DatasetSummaries {
+  map<string, DatasetSummary> profiles = 1;
+}

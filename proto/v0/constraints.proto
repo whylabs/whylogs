@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+import "messages.proto";
+import "google/protobuf/struct.proto";
+import "summaries.proto";
+
+option java_package = "com.whylogs.v0.core.constraint";
+option java_outer_classname = "Constraints";
+option java_multiple_files = true;
+
+/* constraints specify one of the following binary boolean relationships. */
+enum Op {
+    unused = 0;
+    LT = 1;
+    LE = 2;
+    EQ = 3;
+    NE = 4;
+    GE = 5;
+    GT = 6;
+    MATCH = 7;
+    NOMATCH = 8;
+    BTWN = 9;
+    IN_SET = 10;
+    CONTAIN_SET = 11;
+    EQ_SET = 12;
+    APPLY_FUNC = 13;
+    IN = 14;
+    CONTAIN = 15;
+    NOT_IN = 16;
+    SUM = 17;
+  }
+
+/* Summary constraints specify a relationship between a summary field and a literal value,
+   or between two summary fields.
+   e.g.     'min' < 6
+            'std_dev' < 2.17
+            'min' > 'avg'
+   */
+message SummaryConstraintMsg {
+  string name = 1;
+  string first_field = 2;
+  oneof second {
+     string second_field = 3;
+     double value = 4;
+     SummaryBetweenConstraintMsg between = 7;
+     google.protobuf.ListValue reference_set = 8;
+     string value_str = 12;
+  }
+  Op op = 5;
+  bool verbose = 6;
+  double quantile_value = 9;
+  oneof reference_distribution{
+    ReferenceDistributionContinuousMessage continuous_distribution = 10;
+    ReferenceDistributionDiscreteMessage discrete_distribution = 11;
+  }
+}
+
+message ReferenceDistributionContinuousMessage {
+  KllFloatsSketchMessage sketch = 1;
+}
+
+message ReferenceDistributionDiscreteMessage {
+  FrequentItemsSummary frequent_items = 1;
+  UniqueCountSummary unique_count = 2;
+  float total_count = 3;
+}
+
+message SummaryBetweenConstraintMsg {
+  oneof lower {
+     string second_field = 1;
+     double lower_value = 2;
+  }
+  oneof upper {
+     string third_field = 3;
+     double upper_value = 4;
+  }
+
+}
+
+/* ValueConstraints express a binary boolean relationship between an implied numeric value and a literal, or between a string value and a regex pattern.
+   These are applied to every incoming value that is processed by whylogs.  */
+message ApplyFunctionMsg {
+  string function = 1;
+  string reference_value = 2;
+}
+
+message ValueConstraintMsg {
+  string name = 1;
+  oneof second_field {
+    double value = 2;
+    string regex_pattern = 5;
+    google.protobuf.ListValue value_set = 6;
+    ApplyFunctionMsg function = 7;
+
+  }
+  Op op = 3;
+  bool verbose = 4;
+  uint32 total = 8;
+  uint32 failures = 9;
+}
+
+message MultiColumnValueConstraintMsg {
+  string name = 1;
+  oneof dependent {
+    google.protobuf.ListValue dependent_columns = 2;
+    string dependent_column = 3;
+  }
+
+  oneof reference {
+    double value = 6;
+    google.protobuf.ListValue value_set = 7;
+    google.protobuf.ListValue reference_columns = 8;
+  }
+  Op op = 4;
+  bool verbose = 5;
+  Op internal_dependent_columns_op = 9;
+  uint32 total = 10;
+  uint32 failures = 11;
+}
+
+message ValueConstraintMsgs {
+  repeated ValueConstraintMsg constraints = 1;
+  repeated MultiColumnValueConstraintMsg multi_column_constraints = 2;
+}
+
+message SummaryConstraintMsgs {
+  repeated SummaryConstraintMsg constraints = 1;
+}
+
+message DatasetConstraintMsg {
+  DatasetPropertiesV0 properties = 1;
+  map<string, ValueConstraintMsgs> value_constraints = 2;
+  map<string, SummaryConstraintMsgs> summary_constraints = 3;
+  SummaryConstraintMsgs table_shape_constraints = 4;
+  ValueConstraintMsgs multi_column_value_constraints = 5;
+}

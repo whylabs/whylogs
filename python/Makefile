@@ -3,7 +3,8 @@ tst.python := $(shell find ./tests -type f -name "*.py")
 src.python.pyc := $(shell find ./whylogs -type f -name "*.pyc")
 src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
-
+src.proto.v0.dir := ../proto/v0/
+src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
 version := 1.0.0
 
 dist.dir := dist
@@ -14,7 +15,8 @@ build.dir := build
 build.wheel := $(dist.dir)/whylogs-$(version).tar.gz
 build.proto.dir := whylogs/core/proto
 build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$(src.proto))
-
+build.proto.v0.dir := whylogs/core/proto/v0
+build.proto.v0 := $(patsubst $(src.proto.v0.dir)/%.proto,$(build.proto.v0.dir)/%_pb2.py,$(src.proto.v0))
 default: dist
 
 release: format lint test dist ## Compile distribution files and run all tests and checks.
@@ -24,7 +26,7 @@ pre-commit:
 	poetry run pre-commit run --all-files
 
 
-.PHONY: dist clean clean-test help format lint test install coverage docs default proto github release
+.PHONY: dist clean clean-test help format lint test install coverage docs default proto proto-v0 github release
 .PHONY: test-system-python format-fix blackd jupyter-kernel
 
 ifeq ($(shell which poetry), )
@@ -70,6 +72,8 @@ $(build.wheel): $(src.python) $(build.proto)
 
 proto: $(build.proto)
 
+proto-v0: $(build.proto.v0)
+
 requirements.txt:
 	@$(call i, Generating a requirements.txt file from poetry)
 	poetry export -f requirements.txt --output requirements.txt --dev
@@ -78,6 +82,12 @@ $(build.proto): $(src.proto)
 	@$(call i, Generating python source for protobuf)
 	$(eval MYPY := $(shell poetry run which protoc-gen-mypy))
 	protoc -I $(src.proto.dir) --plugin=protoc-gen-mypy=$(MYPY) --python_out=$(build.proto.dir) $(src.proto) --mypy_out=$(build.proto.dir)
+
+$(build.proto.v0): $(src.proto.0)
+	@$(call i, Generating python source for protobuf)
+	$(eval MYPY := $(shell poetry run which protoc-gen-mypy))
+	protoc -I $(src.proto.v0.dir) --plugin=protoc-gen-mypy=$(MYPY) --python_out=$(build.proto.v0.dir) $(src.proto.v0) --mypy_out=$(build.proto.v0.dir)
+
 
 lint: ## Check code for lint errors.
 	@$(call i, Running the linter)
