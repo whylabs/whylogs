@@ -8,9 +8,6 @@ brew install protobuf
 You'll need to install poetry in order to install dependencies using the lock file in this project. Follow [their docs](https://python-poetry.org/docs/) to get it set up.
 
 ```
-git clone https://github.com/whylabs/whylogs-java.git
-git submodule update --init --recursive
-
 # Use poetry to install dependencies
 make install
 
