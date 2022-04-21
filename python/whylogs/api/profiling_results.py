@@ -5,11 +5,11 @@ class ProfilingResults:
     """
     A holder object for profiling results.
 
-    A whylogs.log call can result to more than one profiles. This wrapper class
+    A whylogs.log call can result in more than one profile. This wrapper class
     simplifies the navigation among these profiles.
 
     Note that currently we only hold one profile but we're planning to add other
-    kind of profiles here.
+    kinds of profiles such as segmented profiles here.
     """
 
     def __init__(self, profile: DatasetProfile):

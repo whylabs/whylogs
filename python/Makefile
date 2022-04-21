@@ -54,7 +54,6 @@ clean: clean-test ## Remove all build artifacts
 	rm -f $(src.python.pyc)
 	rm -rf $(egg.dir)
 	rm -rf $(build.proto)
-	rm -f $(build.proto)
 	rm -f $(build.proto.v0)
 	rm -f requirements.txt
 

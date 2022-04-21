@@ -171,7 +171,7 @@ class PreprocessedColumn:
         if isinstance(data, List):
             result.len = len(data)
             if pd.Series:
-                return PreprocessedColumn.apply(pd.Series(data))
+                return PreprocessedColumn.apply(pd.Series(data, dtype="object"))
 
             int_list = []
             float_list = []
