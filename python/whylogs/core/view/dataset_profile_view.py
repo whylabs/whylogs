@@ -12,7 +12,6 @@ from whylogs.core.proto import (
     ChunkOffsets,
     ColumnMessage,
     DatasetProfileHeader,
-    DatasetProfileMessage,
     MetricComponentMessage,
 )
 from whylogs.core.stubs import pd
@@ -130,11 +129,3 @@ class DatasetProfileView(object):
             all_dicts.append(sum_dict)
         df = pd.DataFrame(all_dicts)
         return df.set_index("column")
-
-    @classmethod
-    def from_protobuf(cls, msg: DatasetProfileMessage) -> "DatasetProfileView":
-        res = {}
-        for col_name, col_msg in msg.columns.items():
-            res[col_name] = ColumnProfileView.deserialize(col_msg)
-
-        return DatasetProfileView(columns=res)

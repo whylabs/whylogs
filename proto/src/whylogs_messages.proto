@@ -80,12 +80,6 @@ message DatasetProperties {
   map<string, string> metadata = 7;
 }
 
-message DatasetProfileMessage {
-  DatasetProperties properties = 1;
-  map<string, ColumnMessage> columns = 2;
-  map<string, MetricComponentMessage> metric_components = 3;
-}
-
 message ChunkOffsets {
   repeated int32 offsets = 1;
 }

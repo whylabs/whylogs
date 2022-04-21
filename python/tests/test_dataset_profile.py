@@ -1,7 +1,7 @@
 import numpy
 import pandas as pd
 
-from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
+from whylogs.core import DatasetProfile, DatasetSchema
 
 
 def test_basic_dataset_profile() -> None:
@@ -10,7 +10,6 @@ def test_basic_dataset_profile() -> None:
 
     profile = DatasetProfile()
     profile.track(pandas=df)
-    profile.serialize()
 
     assert profile._columns["col1"]._schema.dtype == numpy.int64
     assert profile._columns["col2"]._schema.dtype == numpy.float64
@@ -28,8 +27,7 @@ def test_override_schema_col2_as_string() -> None:
 
     profile = DatasetProfile(MyCustomSchema())
     profile.track(pandas=df)
-    msg = profile.serialize()
-    view = DatasetProfileView.from_protobuf(msg)
+    view = profile.view()
     assert view.get_column("col1") is not None
     view2 = profile.view()
     assert view2.get_column("col1") is not None

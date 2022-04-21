@@ -4,18 +4,9 @@ import time
 from typing import Any, Dict, Mapping, Optional
 
 from .column_profile import ColumnProfile
-from .proto import DatasetProfileMessage
 from .schema import DatasetSchema
 from .stubs import pd
 from .view import DatasetProfileView
-
-HAS_SMART_OPEN = False
-try:
-    from smart_open import open  # type: ignore
-
-    HAS_SMART_OPEN = True
-except:  # noqa
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -92,42 +83,18 @@ class DatasetProfile(object):
         for col in self._columns.values():
             col.flush()
 
-    def serialize(self) -> DatasetProfileMessage:
-        self.flush()
-        res = {}
-        for col_name, col in self._columns.items():
-            res[col_name] = col.serialize()
-        return DatasetProfileMessage(columns=res)
-
     def write(self, path_or_base_dir: str) -> None:
-        self._check_smart_open(path_or_base_dir)
-
         if not path_or_base_dir.endswith(".bin"):
             output_path = os.path.join(path_or_base_dir, f"profile.{int(round(time.time() * 1000))}.bin")
         else:
             output_path = path_or_base_dir
 
-        with open(output_path, "wb") as f:
-            f.write(self.serialize().SerializeToString())
+        self.view().write(output_path)
         logger.debug("Wrote profile to path: %s", output_path)
 
     @classmethod
     def read(cls, input_path: str) -> DatasetProfileView:
-        msg = DatasetProfileMessage()
-        with open(input_path, "rb") as f:
-            msg.ParseFromString(f.read_delimited_protobuf())
-            return DatasetProfileView.from_protobuf(msg)
+        return DatasetProfileView.read(input_path)
 
     def __repr__(self) -> str:
         return f"DatasetProfile({len(self._columns)} columns). Schema: {str(self._schema)}"
-
-    @staticmethod
-    def _check_smart_open(base_dir: str) -> None:
-        if not HAS_SMART_OPEN:
-            if (
-                base_dir.startswith("s3://")
-                or base_dir.startswith("gs://")
-                or base_dir.startswith("azure://")
-                or base_dir.startswith("hdfs:/")
-            ):
-                logger.error("smart_open is not available. Reading or writing with remote storage path might fail")
