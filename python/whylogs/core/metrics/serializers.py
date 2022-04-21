@@ -88,17 +88,17 @@ def _float(value: float) -> MetricComponentMessage:
 
 @_builtin_serializer(name="kll")
 def _kll(sketch: ds.kll_doubles_sketch) -> MetricComponentMessage:
-    return MetricComponentMessage(kll=KllSketchMessage(sketch=sketch.serialize(), k=sketch.get_k()))
+    return MetricComponentMessage(kll=KllSketchMessage(sketch=sketch.serialize()))
 
 
 @_builtin_serializer(name="kll")
 def _hll_merge(sketch: ds.hll_sketch) -> MetricComponentMessage:
-    return MetricComponentMessage(hll=HllSketchMessage(sketch=sketch.serialize_compact(), lg_k=sketch.lg_config_k))
+    return MetricComponentMessage(hll=HllSketchMessage(sketch=sketch.serialize_compact()))
 
 
 @_builtin_serializer(name="kll")
 def _fs_merge(sketch: ds.frequent_strings_sketch) -> MetricComponentMessage:
-    msg = FrequentItemsSketchMessage(sketch=sketch.serialize(), lg_max_k=12)
+    msg = FrequentItemsSketchMessage(sketch=sketch.serialize())
 
     return MetricComponentMessage(frequent_items=msg)
 

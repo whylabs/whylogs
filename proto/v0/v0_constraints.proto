@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-import "messages.proto";
+import "v0_messages.proto";
 import "google/protobuf/struct.proto";
-import "summaries.proto";
+import "v0_summaries.proto";
 
 option java_package = "com.whylogs.v0.core.constraint";
 option java_outer_classname = "Constraints";

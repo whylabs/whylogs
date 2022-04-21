@@ -150,7 +150,10 @@ class DistributionMetric(Metric):
     m2: FractionalComponent
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Union[int, float, str, None]]:
-        quantiles = self.kll.value.get_quantiles([0.1, 0.25, 0.5, 0.75, 0.9])
+        if self.n == 0:
+            quantiles = [None, None, None, None, None]
+        else:
+            quantiles = self.kll.value.get_quantiles([0.1, 0.25, 0.5, 0.75, 0.9])
         return {
             "mean": self.mean.value,
             "stddev": self.stddev,

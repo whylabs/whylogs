@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "messages.proto";
+import "v0_messages.proto";
 
 import "google/protobuf/struct.proto";
 

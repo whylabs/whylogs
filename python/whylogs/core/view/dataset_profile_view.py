@@ -58,6 +58,7 @@ class DatasetProfileView(object):
 
     @classmethod
     def deserialize(cls, msg: DatasetProfileMessage) -> "DatasetProfileView":
+
         res = {}
         for col_name, col_msg in msg.columns.items():
             res[col_name] = ColumnProfileView.deserialize(col_msg)

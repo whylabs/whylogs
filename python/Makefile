@@ -55,6 +55,7 @@ clean: clean-test ## Remove all build artifacts
 	rm -rf $(egg.dir)
 	rm -rf $(build.proto)
 	rm -f $(build.proto)
+	rm -f $(build.proto.v0)
 	rm -f requirements.txt
 
 clean-test: ## Remove test and coverage artifacts
@@ -64,7 +65,7 @@ clean-test: ## Remove test and coverage artifacts
 
 dist: $(build.wheel) ## Create distribution tarballs and wheels
 
-$(build.wheel): $(src.python) $(build.proto)
+$(build.wheel): $(src.python) $(build.proto) $(build.proto.v0)
 	@$(call i, Generating distribution files)
 	poetry build
 	@$(call i, Distribution files created)
@@ -82,11 +83,16 @@ $(build.proto): $(src.proto)
 	@$(call i, Generating python source for protobuf)
 	$(eval MYPY := $(shell poetry run which protoc-gen-mypy))
 	protoc -I $(src.proto.dir) --plugin=protoc-gen-mypy=$(MYPY) --python_out=$(build.proto.dir) $(src.proto) --mypy_out=$(build.proto.dir)
-
-$(build.proto.v0): $(src.proto.0)
-	@$(call i, Generating python source for protobuf)
+	@$(call i, Generating python source for protobuf v0)
 	$(eval MYPY := $(shell poetry run which protoc-gen-mypy))
 	protoc -I $(src.proto.v0.dir) --plugin=protoc-gen-mypy=$(MYPY) --python_out=$(build.proto.v0.dir) $(src.proto.v0) --mypy_out=$(build.proto.v0.dir)
+	poetry run 2to3 --nobackups --write ${build.proto.v0.dir}
+
+$(build.proto.v0): $(src.proto.v0)
+	@$(call i, Generating python source for protobuf v0)
+	$(eval MYPY := $(shell poetry run which protoc-gen-mypy))
+	protoc -I $(src.proto.v0.dir) --plugin=protoc-gen-mypy=$(MYPY) --python_out=$(build.proto.v0.dir) $(src.proto.v0) --mypy_out=$(build.proto.v0.dir)
+	poetry run 2to3 --nobackups --write ${build.proto.v0.dir}
 
 
 lint: ## Check code for lint errors.

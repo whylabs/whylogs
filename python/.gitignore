@@ -1,0 +1,7 @@
+*_pb2.py
+*_pb2.pyi
+!__init__.py
+.mypy_cache
+.pytest_cache
+.venv
+dist

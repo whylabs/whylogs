@@ -21,17 +21,18 @@ message DataType {
 
 message HllSketchMessage {
   bytes sketch = 1;
-  int32 lg_k = 2;
 }
 
 message FrequentItemsSketchMessage {
   bytes sketch = 1;
-  int32 lg_max_k = 2;
 }
 
 message KllSketchMessage {
   bytes sketch = 1;
-  int32 k = 2 [deprecated = true];
+}
+
+message CpcSketchMessage {
+  bytes sketch = 1;
 }
 
 message MetricComponentMessage {
@@ -44,9 +45,10 @@ message MetricComponentMessage {
     FrequentItemsSketchMessage frequent_items = 4;
     HllSketchMessage hll = 5;
     KllSketchMessage kll = 6;
+    CpcSketchMessage cpc = 7;
 
     // extension points
-    bytes serialized_bytes = 7;
+    bytes serialized_bytes = 20;
     CustomMetricComponent custom = 15;
   }
 }
@@ -97,9 +99,14 @@ message MessageIndex {
   string extension_length = 5; // offset + length
 }
 
+message ColumnChunkIndices {
+  repeated MessageIndex indices = 1;
+}
+
 message DatasetProfileHeader {
   DatasetProperties properties = 1;
-  repeated MessageIndex indices = 2;
+  map<string, ColumnChunkIndices> column_chunk_indices = 2;
+  repeated MessageIndex metric_chunk_indices = 3;
 }
 
 // [HEADER][len][DATASET MEASURES CHUNK 1][len][DATASET MEASURES CHUNK 2][COLUMN 1][COLUMN1 EXTENSION][COLUMN2]
