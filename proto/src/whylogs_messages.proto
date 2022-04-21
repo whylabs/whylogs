@@ -86,27 +86,24 @@ message DatasetProfileMessage {
   map<string, MetricComponentMessage> metric_components = 3;
 }
 
-message MessageIndex {
-  enum Type {
-    DATASET = 0;
-    COLUMN = 1;
-  }
-
-  Type type = 1;
-  string name = 2;
-  string offset = 3;
-  string length = 4;
-  string extension_length = 5; // offset + length
+message ChunkOffsets {
+  repeated int32 offsets = 1;
 }
 
-message ColumnChunkIndices {
-  repeated MessageIndex indices = 1;
+message ChunkHeader {
+  enum ChunkType {
+    DATASET = 0;
+    COLUMN = 2;
+  }
+  ChunkType type = 1;
+  string tag = 2;
+  uint32 length = 3;
 }
 
 message DatasetProfileHeader {
   DatasetProperties properties = 1;
-  map<string, ColumnChunkIndices> column_chunk_indices = 2;
-  repeated MessageIndex metric_chunk_indices = 3;
+  map<string, ChunkOffsets> column_offsets = 2;
+  repeated ChunkOffsets metric_offsets = 3;
 }
 
 // [HEADER][len][DATASET MEASURES CHUNK 1][len][DATASET MEASURES CHUNK 2][COLUMN 1][COLUMN1 EXTENSION][COLUMN2]

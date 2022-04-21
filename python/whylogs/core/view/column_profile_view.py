@@ -2,6 +2,7 @@ import logging
 from typing import Any, Dict, Optional
 
 from whylogs.core.configs import SummaryConfig
+from whylogs.core.errors import UnsupportedError
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.proto import ColumnMessage, MetricComponentMessage, MetricMessage
@@ -51,7 +52,8 @@ class ColumnProfileView(object):
     def serialize(self) -> ColumnMessage:
         res: Dict[str, MetricComponentMessage] = {}
         for m_name, m in self._metrics.items():
-            res.update(m.serialize().metric_components)
+            for mc_name, mc in m.serialize().metric_components.items():
+                res[f"{m.namespace}/{mc_name}"] = mc
         return ColumnMessage(metric_components=res)
 
     def to_summary_dict(
@@ -73,7 +75,7 @@ class ColumnProfileView(object):
                 pass
 
         if column_metric is not None and len(res) == 0:
-            raise ValueError(f"No metric available for requested column metric: {column_metric}")
+            raise UnsupportedError(f"No metric available for requested column metric: {column_metric}")
 
         return res
 
@@ -95,7 +97,7 @@ class ColumnProfileView(object):
         for m_name, metric_components in metric_messages.items():
             m_enum = StandardMetric.__members__.get(m_name)
             if m_enum is None:
-                raise ValueError(f"Unsupported metric: {m_name}")
+                raise UnsupportedError(f"Unsupported metric: {m_name}")
 
             m_msg = MetricMessage(metric_components=metric_components)
             result_metrics[m_name] = m_enum.value.deserialize(m_msg)

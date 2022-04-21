@@ -115,8 +115,8 @@ class DatasetProfile(object):
     def read(cls, input_path: str) -> DatasetProfileView:
         msg = DatasetProfileMessage()
         with open(input_path, "rb") as f:
-            msg.ParseFromString(f.read())
-            return DatasetProfileView.deserialize(msg)
+            msg.ParseFromString(f.read_delimited_protobuf())
+            return DatasetProfileView.from_protobuf(msg)
 
     def __repr__(self) -> str:
         return f"DatasetProfile({len(self._columns)} columns). Schema: {str(self._schema)}"

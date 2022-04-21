@@ -28,7 +28,7 @@ class StandardResolver(Resolver):
         metrics: List[StandardMetric] = [StandardMetric.cnt, StandardMetric.types]
         if isinstance(why_type, Integral):
             metrics.append(StandardMetric.dist)
-            metrics.append(StandardMetric.int)
+            metrics.append(StandardMetric.ints)
             metrics.append(StandardMetric.card)
             metrics.append(StandardMetric.fi)
         elif isinstance(why_type, Fractional):

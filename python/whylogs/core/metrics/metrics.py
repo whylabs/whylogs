@@ -56,6 +56,11 @@ class OperationResult:
 
 
 class Metric(ABC):
+    @property
+    @abstractmethod
+    def namespace(self) -> str:
+        raise NotImplementedError
+
     def __add__(self: METRIC, other: METRIC) -> METRIC:
         return self.merge(other)
 
@@ -111,6 +116,10 @@ class IntsMetric(Metric):
     max: MaxIntegralComponent
     min: MinIntegralComponent
 
+    @property
+    def namespace(self) -> str:
+        return "ints"
+
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         if data.len <= 0:
             return OperationResult.ok(0)
@@ -148,6 +157,10 @@ class DistributionMetric(Metric):
     kll: KllComponent
     mean: FractionalComponent
     m2: FractionalComponent
+
+    @property
+    def namespace(self) -> str:
+        return "dist"
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Union[int, float, str, None]]:
         if self.n == 0:
@@ -280,6 +293,10 @@ class FrequentItem:
 class FrequentItemsMetric(Metric):
     fs: FrequentItemsComponent
 
+    @property
+    def namespace(self) -> str:
+        return "fi"
+
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         successes = 0
         for arr in [view.numpy.floats, view.numpy.ints]:
@@ -325,6 +342,10 @@ class FrequentItemsMetric(Metric):
 @dataclass(frozen=True)
 class CardinalityMetric(Metric):
     hll: HllComponent
+
+    @property
+    def namespace(self) -> str:
+        return "types"
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         successes = 0

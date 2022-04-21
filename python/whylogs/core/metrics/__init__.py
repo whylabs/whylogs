@@ -14,7 +14,7 @@ class StandardMetric(Enum):
     types = TypeCountersMetric
     dist = DistributionMetric
     cnt = ColumnCountsMetric
-    int = IntsMetric
+    ints = IntsMetric
     card = CardinalityMetric
     fi = FrequentItemsMetric
 

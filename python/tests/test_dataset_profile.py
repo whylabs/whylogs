@@ -29,7 +29,7 @@ def test_override_schema_col2_as_string() -> None:
     profile = DatasetProfile(MyCustomSchema())
     profile.track(pandas=df)
     msg = profile.serialize()
-    view = DatasetProfileView.deserialize(msg)
+    view = DatasetProfileView.from_protobuf(msg)
     assert view.get_column("col1") is not None
     view2 = profile.view()
     assert view2.get_column("col1") is not None

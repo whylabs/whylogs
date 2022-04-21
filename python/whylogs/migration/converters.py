@@ -3,6 +3,7 @@ from typing import Dict
 import whylogs_datasketches as ds  # type: ignore
 
 from whylogs.core import ColumnProfileView, DatasetProfileView
+from whylogs.core.errors import DeserializationError
 from whylogs.core.metrics import (
     ColumnCountsMetric,
     DistributionMetric,
@@ -20,6 +21,15 @@ from whylogs.core.metrics.metric_components import (
     MinIntegralComponent,
 )
 from whylogs.core.proto.v0 import ColumnMessageV0, DatasetProfileMessageV0, InferredType
+from whylogs.core.utils import read_delimited_protobuf
+
+
+def read_v0_to_view(path: str) -> DatasetProfileView:
+    with open(path, "r+b") as f:
+        v0_msg = read_delimited_protobuf(f, DatasetProfileMessageV0)
+        if v0_msg is None:
+            raise DeserializationError("Unexpected empty message")
+        return v0_to_v1_view(v0_msg)
 
 
 def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
@@ -41,7 +51,7 @@ def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
                 StandardMetric.cnt.name: count_metrics,
                 StandardMetric.types.name: type_counters_metric,
                 StandardMetric.card.name: type_counters_metric,
-                StandardMetric.int.name: int_metric,
+                StandardMetric.ints.name: int_metric,
             }
         )
 
@@ -61,18 +71,18 @@ def _extract_type_counts_metric(msg: ColumnMessageV0) -> TypeCountersMetric:
     string_count = msg.schema.typeCounts.get(InferredType.STRING)
     obj_count = msg.schema.typeCounts.get(InferredType.UNKNOWN)
     return TypeCountersMetric(
-        integral=IntegralComponent(int_count),
-        fractional=IntegralComponent(frac_count),
-        boolean=IntegralComponent(bool_count),
-        string=IntegralComponent(string_count),
-        object=IntegralComponent(obj_count),
+        integral=IntegralComponent(int_count or 0),
+        fractional=IntegralComponent(frac_count or 0),
+        boolean=IntegralComponent(bool_count or 0),
+        string=IntegralComponent(string_count or 0),
+        object=IntegralComponent(obj_count or 0),
     )
 
 
 def _extract_col_counts(msg: ColumnMessageV0) -> ColumnCountsMetric:
     count_n = msg.counters.count
     count_null = msg.counters.null_count
-    return ColumnCountsMetric(n=IntegralComponent(count_n), null=IntegralComponent(count_null.value))
+    return ColumnCountsMetric(n=IntegralComponent(count_n or 0), null=IntegralComponent(count_null.value or 0))
 
 
 def _extract_dist_metric(msg: ColumnMessageV0) -> DistributionMetric:

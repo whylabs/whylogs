@@ -15,6 +15,10 @@ class TypeCountersMetric(Metric):
     string: IntegralComponent
     object: IntegralComponent
 
+    @property
+    def namespace(self) -> str:
+        return "types"
+
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
         return {
             "integral": self.integral.value,
@@ -81,6 +85,10 @@ class TypeCountersMetric(Metric):
 class ColumnCountsMetric(Metric):
     n: IntegralComponent
     null: IntegralComponent
+
+    @property
+    def namespace(self) -> str:
+        return "cnt"
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         n: int = self.n.value
