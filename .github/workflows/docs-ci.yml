@@ -24,6 +24,10 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install Protoc
+        uses: arduino/setup-protoc@master
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Poetry cache for Python dependencies
         uses: actions/cache@v2
         if: startsWith(runner.os, 'Linux')
@@ -39,6 +43,7 @@ jobs:
         run: poetry install -E docs
       - name: Run sphinx
         run: |
+          make proto -B
           cd docs
           poetry run make html
       - name: Publish
