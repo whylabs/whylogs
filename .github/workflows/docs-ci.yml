@@ -1,6 +1,7 @@
 name: docs-ci
 
 on:
+  pull_request:
   push:
     branches: [mainline]
   workflow_dispatch:
@@ -51,3 +52,4 @@ jobs:
         with:
           branch: gh-pages
           folder: python/docs/_build/html
+        if: ${{ github.ref == 'refs/heads/mainline' }}
