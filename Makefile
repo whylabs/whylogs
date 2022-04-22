@@ -5,11 +5,12 @@ src.python.pyc := $(shell find ./src -type f -name "*.pyc")
 src.proto.dir := ./proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 
-version := 0.7.4
+version := 0.7.5
 
 dist.dir := dist
 egg.dir := .eggs
 build.dir := build
+
 # This isn't exactly true but its the only thing that we easily know the name of at this point. Its a good proxy for
 # the wheel since its created along with it.
 build.wheel := $(dist.dir)/whylogs-$(version).tar.gz
