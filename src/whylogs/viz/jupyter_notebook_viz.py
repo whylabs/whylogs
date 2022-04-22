@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 numerical_types = (InferredType.Type.INTEGRAL, InferredType.Type.FRACTIONAL)
 
 
-class NotebookProfileViewer:
+class NotebookProfileVisualizer:
     SUMMARY_REPORT_TEMPLATE_NAME = "index-hbs-cdn-all-in-for-jupyter-notebook.html"
     DOUBLE_HISTOGRAM_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-distribution-chart.html"
     DISTRIBUTION_CHART_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-bar-chart.html"
