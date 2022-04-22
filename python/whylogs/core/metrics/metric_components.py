@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Generic, Optional, Type, TypeVar
 
-import whylogs_datasketches as ds  # type: ignore
+import whylogs_sketching as ds  # type: ignore
 
 from whylogs.core.metrics.aggregators import (
     AggregatorRegistry,

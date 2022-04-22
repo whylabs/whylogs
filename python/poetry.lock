@@ -1300,7 +1300,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "types-protobuf"
-version = "3.19.17"
+version = "3.19.18"
 description = "Typing stubs for protobuf"
 category = "dev"
 optional = false
@@ -1374,9 +1374,9 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "whylogs-datasketches"
-version = "3.4.0.dev6"
-description = "The fork for whylogs for Apache DataSketches Library for Python"
+name = "whylogs-sketching"
+version = "3.4.0.dev9"
+description = "sketching library of whylogs"
 category = "main"
 optional = false
 python-versions = "*"
@@ -1407,7 +1407,7 @@ docs = []
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1, <4.0"
-content-hash = "067696a456cec26f7877e35124fd1fbc9e1437abb3039929cb50e039fe70bebc"
+content-hash = "7dce081469177be30c153907938fd1a69d101a2c429a89dac60596d12dd83fc2"
 
 [metadata.files]
 2to3 = [
@@ -2364,8 +2364,8 @@ typed-ast = [
     {file = "typed_ast-1.5.3.tar.gz", hash = "sha256:27f25232e2dd0edfe1f019d6bfaaf11e86e657d9bdb7b0956db95f560cceb2b3"},
 ]
 types-protobuf = [
-    {file = "types-protobuf-3.19.17.tar.gz", hash = "sha256:d0d930326cd76d9e85fd592e18c2248636bdbbf0226618082f57a82f00dd7d25"},
-    {file = "types_protobuf-3.19.17-py3-none-any.whl", hash = "sha256:68e9e7bd9439a7b5ee679ada87a2622f2f7df2c66434ff49a5729007ceebc501"},
+    {file = "types-protobuf-3.19.18.tar.gz", hash = "sha256:670b25c1a4f3d650a9d8a009b0cf19a1aa0e7cba044045648b563e825f35d4d3"},
+    {file = "types_protobuf-3.19.18-py3-none-any.whl", hash = "sha256:78d677fefb10e3ea88b8c0fab543833e82cd6eb27e3f71aeda2d5cd9bd503ae1"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.2.0-py3-none-any.whl", hash = "sha256:6657594ee297170d19f67d55c05852a874e7eb634f4f753dbd667855e07c1708"},
@@ -2413,17 +2413,20 @@ wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},
     {file = "wcwidth-0.2.5.tar.gz", hash = "sha256:c4d647b99872929fdb7bdcaa4fbe7f01413ed3d98077df798530e5b04f116c83"},
 ]
-whylogs-datasketches = [
-    {file = "whylogs-datasketches-3.4.0.dev6.tar.gz", hash = "sha256:a78cc983e728156c0d7b5974f6602bf95fa568b40b87424ac5478cea5ba50fd6"},
-    {file = "whylogs_datasketches-3.4.0.dev6-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:3e113731b199ee8d60c17b024b9c02a9b9a075b75e2dc57848fe725a1c24c5c0"},
-    {file = "whylogs_datasketches-3.4.0.dev6-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:99c3ffd23430b707c7bf3027d9306f18cf0bfe355a4160f8c0507c4e1efe93dc"},
-    {file = "whylogs_datasketches-3.4.0.dev6-cp37-cp37m-win_amd64.whl", hash = "sha256:134f2ea5dd76f18598bfe7fdd7c6f2b04cbd8e42ab611c40794dcc9560707bc2"},
-    {file = "whylogs_datasketches-3.4.0.dev6-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:6540e370366feedb2732a0c3337b917d62415ee755725f796e88420362f9e8b5"},
-    {file = "whylogs_datasketches-3.4.0.dev6-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:058a0f2cec8895f46480b0165550519dcd9891bd9a6ef9d3a78c247646438d67"},
-    {file = "whylogs_datasketches-3.4.0.dev6-cp38-cp38-win_amd64.whl", hash = "sha256:6740469b6f4712832d4c944c07e6386e5e5f4d520c655502212f09dc106a879e"},
-    {file = "whylogs_datasketches-3.4.0.dev6-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:863da7c32cb94e1fa3580e1bd74e5535805af8611856609b8f695aa64e45185a"},
-    {file = "whylogs_datasketches-3.4.0.dev6-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:81204535446166421fb9b4f5dc2365f95fe774cd36c709c57afcd16a50d512be"},
-    {file = "whylogs_datasketches-3.4.0.dev6-cp39-cp39-win_amd64.whl", hash = "sha256:8f7c5127c5160de62be62238ca2636c44092ecfd14556ebb7839b402bec0aea6"},
+whylogs-sketching = [
+    {file = "whylogs-sketching-3.4.0.dev9.tar.gz", hash = "sha256:5c8e2195e7578229a1a53d9a38dac874ebc7b02476bf12dd33e1166dcfb473a9"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:d1ac75f31f30672f0bda862b9a19e931ba55ad9838957689ec9fdad53b45fb8c"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:23de30116639f9685872556de4f946c84b9ccf60e7af91df529d495b440e2642"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:c894b9eb544746c6b17341856f591f1db343c46a5f825034835b54e0aaf89f38"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp37-cp37m-win_amd64.whl", hash = "sha256:f2a006c81c4ab648585c716ef546821f98faa6e240bccd23bd3fee6d60efc582"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:502d023b1bbc090b7adf69ef61959d39ceba298e29f8f1b4374858273f1ad727"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:58cbc8146b214ce988c1e3e29b6781e94e0cca9ba797ebde2f4b1688976a86d1"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:be1ad6cf7f2bb350daa5281823e8536a0a4afe39fdf8fc888427e4964b67fe26"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp38-cp38-win_amd64.whl", hash = "sha256:9460ad292db19deb0a78d2a9fb503e8b0cce8f24e5102f4ace374ede99dab335"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:69fe470b71dbc90a5cbfbceaa9a5dd04396fe69a187378263426c4964d61df84"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:1993fd1934198f36a5b43f9c29820e35928c44b78eed8240b315f5a8d43c74f2"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:232e795f4d685ff1dd813545dbaf808b9ac408627a2aa573a52317b42343d1be"},
+    {file = "whylogs_sketching-3.4.0.dev9-cp39-cp39-win_amd64.whl", hash = "sha256:07dbda0c58f38531c67c492d2eef836781d6235a946133a986993d9d9cffeab2"},
 ]
 wrapt = [
     {file = "wrapt-1.14.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:5a9a1889cc01ed2ed5f34574c90745fab1dd06ec2eee663e8ebeefe363e8efd7"},

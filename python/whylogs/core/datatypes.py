@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Generic, List, Optional, Type, TypeVar, Union
 
-from whylogs.core.common import COMMON_COLUMNAR_TYPES
 from whylogs.core.stubs import np
-from whylogs.core.stubs import pd as pd
 
 try:
     from pandas.core.api import CategoricalDtype
@@ -20,17 +18,6 @@ class DataType(ABC, Generic[NT]):
     @property
     def return_type(self) -> Type[NT]:
         return self._tpe
-
-    @abstractmethod
-    def is_compatible(self, value: Any) -> bool:
-        raise NotImplementedError
-
-    @abstractmethod
-    def normalize(self, value: Any) -> NT:
-        raise NotImplementedError
-
-    def batch_normalize(self, values: COMMON_COLUMNAR_TYPES) -> Union[List[NT], pd.Series, np.ndarray]:
-        return list(map(self.normalize, values))
 
     @classmethod
     def match(cls, dtype_or_type: Any) -> bool:
@@ -58,23 +45,6 @@ class Integral(DataType[int]):
     def __init__(self) -> None:
         super().__init__(int)
 
-    def is_compatible(self, value: Any) -> bool:
-        if value is None:
-            return False
-
-        # TODO: is bool an int
-        if isinstance(value, (bool, int, np.number)):
-            if isinstance(value, np.floating):
-                return False
-            if isinstance(value, (np.datetime64, np.timedelta64)):
-                return False
-            else:
-                return True
-        return False
-
-    def normalize(self, value: Any) -> int:
-        return int(value)
-
     @classmethod
     def _do_match(cls, dtype_or_type: Any, maybe_type: Optional[Any]) -> bool:
         if maybe_type:
@@ -97,19 +67,6 @@ class Fractional(DataType[float]):
     def __init__(self) -> None:
         super().__init__(float)
 
-    def is_compatible(self, value: Any) -> bool:
-        if value is None:
-            return False
-
-        if isinstance(value, (bool, int, float, np.number)):
-            if isinstance(value, (np.datetime64, np.timedelta64)):
-                return False
-            return True
-        return False
-
-    def normalize(self, value: Any) -> float:
-        return float(value)
-
     @classmethod
     def _do_match(cls, dtype_or_type: Any, maybe_type: Optional[Any]) -> bool:
         if maybe_type:
@@ -124,12 +81,6 @@ class Fractional(DataType[float]):
 class String(DataType[str]):
     def __init__(self) -> None:
         super().__init__(str)
-
-    def is_compatible(self, value: Any) -> bool:
-        return isinstance(value, (str, np.unicode_))
-
-    def normalize(self, value: Any) -> str:
-        return str(value)
 
     @classmethod
     def _do_match(cls, dtype_or_type: Any, maybe_type: Optional[Any]) -> bool:
@@ -161,9 +112,6 @@ class AnyType(DataType[Any]):
 
     def is_compatible(self, value: Any) -> bool:
         return True
-
-    def normalize(self, value: Any) -> Any:
-        return value
 
     @classmethod
     def _do_match(cls, dtype_or_type: Any, maybe_type: Optional[Any]) -> bool:

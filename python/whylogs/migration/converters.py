@@ -1,6 +1,6 @@
 from typing import Dict
 
-import whylogs_datasketches as ds  # type: ignore
+import whylogs_sketching as ds  # type: ignore
 
 from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.errors import DeserializationError

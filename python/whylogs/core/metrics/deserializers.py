@@ -1,6 +1,6 @@
 from typing import Any, Callable, Dict, Optional, TypeVar
 
-import whylogs_datasketches as ds  # type: ignore
+import whylogs_sketching as ds  # type: ignore
 
 from whylogs.core.metrics.decorators import (
     DecoratedFunction,

@@ -11,7 +11,7 @@ include = ["whylogs/core/proto/v0/*.py*", "whylogs/core/proto/*.py*"]
 
 [tool.poetry.dependencies]
 python = ">=3.7.1, <4.0"
-whylogs-datasketches = "3.4.0.dev6"
+whylogs-sketching = "3.4.0.dev9"
 protobuf = ">=3.15.5"
 importlib-metadata = { version = ">=0.23", python = "<3.8" }
 typing-extensions = ">=typing-extensions"

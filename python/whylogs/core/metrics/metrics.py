@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, Type, TypeVar, Union
 
-import whylogs_datasketches as ds  # type: ignore
+import whylogs_sketching as ds  # type: ignore
 from typing_extensions import TypeAlias
 
 from whylogs.core.configs import SummaryConfig
