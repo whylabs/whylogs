@@ -3,7 +3,7 @@ tst.python := $(shell find ./tests -type f -name "*.py")
 src.python.pyc := $(shell find ./whylogs -type f -name "*.pyc")
 src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
-src.proto.v0.dir := ../proto/v0/
+src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
 version := 1.0.0
 
@@ -24,7 +24,6 @@ release: format lint test dist ## Compile distribution files and run all tests a
 pre-commit:
 	@$(call i, Running pre-commit checks)
 	poetry run pre-commit run --all-files
-
 
 .PHONY: dist clean clean-test help format lint test install coverage docs default proto proto-v0 github release
 .PHONY: test-system-python format-fix blackd jupyter-kernel
@@ -54,7 +53,7 @@ clean: clean-test ## Remove all build artifacts
 	rm -f $(src.python.pyc)
 	rm -rf $(egg.dir)
 	rm -rf $(build.proto)
-	rm -f $(build.proto.v0)
+	rm -rf $(build.proto.v0)
 	rm -f requirements.txt
 
 clean-test: ## Remove test and coverage artifacts
@@ -116,7 +115,7 @@ format-fix: ## Fix formatting with black. This updates files.
 
 test: dist ## Run unit tests.
 	@$(call i, Running tests)
-	poetry run pytest
+	poetry run pytest -v
 
 test-system-python: dist ## Run tests using the system `python` instead of the locally declared poetry python
 	@$(call i, Running tests using the globally installed python)
