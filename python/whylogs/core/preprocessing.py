@@ -195,7 +195,7 @@ class PreprocessedColumn:
                 ints = np.asarray(int_list, dtype=int)
                 floats = np.asarray(float_list, dtype=float)
 
-                result.numpy = (NumpyView(ints=ints, floats=floats),)
+                result.numpy = NumpyView(ints=ints, floats=floats)
                 result.list = ListView(strings=string_list, objs=obj_list)
                 return result
             else:

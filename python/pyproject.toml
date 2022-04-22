@@ -15,6 +15,8 @@ whylogs-sketching = "3.4.0.dev9"
 protobuf = ">=3.15.5"
 importlib-metadata = { version = ">=0.23", python = "<3.8" }
 typing-extensions = ">=typing-extensions"
+pybars3 = { version = "^0.9", optional = true }
+ipython = { version = "*", optional = true }
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
@@ -41,6 +43,7 @@ sphinx-copybutton = "^0.5.0"
 numpydoc = "*"
 furo = "^2022.3.4"
 sphinx-autodoc-typehints = "^1.17.0"
+types-python-dateutil = "^2.8.12"
 
 
 [tool.poetry.extras]
@@ -52,6 +55,10 @@ docs = [
     "numpydoc",
     "furo",
     "sphinx-autodoc-typehints",
+]
+viewer = [
+    "ipython",
+    "pybars3",
 ]
 
 
@@ -91,6 +98,7 @@ exclude = '''
     | dist
     | tests
     | whylogs/core/proto
+    | whylogs/viewer/html
     | docs
     | *.pyi
   )/

@@ -124,7 +124,7 @@ test-system-python: dist ## Run tests using the system `python` instead of the l
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install
+	poetry install -E viewer
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)

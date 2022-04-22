@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <title>Profile Viewer | whylogs</title>
+
+    <link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/whylogs-styles.css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
+      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+  </head>
+
+  <body id="generated-html"></body>
+
+  <script id="entry-template" type="text/x-handlebars-template">
+    <div class="desktop-content">
+      <nav class="navbar navbar-inverse fixed-top">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <h5>Profile viewer for whylogs</h5>
+            <ul class="navbar-nav d-inline-block">
+              <li class="nav-item">
+                <p>
+                  Maintained by
+                  <a
+                    class="navbar-link"
+                    href="https://try.whylabsapp.com?utm_source=whylogs_html_viewer"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    <svg
+                      width="145"
+                      height="21.37"
+                      viewBox="0 0 145 21.37"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                    >
+                      <rect width="145" height="21.37" fill="url(#pattern0)"></rect>
+                      <defs>
+                        <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
+                          <use xlink:href="#image0" transform="scale(0.0025 0.0169492)"></use>
+                        </pattern>
+                        <image
+                          id="image0"
+                          width="400"
+                          height="59"
+                          xlink:href="data:image/png;base64,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"
+                        />
+                      </defs>
+                    </svg>
+                  </a>
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="sidebar">
+            <div id="sidebar-content">
+              <div class="sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
+                <strong>Unlock the power of WhyLabs:</strong>
+                <ul class="small mt-1 mb-3">
+                  <li>Generate an API token to upload and save profiles to the platform</li>
+                  <li>Analyze and compare profiles to identify data drift and other anomalies</li>
+                  <li>Turn on monitoring with a single click, no manual set up required!</li>
+                  <li>Get alerted in real time when data and model health issues arise</li>
+                </ul>
+                <a
+                  class="btn btn-warning btn-signup"
+                  target="_blank"
+                  href="http://bit.ly/whylogs-to-whylabs-free-signup"
+                >Get started for free</a>
+              </div>
+              <div class="d-none sidebar-content__single-profile mb-4" id="sidebar-content-single-profile">
+                <strong>Profile</strong>
+                <h5 class="mt-1 wl__selected-profile">2020-02-26 12:23:32 PM PST</h5>
+              </div>
+
+              <div class="mb-3">
+                <label for="wl__feature-search" class="form-label"><strong>Find feature</strong></label>
+                <input type="search" class="form-control" id="wl__feature-search" placeholder="Quick search..." />
+              </div>
+
+              <strong>Total features</strong>
+              <h1 class="feature-count mb-3 wl__feature-count">{{getTotalFeatureCount}}</h1>
+
+              <strong>Filter features by type</strong>
+              <div class="form-check mb-1 mt-2">
+                <input
+                  class="form-check-input wl__feature-filter-input"
+                  type="checkbox"
+                  value="Discrete"
+                  id="inferredDiscrete"
+                  onclick="changeDiscreteValue()"
+                  checked
+                />
+                <label class="form-check-label" for="inferredDiscrete">
+                  Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                </label>
+              </div>
+
+              <div class="form-check mb-1">
+                <input
+                  class="form-check-input wl__feature-filter-input"
+                  type="checkbox"
+                  value="Non-discrete"
+                  id="inferredNonDiscrete"
+                  onclick="changeNonDiscreteValue()"
+                  checked
+                />
+                <label class="form-check-label" for="inferredNonDiscrete">
+                  Inferred non-discrete (<span
+                    class="wl__feature-count--non-discrete"
+                  >{{getNonDiscreteTypeCount}}</span>)
+                </label>
+              </div>
+              <div class="form-check mb-4">
+                <input
+                  class="form-check-input wl__feature-filter-input"
+                  type="checkbox"
+                  value="Unknown"
+                  id="inferredUnknown"
+                  onclick="changeUnknwonValue()"
+                  checked
+                />
+                <label class="form-check-label" for="inferredUnknown">
+                  Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                </label>
+              </div>
+              <strong>Feature list</strong>
+              <p class="small mt-1">Click on features to scroll into view</p>
+              <div class="mt-3">
+                <ul
+                  id="feature-list"
+                  class="nav list-group list-group-flush wl__sidebar-feature-name-list"
+                >{{{getFeatureList}}}</ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="main">
+            <div class="wl-table-wrap" id="table-content">
+              <div class="wl-table" >
+                <div class="wl-table-heading">
+                  <div class="wl-table-row wl-table-row--bottom-shadow">
+                    <div class="wl-table-head">Feature</div>
+                    <div class="wl-table-head">Frequent items</div>
+                    <div class="wl-table-head">Inf. feature type</div>
+                    <div class="wl-table-head text-end">Total count</div>
+                    <div class="wl-table-head text-end">Null fraction</div>
+                    <div class="wl-table-head text-end">Est. unique values</div>
+                    <div class="wl-table-head">Data type</div>
+                    <div class="wl-table-head text-end">Data type count</div>
+                    <div class="wl-table-head text-end">Mean</div>
+                    <div class="wl-table-head text-end">Std. dev</div>
+                    <div class="wl-table-head text-end">Min</div>
+                    <div class="wl-table-head text-end">First quantile</div>
+                    <div class="wl-table-head text-end">Median</div>
+                    <div class="wl-table-head text-end">Third quantile</div>
+                    <div class="wl-table-head text-end">Max</div>
+                  </div>
+                </div>
+
+                <ul class="wl-table-body wl__table-body" id="table-body">
+                  {{#each this.columns}}
+                    <li
+
+                      {{#if this.numberSummary}} class="wl-table-row wl-table-row--clickable" {{else}} class="wl-table-row" {{/if}}
+
+                      data-feature-name={{@key}}
+                      data-inferred-type={{inferredType this}}
+                      data-scroll-to-feature-name={{@key}}
+                    >
+                      <div class="wl-table-cell">
+                        <div class="wl-table-cell__title-wrap">
+                          <h4 class="wl-table-cell__title">{{@key}}</h4>
+                          <button class="wl-table-cell__title-button" onclick="openPropertyPanel('{{json this}}', '{{inferredType this}}')" type="button">View details</button></div>
+                        <div class="wl-table-cell__graph-wrap"><div>
+                            {{{getGraphHtml this}}}
+                          </div></div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                        style="max-width: 270px; padding-right: 18px"
+                      > <div class="wl-table-cell__bedge-wrap">{{{frequentItems this}}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                      ><div>{{inferredType this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{totalCount this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{nullFraction this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{estUniqValue this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                      ><div>{{dataType this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle"
+                      ><div>{{dataTypeCount this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{mean this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{stddev this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{min this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{firstQuantile this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{median this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{thirdQuantile this}}</div></div><div
+                        class="wl-table-cell wl-table-cell--top-spacing align-middle text-end"
+                      ><div>{{max this}}</div></div>
+                    </li>
+                  {{/each}}
+                </ul>
+
+                <div class="wl-property-panel">
+                  <button type="button" class="wl-property-panel__button btn-close" onclick="handleClosePropertyPanel() " aria-label="Close"></button>
+                  <h5 class="wl-property-panel__title"></h5>
+                  <div>
+                    <table class="wl-property-panel__table">
+                      <thead class="wl-property-panel__table-head">
+                        <tr class="wl-property-panel__table-tr">
+                          <th class="wl-property-panel__table-th">Item</th>
+                          <th class="wl-property-panel__table-th wl-property-panel__table-th-profile"></th>
+                        </tr>
+                      </thead>
+                      <tbody class="wl-property-panel__frequent-items">
+                        <!-- CONTENT IS GENERATED -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="no-responsive">
+      <div class="no-responsive__content">
+        <h1 class="no-responsive__title">Hold on! :)</h1>
+        <p class="no-responsive__text">
+          It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+          best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+          are working on adding support for a larger variety of devices.
+        </p>
+      </div>
+    </div>
+  </script>
+
+  <script src="./js/jquery-3.6.0.min.js"></script>
+  <script src="./js/d3.min.js"></script>
+  <script src="js/handlebars.js"></script>
+</html>
