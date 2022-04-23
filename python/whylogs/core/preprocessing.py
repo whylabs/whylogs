@@ -89,6 +89,8 @@ class PreprocessedColumn:
         self.pandas = PandasView()
         self.list = ListView()
         self.null_count = 0
+        self.bool_count = 0
+        self.bool_count_where_true = 0
         self.len = -1
 
     def _pandas_split(self, series: Union[pd.Series], parse_numeric_string: bool = False) -> None:
@@ -128,17 +130,23 @@ class PreprocessedColumn:
             non_null_ser = pd.to_numeric(non_null_ser, errors="ignore")
 
         float_mask = non_null_ser.apply(lambda x: pdc.is_float(x))
-        int_mask = non_null_ser.apply(lambda x: pdc.is_number(x) and not pdc.is_float(x))
+        bool_mask = non_null_ser.apply(lambda x: pdc.is_bool(x))
+        bool_mask_where_true = non_null_ser.apply(lambda x: pdc.is_bool(x) and x)
+        int_mask = non_null_ser.apply(lambda x: pdc.is_number(x) and not pdc.is_float(x) and not pdc.is_bool(x))
         str_mask = non_null_ser.apply(lambda x: isinstance(x, str))
 
         floats = non_null_ser[float_mask]
         ints = non_null_ser[int_mask]
+        bool_count = non_null_ser[bool_mask].count()
+        bool_count_where_true = non_null_ser[bool_mask_where_true].count()
         strings = non_null_ser[str_mask]
-        objs = non_null_ser[~(float_mask | str_mask | int_mask)]
+        objs = non_null_ser[~(float_mask | str_mask | int_mask | bool_mask)]
 
         self.numpy = NumpyView(floats=floats, ints=ints)
         self.pandas.strings = strings
         self.pandas.objs = objs
+        self.bool_count = bool_count
+        self.bool_count_where_true = bool_count_where_true
 
     def raw_iterator(self) -> Iterator[Any]:
         iterables = [

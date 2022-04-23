@@ -64,9 +64,6 @@ class Metric(ABC):
     def __add__(self: METRIC, other: METRIC) -> METRIC:
         return self.merge(other)
 
-    def ___add__(self: METRIC, other: METRIC) -> METRIC:
-        return self.merge(other)
-
     def merge(self: METRIC, other: METRIC) -> METRIC:
         res: Dict[str, MetricComponent] = {}
         for k, v in self.__dict__.items():
@@ -83,7 +80,7 @@ class Metric(ABC):
         for k, v in self.__dict__.items():
             if not isinstance(v, MetricComponent):
                 continue
-            res[k] = v.serialize()
+            res[k] = v.to_protobuf()
         return MetricMessage(metric_components=res)
 
     @abstractmethod
@@ -106,7 +103,7 @@ class Metric(ABC):
 
         components: Dict[str, MetricComponent] = {}
         for k, m in msg.metric_components.items():
-            components[k] = MetricComponent.deserialize(m)
+            components[k] = MetricComponent.from_protobuf(m)
 
         return cls(**components)
 

@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "google/protobuf/struct.proto";
+import "google/protobuf/any.proto";
 
 option java_package = "com.whylogs.core.message";
 option java_outer_classname = "Messages";
@@ -48,16 +49,9 @@ message MetricComponentMessage {
     CpcSketchMessage cpc = 7;
 
     // extension points
-    bytes serialized_bytes = 20;
-    CustomMetricComponent custom = 15;
-  }
-}
-
-message CustomMetricComponent {
-  string name = 1;
-  oneof item {
-    google.protobuf.Struct params = 3;
-    bytes serialized_bytes = 4;
+    bytes serialized_bytes = 10;
+    google.protobuf.Struct dataclass_param = 11;
+    google.protobuf.Any msg = 12;
   }
 }
 
@@ -101,7 +95,3 @@ message DatasetProfileHeader {
 }
 
 // [HEADER][len][DATASET MEASURES CHUNK 1][len][DATASET MEASURES CHUNK 2][COLUMN 1][COLUMN1 EXTENSION][COLUMN2]
-
-message CountMessage {
-  int64 value = 1;
-}

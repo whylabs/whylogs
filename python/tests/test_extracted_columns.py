@@ -1,4 +1,5 @@
 import unittest
+from logging import getLogger
 from typing import Any, List, Optional, Union
 
 import numpy as np
@@ -6,6 +7,8 @@ import pandas as pd
 from pandas.testing import assert_series_equal
 
 from whylogs.core.preprocessing import PreprocessedColumn
+
+TEST_LOGGER = getLogger(__name__)
 
 
 def assert_zero_len(values: Optional[Union[List[Any], np.ndarray, pd.Series]]) -> None:
@@ -32,6 +35,22 @@ class TestListElements(unittest.TestCase):
         self.assertListEqual(res.pandas.strings.tolist(), ["str"])  # type: ignore
         assert_zero_len(res.pandas.objs)  # type: ignore
         assert res.null_count == 1
+
+    def test_bools_and_ints(self) -> None:
+        mixed = pd.Series([True, True, False, 2, 1, 0])
+
+        res = PreprocessedColumn.apply(mixed)
+        TEST_LOGGER.info(f"{res}")
+        self.assertListEqual(res.numpy.floats.tolist(), [])  # type: ignore
+        self.assertListEqual(
+            res.numpy.ints.tolist(),  # type: ignore
+            [2, 1, 0],
+        )  # type: ignore
+        assert res.bool_count == 3
+        assert res.bool_count_where_true == 2
+        assert_zero_len(res.pandas.strings)  # type: ignore
+        assert_zero_len(res.pandas.objs)  # type: ignore
+        assert res.null_count == 0
 
     def test_floats_no_null(self) -> None:
         floats = pd.Series([1.0, 2.0, 3.0])

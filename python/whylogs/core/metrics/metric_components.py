@@ -27,9 +27,7 @@ class MetricComponent(Generic[T]):
     """
     A metric component is the smallest unit for a metric.
 
-    A metric might consist of multiple component. An example is distribution metric, which consists of kll sketch for
-    histogram, mean and m2. The calculation of components could be independent or could be coupled with other
-    components.
+    A metric might consist of multiple components. An example is distribution metric, which consists of kll sketch for
     histogram, mean and m2. The calculation of components could be independent or could be coupled with other
     components.
     """
@@ -57,9 +55,9 @@ class MetricComponent(Generic[T]):
         )
 
         if self._serializer is None and self._deserializer is not None:
-            raise ValueError("Serializer and deserializer must be both defined")
+            raise ValueError("Serializer and deserializer must be defined in pairs, but serializer is None")
         if self._serializer is not None and self._deserializer is None:
-            raise ValueError("Serializer and deserializer must be both defined")
+            raise ValueError("Serializer and deserializer must be defined in pairs, but deserializer is None")
 
     @property
     def value(self) -> T:
@@ -76,7 +74,7 @@ class MetricComponent(Generic[T]):
             )
         return self.__class__(self._aggregator(self.value, other.value))
 
-    def serialize(self) -> MetricComponentMessage:
+    def to_protobuf(self) -> MetricComponentMessage:
         if self._serializer is None:
             raise ValueError(
                 f"Attempting to serialize metric component without a serializer. Type: {self.mtype} with ID: "
@@ -87,7 +85,7 @@ class MetricComponent(Generic[T]):
         return msg
 
     @classmethod
-    def deserialize(cls: Type["M"], msg: MetricComponentMessage, registries: Optional[Registries] = None) -> "M":
+    def from_protobuf(cls: Type["M"], msg: MetricComponentMessage, registries: Optional[Registries] = None) -> "M":
         # TODO: need to deserialize this against a registry
         field = msg.WhichOneof("value")
         _mtype: Optional[type] = None
