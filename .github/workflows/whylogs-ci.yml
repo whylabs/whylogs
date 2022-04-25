@@ -23,7 +23,7 @@ jobs:
       CODECOV_UPLOAD: false
       POETRY_VERSION: "1.1.11"
       PYPI_PUBLISH: false
-    
+
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -76,7 +76,7 @@ jobs:
         run: make release
       - name: Run pre-commit hooks
         run: make pre-commit
-      
+
       # TODO generate wheel and test
       - name: Smoke test wheel in client environment
         run: |
@@ -87,7 +87,7 @@ jobs:
           python tests/smoketest.py
           deactivate
           rm -rf verify
-      
+
       - name: Upload test coverage report to Codecov
         uses: codecov/codecov-action@v2
         if: env.CODECOV_UPLOAD == 'true'
@@ -132,11 +132,10 @@ jobs:
           make proto -B
           cd docs
           poetry run make html
-      
+
       - name: Publish
         uses: JamesIves/github-pages-deploy-action@4.0.0
         with:
           branch: gh-pages
           folder: python/docs/_build/html
         if: ${{ github.ref == 'refs/heads/mainline' }}
-
