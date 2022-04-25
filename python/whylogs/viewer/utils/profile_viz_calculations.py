@@ -1,20 +1,20 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-from whylogs.core import ColumnProfile
 from whylogs.core.metrics import (
     CardinalityMetric,
     ColumnCountsMetric,
     DistributionMetric,
 )
+from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
-def _calculate_descriptive_statistics(feature_name: str, profile: Dict[str, ColumnProfile]) -> Dict[str, float]:
+def _calculate_descriptive_statistics(feature_name: str, column_view: Optional[ColumnProfileView]) -> Dict[str, float]:
     descriptive_statistics: Dict[str, float] = {}
 
-    distribution_metric_: DistributionMetric = profile[feature_name]._metrics["dist"]  # type: ignore
+    distribution_metric_: DistributionMetric = column_view.get_metric("dist")  # type: ignore
     stddev = distribution_metric_.stddev
     mean = distribution_metric_.mean.value
-    column_counts_metric_: ColumnCountsMetric = profile[feature_name]._metrics["cnt"]  # type: ignore
+    column_counts_metric_: ColumnCountsMetric = column_view.get_metric("cnt")  # type: ignore
     count_n = column_counts_metric_.n.value
     count_missing = column_counts_metric_.null.value
     descriptive_statistics["stddev"] = stddev
@@ -26,9 +26,9 @@ def _calculate_descriptive_statistics(feature_name: str, profile: Dict[str, Colu
     return descriptive_statistics
 
 
-def _calculate_quantile_statistics(feature_name: str, profile: Dict[str, ColumnProfile]) -> Dict[str, float]:
+def _calculate_quantile_statistics(feature_name: str, column_view: Optional[ColumnProfileView]) -> Dict[str, float]:
     quantile_statistics = {}
-    distribution_metric_: DistributionMetric = profile[feature_name]._metrics["dist"]  # type: ignore
+    distribution_metric_: DistributionMetric = column_view.get_metric("dist")  # type: ignore
     quantiles = distribution_metric_.kll.value.get_quantiles([0.05, 0.25, 0.75, 0.95])
     median = distribution_metric_.kll.value.get_quantiles([0.5])[0]
     quantile_statistics["iqr"] = quantiles[2] - quantiles[1]
@@ -40,28 +40,30 @@ def _calculate_quantile_statistics(feature_name: str, profile: Dict[str, ColumnP
     return quantile_statistics
 
 
-def add_feature_statistics(feature_name: str, profile: Dict[str, ColumnProfile]) -> Dict[str, Dict[str, Any]]:
+def add_feature_statistics(feature_name: str, column_view: Optional[ColumnProfileView]) -> Dict[str, Dict[str, Any]]:
     feature_with_statistics: Dict[str, Dict[str, Any]] = {feature_name: {}}
-    card_: CardinalityMetric = profile[feature_name]._metrics["card"]  # type: ignore
+    card_: CardinalityMetric = column_view.get_metric("card")  # type: ignore
     card_estimate = card_.hll.value.get_estimate()
-    column_counts_metric_: ColumnCountsMetric = profile[feature_name]._metrics["cnt"]  # type: ignore
+    column_counts_metric_: ColumnCountsMetric = column_view.get_metric("cnt")  # type: ignore
     count_n = column_counts_metric_.n.value
     count_missing = column_counts_metric_.null.value
 
     feature_with_statistics[feature_name]["missing"] = count_missing
 
     feature_with_statistics[feature_name]["distinct"] = card_estimate / (count_n - count_missing) * 100
-    distribution_metric_: DistributionMetric = profile[feature_name]._metrics["dist"]  # type: ignore
+    distribution_metric_: DistributionMetric = column_view.get_metric("dist")  # type: ignore
     feature_with_statistics[feature_name]["min"] = distribution_metric_.kll.value.get_min_value()
     feature_with_statistics[feature_name]["max"] = distribution_metric_.kll.value.get_max_value()
     feature_with_statistics[feature_name]["range"] = (
         feature_with_statistics[feature_name]["max"] - feature_with_statistics[feature_name]["min"]
     )
 
-    feature_with_statistics[feature_name]["quantile_statistics"] = _calculate_quantile_statistics(feature_name, profile)
+    feature_with_statistics[feature_name]["quantile_statistics"] = _calculate_quantile_statistics(
+        feature_name, column_view
+    )
 
     feature_with_statistics[feature_name]["descriptive_statistics"] = _calculate_descriptive_statistics(
-        feature_name, profile
+        feature_name, column_view
     )
 
     return feature_with_statistics

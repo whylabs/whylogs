@@ -16,10 +16,10 @@ def test_viz() -> None:
     df = pd.DataFrame(data)
 
     results = ylog.log(pandas=df)
-    profile = results.profile()
+    profile_view = results.view()
 
     visualization = NotebookProfileVisualizer()
-    visualization.set_profiles(target_profile=profile, reference_profile=profile)
+    visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
 
     visualization.write(
         rendered_html=visualization.feature_statistics(feature_name="weight", profile="target"),

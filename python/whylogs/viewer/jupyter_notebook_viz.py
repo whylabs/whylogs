@@ -6,7 +6,7 @@ from typing import Optional
 
 from IPython.core.display import HTML  # type: ignore
 
-from whylogs.core import DatasetProfile
+from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 from .utils.profile_viz_calculations import add_feature_statistics
 
@@ -63,23 +63,25 @@ class NotebookProfileVisualizer:
         frameBorder=0></iframe>"""
         return HTML(iframe)
 
-    def set_profiles(self, target_profile: DatasetProfile = None, reference_profile: DatasetProfile = None) -> None:
-        self._target_profile = target_profile
-        self._reference_profile = reference_profile
+    def set_profiles(
+        self, target_profile_view: DatasetProfileView = None, reference_profile_view: DatasetProfileView = None
+    ) -> None:
+        self._target_profile_view = target_profile_view
+        self._reference_profile_view = reference_profile_view
 
     def feature_statistics(
         self, feature_name: str, profile: str = "reference", preferred_cell_height: str = None
     ) -> HTML:
         template = _get_compiled_template(self.FEATURE_STATISTICS_TEMPLATE_NAME)
-        if self._reference_profile and profile.lower() == "reference":
-            selected_profile = self._reference_profile._columns
+        if self._reference_profile_view and profile.lower() == "reference":
+            selected_profile_column = self._reference_profile_view.get_column(feature_name)
         else:
-            selected_profile = self._target_profile._columns  # type: ignore
+            selected_profile_column = self._target_profile_view.get_column(feature_name)  # type: ignore
 
         rendered_template = template(
             {
                 "profile_feature_statistics_from_whylogs": json.dumps(
-                    add_feature_statistics(feature_name, selected_profile)
+                    add_feature_statistics(feature_name, selected_profile_column)
                 )
             }
         )
@@ -89,7 +91,7 @@ class NotebookProfileVisualizer:
 
     def write(self, rendered_html: HTML, preferred_path: str = None, html_file_name: str = None) -> None:
         if not html_file_name:
-            if self._reference_profile:
+            if self._reference_profile_view:
                 html_file_name = "todo"  # todo on v1
                 # html_file_name = self._reference_profile.dataset_timestamp #v0 reference
             else:
