@@ -7,7 +7,6 @@ try:
     import pandas as _pd
 except ImportError:  # noqa
     _pd = None  # type: ignore
-    pass
 
 try:
     import numpy as _np

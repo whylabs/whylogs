@@ -72,7 +72,6 @@ class ColumnProfileView(object):
                     res[f"{metric_name}/{k}"] = v
             except NotImplementedError:
                 logger.warning(f"No summary implemented for {metric_name}")
-                pass
 
         if column_metric is not None and len(res) == 0:
             raise UnsupportedError(f"No metric available for requested column metric: {column_metric}")
