@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os.path
 import time
@@ -26,8 +27,24 @@ class DatasetProfile(object):
 
         if schema is None:
             schema = DatasetSchema()
+        self._dataset_timestamp = datetime.datetime.utcnow()
+        self._creation_timestamp = datetime.datetime.utcnow()
         self._schema = schema
         self._columns: Dict[str, ColumnProfile] = dict()
+
+    @property
+    def creation_timestamp(self) -> datetime.datetime:
+        return self._creation_timestamp
+
+    @property
+    def dataset_timestamp(self) -> datetime.datetime:
+        return self._dataset_timestamp
+
+    def set_dataset_timestamp(self, dataset_timestamp: datetime.datetime) -> None:
+        if dataset_timestamp.tzinfo is None:
+            logger.warning("No timezone set in the datetime_timestamp object. Default to local timezone")
+
+        self._dataset_timestamp = dataset_timestamp.astimezone(tz=datetime.timezone.utc)
 
     def track(
         self,
@@ -77,7 +94,9 @@ class DatasetProfile(object):
         columns = {}
         for c_name, c in self._columns.items():
             columns[c_name] = c.view()
-        return DatasetProfileView(columns=columns)
+        return DatasetProfileView(
+            columns=columns, dataset_timestamp=self.dataset_timestamp, creation_timestamp=self.creation_timestamp
+        )
 
     def flush(self) -> None:
         for col in self._columns.values():

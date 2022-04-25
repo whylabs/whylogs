@@ -4,7 +4,7 @@ import statistics
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, Type, TypeVar, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import whylogs_sketching as ds  # type: ignore
 from typing_extensions import TypeAlias
@@ -72,7 +72,7 @@ class Metric(ABC):
 
         return self.__class__(**res)
 
-    def serialize(self) -> MetricMessage:
+    def to_protobuf(self) -> MetricMessage:
         if not dataclasses.is_dataclass(self):
             raise ValueError("Metric object is not a dataclass")
 
@@ -82,6 +82,14 @@ class Metric(ABC):
                 continue
             res[k] = v.to_protobuf()
         return MetricMessage(metric_components=res)
+
+    def get_component_paths(self) -> List[str]:
+        res = []
+        for k, v in self.__dict__.items():
+            if not isinstance(v, MetricComponent):
+                continue
+            res.append(k)
+        return res
 
     @abstractmethod
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
@@ -97,7 +105,7 @@ class Metric(ABC):
         pass
 
     @classmethod
-    def deserialize(cls: Type[METRIC], msg: MetricMessage) -> METRIC:
+    def from_protobuf(cls: Type[METRIC], msg: MetricMessage) -> METRIC:
         if not dataclasses.is_dataclass(cls):
             raise ValueError(f"Metric class: {cls} is not a dataclass")
 
@@ -342,7 +350,7 @@ class CardinalityMetric(Metric):
 
     @property
     def namespace(self) -> str:
-        return "types"
+        return "card"
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         successes = 0

@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional
 
-from whylogs.api.profiling_results import ProfilingResults
-from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
+from whylogs.api.result_set import ProfileResultSet, ResultSet
+from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.stubs import pd
 
 
@@ -26,7 +26,7 @@ class Logger(object):
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Dict[str, Any]] = None,
         schema: Optional[DatasetSchema] = None,
-    ) -> ProfilingResults:
+    ) -> ResultSet:
         if schema is None:
             schema = DatasetSchema()
 
@@ -36,7 +36,7 @@ class Logger(object):
             profile = DatasetProfile(schema=schema)
         profile.track(obj, pandas=pandas, row=row)
 
-        return ProfilingResults(profile=profile)
+        return ProfileResultSet(profile=profile)
 
 
 _INSTANCE = Logger()
@@ -48,12 +48,12 @@ def log(
     pandas: Optional[pd.DataFrame] = None,
     row: Optional[Dict[str, Any]] = None,
     schema: Optional[DatasetSchema] = None,
-) -> ProfilingResults:
+) -> ResultSet:
     return _INSTANCE.log(obj, pandas=pandas, row=row, schema=schema)
 
 
-def read(path: str) -> DatasetProfileView:
-    return DatasetProfile.read(path)
+def read(path: str) -> ResultSet:
+    return ResultSet.read(path)
 
 
 def write(profile: DatasetProfile, base_dir: str) -> None:

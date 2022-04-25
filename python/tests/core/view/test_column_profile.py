@@ -28,8 +28,8 @@ class TestListElements(unittest.TestCase):
         assert msg.metric_components["dist/mean"] is not None
         assert msg.metric_components["dist/m2"] is not None
 
-        # view = ColumnProfileView.deserialize(msg)
-        # assert view.get_metric("dist") is not None
+        view = ColumnProfileView.from_protobuf(msg)
+        assert view.get_metric("dist") is not None
 
     def test_basic_str_column(self) -> None:
         series = pd.Series(["a", "b", "c"])
@@ -39,7 +39,7 @@ class TestListElements(unittest.TestCase):
         col_prof.flush()
 
         msg = col_prof.serialize()
-        view = ColumnProfileView.deserialize(msg)
+        view = ColumnProfileView.from_protobuf(msg)
         assert view.get_metric("dist") is None
 
         # histogram should be None

@@ -52,7 +52,7 @@ class ColumnProfile(object):
         self.flush()
         components: Dict[str, MetricComponentMessage] = {}
         for metric_name, metric in self._metrics.items():
-            for c_name, msg in metric.serialize().metric_components.items():
+            for c_name, msg in metric.to_protobuf().metric_components.items():
                 components[f"{metric_name}/{c_name}"] = msg
         return ColumnMessage(metric_components=components)
 

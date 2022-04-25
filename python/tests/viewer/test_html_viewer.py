@@ -16,7 +16,7 @@ def test_viz() -> None:
     df = pd.DataFrame(data)
 
     results = ylog.log(pandas=df)
-    profile = results.get_profile()
+    profile = results.profile()
 
     visualization = NotebookProfileVisualizer()
     visualization.set_profiles(target_profile=profile, reference_profile=profile)
