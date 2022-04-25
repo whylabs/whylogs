@@ -1,4 +1,5 @@
 import numpy as np
+
 from whylogs.core.statistics.datatypes import FloatTracker
 
 
