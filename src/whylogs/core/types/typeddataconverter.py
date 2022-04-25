@@ -13,7 +13,7 @@ TYPES = InferredType.Type
 # Dictionary mapping from type Number to type name
 TYPENUM_TO_NAME = {k: v for v, k in InferredType.Type.items()}
 INTEGRAL_TYPES = (int, np.integer)
-FLOAT_TYPES = (float, np.float, np.float32, np.float64)
+FLOAT_TYPES = (float, np.floating)
 
 
 class TypedDataConverter:
