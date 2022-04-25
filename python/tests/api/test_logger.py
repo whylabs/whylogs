@@ -20,6 +20,13 @@ def test_basic_log() -> None:
     assert profile._columns["col3"]._schema.dtype.name == "object"
 
 
+def test_lending_club(lending_club_df: pd.DataFrame) -> None:
+    res = ylog.log(lending_club_df)
+    view = res.view()
+    df = view.to_pandas()
+    assert len(df) == 151
+
+
 def test_roundtrip_resultset(tmp_path: Any) -> None:
     d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
     df = pd.DataFrame(data=d)

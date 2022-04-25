@@ -1,4 +1,5 @@
 import os
+import webbrowser
 
 import pandas as pd
 
@@ -6,7 +7,7 @@ import whylogs as ylog
 from whylogs.viewer.jupyter_notebook_viz import NotebookProfileVisualizer
 
 
-def test_viz() -> None:
+def test_viz(tmp_path: str) -> None:
     data = {
         "animal": ["cat", "hawk", "snake", "cat"],
         "legs": [4, 2, 0, 4],
@@ -21,7 +22,9 @@ def test_viz() -> None:
     visualization = NotebookProfileVisualizer()
     visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
 
+    test_output = os.path.join(tmp_path, "b18")
     visualization.write(
         rendered_html=visualization.feature_statistics(feature_name="weight", profile="target"),
-        html_file_name=os.getcwd() + "/b18",
+        html_file_name=test_output,
     )
+    webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
