@@ -13,32 +13,30 @@ def _test_tracker_vs_array(tracker_of_array, array):
 
 
 def test_values_are_min_max():
-    first = FloatTracker()
+    tracker = FloatTracker()
     vals1 = [1.0, 2.0, 3.0]
-    _test_tracker_vs_array(first, vals1)
+    _test_tracker_vs_array(tracker, vals1)
 
 
 def test_np_float():
-    first = FloatTracker()
+    float32_tracker = FloatTracker()
     float32_array = np.array([1.0, 2.0, 3.0], dtype=np.float32)
-    _test_tracker_vs_array(first, float32_array)
+    _test_tracker_vs_array(float32_tracker, float32_array)
 
-    second = FloatTracker()
+    float64_tracker = FloatTracker()
     float64_array = np.array([1.0, 2.0, 3.0], dtype=np.float64)
-    _test_tracker_vs_array(second, float64_array)
+    _test_tracker_vs_array(float64_tracker, float64_array)
 
 
 def test_merge_floattrackers_should_addup():
-    first = FloatTracker()
+    first_tracker = FloatTracker()
     vals1 = [1.0, 2.0, 3.0]
-    _test_tracker_vs_array(first, vals1)
 
-    second = FloatTracker()
+    second_tracker = FloatTracker()
     vals2 = [4.0, 5.0, 6.0]
-    _test_tracker_vs_array(second, vals2)
 
     all_vals = vals1 + vals2
-    _test_merged_tracker_vs_arrays(all_vals, first, second)
+    _test_merged_tracker_vs_arrays(all_vals, first_tracker, second_tracker)
 
 
 def _test_merged_tracker_vs_arrays(combined_arrays, first_tracker, second_tracker):
