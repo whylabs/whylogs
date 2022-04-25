@@ -66,3 +66,55 @@ def test_merge_floattrackers_should_addup():
 
     merge_second = second.merge(first)
     assert merge_second.__dict__ == merge_first.__dict__
+
+def test_merge_floattrackers_should_addup():
+    float32_tracker = FloatTracker()
+    float32_array = np.array([1.0, 2.0, 3.0], dtype=np.float32)
+    for val in float32_array:
+        float32_tracker.update(val)
+
+    float64_tracker = FloatTracker()
+    float64_array = np.array([1.0, 2.0, 3.0], dtype=np.float64)
+    for val in float64_array:
+        float64_tracker.update(val)
+
+    simple_tracker = FloatTracker()
+    vals2 = [4.0, 5.0, 6.0]
+    for val in vals2:
+        simple_tracker.update(val)
+
+    assert simple_tracker.count == len(vals2)
+    assert simple_tracker.max == max(vals2)
+    assert simple_tracker.min == min(vals2)
+    assert simple_tracker.sum == sum(vals2)
+
+
+    merge_32_and_simple = float32_array.tolist() + vals2
+    merge_first_tracker_32_and_simple = float32_tracker.merge(simple_tracker)
+    assert merge_first_tracker_32_and_simple.count == len(merge_32_and_simple)
+    assert merge_first_tracker_32_and_simple.max == max(merge_32_and_simple)
+    assert merge_first_tracker_32_and_simple.min == min(merge_32_and_simple)
+    assert merge_first_tracker_32_and_simple.sum == sum(merge_32_and_simple)
+
+    merge_second_tracker_32_and_simple = simple_tracker.merge(float32_tracker)
+    assert merge_first_tracker_32_and_simple.__dict__ == merge_second_tracker_32_and_simple.__dict__
+
+    merge_64_and_simple = float64_array.tolist() + vals2
+    merge_first_tracker_64_and_simple = float64_tracker.merge(simple_tracker)
+    assert merge_first_tracker_64_and_simple.count == len(merge_64_and_simple)
+    assert merge_first_tracker_64_and_simple.max == max(merge_64_and_simple)
+    assert merge_first_tracker_64_and_simple.min == min(merge_64_and_simple)
+    assert merge_first_tracker_64_and_simple.sum == sum(merge_64_and_simple)
+
+    merge_second_tracker_64_and_simple = simple_tracker.merge(float64_tracker)
+    assert merge_first_tracker_64_and_simple.__dict__ == merge_second_tracker_64_and_simple.__dict__
+
+    merge_64_and_32 = np.concatenate((float64_array, float32_array))
+    merge_first_tracker_64_and_32 = float64_tracker.merge(float32_tracker)
+    assert merge_first_tracker_64_and_32.count == len(merge_64_and_32)
+    assert merge_first_tracker_64_and_32.max == max(merge_64_and_32)
+    assert merge_first_tracker_64_and_32.min == min(merge_64_and_32)
+    assert merge_first_tracker_64_and_32.sum == sum(merge_64_and_32)
+
+    merge_second_tracker_64_and_32 = float32_tracker.merge(float64_tracker)
+    assert merge_first_tracker_64_and_32.__dict__ == merge_second_tracker_64_and_32.__dict__
