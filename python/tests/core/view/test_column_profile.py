@@ -20,7 +20,7 @@ class TestListElements(unittest.TestCase):
         # must have histogram
         assert col_prof._metrics["dist"] is not None
 
-        msg = col_prof.serialize()
+        msg = col_prof.to_protobuf()
         assert msg.metric_components["fi/fs"] is not None
         assert msg.metric_components["cnt/n"] is not None
         assert msg.metric_components["cnt/null"] is not None
@@ -38,7 +38,7 @@ class TestListElements(unittest.TestCase):
         col_prof.track_column(series)
         col_prof.flush()
 
-        msg = col_prof.serialize()
+        msg = col_prof.to_protobuf()
         view = ColumnProfileView.from_protobuf(msg)
         assert view.get_metric("dist") is None
 

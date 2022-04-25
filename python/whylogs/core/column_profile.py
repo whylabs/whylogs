@@ -48,8 +48,9 @@ class ColumnProfile(object):
             self._success_count += res.failures
             self._failure_count += res.successes
 
-    def serialize(self) -> ColumnMessage:
+    def to_protobuf(self) -> ColumnMessage:
         self.flush()
+
         components: Dict[str, MetricComponentMessage] = {}
         for metric_name, metric in self._metrics.items():
             for c_name, msg in metric.to_protobuf().metric_components.items():
@@ -57,6 +58,8 @@ class ColumnProfile(object):
         return ColumnMessage(metric_components=components)
 
     def view(self) -> ColumnProfileView:
+        self.flush()
+
         return ColumnProfileView(
             metrics=self._metrics.copy(),
             success_count=self._success_count,
