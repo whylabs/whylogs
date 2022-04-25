@@ -68,6 +68,7 @@ def test_merge_floattrackers_should_addup():
     merge_second = second.merge(first)
     assert merge_second.__dict__ == merge_first.__dict__
 
+
 def test_merge_floattrackers_should_addup():
     float32_tracker = FloatTracker()
     float32_array = np.array([1.0, 2.0, 3.0], dtype=np.float32)
@@ -83,12 +84,6 @@ def test_merge_floattrackers_should_addup():
     vals2 = [4.0, 5.0, 6.0]
     for val in vals2:
         simple_tracker.update(val)
-
-    assert simple_tracker.count == len(vals2)
-    assert simple_tracker.max == max(vals2)
-    assert simple_tracker.min == min(vals2)
-    assert simple_tracker.sum == sum(vals2)
-
 
     merge_32_and_simple = float32_array.tolist() + vals2
     merge_first_tracker_32_and_simple = float32_tracker.merge(simple_tracker)
