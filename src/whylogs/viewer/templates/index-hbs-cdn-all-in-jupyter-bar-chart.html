@@ -279,7 +279,7 @@
             $(document).ready(() => 
               $(".desktop-content").html(`
                 <p style="height: ${$(window).height()}px" class="error-message"> 
-                  Something went wrong. Please try again.
+                    Error: feature must be either categorical or textual
                 </p>
               `)
             )
@@ -424,7 +424,7 @@
           $(document).ready(() => 
             $(".desktop-content").html(`
               <p style="height: ${$(window).height()}px" class="error-message"> 
-                Something went wrong. Please try again.
+                Error: ${$(err).message}
               </p>
             `)
           )

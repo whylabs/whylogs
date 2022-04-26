@@ -268,7 +268,7 @@
             $(document).ready(() => 
               $(".desktop-content").html(`
                 <p style="height: ${$(window).height()}px" class="error-message"> 
-                  Something went wrong. Please try again.
+                     Error: Histogram Failed. Features must be of numerical type.
                 </p>
               `)
             )
@@ -387,7 +387,7 @@
           $(document).ready(() => 
             $(".desktop-content").html(`
               <p style="height: ${$(window).height()}px" class="error-message"> 
-                Something went wrong. Please try again.
+                Error: ${$(err).message}
               </p>
             `)
           )
