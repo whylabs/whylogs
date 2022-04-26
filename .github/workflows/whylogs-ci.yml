@@ -38,13 +38,13 @@ jobs:
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: ${{ runner.os }}-poetry-
 
-      - name: Set up pre-commit cache
-        uses: actions/cache@v2
-        if: startsWith(runner.os, 'Linux')
-        with:
-          path: ~/.cache/pre-commit
-          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: ${{ runner.os }}-pre-commit-
+      #      - name: Set up pre-commit cache
+      #        uses: actions/cache@v2
+      #        if: startsWith(runner.os, 'Linux')
+      #        with:
+      #          path: ~/.cache/pre-commit
+      #          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+      #          restore-keys: ${{ runner.os }}-pre-commit-
 
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
