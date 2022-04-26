@@ -30,7 +30,7 @@ repos:
         args: [--filter-files]
         exclude: python/whylogs/core/proto/|python/docs/|python/whylogs/viewer/html/
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.930
+    rev: v0.942
     hooks:
       - id: mypy
         language: system
