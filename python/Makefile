@@ -21,7 +21,7 @@ default: dist
 
 release: format lint test dist ## Compile distribution files and run all tests and checks.
 
-pre-commit:
+pre-commit: proto
 	@$(call i, Running pre-commit checks)
 	poetry run pre-commit run --all-files
 
