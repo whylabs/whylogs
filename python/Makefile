@@ -19,7 +19,7 @@ build.proto.v0.dir := whylogs/core/proto/v0
 build.proto.v0 := $(patsubst $(src.proto.v0.dir)/%.proto,$(build.proto.v0.dir)/%_pb2.py,$(src.proto.v0))
 default: dist
 
-release: pre-commit test dist ## Compile distribution files and run all tests and checks.
+release: format lint test dist ## Compile distribution files and run all tests and checks.
 
 pre-commit:
 	@$(call i, Running pre-commit checks)
