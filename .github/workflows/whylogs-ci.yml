@@ -79,8 +79,8 @@ jobs:
           *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
           esac
 
-      - name: Run pre-commit hooks
-        run: make pre-commit
+      # - name: Run pre-commit hooks
+      #   run: make pre-commit
 
       - name: Run build, style, and lint checks
         run: make release
