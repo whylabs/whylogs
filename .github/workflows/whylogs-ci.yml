@@ -29,7 +29,7 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       - name: Set up Poetry cache for Python dependencies
         uses: actions/cache@v2
         if: startsWith(runner.os, 'Linux')
@@ -37,7 +37,7 @@ jobs:
           path: ~/.cache/pypoetry
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: ${{ runner.os }}-poetry-
-      
+
       - name: Set up pre-commit cache
         uses: actions/cache@v2
         if: startsWith(runner.os, 'Linux')
@@ -45,7 +45,7 @@ jobs:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
           restore-keys: ${{ runner.os }}-pre-commit-
-      
+
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
@@ -54,7 +54,7 @@ jobs:
         uses: arduino/setup-protoc@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Check Poetry version
         run: |
           POETRY_VERSION_INSTALLED=$(poetry -V)
@@ -64,10 +64,10 @@ jobs:
           *$POETRY_VERSION*) echo "Poetry version correct." ;;
           *) echo "Poetry version incorrect." && exit 1 ;;
           esac
-      
+
       - name: Install dependencies
         run: make install
-      
+
       - name: Check virtualenv location
         run: |
           EXPECTED_VIRTUALENV_PATH=${{ github.workspace }}/python/.venv
@@ -78,9 +78,9 @@ jobs:
           "$EXPECTED_VIRTUALENV_PATH") echo "Correct Poetry virtualenv." ;;
           *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
           esac
-      
+
       - name: Run build, style, and lint checks
-        run: make release     
+        run: make release
 
       - name: Smoke test wheel in client environment
         run: |
@@ -91,7 +91,6 @@ jobs:
           python tests/smoketest.py
           deactivate
           rm -rf verify
-    
 
       - name: Upload test coverage report to Codecov
         uses: codecov/codecov-action@v2
@@ -129,10 +128,10 @@ jobs:
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
-      
+
       - name: Install dependencies for generating docs
         run: poetry install --extras docs
-      
+
       - name: Building docs with sphinx
         run: |
           make proto -B
