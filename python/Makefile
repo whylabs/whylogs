@@ -19,7 +19,7 @@ build.proto.v0.dir := whylogs/core/proto/v0
 build.proto.v0 := $(patsubst $(src.proto.v0.dir)/%.proto,$(build.proto.v0.dir)/%_pb2.py,$(src.proto.v0))
 default: dist
 
-release: format lint test dist ## Compile distribution files and run all tests and checks.
+release: pre-commit test dist ## Compile distribution files and run all tests and checks.
 
 pre-commit:
 	@$(call i, Running pre-commit checks)
@@ -62,6 +62,10 @@ clean-test: ## Remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 dist: $(build.wheel) ## Create distribution tarballs and wheels
+
+docs: ## Use poetry to run the make html command within the proper directory
+	@$(call i, Generating documentation files)
+	cd docs && poetry run make html
 
 $(build.wheel): $(src.python) $(build.proto) $(build.proto.v0)
 	@$(call i, Generating distribution files)

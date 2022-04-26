@@ -1,16 +1,20 @@
-name: python-ci
+name: whylogs-ci
 
 on:
   pull_request:
   push:
-    branches: [develop, main, mainline]
+    branches: [mainline]
     tags:
       - "[0-9]+.[0-9]+.[0-9]+*"
-  workflow_dispatch:
 
 defaults:
   run:
     working-directory: python
+
+env:
+  CODECOV_UPLOAD: false
+  POETRY_VERSION: "1.1.11"
+  PYPI_PUBLISH: false
 
 jobs:
   python-ci:
@@ -19,16 +23,13 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest]
         python-version: ["3.7", "3.8", "3.9"]
-    env:
-      CODECOV_UPLOAD: false
-      POETRY_VERSION: "1.1.11"
-      PYPI_PUBLISH: false
 
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      
       - name: Set up Poetry cache for Python dependencies
         uses: actions/cache@v2
         if: startsWith(runner.os, 'Linux')
@@ -36,6 +37,7 @@ jobs:
           path: ~/.cache/pypoetry
           key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
           restore-keys: ${{ runner.os }}-poetry-
+      
       - name: Set up pre-commit cache
         uses: actions/cache@v2
         if: startsWith(runner.os, 'Linux')
@@ -43,6 +45,7 @@ jobs:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
           restore-keys: ${{ runner.os }}-pre-commit-
+      
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
@@ -51,7 +54,8 @@ jobs:
         uses: arduino/setup-protoc@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Test Poetry version
+      
+      - name: Check Poetry version
         run: |
           POETRY_VERSION_INSTALLED=$(poetry -V)
           echo "The POETRY_VERSION environment variable is set to $POETRY_VERSION."
@@ -60,9 +64,11 @@ jobs:
           *$POETRY_VERSION*) echo "Poetry version correct." ;;
           *) echo "Poetry version incorrect." && exit 1 ;;
           esac
+      
       - name: Install dependencies
         run: make install
-      - name: Test virtualenv location
+      
+      - name: Check virtualenv location
         run: |
           EXPECTED_VIRTUALENV_PATH=${{ github.workspace }}/python/.venv
           INSTALLED_VIRTUALENV_PATH=$(poetry env info --path)
@@ -72,12 +78,10 @@ jobs:
           "$EXPECTED_VIRTUALENV_PATH") echo "Correct Poetry virtualenv." ;;
           *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
           esac
+      
       - name: Run build, style, and lint checks
-        run: make release
-      - name: Run pre-commit hooks
-        run: make pre-commit
+        run: make release     
 
-      # TODO generate wheel and test
       - name: Smoke test wheel in client environment
         run: |
           python -m venv verify
@@ -87,6 +91,7 @@ jobs:
           python tests/smoketest.py
           deactivate
           rm -rf verify
+    
 
       - name: Upload test coverage report to Codecov
         uses: codecov/codecov-action@v2
@@ -103,8 +108,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.9"]
-    env:
-      POETRY_VERSION: "1.1.11"
+
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -125,15 +129,16 @@ jobs:
         uses: abatilo/actions-poetry@v2.0.0
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
-      - name: Install dependencies
-        run: poetry install -E docs
-      - name: Run sphinx
+      
+      - name: Install dependencies for generating docs
+        run: poetry install --extras docs
+      
+      - name: Building docs with sphinx
         run: |
           make proto -B
-          cd docs
-          poetry run make html
+          make docs
 
-      - name: Publish
+      - name: Publish docs
         uses: JamesIves/github-pages-deploy-action@4.0.0
         with:
           branch: gh-pages
