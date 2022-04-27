@@ -1,10 +1,10 @@
 import pandas as pd
 
-import whylogs as y
+import whylogs as why
 
 
 def test_annotation() -> None:
-    @y.profiling()
+    @why.profiling()
     def test_pdf() -> pd.DataFrame:
         d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
         df = pd.DataFrame(data=d)

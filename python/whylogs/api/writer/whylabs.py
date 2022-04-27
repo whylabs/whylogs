@@ -6,9 +6,10 @@ from whylogs.core import DatasetProfileView
 
 
 class WhyLabsWriter(Writer):
-    def __init__(self, org_id: Optional[str] = None, api_key: Optional[str] = None):
+    def __init__(self, org_id: Optional[str] = None, api_key: Optional[str] = None, dataset_id: Optional[str] = None):
         self._org_id = org_id or os.environ.get("WHYLABS_ORG_ID")
         self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
+        self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
 
     def option(self, org_id: Optional[str] = None, api_key: Optional[str] = None) -> "WhyLabsWriter":  # type: ignore
         if org_id is not None:

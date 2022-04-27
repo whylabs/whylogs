@@ -1,9 +1,11 @@
 from .annotations import profiling
-from .logger import log, read, write
+from .logger import ResultSet, log, logger, read, write
 
 __ALL__ = [
     log,
+    logger,
     read,
     write,
     profiling,
+    ResultSet,
 ]

@@ -4,14 +4,14 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-import whylogs as ylog
+import whylogs as why
 
 
 def test_basic_log() -> None:
     d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
     df = pd.DataFrame(data=d)
 
-    results = ylog.log(df)
+    results = why.log(df)
 
     profile = results.profile()
 
@@ -21,7 +21,7 @@ def test_basic_log() -> None:
 
 
 def test_lending_club(lending_club_df: pd.DataFrame) -> None:
-    res = ylog.log(lending_club_df)
+    res = why.log(lending_club_df)
     view = res.view()
     df = view.to_pandas()
     assert len(df) == 151
@@ -31,8 +31,8 @@ def test_roundtrip_resultset(tmp_path: Any) -> None:
     d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
     df = pd.DataFrame(data=d)
 
-    results = ylog.log(df)
+    results = why.log(df)
     results.writer("local").option(base_dir=tmp_path).write(dest="profile.bin")
     path = os.path.join(tmp_path, "profile.bin")
-    roundtrip_result_set = ylog.read(path)
+    roundtrip_result_set = why.read(path)
     assert len(results.view().to_pandas()) == len(roundtrip_result_set.view().to_pandas())

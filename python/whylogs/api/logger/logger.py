@@ -1,0 +1,77 @@
+import atexit
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional
+
+from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
+from whylogs.api.writer import Writer, Writers
+from whylogs.core import DatasetProfile, DatasetSchema
+from whylogs.core.errors import LoggingError
+from whylogs.core.stubs import pd
+
+
+class BasicCache(object):
+    _cache: Dict[DatasetSchema, DatasetProfile] = {}
+
+    def get(self, schema: DatasetSchema) -> DatasetProfile:
+        candidate = self._cache.get(schema)
+        if candidate is None:
+            candidate = DatasetProfile(schema=schema)
+            self._cache[schema] = candidate
+        return candidate
+
+
+class Logger(ABC):
+    def __init__(self, schema: Optional[DatasetSchema] = None):
+        self._is_closed = False
+        self._schema = schema
+        self._writers: List[Writer] = []
+        atexit.register(self.close)
+
+    def append_writer(self, name: Optional[str] = None, *, writer: Optional[Writer] = None, **kwargs: Any) -> None:
+        if name is None and writer is None:
+            raise ValueError("Must specify either the writer name or a Writer object")
+        if name is not None and writer is not None:
+            raise ValueError("Cannot specify name and writer at the same time")
+        if name is not None:
+            writer = Writers.get(name, **kwargs)
+
+        assert writer is not None
+        self._writers.append(writer)
+
+    @abstractmethod
+    def _get_matching_profiles(
+        self,
+        obj: Any = None,
+        *,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Dict[str, Any]] = None,
+    ) -> List[DatasetProfile]:
+        pass
+
+    def log(
+        self,
+        obj: Any = None,
+        *,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Dict[str, Any]] = None,
+    ) -> ResultSet:
+        if self._is_closed:
+            raise LoggingError("Cannot log to a closed logger")
+
+        profiles = self._get_matching_profiles(obj, pandas=pandas, row=row)
+
+        for prof in profiles:
+            prof.track(obj, pandas=pandas, row=row)
+
+        return ProfileResultSet(profiles[0])
+
+    @abstractmethod
+    def close(self) -> None:
+        self._is_closed = True
+
+    def __enter__(self) -> "Logger":
+        return self
+
+    def __exit__(self) -> None:
+        if not self._is_closed:
+            self.close()

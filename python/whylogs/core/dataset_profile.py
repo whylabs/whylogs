@@ -1,7 +1,7 @@
-import datetime
 import logging
 import os.path
 import time
+from datetime import datetime, timezone
 from typing import Any, Dict, Mapping, Optional
 
 from .column_profile import ColumnProfile
@@ -17,7 +17,12 @@ _LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 class DatasetProfile(object):
     """Dataset profile represents a collection of in-memory profiling stats for a dataset."""
 
-    def __init__(self, schema: Optional[DatasetSchema] = None):
+    def __init__(
+        self,
+        schema: Optional[DatasetSchema] = None,
+        dataset_timestamp: Optional[datetime] = None,
+        creation_timestamp: Optional[datetime] = None,
+    ):
         """
         Init func.
 
@@ -27,24 +32,25 @@ class DatasetProfile(object):
 
         if schema is None:
             schema = DatasetSchema()
-        self._dataset_timestamp = datetime.datetime.utcnow()
-        self._creation_timestamp = datetime.datetime.utcnow()
+        now = datetime.utcnow()
+        self._dataset_timestamp = dataset_timestamp or now
+        self._creation_timestamp = creation_timestamp or now
         self._schema = schema
         self._columns: Dict[str, ColumnProfile] = dict()
 
     @property
-    def creation_timestamp(self) -> datetime.datetime:
+    def creation_timestamp(self) -> datetime:
         return self._creation_timestamp
 
     @property
-    def dataset_timestamp(self) -> datetime.datetime:
+    def dataset_timestamp(self) -> datetime:
         return self._dataset_timestamp
 
-    def set_dataset_timestamp(self, dataset_timestamp: datetime.datetime) -> None:
+    def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
         if dataset_timestamp.tzinfo is None:
             logger.warning("No timezone set in the datetime_timestamp object. Default to local timezone")
 
-        self._dataset_timestamp = dataset_timestamp.astimezone(tz=datetime.timezone.utc)
+        self._dataset_timestamp = dataset_timestamp.astimezone(tz=timezone.utc)
 
     def track(
         self,

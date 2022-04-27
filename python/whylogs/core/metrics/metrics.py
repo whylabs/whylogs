@@ -334,7 +334,10 @@ class FrequentItemsMetric(Metric):
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
         all_freq_items = self.fs.value.get_frequent_items(cfg.frequent_items_error_type.to_datasketches_type())
-        limited_freq_items = all_freq_items[: cfg.frequent_items_limit]
+        if cfg.frequent_items_limit > 0:
+            limited_freq_items = all_freq_items[: cfg.frequent_items_limit]
+        else:
+            limited_freq_items = all_freq_items
         items = [FrequentItem(value=x[0], est=x[1], upper=x[2], lower=x[3]) for x in limited_freq_items]
         return {"fs": items}
 

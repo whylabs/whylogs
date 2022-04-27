@@ -3,8 +3,8 @@ import webbrowser
 
 import pandas as pd
 
-import whylogs as ylog
-from whylogs.viewer import NotebookProfileVisualizer
+import whylogs as why
+from whylogs.viewer.jupyter_notebook_viz import NotebookProfileVisualizer
 
 
 def test_viz_feature_statistics(tmp_path: str) -> None:
@@ -16,7 +16,7 @@ def test_viz_feature_statistics(tmp_path: str) -> None:
 
     df = pd.DataFrame(data)
 
-    results = ylog.log(pandas=df)
+    results = why.log(pandas=df)
     profile_view = results.view()
 
     visualization = NotebookProfileVisualizer()
@@ -39,7 +39,7 @@ def test_viz_double_histogram_single_profile(tmp_path: str) -> None:
 
     df = pd.DataFrame(data)
 
-    results = ylog.log(pandas=df)
+    results = why.log(pandas=df)
     profile_view = results.view()
 
     visualization = NotebookProfileVisualizer()
@@ -62,7 +62,7 @@ def test_viz_double_histogram_two_profiles(tmp_path: str) -> None:
 
     df = pd.DataFrame(data)
 
-    results = ylog.log(pandas=df)
+    results = why.log(pandas=df)
     profile_view = results.view()
 
     visualization = NotebookProfileVisualizer()

@@ -39,6 +39,14 @@ class DatasetProfileView(object):
         self._dataset_timestamp = dataset_timestamp
         self._creation_timestamp = creation_timestamp
 
+    @property
+    def dataset_timestamp(self) -> datetime:
+        return self._dataset_timestamp
+
+    @property
+    def creation_timestamp(self) -> datetime:
+        return self._creation_timestamp
+
     def merge(self, other: "DatasetProfileView") -> "DatasetProfileView":
         all_names = set(self._columns.keys()).union(other._columns.keys())
         merged_columns: Dict[str, ColumnProfileView] = {}

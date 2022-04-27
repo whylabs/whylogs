@@ -6,22 +6,25 @@ from whylogs.core import DatasetProfileView
 
 
 class LocalWriter(Writer):
-    def __init__(self) -> None:
-        self._base_dir: str = os.getcwd()
-        self._filename_format = "profiles_{dataset_timestamp}_{creation_timestamp}.bin"
+    def __init__(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> None:
+        if base_dir is None:
+            base_dir = os.getcwd()
+        if base_name is None:
+            base_name = "profile"
+
+        self._base_dir = base_dir
+        self._base_name = base_name
 
     def write(self, profile: DatasetProfileView, dest: Optional[str] = None) -> None:
         if dest is None:
-            dest = self._filename_format.format(dataset_timestamp=0, creation_timestamp=0)
+            dest = f"{self._base_name}_{profile.creation_timestamp}.bin"
         full_path = os.path.join(self._base_dir, dest)
         profile.write(full_path)
 
-    def option(  # type: ignore
-        self, base_dir: Optional[str] = None, filename_format: Optional[str] = None
-    ) -> "LocalWriter":
+    def option(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> "LocalWriter":  # type: ignore
         if base_dir is not None:
             self._base_dir = base_dir
-        elif filename_format is not None:
-            self._filename_format = filename_format
+        if base_name is not None:
+            self._base_name = base_name
 
         return self

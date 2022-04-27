@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetProfileView
@@ -68,7 +68,7 @@ class ResultSetWriter:
         self._result_set = results
         self._writer = writer
 
-    def option(self, **kwargs: Dict[str, Any]) -> "ResultSetWriter":
+    def option(self, **kwargs: Any) -> "ResultSetWriter":
         self._writer.option(**kwargs)
         return self
 
