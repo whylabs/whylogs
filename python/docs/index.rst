@@ -6,6 +6,13 @@ Overall
 * :ref:`search`
 * :ref:`modindex`
 
+Installation
+============
+
+.. code-block:: bash
+
+   pip install whylogs
+
 Examples
 ========
 .. autoclass:: whylogs.core.DatasetProfile
@@ -15,4 +22,7 @@ Examples
 
 
 .. autoclass:: whylogs.core.DatasetSchema
+   :members:
+
+.. autoclass:: whylogs.viewer.NotebookProfileVisualizer
    :members:
