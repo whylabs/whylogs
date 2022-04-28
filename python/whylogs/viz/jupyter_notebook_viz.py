@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, Optional
 
 from IPython.core.display import HTML  # type: ignore
 
+from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -19,6 +20,7 @@ from whylogs.viz.utils.profile_viz_calculations import (
 
 logger = logging.getLogger(__name__)
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
+emit_usage("visualizer")
 
 
 def _get_template_path(html_file_name: str) -> str:

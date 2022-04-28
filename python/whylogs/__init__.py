@@ -16,6 +16,7 @@ These three functionalities enable a variety of use cases for data scientists, m
 * And many more...
 """
 from .api import log, logger, profiling, read, write
+from .api.usage_stats import emit_usage as __emit_usage_stats
 from .migration.converters import v0_to_v1_view
 
 
@@ -46,3 +47,5 @@ __ALL__ = [
     v0_to_v1_view,
     __version__,
 ]
+
+__emit_usage_stats("import")
