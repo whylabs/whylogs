@@ -27,6 +27,10 @@ class Logger(ABC):
         self._writers: List[Writer] = []
         atexit.register(self.close)
 
+    def check_writer(self, _: Writer) -> None:
+        """Checks if a writer is configured correctly for this class"""
+        pass
+
     def append_writer(self, name: Optional[str] = None, *, writer: Optional[Writer] = None, **kwargs: Any) -> None:
         if name is None and writer is None:
             raise ValueError("Must specify either the writer name or a Writer object")
@@ -36,6 +40,7 @@ class Logger(ABC):
             writer = Writers.get(name, **kwargs)
 
         assert writer is not None
+        self.check_writer(writer)
         self._writers.append(writer)
 
     @abstractmethod
@@ -72,6 +77,6 @@ class Logger(ABC):
     def __enter__(self) -> "Logger":
         return self
 
-    def __exit__(self) -> None:
+    def __exit__(self, exception_type: Any, exception_value: Any, traceback: Any) -> None:
         if not self._is_closed:
             self.close()

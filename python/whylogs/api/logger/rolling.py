@@ -1,17 +1,59 @@
+import atexit
 import logging
 import math
 import os
 import time
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from threading import Timer
+from typing import Any, Callable, Dict, List, Optional
 
 from typing_extensions import Literal
 
 from whylogs.api.logger.logger import Logger
+from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
+
+
+class Scheduler(object):
+    """
+    Multithreading scheduler.
+
+    Schedule a function to be called repeatedly based on a schedule.
+    """
+
+    _timer: Timer
+
+    def __init__(self, initial: float, interval: float, function: Callable, *args: Any, **kwargs: Any):
+        self.initial = initial
+        self._ran_initial = False
+        self.interval = interval
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+        self.is_running = False
+        self.start()
+
+    def _run(self) -> None:
+        self.is_running = False
+        self.start()
+        self.function(*self.args, **self.kwargs)
+
+    def start(self) -> None:
+        if not self.is_running:
+            interval = self.interval
+            if not self._ran_initial:
+                interval = self.initial
+                self._ran_initial = True
+            self._timer = Timer(interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def stop(self) -> None:
+        self._timer.cancel()
+        self.is_running = False
 
 
 class TimedRollingLogger(Logger):
@@ -28,19 +70,19 @@ class TimedRollingLogger(Logger):
         utc: bool = False,
         aligned: bool = True,
         fork: bool = False,
+        skip_empty: bool = False,
     ):
-        super(TimedRollingLogger, self).__init__(schema)
+        super().__init__(schema)
         if base_name is None:
             base_name = "profile"
         if file_extension is None:
             file_extension = ".bin"
 
-        self._current_profile: DatasetProfile = None  # type: ignore
-
         self.file_extension = file_extension
         self.base_name = base_name
         self.aligned = aligned
         self.fork = fork
+        self.skip_empty = skip_empty
 
         # base on TimedRotatingFileHandler
         self.when = when.upper()
@@ -58,43 +100,62 @@ class TimedRollingLogger(Logger):
             self.suffix = "%Y-%m-%d"
         self.interval = self.interval * interval  # multiply by units requested
         self.utc = utc
-        self.rollover_at = self.compute_next_rollover()
 
-    def compute_next_rollover(self) -> int:
-        t = int(time.time())
+        now = time.time()
+        self._current_batch_timestamp = self._compute_current_batch_timestamp(now)
+
+        self._current_profile: DatasetProfile = DatasetProfile(
+            schema=schema,
+            dataset_timestamp=datetime.utcfromtimestamp(self._current_batch_timestamp),
+        )
+
+        initial_run_after = (self._current_batch_timestamp + self.interval) - now
+        if initial_run_after <= 0:
+            logger.error(
+                "Negative initial run after. This shouldn't happen so something went wrong with the clock here"
+            )
+            initial_run_after = self.interval
+        self._scheduler = Scheduler(initial_run_after, interval=self.interval, function=self._do_rollover)
+
+        self._scheduler.start()
+
+        atexit.register(self.close)
+
+    def check_writer(self, writer: Writer) -> None:
+        writer.check_interval(self.interval)
+
+    def _compute_current_batch_timestamp(self, now: Optional[float] = None) -> int:
+        if now is None:
+            now = time.time()
+        rounded_now = int(now)
         if self.aligned:
-            t = int(math.floor((t - 1) / self.interval)) * self.interval + self.interval
-        return t + self.interval
+            return int(math.floor((rounded_now - 1) / self.interval)) * self.interval + self.interval
+        return rounded_now
 
     def _get_matching_profiles(
         self, obj: Any = None, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
     ) -> List[DatasetProfile]:
-        if self._shouldRollover():
-            self._do_rollover()
-
         return [self._current_profile]
 
-    def _shouldRollover(self) -> bool:
-        """Determine if rollover should occur."""
-        if self._current_profile is None:
-            return True
-        t = int(time.time())
-        if t >= self.rollover_at:
-            return True
-        return False
-
     def _do_rollover(self) -> None:
+        if self._is_closed:
+            return
         old_profile = self._current_profile
-        dataset_timestamp = datetime.utcfromtimestamp(self.rollover_at - self.interval)
+
+        self._current_batch_timestamp = self._compute_current_batch_timestamp()
+        dataset_timestamp = datetime.utcfromtimestamp(self._current_batch_timestamp)
         self._current_profile = DatasetProfile(
             schema=self._schema,
             dataset_timestamp=dataset_timestamp,
         )
-        self.rollover_at = self.compute_next_rollover()
+
         self._flush(old_profile)
 
     def _flush(self, profile: DatasetProfile) -> None:
         if profile is None:
+            return
+        if self.skip_empty and profile.is_empty:
+            logger.debug("skip_empty is set. Skipping empty profiles")
             return
 
         pid = 0
@@ -108,11 +169,10 @@ class TimedRollingLogger(Logger):
                 logger.debug("In child process")
             else:
                 logger.debug("Didn't fork. Writing in the same process")
-            t = self.rollover_at - self.interval
             if self.utc:
-                time_tuple = time.gmtime(t)
+                time_tuple = time.gmtime(self._current_batch_timestamp)
             else:
-                time_tuple = time.localtime(t)
+                time_tuple = time.localtime(self._current_batch_timestamp)
                 current_time = int(time.time())
 
                 dst_now = time.localtime(current_time)[-1]
@@ -122,9 +182,12 @@ class TimedRollingLogger(Logger):
                         addend = 3600
                     else:
                         addend = -3600
-                    time_tuple = time.localtime(t + addend)
+                    time_tuple = time.localtime(self._current_batch_timestamp + addend)
             timed_filename = f"{self.base_name}.{time.strftime(self.suffix, time_tuple)}{self.file_extension}"
             logging.debug("Writing out put with timed_filename: %s", timed_filename)
+
+            while profile.is_active:
+                time.sleep(1)
 
             for w in self._writers:
                 w.write(profile=profile.view(), dest=timed_filename)
@@ -132,5 +195,6 @@ class TimedRollingLogger(Logger):
     def close(self) -> None:
         logging.debug("Closing the writer")
         if not self._is_closed:
+            self._scheduler.stop()
             self._do_rollover()
         self._is_closed = True

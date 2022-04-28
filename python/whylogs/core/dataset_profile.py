@@ -37,6 +37,8 @@ class DatasetProfile(object):
         self._creation_timestamp = creation_timestamp or now
         self._schema = schema
         self._columns: Dict[str, ColumnProfile] = dict()
+        self._is_active = False
+        self._track_count = 0
 
     @property
     def creation_timestamp(self) -> datetime:
@@ -46,6 +48,16 @@ class DatasetProfile(object):
     def dataset_timestamp(self) -> datetime:
         return self._dataset_timestamp
 
+    @property
+    def is_active(self) -> bool:
+        """Returns True if the profile tracking code is currently running."""
+        return self._is_active
+
+    @property
+    def is_empty(self) -> bool:
+        """Returns True if the profile tracking code is currently running."""
+        return self._track_count == 0
+
     def set_dataset_timestamp(self, dataset_timestamp: datetime) -> None:
         if dataset_timestamp.tzinfo is None:
             logger.warning("No timezone set in the datetime_timestamp object. Default to local timezone")
@@ -53,6 +65,20 @@ class DatasetProfile(object):
         self._dataset_timestamp = dataset_timestamp.astimezone(tz=timezone.utc)
 
     def track(
+        self,
+        obj: Any = None,
+        *,
+        pandas: Optional[pd.DataFrame] = None,
+        row: Optional[Mapping[str, Any]] = None,
+    ) -> None:
+        try:
+            self._is_active = True
+            self._track_count += 1
+            self._do_track(obj, pandas=pandas, row=row)
+        finally:
+            self._is_active = False
+
+    def _do_track(
         self,
         obj: Any = None,
         *,

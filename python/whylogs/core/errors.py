@@ -15,4 +15,8 @@ class UnsupportedError(Error):
 
 
 class LoggingError(Error):
-    "Exception when an error hapens during logging."
+    """Exception when an error happens during logging."""
+
+
+class BadConfigError(Error):
+    """Exception when an error is due to bad configuration."""
