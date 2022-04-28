@@ -1,13 +1,13 @@
-whylogs.viewer package
+whylogs.viz package
 ======================
 
 Submodules
 ----------
 
-whylogs.viewer.jupyter\_notebook\_viz module
+whylogs.viz.jupyter\_notebook\_viz module
 --------------------------------------------
 
-.. automodule:: whylogs.viewer.jupyter_notebook_viz
+.. automodule:: whylogs.viz.jupyter_notebook_viz
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ whylogs.viewer.jupyter\_notebook\_viz module
 Module contents
 ---------------
 
-.. automodule:: whylogs.viewer
+.. automodule:: whylogs.viz
    :members:
    :undoc-members:
    :show-inheritance:

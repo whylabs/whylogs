@@ -65,7 +65,7 @@ dist: $(build.wheel) ## Create distribution tarballs and wheels
 
 docs: ## Use poetry to run the make html command within the proper directory
 	cd docs && \
-	poetry run sphinx-apidoc -f -o . ../whylogs ../whylogs/core/view ../whylogs/viewer/utils ../whylogs/core/utils ../whylogs/core/proto && \
+	poetry run sphinx-apidoc -f -o . ../whylogs ../whylogs/core/view ../whylogs/viz/utils ../whylogs/core/utils ../whylogs/core/proto && \
 	poetry run make html
 
 $(build.wheel): $(src.python) $(build.proto) $(build.proto.v0)
@@ -129,7 +129,7 @@ test-system-python: dist ## Run tests using the system `python` instead of the l
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install -E viewer
+	poetry install -E viz
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)

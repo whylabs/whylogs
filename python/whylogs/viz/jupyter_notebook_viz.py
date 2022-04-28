@@ -11,7 +11,7 @@ from IPython.core.display import HTML  # type: ignore
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-from whylogs.viewer.utils.profile_viz_calculations import (
+from whylogs.viz.utils.profile_viz_calculations import (
     add_feature_statistics,
     get_frequent_items_estimate,
     histogram_from_sketch,
@@ -65,7 +65,7 @@ class NotebookProfileVisualizer:
 
     Examples
     --------
-    … code-block:: python
+    .. code-block:: python
 
         data = {
             "animal": ["cat", "hawk", "snake", "cat"],
@@ -277,7 +277,7 @@ class NotebookProfileVisualizer:
         Examples
         --------
         >>> import os
-        >>> from whylogs.viewer import NotebookProfileVisualizer
+        >>> from whylogs.viz import NotebookProfileVisualizer
         >>>
         >>> visualization = NotebookProfileVisualizer()
         >>> visualization.write(

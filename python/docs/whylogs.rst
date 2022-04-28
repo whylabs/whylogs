@@ -9,7 +9,7 @@ Subpackages
 
    whylogs.api
    whylogs.core
-   whylogs.viewer
+   whylogs.viz
 
 Module contents
 ---------------
