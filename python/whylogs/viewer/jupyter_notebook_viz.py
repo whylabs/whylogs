@@ -50,7 +50,7 @@ class PageSpecEnum(Enum):
     SUMMARY_REPORT = PageSpec(html="index-hbs-cdn-all-in-for-jupyter-notebook.html", height="1000px")
     DOUBLE_HISTOGRAM = PageSpec(html="index-hbs-cdn-all-in-jupyter-distribution-chart.html", height="300px")
     DISTRIBUTION_CHART = PageSpec(html="index-hbs-cdn-all-in-jupyter-bar-chart.html", height="277px")
-    DIFFERENCED_CHART = PageSpec(html="index-hbs-cdn-all-in-jupyter-differenced-chart.html.html", height="277px")
+    DIFFERENCED_CHART = PageSpec(html="index-hbs-cdn-all-in-jupyter-differenced-chart.html", height="277px")
     FEATURE_STATISTICS = PageSpec(html="index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html", height="650px")
     CONSTRAINTS_REPORT = PageSpec(html="index-hbs-cdn-all-in-jupyter-constraints-report.html", height="750px")
 
@@ -94,11 +94,14 @@ class NotebookProfileVisualizer:
         return HTML(iframe)
 
     def _display_distribution_chart(
-        self, feature_name: str, cell_height: str = None, config: Optional[SummaryConfig] = None
+        self, feature_name: str, difference: bool, cell_height: str = None, config: Optional[SummaryConfig] = None
     ) -> Optional[HTML]:
         if config is None:
             config = SummaryConfig()
-        page_spec = PageSpecEnum.DISTRIBUTION_CHART.value
+        if difference:
+            page_spec = PageSpecEnum.DIFFERENCED_CHART.value
+        else:
+            page_spec = PageSpecEnum.DISTRIBUTION_CHART.value
 
         template = _get_compiled_template(page_spec.html)
         if self._target_view:
@@ -225,7 +228,12 @@ class NotebookProfileVisualizer:
         return self._display_histogram_chart(feature_name, cell_height)
 
     def distribution_chart(self, feature_name: str, cell_height: str = None) -> HTML:
-        return self._display_distribution_chart(feature_name, cell_height)
+        difference = False
+        return self._display_distribution_chart(feature_name, difference, cell_height)
+
+    def difference_distribution_chart(self, feature_name: str, cell_height: str = None) -> HTML:
+        difference = True
+        return self._display_distribution_chart(feature_name, difference, cell_height)
 
     def feature_statistics(self, feature_name: str, profile: str = "reference", cell_height: str = None) -> HTML:
         """
