@@ -21,12 +21,12 @@ default: dist
 
 release: format lint test dist ## Compile distribution files and run all tests and checks.
 
-pre-commit:
+pre-commit: proto
 	@$(call i, Running pre-commit checks)
 	poetry run pre-commit run --all-files
 
 .PHONY: dist clean clean-test help format lint test install coverage docs default proto proto-v0 github release
-.PHONY: test-system-python format-fix blackd jupyter-kernel
+.PHONY: test-system-python format-fix blackd jupyter-kernel docs
 
 ifeq ($(shell which poetry), )
 	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
@@ -62,6 +62,11 @@ clean-test: ## Remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 dist: $(build.wheel) ## Create distribution tarballs and wheels
+
+docs: ## Use poetry to run the make html command within the proper directory
+	cd docs && \
+	poetry run sphinx-apidoc -f -o . ../whylogs ../whylogs/core/view ../whylogs/viewer/utils ../whylogs/core/utils ../whylogs/core/proto && \
+	poetry run make html
 
 $(build.wheel): $(src.python) $(build.proto) $(build.proto.v0)
 	@$(call i, Generating distribution files)
