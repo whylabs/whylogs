@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypeVar
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.errors import DeserializationError, UnsupportedError
@@ -9,17 +9,17 @@ from whylogs.core.proto import ColumnMessage, MetricComponentMessage, MetricMess
 
 logger = logging.getLogger(__name__)
 
+METRIC = TypeVar("METRIC", bound=Metric)
+
 
 class ColumnProfileView(object):
-    _metrics: Dict[str, Metric]
-
     def __init__(
         self,
-        metrics: Dict[str, Metric],
+        metrics: Dict[str, METRIC],
         success_count: int = 0,
         failure_count: int = 0,
     ):
-        self._metrics = metrics.copy()
+        self._metrics: Dict[str, METRIC] = metrics.copy()
         self._success_count = success_count
         self._failure_count = failure_count
 
@@ -46,7 +46,7 @@ class ColumnProfileView(object):
     def __add__(self, other: "ColumnProfileView") -> "ColumnProfileView":
         return self.merge(other)
 
-    def get_metric(self, m_name: str) -> Optional[Metric]:
+    def get_metric(self, m_name: str) -> Optional[METRIC]:
         return self._metrics.get(m_name)
 
     def to_protobuf(self) -> ColumnMessage:

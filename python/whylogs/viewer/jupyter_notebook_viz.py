@@ -2,21 +2,20 @@ import html
 import json
 import logging
 import os
-from typing import Any, Dict, Optional
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Callable, Dict, Optional
 
 from IPython.core.display import HTML  # type: ignore
 
+from whylogs.core.configs import SummaryConfig
+from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-
-from .utils.profile_viz_calculations import (
+from whylogs.viewer.utils.profile_viz_calculations import (
     add_feature_statistics,
+    get_frequent_items_estimate,
     histogram_from_sketch,
 )
-
-try:
-    from pybars import Compiler  # type: ignore
-except:  # noqa
-    pass
 
 logger = logging.getLogger(__name__)
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
@@ -27,32 +26,46 @@ def _get_template_path(html_file_name: str) -> str:
     return template_path
 
 
-def _get_compiled_template(template_name: str) -> "Compiler":
+def _get_compiled_template(template_name: str) -> "Callable":
     template_path = _get_template_path(template_name)
     try:
-        from pybars import Compiler
+        from pybars import Compiler  # type: ignore
     except ImportError as e:
-        Compiler = None
-        logger.debug(str(e))
+        logger.debug(e, exc_info=True)
         logger.warning("Unable to load pybars; install pybars3 to load profile directly from the current session ")
+        return lambda _: None  # returns a no-op lambda
 
-    with open(template_path, "r") as file_with_template:
+    with open(template_path, "r+t") as file_with_template:
         source = file_with_template.read()
-    compiler = Compiler()
-    template = compiler.compile(source)
-    return template
+    return Compiler().compile(source)
+
+
+@dataclass
+class PageSpec:
+    html: str
+    height: str
+
+
+class PageSpecEnum(Enum):
+    SUMMARY_REPORT = PageSpec(html="index-hbs-cdn-all-in-for-jupyter-notebook.html", height="1000px")
+    DOUBLE_HISTOGRAM = PageSpec(html="index-hbs-cdn-all-in-jupyter-distribution-chart.html", height="300px")
+    DISTRIBUTION_CHART = PageSpec(html="index-hbs-cdn-all-in-jupyter-bar-chart.html", height="277px")
+    DIFFERENCED_CHART = PageSpec(html="index-hbs-cdn-all-in-jupyter-differenced-chart.html.html", height="277px")
+    FEATURE_STATISTICS = PageSpec(html="index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html", height="650px")
+    CONSTRAINTS_REPORT = PageSpec(html="index-hbs-cdn-all-in-jupyter-constraints-report.html", height="750px")
 
 
 class NotebookProfileVisualizer:
     """
     Visualize and compare profiles for drift detection, data quality, distribution comparison and feature statistics.
 
-    NotebookProfileVisualizer enables visualization features for Jupyter Notebook environments, but also enables download
+    NotebookProfileVisualizer enables visualization features for Jupyter Notebook environments, but also enables
+    download
     of the generated reports as HTML files.
 
     Examples
     --------
-    .. code-block:: python
+    … code-block:: python
 
         data = {
             "animal": ["cat", "hawk", "snake", "cat"],
@@ -67,52 +80,88 @@ class NotebookProfileVisualizer:
         profile_view = profile.view()
         visualization = NotebookProfileVisualizer()
         visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
-
-
     """
 
-    SUMMARY_REPORT_TEMPLATE_NAME = "index-hbs-cdn-all-in-for-jupyter-notebook.html"
-    DOUBLE_HISTOGRAM_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-distribution-chart.html"
-    DISTRIBUTION_CHART_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-bar-chart.html"
-    DIFFERENCED_CHART_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-differenced-chart.html"
-    FEATURE_STATISTICS_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html"
-    CONSTRAINTS_REPORT_TEMPLATE_NAME = "index-hbs-cdn-all-in-jupyter-constraints-report.html"
-    PAGE_SIZES = {
-        SUMMARY_REPORT_TEMPLATE_NAME: "1000px",
-        DOUBLE_HISTOGRAM_TEMPLATE_NAME: "300px",
-        DISTRIBUTION_CHART_TEMPLATE_NAME: "277px",
-        DIFFERENCED_CHART_TEMPLATE_NAME: "277px",
-        FEATURE_STATISTICS_TEMPLATE_NAME: "650px",
-        CONSTRAINTS_REPORT_TEMPLATE_NAME: "750PX",
-    }
+    _ref_view: Optional[DatasetProfileView]
+    _target_view: DatasetProfileView
 
-    def _display_rendered_template(self, template: str, template_name: str, height: Optional[str]) -> HTML:
+    @staticmethod
+    def _display(template: str, page_spec: PageSpec, height: Optional[str]) -> HTML:
         if not height:
-            height = self.PAGE_SIZES[template_name]
+            height = page_spec.height
         iframe = f"""<div></div><iframe srcdoc="{html.escape(template)}" width=100% height={height}
         frameBorder=0></iframe>"""
         return HTML(iframe)
 
-    def _display_feature_chart(
-        self, feature_name: str, template_name: str, preferred_cell_height: str = None
+    def _display_distribution_chart(
+        self, feature_name: str, cell_height: str = None, config: Optional[SummaryConfig] = None
     ) -> Optional[HTML]:
-        template = _get_compiled_template(template_name)
-        if self._target_profile_view:
+        if config is None:
+            config = SummaryConfig()
+        page_spec = PageSpecEnum.DISTRIBUTION_CHART.value
+
+        template = _get_compiled_template(page_spec.html)
+        if self._target_view:
             target_profile_features: Dict[str, Dict[str, Any]] = {feature_name: {}}
             reference_profile_features: Dict[str, Dict[str, Any]] = {feature_name: {}}
 
-            target_column_profile_view = self._target_profile_view.get_column(feature_name)
+            target_column_profile_view = self._target_view.get_column(feature_name)
             if not target_column_profile_view:
                 raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
 
-            target_column_dist_metric = target_column_profile_view.get_metric("dist")
-            if not target_column_dist_metric:
+            target_column_frequent_items_metric = target_column_profile_view.get_metric("fi")
+            if not target_column_frequent_items_metric:
+                raise ValueError("Frequent Items Metrics not found for feature {}.".format(feature_name))
+
+            target_frequent_items = target_column_frequent_items_metric.to_summary_dict(config)["fs"]
+            target_profile_features[feature_name]["frequentItems"] = get_frequent_items_estimate(target_frequent_items)
+            if self._ref_view:
+                ref_col_view = self._ref_view.get_column(feature_name)
+                if not ref_col_view:
+                    raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
+
+                ref_col_freq_item_metric = ref_col_view.get_metric("fi")
+                if not ref_col_freq_item_metric:
+                    raise ValueError("Frequent Items Metrics not found for feature {}.".format(feature_name))
+
+                ref_freq_items = ref_col_freq_item_metric.to_summary_dict(config)["fs"]
+                reference_profile_features[feature_name]["frequentItems"] = get_frequent_items_estimate(ref_freq_items)
+            else:
+                logger.warning("Reference profile not detected. Plotting only for target feature.")
+                reference_profile_features[feature_name]["frequentItems"] = [
+                    {"value": x["value"], "estimate": 0} for x in target_profile_features[feature_name]["frequentItems"]
+                ]  # Getting the same frequent items categories for target and adding 0 as estimate.
+            distribution_chart = template(
+                {
+                    "profile_from_whylogs": json.dumps(target_profile_features),
+                    "reference_profile_from_whylogs": json.dumps(reference_profile_features),
+                }
+            )
+            return self._display(distribution_chart, page_spec, cell_height)
+
+        else:
+            logger.warning("This method has to get at least a target profile, with valid feature title")
+            return None
+
+    def _display_histogram_chart(self, feature_name: str, cell_height: str = None) -> Optional[HTML]:
+        page_spec = PageSpecEnum.DOUBLE_HISTOGRAM.value
+        template = _get_compiled_template(page_spec.html)
+        if self._target_view:
+            target_features: Dict[str, Dict[str, Any]] = {feature_name: {}}
+            ref_features: Dict[str, Dict[str, Any]] = {feature_name: {}}
+
+            target_col_view = self._target_view.get_column(feature_name)
+            if not target_col_view:
+                raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
+
+            target_col_dist: Optional[DistributionMetric] = target_col_view.get_metric("dist")
+            if not target_col_dist:
                 raise ValueError("Distribution Metrics not found for feature {}.".format(feature_name))
 
-            target_kll_sketch = target_column_dist_metric.kll.value  # type: ignore
-            target_histogram = histogram_from_sketch(target_kll_sketch)
-            if self._reference_profile_view:
-                reference_column_profile_view = self._reference_profile_view.get_column(feature_name)
+            target_kill = target_col_dist.kll.value
+            target_histogram = histogram_from_sketch(target_kill)
+            if self._ref_view:
+                reference_column_profile_view = self._ref_view.get_column(feature_name)
                 if not reference_column_profile_view:
                     raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
 
@@ -120,30 +169,30 @@ class NotebookProfileVisualizer:
                 if not reference_column_dist_metric:
                     raise ValueError("Distribution Metrics not found for feature {}.".format(feature_name))
 
-                reference_kll_sketch = reference_column_dist_metric.kll.value  # type: ignore
-                reference_histogram = histogram_from_sketch(reference_kll_sketch)
+                reference_kll_sketch = reference_column_dist_metric.kll.value
+                ref_histogram = histogram_from_sketch(reference_kll_sketch)
             else:
                 logger.warning("Reference profile not detected. Plotting only for target feature.")
-                reference_histogram = target_histogram.copy()
-                reference_histogram["counts"] = [
-                    0 for x in reference_histogram["counts"]
+                ref_histogram = target_histogram.copy()
+                ref_histogram["counts"] = [
+                    0 for _ in ref_histogram["counts"]
                 ]  # To plot single profile, zero counts for non-existing profile.
 
-            reference_profile_features[feature_name]["histogram"] = reference_histogram
-            target_profile_features[feature_name]["histogram"] = target_histogram
-            distribution_chart = template(
+            ref_features[feature_name]["histogram"] = ref_histogram
+            target_features[feature_name]["histogram"] = target_histogram
+            histogram_chart = template(
                 {
-                    "profile_from_whylogs": json.dumps(target_profile_features),
-                    "reference_profile_from_whylogs": json.dumps(reference_profile_features),
+                    "profile_from_whylogs": json.dumps(target_features),
+                    "reference_profile_from_whylogs": json.dumps(ref_features),
                 }
             )
-            return self._display_rendered_template(distribution_chart, template_name, preferred_cell_height)
+            return self._display(histogram_chart, page_spec, height=cell_height)
         else:
             logger.warning("This method has to get at least a target profile, with valid feature title")
             return None
 
     def set_profiles(
-        self, target_profile_view: DatasetProfileView, reference_profile_view: DatasetProfileView = None
+        self, target_profile_view: DatasetProfileView, reference_profile_view: Optional[DatasetProfileView] = None
     ) -> None:
         """Set profiles for Visualization/Comparison.
 
@@ -151,35 +200,39 @@ class NotebookProfileVisualizer:
 
         Parameters
         ----------
-        target_profile_view: DatasetProfileView, optional
+        target_profile_view: DatasetProfileView, required
             Target profile to visualize.
         reference_profile_view: DatasetProfileView, optional
             Reference, or baseline, profile to be compared against the target profile.
 
         """
-        self._target_profile_view = target_profile_view
-        self._reference_profile_view = reference_profile_view
+        self._target_view = target_profile_view
+        self._ref_view = reference_profile_view
 
-    def double_histogram(self, feature_name: str, preferred_cell_height: str = None) -> HTML:
-        """Plots overlayed histograms for specified feature present in both `target_profile` and `reference_profile`. Applicable to numerical features only.
+    def double_histogram(self, feature_name: str, cell_height: str = None) -> HTML:
+        """Plots overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
+        Applicable to numerical features only.
 
         Parameters
         ----------
         feature_name: str
             Name of the feature to generate histograms.
-        preferred_cell_height: str, optional
-            Preferred cell height, in pixels, for in-notebook visualization. Example: `preferred_cell_height="1000px"`. (Default is None)
+        cell_height: str, optional
+            Preferred cell height, in pixels, for in-notebook visualization. Example:
+            `cell_height="1000px"`. (Default is None)
 
         """
-        return self._display_feature_chart(feature_name, self.DOUBLE_HISTOGRAM_TEMPLATE_NAME, preferred_cell_height)
+        return self._display_histogram_chart(feature_name, cell_height)
 
-    def feature_statistics(
-        self, feature_name: str, profile: str = "reference", preferred_cell_height: str = None
-    ) -> HTML:
+    def distribution_chart(self, feature_name: str, cell_height: str = None) -> HTML:
+        return self._display_distribution_chart(feature_name, cell_height)
+
+    def feature_statistics(self, feature_name: str, profile: str = "reference", cell_height: str = None) -> HTML:
         """
         Generates a report for the main statistics of specified feature, for a given profile (target or reference).
 
-        Statistics include overall metrics such as distinct and missing values, as well as quantile and descriptive statistics.
+        Statistics include overall metrics such as distinct and missing values, as well as quantile and descriptive
+        statistics.
         If `profile` is not passed, the default is the reference profile.
 
         Parameters
@@ -188,15 +241,17 @@ class NotebookProfileVisualizer:
             Name of the feature to generate histograms.
         profile: str
             Profile to be used to generate the report. (Default is `reference`)
-        preferred_cell_height: str, optional
-            Preferred cell height, in pixels, for in-notebook visualization. Example: `preferred_cell_height="1000px"`. (Default is None)
+        cell_height: str, optional
+            Preferred cell height, in pixels, for in-notebook visualization. Example:
+            `cell_height="1000px"`. (Default is None)
 
         """
-        template = _get_compiled_template(self.FEATURE_STATISTICS_TEMPLATE_NAME)
-        if self._reference_profile_view and profile.lower() == "reference":
-            selected_profile_column = self._reference_profile_view.get_column(feature_name)
+        page_spec = PageSpecEnum.FEATURE_STATISTICS.value
+        template = _get_compiled_template(page_spec.html)
+        if self._ref_view and profile.lower() == "reference":
+            selected_profile_column = self._ref_view.get_column(feature_name)
         else:
-            selected_profile_column = self._target_profile_view.get_column(feature_name)  # type: ignore
+            selected_profile_column = self._target_view.get_column(feature_name)
 
         rendered_template = template(
             {
@@ -205,9 +260,7 @@ class NotebookProfileVisualizer:
                 )
             }
         )
-        return self._display_rendered_template(
-            rendered_template, self.FEATURE_STATISTICS_TEMPLATE_NAME, preferred_cell_height
-        )
+        return self._display(rendered_template, page_spec, cell_height)
 
     def write(self, rendered_html: HTML, preferred_path: str = None, html_file_name: str = None) -> None:
         """Creates HTML file for the given report.
@@ -224,6 +277,9 @@ class NotebookProfileVisualizer:
         Examples
         --------
         >>> import os
+        >>> from whylogs.viewer import NotebookProfileVisualizer
+        >>>
+        >>> visualization = NotebookProfileVisualizer()
         >>> visualization.write(
         ...    rendered_html=visualization.feature_statistics(feature_name="weight", profile="target"),
         ...    html_file_name=os.getcwd() + "/test",
@@ -232,7 +288,7 @@ class NotebookProfileVisualizer:
 
         """
         if not html_file_name:
-            if self._reference_profile_view:
+            if self._ref_view:
                 html_file_name = "ProfileVisualizer"  # todo on v1
                 # html_file_name = self._reference_profile.dataset_timestamp #v0 reference
             else:
