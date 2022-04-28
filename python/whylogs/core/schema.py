@@ -17,8 +17,8 @@ T = TypeVar("T", bound="DatasetSchema")
 @dataclass(frozen=True)
 class ColumnConfig:
     hll_lg_k: int = 12
-    kll_k: int = 12
-    fi_lg_max_k: int = 12
+    kll_k: int = 256
+    fi_lg_max_k: int = 10  # 128 entries
     fi_disabled: bool = False
 
 

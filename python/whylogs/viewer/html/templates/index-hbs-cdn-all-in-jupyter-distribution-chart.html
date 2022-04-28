@@ -257,11 +257,11 @@
 
       function chartData(column) {
         const data = [];
-        if (column.numberSummary?.histogram) {
-          for (let i = 0; i<column.numberSummary.histogram.bins.length; i++) {
+        if (column?.histogram) {
+          for (let i = 0; i<column.histogram.bins.length; i++) {
             data.push({
-              axisY: column.numberSummary.histogram.counts[i] || 0,
-              axisX: column.numberSummary.histogram.bins[i] || 0,
+              axisY: column.histogram.counts[i] || 0,
+              axisX: column.histogram.bins[i] || 0,
             });
           }
         } else {

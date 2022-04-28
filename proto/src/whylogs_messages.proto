@@ -1,7 +1,7 @@
 syntax = "proto3";
+import "google/protobuf/any.proto";
 
 import "google/protobuf/struct.proto";
-import "google/protobuf/any.proto";
 
 option java_package = "com.whylogs.core.message";
 option java_outer_classname = "Messages";
@@ -67,15 +67,18 @@ message DatasetProperties {
   uint32 schema_major_version = 1;
   uint32 schema_minor_version = 2;
 
-  string session_id = 3;
-  int64 session_timestamp = 4;
-  int64 data_timestamp = 5;
+  uint64 creation_timestamp = 4;
+  uint64 dataset_timestamp = 5;
   map<string, string> tags = 6;
   map<string, string> metadata = 7;
 }
 
 message ChunkOffsets {
-  repeated int32 offsets = 1;
+  repeated uint32 offsets = 1;
+}
+
+message ChunkMessage {
+  map<uint32, MetricComponentMessage> metric_components = 1;
 }
 
 message ChunkHeader {
@@ -92,6 +95,6 @@ message DatasetProfileHeader {
   DatasetProperties properties = 1;
   map<string, ChunkOffsets> column_offsets = 2;
   repeated ChunkOffsets metric_offsets = 3;
+  uint64 length = 4; // total length of the rest of the data for this profile.
+  map<uint32, string> indexed_names = 5;
 }
-
-// [HEADER][len][DATASET MEASURES CHUNK 1][len][DATASET MEASURES CHUNK 2][COLUMN 1][COLUMN1 EXTENSION][COLUMN2]

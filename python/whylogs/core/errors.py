@@ -12,3 +12,11 @@ class SerializationError(Error):
 
 class UnsupportedError(Error):
     """Exception raised when an operation is not supported."""
+
+
+class LoggingError(Error):
+    """Exception when an error happens during logging."""
+
+
+class BadConfigError(Error):
+    """Exception when an error is due to bad configuration."""

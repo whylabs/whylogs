@@ -15,6 +15,14 @@ In here we can put an introductory text and even show some references, such as t
     why.log(pd.DataFrame([1.2,3,12,12424]))
 
 
+Installation
+============
+
+.. code-block:: bash
+
+   pip install whylogs
+
+
 Overall
 ========================================
 
