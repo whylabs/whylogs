@@ -38,13 +38,15 @@ def _calculate_descriptive_statistics(column_view: ColumnProfileView) -> Optiona
     count_n = column_counts_metric_.n.value
     count_missing = column_counts_metric_.null.value
 
-    return {
+    descriptive_statistics: DescStats = {
         "stddev": stddev,
         "coefficient_of_variation": stddev / mean,
         "sum": (count_n - count_missing) * mean,
         "variance": distribution_metric.variance,
         "mean": mean,
     }
+
+    return descriptive_statistics
 
 
 class QuantileStats(TypedDict):
