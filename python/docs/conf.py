@@ -12,7 +12,10 @@ copyright = "2022, whylogs developers"
 
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx.ext.napoleon"
+    "sphinx.ext.napoleon",
+    "sphinx.ext.githubpages",
+    # "numpydoc",
+    "sphinx_copybutton",
 ]
 
 templates_path = ["_templates"]

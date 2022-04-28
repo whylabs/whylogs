@@ -1,14 +1,6 @@
 whylogs.viewer package
 ======================
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   whylogs.viewer.utils
-
 Submodules
 ----------
 

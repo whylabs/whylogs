@@ -8,9 +8,6 @@ Subpackages
    :maxdepth: 4
 
    whylogs.core.metrics
-   whylogs.core.proto
-   whylogs.core.utils
-   whylogs.core.view
 
 Submodules
 ----------
