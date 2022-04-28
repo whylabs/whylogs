@@ -440,7 +440,7 @@
       Handlebars.registerHelper("maximum", function (column) {
         const feature = Object.values(column)[0]
 
-        if (feature.min) {
+        if (feature.max) {
           return fixNumberTo(feature.max);
         }
         return "0";

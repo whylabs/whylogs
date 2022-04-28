@@ -1,25 +1,25 @@
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, TypeVar
 
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.errors import UnsupportedError
+from whylogs.core.errors import DeserializationError, UnsupportedError
 from whylogs.core.metrics import StandardMetric
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.proto import ColumnMessage, MetricComponentMessage, MetricMessage
 
 logger = logging.getLogger(__name__)
 
+METRIC = TypeVar("METRIC", bound=Metric)
+
 
 class ColumnProfileView(object):
-    _metrics: Dict[str, Metric]
-
     def __init__(
         self,
-        metrics: Dict[str, Metric],
+        metrics: Dict[str, METRIC],
         success_count: int = 0,
         failure_count: int = 0,
     ):
-        self._metrics = metrics.copy()
+        self._metrics: Dict[str, METRIC] = metrics.copy()
         self._success_count = success_count
         self._failure_count = failure_count
 
@@ -46,15 +46,22 @@ class ColumnProfileView(object):
     def __add__(self, other: "ColumnProfileView") -> "ColumnProfileView":
         return self.merge(other)
 
-    def get_metric(self, m_name: str) -> Optional[Metric]:
+    def get_metric(self, m_name: str) -> Optional[METRIC]:
         return self._metrics.get(m_name)
 
-    def serialize(self) -> ColumnMessage:
+    def to_protobuf(self) -> ColumnMessage:
         res: Dict[str, MetricComponentMessage] = {}
         for m_name, m in self._metrics.items():
-            for mc_name, mc in m.serialize().metric_components.items():
+            for mc_name, mc in m.to_protobuf().metric_components.items():
                 res[f"{m.namespace}/{mc_name}"] = mc
         return ColumnMessage(metric_components=res)
+
+    def get_metric_component_paths(self) -> List[str]:
+        res: List[str] = []
+        for m_name, m in self._metrics.items():
+            for mc_name in m.get_component_paths():
+                res.append(f"{m.namespace}/{mc_name}")
+        return res
 
     def to_summary_dict(
         self, *, column_metric: Optional[str] = None, cfg: Optional[SummaryConfig] = None
@@ -79,7 +86,7 @@ class ColumnProfileView(object):
         return res
 
     @classmethod
-    def deserialize(cls, msg: ColumnMessage) -> "ColumnProfileView":
+    def from_protobuf(cls, msg: ColumnMessage) -> "ColumnProfileView":
         result_metrics: Dict[str, Metric] = {}
         metric_messages: Dict[str, Dict[str, MetricComponentMessage]] = {}
         for full_path, c_msg in msg.metric_components.items():
@@ -99,5 +106,8 @@ class ColumnProfileView(object):
                 raise UnsupportedError(f"Unsupported metric: {m_name}")
 
             m_msg = MetricMessage(metric_components=metric_components)
-            result_metrics[m_name] = m_enum.value.deserialize(m_msg)
+            try:
+                result_metrics[m_name] = m_enum.value.from_protobuf(m_msg)
+            except:  # noqa
+                raise DeserializationError(f"Failed to deserialize metric: {m_name}")
         return ColumnProfileView(metrics=result_metrics)

@@ -261,18 +261,11 @@
 
       function chartData(column) {
         const data = [];
-          if (column.stringSummary?.frequent) {
-            Object.entries(column.stringSummary.frequent.items).forEach(([key, {value, estimate}], index) => {
+          if (column.frequentItems) {
+            Object.entries(column.frequentItems).forEach(([key, {value, estimate}], index) => {
               data.push({
                 axisY: estimate,
                 axisX: value,
-              });
-            });
-          } else if (column.stringSummary?.charPosTracker){
-            Object.entries(column.stringSummary.charPosTracker.charPosMap).forEach(([key, {count}], index) => {
-              data.push({
-                axisY: count,
-                axisX: key,
               });
             });
           } else {
@@ -286,15 +279,6 @@
           }
 
         return data
-      }
-
-
-      function CheckNumberSummary(column) {
-        if (column.numberSummary) {
-          return true
-        } else {
-          return false
-        }
       }
 
       function generateBarChart(histogramData, overlappedHistogramData) {
