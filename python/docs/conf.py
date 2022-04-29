@@ -3,7 +3,6 @@ import sys
 
 sys.path.insert(0, os.path.abspath('../whylogs'))
 
-
 version = "1.0.0"
 
 project = "whylogs"
@@ -36,6 +35,10 @@ index_doc = "index"
 html_theme = "furo"
 html_title = f"<div class='hidden'>whylogs</div> <div class='version'> v{version}</div>"
 html_static_path = ["_static"]
+
+# do not make images clickable. It gets quite annoying otherwise
+# see: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_scaled_image_link
+html_scaled_image_link = False
 
 intersphinx_mapping = {
     'py': ('https://docs.python.org/{0.major}.{0.minor}'.format(sys.version_info), None),
