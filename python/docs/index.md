@@ -14,6 +14,18 @@
 ```{eval-rst}
 .. toctree::
     :maxdepth: 1
+    :caption: Migration Guide
+    :hidden:
+
+    migration/overview
+    migration/configuration
+    migration/format
+    migration/log_rotation
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 1
     :caption: Support
     :hidden:
 
