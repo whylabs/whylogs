@@ -8,10 +8,11 @@ from typing import Any, Callable, Dict, Optional
 
 from IPython.core.display import HTML  # type: ignore
 
+from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-from whylogs.viewer.utils.profile_viz_calculations import (
+from whylogs.viz.utils.profile_viz_calculations import (
     add_feature_statistics,
     get_frequent_items_estimate,
     histogram_from_sketch,
@@ -19,6 +20,7 @@ from whylogs.viewer.utils.profile_viz_calculations import (
 
 logger = logging.getLogger(__name__)
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
+emit_usage("visualizer")
 
 
 def _get_template_path(html_file_name: str) -> str:
@@ -65,7 +67,7 @@ class NotebookProfileVisualizer:
 
     Examples
     --------
-    … code-block:: python
+    .. code-block:: python
 
         data = {
             "animal": ["cat", "hawk", "snake", "cat"],
@@ -277,7 +279,7 @@ class NotebookProfileVisualizer:
         Examples
         --------
         >>> import os
-        >>> from whylogs.viewer import NotebookProfileVisualizer
+        >>> from whylogs.viz import NotebookProfileVisualizer
         >>>
         >>> visualization = NotebookProfileVisualizer()
         >>> visualization.write(
