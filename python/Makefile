@@ -65,7 +65,7 @@ dist: $(build.wheel) ## Create distribution tarballs and wheels
 
 docs: ## Use poetry to run the make html command within the proper directory
 	cd docs && \
-	poetry run sphinx-apidoc -f -o . ../whylogs ../whylogs/core/view ../whylogs/viz/utils ../whylogs/core/utils ../whylogs/core/proto && \
+	poetry run sphinx-apidoc -f -o _autoapi ../whylogs ../whylogs/core/view ../whylogs/viz/utils ../whylogs/core/utils ../whylogs/core/proto && \
 	poetry run make html
 
 $(build.wheel): $(src.python) $(build.proto) $(build.proto.v0)

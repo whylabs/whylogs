@@ -18,13 +18,18 @@ typing-extensions = ">=typing-extensions"
 pybars3 = { version = "^0.9", optional = true }
 ipython = { version = "*", optional = true }
 
+# Doc dependencies
+sphinx = { version = "*", optional = true }
+sphinx-autoapi = { version = "*", optional = true }
+sphinx-copybutton = { version = "^0.5.0", optional = true }
+myst-parser = { extras = ["sphinx"], version = "^0.17.2", optional = true }
+furo = { version = "^2022.3.4", optional = true }
+
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
 black = { version = "*", allow-prereleases = true }
 flake8 = "*"
-flake8-docstrings = { version = "^1.6.0", optional = true }
 isort = "^5.6"
-mkdocs-material = "^8"
 mypy = ">=0.942,<1"
 pre-commit = "^2.8"
 pytest = "^6.2"
@@ -36,13 +41,6 @@ types-protobuf = ">=0.1.14"
 pandas = "*"
 pandas-stubs = "*"
 ipykernel = ">=6.11" # for developing in Jupyter notebook
-sphinx = "*"
-sphinx-autoapi = "*"
-autodoc-pydantic = "^1.6.1"
-sphinx-copybutton = "^0.5.0"
-numpydoc = "*"
-furo = "^2022.3.4"
-sphinx-autodoc-typehints = "^1.17.0"
 types-python-dateutil = "^2.8.12"
 
 
@@ -50,11 +48,10 @@ types-python-dateutil = "^2.8.12"
 docs = [
     "sphinx",
     "sphinx-autoapi",
-    "ipython",
-    "nbsphinx",
-    "numpydoc",
     "furo",
     "sphinx-autodoc-typehints",
+    "sphinx-copybutton",
+    "myst-parser",
 ]
 viz = [
     "ipython",
