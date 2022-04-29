@@ -3,7 +3,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath('../whylogs'))
 
-version = "1.0.0"
+version = "1.0.0rc0"
 
 project = "whylogs"
 author = "whylogs developers"

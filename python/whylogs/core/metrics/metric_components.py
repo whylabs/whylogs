@@ -44,14 +44,17 @@ class MetricComponent(Generic[T]):
             registries = Registries()
 
         self._registries = registries
+        optional_mtype = None
+        if hasattr(self, "mtype"):
+            optional_mtype = self.mtype
         self._aggregator = get_aggregator(
-            mtype=self.mtype, type_id=self.type_id, registry=registries.aggregatorRegistry
+            mtype=optional_mtype, type_id=self.type_id, registry=registries.aggregatorRegistry
         )
         self._serializer = get_serializer(
-            mtype=self.mtype, type_id=self.type_id, registry=registries.serializerRegistry
+            mtype=optional_mtype, type_id=self.type_id, registry=registries.serializerRegistry
         )
         self._deserializer = get_deserializer(
-            mtype=self.mtype, type_id=self.type_id, registry=registries.deserializerRegistry
+            mtype=optional_mtype, type_id=self.type_id, registry=registries.deserializerRegistry
         )
 
         if self._serializer is None and self._deserializer is not None:
