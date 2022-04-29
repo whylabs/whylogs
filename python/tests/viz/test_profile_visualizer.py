@@ -4,7 +4,7 @@ import webbrowser
 import pandas as pd
 
 import whylogs as why
-from whylogs.viewer import NotebookProfileVisualizer
+from whylogs.viz import NotebookProfileVisualizer
 
 
 def test_viz_feature_statistics(tmp_path: str) -> None:

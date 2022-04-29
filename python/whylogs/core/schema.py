@@ -39,7 +39,7 @@ class DatasetSchema:
         type_mapper: Optional. a mapper that transates the Python type to standardized whylogs :class:`DataType` object.
 
         resolvers: Optional. an object that defines how to map from a column name, a whylogs :class:`DataType` and a
-        schema to metrics.
+                   schema to metrics.
 
 
     Examples

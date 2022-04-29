@@ -6,6 +6,8 @@ import pytest
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 _DATA_DIR = os.path.join(_MY_DIR, "testdata")
 
+os.environ["HEAP_APPID_DEV"] = "3422045963"
+
 
 def pytest_addoption(parser) -> None:  # type: ignore
     parser.addoption("--load", action="store_true", default=False, help="run load tests")
