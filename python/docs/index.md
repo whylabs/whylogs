@@ -13,18 +13,6 @@
 
 ```{eval-rst}
 .. toctree::
-    :maxdepth: 1
-    :caption: Migration Guide
-    :hidden:
-
-    Basics<migration/basics>
-    migration/configuration
-    migration/format
-    migration/log_rotation
-```
-
-```{eval-rst}
-.. toctree::
     :maxdepth: 2
     :caption: Features
     :hidden:
@@ -33,6 +21,18 @@
     features/config
     features/writing
     integrations/index
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 1
+    :caption: Migration Guide
+    :hidden:
+
+    Basics<migration/basics>
+    migration/configuration
+    migration/format
+    migration/log_rotation
 ```
 
 ```{eval-rst}
