@@ -8,7 +8,7 @@
 
     Overview<self>
     getting_started
-    config
+    glossary
 ```
 
 ```{eval-rst}
@@ -17,10 +17,22 @@
     :caption: Migration Guide
     :hidden:
 
-    migration/overview
+    Basics<migration/basics>
     migration/configuration
     migration/format
     migration/log_rotation
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 2
+    :caption: Features
+    :hidden:
+
+    features/profiling
+    features/config
+    features/writing
+    integrations/index
 ```
 
 ```{eval-rst}
@@ -34,14 +46,25 @@
     support/usage_statistics
 ```
 
-
 ```{eval-rst}
 .. toctree::
     :maxdepth: 1
+    :caption: Community
+    :hidden:
+
+    Changelog<https://github.com/whylabs/whylogs/releases>
+    Feedback<https://github.com/whylabs/whylogs/issues/new/choose>
+    GitHub<https://github.com/whylabs/whylogs>
+    Slack<https://bit.ly/whylogs-slack>
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 3
     :caption: API References
     :hidden:
 
-    _autoapi/modules
+    _autoapi/index
 ```
 
 ```{eval-rst}

@@ -17,8 +17,7 @@ def log(
     row: Optional[Dict[str, Any]] = None,
     schema: Optional[DatasetSchema] = None,
 ) -> ResultSet:
-    logger = TransientLogger(schema=schema)
-    return logger.log(obj, pandas=pandas, row=row)
+    return TransientLogger(schema=schema).log(obj, pandas=pandas, row=row)
 
 
 def read(path: str) -> ResultSet:
