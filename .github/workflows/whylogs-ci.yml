@@ -143,12 +143,18 @@ jobs:
           make proto -B
           make docs
 
+      - name: Set outputs
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        if: ${{ github.ref != 'refs/heads/mainline' }}
+
       - name: "Deploy to Netlify: Pull Requests"
         uses: nwtgck/actions-netlify@v1.2
         with:
           publish-dir: python/docs/_build/html
           enable-pull-request-comment: true
-          alias: pr-${{ github.event.pull_request.number }}
+          overwrites-pull-request-comment: false
+          alias: git-${{ steps.vars.outputs.sha_short }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
