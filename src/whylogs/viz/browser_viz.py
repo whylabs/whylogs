@@ -1,8 +1,8 @@
 import logging
 import os
-from platform import uname
 import tempfile
 import webbrowser
+from platform import uname
 from typing import List
 
 from whylogs.core import DatasetProfile
