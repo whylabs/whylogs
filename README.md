@@ -137,7 +137,7 @@ Once you’ve generated whylogs profiles, a few things can be done with them:
 
 In your local Python environment, you can set data constraints or visualize your profiles. Setting data constraints on your profiles allows you to get notified when your data don’t match your expectations, allowing you to do data unit testing and some baseline data monitoring. With the Profile Visualizer, you can visually explore your data, allowing you to understand it and ensure that your ML models are ready for production.
 
-In addition, you can send whylogs profiles to the SaaS ML monitoring and AI observability platform [WhyLabs](whylabs.ai). With WhyLabs, you can automatically set up monitoring for your machine learning models, getting notified on both data quality and data change issues (such as data drift). If you’re interested in trying out WhyLabs, check out the always free [Starter edition](whylabs.ai/free), which allows you to experience the entire platform’s capabilities with no credit card required.
+In addition, you can send whylogs profiles to the SaaS ML monitoring and AI observability platform [WhyLabs](https://whylabs.ai). With WhyLabs, you can automatically set up monitoring for your machine learning models, getting notified on both data quality and data change issues (such as data drift). If you’re interested in trying out WhyLabs, check out the always free [Starter edition](https://whylabs.ai/free), which allows you to experience the entire platform’s capabilities with no credit card required.
 
 
 ## Visualizing Profiles<a name="visualizing-profiles" />
