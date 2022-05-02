@@ -17,6 +17,7 @@ importlib-metadata = { version = ">=0.23", python = "<3.8" }
 typing-extensions = ">=typing-extensions"
 pybars3 = { version = "^0.9", optional = true }
 ipython = { version = "*", optional = true }
+scipy = {version = "<1.8", extras = ["viz"]}
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"

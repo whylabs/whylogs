@@ -13,9 +13,12 @@ from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.viz.utils.profile_viz_calculations import (
+    OverallStats,
     add_feature_statistics,
     get_frequent_items_estimate,
     histogram_from_sketch,
+    add_overall_statistics,
+    calculate_drift_values,
 )
 
 logger = logging.getLogger(__name__)
@@ -213,6 +216,11 @@ class NotebookProfileVisualizer:
         """
         self._target_view = target_profile_view
         self._ref_view = reference_profile_view
+
+    def summary_drift_report(self, preferred_cell_height=None):
+        overall_stats: OverallStats = add_overall_statistics(self._target_view)
+        drift_values = calculate_drift_values(self._target_view, self._ref_view, config=None)
+        return
 
     def double_histogram(self, feature_name: str, cell_height: str = None) -> HTML:
         """Plots overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.

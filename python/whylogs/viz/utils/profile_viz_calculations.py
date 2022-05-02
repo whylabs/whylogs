@@ -13,11 +13,16 @@ from whylogs.core.metrics import (
 )
 from whylogs.core.metrics.metrics import FrequentItem
 from whylogs.core.view.column_profile_view import ColumnProfileView
+from scipy import stats
+from whylogs.core.configs import SummaryConfig
+
 
 MAX_HIST_BUCKETS = 30
 HIST_AVG_NUMBER_PER_BUCKET = 4.0
 
 logger = getLogger(__name__)
+
+QUANTILES = [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]
 
 
 class DescStats(TypedDict):
@@ -114,6 +119,131 @@ def _calculate_bins(
     return bins, end, start
 
 
+def _ks_test_compute_p_value(target_distribution, reference_distribution):
+    """
+    Compute the Kolmogorov-Smirnov test p-value of two continuous distributions.
+    Uses the quantile values and the corresponding CDFs to calculate the approximate KS statistic.
+    Only applicable to continuous distributions.
+    The null hypothesis expects the samples to come from the same distribution.
+
+    Parameters
+    ----------
+    target_distribution : datasketches.kll_floats_sketch
+        A kll_floats_sketch (quantiles sketch) from the target distribution's values
+    reference_distribution : datasketches.kll_floats_sketch
+        A kll_floats_sketch (quantiles sketch) from the reference (expected) distribution's values
+        Can be generated from a theoretical distribution, or another sample for the same feature.
+
+    Returns
+    -------
+        p_value : float
+        The estimated p-value from the parametrized KS test, applied on the target and reference distributions'
+        kll_floats_sketch summaries
+
+    """
+
+    D_max = 0
+    target_quantile_values = target_distribution.get_quantiles(QUANTILES)
+    ref_quantile_values = reference_distribution.get_quantiles(QUANTILES)
+
+    num_quantiles = len(QUANTILES)
+    i, j = 0, 0
+    while i < num_quantiles and j < num_quantiles:
+
+        if target_quantile_values[i] < ref_quantile_values[j]:
+            current_quantile = target_quantile_values[i]
+            i += 1
+        else:
+            current_quantile = ref_quantile_values[j]
+            j += 1
+
+        cdf_target = target_distribution.get_cdf([current_quantile])[0]
+        cdf_ref = reference_distribution.get_cdf([current_quantile])[0]
+        D = abs(cdf_target - cdf_ref)
+        if D > D_max:
+            D_max = D
+
+    while i < num_quantiles:
+        cdf_target = target_distribution.get_cdf([target_quantile_values[i]])[0]
+        cdf_ref = reference_distribution.get_cdf([target_quantile_values[i]])[0]
+        D = abs(cdf_target - cdf_ref)
+        if D > D_max:
+            D_max = D
+        i += 1
+
+    while j < num_quantiles:
+        cdf_target = target_distribution.get_cdf([ref_quantile_values[j]])[0]
+        cdf_ref = reference_distribution.get_cdf([ref_quantile_values[j]])[0]
+        D = abs(cdf_target - cdf_ref)
+        if D > D_max:
+            D_max = D
+        j += 1
+
+    m, n = sorted([target_distribution.get_n(), reference_distribution.get_n()], reverse=True)
+    en = m * n / (m + n)
+
+    p_value = stats.distributions.kstwo.sf(D_max, np.round(en))
+
+    return type("Object", (), {"ks_test": p_value})
+
+
+def compute_chi_squared_test_p_value(target_distribution, reference_distribution):
+    """
+    Calculates the Chi-Squared test p-value for two discrete distributions.
+    Uses the top frequent items summary, unique count estimate and total count estimate for each feature,
+    to calculate the estimated Chi-Squared statistic.
+    Applicable only to discrete distributions.
+
+    Parameters
+    ----------
+    target_distribution : ReferenceDistributionDiscreteMessage
+        The summary message of the target feature's distribution.
+        Should be a ReferenceDistributionDiscreteMessage containing the frequent items,
+        unique, and total count summaries.
+    reference_distribution : ReferenceDistributionDiscreteMessage
+        The summary message of the reference feature's distribution.
+        Should be a ReferenceDistributionDiscreteMessage containing the frequent items,
+        unique, and total count summaries.
+
+    Returns
+    -------
+        p_value : float
+        The estimated p-value from the Chi-Squared test, applied on the target and reference distributions'
+        frequent and unique items summaries
+    """
+    target_freq_items = target_distribution["frequent_items"]
+    target_total_count = target_distribution["total_count"]
+    target_unique_count = target_distribution["unique_count"]
+    ref_total_count = reference_distribution["total_count"]
+
+    if ref_total_count <= 0 or target_total_count <= 0:
+        return None
+
+    ref_dist_items = dict()
+    for item in reference_distribution["frequent_items"]:
+        ref_dist_items[item["value"]] = item["estimate"]
+
+    proportion_ref_dist_items = {k: v / ref_total_count for k, v in ref_dist_items.items()}
+
+    chi_sq = 0
+    for item in target_freq_items:
+        target_frequency = item["estimate"]
+        if item["value"] in ref_dist_items:
+            ref_frequency = int(proportion_ref_dist_items[item["value"]] * target_total_count)
+        else:
+            ref_frequency = 0
+
+        if ref_frequency == 0:
+            chi_sq = np.inf
+            break
+        chi_sq += (target_frequency - ref_frequency) ** 2 / ref_frequency
+
+    degrees_of_freedom = target_unique_count - 1
+    degrees_of_freedom = degrees_of_freedom if degrees_of_freedom > 0 else 1
+    p_value = stats.chi2.sf(chi_sq, degrees_of_freedom)
+    return type("Object", (), {"chi_squared_test": p_value})
+
+
 class FrequentItemEstimate(TypedDict):
     value: str
     estimate: float
@@ -171,6 +301,86 @@ def add_feature_statistics(feature_name: str, column_view: Optional[ColumnProfil
     feature_with_statistics[feature_name] = feature_stats
 
     return feature_with_statistics
+
+
+class FrequentItemStats(TypedDict):
+    frequent_items: List[FrequentItemEstimate]
+    total_count: int
+    unique_count: Optional[int]
+
+
+def calculate_drift_values(target_view, ref_view, config: Optional[SummaryConfig]):
+    if config is None:
+        config = SummaryConfig()
+
+    target_col_views = target_view.get_columns()
+    ref_col_views = ref_view.get_columns()
+    for target_col_name in target_col_views:
+        if target_col_name in ref_col_views:
+            if target_col_views[target_col_name].get_metric("dist") and ref_col_views[target_col_name].get_metric(
+                "dist"
+            ):
+                target_dist_metric = target_col_views[target_col_name].get_metric("dist")
+                target_kll_sketch = target_dist_metric.kll.value
+                ref_dist_metric = ref_col_views[target_col_name].get_metric("dist")
+                ref_kll_sketch = ref_dist_metric.kll.value
+
+                ks_p_value = _ks_test_compute_p_value(target_kll_sketch, ref_kll_sketch)
+                pass
+            elif target_col_views[target_col_name].get_metric("fi") and ref_col_views[target_col_name].get_metric("fi"):
+                target_fi_metric = target_col_views[target_col_name].get_metric("fi")
+                target_frequent_items = target_fi_metric.to_summary_dict(config)["fs"]
+                target_cnt_metric = target_col_views[target_col_name].get_metric("cnt")
+                target_count = target_cnt_metric.n.value
+                target_card_metric = target_col_views[target_col_name].get_metric("card")
+                target_unique_count = int(target_card_metric.hll.value.get_estimate())
+
+                ref_fi_metric = ref_col_views[target_col_name].get_metric("fi")
+                ref_frequent_items = ref_fi_metric.to_summary_dict(config)["fs"]
+                ref_cnt_metric = ref_col_views[target_col_name].get_metric("cnt")
+                ref_count = ref_cnt_metric.n.value
+
+                target_frequent_stats = {
+                    "frequent_items": get_frequent_items_estimate(target_frequent_items),
+                    "total_count": target_count,
+                    "unique_count": target_unique_count,
+                }
+
+                ref_frequent_stats = {
+                    "frequent_items": get_frequent_items_estimate(ref_frequent_items),
+                    "total_count": ref_count,
+                }
+
+                compute_chi_squared_test_p_value(target_frequent_stats, ref_frequent_stats)
+
+                pass
+
+    return
+
+
+class OverallStats(TypedDict):
+    observations: int
+    missing_cells: int
+    missing_percentage: float
+
+
+def add_overall_statistics(target_view) -> OverallStats:
+    observations: int = 0
+    missing_cells: int = 0
+    missing_percentage: float = 0
+    target_col_views = target_view.get_columns()
+    for target_col_view in target_col_views.values():
+        cnt_metric = target_col_view.get_metric("cnt")
+        observations += cnt_metric.n.value
+        null_count = cnt_metric.null.value
+        missing_cells += null_count if null_count else 0
+    missing_percentage = (missing_cells / observations) * 100 if observations else 0
+    overall_stats = {
+        "observations": observations,
+        "missing_cells": missing_cells,
+        "missing_percentage": missing_percentage,
+    }
+    return overall_stats
 
 
 def histogram_from_sketch(
