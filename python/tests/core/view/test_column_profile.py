@@ -17,8 +17,9 @@ class TestListElements(unittest.TestCase):
         col_prof.track_column(["a", "b", "c"])
         col_prof.flush()
 
-        # must have histogram
+        # must have dist and types
         assert col_prof._metrics["dist"] is not None
+        assert col_prof._metrics["types"] is not None
 
         msg = col_prof.to_protobuf()
         assert msg.metric_components["fi/fs"] is not None

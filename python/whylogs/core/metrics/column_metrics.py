@@ -34,40 +34,47 @@ class TypeCountersMetric(Metric):
 
         successes = 0
 
-        integral = self.integral.value
+        integral_prev = self.integral.value
+        integral = 0
         if data.numpy.ints is not None:
             integral += len(data.numpy.ints)
         elif data.list.ints is not None:
             integral += len(data.list.ints)
         successes += integral
-        self.integral.set(integral)
+        self.integral.set(integral + integral_prev)
 
-        fractional = self.fractional.value
+        fractional = 0
+        fractional_prev = self.fractional.value
         if data.numpy.floats is not None:
             fractional += len(data.numpy.floats)
         elif data.list.floats is not None:
             fractional += len(data.list.floats)
         successes += fractional
-        self.fractional.set(fractional)
+        self.fractional.set(fractional + fractional_prev)
 
-        # TODO: boolean
-        string = self.string.value
+        bool_count = self.boolean.value + data.bool_count
+        successes += data.bool_count
+        self.boolean.set(bool_count)
+
+        string_count = 0
+        string_count_prev = self.string.value
         if data.pandas.strings is not None:
-            string += len(data.pandas.strings)
+            string_count += len(data.pandas.strings)
         elif data.list.strings is not None:
-            string += len(data.list.strings)
+            string_count += len(data.list.strings)
 
-        successes += string
-        self.string.set(string)
+        successes += string_count
+        self.string.set(string_count + string_count_prev)
 
-        objects = self.object.value
+        objects = 0
+        objects_prev = self.object.value
         if data.pandas.objs is not None:
             objects += len(data.pandas.objs)
         elif data.list.objs is not None:
             objects += len(data.list.objs)
 
         successes += objects
-        self.object.set(objects)
+        self.object.set(objects + objects_prev)
         return OperationResult.ok(successes)
 
     @classmethod

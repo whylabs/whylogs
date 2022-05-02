@@ -45,3 +45,32 @@ class StandardResolver(Resolver):
         for m in metrics:
             result[m.name] = m.zero(column_schema)
         return result
+
+
+class LimitedTrackingResolver(Resolver):
+    """Resolver that skips frequent item and cardinality trackers."""
+
+    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        metrics: List[StandardMetric] = [StandardMetric.cnt, StandardMetric.types]
+        if isinstance(why_type, Integral):
+            metrics.append(StandardMetric.dist)
+            metrics.append(StandardMetric.ints)
+
+        elif isinstance(why_type, Fractional):
+            metrics.append(StandardMetric.dist)
+
+        result: Dict[str, Metric] = {}
+        for m in metrics:
+            result[m.name] = m.zero(column_schema)
+        return result
+
+
+class HistogramCountingTrackingResolver(Resolver):
+    """Resolver that only adds distribution tracker."""
+
+    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        metrics: List[StandardMetric] = [StandardMetric.dist]
+        result: Dict[str, Metric] = {}
+        for m in metrics:
+            result[m.name] = m.zero(column_schema)
+        return result

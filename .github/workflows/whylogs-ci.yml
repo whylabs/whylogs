@@ -143,9 +143,38 @@ jobs:
           make proto -B
           make docs
 
+      - name: Set outputs
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        if: ${{ github.ref != 'refs/heads/mainline' }}
+
+      - name: "Deploy to Netlify: Pull Requests"
+        uses: nwtgck/actions-netlify@v1.2
+        with:
+          publish-dir: python/docs/_build/html
+          enable-pull-request-comment: true
+          overwrites-pull-request-comment: false
+          alias: git-${{ steps.vars.outputs.sha_short }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_SITE_ID: "6c942dd9-863c-4ce5-8c26-eb4ee546ed60"
+        if: ${{ github.ref != 'refs/heads/mainline' }}
+
+      - name: "Deploy to Netlify - Mainline"
+        uses: nwtgck/actions-netlify@v1.2
+        with:
+          production-deploy: true
+          publish-dir: python/docs/_build/html
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          NETLIFY_SITE_ID: "6c942dd9-863c-4ce5-8c26-eb4ee546ed60"
+        if: ${{ github.ref == 'refs/heads/mainline' }}
+
       - name: Publish docs
         uses: JamesIves/github-pages-deploy-action@4.0.0
         with:
           branch: gh-pages
           folder: python/docs/_build/html
-        if: ${{ github.ref == 'refs/heads/mainline' }} && matrix.python-version == '3.9'
+        if: ${{ github.ref == 'refs/heads/mainline' }}

@@ -21,6 +21,12 @@ from whylogs.core.stubs import pd
 from whylogs.core.utils import read_delimited_protobuf, write_delimited_protobuf
 from whylogs.core.view.column_profile_view import ColumnProfileView
 
+# Magic header for whylogs using the first 4 bytes
+WHYLOGS_MAGIC_HEADER = "WHY1"
+WHYLOGS_MAGIC_HEADER_LEN = 4
+
+WHYLOGS_MAGIC_HEADER_BYTES = WHYLOGS_MAGIC_HEADER.encode("utf-8")
+
 logger = logging.getLogger(__name__)
 
 
@@ -119,6 +125,7 @@ class DatasetProfileView(object):
             )
 
             with open(path, "w+b") as out_f:
+                out_f.write(WHYLOGS_MAGIC_HEADER_BYTES)
                 write_delimited_protobuf(out_f, dataset_header)
 
                 f.seek(0)
@@ -128,7 +135,18 @@ class DatasetProfileView(object):
 
     @classmethod
     def read(cls, path: str) -> "DatasetProfileView":
-        with open(path, "rb") as f:
+        with open(path, "r+b") as f:
+            buf = f.read(WHYLOGS_MAGIC_HEADER_LEN)
+            try:
+                decoded_header = buf.decode("utf-8")
+            except UnicodeDecodeError as e:
+                raise DeserializationError("Invalid magic header. Decoder error: %s", e)
+
+            if WHYLOGS_MAGIC_HEADER != decoded_header:
+                raise DeserializationError(
+                    f"Invalid magic header. Got: {decoded_header} but expecting: {WHYLOGS_MAGIC_HEADER}"
+                )
+
             header = read_delimited_protobuf(f, DatasetProfileHeader)
             if header is None:
                 raise DeserializationError("Unable to detect and read the message header")

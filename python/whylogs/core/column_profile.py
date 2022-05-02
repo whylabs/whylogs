@@ -45,8 +45,8 @@ class ColumnProfile(object):
         ex_col = PreprocessedColumn.apply(series)
         for metric in self._metrics.values():
             res = metric.columnar_update(ex_col)
-            self._success_count += res.failures
-            self._failure_count += res.successes
+            self._failure_count += res.failures
+            self._success_count += res.successes
 
     def to_protobuf(self) -> ColumnMessage:
         self.flush()
