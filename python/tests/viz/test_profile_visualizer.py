@@ -1,8 +1,10 @@
 import os
 import webbrowser
 
+import pandas as pd
 import pytest
 
+import whylogs as why
 from whylogs.viz import NotebookProfileVisualizer
 
 

@@ -1,6 +1,7 @@
 from whylogs.viz.utils.descriptive_stats import (
     _calculate_descriptive_statistics,
-    _get_count_metrics_from_column_view, _get_dist_metrics_from_column_view
+    _get_count_metrics_from_column_view,
+    _get_dist_metrics_from_column_view,
 )
 
 

@@ -1,5 +1,6 @@
-from typing import TypedDict, Tuple, Union
+from typing import Tuple, TypedDict, Union
 
+from whylogs.core.metrics import ColumnCountsMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
@@ -26,9 +27,7 @@ def _get_dist_metrics_from_column_view(column_view: ColumnProfileView) -> Tuple[
     return stddev, mean, variance
 
 
-def _calculate_descriptive_statistics(
-        column_view: Union[ColumnProfileView, None]
-) -> Union[None, DescStats]:
+def _calculate_descriptive_statistics(column_view: Union[ColumnProfileView, None]) -> Union[None, DescStats]:
 
     if column_view is None:
         return None

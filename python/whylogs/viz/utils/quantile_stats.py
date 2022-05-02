@@ -1,12 +1,11 @@
 import math
-from typing import TypedDict, Tuple, List, Union
 from logging import getLogger
+from typing import List, Tuple, TypedDict, Union
 
 import numpy as np
 
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
-
 
 logger = getLogger(__name__)
 

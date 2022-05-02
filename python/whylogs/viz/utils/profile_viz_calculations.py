@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, List, Optional
 
 from typing_extensions import TypedDict
 from whylogs_sketching import kll_doubles_sketch  # type: ignore
@@ -7,11 +7,17 @@ from whylogs_sketching import kll_doubles_sketch  # type: ignore
 from whylogs.core.metrics import (
     CardinalityMetric,
     ColumnCountsMetric,
-    DistributionMetric
+    DistributionMetric,
 )
 from whylogs.core.metrics.metrics import FrequentItem
 from whylogs.core.view.column_profile_view import ColumnProfileView
-from whylogs.viz.utils import *
+from whylogs.viz.utils import (
+    DescStats,
+    QuantileStats,
+    _calculate_bins,
+    _calculate_descriptive_statistics,
+    _calculate_quantile_statistics,
+)
 
 MAX_HIST_BUCKETS = 30
 HIST_AVG_NUMBER_PER_BUCKET = 4.0

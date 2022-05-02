@@ -23,4 +23,3 @@ def test_calculate_quantile_stats_should_return_dict(profile_view):
 def test_resize_bins():
     # TODO resize bins expected vs. actual logic
     pass
-
