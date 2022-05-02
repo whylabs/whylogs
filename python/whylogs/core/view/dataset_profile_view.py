@@ -2,7 +2,7 @@ import logging
 import tempfile
 from datetime import datetime
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from google.protobuf.message import DecodeError
 
@@ -67,7 +67,7 @@ class DatasetProfileView(object):
             creation_timestamp=self._creation_timestamp,
         )
 
-    def get_column(self, col_name: str) -> Optional[ColumnProfileView]:
+    def get_column(self, col_name: str) -> Union[None, ColumnProfileView]:
         return self._columns.get(col_name)
 
     def write(self, path: str) -> None:

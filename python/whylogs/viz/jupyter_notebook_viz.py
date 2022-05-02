@@ -93,7 +93,8 @@ class NotebookProfileVisualizer:
             height = page_spec.height
         iframe = f"""<div></div><iframe srcdoc="{html.escape(template)}" width=100% height={height}
         frameBorder=0></iframe>"""
-        return HTML(iframe)
+        display = HTML(iframe)
+        return display
 
     def _display_distribution_chart(
         self, feature_name: str, cell_height: str = None, config: Optional[SummaryConfig] = None

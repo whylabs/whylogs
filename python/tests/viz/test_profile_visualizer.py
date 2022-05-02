@@ -6,7 +6,7 @@ import pytest
 from whylogs.viz import NotebookProfileVisualizer
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def visualization() -> NotebookProfileVisualizer:
     visualization = NotebookProfileVisualizer()
     return visualization
