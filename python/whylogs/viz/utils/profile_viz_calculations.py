@@ -8,7 +8,7 @@ from whylogs.core.metrics import CardinalityMetric, DistributionMetric
 from whylogs.core.metrics.metrics import FrequentItem
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.viz.utils import (
-    DescStats,
+    DescriptiveStatistics,
     QuantileStats,
     _calculate_bins,
     _calculate_descriptive_statistics,
@@ -29,7 +29,7 @@ class FeatureStats(TypedDict):
     max: Optional[float]
     range: Optional[float]
     quantile_statistics: Optional[QuantileStats]
-    descriptive_statistics: Optional[DescStats]
+    descriptive_statistics: Optional[DescriptiveStatistics]
 
 
 def _get_distribution_metrics(

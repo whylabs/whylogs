@@ -6,7 +6,7 @@ from whylogs.core.metrics import ColumnCountsMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
-class DescStats(TypedDict):
+class DescriptiveStatistics(TypedDict):
     stddev: float
     coefficient_of_variation: float
     sum: Union[float, None]
@@ -33,7 +33,9 @@ def _get_dist_metrics_from_column_view(column_view: ColumnProfileView) -> Tuple[
     return stddev, mean, variance
 
 
-def _calculate_descriptive_statistics(column_view: Union[ColumnProfileView, None]) -> Union[None, DescStats]:
+def _calculate_descriptive_statistics(
+    column_view: Union[ColumnProfileView, None]
+) -> Union[None, DescriptiveStatistics]:
     if column_view is None:
         return None
 
@@ -45,7 +47,7 @@ def _calculate_descriptive_statistics(column_view: Union[ColumnProfileView, None
     else:
         sum_ = None
 
-    descriptive_statistics: DescStats = {
+    descriptive_statistics: DescriptiveStatistics = {
         "stddev": stddev,
         "coefficient_of_variation": stddev / mean,
         "sum": sum_,
