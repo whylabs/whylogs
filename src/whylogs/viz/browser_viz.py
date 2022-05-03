@@ -2,6 +2,7 @@ import logging
 import os
 import tempfile
 import webbrowser
+from platform import uname
 from typing import List
 
 from whylogs.core import DatasetProfile
@@ -10,6 +11,10 @@ from whylogs.util.protobuf import message_to_json
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 
 logger = logging.getLogger(__name__)
+
+
+def is_wsl():
+    return "microsoft-standard-WSL" in uname().release
 
 
 def profile_viewer(profiles: List[DatasetProfile] = None, reference_profiles: List[DatasetProfile] = None, output_path=None) -> str:
@@ -60,5 +65,8 @@ def profile_viewer(profiles: List[DatasetProfile] = None, reference_profiles: Li
     with open(output_path, "w") as f:
         f.write(output_index)
 
-    webbrowser.open_new_tab(f"file:{output_path}#")
+    # fix relative filepath for browser if executing within WSL
+    browser_file = f"file://wsl%24/Ubuntu{output_path}#" if is_wsl() else f"file:{output_path}#"
+
+    webbrowser.open_new_tab(browser_file)
     return output_path
