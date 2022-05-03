@@ -1,14 +1,10 @@
 from logging import getLogger
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from typing_extensions import TypedDict
 from whylogs_sketching import kll_doubles_sketch  # type: ignore
 
-from whylogs.core.metrics import (
-    CardinalityMetric,
-    ColumnCountsMetric,
-    DistributionMetric,
-)
+from whylogs.core.metrics import CardinalityMetric, DistributionMetric
 from whylogs.core.metrics.metrics import FrequentItem
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.viz.utils import (
@@ -18,6 +14,7 @@ from whylogs.viz.utils import (
     _calculate_descriptive_statistics,
     _calculate_quantile_statistics,
 )
+from whylogs.viz.utils.descriptive_stats import _get_count_metrics_from_column_view
 
 MAX_HIST_BUCKETS = 30
 HIST_AVG_NUMBER_PER_BUCKET = 4.0
@@ -35,31 +32,48 @@ class FeatureStats(TypedDict):
     descriptive_statistics: Optional[DescStats]
 
 
-def add_feature_statistics(feature_name: str, column_view: Optional[ColumnProfileView]) -> Dict[str, FeatureStats]:
+def _get_distribution_metrics(
+    column_view: ColumnProfileView,
+) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
+    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("dist")
+    if not distribution_metric:
+        return None, None, None
+
+    min_val = distribution_metric.kll.value.get_min_value()
+    max_val = distribution_metric.kll.value.get_max_value()
+    range_val = max_val - min_val
+    return min_val, max_val, range_val
+
+
+def _get_cardinality_metrics_from_column_view(
+    column_view: ColumnProfileView, count_n: Optional[float] = None, count_missing: Optional[float] = None
+) -> Union[None, float]:
+    cardinality: Optional[CardinalityMetric] = column_view.get_metric("card")
+    if cardinality and count_n and count_missing:
+        card_estimate = cardinality.hll.value.get_estimate()
+        distinct = card_estimate / (count_n - count_missing) * 100
+        return distinct
+    else:
+        return None
+
+
+def add_feature_statistics(
+    feature_name: str,
+    column_view: Union[None, ColumnProfileView],
+) -> Dict[str, FeatureStats]:
     if column_view is None:
         return {}
 
     feature_with_statistics: Dict[str, FeatureStats] = {}
 
-    column_counts: Optional[ColumnCountsMetric] = column_view.get_metric("cnt")
-    count_n = count_missing = None
-    if column_counts is not None:
-        count_n = column_counts.n.value
-        count_missing = column_counts.null.value
+    count_n, count_missing = _get_count_metrics_from_column_view(column_view=column_view)
+    distinct = _get_cardinality_metrics_from_column_view(
+        column_view=column_view, count_n=count_n, count_missing=count_missing
+    )
+    min_val, max_val, range_val = _get_distribution_metrics(column_view=column_view)
 
-    cardinality: Optional[CardinalityMetric] = column_view.get_metric("card")
-    distinct = None
-    if cardinality is not None and count_n is not None and count_missing is not None:
-        card_estimate = cardinality.hll.value.get_estimate()
-        distinct = card_estimate / (count_n - count_missing) * 100
-
-    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("dist")
-
-    min_val = max_val = range_val = None
-    if distribution_metric is not None:
-        min_val = distribution_metric.kll.value.get_min_value()
-        max_val = distribution_metric.kll.value.get_max_value()
-        range_val = max_val - min_val
+    quantile_stats = _calculate_quantile_statistics(column_view)
+    desc_stats = _calculate_descriptive_statistics(column_view)
 
     feature_stats: FeatureStats = {
         "missing": count_missing,
@@ -67,8 +81,8 @@ def add_feature_statistics(feature_name: str, column_view: Optional[ColumnProfil
         "min": min_val,
         "max": max_val,
         "range": range_val,
-        "quantile_statistics": _calculate_quantile_statistics(column_view),
-        "descriptive_statistics": _calculate_descriptive_statistics(column_view),
+        "quantile_statistics": quantile_stats,
+        "descriptive_statistics": desc_stats,
     }
     feature_with_statistics[feature_name] = feature_stats
 
@@ -99,9 +113,9 @@ def histogram_from_sketch(
     start = sketch.get_min_value()
     max_val = sketch.get_max_value()
     end = max_val
-    if max_buckets is None:
+    if not max_buckets:
         max_buckets = MAX_HIST_BUCKETS
-    if avg_per_bucket is None:
+    if not avg_per_bucket:
         avg_per_bucket = HIST_AVG_NUMBER_PER_BUCKET
 
     if (n < 2) or (start == end):
