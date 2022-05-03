@@ -1,4 +1,6 @@
-from typing import Tuple, TypedDict, Union
+from typing import Tuple, Union
+
+from typing_extensions import TypedDict
 
 from whylogs.core.metrics import ColumnCountsMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView

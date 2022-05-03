@@ -1,8 +1,9 @@
 import math
 from logging import getLogger
-from typing import List, Tuple, TypedDict, Union
+from typing import List, Tuple, Union
 
 import numpy as np
+from typing_extensions import TypedDict
 
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
