@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from .preprocessing import PreprocessedColumn
 from .projectors import SingleFieldProjector
-from .proto import ColumnMessage, MetricComponentMessage
+from .proto import ColumnMessage, MetricComponentMessage  # type: ignore
 from .schema import ColumnSchema
 from .view import ColumnProfileView
 

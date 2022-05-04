@@ -3,6 +3,9 @@ import os
 import pandas as pd
 import pytest
 
+import whylogs as why
+from whylogs.core.view.dataset_profile_view import DatasetProfileView
+
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 _DATA_DIR = os.path.join(_MY_DIR, "testdata")
 
@@ -36,3 +39,19 @@ def lending_club_df() -> pd.DataFrame:
 @pytest.fixture(scope="session")
 def v0_profile_path() -> str:
     return os.path.join(_DATA_DIR, "v0_profile.bin")
+
+
+@pytest.fixture(scope="session")
+def profile_view() -> DatasetProfileView:
+    data = {
+        "animal": ["cat", "hawk", "snake", "cat"],
+        "legs": [4, 2, 0, 4],
+        "weight": [4.3, 1.8, None, 4.1],
+    }
+
+    df = pd.DataFrame(data)
+
+    results = why.log(pandas=df)
+    profile_view = results.view()
+
+    return profile_view
