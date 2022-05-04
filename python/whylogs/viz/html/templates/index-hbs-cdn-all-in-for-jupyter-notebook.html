@@ -660,7 +660,7 @@
           <div class="feature-summary-statistics-wrap">
             <div class="feature-summary-statistics">
               <div class="mb-4">
-                  <strong class="header-title">Profile Summary: {{getProfileName this}}_{{getProfileTimeStamp this}}</strong>
+                  <strong class="header-title">Profile Summary</strong>
               </div>
               <div class="display-flex statistics">
                   <div class="padding-right-30">
@@ -927,28 +927,21 @@
 
       function chartData(column) {
         const data = [];
-        if (column.numberSummary?.histogram) {
-          column.numberSummary.histogram.counts.slice(0, 30).forEach((count, index) => {
+        if (column.histogram) {
+          column.histogram.counts.slice(0, 30).forEach((count, index) => {
             data.push({
               axisY: count,
               axisX: index,
             });
           });
-        } else if (column.stringSummary?.frequent) {
-          Object.entries(column.stringSummary.frequent.items).forEach(([key, {value, estimate}], index) => {
+        } else if (column.frequentItems) {
+          Object.entries(column.frequentItems).forEach(([key, {value, estimate}], index) => {
               data.push({
                 axisY: estimate,
                 axisX: value,
               });
             });
-        } else if (column.stringSummary?.charPosTracker){
-            Object.entries(column.stringSummary.charPosTracker.charPosMap).forEach(([key, {count}], index) => {
-              data.push({
-                axisY: count,
-                axisX: key,
-              });
-            });
-          }
+        }
 
         return data
       }
@@ -966,9 +959,9 @@
           column = ""
         }
 
-        if (column.numberSummary?.histogram || column.stringSummary?.frequent || column.stringSummary?.charPosTracker) {
+        if (column.histogram || column.frequentItems) {
           data = chartData(column)
-        } else if (column.numberSummary === undefined && referenceColumn === null ) {
+        } else if (referenceColumn === null ) {
             $(".svg-container").css("padding-bottom", "0")
             return '<span class="wl-table-cell__bedge-wrap">No data to show the chart</span>';
         } else if (referenceColumn === undefined) {
@@ -1163,21 +1156,17 @@
       Handlebars.registerHelper("inferredType", function (column) {
         let infferedType = "";
 
-        if (column.numberSummary) {
-          if (column.numberSummary.isDiscrete) {
-            infferedType = "Discrete";
-          } else {
-            infferedType = "Non-discrete";
-          }
+        if (column.isDiscrete) {
+          infferedType = "Discrete";
         } else {
-          infferedType = "Unknown";
+          infferedType = "Non-discrete";
         }
         return infferedType;
       });
 
       Handlebars.registerHelper("frequentItems", function (column) {
         frequentItemsElemString = "";
-        if (column.numberSummary && column.numberSummary.isDiscrete) {
+        if (column.isDiscrete) {
           const slicedFrequentItems = column.frequentItems.items.slice(0, 5);
           for (let fi = 0; fi < slicedFrequentItems.length; fi++) {
             frequentItemsElemString +=
@@ -1190,16 +1179,16 @@
       });
 
       Handlebars.registerHelper("totalCount", function (column) {
-        if (column.numberSummary || column.stringSummary) {
-          return column.counters.count;
+        if (column.featureStats) {
+          return column.featureStats.total_count;
         }
 
         return "-";
       });
 
       Handlebars.registerHelper("mean", function (column) {
-        if (column.numberSummary) {
-          return fixNumberTo(column.numberSummary.mean);
+        if (column.featureStats?.descriptive_statistics) {
+          return fixNumberTo(column.featureStats.descriptive_statistics.mean);
         }
         return "-";
       });
@@ -1211,7 +1200,7 @@
         let count = 0;
 
         Object.entries(this.columns).forEach((feature) => {
-          if (feature[1].numberSummary && feature[1].numberSummary.isDiscrete === true) {
+          if (feature[1].isDiscrete === true) {
             count++;
           }
         });
@@ -1222,7 +1211,7 @@
         let count = 0;
 
         Object.entries(this.columns).forEach((feature) => {
-          if (feature[1].numberSummary && feature[1].numberSummary.isDiscrete === false) {
+          if (feature[1].isDiscrete === false) {
             count++;
           }
         });
@@ -1231,9 +1220,9 @@
 
       Handlebars.registerHelper("getUnknownTypeCount", function () {
         let count = 0;
-
+        return count;
         Object.entries(this.columns).forEach((feature) => {
-          if (!feature[1].numberSummary) {
+          if (!feature[1].isDiscrete) {
             count++;
           }
         });

@@ -1,24 +1,26 @@
 import math
 from logging import getLogger
-from typing import Any, Dict, List, Optional, Tuple
+import re
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from typing_extensions import TypedDict
-from whylogs_sketching import kll_doubles_sketch  # type: ignore
 
 from whylogs.core.metrics import (
     CardinalityMetric,
     ColumnCountsMetric,
     DistributionMetric,
 )
+from whylogs.viz.utils.histogram_calculations import (
+    histogram_from_view,
+    HistogramSummary,
+)
 from whylogs.core.metrics.metrics import FrequentItem
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from scipy import stats
 from whylogs.core.configs import SummaryConfig
+import json
 
-
-MAX_HIST_BUCKETS = 30
-HIST_AVG_NUMBER_PER_BUCKET = 4.0
 
 logger = getLogger(__name__)
 
@@ -78,48 +80,12 @@ def _calculate_quantile_statistics(column_view: ColumnProfileView) -> Optional[Q
     return quantile_statistics
 
 
-def _calculate_bins(
-    end: float, start: float, n: int, avg_per_bucket: float, max_buckets: int
-) -> Tuple[List[float], float, float]:
-    # Include the max value in the right-most bin
-    end += abs(end) * 1e-7
-    abs_end = abs(end)
-    abs_start = abs(start)
-    max_magnitude = max(abs_end, abs_start)
-
-    # the kll_floats_sketch use 32bit floats, so we check precision against np.float32
-    float_mantissa_bits = np.finfo(np.float32).nmant
-
-    # Include the right edge in the bin edges
-    n_buckets = min(math.ceil(n / avg_per_bucket), max_buckets)
-    width = (end - start) / n_buckets
-
-    # Figure out the floating point precision at the scale of the bin boundaries
-    # min_interval is the smallest difference between floats at this scale
-    log_min_interval = math.floor(math.log2(max_magnitude)) - float_mantissa_bits
-    min_interval = math.pow(2, log_min_interval)
-
-    # If the bin width is smaller than min_interval, we need bigger bins
-    if width < min_interval:
-        new_buckets = math.floor((end - start) / min_interval)
-        logger.warning(
-            f"A bin width of {width} won't work with values in range of [{start}, {end}] "
-            f"because numbers closer to each other than {int(min_interval)} might not be distinct "
-            "when passed as float32: avoiding bin edge collisions by resizing from: "
-            f"{n_buckets} to: {new_buckets} histogram buckets in summary."
-        )
-        n_buckets = max(new_buckets, 1)
-        width = (end - start) / n_buckets
-        logger.info(f"New bin widh is: {width} across {n_buckets} buckets")
-
-    # Calculate histograms from the Probability Mass Function
-    bins = [start + i * width for i in range(n_buckets + 1)]
-    logger.debug(f"about to get pmf using start: {start} end:{end} width:{width} and n_buckets:{n_buckets}")
-    logger.debug(f"bin: {bins}")
-    return bins, end, start
+class ColumnDriftValue(TypedDict):
+    p_value: float
+    test: str
 
 
-def _ks_test_compute_p_value(target_distribution, reference_distribution):
+def _ks_test_compute_p_value(target_distribution, reference_distribution) -> Optional[ColumnDriftValue]:
     """
     Compute the Kolmogorov-Smirnov test p-value of two continuous distributions.
     Uses the quantile values and the corresponding CDFs to calculate the approximate KS statistic.
@@ -184,10 +150,10 @@ def _ks_test_compute_p_value(target_distribution, reference_distribution):
 
     p_value = stats.distributions.kstwo.sf(D_max, np.round(en))
 
-    return type("Object", (), {"ks_test": p_value})
+    return {"p_value": p_value, "test": "ks"}
 
 
-def compute_chi_squared_test_p_value(target_distribution, reference_distribution):
+def _compute_chi_squared_test_p_value(target_distribution, reference_distribution) -> Optional[ColumnDriftValue]:
     """
     Calculates the Chi-Squared test p-value for two discrete distributions.
     Uses the top frequent items summary, unique count estimate and total count estimate for each feature,
@@ -241,7 +207,7 @@ def compute_chi_squared_test_p_value(target_distribution, reference_distribution
     degrees_of_freedom = target_unique_count - 1
     degrees_of_freedom = degrees_of_freedom if degrees_of_freedom > 0 else 1
     p_value = stats.chi2.sf(chi_sq, degrees_of_freedom)
-    return type("Object", (), {"chi_squared_test": p_value})
+    return {"p_value": p_value, "test": "chi-squared"}
 
 
 class FrequentItemEstimate(TypedDict):
@@ -249,11 +215,24 @@ class FrequentItemEstimate(TypedDict):
     estimate: float
 
 
-def get_frequent_items_estimate(frequent_items: List[FrequentItem]) -> List[FrequentItemEstimate]:
+def _get_frequent_items_estimate(frequent_items: List[FrequentItem]) -> List[FrequentItemEstimate]:
     return [{"value": x.value, "estimate": x.est} for x in frequent_items]
 
 
+def frequent_items_from_view(
+    column_view: ColumnProfileView, feature_name: str, config: SummaryConfig
+) -> Dict[str, Any]:
+    column_frequent_items_metric = column_view.get_metric("fi")
+    if not column_frequent_items_metric:
+        raise ValueError("Frequent Items Metrics not found for feature {}.".format(feature_name))
+
+    target_frequent_items = column_frequent_items_metric.to_summary_dict(config)["fs"]
+    frequent_items = _get_frequent_items_estimate(target_frequent_items)
+    return frequent_items
+
+
 class FeatureStats(TypedDict):
+    total_count: Optional[int]
     missing: Optional[int]
     distinct: Optional[float]
     min: Optional[float]
@@ -290,6 +269,7 @@ def add_feature_statistics(feature_name: str, column_view: Optional[ColumnProfil
         range_val = max_val - min_val
 
     feature_stats: FeatureStats = {
+        "total_count": count_n - count_missing,
         "missing": count_missing,
         "distinct": distinct,
         "min": min_val,
@@ -303,16 +283,74 @@ def add_feature_statistics(feature_name: str, column_view: Optional[ColumnProfil
     return feature_with_statistics
 
 
+class ColumnSummary(TypedDict):
+    histogram: Optional[HistogramSummary]
+    frequentItems: Optional[List[FrequentItemEstimate]]
+    drift_from_ref: Optional[float]
+    isDiscrete: Optional[bool]
+    featureStats: Optional[FeatureStats]
+
+
+def generate_summaries(target_view, ref_view, config: Optional[SummaryConfig]) -> Dict[str, Any]:
+    if config is None:
+        config = SummaryConfig()
+
+    overall_stats: OverallStats = add_overall_statistics(target_view)
+    drift_values = calculate_drift_values(target_view, ref_view, config=None)
+
+    target_col_views = target_view.get_columns()
+    ref_col_views = ref_view.get_columns()
+    ref_summary = {"columns": {}, "properties": overall_stats}
+    target_summary = {"columns": {}}
+    for target_col_name in target_col_views:
+        if target_col_name in ref_col_views:
+            target_column_summary: ColumnSummary = {}
+            ref_column_summary: ColumnSummary = {}
+
+            target_col_view = target_col_views[target_col_name]
+            ref_col_view = ref_col_views[target_col_name]
+
+            target_stats = add_feature_statistics(target_col_name, target_col_view)
+            target_column_summary["featureStats"] = target_stats[target_col_name]
+            if target_col_name in drift_values:
+                ref_column_summary["drift_from_ref"] = drift_values[target_col_name]["p_value"]
+            if target_col_views[target_col_name].get_metric("dist") and ref_col_views[target_col_name].get_metric(
+                "dist"
+            ):
+                target_column_summary["isDiscrete"] = ref_column_summary["isDiscrete"] = False
+
+                target_histogram = histogram_from_view(target_col_view, target_col_name)
+                target_column_summary["histogram"] = target_histogram
+                ref_col_view = ref_col_views[target_col_name]
+                ref_histogram = histogram_from_view(ref_col_view, target_col_name)
+                ref_column_summary["histogram"] = ref_histogram
+            elif target_col_views[target_col_name].get_metric("fi") and ref_col_views[target_col_name].get_metric("fi"):
+                target_column_summary["isDiscrete"] = ref_column_summary["isDiscrete"] = True
+
+                target_frequent_items = frequent_items_from_view(target_col_view, target_col_name, config)
+                target_column_summary["frequentItems"] = target_frequent_items
+
+                ref_frequent_items = frequent_items_from_view(ref_col_view, target_col_name, config)
+                ref_column_summary["frequentItems"] = ref_frequent_items
+            target_summary["columns"][target_col_name] = target_column_summary
+            ref_summary["columns"][target_col_name] = ref_column_summary
+    summaries = {
+        "profile_from_whylogs": json.dumps(target_summary),
+        "reference_profile_from_whylogs": json.dumps(ref_summary),
+    }
+    return summaries
+
+
 class FrequentItemStats(TypedDict):
     frequent_items: List[FrequentItemEstimate]
     total_count: int
     unique_count: Optional[int]
 
 
-def calculate_drift_values(target_view, ref_view, config: Optional[SummaryConfig]):
+def calculate_drift_values(target_view, ref_view, config: Optional[SummaryConfig]) -> Dict[str, ColumnDriftValue]:
     if config is None:
         config = SummaryConfig()
-
+    drift_values = {}
     target_col_views = target_view.get_columns()
     ref_col_views = ref_view.get_columns()
     for target_col_name in target_col_views:
@@ -326,7 +364,7 @@ def calculate_drift_values(target_view, ref_view, config: Optional[SummaryConfig
                 ref_kll_sketch = ref_dist_metric.kll.value
 
                 ks_p_value = _ks_test_compute_p_value(target_kll_sketch, ref_kll_sketch)
-                pass
+                drift_values[target_col_name] = ks_p_value
             elif target_col_views[target_col_name].get_metric("fi") and ref_col_views[target_col_name].get_metric("fi"):
                 target_fi_metric = target_col_views[target_col_name].get_metric("fi")
                 target_frequent_items = target_fi_metric.to_summary_dict(config)["fs"]
@@ -341,21 +379,20 @@ def calculate_drift_values(target_view, ref_view, config: Optional[SummaryConfig
                 ref_count = ref_cnt_metric.n.value
 
                 target_frequent_stats = {
-                    "frequent_items": get_frequent_items_estimate(target_frequent_items),
+                    "frequent_items": _get_frequent_items_estimate(target_frequent_items),
                     "total_count": target_count,
                     "unique_count": target_unique_count,
                 }
 
                 ref_frequent_stats = {
-                    "frequent_items": get_frequent_items_estimate(ref_frequent_items),
+                    "frequent_items": _get_frequent_items_estimate(ref_frequent_items),
                     "total_count": ref_count,
                 }
 
-                compute_chi_squared_test_p_value(target_frequent_stats, ref_frequent_stats)
+                chi2_p_value = _compute_chi_squared_test_p_value(target_frequent_stats, ref_frequent_stats)
+                drift_values[target_col_name] = chi2_p_value
 
-                pass
-
-    return
+    return drift_values
 
 
 class OverallStats(TypedDict):
@@ -381,57 +418,3 @@ def add_overall_statistics(target_view) -> OverallStats:
         "missing_percentage": missing_percentage,
     }
     return overall_stats
-
-
-def histogram_from_sketch(
-    sketch: kll_doubles_sketch, max_buckets: int = None, avg_per_bucket: Optional[float] = None
-) -> Dict[str, Any]:
-    """
-    Generate a summary of a kll_floats_sketch, including a histogram
-
-    Parameters
-    ----------
-    sketch : kll_floats_sketch
-        Data sketch
-    max_buckets : int
-        Override the default maximum number of buckets
-    avg_per_bucket : int
-        Override the default target number of items per bucket.
-
-    Returns
-    -------
-    histogram : HistogramSummary
-        Protobuf histogram message
-    """
-    histogram = {}
-    n = sketch.get_n()
-    start = sketch.get_min_value()
-    max_val = sketch.get_max_value()
-    end = max_val
-    if max_buckets is None:
-        max_buckets = MAX_HIST_BUCKETS
-    if avg_per_bucket is None:
-        avg_per_bucket = HIST_AVG_NUMBER_PER_BUCKET
-
-    if (n < 2) or (start == end):
-        dx = abs(start) * 1e-7
-        end = start + dx
-        bins = [start, end]
-        counts = [n]
-    else:
-        bins, end, start = _calculate_bins(end, start, n, avg_per_bucket, max_buckets)
-        pmf = sketch.get_pmf(bins)
-        counts = [round(p * n) for p in pmf]
-        counts = counts[1:-1]
-
-    histogram = {
-        "start": start,
-        "end": end,
-        "width": 0,
-        "counts": counts,
-        "max": max_val,
-        "min": start,
-        "bins": bins,
-        "n": n,
-    }
-    return histogram
