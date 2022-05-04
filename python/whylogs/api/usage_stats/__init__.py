@@ -166,24 +166,21 @@ def _get_terminal_mode() -> str:
 
 
 def _get_environment() -> str:
-    if "GITHUB_ACTION" in os.environ:
-        return "github_action"
-    if "GITLAB_CI" in os.environ:
-        return "gitlab_ci"
-    if "BINDER_PORT" in os.environ:
-        return "binder"
-    if "PYCHARM_HOSTED" in os.environ:
-        return "pycharm"
-    if "SM_CURRENT_HOST" in os.environ:
-        return "sagemaker"
-    if "DATABRICKS_RUNTIME_VERSION" in os.environ:
-        return "databricks"
-    if "COLAB_GPU" in os.environ:
-        return "colab"
-    if "KAGGLE_KERNEL_RUN_TYPE" in os.environ:
-        return "kaggle"
-    if "DEEPNOTE_PROJECT_ID" in os.environ:
-        return "deepnote"
+    environments_dict = {
+        "GITHUB_ACTION": "github_action",
+        "GITLAB_CI": "gitlab_ci",
+        "BINDER_PORT": "binder",
+        "PYCHARM_HOSTED": "pycharm",
+        "SM_CURRENT_HOST": "sagemaker",
+        "DATABRICKS_RUNTIME_VERSION": "databricks",
+        "COLAB_GPU": "colab",
+        "KAGGLE_KERNEL_RUN_TYPE": "kaggle",
+        "DEEPNOTE_PROJECT_ID": "deepnote",
+    }
+
+    for key, value in environments_dict.items():
+        if key in os.environ:
+            return value
     return "unknown"
 
 
