@@ -36,7 +36,7 @@ def _get_distribution_metrics(
     column_view: ColumnProfileView,
 ) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
     distribution_metric: Optional[DistributionMetric] = column_view.get_metric("dist")
-    if not distribution_metric:
+    if distribution_metric is None:
         return None, None, None
 
     min_val = distribution_metric.kll.value.get_min_value()
@@ -113,9 +113,9 @@ def histogram_from_sketch(
     start = sketch.get_min_value()
     max_val = sketch.get_max_value()
     end = max_val
-    if not max_buckets:
+    if max_buckets is None:
         max_buckets = MAX_HIST_BUCKETS
-    if not avg_per_bucket:
+    if avg_per_bucket is None:
         avg_per_bucket = HIST_AVG_NUMBER_PER_BUCKET
 
     if (n < 2) or (start == end):

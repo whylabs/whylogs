@@ -18,7 +18,7 @@ def _get_count_metrics_from_column_view(
     column_view: ColumnProfileView,
 ) -> Union[Tuple[None, None], Tuple[float, float]]:
     column_counts_metric: ColumnCountsMetric = column_view.get_metric("cnt")  # type: ignore
-    if not column_counts_metric:
+    if column_counts_metric is None:
         return None, None
     count_n = column_counts_metric.n.value
     count_missing = column_counts_metric.null.value
