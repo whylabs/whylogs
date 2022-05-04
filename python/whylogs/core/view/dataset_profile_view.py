@@ -20,7 +20,6 @@ from whylogs.core.proto import (
 from whylogs.core.stubs import pd
 from whylogs.core.utils import read_delimited_protobuf, write_delimited_protobuf
 from whylogs.core.view.column_profile_view import ColumnProfileView
-from whylogs.core.datatypes import Fractional, Integral, String
 
 logger = logging.getLogger(__name__)
 
@@ -71,11 +70,11 @@ class DatasetProfileView(object):
     def get_column(self, col_name: str) -> Optional[ColumnProfileView]:
         return self._columns.get(col_name)
 
-    def get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, ColumnProfileView]:
+    def get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, Optional[ColumnProfileView]]:
         if col_names:
-            return {k: self._columns.get(k, None) for k in col_names}
+            return {k: self._columns.get(k) for k in col_names}
         else:
-            return self._columns
+            return {k: self._columns.get(k) for k in self._columns}
 
     def write(self, path: str) -> None:
         all_metric_component_names = set()

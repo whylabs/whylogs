@@ -10,16 +10,12 @@ from IPython.core.display import HTML  # type: ignore
 
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.viz.utils.profile_viz_calculations import (
-    OverallStats,
     add_feature_statistics,
-    histogram_from_view,
     frequent_items_from_view,
     generate_summaries,
-    add_overall_statistics,
-    calculate_drift_values,
+    histogram_from_view,
 )
 
 logger = logging.getLogger(__name__)
@@ -119,7 +115,7 @@ class NotebookProfileVisualizer:
                 raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
 
             target_profile_features[feature_name]["frequentItems"] = frequent_items_from_view(
-                target_column_profile_view, feature_name
+                target_column_profile_view, feature_name, config
             )
             if self._ref_view:
                 ref_col_view = self._ref_view.get_column(feature_name)
@@ -127,7 +123,7 @@ class NotebookProfileVisualizer:
                     raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
 
                 reference_profile_features[feature_name]["frequentItems"] = frequent_items_from_view(
-                    ref_col_view, feature_name
+                    ref_col_view, feature_name, config
                 )
             else:
                 logger.warning("Reference profile not detected. Plotting only for target feature.")
@@ -201,13 +197,17 @@ class NotebookProfileVisualizer:
         self._target_view = target_profile_view
         self._ref_view = reference_profile_view
 
-    def summary_drift_report(self, cell_height: str = None):
+    def summary_drift_report(self, cell_height: str = None) -> HTML:
         page_spec = PageSpecEnum.SUMMARY_REPORT.value
         template = _get_compiled_template(page_spec.html)
-        profiles_summary = generate_summaries(self._target_view, self._ref_view, config=None)
-        # profiles_summary = add_drift_and_stats(profiles_summary, overall_stats, drift_values)
-        rendered_template = template(profiles_summary)
-        return self._display(rendered_template, page_spec, cell_height)
+        if self._target_view and self._ref_view:
+            profiles_summary = generate_summaries(self._target_view, self._ref_view, config=None)
+            # profiles_summary = add_drift_and_stats(profiles_summary, overall_stats, drift_values)
+            rendered_template = template(profiles_summary)
+            return self._display(rendered_template, page_spec, cell_height)
+        else:
+            logger.warning("This method has to get both target and reference profiles")
+            return None
 
     def double_histogram(self, feature_name: str, cell_height: str = None) -> HTML:
         """Plots overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.

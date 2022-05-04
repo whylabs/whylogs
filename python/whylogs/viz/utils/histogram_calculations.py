@@ -1,13 +1,13 @@
-from whylogs.core.view.column_profile_view import ColumnProfileView
-from typing_extensions import TypedDict
-from typing import List, Optional, Tuple
-from whylogs.core.metrics import (
-    DistributionMetric,
-)
 import math
-from whylogs_sketching import kll_doubles_sketch  # type: ignore
 from logging import getLogger
+from typing import List, Optional, Tuple
+
 import numpy as np
+from typing_extensions import TypedDict
+from whylogs_sketching import kll_doubles_sketch  # type: ignore
+
+from whylogs.core.metrics import DistributionMetric
+from whylogs.core.view.column_profile_view import ColumnProfileView
 
 logger = getLogger(__name__)
 
@@ -97,7 +97,7 @@ def _histogram_from_sketch(
     histogram : HistogramSummary
         Protobuf histogram message
     """
-    histogram = {}
+    # histogram: HistogramSummary = {}
     n = sketch.get_n()
     start = sketch.get_min_value()
     max_val = sketch.get_max_value()
@@ -118,7 +118,7 @@ def _histogram_from_sketch(
         counts = [round(p * n) for p in pmf]
         counts = counts[1:-1]
 
-    histogram = {
+    histogram: HistogramSummary = {
         "start": start,
         "end": end,
         "width": 0,
