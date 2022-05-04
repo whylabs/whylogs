@@ -7,7 +7,7 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
-AUTOAPI       = _autoapi
+AUTOAPI       = _autoapi/
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -26,4 +26,4 @@ html: build-docs
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 livehtml:
-	sphinx-autobuild --ignore "${AUTOAPI}" --ignore "$(BUILDDIR)" "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
+	sphinx-autobuild --re-ignore ".*/_autoapi/.*" --ignore "$(BUILDDIR)" "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)

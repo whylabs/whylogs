@@ -52,8 +52,9 @@ index_doc = "index"
 master_doc = "index"
 
 html_theme = "furo"
-html_title = f"<div>whylogs</div>"
+html_title = f"<div class='hidden'>whylogs</div>  <div class='version'> v{version}</div>"
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
 # do not make images clickable. It gets quite annoying otherwise
 # see: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_scaled_image_link
@@ -93,6 +94,8 @@ html_theme_options: Dict[str, Any] = {
     "announcement": """<em>whylogs v1</em> has been launched! Make sure you checkout the
     <a href="migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
     transition""",
+    "light_logo": "images/logo.png",
+    "dark_logo": "images/logo.png",
     "footer_icons": [
         {
             "name": "Slack",
