@@ -55,3 +55,19 @@ def profile_view() -> DatasetProfileView:
     profile_view = results.view()
 
     return profile_view
+
+
+@pytest.fixture(scope="session")
+def profile_view_zero_mean() -> DatasetProfileView:
+    data = {
+        "animal": ["cat", "hawk", "snake", "cat"],
+        "legs": [4, 2, 0, 4],
+        "weight": [1, -1, 2, -2],
+    }
+
+    df = pd.DataFrame(data)
+
+    results = why.log(pandas=df)
+    profile_view = results.view()
+
+    return profile_view
