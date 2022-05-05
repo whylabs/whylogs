@@ -47,7 +47,7 @@ def get_frequent_stats(column_view: ColumnProfileView, config: Optional[SummaryC
 
 def frequent_items_from_view(
     column_view: ColumnProfileView, feature_name: str, config: SummaryConfig
-) -> Dict[str, Any]:
+) -> List[FrequentItemEstimate]:
     column_frequent_items_metric = column_view.get_metric("fi")
     if not column_frequent_items_metric:
         raise ValueError("Frequent Items Metrics not found for feature {}.".format(feature_name))

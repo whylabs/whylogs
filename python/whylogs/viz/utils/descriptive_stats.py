@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
 from typing_extensions import TypedDict
 
@@ -7,11 +7,11 @@ from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
 class DescriptiveStatistics(TypedDict):
-    stddev: float
-    coefficient_of_variation: float
+    stddev: Optional[float]
+    coefficient_of_variation: Optional[float]
     sum: Union[float, None]
-    variance: float
-    mean: float
+    variance: Optional[float]
+    mean: Optional[float]
 
 
 def _get_count_metrics_from_column_view(
