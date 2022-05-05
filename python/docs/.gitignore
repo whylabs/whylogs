@@ -3,4 +3,4 @@ _toc
 _build/*
 _build
 samples/*.rst
-autoapi
+_autoapi/

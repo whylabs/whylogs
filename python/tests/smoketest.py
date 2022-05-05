@@ -1,4 +1,8 @@
-from whylogs import __version__, package_version
+import os
+
+os.environ["HEAP_APPID_DEV"] = "3422045963"
+
+from whylogs import __version__, package_version  # noqa
 
 """
 This is here to verify that the produced wheel includes
@@ -8,7 +12,7 @@ intended to test the wheel in a production environment,
 not a development environment.
 """
 
-current_version = "1.0.0"
+current_version = "1.0.0rc0"
 
 
 def test_package_version() -> None:
@@ -24,3 +28,8 @@ def test_package_version_not_found() -> None:
 def test_version() -> None:
     """Test package version number."""
     assert __version__ == current_version
+
+
+test_package_version()
+test_package_version_not_found()
+test_version()

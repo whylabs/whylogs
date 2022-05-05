@@ -1,13 +1,12 @@
-import math
 from logging import getLogger
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
-import numpy as np
 from typing_extensions import TypedDict
 from whylogs_sketching import kll_doubles_sketch  # type: ignore
 
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
+from whylogs.viz.utils import _calculate_bins
 
 logger = getLogger(__name__)
 
@@ -34,47 +33,6 @@ def histogram_from_view(column_view: ColumnProfileView, feature_name: str) -> Hi
     target_kill = col_dist.kll.value
     target_histogram = _histogram_from_sketch(target_kill)
     return target_histogram
-
-
-def _calculate_bins(
-    end: float, start: float, n: int, avg_per_bucket: float, max_buckets: int
-) -> Tuple[List[float], float, float]:
-    # Include the max value in the right-most bin
-    end += abs(end) * 1e-7
-    abs_end = abs(end)
-    abs_start = abs(start)
-    max_magnitude = max(abs_end, abs_start)
-
-    # the kll_floats_sketch use 32bit floats, so we check precision against np.float32
-    float_mantissa_bits = np.finfo(np.float32).nmant
-
-    # Include the right edge in the bin edges
-    n_buckets = min(math.ceil(n / avg_per_bucket), max_buckets)
-    width = (end - start) / n_buckets
-
-    # Figure out the floating point precision at the scale of the bin boundaries
-    # min_interval is the smallest difference between floats at this scale
-    log_min_interval = math.floor(math.log2(max_magnitude)) - float_mantissa_bits
-    min_interval = math.pow(2, log_min_interval)
-
-    # If the bin width is smaller than min_interval, we need bigger bins
-    if width < min_interval:
-        new_buckets = math.floor((end - start) / min_interval)
-        logger.warning(
-            f"A bin width of {width} won't work with values in range of [{start}, {end}] "
-            f"because numbers closer to each other than {int(min_interval)} might not be distinct "
-            "when passed as float32: avoiding bin edge collisions by resizing from: "
-            f"{n_buckets} to: {new_buckets} histogram buckets in summary."
-        )
-        n_buckets = max(new_buckets, 1)
-        width = (end - start) / n_buckets
-        logger.info(f"New bin widh is: {width} across {n_buckets} buckets")
-
-    # Calculate histograms from the Probability Mass Function
-    bins = [start + i * width for i in range(n_buckets + 1)]
-    logger.debug(f"about to get pmf using start: {start} end:{end} width:{width} and n_buckets:{n_buckets}")
-    logger.debug(f"bin: {bins}")
-    return bins, end, start
 
 
 def _histogram_from_sketch(
@@ -113,7 +71,7 @@ def _histogram_from_sketch(
         bins = [start, end]
         counts = [n]
     else:
-        bins, end, start = _calculate_bins(end, start, n, avg_per_bucket, max_buckets)
+        bins, end = _calculate_bins(end, start, n, avg_per_bucket, max_buckets)
         pmf = sketch.get_pmf(bins)
         counts = [round(p * n) for p in pmf]
         counts = counts[1:-1]

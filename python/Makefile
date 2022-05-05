@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.0.0
+version := 1.0.0rc0
 
 dist.dir := dist
 egg.dir := .eggs
@@ -25,8 +25,8 @@ pre-commit: proto
 	@$(call i, Running pre-commit checks)
 	poetry run pre-commit run --all-files
 
-.PHONY: dist clean clean-test help format lint test install coverage docs default proto proto-v0 github release
-.PHONY: test-system-python format-fix blackd jupyter-kernel docs
+.PHONY: dist clean clean-test help format lint test install coverage docs livedocs default proto proto-v0 github release
+.PHONY: test-system-python format-fix blackd jupyter-kernel docs livedocs
 
 ifeq ($(shell which poetry), )
 	$(error "Can't find poetry on the path. Install it at https://python-poetry.org/docs.")
@@ -65,8 +65,11 @@ dist: $(build.wheel) ## Create distribution tarballs and wheels
 
 docs: ## Use poetry to run the make html command within the proper directory
 	cd docs && \
-	poetry run sphinx-apidoc -f -o . ../whylogs ../whylogs/core/view ../whylogs/viz/utils ../whylogs/core/utils ../whylogs/core/proto && \
 	poetry run make html
+
+livedocs:
+	cd docs && \
+	poetry run make livehtml
 
 $(build.wheel): $(src.python) $(build.proto) $(build.proto.v0)
 	@$(call i, Generating distribution files)

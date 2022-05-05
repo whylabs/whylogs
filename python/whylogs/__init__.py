@@ -15,8 +15,9 @@ These three functionalities enable a variety of use cases for data scientists, m
 * Tracking data for ML experiments
 * And many more...
 """
-from .api import log, logger, profiling, read, write
+from .api import ResultSet, log, logger, profiling, read, write
 from .api.usage_stats import emit_usage as __emit_usage_stats
+from .core import DatasetProfileView
 from .migration.converters import v0_to_v1_view
 
 
@@ -39,6 +40,8 @@ def package_version(package: str = __package__) -> str:
 __version__ = package_version()
 
 __ALL__ = [
+    ResultSet,
+    DatasetProfileView,
     log,
     logger,
     read,

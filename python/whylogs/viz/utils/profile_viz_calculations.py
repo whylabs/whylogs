@@ -1,17 +1,20 @@
 import json
 from logging import getLogger
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from typing_extensions import TypedDict
 
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.metrics import (
-    CardinalityMetric,
-    ColumnCountsMetric,
-    DistributionMetric,
-)
+from whylogs.core.metrics import CardinalityMetric, DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.viz.utils import (
+    DescriptiveStatistics,
+    QuantileStats,
+    _calculate_descriptive_statistics,
+    _calculate_quantile_statistics,
+)
+from whylogs.viz.utils.descriptive_stats import _get_count_metrics_from_column_view
 from whylogs.viz.utils.drift_calculations import calculate_drift_values
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentItemEstimate,
@@ -25,59 +28,6 @@ from whylogs.viz.utils.histogram_calculations import (
 logger = getLogger(__name__)
 
 
-class DescStats(TypedDict):
-    stddev: float
-    coefficient_of_variation: float
-    sum: float
-    variance: float
-    mean: float
-
-
-def _calculate_descriptive_statistics(column_view: ColumnProfileView) -> Optional[DescStats]:
-    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("dist")
-    if distribution_metric is None:
-        return None
-    stddev = distribution_metric.stddev
-    mean = distribution_metric.mean.value
-    column_counts_metric_: ColumnCountsMetric = column_view.get_metric("cnt")  # type: ignore
-    count_n = column_counts_metric_.n.value
-    count_missing = column_counts_metric_.null.value
-
-    return {
-        "stddev": stddev,
-        "coefficient_of_variation": stddev / mean,
-        "sum": (count_n - count_missing) * mean,
-        "variance": distribution_metric.variance,
-        "mean": mean,
-    }
-
-
-class QuantileStats(TypedDict):
-    iqr: float
-    q1: float
-    q3: float
-    ninety_fifth_percentile: float
-    fifth_percentile: float
-    median: float
-
-
-def _calculate_quantile_statistics(column_view: ColumnProfileView) -> Optional[QuantileStats]:
-    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("dist")
-    if distribution_metric is None:
-        return None
-
-    quantiles = distribution_metric.kll.value.get_quantiles([0.05, 0.25, 0.5, 0.75, 0.95])
-    quantile_statistics: QuantileStats = {
-        "fifth_percentile": quantiles[0],
-        "iqr": quantiles[2] - quantiles[1],
-        "q1": quantiles[1],
-        "median": quantiles[2],
-        "q3": quantiles[3],
-        "ninety_fifth_percentile": quantiles[4],
-    }
-    return quantile_statistics
-
-
 class FeatureStats(TypedDict):
     total_count: Optional[int]
     missing: Optional[int]
@@ -86,35 +36,51 @@ class FeatureStats(TypedDict):
     max: Optional[float]
     range: Optional[float]
     quantile_statistics: Optional[QuantileStats]
-    descriptive_statistics: Optional[DescStats]
+    descriptive_statistics: Optional[DescriptiveStatistics]
 
 
-def add_feature_statistics(feature_name: str, column_view: Optional[ColumnProfileView]) -> Dict[str, FeatureStats]:
+def _get_distribution_metrics(
+    column_view: ColumnProfileView,
+) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
+    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("dist")
+    if distribution_metric is None:
+        return None, None, None
+
+    min_val = distribution_metric.kll.value.get_min_value()
+    max_val = distribution_metric.kll.value.get_max_value()
+    range_val = max_val - min_val
+    return min_val, max_val, range_val
+
+
+def _get_cardinality_metrics_from_column_view(
+    column_view: ColumnProfileView, count_n: Optional[float] = None, count_missing: Optional[float] = None
+) -> Union[None, float]:
+    cardinality: Optional[CardinalityMetric] = column_view.get_metric("card")
+    if cardinality and count_n is not None and count_missing is not None:
+        card_estimate = cardinality.hll.value.get_estimate()
+        distinct = card_estimate / (count_n - count_missing) * 100
+        return distinct
+    else:
+        return None
+
+
+def add_feature_statistics(
+    feature_name: str,
+    column_view: Union[None, ColumnProfileView],
+) -> Dict[str, FeatureStats]:
     if column_view is None:
         return {}
 
     feature_with_statistics: Dict[str, FeatureStats] = {}
 
-    column_counts: Optional[ColumnCountsMetric] = column_view.get_metric("cnt")
-    count_n = count_missing = total_count = None
-    if column_counts is not None:
-        count_n = column_counts.n.value
-        count_missing = column_counts.null.value
-        total_count = count_n - count_missing
+    total_count, count_n, count_missing = _get_count_metrics_from_column_view(column_view=column_view)
+    distinct = _get_cardinality_metrics_from_column_view(
+        column_view=column_view, count_n=count_n, count_missing=count_missing
+    )
+    min_val, max_val, range_val = _get_distribution_metrics(column_view=column_view)
 
-    cardinality: Optional[CardinalityMetric] = column_view.get_metric("card")
-    distinct = None
-    if cardinality is not None and count_n is not None and count_missing is not None:
-        card_estimate = cardinality.hll.value.get_estimate()
-        distinct = card_estimate / (count_n - count_missing) * 100
-
-    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("dist")
-
-    min_val = max_val = range_val = None
-    if distribution_metric is not None:
-        min_val = distribution_metric.kll.value.get_min_value()
-        max_val = distribution_metric.kll.value.get_max_value()
-        range_val = max_val - min_val
+    quantile_stats = _calculate_quantile_statistics(column_view)
+    desc_stats = _calculate_descriptive_statistics(column_view)
 
     feature_stats: FeatureStats = {
         "total_count": total_count,
@@ -123,8 +89,8 @@ def add_feature_statistics(feature_name: str, column_view: Optional[ColumnProfil
         "min": min_val,
         "max": max_val,
         "range": range_val,
-        "quantile_statistics": _calculate_quantile_statistics(column_view),
-        "descriptive_statistics": _calculate_descriptive_statistics(column_view),
+        "quantile_statistics": quantile_stats,
+        "descriptive_statistics": desc_stats,
     }
     feature_with_statistics[feature_name] = feature_stats
 
@@ -218,12 +184,6 @@ def generate_summaries(
         "reference_profile_from_whylogs": json.dumps(ref_summary),
     }
     return summaries
-
-
-class FrequentItemStats(TypedDict):
-    frequent_items: List[FrequentItemEstimate]
-    total_count: int
-    unique_count: Optional[int]
 
 
 def add_overall_statistics(target_view: DatasetProfileView) -> OverallStats:
