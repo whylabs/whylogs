@@ -73,6 +73,9 @@ def test_get_cardinality_metrics_from_column_view(profile_view):
     assert isinstance(distinct, float)
     assert distinct == expected_distinct
 
+
+def test_get_cardinality_metrics_with_zero_count_missing(profile_view):
+    column_view = profile_view.get_column(col_name="weight")
     count_n = 3
     count_missing = 0
     distinct = _get_cardinality_metrics_from_column_view(
@@ -86,6 +89,9 @@ def test_get_cardinality_metrics_from_column_view(profile_view):
     assert isinstance(distinct, float)
     assert distinct == expected_distinct
 
+
+def test_get_cardinality_metrics_with_zero_diff_counts(profile_view):
+    column_view = profile_view.get_column(col_name="weight")
     count_n = 2
     count_missing = 2
     distinct = _get_cardinality_metrics_from_column_view(
