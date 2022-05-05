@@ -42,14 +42,19 @@ def _calculate_descriptive_statistics(
     stddev, mean, variance = _get_dist_metrics_from_column_view(column_view=column_view)
     count_n, count_missing = _get_count_metrics_from_column_view(column_view=column_view)
 
-    if count_n and count_missing:
+    if count_n is not None and count_missing is not None:
         sum_ = (count_n - count_missing) * mean
     else:
         sum_ = None
 
+    if stddev is not None and mean:
+        coefficient_of_variation = stddev / mean
+    else:
+        coefficient_of_variation = None
+
     descriptive_statistics: DescriptiveStatistics = {
         "stddev": stddev,
-        "coefficient_of_variation": stddev / mean,
+        "coefficient_of_variation": coefficient_of_variation,
         "sum": sum_,
         "variance": variance,
         "mean": mean,
