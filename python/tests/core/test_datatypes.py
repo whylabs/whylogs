@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 
 from whylogs.core.datatypes import (
     AnyType,
@@ -9,91 +10,40 @@ from whylogs.core.datatypes import (
     String,
 )
 
+NUMERICAL_TYPE = [int, bool, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
+DOUBLE_TYPE = [float, np.double, np.longdouble, np.float16, np.float64]
+DATETIME_TYPE = [np.datetime64, np.timedelta64, pd.Timestamp, pd.Timedelta]
+STRING_TYPE = [str, pd.CategoricalDtype()]
 
-def test_integral_match() -> None:
+
+@pytest.mark.parametrize("expected_data_type", NUMERICAL_TYPE)
+@pytest.mark.parametrize("unexpected_numerical", DOUBLE_TYPE)
+@pytest.mark.parametrize("unexpected_datetime", [*DATETIME_TYPE, *STRING_TYPE])
+def test_integral_match(expected_data_type, unexpected_numerical, unexpected_datetime) -> None:
     tpe = Integral()
-    assert tpe.match(int)
-    assert tpe.match(bool)
-    assert tpe.match(int)
-    assert tpe.match(np.intc)
-    assert tpe.match(np.uintc)
-    assert tpe.match(np.int_)
-    assert tpe.match(np.uint)
-    assert tpe.match(np.longlong)
-    assert tpe.match(np.ulonglong)
-
-    assert not tpe.match(float)
-    assert not tpe.match(np.double)
-    assert not tpe.match(np.longdouble)
-    assert not tpe.match(np.float16)
-    assert not tpe.match(np.float64)
-
-    # numpy date time
-    assert not tpe.match(np.datetime64)
-    assert not tpe.match(np.timedelta64)
-
-    # pandas datetime
-    assert not tpe.match(pd.Timestamp)
-    assert not tpe.match(pd.Timedelta)
-    assert not tpe.match(str)
+    assert tpe.match(expected_data_type)
+    assert not tpe.match(unexpected_numerical)
+    assert not tpe.match(unexpected_datetime)
 
 
-def test_fractional_match() -> None:
+@pytest.mark.parametrize("expected_data_type", DOUBLE_TYPE)
+@pytest.mark.parametrize("unexpected_numerical", NUMERICAL_TYPE)
+@pytest.mark.parametrize("unexpected_datetime", [*DATETIME_TYPE, *STRING_TYPE])
+def test_fractional_match(expected_data_type, unexpected_numerical, unexpected_datetime) -> None:
     frac = Fractional()
-    assert frac.match(float)
-    assert frac.match(np.double)
-    assert frac.match(np.longdouble)
-    assert frac.match(np.float16)
-    assert frac.match(np.float64)
-
-    assert not frac.match(int)
-    assert not frac.match(bool)
-    assert not frac.match(int)
-    assert not frac.match(np.intc)
-    assert not frac.match(np.uintc)
-    assert not frac.match(np.int_)
-    assert not frac.match(np.uint)
-    assert not frac.match(np.longlong)
-    assert not frac.match(np.ulonglong)
-
-    # numpy date time
-    assert not frac.match(np.datetime64)
-    assert not frac.match(np.timedelta64)
-
-    # pandas datetime
-    assert not frac.match(pd.Timestamp)
-    assert not frac.match(pd.Timedelta)
-    assert not frac.match(str)
+    assert frac.match(expected_data_type)
+    assert not frac.match(unexpected_numerical)
+    assert not frac.match(unexpected_datetime)
 
 
-def test_string_match() -> None:
+@pytest.mark.parametrize("expected_data_type", STRING_TYPE)
+@pytest.mark.parametrize("unexpected_numerical", [*NUMERICAL_TYPE, *DOUBLE_TYPE])
+@pytest.mark.parametrize("unexpected_datetime", DATETIME_TYPE)
+def test_string_match(expected_data_type, unexpected_numerical, unexpected_datetime) -> None:
     string = String()
-    # pandas
-    assert string.match(pd.CategoricalDtype())
-    assert string.match(str)
-
-    assert not string.match(pd.Timestamp)
-    assert not string.match(pd.Timedelta)
-
-    assert not string.match(float)
-    assert not string.match(np.double)
-    assert not string.match(np.longdouble)
-    assert not string.match(np.float16)
-    assert not string.match(np.float64)
-
-    assert not string.match(int)
-    assert not string.match(bool)
-    assert not string.match(int)
-    assert not string.match(np.intc)
-    assert not string.match(np.uintc)
-    assert not string.match(np.int_)
-    assert not string.match(np.uint)
-    assert not string.match(np.longlong)
-    assert not string.match(np.ulonglong)
-
-    # numpy date time
-    assert not string.match(np.datetime64)
-    assert not string.match(np.timedelta64)
+    assert string.match(expected_data_type)
+    assert not string.match(unexpected_numerical)
+    assert not string.match(unexpected_datetime)
 
 
 def test_type_mapper() -> None:

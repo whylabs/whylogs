@@ -14,6 +14,8 @@ def visualization() -> NotebookProfileVisualizer:
     return visualization
 
 
+# TODO assertions on values generated on charts
+
 def test_viz_feature_statistics(profile_view, visualization, tmp_path: str) -> None:
     visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
 
