@@ -55,7 +55,6 @@ def _histogram_from_sketch(
     histogram : HistogramSummary
         Protobuf histogram message
     """
-    # histogram: HistogramSummary = {}
     n = sketch.get_n()
     start = sketch.get_min_value()
     max_val = sketch.get_max_value()

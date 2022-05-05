@@ -203,7 +203,6 @@ class NotebookProfileVisualizer:
         template = _get_compiled_template(page_spec.html)
         if self._target_view and self._ref_view:
             profiles_summary = generate_summaries(self._target_view, self._ref_view, config=None)
-            # profiles_summary = add_drift_and_stats(profiles_summary, overall_stats, drift_values)
             rendered_template = template(profiles_summary)
             return self._display(rendered_template, page_spec, cell_height)
         else:

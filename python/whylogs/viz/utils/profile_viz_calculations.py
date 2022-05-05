@@ -29,8 +29,8 @@ logger = getLogger(__name__)
 
 
 class FeatureStats(TypedDict):
-    total_count: Optional[int]
-    missing: Optional[int]
+    total_count: Optional[float]
+    missing: Optional[float]
     distinct: Optional[float]
     min: Optional[float]
     max: Optional[float]

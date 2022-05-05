@@ -9,7 +9,7 @@ from whylogs.core.view.column_profile_view import ColumnProfileView
 class DescriptiveStatistics(TypedDict):
     stddev: Optional[float]
     coefficient_of_variation: Optional[float]
-    sum: Union[float, None]
+    sum: Optional[float]
     variance: Optional[float]
     mean: Optional[float]
 

@@ -111,7 +111,8 @@ def _compute_chi_squared_test_p_value(
 
     Returns
     -------
-        p_value : float
+        p_value : ColumnDriftValue or None. ColumnDriftValue has fields `p-value` with the test's result,
+        and the name of the test applied in the `test` field (chi-squared).
         The estimated p-value from the Chi-Squared test, applied on the target and reference distributions'
         frequent and unique items summaries
     """
