@@ -49,12 +49,12 @@ def _get_cardinality_metrics_from_column_view(
     column_view: ColumnProfileView, count_n: Optional[float] = None, count_missing: Optional[float] = None
 ) -> Union[None, float]:
     cardinality: Optional[CardinalityMetric] = column_view.get_metric("card")
-    if cardinality and count_n and count_missing:
+    if cardinality and count_n is not None and count_missing is not None:
         card_estimate = cardinality.hll.value.get_estimate()
-        distinct = card_estimate / (count_n - count_missing) * 100
-        return distinct
-    else:
-        return None
+        if (count_n - count_missing) != 0:
+            distinct = card_estimate / (count_n - count_missing) * 100
+            return distinct
+    return None
 
 
 def add_feature_statistics(
