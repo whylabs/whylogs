@@ -51,10 +51,12 @@ def _calculate_descriptive_statistics(
         sum_ = (count_n - count_missing) * mean
     else:
         sum_ = None
+
     if stddev is not None and mean:
         coefficient_of_variation = stddev / mean
     else:
         coefficient_of_variation = None
+
     descriptive_statistics: DescriptiveStatistics = {
         "stddev": stddev,
         "coefficient_of_variation": coefficient_of_variation,

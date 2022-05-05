@@ -1,19 +1,21 @@
 import numpy as np
 import pytest
 
-from whylogs.core.metrics.unicode_range import UnicodeRangeMetric
+from whylogs.core.metrics.unicode_range import _STRING_LENGTH, UnicodeRangeMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 
 
 def test_unicode_range_metric() -> None:
     metric = UnicodeRangeMetric({"digits": (48, 57), "alpha": (97, 122)})
-    col = PreprocessedColumn.apply(["1", "12", "123", "1234a", "abc", "abc123"])
+    strings = ["1", "12", "123", "1234a", "abc", "abc123"]
+    col = PreprocessedColumn.apply(strings)
     digit_counts = [1, 2, 3, 4, 0, 3]
     alpha_counts = [0, 0, 0, 1, 3, 3]
     metric.columnar_update(col)
 
     assert metric.submetrics["digits"].mean.value == np.array(digit_counts).mean()
     assert metric.submetrics["alpha"].mean.value == np.array(alpha_counts).mean()
+    assert metric.submetrics[_STRING_LENGTH].mean.value == np.array([len(s) for s in strings]).mean()
 
 
 @pytest.mark.parametrize(
@@ -21,9 +23,11 @@ def test_unicode_range_metric() -> None:
     [
         {"bad": (-4, -1)},
         {"bad": (4, 1)},
+        {"bad": (-1, 1)},
         {"bad": (1, 0x11FFFF)},
         {"very:bad": (1, 2)},
         {"also/bad": (1, 2)},
+        {_STRING_LENGTH: (1, 2)},
     ],
 )
 def test_unicode_range_metric_invalid_initialization(bad_range):
@@ -40,6 +44,7 @@ def test_unicode_range_metric_serialization() -> None:
 
     assert deserialized.submetrics["digits"].mean.value == metric.submetrics["digits"].mean.value
     assert deserialized.submetrics["alpha"].mean.value == metric.submetrics["alpha"].mean.value
+    assert len(deserialized.submetrics) == len(metric.submetrics)
 
 
 def test_unicode_range_metric_summary() -> None:
@@ -50,6 +55,7 @@ def test_unicode_range_metric_summary() -> None:
 
     assert "unicode_range/digits/mean" in summary
     assert "unicode_range/alpha/mean" in summary
+    assert f"unicode_range/{_STRING_LENGTH}/mean" in summary
 
 
 def test_unicode_range_metric_merge() -> None:

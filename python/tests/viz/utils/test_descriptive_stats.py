@@ -57,3 +57,12 @@ def test_descriptive_statistics_returns_typed_dict(profile_view):
     assert len(actual) == 5
     for key in actual.keys():
         assert key in ["stddev", "coefficient_of_variation", "sum", "variance", "mean"]
+
+
+def test_descriptive_statistics_zero_mean(profile_view_zero_mean):
+    column_view = profile_view_zero_mean.get_column(col_name="weight")
+    actual = _calculate_descriptive_statistics(column_view=column_view)
+    assert len(actual) == 5
+    assert actual["coefficient_of_variation"] is None
+    assert actual["sum"] == 0.0
+    assert actual["mean"] == 0.0

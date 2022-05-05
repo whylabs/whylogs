@@ -18,6 +18,9 @@ DEFAULT_RANGES = {
 }
 
 
+_STRING_LENGTH = "string_length"
+
+
 class UnicodeRangeMetric(CompoundMetric):
     """
     For string values, maintains a DistributionMetric for the counts of
@@ -37,7 +40,8 @@ class UnicodeRangeMetric(CompoundMetric):
             Defines the character ranges to be counted. The key servers as
             the range name and should only contain alphanumeric, hyphen, and
             underscore characters. The tuple defines the Unicode codepoint
-            range to be tracked.
+            range to be tracked. The string length is tracked under the key
+            "STRING_LENGTH" so don't use that as a range name.
         """
         if range_definitions is None:
             range_definitions = DEFAULT_RANGES
@@ -49,9 +53,12 @@ class UnicodeRangeMetric(CompoundMetric):
                 raise ValueError(f"Invalid codepoint range {key}")
             if ":" in key or "/" in key:
                 raise ValueError(f"Invalid range name {key}")
+        if _STRING_LENGTH in range_definitions:
+            raise ValueError("STRING_LENGTH cannot be used as a range name")
 
         self.range_definitions = range_definitions
         submetrics = {key: DistributionMetric.zero(ColumnSchema(dtype=int)) for key in range_definitions.keys()}
+        submetrics[_STRING_LENGTH] = DistributionMetric.zero(ColumnSchema(dtype=int))
         super(UnicodeRangeMetric, self).__init__(submetrics)  # type: ignore
 
     @property
@@ -70,7 +77,9 @@ class UnicodeRangeMetric(CompoundMetric):
         )
         data = (data + view.list.strings) if view.list.strings else data
         range_data: Dict[str, List[int]] = {range_name: [] for range_name in self.range_definitions.keys()}
+        lengths: List[int] = []
         for value in data:
+            lengths.append(len(value))
             range_counter: Dict[str, int] = {range_name: 0 for range_name in self.range_definitions.keys()}
             # TODO: need to transform to utf-32 or handle surrogates
             for char in unicodedata.normalize("NFD", value).lower():
@@ -86,6 +95,8 @@ class UnicodeRangeMetric(CompoundMetric):
                 range_data[range_name].append(range_count)
 
         submetric_col = PreprocessedColumn()
+        submetric_col.list.ints = lengths
+        self.submetrics[_STRING_LENGTH].columnar_update(submetric_col)
         for range_name, range_list in range_data.items():
             submetric_col.list.ints = range_list
             self.submetrics[range_name].columnar_update(submetric_col)
@@ -101,6 +112,7 @@ class UnicodeRangeMetric(CompoundMetric):
         # The MetricMessage doesn't contain the range definitions, so we preserve
         # the range names with empty bounds
         ranges = {sub_name: (0, 0) for sub_name in submetrics.keys()}
+        del ranges[_STRING_LENGTH]
         result = cls(ranges)
         result.submetrics = submetrics
         return result
