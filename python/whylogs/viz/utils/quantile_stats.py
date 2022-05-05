@@ -1,6 +1,6 @@
 import math
 from logging import getLogger
-from typing import Optional, List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from typing_extensions import TypedDict
