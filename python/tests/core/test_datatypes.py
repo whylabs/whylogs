@@ -17,32 +17,56 @@ STRING_TYPE = [str, pd.CategoricalDtype()]
 
 
 @pytest.mark.parametrize("expected_data_type", NUMERICAL_TYPE)
-@pytest.mark.parametrize("unexpected_numerical", DOUBLE_TYPE)
-@pytest.mark.parametrize("unexpected_datetime", [*DATETIME_TYPE, *STRING_TYPE])
-def test_integral_match(expected_data_type, unexpected_numerical, unexpected_datetime) -> None:
+def test_integral_match_expected_data(expected_data_type) -> None:
     tpe = Integral()
     assert tpe.match(expected_data_type)
+
+
+@pytest.mark.parametrize("unexpected_numerical", DOUBLE_TYPE)
+def test_integral_does_not_match_unexpected_numerical(unexpected_numerical):
+    tpe = Integral()
     assert not tpe.match(unexpected_numerical)
+
+
+@pytest.mark.parametrize("unexpected_datetime", [*DATETIME_TYPE, *STRING_TYPE])
+def test_integral_does_not_match_unexpected_datetime(unexpected_datetime):
+    tpe = Integral()
     assert not tpe.match(unexpected_datetime)
 
 
 @pytest.mark.parametrize("expected_data_type", DOUBLE_TYPE)
-@pytest.mark.parametrize("unexpected_numerical", NUMERICAL_TYPE)
-@pytest.mark.parametrize("unexpected_datetime", [*DATETIME_TYPE, *STRING_TYPE])
-def test_fractional_match(expected_data_type, unexpected_numerical, unexpected_datetime) -> None:
+def test_fractional_match(expected_data_type) -> None:
     frac = Fractional()
     assert frac.match(expected_data_type)
+
+
+@pytest.mark.parametrize("unexpected_numerical", NUMERICAL_TYPE)
+def test_fractional_does_not_match_unexpected_numerical(unexpected_numerical):
+    frac = Fractional()
     assert not frac.match(unexpected_numerical)
+
+
+@pytest.mark.parametrize("unexpected_datetime", [*DATETIME_TYPE, *STRING_TYPE])
+def test_fractional_does_not_match_unexpected_datetime(unexpected_datetime):
+    frac = Fractional()
     assert not frac.match(unexpected_datetime)
 
 
 @pytest.mark.parametrize("expected_data_type", STRING_TYPE)
-@pytest.mark.parametrize("unexpected_numerical", [*NUMERICAL_TYPE, *DOUBLE_TYPE])
-@pytest.mark.parametrize("unexpected_datetime", DATETIME_TYPE)
-def test_string_match(expected_data_type, unexpected_numerical, unexpected_datetime) -> None:
+def test_string_match(expected_data_type):
     string = String()
     assert string.match(expected_data_type)
+
+
+@pytest.mark.parametrize("unexpected_numerical", [*NUMERICAL_TYPE, *DOUBLE_TYPE])
+def test_string_does_not_match_unexpected_numerical(unexpected_numerical):
+    string = String()
     assert not string.match(unexpected_numerical)
+
+
+@pytest.mark.parametrize("unexpected_datetime", DATETIME_TYPE)
+def test_string_does_not_match_unexpected_datetime(unexpected_datetime):
+    string = String()
     assert not string.match(unexpected_datetime)
 
 

@@ -1,6 +1,10 @@
 import pytest
 
-from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2, welford_online_variance_m2
+from whylogs.core.metrics.maths import (
+    VarianceM2Result,
+    parallel_variance_m2,
+    welford_online_variance_m2,
+)
 
 
 @pytest.fixture
@@ -25,7 +29,7 @@ def test_parallel_variance_m2():
     assert isinstance(actual_result, VarianceM2Result)
     assert actual_result.mean == (mean_a * n_a + mean_b * n_b) / (n_a + n_b)
     assert actual_result.n == n_a + n_b
-    assert actual_result.m2 == m2_a + m2_b + (mean_a - mean_b)**2 * n_a * n_b / (n_a + n_b)
+    assert actual_result.m2 == m2_a + m2_b + (mean_a - mean_b) ** 2 * n_a * n_b / (n_a + n_b)
 
 
 def test_welford_online_variance_m2():
@@ -47,4 +51,3 @@ def test_welford_online_variance_m2():
     assert actual_result.mean == mean
     assert actual_result.n == n
     assert actual_result.m2 == m2
-
