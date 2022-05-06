@@ -118,9 +118,12 @@ class DatasetSummary(TypedDict):
 
 def generate_summaries(
     target_view: DatasetProfileView, ref_view: DatasetProfileView, config: Optional[SummaryConfig]
-) -> Dict[str, Any]:
+) -> Optional[Dict[str, Any]]:
     if config is None:
         config = SummaryConfig()
+
+    if not target_view or not ref_view:
+        raise ValueError("This method has to get both target and reference profiles")
 
     overall_stats: OverallStats = add_overall_statistics(target_view)
     drift_values = calculate_drift_values(target_view, ref_view)

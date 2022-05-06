@@ -87,3 +87,9 @@ def test_viz_summary_drift(profile_view, visualization, tmp_path: str) -> None:
         html_file_name=test_output,
     )
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
+
+
+def test_viz_summary_drift_if_view_is_none(profile_view, visualization) -> None:
+    visualization.set_profiles(target_profile_view=profile_view)
+    with pytest.raises(ValueError):
+        visualization.summary_drift_report()

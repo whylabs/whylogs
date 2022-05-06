@@ -201,13 +201,14 @@ class NotebookProfileVisualizer:
     def summary_drift_report(self, cell_height: str = None) -> HTML:
         page_spec = PageSpecEnum.SUMMARY_REPORT.value
         template = _get_compiled_template(page_spec.html)
-        if self._target_view and self._ref_view:
+
+        try:
             profiles_summary = generate_summaries(self._target_view, self._ref_view, config=None)
             rendered_template = template(profiles_summary)
             return self._display(rendered_template, page_spec, cell_height)
-        else:
-            logger.warning("This method has to get both target and reference profiles")
-            return None
+        except ValueError as e:
+            logger.error("This method has to get both target and reference profiles")
+            raise e
 
     def double_histogram(self, feature_name: str, cell_height: str = None) -> HTML:
         """Plots overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
