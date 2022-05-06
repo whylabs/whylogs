@@ -95,7 +95,7 @@ class ColumnCountsMetric(Metric):
 
     @property
     def namespace(self) -> str:
-        return "cnt"
+        return "counts"
 
     def columnar_update(self, data: PreprocessedColumn) -> OperationResult:
         n: int = self.n.value

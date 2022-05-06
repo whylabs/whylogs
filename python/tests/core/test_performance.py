@@ -68,7 +68,7 @@ def test_track_column_benchmark(test_resolver: Resolver) -> None:
             f"track_column stats using the following trackers {[metric_name for metric_name in col_prof._metrics]} "
             f"are\n{string_output_stream.getvalue()}"
         )
-        assert col_prof.view().get_metric("dist") is not None
+        assert col_prof.view().get_metric("distribution") is not None
 
 
 @pytest.mark.load
@@ -96,7 +96,7 @@ def test_track_dataset_benchmark() -> None:
             f"\n{string_output_stream.getvalue()}"
         )
         for column_name in dataset_profile._columns:
-            assert dataset_profile._columns[column_name].view().get_metric("dist") is not None
+            assert dataset_profile._columns[column_name].view().get_metric("distribution") is not None
 
 
 @pytest.mark.load

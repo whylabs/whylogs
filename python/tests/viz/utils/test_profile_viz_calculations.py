@@ -4,11 +4,11 @@ import pytest
 
 from whylogs.core import ColumnProfileView
 from whylogs.core.metrics.metrics import FrequentItem
+from whylogs.viz.utils.frequent_items_calculations import get_frequent_items_estimate
 from whylogs.viz.utils.profile_viz_calculations import (
     _get_cardinality_metrics_from_column_view,
     _get_distribution_metrics,
     add_feature_statistics,
-    get_frequent_items_estimate,
 )
 
 
@@ -52,7 +52,7 @@ def test_get_distribution_metrics(profile_view):
 
 def test_get_distribution_metric_returns_none_if_metrics_are_none(mock_column_profile_view):
     min_val, max_val, range_val = _get_distribution_metrics(column_view=mock_column_profile_view)
-    mock_column_profile_view.get_metric.assert_called_with("dist")
+    mock_column_profile_view.get_metric.assert_called_with("distribution")
     assert not min_val
     assert not max_val
     assert not range_val
@@ -66,7 +66,7 @@ def test_get_cardinality_metrics_from_column_view(profile_view):
         column_view=column_view, count_n=count_n, count_missing=count_missing
     )
 
-    cardinality = column_view.get_metric("card")
+    cardinality = column_view.get_metric("cardinality")
     card_estimate = cardinality.hll.value.get_estimate()
     expected_distinct = card_estimate / (count_n - count_missing) * 100
 
@@ -74,9 +74,36 @@ def test_get_cardinality_metrics_from_column_view(profile_view):
     assert distinct == expected_distinct
 
 
+def test_get_cardinality_metrics_with_zero_count_missing(profile_view):
+    column_view = profile_view.get_column(col_name="weight")
+    count_n = 3
+    count_missing = 0
+    distinct = _get_cardinality_metrics_from_column_view(
+        column_view=column_view, count_n=count_n, count_missing=count_missing
+    )
+
+    cardinality = column_view.get_metric("cardinality")
+    card_estimate = cardinality.hll.value.get_estimate()
+    expected_distinct = card_estimate / (count_n - count_missing) * 100
+
+    assert isinstance(distinct, float)
+    assert distinct == expected_distinct
+
+
+def test_get_cardinality_metrics_with_zero_diff_counts(profile_view):
+    column_view = profile_view.get_column(col_name="weight")
+    count_n = 2
+    count_missing = 2
+    distinct = _get_cardinality_metrics_from_column_view(
+        column_view=column_view, count_n=count_n, count_missing=count_missing
+    )
+
+    assert not distinct
+
+
 def test_get_cardinality_metrics_returns_none_if_not_card(mock_column_profile_view):
     distinct = _get_cardinality_metrics_from_column_view(column_view=mock_column_profile_view)
-    mock_column_profile_view.get_metric.assert_called_with("card")
+    mock_column_profile_view.get_metric.assert_called_with("cardinality")
     assert not distinct
 
 
@@ -86,7 +113,16 @@ def test_add_feature_statistics_returns_dict(profile_view):
 
     assert type(feature_dict) == dict
     for key in feature_dict["weight"].keys():
-        assert key in ["missing", "distinct", "min", "max", "range", "quantile_statistics", "descriptive_statistics"]
+        assert key in [
+            "total_count",
+            "missing",
+            "distinct",
+            "min",
+            "max",
+            "range",
+            "quantile_statistics",
+            "descriptive_statistics",
+        ]
 
 
 def test_histogram_from_sketch():

@@ -25,21 +25,21 @@ class StandardResolver(Resolver):
     """Standard metric resolution with builtin types."""
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-        metrics: List[StandardMetric] = [StandardMetric.cnt, StandardMetric.types]
+        metrics: List[StandardMetric] = [StandardMetric.counts, StandardMetric.types]
         if isinstance(why_type, Integral):
-            metrics.append(StandardMetric.dist)
+            metrics.append(StandardMetric.distribution)
             metrics.append(StandardMetric.ints)
-            metrics.append(StandardMetric.card)
-            metrics.append(StandardMetric.fi)
+            metrics.append(StandardMetric.cardinality)
+            metrics.append(StandardMetric.frequent_items)
         elif isinstance(why_type, Fractional):
-            metrics.append(StandardMetric.card)
-            metrics.append(StandardMetric.dist)
+            metrics.append(StandardMetric.cardinality)
+            metrics.append(StandardMetric.distribution)
         elif isinstance(why_type, String):
-            metrics.append(StandardMetric.card)
-            metrics.append(StandardMetric.fi)
+            metrics.append(StandardMetric.cardinality)
+            metrics.append(StandardMetric.frequent_items)
 
         if column_schema.cfg.fi_disabled:
-            metrics.remove(StandardMetric.fi)
+            metrics.remove(StandardMetric.frequent_items)
 
         result: Dict[str, Metric] = {}
         for m in metrics:
@@ -51,13 +51,13 @@ class LimitedTrackingResolver(Resolver):
     """Resolver that skips frequent item and cardinality trackers."""
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-        metrics: List[StandardMetric] = [StandardMetric.cnt, StandardMetric.types]
+        metrics: List[StandardMetric] = [StandardMetric.counts, StandardMetric.types]
         if isinstance(why_type, Integral):
-            metrics.append(StandardMetric.dist)
+            metrics.append(StandardMetric.distribution)
             metrics.append(StandardMetric.ints)
 
         elif isinstance(why_type, Fractional):
-            metrics.append(StandardMetric.dist)
+            metrics.append(StandardMetric.distribution)
 
         result: Dict[str, Metric] = {}
         for m in metrics:
@@ -69,7 +69,7 @@ class HistogramCountingTrackingResolver(Resolver):
     """Resolver that only adds distribution tracker."""
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-        metrics: List[StandardMetric] = [StandardMetric.dist]
+        metrics: List[StandardMetric] = [StandardMetric.distribution]
         result: Dict[str, Metric] = {}
         for m in metrics:
             result[m.name] = m.zero(column_schema)

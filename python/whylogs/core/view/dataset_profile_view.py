@@ -2,7 +2,7 @@ import logging
 import tempfile
 from datetime import datetime
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 from google.protobuf.message import DecodeError
 
@@ -76,6 +76,12 @@ class DatasetProfileView(object):
     def get_column(self, col_name: str) -> Optional[ColumnProfileView]:
         return self._columns.get(col_name)
 
+    def get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, Optional[ColumnProfileView]]:
+        if col_names:
+            return {k: self._columns.get(k) for k in col_names}
+        else:
+            return {k: self._columns.get(k) for k in self._columns}
+
     def write(self, path: str) -> None:
         all_metric_component_names = set()
 
@@ -99,7 +105,8 @@ class DatasetProfileView(object):
 
                 # for a given column, turn it into a ChunkMessage.
                 indexed_component_messages: Dict[int, MetricComponentMessage] = {}
-                for m_name, m_component in col.to_protobuf().metric_components.items():
+                metric_components = col.to_protobuf().metric_components
+                for m_name, m_component in metric_components.items():
                     index = metric_name_indices.get(m_name)
                     if index is None:
                         raise ValueError(f"Missing metric from index mapping. Metric name: {m_name}")

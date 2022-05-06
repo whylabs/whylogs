@@ -1,6 +1,6 @@
 import math
 from logging import getLogger
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from typing_extensions import TypedDict
@@ -27,8 +27,11 @@ def _calculate_quantile_statistics(column_view: Union[ColumnProfileView, None]) 
     if column_view is None:
         return None
 
-    distribution_metric: DistributionMetric = column_view.get_metric("dist")
+    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("distribution")
     desired_quantiles = [0.05, 0.25, 0.5, 0.75, 0.95]
+
+    if distribution_metric is None:
+        return None
 
     quantiles = distribution_metric.kll.value.get_quantiles(desired_quantiles)
 
@@ -43,7 +46,7 @@ def _calculate_quantile_statistics(column_view: Union[ColumnProfileView, None]) 
     return quantile_statistics
 
 
-def _resize_bins(start: float, end: float, min_interval: float, width: float, n_buckets: int):
+def _resize_bins(start: float, end: float, min_interval: float, width: float, n_buckets: int) -> Tuple[int, float]:
     new_buckets = math.floor((end - start) / min_interval)
     logger.warning(
         f"A bin width of {width} won't work with values in range of [{start}, {end}] "
@@ -57,7 +60,7 @@ def _resize_bins(start: float, end: float, min_interval: float, width: float, n_
     return n_buckets, width
 
 
-def _get_min_interval(abs_start, abs_end):
+def _get_min_interval(abs_start: float, abs_end: float) -> float:
     """
     Figure out the floating point precision at the scale of the bin boundaries
     min_interval is the smallest difference between floats at this scale.
