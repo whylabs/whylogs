@@ -26,12 +26,12 @@ def get_frequent_stats(column_view: ColumnProfileView, config: Optional[SummaryC
     if config is None:
         config = SummaryConfig()
 
-    target_fi_metric = column_view.get_metric("fi")
+    target_fi_metric = column_view.get_metric("frequent_items")
     if target_fi_metric:
-        target_frequent_items = target_fi_metric.to_summary_dict(config)["fs"]
-        target_cnt_metric = column_view.get_metric("cnt")
+        target_frequent_items = target_fi_metric.to_summary_dict(config)["frequent_strings"]
+        target_cnt_metric = column_view.get_metric("counts")
         target_count = target_cnt_metric.n.value
-        target_card_metric = column_view.get_metric("card")
+        target_card_metric = column_view.get_metric("cardinality")
         target_unique_count = int(target_card_metric.hll.value.get_estimate())
 
         target_frequent_stats: FrequentStats = {
@@ -48,10 +48,10 @@ def get_frequent_stats(column_view: ColumnProfileView, config: Optional[SummaryC
 def frequent_items_from_view(
     column_view: ColumnProfileView, feature_name: str, config: SummaryConfig
 ) -> List[FrequentItemEstimate]:
-    column_frequent_items_metric = column_view.get_metric("fi")
+    column_frequent_items_metric = column_view.get_metric("frequent_items")
     if not column_frequent_items_metric:
         raise ValueError("Frequent Items Metrics not found for feature {}.".format(feature_name))
 
-    target_frequent_items = column_frequent_items_metric.to_summary_dict(config)["fs"]
+    target_frequent_items = column_frequent_items_metric.to_summary_dict(config)["frequent_strings"]
     frequent_items = get_frequent_items_estimate(target_frequent_items)
     return frequent_items

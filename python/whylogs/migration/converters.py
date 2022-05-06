@@ -15,7 +15,7 @@ from whylogs.core.metrics import (
 )
 from whylogs.core.metrics.metric_components import (
     FractionalComponent,
-    FrequentItemsComponent,
+    FrequentStringsComponent,
     IntegralComponent,
     KllComponent,
     MaxIntegralComponent,
@@ -41,20 +41,19 @@ def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
 
     for col_name, col_msg in msg.columns.items():
         dist_metric = _extract_dist_metric(col_msg)
-        fi_metric = FrequentItemsMetric(
-            fs=FrequentItemsComponent(ds.frequent_strings_sketch.deserialize(col_msg.frequent_items.sketch))
-        )
+        fs = FrequentStringsComponent(ds.frequent_strings_sketch.deserialize(col_msg.frequent_items.sketch))
+        fi_metric = FrequentItemsMetric(frequent_strings=fs)
         count_metrics = _extract_col_counts(col_msg)
         type_counters_metric = _extract_type_counts_metric(col_msg)
         int_metric = _extract_ints_metric(col_msg)
 
         columns[col_name] = ColumnProfileView(
             metrics={
-                StandardMetric.dist.name: dist_metric,
-                StandardMetric.fi.name: fi_metric,
-                StandardMetric.cnt.name: count_metrics,
+                StandardMetric.distribution.name: dist_metric,
+                StandardMetric.frequent_items.name: fi_metric,
+                StandardMetric.counts.name: count_metrics,
                 StandardMetric.types.name: type_counters_metric,
-                StandardMetric.card.name: type_counters_metric,
+                StandardMetric.cardinality.name: type_counters_metric,
                 StandardMetric.ints.name: int_metric,
             }
         )

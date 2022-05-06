@@ -155,7 +155,7 @@ class HllComponent(MetricComponent[ds.hll_sketch]):
     mtype = ds.hll_sketch
 
 
-class FrequentItemsComponent(MetricComponent[ds.frequent_strings_sketch]):
+class FrequentStringsComponent(MetricComponent[ds.frequent_strings_sketch]):
     mtype = ds.frequent_strings_sketch
 
 

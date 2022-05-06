@@ -12,11 +12,11 @@ from whylogs.core.metrics.metrics import (
 
 class StandardMetric(Enum):
     types = TypeCountersMetric
-    dist = DistributionMetric
-    cnt = ColumnCountsMetric
+    distribution = DistributionMetric
+    counts = ColumnCountsMetric
     ints = IntsMetric
-    card = CardinalityMetric
-    fi = FrequentItemsMetric
+    cardinality = CardinalityMetric
+    frequent_items = FrequentItemsMetric
 
     def __init__(self, clz: Metric):
         self._clz = clz

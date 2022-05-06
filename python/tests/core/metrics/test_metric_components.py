@@ -5,7 +5,7 @@ import pytest
 from whylogs.core.metrics.metric_components import (
     CustomComponent,
     FractionalComponent,
-    FrequentItemsComponent,
+    FrequentStringsComponent,
     HllComponent,
     IntegralComponent,
     KllComponent,
@@ -21,7 +21,7 @@ _TEST_COMPONENT_TYPES = [
     FractionalComponent,
     KllComponent,
     HllComponent,
-    FrequentItemsComponent,
+    FrequentStringsComponent,
 ]
 
 

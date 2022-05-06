@@ -26,7 +26,7 @@ class HistogramSummary(TypedDict):
 
 
 def histogram_from_view(column_view: ColumnProfileView, feature_name: str) -> HistogramSummary:
-    col_dist: Optional[DistributionMetric] = column_view.get_metric("dist")
+    col_dist: Optional[DistributionMetric] = column_view.get_metric("distribution")
     if not col_dist:
         raise ValueError("Distribution Metrics not found for feature {}.".format(feature_name))
 

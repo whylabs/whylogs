@@ -105,7 +105,8 @@ class DatasetProfileView(object):
 
                 # for a given column, turn it into a ChunkMessage.
                 indexed_component_messages: Dict[int, MetricComponentMessage] = {}
-                for m_name, m_component in col.to_protobuf().metric_components.items():
+                metric_components = col.to_protobuf().metric_components
+                for m_name, m_component in metric_components.items():
                     index = metric_name_indices.get(m_name)
                     if index is None:
                         raise ValueError(f"Missing metric from index mapping. Metric name: {m_name}")

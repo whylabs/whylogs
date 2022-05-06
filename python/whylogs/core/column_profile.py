@@ -1,11 +1,11 @@
 import logging
 from typing import Any, Dict, List
 
-from .preprocessing import PreprocessedColumn
-from .projectors import SingleFieldProjector
-from .proto import ColumnMessage, MetricComponentMessage  # type: ignore
-from .schema import ColumnSchema
-from .view import ColumnProfileView
+from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.projectors import SingleFieldProjector
+from whylogs.core.proto import ColumnMessage
+from whylogs.core.schema import ColumnSchema
+from whylogs.core.view import ColumnProfileView
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +51,7 @@ class ColumnProfile(object):
     def to_protobuf(self) -> ColumnMessage:
         self.flush()
 
-        components: Dict[str, MetricComponentMessage] = {}
-        for metric_name, metric in self._metrics.items():
-            for c_name, msg in metric.to_protobuf().metric_components.items():
-                components[f"{metric_name}/{c_name}"] = msg
-        return ColumnMessage(metric_components=components)
+        return self.view().to_protobuf()
 
     def view(self) -> ColumnProfileView:
         self.flush()

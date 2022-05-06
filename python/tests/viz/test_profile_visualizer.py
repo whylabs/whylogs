@@ -3,6 +3,7 @@ import webbrowser
 
 import pytest
 
+from whylogs.core import DatasetProfileView
 from whylogs.viz import NotebookProfileVisualizer
 
 
@@ -12,7 +13,9 @@ def visualization() -> NotebookProfileVisualizer:
     return visualization
 
 
-def test_viz_feature_statistics(profile_view, visualization, tmp_path: str) -> None:
+def test_viz_feature_statistics(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer, tmp_path: str
+) -> None:
     visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
 
     test_output = os.path.join(tmp_path, "b18")
@@ -23,7 +26,9 @@ def test_viz_feature_statistics(profile_view, visualization, tmp_path: str) -> N
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
 
 
-def test_viz_double_histogram_single_profile(profile_view, visualization, tmp_path: str) -> None:
+def test_viz_double_histogram_single_profile(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer, tmp_path: str
+) -> None:
     visualization.set_profiles(target_profile_view=profile_view)
 
     test_output = os.path.join(tmp_path, "b18")
@@ -34,7 +39,9 @@ def test_viz_double_histogram_single_profile(profile_view, visualization, tmp_pa
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
 
 
-def test_viz_double_histogram_two_profiles(profile_view, visualization, tmp_path: str) -> None:
+def test_viz_double_histogram_two_profiles(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer, tmp_path: str
+) -> None:
     visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
 
     test_output = os.path.join(tmp_path, "b18")
@@ -45,7 +52,9 @@ def test_viz_double_histogram_two_profiles(profile_view, visualization, tmp_path
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
 
 
-def test_viz_distribution_chart_single_profile(profile_view, visualization, tmp_path: str) -> None:
+def test_viz_distribution_chart_single_profile(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer, tmp_path: str
+) -> None:
     visualization.set_profiles(target_profile_view=profile_view)
 
     test_output = os.path.join(tmp_path, "b18")
@@ -56,7 +65,9 @@ def test_viz_distribution_chart_single_profile(profile_view, visualization, tmp_
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
 
 
-def test_viz_distribution_chart_two_profiles(profile_view, visualization, tmp_path: str) -> None:
+def test_viz_distribution_chart_two_profiles(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer, tmp_path: str
+) -> None:
     visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
 
     test_output = os.path.join(tmp_path, "b18")
@@ -67,7 +78,9 @@ def test_viz_distribution_chart_two_profiles(profile_view, visualization, tmp_pa
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
 
 
-def test_viz_difference_distribution_chart_two_profiles(profile_view, visualization, tmp_path: str) -> None:
+def test_viz_difference_distribution_chart_two_profiles(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer, tmp_path: str
+) -> None:
     visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
 
     test_output = os.path.join(tmp_path, "b18")
@@ -78,7 +91,9 @@ def test_viz_difference_distribution_chart_two_profiles(profile_view, visualizat
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
 
 
-def test_viz_summary_drift(profile_view, visualization, tmp_path: str) -> None:
+def test_viz_summary_drift(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer, tmp_path: str
+) -> None:
     visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
 
     test_output = os.path.join(tmp_path, "b18")
@@ -89,7 +104,9 @@ def test_viz_summary_drift(profile_view, visualization, tmp_path: str) -> None:
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
 
 
-def test_viz_summary_drift_if_view_is_none(profile_view, visualization) -> None:
+def test_viz_summary_drift_if_view_is_none(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer
+) -> None:
     visualization.set_profiles(target_profile_view=profile_view)
     with pytest.raises(ValueError):
         visualization.summary_drift_report()

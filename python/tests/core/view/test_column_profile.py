@@ -6,7 +6,7 @@ import pandas as pd
 from whylogs.core import ColumnProfile, ColumnProfileView, ColumnSchema
 
 
-class TestListElements(unittest.TestCase):
+class TestColumnProfile(unittest.TestCase):
     def test_basic_int_column(self) -> None:
         series = pd.Series(list(range(0, 10)))
         schema = ColumnSchema(dtype=series.dtype)
@@ -18,19 +18,28 @@ class TestListElements(unittest.TestCase):
         col_prof.flush()
 
         # must have dist and types
-        assert col_prof._metrics["dist"] is not None
+        assert col_prof._metrics["distribution"] is not None
         assert col_prof._metrics["types"] is not None
 
         msg = col_prof.to_protobuf()
-        assert msg.metric_components["fi/fs"] is not None
-        assert msg.metric_components["cnt/n"] is not None
-        assert msg.metric_components["cnt/null"] is not None
-        assert msg.metric_components["dist/kll"] is not None
-        assert msg.metric_components["dist/mean"] is not None
-        assert msg.metric_components["dist/m2"] is not None
+        all_keys = set(msg.metric_components.keys())
+        assert "frequent_items/frequent_strings" in all_keys
+        assert "counts/n" in all_keys
+        assert "counts/null" in all_keys
+        assert "distribution/kll" in all_keys
+        assert "distribution/mean" in all_keys
+        assert "distribution/m2" in all_keys
+        assert "types/integral" in all_keys
+        assert "types/boolean" in all_keys
+        assert "types/object" in all_keys
+        assert "types/string" in all_keys
+        assert "types/fractional" in all_keys
+        assert "ints/min" in all_keys
+        assert "ints/max" in all_keys
+        assert "cardinality/hll" in all_keys
 
         view = ColumnProfileView.from_protobuf(msg)
-        assert view.get_metric("dist") is not None
+        assert view.get_metric("distribution") is not None
 
     def test_basic_str_column(self) -> None:
         series = pd.Series(["a", "b", "c"])
@@ -41,11 +50,11 @@ class TestListElements(unittest.TestCase):
 
         msg = col_prof.to_protobuf()
         view = ColumnProfileView.from_protobuf(msg)
-        assert view.get_metric("dist") is None
+        assert view.get_metric("distribution") is None
 
         # histogram should be None
-        assert col_prof._metrics.get("dist") is None
-        assert col_prof._metrics.get("fi") is not None
+        assert col_prof._metrics.get("distribution") is None
+        assert col_prof._metrics.get("frequent_items") is not None
 
 
 if __name__ == "__main__":

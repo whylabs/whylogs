@@ -17,7 +17,7 @@ from whylogs.core.metrics.maths import (
 )
 from whylogs.core.metrics.metric_components import (
     FractionalComponent,
-    FrequentItemsComponent,
+    FrequentStringsComponent,
     HllComponent,
     KllComponent,
     MaxIntegralComponent,
@@ -165,7 +165,7 @@ class DistributionMetric(Metric):
 
     @property
     def namespace(self) -> str:
-        return "dist"
+        return "distribution"
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Union[int, float, str, None]]:
         if self.n == 0:
@@ -296,32 +296,32 @@ class FrequentItem:
 
 @dataclass(frozen=True)
 class FrequentItemsMetric(Metric):
-    fs: FrequentItemsComponent
+    frequent_strings: FrequentStringsComponent
 
     @property
     def namespace(self) -> str:
-        return "fi"
+        return "frequent_items"
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         successes = 0
         for arr in [view.numpy.floats, view.numpy.ints]:
             if arr is not None:
-                self.fs.value.update_np(arr)
+                self.frequent_strings.value.update_np(arr)
                 successes += len(arr)
         if view.pandas.strings is not None:
-            self.fs.value.update_str_list(view.pandas.strings.to_list())
+            self.frequent_strings.value.update_str_list(view.pandas.strings.to_list())
             successes += len(view.pandas.strings)
 
         if view.list.ints is not None:
-            self.fs.value.update_int_list(view.list.ints)
+            self.frequent_strings.value.update_int_list(view.list.ints)
             successes += len(view.list.ints)
 
         if view.list.floats is not None:
-            self.fs.value.update_double_list(view.list.floats)
+            self.frequent_strings.value.update_double_list(view.list.floats)
             successes += len(view.list.floats)
 
         if view.list.strings is not None:
-            self.fs.value.update_str_list(view.list.strings)
+            self.frequent_strings.value.update_str_list(view.list.strings)
             successes += len(view.list.strings)
 
         failures = 0
@@ -333,18 +333,20 @@ class FrequentItemsMetric(Metric):
         return OperationResult(successes=successes, failures=failures)
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
-        all_freq_items = self.fs.value.get_frequent_items(cfg.frequent_items_error_type.to_datasketches_type())
+        all_freq_items = self.frequent_strings.value.get_frequent_items(
+            cfg.frequent_items_error_type.to_datasketches_type()
+        )
         if cfg.frequent_items_limit > 0:
             limited_freq_items = all_freq_items[: cfg.frequent_items_limit]
         else:
             limited_freq_items = all_freq_items
         items = [FrequentItem(value=x[0], est=x[1], upper=x[2], lower=x[3]) for x in limited_freq_items]
-        return {"fs": items}
+        return {"frequent_strings": items}
 
     @classmethod
     def zero(cls, schema: ColumnSchema) -> "FrequentItemsMetric":
         sk = ds.frequent_strings_sketch(lg_max_k=schema.cfg.fi_lg_max_k)
-        return FrequentItemsMetric(fs=FrequentItemsComponent(sk))
+        return FrequentItemsMetric(frequent_strings=FrequentStringsComponent(sk))
 
 
 @dataclass(frozen=True)
@@ -353,7 +355,7 @@ class CardinalityMetric(Metric):
 
     @property
     def namespace(self) -> str:
-        return "card"
+        return "cardinality"
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         successes = 0

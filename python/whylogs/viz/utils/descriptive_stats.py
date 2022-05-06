@@ -2,7 +2,7 @@ from typing import Optional, Tuple, Union
 
 from typing_extensions import TypedDict
 
-from whylogs.core.metrics import ColumnCountsMetric
+from whylogs.core.metrics import ColumnCountsMetric, DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
@@ -17,7 +17,7 @@ class DescriptiveStatistics(TypedDict):
 def _get_count_metrics_from_column_view(
     column_view: ColumnProfileView,
 ) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
-    column_counts_metric: ColumnCountsMetric = column_view.get_metric("cnt")  # type: ignore
+    column_counts_metric: ColumnCountsMetric = column_view.get_metric("counts")  # type: ignore
     if column_counts_metric is None:
         return None, None, None
     count_n = column_counts_metric.n.value
@@ -29,7 +29,7 @@ def _get_count_metrics_from_column_view(
 def _get_dist_metrics_from_column_view(
     column_view: ColumnProfileView,
 ) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
-    distribution_metric = column_view.get_metric("dist")
+    distribution_metric: DistributionMetric = column_view.get_metric("distribution")
     if distribution_metric is None:
         return None, None, None
     stddev = distribution_metric.stddev

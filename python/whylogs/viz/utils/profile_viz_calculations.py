@@ -42,7 +42,7 @@ class FeatureStats(TypedDict):
 def _get_distribution_metrics(
     column_view: ColumnProfileView,
 ) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
-    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("dist")
+    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("distribution")
     if distribution_metric is None:
         return None, None, None
 
@@ -55,8 +55,8 @@ def _get_distribution_metrics(
 def _get_cardinality_metrics_from_column_view(
     column_view: ColumnProfileView, count_n: Optional[float] = None, count_missing: Optional[float] = None
 ) -> Union[None, float]:
-    cardinality: Optional[CardinalityMetric] = column_view.get_metric("card")
-    if cardinality and count_n is not None and count_missing is not None:
+    cardinality: Optional[CardinalityMetric] = column_view.get_metric("cardinality")
+    if cardinality is not None and count_n is not None and count_missing is not None:
         card_estimate = cardinality.hll.value.get_estimate()
         if (count_n - count_missing) != 0:
             distinct = card_estimate / (count_n - count_missing) * 100
@@ -171,7 +171,7 @@ def generate_summaries(
                 ref_histogram = histogram_from_view(ref_col_view, target_col_name)
                 ref_column_summary["histogram"] = ref_histogram
 
-            elif target_col_view.get_metric("fi") and ref_col_view.get_metric("fi"):
+            elif target_col_view.get_metric("frequent_items") and ref_col_view.get_metric("frequent_items"):
                 target_column_summary["isDiscrete"] = ref_column_summary["isDiscrete"] = True
 
                 target_frequent_items = frequent_items_from_view(target_col_view, target_col_name, config)
