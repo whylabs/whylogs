@@ -24,16 +24,18 @@ def test_descriptive_statistics_returns_none_if_dist_metric_is_none(profile_view
 
 
 def test_get_count_metrics_should_return_none_if_column_view_is_none(mock_column_profile_view):
-    count_n, count_missing = _get_count_metrics_from_column_view(column_view=mock_column_profile_view)
+    total_count, count_n, count_missing = _get_count_metrics_from_column_view(column_view=mock_column_profile_view)
     mock_column_profile_view.get_metric.assert_called_with("cnt")
+    assert not total_count
     assert not count_n
     assert not count_missing
 
 
 def test_count_metrics_should_return_count_values(profile_view):
     column_view = profile_view.get_column(col_name="weight")
-    count_n, count_missing = _get_count_metrics_from_column_view(column_view=column_view)
+    total_count, count_n, count_missing = _get_count_metrics_from_column_view(column_view=column_view)
 
+    assert isinstance(total_count, int)
     assert isinstance(count_n, int)
     assert isinstance(count_missing, int)
 

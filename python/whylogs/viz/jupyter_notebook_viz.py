@@ -10,12 +10,12 @@ from IPython.core.display import HTML  # type: ignore
 
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.viz.utils.profile_viz_calculations import (
     add_feature_statistics,
-    get_frequent_items_estimate,
-    histogram_from_sketch,
+    frequent_items_from_view,
+    generate_summaries,
+    histogram_from_view,
 )
 
 logger = logging.getLogger(__name__)
@@ -115,23 +115,17 @@ class NotebookProfileVisualizer:
             if not target_column_profile_view:
                 raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
 
-            target_column_frequent_items_metric = target_column_profile_view.get_metric("fi")
-            if not target_column_frequent_items_metric:
-                raise ValueError("Frequent Items Metrics not found for feature {}.".format(feature_name))
-
-            target_frequent_items = target_column_frequent_items_metric.to_summary_dict(config)["fs"]
-            target_profile_features[feature_name]["frequentItems"] = get_frequent_items_estimate(target_frequent_items)
+            target_profile_features[feature_name]["frequentItems"] = frequent_items_from_view(
+                target_column_profile_view, feature_name, config
+            )
             if self._ref_view:
                 ref_col_view = self._ref_view.get_column(feature_name)
                 if not ref_col_view:
                     raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
 
-                ref_col_freq_item_metric = ref_col_view.get_metric("fi")
-                if not ref_col_freq_item_metric:
-                    raise ValueError("Frequent Items Metrics not found for feature {}.".format(feature_name))
-
-                ref_freq_items = ref_col_freq_item_metric.to_summary_dict(config)["fs"]
-                reference_profile_features[feature_name]["frequentItems"] = get_frequent_items_estimate(ref_freq_items)
+                reference_profile_features[feature_name]["frequentItems"] = frequent_items_from_view(
+                    ref_col_view, feature_name, config
+                )
             else:
                 logger.warning("Reference profile not detected. Plotting only for target feature.")
                 reference_profile_features[feature_name]["frequentItems"] = [
@@ -160,23 +154,12 @@ class NotebookProfileVisualizer:
             if not target_col_view:
                 raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
 
-            target_col_dist: Optional[DistributionMetric] = target_col_view.get_metric("dist")
-            if not target_col_dist:
-                raise ValueError("Distribution Metrics not found for feature {}.".format(feature_name))
-
-            target_kill = target_col_dist.kll.value
-            target_histogram = histogram_from_sketch(target_kill)
+            target_histogram = histogram_from_view(target_col_view, feature_name)
             if self._ref_view:
                 reference_column_profile_view = self._ref_view.get_column(feature_name)
                 if not reference_column_profile_view:
                     raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
-
-                reference_column_dist_metric = reference_column_profile_view.get_metric("dist")
-                if not reference_column_dist_metric:
-                    raise ValueError("Distribution Metrics not found for feature {}.".format(feature_name))
-
-                reference_kll_sketch = reference_column_dist_metric.kll.value
-                ref_histogram = histogram_from_sketch(reference_kll_sketch)
+                ref_histogram = histogram_from_view(reference_column_profile_view, feature_name)
             else:
                 logger.warning("Reference profile not detected. Plotting only for target feature.")
                 ref_histogram = target_histogram.copy()
@@ -214,6 +197,18 @@ class NotebookProfileVisualizer:
         """
         self._target_view = target_profile_view
         self._ref_view = reference_profile_view
+
+    def summary_drift_report(self, cell_height: str = None) -> HTML:
+        page_spec = PageSpecEnum.SUMMARY_REPORT.value
+        template = _get_compiled_template(page_spec.html)
+
+        try:
+            profiles_summary = generate_summaries(self._target_view, self._ref_view, config=None)
+            rendered_template = template(profiles_summary)
+            return self._display(rendered_template, page_spec, cell_height)
+        except ValueError as e:
+            logger.error("This method has to get both target and reference profiles")
+            raise e
 
     def double_histogram(self, feature_name: str, cell_height: str = None) -> HTML:
         """Plots overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.

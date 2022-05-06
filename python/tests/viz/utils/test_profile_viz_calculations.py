@@ -4,11 +4,11 @@ import pytest
 
 from whylogs.core import ColumnProfileView
 from whylogs.core.metrics.metrics import FrequentItem
+from whylogs.viz.utils.frequent_items_calculations import get_frequent_items_estimate
 from whylogs.viz.utils.profile_viz_calculations import (
     _get_cardinality_metrics_from_column_view,
     _get_distribution_metrics,
     add_feature_statistics,
-    get_frequent_items_estimate,
 )
 
 
@@ -113,7 +113,16 @@ def test_add_feature_statistics_returns_dict(profile_view):
 
     assert type(feature_dict) == dict
     for key in feature_dict["weight"].keys():
-        assert key in ["missing", "distinct", "min", "max", "range", "quantile_statistics", "descriptive_statistics"]
+        assert key in [
+            "total_count",
+            "missing",
+            "distinct",
+            "min",
+            "max",
+            "range",
+            "quantile_statistics",
+            "descriptive_statistics",
+        ]
 
 
 def test_histogram_from_sketch():
