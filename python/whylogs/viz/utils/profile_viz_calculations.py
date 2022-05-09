@@ -196,7 +196,7 @@ def add_overall_statistics(target_view: DatasetProfileView) -> OverallStats:
     target_col_views = target_view.get_columns()
     for target_col_view in target_col_views.values():
         if target_col_view:
-            cnt_metric = target_col_view.get_metric("cnt")
+            cnt_metric = target_col_view.get_metric("counts")
             if cnt_metric:
                 observations += cnt_metric.n.value
                 null_count = cnt_metric.null.value
