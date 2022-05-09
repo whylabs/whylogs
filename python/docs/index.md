@@ -20,6 +20,7 @@
     features/profiling
     features/config
     features/writing
+    examples
     integrations/index
 ```
 

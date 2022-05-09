@@ -1,6 +1,12 @@
 import os
 import sys
+import shutil
 from typing import Any, Dict
+
+if shutil.which("pandoc") is None:
+    print("PLEASE INSTALL PANDOC <https://pandoc.org/>")
+    print("Pandoc is required to build our documentation.")
+    sys.exit(1)
 
 version = "1.0.0rc0"
 
@@ -14,6 +20,8 @@ extensions = [
     "autoapi.extension",
     "sphinx.ext.autodoc",
     "sphinx.ext.autodoc.typehints",
+
+    "nbsphinx",
 
     "sphinx.ext.githubpages",
     'sphinx.ext.autosectionlabel',
@@ -138,3 +146,6 @@ html_theme_options: Dict[str, Any] = {
         },
     ],
 }
+
+# Notebooks
+nbsphinx_execute = "never"

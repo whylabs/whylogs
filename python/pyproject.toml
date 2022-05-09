@@ -10,14 +10,17 @@ include = ["whylogs/core/proto/v0/*.py*", "whylogs/core/proto/*.py*"]
 
 
 [tool.poetry.dependencies]
+# core dependencies. Be REALLY mindful when touching this list
 python = ">=3.7.1, <4.0"
 whylogs-sketching = "3.4.0.dev9"
 protobuf = ">=3.15.5"
 importlib-metadata = { version = ">=0.23", python = "<3.8" }
 typing-extensions = ">=typing-extensions"
+
+# viz module. Everything after this should be optional
 pybars3 = { version = "^0.9", optional = true }
 ipython = { version = "*", optional = true }
-scipy = {version = "<1.8", extras = ["viz"]}
+scipy = { version = "<1.8", optional = true }
 
 # Doc dependencies
 sphinx = { version = "*", optional = true }
@@ -28,7 +31,8 @@ furo = { version = "^2022.3.4", optional = true }
 sphinx-autobuild = { version = "^2021.3.14", optional = true }
 sphinxext-opengraph = { version = "^0.6.3", optional = true }
 sphinx-inline-tabs = { version = "*", optional = true }
-flake8 = "4.0.1"
+flake8 = { version = "4.0.1", optional = true }
+nbsphinx = { version = "^0.8.8", optional = true }
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
@@ -57,6 +61,7 @@ docs = [
     "furo",
     "sphinx-copybutton",
     "myst-parser",
+    "nbsphinx",
     "sphinx-inline-tabs",
     "sphinxext-opengraph",
     "sphinx-autodoc",
@@ -65,6 +70,7 @@ docs = [
 viz = [
     "ipython",
     "pybars3",
+    "scipy",
 ]
 
 

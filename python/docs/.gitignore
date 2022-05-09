@@ -4,3 +4,4 @@ _build/*
 _build
 samples/*.rst
 api/
+examples
