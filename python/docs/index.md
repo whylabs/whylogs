@@ -64,7 +64,7 @@
     :caption: API References
     :hidden:
 
-    _autoapi/index
+    api/index
 ```
 
 ```{eval-rst}

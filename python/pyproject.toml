@@ -59,6 +59,8 @@ docs = [
     "myst-parser",
     "sphinx-inline-tabs",
     "sphinxext-opengraph",
+    "sphinx-autodoc",
+    "sphinx-autodoc-typehints",
 ]
 viz = [
     "ipython",
