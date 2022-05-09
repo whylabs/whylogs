@@ -163,16 +163,16 @@ def calculate_drift_values(
             if not target_col_view or not ref_col_view:
                 continue
 
-            if target_col_view.get_metric("dist") and ref_col_view.get_metric("dist"):
-                target_dist_metric = target_col_view.get_metric("dist")
+            if target_col_view.get_metric("distribution") and ref_col_view.get_metric("distribution"):
+                target_dist_metric = target_col_view.get_metric("distribution")
                 target_kll_sketch = target_dist_metric.kll.value
 
-                ref_dist_metric = ref_col_view.get_metric("dist")
+                ref_dist_metric = ref_col_view.get_metric("distribution")
                 ref_kll_sketch = ref_dist_metric.kll.value
 
                 ks_p_value = _ks_test_compute_p_value(target_kll_sketch, ref_kll_sketch)
                 drift_values[target_col_name] = ks_p_value
-            elif target_col_view.get_metric("fi") and ref_col_view.get_metric("fi"):
+            elif target_col_view.get_metric("frequent_items") and ref_col_view.get_metric("frequent_items"):
 
                 target_frequent_stats: FrequentStats = get_frequent_stats(target_col_view, config=None)
                 ref_frequent_stats: FrequentStats = get_frequent_stats(ref_col_view, config=None)
