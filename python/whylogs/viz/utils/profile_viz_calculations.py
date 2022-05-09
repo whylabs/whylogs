@@ -162,7 +162,7 @@ def generate_summaries(
                 if col_drift_value:
                     ref_column_summary["drift_from_ref"] = col_drift_value["p_value"]
 
-            if target_col_view.get_metric("dist") and ref_col_view.get_metric("dist"):
+            if target_col_view.get_metric("distribution") and ref_col_view.get_metric("distribution"):
                 target_column_summary["isDiscrete"] = ref_column_summary["isDiscrete"] = False
 
                 target_histogram = histogram_from_view(target_col_view, target_col_name)
@@ -196,7 +196,7 @@ def add_overall_statistics(target_view: DatasetProfileView) -> OverallStats:
     target_col_views = target_view.get_columns()
     for target_col_view in target_col_views.values():
         if target_col_view:
-            cnt_metric = target_col_view.get_metric("cnt")
+            cnt_metric = target_col_view.get_metric("counts")
             if cnt_metric:
                 observations += cnt_metric.n.value
                 null_count = cnt_metric.null.value
