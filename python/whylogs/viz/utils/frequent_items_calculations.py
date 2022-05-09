@@ -27,20 +27,20 @@ def get_frequent_stats(column_view: ColumnProfileView, config: Optional[SummaryC
         config = SummaryConfig()
 
     target_fi_metric = column_view.get_metric("frequent_items")
-    if target_fi_metric:
-        target_frequent_items = target_fi_metric.to_summary_dict(config)["frequent_strings"]
-        target_cnt_metric = column_view.get_metric("counts")
-        target_count = target_cnt_metric.n.value
-        target_card_metric = column_view.get_metric("cardinality")
-        target_unique_count = int(target_card_metric.hll.value.get_estimate())
-
-        target_frequent_stats: FrequentStats = {
-            "frequent_items": get_frequent_items_estimate(target_frequent_items),
-            "total_count": target_count,
-            "unique_count": target_unique_count,
-        }
-    else:
+    if target_fi_metric is None:
         return None
+
+    target_frequent_items = target_fi_metric.to_summary_dict(config)["frequent_strings"]
+    target_cnt_metric = column_view.get_metric("counts")
+    target_count = target_cnt_metric.n.value
+    target_card_metric = column_view.get_metric("cardinality")
+    target_unique_count = int(target_card_metric.hll.value.get_estimate())
+
+    target_frequent_stats: FrequentStats = {
+        "frequent_items": get_frequent_items_estimate(target_frequent_items),
+        "total_count": target_count,
+        "unique_count": target_unique_count,
+    }
 
     return target_frequent_stats
 
