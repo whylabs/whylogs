@@ -1,9 +1,12 @@
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock, Mock
 
 import pytest
 
 from whylogs.core.metrics.metrics import FrequentItem
-from whylogs.viz.utils.frequent_items_calculations import get_frequent_items_estimate, get_frequent_stats
+from whylogs.viz.utils.frequent_items_calculations import (
+    get_frequent_items_estimate,
+    get_frequent_stats,
+)
 
 
 @pytest.fixture

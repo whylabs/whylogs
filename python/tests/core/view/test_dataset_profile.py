@@ -4,7 +4,6 @@ import pytest
 
 from whylogs.core import DatasetProfile, DatasetSchema
 
-
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
 
@@ -63,7 +62,7 @@ def test_basic_iter_row(profile) -> None:
 
 @pytest.mark.parametrize("data_type", FLOAT_TYPES)
 def test_different_float_types(profile, data_type) -> None:
-    d = {"col1": [1.2, 2.2, 3.]}
+    d = {"col1": [1.2, 2.2, 3.0]}
     df = pd.DataFrame(data=d, dtype=data_type)
 
     for row in df.iterrows():
@@ -79,4 +78,3 @@ def test_different_int_types(profile, data_type) -> None:
     for row in df.iterrows():
         profile.track(row=row[1].to_dict())  # type: ignore
     assert profile._columns["col1"]._schema.dtype == int
-

@@ -1,9 +1,9 @@
 import os.path
 from typing import Any
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 
 import whylogs as why
 from whylogs.core import ColumnProfileView

@@ -10,7 +10,6 @@ from whylogs.viz.utils.profile_viz_calculations import (
 )
 
 
-
 @pytest.fixture
 def mock_column_profile_view():
     mock_column_profile_view = Mock(wraps=ColumnProfileView)
@@ -106,4 +105,3 @@ def test_add_feature_statistics_returns_dict(profile_view):
             "quantile_statistics",
             "descriptive_statistics",
         ]
-

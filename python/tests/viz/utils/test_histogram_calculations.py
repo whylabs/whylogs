@@ -6,8 +6,10 @@ import pytest
 
 import whylogs as why
 from whylogs.viz.utils import _calculate_bins
-from whylogs.viz.utils.histogram_calculations import histogram_from_view, _histogram_from_sketch
-
+from whylogs.viz.utils.histogram_calculations import (
+    _histogram_from_sketch,
+    histogram_from_view,
+)
 
 MAX_HIST_BUCKETS = 30
 HIST_AVG_NUMBER_PER_BUCKET = 4.0
@@ -30,16 +32,7 @@ def test_histogram_from_view(profile_view):
     column_view = profile_view.get_column("weight")
     result = histogram_from_view(column_view=column_view, feature_name="weight")
     for key in result.keys():
-        assert key in [
-            "start",
-            "end",
-            "width",
-            "counts",
-            "max",
-            "min",
-            "bins",
-            "n"
-        ]
+        assert key in ["start", "end", "width", "counts", "max", "min", "bins", "n"]
 
 
 def test_private_histogram_from_view(profile_view):
@@ -94,7 +87,7 @@ def test_histogram_with_smaller_n():
 
 @pytest.mark.parametrize("data_type", FLOAT_TYPES)
 def test_histogram_with_different_data_types(data_type):
-    data = {"col1": [1.5, 4., 55.3, 66.13, 36.333555, 63.35, 0.73, .77, 7.3, 0.0001]}
+    data = {"col1": [1.5, 4.0, 55.3, 66.13, 36.333555, 63.35, 0.73, 0.77, 7.3, 0.0001]}
     profile = why.log(pandas=pd.DataFrame(data, dtype=data_type))
     profile_view = profile.view()
     kll = profile_view.get_column("col1").get_metric("distribution").kll.value
