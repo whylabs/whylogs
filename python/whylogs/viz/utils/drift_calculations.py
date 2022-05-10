@@ -15,6 +15,8 @@ QUANTILES = [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]
 
 
 class ColumnDriftValue(TypedDict):
+    """p-value for applied statistical test, along with the name of the applied test."""
+
     p_value: float
     test: str
 
@@ -22,8 +24,8 @@ class ColumnDriftValue(TypedDict):
 def _ks_test_compute_p_value(
     target_distribution: kll_doubles_sketch, reference_distribution: kll_doubles_sketch
 ) -> Optional[ColumnDriftValue]:
-    """
-    Compute the Kolmogorov-Smirnov test p-value of two continuous distributions.
+    """Compute the Kolmogorov-Smirnov test p-value of two continuous distributions.
+
     Uses the quantile values and the corresponding CDFs to calculate the approximate KS statistic.
     Only applicable to continuous distributions.
     The null hypothesis expects the samples to come from the same distribution.
@@ -43,7 +45,6 @@ def _ks_test_compute_p_value(
         kll_floats_sketch summaries
 
     """
-
     D_max = 0
     target_quantile_values = target_distribution.get_quantiles(QUANTILES)
     ref_quantile_values = reference_distribution.get_quantiles(QUANTILES)
@@ -93,7 +94,8 @@ def _compute_chi_squared_test_p_value(
     target_distribution: FrequentStats, reference_distribution: FrequentStats
 ) -> Optional[ColumnDriftValue]:
     """
-    Calculates the Chi-Squared test p-value for two discrete distributions.
+    Calculate the Chi-Squared test p-value for two discrete distributions.
+
     Uses the top frequent items summary, unique count estimate and total count estimate for each feature,
     to calculate the estimated Chi-Squared statistic.
     Applicable only to discrete distributions.
@@ -152,6 +154,22 @@ def _compute_chi_squared_test_p_value(
 def calculate_drift_values(
     target_view: DatasetProfileView, ref_view: DatasetProfileView
 ) -> Dict[str, Optional[ColumnDriftValue]]:
+    """Calculate drift values between both profiles. Applicable for numerical and categorical features.
+
+    Calculates drift only for features found in both profiles, and ignore those not found in either profile.
+
+    Parameters
+    ----------
+    target_view : DatasetProfileView
+        Target Profile View
+    ref_view : DatasetProfileView
+        Reference Profile View
+
+    Returns
+    -------
+    Dict[str, Optional[ColumnDriftValue]]
+        A dictionary of the p-values, along with the type of test applied, for the given features.
+    """
     drift_values: Dict[str, Optional[ColumnDriftValue]] = {}
     target_col_views = target_view.get_columns()
     ref_col_views = ref_view.get_columns()
@@ -163,16 +181,16 @@ def calculate_drift_values(
             if not target_col_view or not ref_col_view:
                 continue
 
-            if target_col_view.get_metric("dist") and ref_col_view.get_metric("dist"):
-                target_dist_metric = target_col_view.get_metric("dist")
+            if target_col_view.get_metric("distribution") and ref_col_view.get_metric("distribution"):
+                target_dist_metric = target_col_view.get_metric("distribution")
                 target_kll_sketch = target_dist_metric.kll.value
 
-                ref_dist_metric = ref_col_view.get_metric("dist")
+                ref_dist_metric = ref_col_view.get_metric("distribution")
                 ref_kll_sketch = ref_dist_metric.kll.value
 
                 ks_p_value = _ks_test_compute_p_value(target_kll_sketch, ref_kll_sketch)
                 drift_values[target_col_name] = ks_p_value
-            elif target_col_view.get_metric("fi") and ref_col_view.get_metric("fi"):
+            elif target_col_view.get_metric("frequent_items") and ref_col_view.get_metric("frequent_items"):
 
                 target_frequent_stats: FrequentStats = get_frequent_stats(target_col_view, config=None)
                 ref_frequent_stats: FrequentStats = get_frequent_stats(ref_col_view, config=None)

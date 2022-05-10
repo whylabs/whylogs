@@ -67,21 +67,60 @@ class NotebookProfileVisualizer:
 
     Examples
     --------
+
+    Create target and reference dataframes:
+
     .. code-block:: python
 
-        data = {
-            "animal": ["cat", "hawk", "snake", "cat"],
-            "legs": [4, 2, 0, 4],
-            "weight": [4.3, 1.8, None, 4.1],
+        import pandas as pd
+
+        data_target = {
+            "animal": ["cat", "hawk", "snake", "cat", "snake", "cat", "cat", "snake", "hawk","cat"],
+            "legs": [4, 2, 0, 4, 0, 4, 4, 0, 2, 4],
+            "weight": [4.3, None, 2.3, 7.8, 3.7, 2.5, 5.5, 3.3, 0.6, 13.3],
         }
 
-        df = pd.DataFrame(data)
+        data_reference = {
+            "animal": ["hawk", "hawk", "snake", "hawk", "snake", "snake", "cat", "snake", "hawk","snake"],
+            "legs": [2, 2, 0, 2, 0, 0, 4, 0, 2, 0],
+            "weight": [2.7, None, 1.2, 10.5, 2.2, 4.6, 3.8, 4.7, 0.6, 11.2],
+        }
 
-        results = ylog.log(pandas=df)
-        profile = results.get_profile()
-        profile_view = profile.view()
+        target_df = pd.DataFrame(data_target)
+        reference_df = pd.DataFrame(data_reference)
+
+    Log data and create profile views:
+
+    .. code-block:: python
+
+        import whylogs as why
+
+        results = why.log(pandas=target_df)
+        prof_view = results.view()
+
+        results_ref = why.log(pandas=reference_df)
+        prof_view_ref = results_ref.view()
+
+    Log data and create profile views:
+
+    .. code-block:: python
+
+        import whylogs as why
+
+        results = why.log(pandas=target_df)
+        prof_view = results.view()
+
+        results_ref = why.log(pandas=reference_df)
+        prof_view_ref = results_ref.view()
+
+    Instantiate and set profile views:
+
+    .. code-block:: python
+
+        from whylogs.viz import NotebookProfileVisualizer
+
         visualization = NotebookProfileVisualizer()
-        visualization.set_profiles(target_profile_view=profile_view, reference_profile_view=profile_view)
+        visualization.set_profiles(target_profile_view=prof_view,reference_profile_view=prof_view_ref)
     """
 
     _ref_view: Optional[DatasetProfileView]
@@ -199,6 +238,33 @@ class NotebookProfileVisualizer:
         self._ref_view = reference_profile_view
 
     def summary_drift_report(self, cell_height: str = None) -> HTML:
+        """Generate drift report between target and reference profiles.
+
+        KS test is applied for continuous variables and ChiSquared test for categorical variables.
+        If feature is missing from any profile, it will not be included in the report.
+        Both target_profile_view and reference_profile_view must be set previously with `set_profiles`.
+
+        Parameters
+        ----------
+        cell_height: str, optional
+            Preferred cell height, in pixels, for in-notebook visualization. Example:
+            `"1000px"`. (Default is None)
+
+        Returns
+        -------
+        HTML
+            HTML Page of the given plot.
+
+        Examples
+        --------
+
+        Generate Summary Drift Report (after setting profiles with `set_profiles`):
+
+        .. code-block:: python
+
+            visualization.summary_drift_report()
+
+        """
         page_spec = PageSpecEnum.SUMMARY_REPORT.value
         template = _get_compiled_template(page_spec.html)
 
@@ -211,8 +277,10 @@ class NotebookProfileVisualizer:
             raise e
 
     def double_histogram(self, feature_name: str, cell_height: str = None) -> HTML:
-        """Plots overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
+        """Plot overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
+
         Applicable to numerical features only.
+        If reference profile was not set, `double_histogram` will plot single histogram for target profile.
 
         Parameters
         ----------
@@ -220,22 +288,85 @@ class NotebookProfileVisualizer:
             Name of the feature to generate histograms.
         cell_height: str, optional
             Preferred cell height, in pixels, for in-notebook visualization. Example:
-            `cell_height="1000px"`. (Default is None)
+            `"1000px"`. (Default is None)
 
+        Examples
+        --------
+
+        Generate double histogram plot for feature named `weight` (after setting profiles with `set_profiles`)
+
+        .. code-block:: python
+
+            visualization.double_histogram(feature_name="weight")
         """
         return self._display_histogram_chart(feature_name, cell_height)
 
     def distribution_chart(self, feature_name: str, cell_height: str = None) -> HTML:
+        """Plot overlayed distribution charts for specified feature between two profiles.
+
+        Applicable to categorical features.
+        If reference profile was not set, `distribution_chart` will plot single chart for target profile.
+
+
+        Parameters
+        ----------
+        feature_name : str
+            Name of the feature to plot chart.
+        cell_height : str, optional
+            Preferred cell height, in pixels, for in-notebook visualization. Example:
+            `cell_height="1000px"`. (Default is None)
+
+        Returns
+        -------
+        HTML
+            HTML Page of the given plot.
+
+        Examples
+        --------
+
+        Generate distribution chart for `animal` feature (after setting profiles with `set_profiles`):
+
+        .. code-block:: python
+
+            visualization.distribution_chart(feature_name="animal")
+        """
         difference = False
         return self._display_distribution_chart(feature_name, difference, cell_height)
 
     def difference_distribution_chart(self, feature_name: str, cell_height: str = None) -> HTML:
+        """Plot overlayed distribution charts of differences between the categories of both profiles.
+
+        Applicable to categorical features.
+
+        Parameters
+        ----------
+        feature_name : str
+            Name of the feature to plot chart.
+        cell_height : str, optional
+            Preferred cell height, in pixels, for in-notebook visualization. Example:
+            `cell_height="1000px"`. (Default is None)
+
+        Returns
+        -------
+        HTML
+            HTML Page of the given plot.
+
+        Examples
+        --------
+
+        Generate Difference Distribution Chart for feature named "animal":
+
+        .. code-block:: python
+
+            visualization.difference_distribution_chart(feature_name="animal")
+
+        """
         difference = True
         return self._display_distribution_chart(feature_name, difference, cell_height)
 
     def feature_statistics(self, feature_name: str, profile: str = "reference", cell_height: str = None) -> HTML:
         """
-        Generates a report for the main statistics of specified feature, for a given profile (target or reference).
+        Generate a report for the main statistics of specified feature, for a given profile (target or reference).
 
         Statistics include overall metrics such as distinct and missing values, as well as quantile and descriptive
         statistics.
@@ -250,6 +381,15 @@ class NotebookProfileVisualizer:
         cell_height: str, optional
             Preferred cell height, in pixels, for in-notebook visualization. Example:
             `cell_height="1000px"`. (Default is None)
+
+        Examples
+        --------
+
+        Generate Difference Distribution Chart for feature named "weight", for target profile:
+
+        .. code-block:: python
+
+            visualization.feature_statistics(feature_name="weight", profile="target")
 
         """
         page_spec = PageSpecEnum.FEATURE_STATISTICS.value
@@ -269,7 +409,7 @@ class NotebookProfileVisualizer:
         return self._display(rendered_template, page_spec, cell_height)
 
     def write(self, rendered_html: HTML, preferred_path: str = None, html_file_name: str = None) -> None:
-        """Creates HTML file for the given report.
+        """Create HTML file for the given report.
 
         Parameters
         ----------
@@ -282,14 +422,15 @@ class NotebookProfileVisualizer:
 
         Examples
         --------
-        >>> import os
-        >>> from whylogs.viz import NotebookProfileVisualizer
-        >>>
-        >>> visualization = NotebookProfileVisualizer()
-        >>> visualization.write(
-        ...    rendered_html=visualization.feature_statistics(feature_name="weight", profile="target"),
-        ...    html_file_name=os.getcwd() + "/test",
-        ... )
+        Dowloads an HTML page named `test.html` into the current working directory, with feature statistics for `weight` feature for the target profile.
+
+        .. code-block:: python
+
+            import os
+            visualization.write(
+                rendered_html=visualization.feature_statistics(feature_name="weight", profile="target"),
+                html_file_name=os.getcwd() + "/test",
+            )
 
 
         """

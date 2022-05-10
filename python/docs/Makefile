@@ -10,20 +10,24 @@ BUILDDIR      = _build
 AUTOAPI       = _autoapi/
 
 # Put it first so that "make" without argument is like "make help".
+pre-build:
+	rm -f ./examples
+	ln -s ../examples ./
+
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile livehtml
+.PHONY: help pre-build Makefile livehtml
 
 build-docs:
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-html: build-docs
+html: pre-build build-docs
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-livehtml:
-	sphinx-autobuild --re-ignore ".*/_autoapi/.*" --ignore "$(BUILDDIR)" "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
+livehtml: pre-build
+	sphinx-autobuild --re-ignore ".*/api/.*" --ignore "$(BUILDDIR)" "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)

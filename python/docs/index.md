@@ -20,6 +20,7 @@
     features/profiling
     features/config
     features/writing
+    examples
     integrations/index
 ```
 
@@ -64,7 +65,7 @@
     :caption: API References
     :hidden:
 
-    _autoapi/index
+    api/index
 ```
 
 ```{eval-rst}

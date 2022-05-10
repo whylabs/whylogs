@@ -117,6 +117,7 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: nikeee/setup-pandoc@v1
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
         with:

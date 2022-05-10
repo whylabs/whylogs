@@ -7,6 +7,9 @@ from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
 class DescriptiveStatistics(TypedDict):
+    """Collection of descriptive statistics, such as standard deviation,
+    coefficient of variation, sum, variance and mean."""
+
     stddev: Optional[float]
     coefficient_of_variation: Optional[float]
     sum: Optional[float]
