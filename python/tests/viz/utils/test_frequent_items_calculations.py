@@ -4,6 +4,7 @@ import pytest
 
 from whylogs.core.metrics.metrics import FrequentItem
 from whylogs.viz.utils.frequent_items_calculations import (
+    frequent_items_from_view,
     get_frequent_items_estimate,
     get_frequent_stats,
 )
@@ -44,3 +45,19 @@ def test_get_frequent_stats_returns_expected_keys(profile_view):
 
     for key in actual.keys():
         assert key in ["frequent_items", "total_count", "unique_count"]
+
+
+def test_frequent_items_from_view_returns_error(mock_column_view):
+    with pytest.raises(ValueError, match="Frequent Items Metrics not found for feature any_feature"):
+        frequent_items_from_view(column_view=mock_column_view, feature_name="any_feature", config=Mock())
+    mock_column_view.get_metric.assert_called_once_with("frequent_items")
+
+
+def test_frequent_items_from_view(profile_view):
+    column_view = profile_view.get_column("animal")
+    actual_result = frequent_items_from_view(column_view=column_view, feature_name="animal", config=None)
+
+    assert isinstance(actual_result, list)
+    for dict_ in actual_result:
+        for key in dict_.keys():
+            assert key in ["value", "estimate"]
