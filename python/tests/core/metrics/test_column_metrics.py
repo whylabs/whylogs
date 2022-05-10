@@ -3,7 +3,7 @@ import pandas as pd
 import pytest
 
 from whylogs.core import ColumnSchema
-from whylogs.core.metrics import ColumnCountsMetric
+from whylogs.core.metrics import ColumnCountsMetric, TypeCountersMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
@@ -24,7 +24,8 @@ def test_null_count(counts) -> None:
     assert counts.n.value == 6
 
 
-def test_type_counters_success_count(counts) -> None:
+def test_type_counters_success_count() -> None:
+    counts = TypeCountersMetric.zero(ColumnSchema(dtype=int))
     test_bool_input = [True, False]
     int_range = 3
     test_int_input = [i for i in range(int_range)]
