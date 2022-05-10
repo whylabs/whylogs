@@ -29,7 +29,6 @@ class Logger(ABC):
 
     def check_writer(self, _: Writer) -> None:
         """Checks if a writer is configured correctly for this class"""
-        pass
 
     def append_writer(self, name: Optional[str] = None, *, writer: Optional[Writer] = None, **kwargs: Any) -> None:
         if name is None and writer is None:

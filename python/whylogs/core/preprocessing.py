@@ -217,6 +217,7 @@ class PreprocessedColumn:
             list_format = list(data)
             return PreprocessedColumn.apply(list_format)
 
-        logger.error(f"Failed to extract columnar data from type: {type(data)}")
-
-        return result
+        # scalars - when processing dictionary entries
+        logger.info(f"Warning single value passed as column data, wrapping type: {type(data)} in list")
+        list_format = [data]
+        return PreprocessedColumn.apply(list_format)

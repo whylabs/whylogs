@@ -219,7 +219,7 @@ class DistributionMetric(Metric):
                         first = welford_online_variance_m2(existing=first, new_value=first[0])
 
         for lst in [view.list.ints, view.list.floats]:
-            if lst is not None:
+            if lst is not None and len(lst) > 0:
                 self.kll.value.update_list(lst)
                 n_b = len(lst)
                 if n_b > 1:
