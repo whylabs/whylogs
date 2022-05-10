@@ -1,6 +1,12 @@
 import os
 import sys
+import shutil
 from typing import Any, Dict
+
+if shutil.which("pandoc") is None:
+    print("PLEASE INSTALL PANDOC <https://pandoc.org/>")
+    print("Pandoc is required to build our documentation.")
+    sys.exit(1)
 
 version = "1.0.0rc0"
 
@@ -9,9 +15,14 @@ author = "whylogs developers"
 copyright = "2022, whylogs developers"
 
 extensions = [
-    "autoapi.extension",
-    "sphinx.ext.autodoc.typehints",
     "sphinx.ext.napoleon",
+    # Autoapi
+    "autoapi.extension",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autodoc.typehints",
+
+    "nbsphinx",
+
     "sphinx.ext.githubpages",
     'sphinx.ext.autosectionlabel',
     "sphinxext.opengraph",
@@ -24,13 +35,12 @@ extensions = [
 
 autosectionlabel_prefix_document = True
 
-add_module_names = True
+autoapi_python_use_implicit_namespaces = True
 autosummary_generate = True
 autoapi_keep_files = True
-autoapi_root = "_autoapi"
+autoapi_root = "api"
 autodoc_typehints = 'both'
 autoapi_dirs = [os.path.abspath('../whylogs')]
-autoapi_python_class_content = "both"
 autoapi_options = [
     "members",
     "inherited-members",
@@ -40,6 +50,8 @@ autoapi_options = [
     "imported-members",
 ]
 autoapi_ignore = ["*utils*", "*stubs*"]
+always_document_param_types = True
+typehints_defaults = 'braces'
 
 pygments_style = "friendly"
 pygments_dark_style = "material"
@@ -134,3 +146,6 @@ html_theme_options: Dict[str, Any] = {
         },
     ],
 }
+
+# Notebooks
+nbsphinx_execute = "never"
