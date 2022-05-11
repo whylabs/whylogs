@@ -5,6 +5,8 @@ import pytest
 
 import whylogs as why
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.core.constraints.summary_constraints import maxLessThanEqualConstraint
+from whylogs.core.constraints import DatasetConstraints
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 _DATA_DIR = os.path.join(_MY_DIR, "testdata")
@@ -55,6 +57,14 @@ def profile_view() -> DatasetProfileView:
     profile_view = results.view()
 
     return profile_view
+
+
+@pytest.fixture(scope="session")
+def max_leq_constraints():
+    max_less_than_equal_value = maxLessThanEqualConstraint(value=4)
+    summary_constraints = {"legs": [max_less_than_equal_value]}
+    dc = DatasetConstraints(summary_constraints=summary_constraints)
+    return dc
 
 
 @pytest.fixture(scope="session")
