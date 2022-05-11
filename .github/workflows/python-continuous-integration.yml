@@ -36,8 +36,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: ${{ runner.os }}-poetry-2
+        key: ${{ runner.os }}-poetry2-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: ${{ runner.os }}-poetry2-
     - name: Install dependencies
       run: make install
     - name: Run build, style, and lint checks
