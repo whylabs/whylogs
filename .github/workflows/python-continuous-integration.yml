@@ -3,8 +3,12 @@ name: whylogs Python CI
 on:
   push:
     branches: [ mainline, release]
+    paths-ignore:
+      - '**/README.md'
   pull_request:
     branches: [ mainline, release]
+    paths-ignore:
+      - '**/README.md'
 
 jobs:
   test:
@@ -36,8 +40,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: ${{ runner.os }}-poetry-
+        key: ${{ runner.os }}-poetry2-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: ${{ runner.os }}-poetry2-
     - name: Install dependencies
       run: make install
     - name: Run build, style, and lint checks
