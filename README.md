@@ -34,7 +34,7 @@
 
 whylogs is an open source library for logging any kind of data. With whylogs, users are able to generate summaries of their datasets (called *whylogs profiles*) which they can use to:
 1. Track changes in their dataset
-2. Create *data constraints* to know whether their data looks they way it should
+2. Create *data constraints* to know whether their data looks the way it should
 3. Quickly visualize key summary statistics about their datasets
 
 These three functionalities enable a variety of use cases for data scientists, machine learning engineers, and data engineers:
