@@ -19,7 +19,7 @@ build.proto := $(patsubst $(src.proto.dir)/%.proto,$(build.proto.dir)/%_pb2.py,$
 
 default: dist
 
-release: format lint test dist ## Compile distribution files and run all tests and checks.
+release: format lint test dist ## Compile distribution files and run all tests (excluding notebooks) and checks.
 
 pre-commit: format-fix lint-fix release
 
