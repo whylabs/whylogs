@@ -46,7 +46,7 @@ These three functionalities enable a variety of use cases for data scientists, m
 
 whylogs can be run in Python or [Apache Spark](https://docs.whylabs.ai/docs/spark-integration) (both PySpark and Scala) environments on a variety of [data types](#data-types). We [integrate](#integrations) with lots of other tools including Pandas, [AWS Sagemaker](https://aws.amazon.com/blogs/startups/preventing-amazon-sagemaker-model-degradation-with-whylabs/), [MLflow](https://docs.whylabs.ai/docs/mlflow-integration), [Flask](https://whylabs.ai/blog/posts/deploy-and-monitor-your-ml-application-with-flask-and-whylabs), [Ray](https://docs.whylabs.ai/docs/ray-integration), [RAPIDS](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs), [Apache Kafka](https://docs.whylabs.ai/docs/kafka-integration), and more.
 
-If you have any questions, comments, or just want to hang out with us, please join [our Slack Community](http://join.slack.whylabs.ai/). In addition to joining the Slack Community, you can also help this project by giving us a ⭐ in the upper right corner of this page.
+If you have any questions, comments, or just want to hang out with us, please join [our Slack Community](https://bit.ly/rsqrd-slack). In addition to joining the Slack Community, you can also help this project by giving us a ⭐ in the upper right corner of this page.
 
 
 ## Python Quickstart<a name="python-quickstart" />
