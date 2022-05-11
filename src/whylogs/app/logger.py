@@ -99,7 +99,7 @@ class Logger:
         else:
             self.dataset_timestamp = dataset_timestamp
             if with_rotation_time is not None:
-                self._py_logger.warning("dataset_timestamp specified with log rotation! dataset_timestamp will be overwritten on rotation")
+                self._py_logger.warning("dataset_timestamp specified with log rotation! dataset_timestamp ignored")
         self.dataset_name = dataset_name
         self.writers = writers
         self.metadata_writer = metadata_writer
