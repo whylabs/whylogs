@@ -364,6 +364,12 @@ class NotebookProfileVisualizer:
         difference = True
         return self._display_distribution_chart(feature_name, difference, cell_height)
 
+    def constraints_report(self, constraints, cell_height: str = None) -> HTML:
+        page_spec = PageSpecEnum.CONSTRAINTS_REPORT.value
+        template = _get_compiled_template(page_spec.html)
+        rendered_template = template({"constraints_report": json.dumps(constraints.report())})
+        return self._display(rendered_template, page_spec, cell_height)
+
     def feature_statistics(self, feature_name: str, profile: str = "reference", cell_height: str = None) -> HTML:
         """
         Generate a report for the main statistics of specified feature, for a given profile (target or reference).

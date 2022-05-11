@@ -201,3 +201,7 @@ class DatasetConstraints:
                 logger.debug(f"unkown feature '{feature_name}' in summary constraints")
 
         return [(k, s.report()) for k, s in self.summary_constraint_map.items()]
+
+    def report(self):
+        l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
+        return l2
