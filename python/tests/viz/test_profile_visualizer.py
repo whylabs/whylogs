@@ -116,15 +116,14 @@ def test_viz_summary_drift_if_view_is_none(
 def test_viz_constraints_report(
     profile_view: DatasetProfileView,
     visualization: NotebookProfileVisualizer,
-    max_leq_constraints: DatasetConstraints,
+    max_less_than_equal_constraints: DatasetConstraints,
     tmp_path: str,
 ) -> None:
 
-    max_leq_constraints(profile_view=profile_view)
-    visualization.constraints_report(max_leq_constraints)
+    max_less_than_equal_constraints(profile_view=profile_view)
     test_output = os.path.join(tmp_path, "b18")
     visualization.write(
-        rendered_html=visualization.constraints_report(max_leq_constraints),
+        rendered_html=visualization.constraints_report(max_less_than_equal_constraints),
         html_file_name=test_output,
     )
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)

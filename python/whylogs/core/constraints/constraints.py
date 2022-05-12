@@ -147,10 +147,12 @@ class DatasetConstraints:
                 summary_constraints[k] = SummaryConstraints(v)
         self.summary_constraint_map = summary_constraints
 
-    def __call__(self, profile_view: DatasetProfileView) -> Any:
+    def __call__(self, profile_view: DatasetProfileView) -> List[Tuple[Any, ...]]:
         return self._constraints_report(profile_view)
 
     def _constraints_report(self, profile_view: DatasetProfileView) -> List[Tuple[Any, ...]]:
+        if not isinstance(profile_view, DatasetProfileView):
+            raise ValueError("Constraints must receive a DatasetProfileView object")
         columns = profile_view.get_columns()
         for k, v in self.summary_constraint_map.items():
             if isinstance(v, list):

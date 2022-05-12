@@ -60,7 +60,7 @@ def profile_view() -> DatasetProfileView:
 
 
 @pytest.fixture(scope="session")
-def max_leq_constraints():
+def max_less_than_equal_constraints():
     max_less_than_equal_value = maxLessThanEqualConstraint(value=4)
     summary_constraints = {"legs": [max_less_than_equal_value]}
     dc = DatasetConstraints(summary_constraints=summary_constraints)
