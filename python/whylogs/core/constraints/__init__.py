@@ -1,4 +1,8 @@
-from whylogs.core.constraints.constraints import SummaryConstraint, SummaryConstraints, DatasetConstraints
+from whylogs.core.constraints.constraints import (
+    DatasetConstraints,
+    SummaryConstraint,
+    SummaryConstraints,
+)
 
 __ALL__ = [
     # column

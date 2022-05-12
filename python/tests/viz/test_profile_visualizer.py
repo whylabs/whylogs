@@ -4,8 +4,8 @@ import webbrowser
 import pytest
 
 from whylogs.core import DatasetProfileView
-from whylogs.viz import NotebookProfileVisualizer
 from whylogs.core.constraints import DatasetConstraints
+from whylogs.viz import NotebookProfileVisualizer
 
 
 @pytest.fixture()

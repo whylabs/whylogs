@@ -1,8 +1,10 @@
-from whylogs.core.proto.v0 import Op, SummaryConstraintMsgs
-from typing import Union, List, Set, Any, Optional, Mapping, Tuple
-from whylogs.core.metrics import DistributionMetric
-from whylogs.core.view import ColumnProfileView
 from logging import getLogger
+from typing import Any, List, Mapping, Optional, Set, Tuple, Union
+
+from whylogs.core.metrics import DistributionMetric
+from whylogs.core.proto.v0 import Op, SummaryConstraintMsgs
+from whylogs.core.utils import get_distribution_metrics
+from whylogs.core.view import ColumnProfileView
 
 logger = getLogger(__name__)
 
@@ -18,19 +20,6 @@ _summary_funcs1 = {
     Op.IN: lambda f, v: lambda s: getattr(s, f) in v,
     Op.CONTAIN: lambda f, v: lambda s: v in getattr(s, f),
 }
-
-
-def _get_distribution_metrics(
-    column_view: ColumnProfileView,
-) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
-    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("distribution")
-    if distribution_metric is None:
-        return None, None, None
-
-    min_val = distribution_metric.kll.value.get_min_value()
-    max_val = distribution_metric.kll.value.get_max_value()
-    range_val = max_val - min_val
-    return min_val, max_val, range_val
 
 
 def _create_column_profile_summary_object(**kwargs):
@@ -63,7 +52,6 @@ class SummaryConstraint:
         op: Op,
         value=None,
         second_field: str = None,
-        reference_set: Union[List[Any], Set[Any]] = None,
         name: str = None,
         verbose=False,
     ) -> None:
@@ -102,7 +90,7 @@ class SummaryConstraints:
 
         Parameters
         ----------
-        constraints : Mapping[str, SummaryConstrain]
+        constraints : Mapping[str, SummaryConstraint]
             A dictionary of summary constraints with their names as keys.
             Can also accept a list of summary constraints.
 
@@ -194,7 +182,7 @@ class DatasetConstraints:
                 self.summary_constraint_map[k] = SummaryConstraints(v)
         for feature_name, constraints in self.summary_constraint_map.items():
             if feature_name in columns:
-                min_val, max_val, range_val = _get_distribution_metrics(columns[feature_name])
+                min_val, max_val, range_val = get_distribution_metrics(columns[feature_name])
                 update_obj = _create_column_profile_summary_object(max=max_val, min=min_val, range=range_val)
                 constraints.update(update_obj)
             else:

@@ -4,9 +4,9 @@ import pandas as pd
 import pytest
 
 import whylogs as why
-from whylogs.core.view.dataset_profile_view import DatasetProfileView
-from whylogs.core.constraints.summary_constraints import maxLessThanEqualConstraint
 from whylogs.core.constraints import DatasetConstraints
+from whylogs.core.constraints.summary_constraints import maxLessThanEqualConstraint
+from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 _DATA_DIR = os.path.join(_MY_DIR, "testdata")

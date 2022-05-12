@@ -4,10 +4,10 @@ import pytest
 
 from whylogs.core import ColumnProfileView
 from whylogs.core.metrics.metrics import FrequentItem
+from whylogs.core.utils import get_distribution_metrics
 from whylogs.viz.utils.frequent_items_calculations import get_frequent_items_estimate
 from whylogs.viz.utils.profile_viz_calculations import (
     _get_cardinality_metrics_from_column_view,
-    _get_distribution_metrics,
     add_feature_statistics,
 )
 
@@ -38,7 +38,7 @@ def test_get_frequent_items_estimate(mock_freq_items_list):
 def test_get_distribution_metrics(profile_view):
     column_view = profile_view.get_column(col_name="weight")
 
-    min_val, max_val, range_val = _get_distribution_metrics(column_view=column_view)
+    min_val, max_val, range_val = get_distribution_metrics(column_view=column_view)
 
     assert isinstance(min_val, float)
     assert isinstance(max_val, float)
@@ -51,7 +51,7 @@ def test_get_distribution_metrics(profile_view):
 
 
 def test_get_distribution_metric_returns_none_if_metrics_are_none(mock_column_profile_view):
-    min_val, max_val, range_val = _get_distribution_metrics(column_view=mock_column_profile_view)
+    min_val, max_val, range_val = get_distribution_metrics(column_view=mock_column_profile_view)
     mock_column_profile_view.get_metric.assert_called_with("distribution")
     assert not min_val
     assert not max_val
