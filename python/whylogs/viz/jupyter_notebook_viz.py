@@ -10,6 +10,7 @@ from IPython.core.display import HTML  # type: ignore
 
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
+from whylogs.core.constraints import DatasetConstraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.viz.utils.profile_viz_calculations import (
     add_feature_statistics,
@@ -363,6 +364,12 @@ class NotebookProfileVisualizer:
         """
         difference = True
         return self._display_distribution_chart(feature_name, difference, cell_height)
+
+    def constraints_report(self, constraints: DatasetConstraints, cell_height: str = None) -> HTML:
+        page_spec = PageSpecEnum.CONSTRAINTS_REPORT.value
+        template = _get_compiled_template(page_spec.html)
+        rendered_template = template({"constraints_report": json.dumps(constraints.report())})
+        return self._display(rendered_template, page_spec, cell_height)
 
     def feature_statistics(self, feature_name: str, profile: str = "reference", cell_height: str = None) -> HTML:
         """

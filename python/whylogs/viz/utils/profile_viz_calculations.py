@@ -1,11 +1,12 @@
 import json
 from logging import getLogger
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import TypedDict
 
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.metrics import CardinalityMetric, DistributionMetric
+from whylogs.core.metrics import CardinalityMetric
+from whylogs.core.utils import get_distribution_metrics
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.viz.utils import (
@@ -39,19 +40,6 @@ class FeatureStats(TypedDict):
     descriptive_statistics: Optional[DescriptiveStatistics]
 
 
-def _get_distribution_metrics(
-    column_view: ColumnProfileView,
-) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
-    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("distribution")
-    if distribution_metric is None:
-        return None, None, None
-
-    min_val = distribution_metric.kll.value.get_min_value()
-    max_val = distribution_metric.kll.value.get_max_value()
-    range_val = max_val - min_val
-    return min_val, max_val, range_val
-
-
 def _get_cardinality_metrics_from_column_view(
     column_view: ColumnProfileView, count_n: Optional[float] = None, count_missing: Optional[float] = None
 ) -> Union[None, float]:
@@ -77,7 +65,7 @@ def add_feature_statistics(
     distinct = _get_cardinality_metrics_from_column_view(
         column_view=column_view, count_n=count_n, count_missing=count_missing
     )
-    min_val, max_val, range_val = _get_distribution_metrics(column_view=column_view)
+    min_val, max_val, range_val = get_distribution_metrics(column_view=column_view)
 
     quantile_stats = _calculate_quantile_statistics(column_view)
     desc_stats = _calculate_descriptive_statistics(column_view)
@@ -117,7 +105,7 @@ class DatasetSummary(TypedDict):
 
 
 def generate_summaries(
-    target_view: DatasetProfileView, ref_view: DatasetProfileView, config: Optional[SummaryConfig]
+    target_view: DatasetProfileView, ref_view: Optional[DatasetProfileView], config: Optional[SummaryConfig]
 ) -> Optional[Dict[str, Any]]:
     if config is None:
         config = SummaryConfig()

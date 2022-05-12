@@ -4,6 +4,7 @@ import webbrowser
 import pytest
 
 from whylogs.core import DatasetProfileView
+from whylogs.core.constraints import DatasetConstraints
 from whylogs.viz import NotebookProfileVisualizer
 
 
@@ -110,3 +111,19 @@ def test_viz_summary_drift_if_view_is_none(
     visualization.set_profiles(target_profile_view=profile_view)
     with pytest.raises(ValueError):
         visualization.summary_drift_report()
+
+
+def test_viz_constraints_report(
+    profile_view: DatasetProfileView,
+    visualization: NotebookProfileVisualizer,
+    max_less_than_equal_constraints: DatasetConstraints,
+    tmp_path: str,
+) -> None:
+
+    max_less_than_equal_constraints(profile_view=profile_view)
+    test_output = os.path.join(tmp_path, "b18")
+    visualization.write(
+        rendered_html=visualization.constraints_report(max_less_than_equal_constraints),
+        html_file_name=test_output,
+    )
+    webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)

@@ -32,7 +32,7 @@ def _get_count_metrics_from_column_view(
 def _get_dist_metrics_from_column_view(
     column_view: ColumnProfileView,
 ) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
-    distribution_metric: DistributionMetric = column_view.get_metric("distribution")
+    distribution_metric: Optional[DistributionMetric] = column_view.get_metric("distribution")
     if distribution_metric is None:
         return None, None, None
     stddev = distribution_metric.stddev
