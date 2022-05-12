@@ -4,7 +4,6 @@ import pytest
 
 from whylogs.core import ColumnProfileView
 from whylogs.core.utils import get_distribution_metrics
-
 from whylogs.viz.utils.profile_viz_calculations import (
     _get_cardinality_metrics_from_column_view,
     add_feature_statistics,
