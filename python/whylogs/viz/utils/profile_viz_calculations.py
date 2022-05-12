@@ -1,11 +1,11 @@
 import json
 from logging import getLogger
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 from typing_extensions import TypedDict
 
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.metrics import CardinalityMetric, DistributionMetric
+from whylogs.core.metrics import CardinalityMetric
 from whylogs.core.utils import get_distribution_metrics
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -105,7 +105,7 @@ class DatasetSummary(TypedDict):
 
 
 def generate_summaries(
-    target_view: DatasetProfileView, ref_view: DatasetProfileView, config: Optional[SummaryConfig]
+    target_view: DatasetProfileView, ref_view: Optional[DatasetProfileView], config: Optional[SummaryConfig]
 ) -> Optional[Dict[str, Any]]:
     if config is None:
         config = SummaryConfig()

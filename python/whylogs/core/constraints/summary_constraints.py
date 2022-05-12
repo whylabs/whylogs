@@ -4,7 +4,9 @@ from whylogs.core.proto.v0 import Op
 MAX_SET_DISPLAY_MESSAGE_LENGTH = 20
 
 
-def maxLessThanEqualConstraint(value=None, field=None, name=None, verbose=False):
+def maxLessThanEqualConstraint(
+    value: float = None, field: str = None, name: str = None, verbose: bool = False
+) -> SummaryConstraint:
     """
     Defines a summary constraint on the maximum value of a feature. The maximum can be defined to be
     less than or equal to some value,

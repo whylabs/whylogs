@@ -1,11 +1,14 @@
 from typing import Optional, Tuple, Union
+
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.view.column_profile_view import ColumnProfileView
 
 
 def get_distribution_metrics(
-    column_view: ColumnProfileView,
+    column_view: Optional[ColumnProfileView],
 ) -> Union[Tuple[None, None, None], Tuple[float, float, float]]:
+    if column_view is None:
+        raise ValueError("Column view not found.")
     distribution_metric: Optional[DistributionMetric] = column_view.get_metric("distribution")
     if distribution_metric is None:
         return None, None, None

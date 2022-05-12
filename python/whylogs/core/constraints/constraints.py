@@ -1,14 +1,13 @@
 from logging import getLogger
-from typing import Any, List, Mapping, Optional, Set, Tuple, Union
+from typing import Any, Callable, List, Mapping, Optional, Tuple, Union
 
-from whylogs.core.metrics import DistributionMetric
-from whylogs.core.proto.v0 import Op, SummaryConstraintMsgs
+from whylogs.core.proto.v0 import Op
 from whylogs.core.utils import get_distribution_metrics
-from whylogs.core.view import ColumnProfileView
+from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 logger = getLogger(__name__)
 
-_summary_funcs1 = {
+_summary_funcs1: Mapping[int, Callable[..., Callable[[Any], Any]]] = {
     # functions that compare a summary field to a literal value.
     Op.LT: lambda f, v: lambda s: getattr(s, f) < v,
     Op.LE: lambda f, v: lambda s: getattr(s, f) <= v,
@@ -22,7 +21,7 @@ _summary_funcs1 = {
 }
 
 
-def _create_column_profile_summary_object(**kwargs):
+def _create_column_profile_summary_object(**kwargs: Optional[float]) -> type:
     """
     Wrapper method for summary constraints update object creation
 
@@ -49,11 +48,11 @@ class SummaryConstraint:
     def __init__(
         self,
         first_field: str,
-        op: Op,
-        value=None,
+        op: int,
+        value: Optional[float] = None,
         second_field: str = None,
         name: str = None,
-        verbose=False,
+        verbose: bool = False,
     ) -> None:
         self.first_field = first_field
         self._verbose = verbose
@@ -68,7 +67,7 @@ class SummaryConstraint:
             # field-value summary comparison
             self.func = _summary_funcs1[op](first_field, value)
 
-    def update(self, update_summary: object) -> bool:
+    def update(self, update_summary: object) -> None:
         constraint_type_str = "table shape" if self.first_field in ("columns", "total_row_number") else "summary"
 
         self.total += 1
@@ -76,14 +75,14 @@ class SummaryConstraint:
         if not self.func(update_summary):
             self.failures += 1
             if self._verbose:
-                logger.info(f"{constraint_type_str} constraint {self.name} failed")
+                logger.info(f"{constraint_type_str} constraint {self._name} failed")
 
-    def report(self):
+    def report(self) -> Tuple[Any, ...]:
         return (self._name, self.total, self.failures)
 
 
 class SummaryConstraints:
-    def __init__(self, constraints: Mapping[str, SummaryConstraint] = None):
+    def __init__(self, constraints: Union[List[SummaryConstraint], Mapping[str, SummaryConstraint]] = None):
         """
         SummaryConstraints is a container for multiple summary constraints,
         generally associated with a single ColumnProfile.
@@ -102,45 +101,21 @@ class SummaryConstraints:
         # Support list of constraints for back compat with previous version.
         if isinstance(constraints, list):
             self.constraints = {constraint._name: constraint for constraint in constraints}
-        else:
+        elif isinstance(constraints, dict):
             self.constraints = constraints
-
-    @staticmethod
-    def from_protobuf(msg: SummaryConstraintMsgs) -> "SummaryConstraints":
-        constraints = [SummaryConstraint.from_protobuf(c) for c in msg.constraints]
-        if len(constraints) > 0:
-            return SummaryConstraints({v.name: v for v in constraints})
-        return None
+        else:
+            raise ValueError("Unexpected type for constraints parameter.")
 
     def __getitem__(self, name: str) -> Optional[SummaryConstraint]:
-        if self.contraints:
+        if self.constraints:
             return self.constraints.get(name)
         return None
 
-    def to_protobuf(self) -> SummaryConstraintMsgs:
-        v = [c.to_protobuf() for c in self.constraints.values()]
-        if len(v) > 0:
-            scmsg = SummaryConstraintMsgs()
-            scmsg.constraints.extend(v)
-            return scmsg
-        return None
-
-    def update(self, v):
+    def update(self, v: type) -> None:
         for c in self.constraints.values():
             c.update(v)
 
-    def merge(self, other) -> "SummaryConstraints":
-
-        if not other or not other.constraints:
-            return self
-
-        merged_constraints = other.constraints.copy()
-        for name, constraint in self.constraints:
-            merged_constraints[name] = constraint.merge(other.constraints.get(name))
-
-        return SummaryConstraints(merged_constraints)
-
-    def report(self) -> List[tuple]:
+    def report(self) -> Optional[List[tuple]]:
         v = [c.report() for c in self.constraints.values()]
         if len(v) > 0:
             return v
@@ -172,10 +147,10 @@ class DatasetConstraints:
                 summary_constraints[k] = SummaryConstraints(v)
         self.summary_constraint_map = summary_constraints
 
-    def __call__(self, profile_view: ColumnProfileView) -> Any:
+    def __call__(self, profile_view: DatasetProfileView) -> Any:
         return self._constraints_report(profile_view)
 
-    def _constraints_report(self, profile_view):
+    def _constraints_report(self, profile_view: DatasetProfileView) -> List[Tuple[Any, ...]]:
         columns = profile_view.get_columns()
         for k, v in self.summary_constraint_map.items():
             if isinstance(v, list):
@@ -190,6 +165,6 @@ class DatasetConstraints:
 
         return [(k, s.report()) for k, s in self.summary_constraint_map.items()]
 
-    def report(self):
+    def report(self) -> List[Tuple[str, Optional[List[tuple]]]]:
         l2 = [(k, s.report()) for k, s in self.summary_constraint_map.items()]
         return l2
