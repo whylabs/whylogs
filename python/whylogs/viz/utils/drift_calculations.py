@@ -21,7 +21,7 @@ class ColumnDriftValue(TypedDict):
     test: str
 
 
-def _ks_test_compute_p_value(
+def _compute_ks_test_p_value(
     target_distribution: kll_doubles_sketch, reference_distribution: kll_doubles_sketch
 ) -> Optional[ColumnDriftValue]:
     """Compute the Kolmogorov-Smirnov test p-value of two continuous distributions.
@@ -52,7 +52,6 @@ def _ks_test_compute_p_value(
     num_quantiles = len(QUANTILES)
     i, j = 0, 0
     while i < num_quantiles and j < num_quantiles:
-
         if target_quantile_values[i] < ref_quantile_values[j]:
             current_quantile = target_quantile_values[i]
             i += 1
@@ -88,6 +87,20 @@ def _ks_test_compute_p_value(
     p_value = stats.distributions.kstwo.sf(D_max, np.round(en))
 
     return {"p_value": p_value, "test": "ks"}
+
+
+def _get_ks_p_value(target_view_column, reference_view_column) -> Optional[ColumnDriftValue]:
+    target_dist_metric = target_view_column.get_metric("distribution")
+    ref_dist_metric = reference_view_column.get_metric("distribution")
+
+    if target_dist_metric is None or ref_dist_metric is None:
+        return None
+
+    target_kll_sketch = target_dist_metric.kll.value
+    ref_kll_sketch = ref_dist_metric.kll.value
+
+    ks_p_value = _compute_ks_test_p_value(target_kll_sketch, ref_kll_sketch)
+    return ks_p_value
 
 
 def _compute_chi_squared_test_p_value(
@@ -151,8 +164,21 @@ def _compute_chi_squared_test_p_value(
     return {"p_value": p_value, "test": "chi-squared"}
 
 
+def _get_chi2_p_value(target_view_column, reference_view_column) -> Optional[ColumnDriftValue]:
+    target_frequent_stats: FrequentStats = get_frequent_stats(target_view_column, config=None)
+    ref_frequent_stats: FrequentStats = get_frequent_stats(reference_view_column, config=None)
+
+    if not target_frequent_stats or not ref_frequent_stats:
+        return None
+
+    chi2_p_value = _compute_chi_squared_test_p_value(
+        target_distribution=target_frequent_stats, reference_distribution=ref_frequent_stats
+    )
+    return chi2_p_value
+
+
 def calculate_drift_values(
-    target_view: DatasetProfileView, ref_view: DatasetProfileView
+    target_view: DatasetProfileView, reference_view: DatasetProfileView
 ) -> Dict[str, Optional[ColumnDriftValue]]:
     """Calculate drift values between both profiles. Applicable for numerical and categorical features.
 
@@ -162,43 +188,24 @@ def calculate_drift_values(
     ----------
     target_view : DatasetProfileView
         Target Profile View
-    ref_view : DatasetProfileView
+    reference_view : DatasetProfileView
         Reference Profile View
 
     Returns
     -------
-    Dict[str, Optional[ColumnDriftValue]]
+    drift_values: Dict[str, Optional[ColumnDriftValue]]
         A dictionary of the p-values, along with the type of test applied, for the given features.
     """
     drift_values: Dict[str, Optional[ColumnDriftValue]] = {}
-    target_col_views = target_view.get_columns()
-    ref_col_views = ref_view.get_columns()
-    for target_col_name in target_col_views:
-        if target_col_name in ref_col_views:
-            target_col_view = target_col_views[target_col_name]
-            ref_col_view = ref_col_views[target_col_name]
+    target_view_columns = target_view.get_columns()
+    reference_view_columns = reference_view.get_columns()
+    for target_column_name in target_view_columns:
+        if target_column_name in reference_view_columns:
+            target_view_column = target_view_columns[target_column_name]
+            reference_view_column = reference_view_columns[target_column_name]
 
-            if not target_col_view or not ref_col_view:
-                continue
-
-            if target_col_view.get_metric("distribution") and ref_col_view.get_metric("distribution"):
-                target_dist_metric = target_col_view.get_metric("distribution")
-                target_kll_sketch = target_dist_metric.kll.value
-
-                ref_dist_metric = ref_col_view.get_metric("distribution")
-                ref_kll_sketch = ref_dist_metric.kll.value
-
-                ks_p_value = _ks_test_compute_p_value(target_kll_sketch, ref_kll_sketch)
-                drift_values[target_col_name] = ks_p_value
-            elif target_col_view.get_metric("frequent_items") and ref_col_view.get_metric("frequent_items"):
-
-                target_frequent_stats: FrequentStats = get_frequent_stats(target_col_view, config=None)
-                ref_frequent_stats: FrequentStats = get_frequent_stats(ref_col_view, config=None)
-
-                if target_frequent_stats and ref_frequent_stats:
-                    chi2_p_value = _compute_chi_squared_test_p_value(target_frequent_stats, ref_frequent_stats)
-                else:
-                    chi2_p_value = None
-                drift_values[target_col_name] = chi2_p_value
+            drift_values[target_column_name] = _get_ks_p_value(
+                target_view_column=target_view_column, reference_view_column=reference_view_column
+            ) or _get_chi2_p_value(target_view_column=target_view_column, reference_view_column=reference_view_column)
 
     return drift_values

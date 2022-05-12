@@ -9,14 +9,17 @@
     }
 
     .highlight-ipython3 {
-        background: #202020 !important;
         border: none !important;
         border-radius: 2px !important;
-        color: #d0d0d0 !important;
     }
 
+
     tr:nth-child(odd) {
-        background-color: #202020 !important;
+        background-color: #676767 !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: #030303 !important;
     }
 }
 

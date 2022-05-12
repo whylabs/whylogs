@@ -111,36 +111,36 @@ class PreprocessedColumn:
 
         self.null_count = len(series[series.isnull()])
 
-        non_null_ser = series[series.notnull()]
+        non_null_series = series[series.notnull()]
         if pdc.is_numeric_dtype(series.dtype):
             if pdc.is_float_dtype(series.dtype):
-                floats = non_null_ser.astype(float)
+                floats = non_null_series.astype(float)
                 self.numpy.floats = floats
                 return
             else:
-                ints = non_null_ser.astype(int)
+                ints = non_null_series.astype(int)
                 self.numpy.ints = ints
                 return
 
         if issubclass(series.dtype.type, str):
-            self.pandas.strings = non_null_ser
+            self.pandas.strings = non_null_series
             return
 
         if parse_numeric_string:
-            non_null_ser = pd.to_numeric(non_null_ser, errors="ignore")
+            non_null_series = pd.to_numeric(non_null_series, errors="ignore")
 
-        float_mask = non_null_ser.apply(lambda x: pdc.is_float(x))
-        bool_mask = non_null_ser.apply(lambda x: pdc.is_bool(x))
-        bool_mask_where_true = non_null_ser.apply(lambda x: pdc.is_bool(x) and x)
-        int_mask = non_null_ser.apply(lambda x: pdc.is_number(x) and not pdc.is_float(x) and not pdc.is_bool(x))
-        str_mask = non_null_ser.apply(lambda x: isinstance(x, str))
+        float_mask = non_null_series.apply(lambda x: pdc.is_float(x))
+        bool_mask = non_null_series.apply(lambda x: pdc.is_bool(x))
+        bool_mask_where_true = non_null_series.apply(lambda x: pdc.is_bool(x) and x)
+        int_mask = non_null_series.apply(lambda x: pdc.is_number(x) and not pdc.is_float(x) and not pdc.is_bool(x))
+        str_mask = non_null_series.apply(lambda x: isinstance(x, str))
 
-        floats = non_null_ser[float_mask]
-        ints = non_null_ser[int_mask]
-        bool_count = non_null_ser[bool_mask].count()
-        bool_count_where_true = non_null_ser[bool_mask_where_true].count()
-        strings = non_null_ser[str_mask]
-        objs = non_null_ser[~(float_mask | str_mask | int_mask | bool_mask)]
+        floats = non_null_series[float_mask]
+        ints = non_null_series[int_mask]
+        bool_count = non_null_series[bool_mask].count()
+        bool_count_where_true = non_null_series[bool_mask_where_true].count()
+        strings = non_null_series[str_mask]
+        objs = non_null_series[~(float_mask | str_mask | int_mask | bool_mask)]
 
         self.numpy = NumpyView(floats=floats, ints=ints)
         self.pandas.strings = strings
@@ -217,6 +217,7 @@ class PreprocessedColumn:
             list_format = list(data)
             return PreprocessedColumn.apply(list_format)
 
-        logger.error(f"Failed to extract columnar data from type: {type(data)}")
-
-        return result
+        # scalars - when processing dictionary entries
+        logger.info(f"Warning single value passed as column data, wrapping type: {type(data)} in list")
+        list_format = [data]
+        return PreprocessedColumn.apply(list_format)

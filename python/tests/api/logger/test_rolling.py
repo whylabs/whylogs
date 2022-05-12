@@ -80,7 +80,6 @@ def test_bad_whylabs_writer_config() -> None:
     with pytest.raises(BadConfigError) as excinfo:
         with why.logger(mode="rolling", interval=1, when="S", base_name="test_base_name", skip_empty=True) as logger:
             logger.append_writer("whylabs")
-            pass
         assert "Bad WhyLabsWriter config" in str(excinfo.value)
         assert "five minutes" in str(excinfo.value)
 
@@ -88,7 +87,6 @@ def test_bad_whylabs_writer_config() -> None:
 def test_good_whylabs_writer_config() -> None:
     with why.logger(mode="rolling", interval=5, when="M", base_name="test_base_name", skip_empty=True) as logger:
         logger.append_writer("whylabs")
-        pass
 
 
 def count_files(tmp_path: Any) -> int:

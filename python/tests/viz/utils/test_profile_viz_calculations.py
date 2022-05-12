@@ -3,9 +3,8 @@ from unittest.mock import MagicMock, Mock
 import pytest
 
 from whylogs.core import ColumnProfileView
-from whylogs.core.metrics.metrics import FrequentItem
 from whylogs.core.utils import get_distribution_metrics
-from whylogs.viz.utils.frequent_items_calculations import get_frequent_items_estimate
+
 from whylogs.viz.utils.profile_viz_calculations import (
     _get_cardinality_metrics_from_column_view,
     add_feature_statistics,
@@ -13,26 +12,10 @@ from whylogs.viz.utils.profile_viz_calculations import (
 
 
 @pytest.fixture
-def mock_freq_items_list():
-    mock_frequent_items = Mock(wraps=FrequentItem)
-    mock_frequent_items.est = MagicMock(return_value=3)
-    mock_frequent_items.value = MagicMock(return_value=2)
-    return [mock_frequent_items]
-
-
-@pytest.fixture
 def mock_column_profile_view():
     mock_column_profile_view = Mock(wraps=ColumnProfileView)
     mock_column_profile_view.get_metric = MagicMock(return_value=None)
     return mock_column_profile_view
-
-
-def test_get_frequent_items_estimate(mock_freq_items_list):
-    freq_items_list = get_frequent_items_estimate(mock_freq_items_list)
-    assert isinstance(freq_items_list, list)
-    assert type(freq_items_list[0]) == dict
-    for key in freq_items_list[0].keys():
-        assert key in ["value", "estimate"]
 
 
 def test_get_distribution_metrics(profile_view):
@@ -123,8 +106,3 @@ def test_add_feature_statistics_returns_dict(profile_view):
             "quantile_statistics",
             "descriptive_statistics",
         ]
-
-
-def test_histogram_from_sketch():
-    # TODO build test case -> at the moment its not implemented or used
-    pass

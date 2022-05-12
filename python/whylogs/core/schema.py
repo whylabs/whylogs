@@ -93,8 +93,8 @@ class DatasetSchema:
         """Returns a new instance of the same underlying schema"""
         copy = DatasetSchema()
         copy._columns = self._columns.copy()
-        self.cache_size = self.cache_size
-        self.type_mapper = self.type_mapper
+        copy.cache_size = self.cache_size
+        copy.type_mapper = self.type_mapper
         copy.resolvers = self.resolvers
 
         return copy
@@ -116,14 +116,15 @@ class DatasetSchema:
         raise NotImplementedError
 
     def _resolve_pdf(self, df: pd.DataFrame, force_resolve: bool = False) -> bool:
-        """Resolve ColumnSchema from the dataframe.
-
-        We only resolve newly detected columns unless `force_resolve` is set to True."""
+        """
+        Resolve ColumnSchema from the dataframe. We only resolve newly detected
+        columns unless `force_resolve` is set to True.
+        """
         col_names = df.dtypes.keys()
         dirty = False
         for col_name in col_names:
             if not force_resolve and col_name in self._columns:
-                # column is already configured
+                logger.debug("column is already configured")
                 continue
 
             col_dtype = df.dtypes[col_name]
