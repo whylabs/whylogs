@@ -123,6 +123,7 @@ format-fix: ## Fix formatting with black. This updates files.
 
 test: dist ## Run unit tests.
 	@$(call i, Running tests)
+	poetry install -E s3
 	poetry run pytest -v
 
 test-system-python: dist ## Run tests using the system `python` instead of the locally declared poetry python

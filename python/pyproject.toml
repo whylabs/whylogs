@@ -33,6 +33,7 @@ sphinxext-opengraph = { version = "^0.6.3", optional = true }
 sphinx-inline-tabs = { version = "*", optional = true }
 flake8 = { version = "4.0.1", optional = true }
 nbsphinx = { version = "^0.8.8", optional = true }
+boto3 = {version = "^1.22.13", optional = true }
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
@@ -51,6 +52,7 @@ pandas = "*"
 pandas-stubs = "*"
 ipykernel = ">=6.11" # for developing in Jupyter notebook
 types-python-dateutil = "^2.8.12"
+moto = "^3.1.9"
 
 
 [tool.poetry.extras]
@@ -72,7 +74,9 @@ viz = [
     "pybars3",
     "scipy",
 ]
-
+s3 = [
+  "boto3"
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

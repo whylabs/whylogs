@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 import whylogs as why
+from whylogs import ResultSet
 from whylogs.core.constraints import DatasetConstraints
 from whylogs.core.constraints.summary_constraints import maxLessThanEqualConstraint
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
@@ -44,7 +45,7 @@ def v0_profile_path() -> str:
 
 
 @pytest.fixture(scope="session")
-def profile_view() -> DatasetProfileView:
+def result_set() -> ResultSet:
     data = {
         "animal": ["cat", "hawk", "snake", "cat"],
         "legs": [4, 2, 0, 4],
@@ -54,8 +55,12 @@ def profile_view() -> DatasetProfileView:
     df = pd.DataFrame(data)
 
     results = why.log(pandas=df)
-    profile_view = results.view()
+    return results
 
+
+@pytest.fixture(scope="session")
+def profile_view(result_set) -> DatasetProfileView:
+    profile_view = result_set.view()
     return profile_view
 
 
