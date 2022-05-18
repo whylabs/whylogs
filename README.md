@@ -99,13 +99,15 @@ whylogs profiles have three properties that make them ideal for data logging: th
 
 <img align="left" src="https://user-images.githubusercontent.com/7946482/156462388-ceb4cabd-8a5d-4885-8889-fe393a7b2527.png">
 
-**Descriptive**: whylogs profiles describe the dataset that they represent. This high fidelity representation of datasets is what enables whylogs profiles to be effective snapshots of the data. They are better at capturing the characteristics of a dataset than a sample would be, as discussed in our [Data Logging: Sampling versus Profiling](https://whylabs.ai/blog/posts/data-logging-sampling-versus-profiling) blog post. 
+**Efficient:** whylogs profiles efficiently describe the dataset that they represent. This high fidelity representation of datasets is what enables whylogs profiles to be effective snapshots of the data. They are better at capturing the characteristics of a dataset than a sample would be—as discussed in our [Data Logging: Sampling versus Profiling](https://whylabs.ai/blog/posts/data-logging-sampling-versus-profiling) blog post—and are very compact.
+
+**Descriptive**: whylogs profiles describe the dataset that they represent. This high fidelity representation of datasets is what enables whylogs profiles to be effective snapshots of the data. They are better at capturing the characteristics of a dataset than a sample would be, as discussed in our  blog post. 
 
 <br />
 
 <img align="left" src="https://user-images.githubusercontent.com/7946482/156462585-6d679747-c9c6-4724-8640-d85fc70794ca.png">
 
-**Lightweight**: In addition to being a high fidelity representation of data, whylogs profiles also have high information density. You can easily profile terabytes or even petabytes of data in profiles that are only megabytes large. Because whylogs profiles are lightweight, they are very inexpensive to store, transport, and interact with.
+**Customizable**: The statistics that whylogs profiles collect are easily configured and customizable. This is useful because different data types and use cases require different metrics, and whylogs users need to be able to easily define custom trackers for those metrics. It’s the customizability of whylogs that enables our text, image, and other complex data trackers.
 
 <br />
 
