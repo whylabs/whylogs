@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetProfileView
@@ -72,7 +72,7 @@ class ResultSetWriter:
         self._writer.option(**kwargs)
         return self
 
-    def write(self, dest: Optional[str]) -> None:
+    def write(self, **kwargs) -> None:
         # TODO: multi-profile writer
         view = self._result_set.view()
-        self._writer.write(profile=view, dest=dest)
+        self._writer.write(profile=view, **kwargs)

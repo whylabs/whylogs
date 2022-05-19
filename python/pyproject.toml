@@ -34,6 +34,7 @@ sphinx-inline-tabs = { version = "*", optional = true }
 flake8 = { version = "4.0.1", optional = true }
 nbsphinx = { version = "^0.8.8", optional = true }
 boto3 = {version = "^1.22.13", optional = true }
+whylabs-client = {version = "^0.3.0", optional = true}
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
@@ -76,6 +77,9 @@ viz = [
 ]
 s3 = [
   "boto3"
+]
+whylabs = [
+  "whylabs-client"
 ]
 
 [build-system]

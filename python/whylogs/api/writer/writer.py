@@ -14,6 +14,7 @@ class Writer(ABC):
 
         Some writer only accepts certain interval configuration. By default, this should return True for a valid
         non-negative interval."""
+        pass
 
     @abstractmethod
     def write(self, profile: DatasetProfileView, dest: Optional[str] = None) -> None:
