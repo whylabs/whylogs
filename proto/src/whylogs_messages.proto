@@ -96,7 +96,7 @@ message DatasetProfileHeader {
   map<string, ChunkOffsets> column_offsets = 2;
   repeated ChunkOffsets metric_offsets = 3;
   uint64 length = 4; // total length of the rest of the data for this profile.
-  map<uint32, string> indexed_metric_path = 5;
+  map<uint32, string> indexed_metric_paths = 5;
 }
 
 message SegmentTag {
