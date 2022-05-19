@@ -129,7 +129,7 @@ class DatasetProfileView(object):
                 column_offsets=column_chunk_offsets,
                 properties=properties,
                 length=total_len,
-                indexed_names=metric_index_to_name,
+                indexed_metric_paths=metric_index_to_name,
             )
 
             dataset_segment_header = DatasetSegmentHeader(
@@ -170,8 +170,8 @@ class DatasetProfileView(object):
                 raise DeserializationError("Missing valid dataset profile header")
             dataset_timestamp = datetime.fromtimestamp(dataset_profile_header.properties.dataset_timestamp / 1000.0)
             creation_timestamp = datetime.fromtimestamp(dataset_profile_header.properties.creation_timestamp / 1000.0)
-            indexed_names = dataset_profile_header.indexed_names
-            if len(indexed_names) < 1:
+            indexed_metric_paths = dataset_profile_header.indexed_metric_paths
+            if len(indexed_metric_paths) < 1:
                 logger.warning("Name index in the header is empty. Possible data corruption")
 
             start_offset = f.tell()
@@ -207,7 +207,7 @@ class DatasetProfileView(object):
                         raise DeserializationError(f"Failed to parse protobuf message for column: {col_name}")
 
                     for idx, metric_component in chunk_msg.metric_components.items():
-                        full_name = indexed_names.get(idx)
+                        full_name = indexed_metric_paths.get(idx)
                         if full_name is None:
                             raise ValueError(f"Missing metric name in the header. Index: {idx}")
                         all_metric_components[full_name] = metric_component
