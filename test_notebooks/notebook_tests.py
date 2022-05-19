@@ -19,7 +19,7 @@ skip_notebooks = [
     "MLFlow Integration Example.ipynb",
     "Performance Metrics-Classification.ipynb",
     "Performance Metrics-Regression.ipynb",
-    "Image Outlier Detection.ipynb"
+    "Image Outlier Detection.ipynb",
 ]
 
 
