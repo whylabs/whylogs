@@ -74,7 +74,7 @@ message DatasetProperties {
 }
 
 message ChunkOffsets {
-  repeated uint32 offsets = 1;
+  repeated uint64 offsets = 1;
 }
 
 message ChunkMessage {
