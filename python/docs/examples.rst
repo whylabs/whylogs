@@ -14,6 +14,7 @@ Basic
 
     examples/basic/Getting_Started
     examples/basic/Notebook_Profile_Visualizer
+    examples/basic/Schema_Configuration
 
 Intermediate
 ------------

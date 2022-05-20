@@ -276,6 +276,14 @@ class DistributionMetric(Metric):
     def avg(self) -> float:
         return self.mean.value
 
+    @property
+    def max(self) -> float:
+        return self.kll.value.get_max_value()
+
+    @property
+    def min(self) -> float:
+        return self.kll.value.get_min_value()
+
     @classmethod
     def zero(cls, schema: ColumnSchema) -> "DistributionMetric":
         sk = ds.kll_doubles_sketch(k=schema.cfg.kll_k)

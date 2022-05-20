@@ -40,9 +40,15 @@ def reference_distribution():
     return reference_distribution
 
 
-def test_get_ks_p_value(view_columns):
+def test_get_ks_p_value_float(view_columns):
     actual_result = _get_ks_p_value(view_columns["weight"], view_columns["weight"])
-    assert isinstance(actual_result["test"], str)
+    assert actual_result["test"] == "ks"
+    assert isinstance(actual_result["p_value"], float)
+
+
+def test_get_ks_p_value_int(view_columns):
+    actual_result = _get_ks_p_value(view_columns["legs"], view_columns["legs"])
+    assert actual_result["test"] == "ks"
     assert isinstance(actual_result["p_value"], float)
 
 
@@ -52,9 +58,9 @@ def test_get_ks_p_value_returns_none(mock_view_column):
     mock_view_column.get_metric.assert_called_with("distribution")
 
 
-def test_get_chi2_p_value(view_columns):
+def test_get_chi2_p_value_str(view_columns):
     actual_result = _get_chi2_p_value(view_columns["animal"], view_columns["animal"])
-    assert isinstance(actual_result["test"], str)
+    assert actual_result["test"] == "chi-squared"
     assert isinstance(actual_result["p_value"], float)
 
 

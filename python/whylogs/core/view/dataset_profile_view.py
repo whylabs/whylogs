@@ -15,6 +15,7 @@ from whylogs.core.proto import (
     ColumnMessage,
     DatasetProfileHeader,
     DatasetProperties,
+    DatasetSegmentHeader,
     MetricComponentMessage,
 )
 from whylogs.core.stubs import pd
@@ -76,7 +77,7 @@ class DatasetProfileView(object):
     def get_column(self, col_name: str) -> Optional[ColumnProfileView]:
         return self._columns.get(col_name)
 
-    def get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, Optional[ColumnProfileView]]:
+    def get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, ColumnProfileView]:
         if col_names:
             return {k: self._columns.get(k) for k in col_names}
         else:
@@ -128,11 +129,16 @@ class DatasetProfileView(object):
                 column_offsets=column_chunk_offsets,
                 properties=properties,
                 length=total_len,
-                indexed_names=metric_index_to_name,
+                indexed_metric_paths=metric_index_to_name,
+            )
+
+            dataset_segment_header = DatasetSegmentHeader(
+                has_segments=False,
             )
 
             with open(path, "w+b") as out_f:
                 out_f.write(WHYLOGS_MAGIC_HEADER_BYTES)
+                write_delimited_protobuf(out_f, dataset_segment_header)
                 write_delimited_protobuf(out_f, dataset_header)
 
                 f.seek(0)
@@ -154,22 +160,25 @@ class DatasetProfileView(object):
                     f"Invalid magic header. Got: {decoded_header} but expecting: {WHYLOGS_MAGIC_HEADER}"
                 )
 
-            header = read_delimited_protobuf(f, DatasetProfileHeader)
-            if header is None:
-                raise DeserializationError("Unable to detect and read the message header")
-            dataset_timestamp = datetime.fromtimestamp(header.properties.dataset_timestamp / 1000.0)
-            creation_timestamp = datetime.fromtimestamp(header.properties.creation_timestamp / 1000.0)
-            if header is None:
+            dataset_segment_header = read_delimited_protobuf(f, DatasetSegmentHeader)
+            if dataset_segment_header.has_segments:
+                raise DeserializationError("File contains segments. This is not supported yet")
+
+            # TODO: handle segment data
+            dataset_profile_header = read_delimited_protobuf(f, DatasetProfileHeader)
+            if dataset_profile_header.ByteSize() == 0:
                 raise DeserializationError("Missing valid dataset profile header")
-            indexed_names = header.indexed_names
-            if len(indexed_names) < 1:
+            dataset_timestamp = datetime.fromtimestamp(dataset_profile_header.properties.dataset_timestamp / 1000.0)
+            creation_timestamp = datetime.fromtimestamp(dataset_profile_header.properties.creation_timestamp / 1000.0)
+            indexed_metric_paths = dataset_profile_header.indexed_metric_paths
+            if len(indexed_metric_paths) < 1:
                 logger.warning("Name index in the header is empty. Possible data corruption")
 
             start_offset = f.tell()
 
             columns = {}
-            for col_name in sorted(header.column_offsets.keys()):
-                col_offsets = header.column_offsets[col_name]
+            for col_name in sorted(dataset_profile_header.column_offsets.keys()):
+                col_offsets = dataset_profile_header.column_offsets[col_name]
                 all_metric_components: Dict[str, MetricComponentMessage] = {}
                 for offset in col_offsets.offsets:
                     actual_offset = offset + start_offset
@@ -198,7 +207,7 @@ class DatasetProfileView(object):
                         raise DeserializationError(f"Failed to parse protobuf message for column: {col_name}")
 
                     for idx, metric_component in chunk_msg.metric_components.items():
-                        full_name = indexed_names.get(idx)
+                        full_name = indexed_metric_paths.get(idx)
                         if full_name is None:
                             raise ValueError(f"Missing metric name in the header. Index: {idx}")
                         all_metric_components[full_name] = metric_component
