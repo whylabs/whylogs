@@ -243,7 +243,7 @@
 
           this.xScale = d3
               .scaleLinear()
-         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth >= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])     // I was too lazy to do basic math of max(bin_start + width for each distribution)
+         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth >= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])
          .range([0, this.CHART_WIDTH ]);
 
          this.svgEl.append("g")
@@ -251,10 +251,11 @@
              .call(d3.axisBottom(this.xScale));
           this.yScale = d3.scaleLinear()
               .range([this.CHART_HEIGHT , 0])
-              this.yScale.domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisY); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisY); })]);
+              .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisY); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisY); })*1.2])
+              .nice();
         }
       }
-
+      
       function chartData(column) {
         const data = [];
         if (column.numberSummary?.histogram) {
@@ -300,8 +301,7 @@
         } = sizes
 
         const rectColors = ["#44C0E7", "#F5843C"]
-        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
-        yFormat = yScale.tickFormat(100, yFormat);
+        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40);
 
         svgEl.append("g")
           .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
