@@ -325,14 +325,12 @@
         const minY = Math.abs(d3.min(data));
         let positiveY = Math.ceil(maxY) % 1 ? maxY + 2*(maxY/(maxY*10)) : maxY + 2*(maxY/(maxY/10)),
             negativeY = Math.ceil(minY) % 1 ? minY + 2*(minY/(minY*10)) : minY + 2*(minY/(minY/10));
-
         const yScale = d3.scaleLinear()
-            .domain([-negativeY, positiveY || 0])
             .range([CHART_HEIGHT,0])
-
+            .domain([-negativeY*1.2, positiveY*1.2 || 0])
+            .nice()
         const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
         const yAxis = d3.axisLeft(yScale).ticks(CHART_HEIGHT / 30, yFormat);
-        yFormat = yScale.tickFormat(100, yFormat);
 
           svgEl.append("g")
           .attr("transform", `translate(${MARGIN.LEFT}, 0)`)
