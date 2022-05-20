@@ -1129,9 +1129,12 @@
         const {drift_from_ref} = referenceProfile.columns[columnKey]
 
         if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
-          driftCount++
           const driftFromRefNumber = drift_from_ref.toPrecision(2)
-          const circleColor = Object.values(drifts)[countOfDrifts(driftFromRefNumber)].colorClass
+          const driftCategory = countOfDrifts(driftFromRefNumber)
+          const circleColor = Object.values(drifts)[driftCategory].colorClass
+          if (driftCategory==0 || driftCategory == 1){
+            driftCount++
+          }
 
           $(document).ready(() => {
              $(".drift-count").html(driftCount)
@@ -1141,7 +1144,6 @@
           return diffFromRefTableElement(driftFromRefNumber, circleColor)
 
         } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref) !== undefined) {
-          driftCount++
           Object.values(drifts)[0].count++
           return diffFromRefTableElement("undefined", "severe-drift-circle-color")
         }
