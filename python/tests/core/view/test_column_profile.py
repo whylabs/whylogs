@@ -1,9 +1,13 @@
+import logging
+import pickle
 import unittest
 
 import numpy as np
 import pandas as pd
 
 from whylogs.core import ColumnProfile, ColumnProfileView, ColumnSchema
+
+TEST_LOGGER = logging.getLogger(__name__)
 
 
 class TestColumnProfile(unittest.TestCase):
@@ -55,6 +59,33 @@ class TestColumnProfile(unittest.TestCase):
         # histogram should be None
         assert col_prof._metrics.get("distribution") is None
         assert col_prof._metrics.get("frequent_items") is not None
+
+    def test_basic_serialization_roundtrip(self) -> None:
+        series = pd.Series(["a", "b", "c"])
+        schema = ColumnSchema(series.dtype)
+        col_prof = ColumnProfile("string", schema, cache_size=1024)
+        col_prof.track_column(series)
+        col_prof.flush()
+
+        view = col_prof.view()
+        view_roundtrip = ColumnProfileView.deserialize(view.serialize())
+        assert view_roundtrip.get_metric("frequent_items") is not None
+        TEST_LOGGER.debug(view_roundtrip.to_summary_dict())
+        assert view_roundtrip.to_summary_dict() == view.to_summary_dict()
+
+    def test_basic_pickle_roundtrip(self) -> None:
+        series = pd.Series(["a", "b", "c", "C", "c", 2, 3, 3, 3, 5, 5, 5, 5, 5, 5])
+        schema = ColumnSchema(series.dtype)
+        col_prof = ColumnProfile("string", schema, cache_size=1024)
+        col_prof.track_column(series)
+        col_prof.flush()
+
+        view = col_prof.view()
+        pickle_view_bytes = pickle.dumps(view)
+        view_roundtrip = pickle.loads(pickle_view_bytes)
+        assert view_roundtrip.get_metric("frequent_items") is not None
+        TEST_LOGGER.debug(view_roundtrip.to_summary_dict())
+        assert view_roundtrip.to_summary_dict() == view.to_summary_dict()
 
 
 if __name__ == "__main__":

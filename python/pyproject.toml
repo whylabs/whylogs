@@ -35,6 +35,10 @@ flake8 = { version = "4.0.1", optional = true }
 nbsphinx = { version = "^0.8.8", optional = true }
 boto3 = {version = "^1.22.13", optional = true }
 
+# Pyspark related dependencies
+pyarrow = {version = "^8.0.0", optional = true}
+pyspark = {version = "^3.0.0", optional = true}
+
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
 black = { version = "*", allow-prereleases = true }
@@ -74,6 +78,11 @@ viz = [
     "pybars3",
     "scipy",
 ]
+spark = [
+    "pyarrow",
+    "pyspark",
+]
+
 s3 = [
   "boto3"
 ]

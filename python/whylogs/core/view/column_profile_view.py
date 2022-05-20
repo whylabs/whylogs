@@ -46,6 +46,21 @@ class ColumnProfileView(object):
     def __add__(self, other: "ColumnProfileView") -> "ColumnProfileView":
         return self.merge(other)
 
+    def __getstate__(self) -> bytes:
+        return self.serialize()
+
+    def __setstate__(self, serialized_profile: bytes):
+        profile = ColumnProfileView.deserialize(serialized_profile)
+        self.__dict__.update(profile.__dict__)
+
+    def serialize(self) -> bytes:
+        return self.to_protobuf().SerializeToString()
+
+    @classmethod
+    def deserialize(cls, serialized_profile: bytes) -> "ColumnProfileView":
+        column_message = ColumnMessage.FromString(serialized_profile)
+        return ColumnProfileView.from_protobuf(column_message)
+
     def get_metric(self, m_name: str) -> Optional[METRIC]:
         return self._metrics.get(m_name)
 
@@ -86,6 +101,10 @@ class ColumnProfileView(object):
         return res
 
     @classmethod
+    def zero(cls, msg: ColumnMessage) -> "ColumnProfileView":
+        return ColumnProfileView(metrics={})
+
+    @classmethod
     def from_protobuf(cls, msg: ColumnMessage) -> "ColumnProfileView":
         result_metrics: Dict[str, Metric] = {}
         metric_messages: Dict[str, Dict[str, MetricComponentMessage]] = {}
@@ -111,3 +130,9 @@ class ColumnProfileView(object):
             except:  # noqa
                 raise DeserializationError(f"Failed to deserialize metric: {m_name}")
         return ColumnProfileView(metrics=result_metrics)
+
+    @classmethod
+    def from_bytes(cls, data: bytes) -> "ColumnProfileView":
+        msg = ColumnMessage()
+        msg.ParseFromString(data)
+        return ColumnProfileView.from_protobuf(msg)

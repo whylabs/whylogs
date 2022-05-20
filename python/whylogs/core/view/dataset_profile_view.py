@@ -77,7 +77,7 @@ class DatasetProfileView(object):
     def get_column(self, col_name: str) -> Optional[ColumnProfileView]:
         return self._columns.get(col_name)
 
-    def get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, Optional[ColumnProfileView]]:
+    def get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, ColumnProfileView]:
         if col_names:
             return {k: self._columns.get(k) for k in col_names}
         else:
