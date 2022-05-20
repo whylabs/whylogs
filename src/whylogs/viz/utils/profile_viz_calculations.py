@@ -7,7 +7,7 @@ from whylogs.core.summaryconverters import (
 )
 from whylogs.proto import InferredType, ReferenceDistributionDiscreteMessage
 
-categorical_types = (InferredType.Type.INTEGRAL, InferredType.Type.STRING, InferredType.Type.BOOLEAN)
+categorical_types = (InferredType.Type.STRING, InferredType.Type.BOOLEAN)
 
 
 def __calculate_variance(profile_jsons, feature_name):
@@ -124,8 +124,9 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
         if target_col_name in reference_profile.columns:
             ref_col = reference_profile.columns[target_col_name]
             target_type = target_col.schema_tracker.to_summary().inferred_type.type
+            unique_count = target_col.to_summary().unique_count
             ref_type = ref_col.schema_tracker.to_summary().inferred_type.type
-            if all([type == InferredType.FRACTIONAL for type in (ref_type, target_type)]):
+            if all([type == InferredType.FRACTIONAL or type == InferredType.INTEGRAL for type in (ref_type, target_type)]):
                 target_kll_sketch = target_col.number_tracker.histogram
                 reference_kll_sketch = ref_col.number_tracker.histogram
                 ks_p_value = ks_test_compute_p_value(target_kll_sketch, reference_kll_sketch)
@@ -136,7 +137,9 @@ def add_drift_val_to_ref_profile_json(target_profile, reference_profile, referen
                 if any([msg.to_summary() is None for msg in (target_frequent_items_sketch, reference_frequent_items_sketch)]):
                     continue
                 target_total_count = target_col.counters.count
-                target_message = ReferenceDistributionDiscreteMessage(frequent_items=target_frequent_items_sketch.to_summary(), total_count=target_total_count)
+                target_message = ReferenceDistributionDiscreteMessage(
+                    frequent_items=target_frequent_items_sketch.to_summary(), unique_count=unique_count, total_count=target_total_count
+                )
                 ref_total_count = ref_col.counters.count
 
                 reference_message = ReferenceDistributionDiscreteMessage(
