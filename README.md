@@ -53,38 +53,31 @@ If you have any questions, comments, or just want to hang out with us, please jo
 ## Python Quickstart<a name="python-quickstart" />
 
 
-### Install whylogs
+Installing whylogs using the pip package manager is as easy as running `pip install whylogs` in your terminal.
 
-Install whylogs using the pip package manager by running:
-
-```
-pip install whylogs
-```
-
-### Log some data
-
-Profiling dataframes, Python dicts, or images is as easy as running:
+From here, you can quickly log a dataset:
 
 ```python
-from whylogs import get_or_create_session
+import whylogs as why
 import pandas as pd
 
-session = get_or_create_session()
-
-with session.logger(dataset_name="my_dataset") as logger:
-    logger.log_dataframe(df)
+#dataframe
+df = pd.read_csv("path/to/file.csv")
+results = why.log(df)
 ```
+
+And voila, you now have a whylogs profile. To learn more about about a whylogs profile is and what you can do with it, read on.
 
 ## Table of Contents
 
 - [whylogs Profiles](#whylogs-profiles)
-- [Visualizing Profiles](#visualizing-profiles)
-- [Features](#features)
-- [Data Types](#data-types)
+- [Data Constraints](#data-constraints)
+- [Profile Visualization](#profile-visualization)
 - [Integrations](#integrations)
+- [Supported Data Types](#data-types)
 - [Examples](#examples)
+- [Usage Statistics](#usage-statistics)
 - [Community](#community)
-- [Roadmap](#roadmap)
 - [Contribute](#contribute)
 
 ## whylogs Profiles<a name="whylogs-profiles" />
@@ -93,19 +86,19 @@ with session.logger(dataset_name="my_dataset") as logger:
 
 whylogs profiles are the core of the whylogs library. They capture key statistical properties of data, such as the distribution (far beyond simple mean, median, and standard deviation measures), the number of missing values, and a wide range of configurable custom metrics. By capturing these summary statistics, we are able to accurately represent the data and enable all of the use cases described in the introduction.
 
-whylogs profiles have three properties that make them ideal for data logging: they are **descriptive**, **lightweight**, and **mergeable**.
+whylogs profiles have three properties that make them ideal for data logging: they are **efficient**, **customizable**, and **mergeable**.
 
 <br />
 
 <img align="left" src="https://user-images.githubusercontent.com/7946482/156462388-ceb4cabd-8a5d-4885-8889-fe393a7b2527.png">
 
-**Descriptive**: whylogs profiles describe the dataset that they represent. This high fidelity representation of datasets is what enables whylogs profiles to be effective snapshots of the data. They are better at capturing the characteristics of a dataset than a sample would be, as discussed in our [Data Logging: Sampling versus Profiling](https://whylabs.ai/blog/posts/data-logging-sampling-versus-profiling) blog post. 
+**Efficient**: whylogs profiles efficiently describe the dataset that they represent. This high fidelity representation of datasets is what enables whylogs profiles to be effective snapshots of the data. They are better at capturing the characteristics of a dataset than a sample would be—as discussed in our [Data Logging: Sampling versus Profiling](https://whylabs.ai/blog/posts/data-logging-sampling-versus-profiling) blog post—and are very compact.
 
 <br />
 
 <img align="left" src="https://user-images.githubusercontent.com/7946482/156462585-6d679747-c9c6-4724-8640-d85fc70794ca.png">
 
-**Lightweight**: In addition to being a high fidelity representation of data, whylogs profiles also have high information density. You can easily profile terabytes or even petabytes of data in profiles that are only megabytes large. Because whylogs profiles are lightweight, they are very inexpensive to store, transport, and interact with.
+**Customizable**: The statistics that whylogs profiles collect are easily configured and customizable. This is useful because different data types and use cases require different metrics, and whylogs users need to be able to easily define custom trackers for those metrics. It’s the customizability of whylogs that enables our text, image, and other complex data trackers.
 
 <br />
 
@@ -119,18 +112,15 @@ Once whylogs is installed, it's easy to generate profiles in both Python and Jav
 
 To generate a profile from a Pandas dataframe in Python, simply run:
 ```python
-from whylogs import get_or_create_session
+import whylogs as why
 import pandas as pd
 
-session = get_or_create_session()
-
+#dataframe
 df = pd.read_csv("path/to/file.csv")
-
-with session.logger(dataset_name="my_dataset") as logger:
-    logger.log_dataframe(df)
+results = why.log(df)
 ```
 
-For images, replace `logger.log_dataframe(df)` with `logger.log_image("path/to/image.png")`. Similarly, you can profile Python dicts by running `logger.log(dict)` directly on the dict object.
+For images, replace `df` with `image="path/to/image.png"`. Similarly, you can profile Python dicts by replacing the dataframe within the `log()` function with a Python `dict` object.
 
 ### What can you do with profiles
 
@@ -140,73 +130,52 @@ In your local Python environment, you can set data constraints or visualize your
 
 In addition, you can send whylogs profiles to the SaaS ML monitoring and AI observability platform [WhyLabs](https://whylabs.ai). With WhyLabs, you can automatically set up monitoring for your machine learning models, getting notified on both data quality and data change issues (such as data drift). If you’re interested in trying out WhyLabs, check out the always free [Starter edition](https://whylabs.ai/free), which allows you to experience the entire platform’s capabilities with no credit card required.
 
+## Data Constraints<a name="data-constraints" />
 
-## Visualizing Profiles<a name="visualizing-profiles" />
+Constraints are a powerful feature built on top of whylogs profiles that enable you to quickly and easily validate that your data looks the way that it should. There are numerous types of constraints that you can set on your data (that numerical data will always fall within a certain range, that text data will always be in a JSON format, etc) and, if your dataset fails to satisfy a constraint, you can fail your unit tests or your CI/CD pipeline.
 
-### Multiple profile plots
+A simple example of setting and testing a constraint is:
 
-To view your logger profiles you can use, methods within `whylogs.viz`: 
 
-```python
-vizualization = ProfileVisualizer()
-vizualization.set_profiles([profile_day_1, profile_day_2])
-figure= vizualization.plot_distribution("<feature_name>")
-figure.savefig("/my/image/path.png")
-```
 
-Individual profiles can be saved to local disk, uploaded to AWS S3, or sent to the WhyLabs AI Observability Platform via the WhyLabs API. This can be set up to happen automatically when loggers are closed, per the configuration found in the Session configuration.
+To learn more about constraints, check out the constraints example.
 
-Current profiles from active loggers can be loaded from memory with:
-```python
-profile = logger.profile()
-```
+## Profile Visualization<a name="profile-visualization" />
 
-### Profile viewer
+In addition to being able to automatically get notified about potential issues in data, it’s also useful to be able to inspect your data manually. With the profile visualizer, you can generate interactive reports about your profiles (either a single profile or comparing profiles against each other) directly in your Jupyter notebook environment. This enables exploratory data analysis, data drift detection, and data observability.
 
-You can also load a local profile viewer, where you upload the `json` summary file. The default path for the json files is set as `output/{dataset_name}/{session_id}/json/dataset_profile.json`.
+To access the profile visualizer, install the `[viz]` module of whylogs by running `pip install whylogs[viz]` in your terminal. One type of profile visualization that we can create is a drift report; here's a simple example of how to analyze the drift between two profiles:
 
 ```python
-from whylogs.viz import profile_viewer
-profile_viewer()
+import whylogs as why
+result = why.log(pandas=df_target)
+prof_view = result.view()
+
+result_ref = why.log(pandas=df_reference)
+prof_view_ref = result_ref.view()
+
+from whylogs.viz import NotebookProfileVisualizer
+
+visualization = NotebookProfileVisualizer()
+visualization.set_profiles(target_profile_view=prof_view, reference_profile_view=prof_view_ref)
+
+visualization.summary_drift_report()
 ```
 
-This will open a viewer on your default browser where you can load a profile json summary, using the `Select JSON profile` button:
-Once the json is selected you can view your profile's features and associated statistics.
+![image](https://user-images.githubusercontent.com/7946482/169669536-a25cce95-acde-4637-b7b9-c2a685f0bc3f.png)
 
-<img src="https://whylabs-public.s3-us-west-2.amazonaws.com/assets/whylogs-viewer.gif" title="whylogs HTML viewer demo">
-
-## Features
-
-
-whylogs collects approximate statistics and sketches of data on a column-basis into a statistical profile. These metrics include:
-
-- Simple counters: boolean, null values, data types.
-- Summary statistics: sum, min, max, median, variance.
-- Unique value counter or cardinality: tracks an approximate unique value of your feature using HyperLogLog algorithm.
-- Histograms for numerical features. whyLogs binary output can be queried to with dynamic binning based on the shape of your data.
-- Top frequent items (default is 128). Note that this configuration affects the memory footprint, especially for text features.
-
-Some other key features about whylogs:
-
-- Accurate data profiling: whylogs calculates statistics from 100% of the data, never requiring sampling, ensuring an accurate representation of data distributions
-- Lightweight runtime: whylogs utilizes approximate statistical methods to achieve minimal memory footprint that scales with the number of features in the data
-- Any architecture: whylogs scales with your system, from local development mode to live production systems in multi-node clusters, and works well with batch and streaming architectures
-- Configuration-free: whylogs infers the schema of the data, requiring zero manual configuration to get started
-- Tiny storage footprint: whylogs turns data batches and streams into statistical fingerprints, 10-100MB uncompressed
-- Unlimited metrics: whylogs collects all possible statistical metrics about structured or unstructured data
-
+To learn more about visualizing your profiles, check out:
 
 ## Data Types<a name="data-types" />
 whylogs supports both structured and unstructured data, specifically: 
 
 | Data type  | Features | Notebook Example |
 | --- | --- | ---|
-|Structured Data | Distribution, cardinality, schema, counts, missing values | [Getting started with structured data](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb) | 
-| Images | exif metadata, derived pixels features,  bounding boxes | [Getting started with images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb) |
-| Video  | In development  | [Github Issue #214](https://github.com/whylabs/whylogs/issues/214) |
-| Tensors | derived 1d features (more in developement) | [Github Issue #216](https://github.com/whylabs/whylogs/issues/216) |
-| Text | top k values, counts, cardinality | [String Features](https://github.com/whylabs/whylogs/blob/mainline/examples/String_Features.ipynb) |
-| Audio | In developement | [Github Issue #212](https://github.com/whylabs/whylogs/issues/212) | 
+| Tabular Data | ✅ | [Getting started with structured data](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb) | 
+| Image Data | ✅ | [Getting started with images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb) |
+| Text Data | ✅ | [String Features](https://github.com/whylabs/whylogs/blob/mainline/examples/String_Features.ipynb) |
+| Embeddings | 🛠 || 
+| Other Data Types | ✋ | Do you have a request for a data type that you don’t see listed here? Raise an issue or join our Slack community and make a request! We’re always happy to help | 
 
 
 ## Integrations
@@ -233,10 +202,17 @@ Check out our example notebooks with Binder: [![Binder](https://mybinder.org/bad
 - [Logging Images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb)
 - [MLflow Integration](https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb)
 
+## Usage Statistics<a name="whylogs-profiles" />
 
-## Roadmap
+Starting with whylogs v1.0.0, whylogs collects anonymous information about a user’s environment. These usage statistics do not include any information about the user or the data that they are profiling, only the environment that the user in which the user is running whylogs.
 
-whylogs is maintained by [WhyLabs](https://whylabs.ai).
+To read more about what usage statistics whylogs collects, check out the relevant [documentation](https://docs.whylabs.ai/docs/usage-statistics/).
+
+To turn off Usage Statistics, simply set the `WHYLOGS_NO_ANALYTICS` environment variable to True, like so:
+```python
+import os
+os.environ['WHYLOGS_NO_ANALYTICS']='True'
+```
 
 ## Community
 
