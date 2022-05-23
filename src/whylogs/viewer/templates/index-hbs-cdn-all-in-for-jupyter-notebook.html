@@ -777,11 +777,11 @@
                         <div class="wl-table-head table-border-none reference-table-head">Reference</div>
                       </div>
                       <div class="wl-table-head wl-sub-table-head text-align-center" id="diff-from-ref">
-                        Diff from ref.
+                        p-value
                         <div class="tooltip-full-number">
                             <span class="question-mark">?</span>
                           <span class="tooltiptext">
-                           <div class="mb-1">Distance between the reference and target profiles</div>
+                           <div class="mb-1">p-values are calculated with K-S test for numerical features and Chi-squared for categorical features. </div>
                           </span>
                         </div>
                       </div>
@@ -1006,34 +1006,30 @@
       const drifts = {
         severe: {
           count: 0,
-          range: "with severe drift (0.00 - 0.05)",
+          range: "with detected drift (0.00 - 0.05)",
         },
         moderate: {
           count: 0,
-          range: "with moderate drift (0.05 - 0.3)",
+          range: "with possible drift (0.05 - 0.15)",
         },
         mild: {
           count: 0,
-          range: "with mild drift (0.3 - 0.6)",
-        },
-        minimal: {
-          count: 0,
-          range: "with minimal drift (0.6 - 1.0)",
+          range: "with no evidence of drift (0.15 - 1.0)",
         }
       };
 
-      const countOfDrifts = (driftNumber, dividedNumber) => {
-        const divide = 1 / dividedNumber;
-        for(let i = 1; i <= dividedNumber; i++){
-          if(driftNumber >= 0 && driftNumber <= 0.05) {
-            Object.values(drifts)[0].count++
-            return 0
-          } else if(driftNumber <= divide*i) {
-            const {severe, ...otherValues} = drifts
-            Object.values(otherValues)[i-1].count++
-            return i
-          }
-        }
+      const countOfDrifts = (driftNumber) => {
+        if(driftNumber >= 0 && driftNumber <= 0.05) {
+          Object.values(drifts)[0].count++
+          return 0
+        } else if(driftNumber > 0.05 && driftNumber <= 0.15) {
+          Object.values(drifts)[1].count++
+          return 1
+        } else if(driftNumber > 0.15) {
+          Object.values(drifts)[2].count++
+          return 2
+        } 
+        
       }
 
     abbreviate_number = function(value, fixed = 0) {
@@ -1133,9 +1129,12 @@
         const {drift_from_ref} = referenceProfile.columns[columnKey]
 
         if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
-          driftCount++
           const driftFromRefNumber = drift_from_ref.toPrecision(2)
-          const circleColor = Object.values(drifts)[countOfDrifts(driftFromRefNumber, 3)].colorClass
+          const driftCategory = countOfDrifts(driftFromRefNumber)
+          const circleColor = Object.values(drifts)[driftCategory].colorClass
+          if (driftCategory==0 || driftCategory == 1){
+            driftCount++
+          }
 
           $(document).ready(() => {
              $(".drift-count").html(driftCount)
@@ -1145,7 +1144,6 @@
           return diffFromRefTableElement(driftFromRefNumber, circleColor)
 
         } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref) !== undefined) {
-          driftCount++
           Object.values(drifts)[0].count++
           return diffFromRefTableElement("undefined", "severe-drift-circle-color")
         }
