@@ -63,7 +63,7 @@ class WhyLabsWriter(Writer):
         self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
         self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
-        self._whylabs_enabled = os.environ.get("WHYLABS_V1_ENABLED")
+        self._whylabs_v1_enabled = os.environ.get("WHYLABS_V1_ENABLED")
 
     def check_interval(self, interval_seconds: int):
         if interval_seconds < FIVE_MINUTES_IN_SECONDS:

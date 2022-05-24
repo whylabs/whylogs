@@ -22,6 +22,7 @@ class TestWhylabsWriter(object):
         os.environ["WHYLABS_ORG_ID"] = "org-1"
         os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-5"
         os.environ["WHYLABS_API_ENDPOINT"] = "https://api.whylabsapp.com"
+        os.environ["WHYLABS_V1_ENABLED"] = "True"
 
     @classmethod
     def teardown_class(cls):
