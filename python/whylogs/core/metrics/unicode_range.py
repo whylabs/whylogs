@@ -1,11 +1,15 @@
 import unicodedata
 from typing import Dict, List, Tuple
 
-from whylogs.core import ColumnSchema
+from typing_extensions import TypeAlias
+
 from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.metrics.metrics import DistributionMetric, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
+
+ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
+
 
 DEFAULT_RANGES = {
     "emoji": (0x1F600, 0x1F64F),
@@ -57,6 +61,8 @@ class UnicodeRangeMetric(CompoundMetric):
             raise ValueError("STRING_LENGTH cannot be used as a range name")
 
         self.range_definitions = range_definitions
+        from whylogs.core.schema import ColumnSchema
+
         submetrics = {key: DistributionMetric.zero(ColumnSchema(dtype=int)) for key in range_definitions.keys()}
         submetrics[_STRING_LENGTH] = DistributionMetric.zero(ColumnSchema(dtype=int))
         super(UnicodeRangeMetric, self).__init__(submetrics)  # type: ignore
@@ -103,7 +109,7 @@ class UnicodeRangeMetric(CompoundMetric):
         return OperationResult.ok(len(data))
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "UnicodeRangeMetric":
+    def zero(cls, schema: "ColumnSchema") -> "UnicodeRangeMetric":
         return UnicodeRangeMetric({"unicode": (0, 0x10FFFF)})
 
     @classmethod

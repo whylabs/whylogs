@@ -1,8 +1,9 @@
-from typing import Any, Dict, Type, TypeVar
+from abc import ABC
+from typing import Any, Dict, List, Type, TypeVar
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.errors import UnsupportedError
-from whylogs.core.metrics import Metric, StandardMetric
+from whylogs.core.metrics import Metric
 from whylogs.core.metrics.metrics import OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricComponentMessage, MetricMessage
@@ -10,7 +11,7 @@ from whylogs.core.proto import MetricComponentMessage, MetricMessage
 COMPOUND_METRIC = TypeVar("COMPOUND_METRIC", bound="CompoundMetric")
 
 
-class CompoundMetric(Metric):
+class CompoundMetric(Metric, ABC):
     """
     CompoundMetric serves as a base class for custom metrics that consist
     of one or more StandardMetrics. It is handy when you need to do some
@@ -46,6 +47,8 @@ class CompoundMetric(Metric):
             the StandardMetric enumeration. CompoundMetric is not one
             of the elements, so it cannot contain nested CompoundMetrics.
         """
+        from whylogs.core.metrics import StandardMetric
+
         if ":" in self.namespace or "/" in self.namespace:
             raise ValueError(f"Invalid namespace {self.namespace}")
         for sub_name, submetric in submetrics.items():
@@ -71,8 +74,15 @@ class CompoundMetric(Metric):
         for sub_name, submetric in self.submetrics.items():
             sub_msg = submetric.to_protobuf()
             for comp_name, comp_msg in sub_msg.metric_components.items():
-                msg["/".join([self.namespace, sub_name + ":" + submetric.namespace, comp_name])] = comp_msg
+                msg[sub_name + ":" + submetric.namespace + "/" + comp_name] = comp_msg
         return MetricMessage(metric_components=msg)
+
+    def get_component_paths(self) -> List[str]:
+        res = []
+        for sub_name, submetric in self.submetrics.items():
+            for comp_name in submetric.get_component_paths():
+                res.append(sub_name + ":" + submetric.namespace + "/" + comp_name)
+        return res
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
         summary = {}
@@ -92,12 +102,13 @@ class CompoundMetric(Metric):
     def submetrics_from_protobuf(cls: Type[COMPOUND_METRIC], msg: MetricMessage) -> Dict[str, Metric]:
         submetrics: Dict[str, Metric] = {}
         submetric_msgs: Dict[str, Dict[str, MetricComponentMessage]] = {}
-        namespace: str
         for key, comp_msg in msg.metric_components.items():
-            namespace, submetric_name, comp_name = key.split("/")
+            submetric_name, comp_name = key.split("/")
             if submetric_msgs.get(submetric_name) is None:
                 submetric_msgs[submetric_name] = {}
             submetric_msgs[submetric_name][comp_name] = comp_msg
+
+        from whylogs.core.metrics import StandardMetric
 
         for m_name_and_type, metric_components in submetric_msgs.items():
             m_name, m_type = m_name_and_type.split(":")

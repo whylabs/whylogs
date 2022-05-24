@@ -8,6 +8,7 @@ from whylogs.core.metrics.metrics import (
     IntsMetric,
     Metric,
 )
+from whylogs.core.metrics.unicode_range import UnicodeRangeMetric
 
 
 class StandardMetric(Enum):
@@ -17,6 +18,7 @@ class StandardMetric(Enum):
     ints = IntsMetric
     cardinality = CardinalityMetric
     frequent_items = FrequentItemsMetric
+    unicode_range = UnicodeRangeMetric
 
     def __init__(self, clz: Metric):
         self._clz = clz

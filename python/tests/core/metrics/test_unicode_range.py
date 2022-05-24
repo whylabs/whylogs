@@ -1,8 +1,15 @@
+from typing import Dict
+
 import numpy as np
 import pytest
 
+from whylogs.core.dataset_profile import DatasetProfile
+from whylogs.core.datatypes import DataType
+from whylogs.core.metrics import Metric
 from whylogs.core.metrics.unicode_range import _STRING_LENGTH, UnicodeRangeMetric
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.resolvers import Resolver
+from whylogs.core.schema import ColumnSchema, DatasetSchema
 
 
 def test_unicode_range_metric() -> None:
@@ -74,3 +81,36 @@ def test_unicode_range_metric_merge() -> None:
     assert merged.submetrics["alpha"].kll.value.get_n() == 6
     assert merged.submetrics["alpha"].kll.value.get_min_value() == 0
     assert merged.submetrics["alpha"].kll.value.get_max_value() == 3
+
+
+class UnicodeResolver(Resolver):
+    def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+        return {"unicode_range": UnicodeRangeMetric({"digits": (48, 57), "alpha": (97, 122)})}
+
+
+class UnicodeSchema(DatasetSchema):
+    types = {
+        "col1": str,
+    }
+    resolvers = UnicodeResolver()
+
+
+def test_unicode_range_metric_in_profile() -> None:
+    row = {"col1": "abc123"}
+    schema = UnicodeSchema()
+    prof = DatasetProfile(schema)
+    prof.track(row=row)
+    prof1_view = prof.view()
+    prof1_view.write("/tmp/test_unicode_range_metric_in_profile")
+    prof2_view = DatasetProfile.read("/tmp/test_unicode_range_metric_in_profile")
+    prof1_cols = prof1_view.get_columns()
+    prof2_cols = prof2_view.get_columns()
+
+    assert prof1_cols.keys() == prof2_cols.keys()
+    for col_name in prof1_cols.keys():
+        col1_prof = prof1_cols[col_name]
+        col2_prof = prof2_cols[col_name]
+        assert (col1_prof is not None) == (col2_prof is not None)
+        if col1_prof:
+            assert col1_prof._metrics.keys() == col2_prof._metrics.keys()
+            assert col1_prof.to_summary_dict() == col2_prof.to_summary_dict()
