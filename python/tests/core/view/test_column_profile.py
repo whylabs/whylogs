@@ -85,7 +85,7 @@ class TestColumnProfile(unittest.TestCase):
         view_roundtrip = pickle.loads(pickle_view_bytes)
         assert view_roundtrip.get_metric("frequent_items") is not None
         TEST_LOGGER.debug(view_roundtrip.to_summary_dict())
-        assert view_roundtrip.to_summary_dict() == view.to_summary_dict()
+        assert sorted(view_roundtrip.to_summary_dict()) == sorted(view.to_summary_dict())
 
 
 if __name__ == "__main__":

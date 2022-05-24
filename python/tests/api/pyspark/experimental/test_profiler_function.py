@@ -5,7 +5,7 @@ from typing import Dict
 from pyspark.sql import SparkSession
 
 from whylogs.api.pyspark.experimental import (
-    collect_column_profiles,
+    collect_column_profile_views,
     column_profile_bytes_aggregator,
     whylogs_pandas_map_profiler,
 )
@@ -65,7 +65,7 @@ class WhysparkTests(PysparkTest):
         )
 
         # test pyspark whylogs profiling
-        local_column_profiles = collect_column_profiles(input_df)
+        local_column_profiles = collect_column_profile_views(input_df)
         TEST_LOGGER.info(local_column_profiles)
         assert isinstance(local_column_profiles, Dict)
         TEST_LOGGER.info(local_column_profiles.keys())

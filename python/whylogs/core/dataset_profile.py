@@ -15,7 +15,20 @@ _LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 
 
 class DatasetProfile(object):
-    """Dataset profile represents a collection of in-memory profiling stats for a dataset."""
+    """
+    Dataset profile represents a collection of in-memory profiling stats for a dataset.
+
+    Args:
+        schema: :class:`DatasetSchema`, optional
+            An object that represents the data column names and types
+        dataset_timestamp: int, optional
+            A timestamp integer that best represents the date tied to the dataset generation.
+            i.e.: A January 1st 2019 Sales Dataset will have 1546300800000 as the timestamp in miliseconds (UTC).
+            If None is provided, it will take the current timestamp as default
+        creation_timestamp: int, optional
+            The timestamp tied to the exact moment when the :class:`DatasetProfile` is created.
+            If None is provided, it will take the current timestamp as default
+    """
 
     def __init__(
         self,
@@ -23,13 +36,6 @@ class DatasetProfile(object):
         dataset_timestamp: Optional[datetime] = None,
         creation_timestamp: Optional[datetime] = None,
     ):
-        """
-        Init func.
-
-        Args:
-            schema: a :class:`DatasetSchema` object that
-        """
-
         if schema is None:
             schema = DatasetSchema()
         now = datetime.utcnow()

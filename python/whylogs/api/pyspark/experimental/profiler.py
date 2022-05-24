@@ -43,7 +43,7 @@ def column_profile_bytes_aggregator(group_by_cols: Tuple[str], profiles_df: pd.D
     return pd.DataFrame([group_by_cols + (merged_profile.serialize(),)])
 
 
-def collect_column_profiles(input_df: SparkDataFrame) -> Dict[str, ColumnProfileView]:
+def collect_column_profile_views(input_df: SparkDataFrame) -> Dict[str, ColumnProfileView]:
     if SparkDataFrame is None:
         logger.warning("Unable to load pyspark; install pyspark to get whylogs profiling support in spark environment.")
 
@@ -52,7 +52,7 @@ def collect_column_profiles(input_df: SparkDataFrame) -> Dict[str, ColumnProfile
     column_profiles = profile_bytes_df.groupby(COL_NAME_FIELD).applyInPandas(  # linebreak
         column_profile_bytes_aggregator, schema=cp
     )
-    collected_profiles = {
+    collected_profile_views = {
         row.col_name: ColumnProfileView.from_bytes(row.col_profile) for row in column_profiles.collect()
     }
-    return collected_profiles
+    return collected_profile_views
