@@ -20,6 +20,7 @@ from whylogs.core.proto import (
 )
 from whylogs.core.stubs import pd
 from whylogs.core.utils import read_delimited_protobuf, write_delimited_protobuf
+from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
 from whylogs.core.view.column_profile_view import ColumnProfileView
 
 # Magic header for whylogs using the first 4 bytes
@@ -227,7 +228,3 @@ class DatasetProfileView(object):
             all_dicts.append(sum_dict)
         df = pd.DataFrame(all_dicts)
         return df.set_index("column")
-
-
-def to_utc_milliseconds(timestamp: datetime) -> int:
-    return int(timestamp.timestamp() * 1000)

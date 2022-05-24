@@ -245,7 +245,7 @@ class DistributionMetric(Metric):
         new_n = a_n + b_n
         m2 = self.m2.value + other.m2.value + delta**2 * a_n * b_n / new_n
 
-        mean = (a_n / new_n) * (self.mean.value / new_n) + (b_n / new_n) * (other.mean.value / new_n)
+        mean = (a_n / new_n) * (self.mean.value) + (b_n / new_n) * (other.mean.value)
 
         # merge the sketch
         kll = self.kll + other.kll
