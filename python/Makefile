@@ -123,7 +123,6 @@ format-fix: ## Fix formatting with black. This updates files.
 
 test: dist ## Run unit tests.
 	@$(call i, Running tests)
-	poetry install -E "s3 whylabs"
 	poetry run pytest -v
 
 test-system-python: dist ## Run tests using the system `python` instead of the locally declared poetry python
@@ -133,7 +132,7 @@ test-system-python: dist ## Run tests using the system `python` instead of the l
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install -E viz -E spark
+	poetry install -E "viz s3 spark whylabs"
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)
