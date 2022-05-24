@@ -45,7 +45,7 @@ def v0_profile_path() -> str:
 
 
 @pytest.fixture(scope="session")
-def result_set() -> ResultSet:
+def pandas_dataframe() -> pd.DataFrame:
     data = {
         "animal": ["cat", "hawk", "snake", "cat"],
         "legs": [4, 2, 0, 4],
@@ -53,8 +53,12 @@ def result_set() -> ResultSet:
     }
 
     df = pd.DataFrame(data)
+    return df
 
-    results = why.log(pandas=df)
+
+@pytest.fixture(scope="session")
+def result_set(pandas_dataframe) -> ResultSet:
+    results = why.log(pandas=pandas_dataframe)
     return results
 
 

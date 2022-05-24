@@ -1718,6 +1718,18 @@ python-versions = ">=3.7"
 watchdog = ["watchdog"]
 
 [[package]]
+name = "whylabs-client"
+version = "0.3.0"
+description = "WhyLabs API client"
+category = "main"
+optional = true
+python-versions = ">=3.6"
+
+[package.dependencies]
+python-dateutil = "*"
+urllib3 = ">=1.25.3"
+
+[[package]]
 name = "whylogs-sketching"
 version = "3.4.0.dev9"
 description = "sketching library of whylogs"
@@ -1758,6 +1770,7 @@ docs = ["sphinx", "sphinx-autoapi", "sphinx-autobuild", "furo", "sphinx-copybutt
 s3 = ["boto3"]
 spark = ["pyarrow", "pyspark"]
 viz = ["ipython", "pybars3", "scipy"]
+whylabs = ["whylabs-client"]
 
 [metadata]
 lock-version = "1.1"
@@ -2898,6 +2911,10 @@ webencodings = [
 werkzeug = [
     {file = "Werkzeug-2.1.2-py3-none-any.whl", hash = "sha256:72a4b735692dd3135217911cbeaa1be5fa3f62bffb8745c5215420a03dc55255"},
     {file = "Werkzeug-2.1.2.tar.gz", hash = "sha256:1ce08e8093ed67d638d63879fd1ba3735817f7a80de3674d293f5984f25fb6e6"},
+]
+whylabs-client = [
+    {file = "whylabs-client-0.3.0.tar.gz", hash = "sha256:3c49bc37215c395eff4efda6af0180d38f62f06632527d419a6692ee4163acde"},
+    {file = "whylabs_client-0.3.0-py3-none-any.whl", hash = "sha256:8c9ee988360082946eb3e675d72f0fa2643bc99e09bae6638b05b349412d3ba3"},
 ]
 whylogs-sketching = [
     {file = "whylogs-sketching-3.4.0.dev9.tar.gz", hash = "sha256:5c8e2195e7578229a1a53d9a38dac874ebc7b02476bf12dd33e1166dcfb473a9"},
