@@ -40,7 +40,7 @@ def test_basic_log_row() -> None:
 
 
 def test_basic_log_dict_of_lists() -> None:
-    d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
+    d = {"col1": [np.int64(1), np.int64(2)], "col2": [3.0, 4.0], "col3": ["a", "b"]}
 
     results = why.log(d)
 
@@ -94,3 +94,38 @@ def test_different_integer_types(data_type) -> None:
     view_pandas = view.to_pandas()
     assert len(view_pandas) == 1
     assert len(view_pandas.columns) > 0
+
+
+def test_counters_dataframe_vs_row() -> None:
+    d = {"a": 1, "b": 2.0, "c": ["foo", "bar"]}
+    df = pd.DataFrame(d)
+
+    df_results = why.log(df)
+    row_results = why.log(d)
+
+    df_view = df_results.view()
+    row_view = row_results.view()
+
+    view_pandas = df_view.to_pandas()
+    assert len(view_pandas) == 3
+    assert len(view_pandas.columns) > 0
+
+    view_row_pandas = row_view.to_pandas()
+    assert len(view_row_pandas) == 3
+    assert len(view_row_pandas.columns) > 0
+
+
+@pytest.mark.parametrize("input", [{"a": [1, 2]}, {"a": []}])
+def test_object_count_dict(input) -> None:
+    row_results = why.log(input)
+    row_view = row_results.view()
+    assert row_view._columns.get("a")._success_count == 2
+    assert row_view._columns.get("a")._metrics.get("types").object.value == 1
+
+
+@pytest.mark.parametrize("input", [{"a": [1, 2]}, {"a": []}])
+def test_object_count_row(input) -> None:
+    row_results = why.log(row=input)
+    row_view = row_results.view()
+    assert row_view._columns.get("a")._success_count == 2
+    assert row_view._columns.get("a")._metrics.get("types").object.value == 1

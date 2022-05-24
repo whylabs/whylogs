@@ -117,7 +117,7 @@ class DatasetProfile(object):
 
         if row is not None:
             for k in row.keys():
-                self._columns[k].track_column(row[k])
+                self._columns[k].track_column([row[k]])
             return
 
         raise NotImplementedError

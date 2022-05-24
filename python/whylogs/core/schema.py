@@ -107,6 +107,7 @@ class DatasetSchema:
             for k, v in row.items():
                 if k in self._columns:
                     continue
+
                 self._columns[k] = ColumnSchema(
                     dtype=type(v),
                     resolver=self.resolvers,
