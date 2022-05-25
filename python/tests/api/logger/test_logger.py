@@ -129,3 +129,18 @@ def test_object_count_row(input) -> None:
     row_view = row_results.view()
     assert row_view._columns.get("a")._success_count == 2
     assert row_view._columns.get("a")._metrics.get("types").object.value == 1
+
+
+def test_bool_count():
+    data = {
+        "animal": ["cat", "hawk", "snake", "cat"],
+        "fly": [False, True, False, False],
+        "legs": [4, 2, 0, 4],
+    }
+
+    df = pd.DataFrame(data)
+
+    results = why.log(pandas=df)
+    prof_view = results.profile().view()
+    assert prof_view._columns.get("fly")._metrics.get("types").boolean.value == 4
+    assert prof_view._columns.get("fly")._metrics.get("types").integral.value == 0

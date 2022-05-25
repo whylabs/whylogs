@@ -112,7 +112,7 @@ class PreprocessedColumn:
         self.null_count = len(series[series.isnull()])
 
         non_null_series = series[series.notnull()]
-        if pdc.is_numeric_dtype(series.dtype):
+        if pdc.is_numeric_dtype(series.dtype) and not pdc.is_bool_dtype(series.dtype):
             if pdc.is_float_dtype(series.dtype):
                 floats = non_null_series.astype(float)
                 self.numpy.floats = floats
