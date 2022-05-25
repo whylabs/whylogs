@@ -20,6 +20,15 @@ class ColumnConfig:
     kll_k: int = 256
     fi_lg_max_k: int = 10  # 128 entries
     fi_disabled: bool = False
+    unicode_ranges = {
+        "emoji": (0x1F600, 0x1F64F),
+        "control": (0x00, 0x1F),
+        "digits": (0x30, 0x39),
+        "latin-lower": (0x41, 0x5A),
+        "latin-upper": (0x61, 0x7A),
+        "basic-latin": (0x00, 0x7F),
+        "extended-latin": (0x0080, 0x02AF),
+    }
 
 
 class DatasetSchema:

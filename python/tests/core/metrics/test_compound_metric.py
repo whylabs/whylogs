@@ -3,10 +3,11 @@ import pytest
 
 from whylogs.core import ColumnSchema
 from whylogs.core.metrics.compound_metric import CompoundMetric
-from whylogs.core.metrics.metrics import DistributionMetric
+from whylogs.core.metrics.metrics import DistributionMetric, custom_metric
 from whylogs.core.preprocessing import PreprocessedColumn
 
 
+@custom_metric
 class GoodCM(CompoundMetric):
     """Trivial CompoundMetric subclass for unit testing"""
 
@@ -16,7 +17,7 @@ class GoodCM(CompoundMetric):
 
     @classmethod
     def zero(cls, schema: ColumnSchema) -> "GoodCM":
-        return GoodCM({})
+        return cls({})
 
 
 def test_compound_metric() -> None:
@@ -35,27 +36,32 @@ def test_compound_metric() -> None:
     assert metric.submetrics["Metric2"].mean.value == arr.mean()
 
 
-# BadCM 1 and 2 are for testing invalid namespace
+def test_colon_in_namespace_fails() -> None:
+    with pytest.raises(ValueError):
+
+        @custom_metric
+        class BadCM1(CompoundMetric):
+            @property
+            def namespace(self) -> str:
+                return "bad:namespace"
+
+            @classmethod
+            def zero(cls, schema: ColumnSchema) -> "BadCM1":
+                return cls({})
 
 
-class BadCM1(CompoundMetric):
-    @property
-    def namespace(self) -> str:
-        return "bad:namespace"
+def test_slash_in_namespace_fails() -> None:
+    with pytest.raises(ValueError):
 
-    @classmethod
-    def zero(cls, schema: ColumnSchema) -> "BadCM1":
-        return BadCM1({})
+        @custom_metric
+        class BadCM2(CompoundMetric):
+            @property
+            def namespace(self) -> str:
+                return "bad/namespace"
 
-
-class BadCM2(CompoundMetric):
-    @property
-    def namespace(self) -> str:
-        return "bad/namespace"
-
-    @classmethod
-    def zero(cls, schema: ColumnSchema) -> "BadCM2":
-        return BadCM2({})
+            @classmethod
+            def zero(cls, schema: ColumnSchema) -> "BadCM2":
+                return cls({})
 
 
 @pytest.mark.parametrize(
@@ -63,9 +69,6 @@ class BadCM2(CompoundMetric):
     [
         (GoodCM, {"bad:name": DistributionMetric.zero(ColumnSchema(dtype=int))}),
         (GoodCM, {"bad/name": DistributionMetric.zero(ColumnSchema(dtype=int))}),
-        (BadCM1, {"good": DistributionMetric.zero(ColumnSchema(dtype=int))}),
-        (BadCM2, {"good": DistributionMetric.zero(ColumnSchema(dtype=int))}),
-        (GoodCM, {"good": GoodCM.zero(None)}),  # Nesting not allowed
     ],
 )
 def test_compound_metric_invalid_initialization(cls, metrics):

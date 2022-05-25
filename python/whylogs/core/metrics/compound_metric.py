@@ -2,9 +2,9 @@ from abc import ABC
 from typing import Any, Dict, List, Type, TypeVar
 
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.errors import UnsupportedError
+from whylogs.core.errors import DeserializationError, UnsupportedError
 from whylogs.core.metrics import Metric
-from whylogs.core.metrics.metrics import OperationResult
+from whylogs.core.metrics.metrics import _METRIC_DESERIALIZER_REGISTRY, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricComponentMessage, MetricMessage
 
@@ -14,9 +14,11 @@ COMPOUND_METRIC = TypeVar("COMPOUND_METRIC", bound="CompoundMetric")
 class CompoundMetric(Metric, ABC):
     """
     CompoundMetric serves as a base class for custom metrics that consist
-    of one or more StandardMetrics. It is handy when you need to do some
-    processing of the logged values and track serveral StandardMetrics on
-    the results.
+    of one or more metrics. It is handy when you need to do some
+    processing of the logged values and track serveral metrics on
+    the results. The sub-metrics must either be a StandardMetric, or tagged
+    as a @custom_metric or @dataclass. Note that CompoundMetric is neither, so it
+    cannot be nested.
 
     Typically you will need to override namespace(); columnar_update(), calling
     it on the submetrics as needed; and the zero() method to return an
@@ -42,20 +44,13 @@ class CompoundMetric(Metric, ABC):
                "<namespace>/<submetric name>/<component name>"
             Submetric names should only contain alphanumeric characters,
             hyphens, and underscores.
-
-            Note that the sub-metrics must be one of the elements of
-            the StandardMetric enumeration. CompoundMetric is not one
-            of the elements, so it cannot contain nested CompoundMetrics.
         """
-        from whylogs.core.metrics import StandardMetric
 
         if ":" in self.namespace or "/" in self.namespace:
             raise ValueError(f"Invalid namespace {self.namespace}")
         for sub_name, submetric in submetrics.items():
             if ":" in sub_name or "/" in sub_name:
                 raise ValueError(f"Invalid submetric name {sub_name}")
-            if StandardMetric.__members__.get(submetric.namespace) is None:
-                raise ValueError(f"Submetric {sub_name} is not a StandardMetric")
 
         self.submetrics = submetrics.copy()
 
@@ -108,16 +103,18 @@ class CompoundMetric(Metric, ABC):
                 submetric_msgs[submetric_name] = {}
             submetric_msgs[submetric_name][comp_name] = comp_msg
 
-        from whylogs.core.metrics import StandardMetric
-
         for m_name_and_type, metric_components in submetric_msgs.items():
             m_name, m_type = m_name_and_type.split(":")
-            m_enum = StandardMetric.__members__.get(m_type)
-            if m_enum is None:
-                raise UnsupportedError(f"Unsupported metric: {m_name}:{m_type}")
-            m_msg = MetricMessage(metric_components=metric_components)
-            submetrics[m_name] = m_enum.value.from_protobuf(m_msg)
+            if m_type in _METRIC_DESERIALIZER_REGISTRY:
+                metric_class = _METRIC_DESERIALIZER_REGISTRY[m_type]
+            else:
+                raise UnsupportedError(f"Unsupported metric: {m_type}")
 
+            m_msg = MetricMessage(metric_components=metric_components)
+            try:
+                submetrics[m_name] = metric_class.from_protobuf(m_msg)
+            except:  # noqa
+                raise DeserializationError(f"Failed to deserialize metric: {m_name}")
         return submetrics
 
     @classmethod

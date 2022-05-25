@@ -3,10 +3,11 @@ import math
 import statistics
 import sys
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any, Dict, List, Type, TypeVar, Union
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, List, Tuple, Type, TypeVar, Union
 
 import whylogs_sketching as ds  # type: ignore
+from google.protobuf.struct_pb2 import Struct
 from typing_extensions import TypeAlias
 
 from whylogs.core.configs import SummaryConfig
@@ -25,7 +26,7 @@ from whylogs.core.metrics.metric_components import (
     MinIntegralComponent,
 )
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.proto import MetricMessage
+from whylogs.core.proto import MetricComponentMessage, MetricMessage
 
 T = TypeVar("T")
 M = TypeVar("M", bound=MetricComponent)
@@ -33,6 +34,15 @@ NUM = TypeVar("NUM", float, int)
 
 METRIC = TypeVar("METRIC", bound="Metric")
 ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
+
+
+_METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
+
+
+def custom_metric(metric: Type[METRIC], schema=None) -> Type[METRIC]:  # type: ignore
+    global _METRIC_DESERIALIZER_REGISTRY
+    _METRIC_DESERIALIZER_REGISTRY[metric.get_namespace(schema)] = metric
+    return metric
 
 
 @dataclass(frozen=True)
@@ -56,10 +66,18 @@ class OperationResult:
 
 
 class Metric(ABC):
+    @classmethod
+    def get_namespace(cls, schema: ColumnSchema) -> str:
+        return cls.zero(schema).namespace
+
     @property
     @abstractmethod
     def namespace(self) -> str:
         raise NotImplementedError
+
+    def __post_init__(self):
+        global _METRIC_DESERIALIZER_REGISTRY
+        _METRIC_DESERIALIZER_REGISTRY[self.namespace] = self.__class__
 
     def __add__(self: METRIC, other: METRIC) -> METRIC:
         return self.merge(other)
@@ -405,3 +423,36 @@ class CardinalityMetric(Metric):
     def zero(cls, schema: ColumnSchema) -> "CardinalityMetric":
         sk = ds.hll_sketch(schema.cfg.hll_lg_k)
         return CardinalityMetric(hll=HllComponent(sk))
+
+
+def _drop_private_fields(data: List[Tuple[str, Any]]) -> Dict[str, Any]:
+    return {k: v for k, v in data if not k.startswith("_")}
+
+
+_STRUCT_NAME = "dataclass_param"
+
+
+class CustomMetricBase(Metric, ABC):
+    """
+    You can use this as a base class for custom metrics that don't use
+    the supplied or custom MetricComponents. Subclasses must be decorated with
+    @dataclass. All fields not prefixed with an underscore will be included
+    in the summary and will be [de]serialized. Such subclasses will need to
+    implement the namespace, merge, and zero methods.
+    """
+
+    def get_component_paths(self) -> List[str]:
+        return [_STRUCT_NAME]  # Assumes everything to be serde'd will be in the Struct
+
+    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Any]:
+        return asdict(self, dict_factory=_drop_private_fields)
+
+    def to_protobuf(self) -> MetricMessage:
+        mcm = MetricComponentMessage(dataclass_param=Struct())
+        mcm.dataclass_param.update(asdict(self, dict_factory=_drop_private_fields))
+        return MetricMessage(metric_components={_STRUCT_NAME: mcm})
+
+    @classmethod
+    def from_protobuf(cls: Type[METRIC], msg: MetricMessage) -> METRIC:
+        my_struct = msg.metric_components[_STRUCT_NAME].dataclass_param
+        return cls(**my_struct)

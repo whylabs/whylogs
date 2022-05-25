@@ -65,7 +65,7 @@ class UnicodeRangeMetric(CompoundMetric):
 
         submetrics = {key: DistributionMetric.zero(ColumnSchema(dtype=int)) for key in range_definitions.keys()}
         submetrics[_STRING_LENGTH] = DistributionMetric.zero(ColumnSchema(dtype=int))
-        super(UnicodeRangeMetric, self).__init__(submetrics)  # type: ignore
+        super(type(self), self).__init__(submetrics)  # type: ignore
 
     @property
     def namespace(self) -> str:
@@ -109,8 +109,8 @@ class UnicodeRangeMetric(CompoundMetric):
         return OperationResult.ok(len(data))
 
     @classmethod
-    def zero(cls, schema: "ColumnSchema") -> "UnicodeRangeMetric":
-        return UnicodeRangeMetric({"unicode": (0, 0x10FFFF)})
+    def zero(cls, schema: ColumnSchema) -> "UnicodeRangeMetric":
+        return cls(schema.cfg.unicode_ranges)
 
     @classmethod
     def from_protobuf(cls, msg: MetricMessage) -> "UnicodeRangeMetric":
