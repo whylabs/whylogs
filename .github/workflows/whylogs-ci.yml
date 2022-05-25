@@ -3,7 +3,7 @@ name: whylogs-ci
 on:
   pull_request:
   push:
-    branches: [mainline]
+    branches: [mainline, 1.0.x]
     tags:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
