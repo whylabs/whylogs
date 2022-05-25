@@ -125,11 +125,11 @@ class WhyLabsWriter(Writer):
             )
 
     def _get_or_create_api_log_client(self) -> LogApi:
-        environment_api_key = os.environ["WHYLABS_API_KEY"]
+        environment_api_key = os.environ.get("WHYLABS_API_KEY")
         _api_log_client = None
 
         if environment_api_key is not None and self._api_key != environment_api_key:
-            updated_key = os.environ["WHYLABS_API_KEY"]
+            updated_key = os.environ.get("WHYLABS_API_KEY")
             logger.warning(f"Updating API key ID from: {self._api_key} to: {updated_key}")
             self._api_key = updated_key
             config = whylabs_client.Configuration(
