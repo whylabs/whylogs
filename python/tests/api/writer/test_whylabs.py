@@ -6,7 +6,7 @@ import tempfile
 import pytest
 import requests
 import responses
-from responses import PUT
+from responses import HEAD, PUT
 from whylabs_client.rest import ForbiddenException
 
 import whylogs as why
@@ -19,7 +19,7 @@ class TestWhylabsWriter(object):
     @classmethod
     def setup_class(cls):
         os.environ["WHYLABS_API_KEY"] = "any"
-        os.environ["WHYLABS_ORG_ID"] = "org-1"
+        os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-1"
         os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-5"
         os.environ["WHYLABS_API_ENDPOINT"] = "https://api.whylabsapp.com"
         os.environ["WHYLABS_V1_ENABLED"] = "True"
@@ -27,7 +27,7 @@ class TestWhylabsWriter(object):
     @classmethod
     def teardown_class(cls):
         del os.environ["WHYLABS_API_KEY"]
-        del os.environ["WHYLABS_ORG_ID"]
+        del os.environ["WHYLABS_DEFAULT_ORG_ID"]
         del os.environ["WHYLABS_DEFAULT_DATASET_ID"]
         del os.environ["WHYLABS_API_ENDPOINT"]
 
@@ -40,6 +40,12 @@ class TestWhylabsWriter(object):
         self.responses.start()
 
         self.responses.add(PUT, url="https://api.whylabsapp.com", body=results.view().to_pandas().to_json())
+        self.responses.add(
+            HEAD,
+            url="https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_config/whylabs_writer_disabled",
+            headers="",
+            status=200,
+        )
         profile = results.view()
 
         writer = WhyLabsWriter()
