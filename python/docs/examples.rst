@@ -35,4 +35,3 @@ Integrations
 
     examples/integrations/Writing_Profiles
     examples/integrations/Pyspark_Profiling
-
