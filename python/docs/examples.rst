@@ -15,8 +15,10 @@ Basic
     examples/basic/Getting_Started
     examples/basic/Notebook_Profile_Visualizer
     examples/basic/Schema_Configuration
+    examples/basic/Logging_Different_Data
     examples/integrations/Writing_Profiles
     examples/integrations/Pyspark_Profiling
+
 
 Intermediate
 ------------
@@ -27,3 +29,11 @@ Advanced
 --------
 
 TBD
+
+Integrations
+------------
+
+.. toctree::
+    :maxdepth: 1
+
+    examples/integrations/pyspark_profiling
