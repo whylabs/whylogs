@@ -4,7 +4,11 @@ from typing import Dict, List, Tuple
 from typing_extensions import TypeAlias
 
 from whylogs.core.metrics.compound_metric import CompoundMetric
-from whylogs.core.metrics.metrics import DistributionMetric, OperationResult
+from whylogs.core.metrics.metrics import (
+    DistributionMetric,
+    MetricConfig,
+    OperationResult,
+)
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
 
@@ -61,10 +65,8 @@ class UnicodeRangeMetric(CompoundMetric):
             raise ValueError("STRING_LENGTH cannot be used as a range name")
 
         self.range_definitions = range_definitions
-        from whylogs.core.schema import ColumnSchema
-
-        submetrics = {key: DistributionMetric.zero(ColumnSchema(dtype=int)) for key in range_definitions.keys()}
-        submetrics[_STRING_LENGTH] = DistributionMetric.zero(ColumnSchema(dtype=int))
+        submetrics = {key: DistributionMetric.zero(MetricConfig()) for key in range_definitions.keys()}
+        submetrics[_STRING_LENGTH] = DistributionMetric.zero(MetricConfig())
         super(type(self), self).__init__(submetrics)  # type: ignore
 
     @property
@@ -109,8 +111,8 @@ class UnicodeRangeMetric(CompoundMetric):
         return OperationResult.ok(len(data))
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "UnicodeRangeMetric":
-        return cls(schema.cfg.unicode_ranges)
+    def zero(cls, config: MetricConfig) -> "UnicodeRangeMetric":
+        return cls(config.unicode_ranges)
 
     @classmethod
     def from_protobuf(cls, msg: MetricMessage) -> "UnicodeRangeMetric":

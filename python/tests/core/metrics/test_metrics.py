@@ -1,14 +1,13 @@
 import numpy as np
 
 import whylogs as why
-from whylogs.core import ColumnSchema
 from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2
-from whylogs.core.metrics.metrics import DistributionMetric
+from whylogs.core.metrics.metrics import DistributionMetric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
 
 
 def test_distribution_metrics_numpy() -> None:
-    dist = DistributionMetric.zero(ColumnSchema(dtype=int))
+    dist = DistributionMetric.zero(MetricConfig())
     data = list(range(0, 100))
     arr = np.array(data)
     col = PreprocessedColumn.apply(arr)
@@ -26,7 +25,7 @@ def test_distribution_metrics_numpy() -> None:
 
 
 def test_distribution_metrics_list() -> None:
-    dist = DistributionMetric.zero(ColumnSchema(dtype=int))
+    dist = DistributionMetric.zero(MetricConfig())
     col = PreprocessedColumn()
     data = list(range(0, 100))
     col.list.ints = data
@@ -38,7 +37,7 @@ def test_distribution_metrics_list() -> None:
 
 
 def test_distribution_metrics_mixed_np_and_list() -> None:
-    dist = DistributionMetric.zero(ColumnSchema(dtype=int))
+    dist = DistributionMetric.zero(MetricConfig())
     col = PreprocessedColumn()
     col.list.ints = list(range(0, 50))
     col.numpy.ints = np.array(range(50, 100))

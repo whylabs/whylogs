@@ -8,7 +8,6 @@ from typing import Any, Dict, List, Tuple, Type, TypeVar, Union
 
 import whylogs_sketching as ds  # type: ignore
 from google.protobuf.struct_pb2 import Struct
-from typing_extensions import TypeAlias
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.maths import (
@@ -33,15 +32,31 @@ M = TypeVar("M", bound=MetricComponent)
 NUM = TypeVar("NUM", float, int)
 
 METRIC = TypeVar("METRIC", bound="Metric")
-ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
+
+
+@dataclass(frozen=True)
+class MetricConfig:
+    hll_lg_k: int = 12
+    kll_k: int = 256
+    fi_lg_max_k: int = 10  # 128 entries
+    fi_disabled: bool = False
+    unicode_ranges = {
+        "emoji": (0x1F600, 0x1F64F),
+        "control": (0x00, 0x1F),
+        "digits": (0x30, 0x39),
+        "latin-lower": (0x41, 0x5A),
+        "latin-upper": (0x61, 0x7A),
+        "basic-latin": (0x00, 0x7F),
+        "extended-latin": (0x0080, 0x02AF),
+    }
 
 
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
 
 
-def custom_metric(metric: Type[METRIC], schema=None) -> Type[METRIC]:  # type: ignore
+def custom_metric(metric: Type[METRIC], config: MetricConfig = MetricConfig()) -> Type[METRIC]:  # type: ignore
     global _METRIC_DESERIALIZER_REGISTRY
-    _METRIC_DESERIALIZER_REGISTRY[metric.get_namespace(schema)] = metric
+    _METRIC_DESERIALIZER_REGISTRY[metric.get_namespace(config)] = metric
     return metric
 
 
@@ -67,8 +82,8 @@ class OperationResult:
 
 class Metric(ABC):
     @classmethod
-    def get_namespace(cls, schema: ColumnSchema) -> str:
-        return cls.zero(schema).namespace
+    def get_namespace(cls, config: MetricConfig) -> str:
+        return cls.zero(config).namespace
 
     @property
     @abstractmethod
@@ -119,7 +134,7 @@ class Metric(ABC):
 
     @classmethod
     @abstractmethod
-    def zero(cls: Type[METRIC], schema: ColumnSchema) -> METRIC:
+    def zero(cls: Type[METRIC], config: MetricConfig) -> METRIC:
         pass
 
     @classmethod
@@ -168,7 +183,7 @@ class IntsMetric(Metric):
         return OperationResult.ok(successes)
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "IntsMetric":
+    def zero(cls, config: MetricConfig) -> "IntsMetric":
         return IntsMetric(max=MaxIntegralComponent(-sys.maxsize), min=MinIntegralComponent(sys.maxsize))
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Union[int, float, str, None]]:
@@ -307,8 +322,8 @@ class DistributionMetric(Metric):
         return self.kll.value.get_min_value()
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "DistributionMetric":
-        sk = ds.kll_doubles_sketch(k=schema.cfg.kll_k)
+    def zero(cls, config: MetricConfig) -> "DistributionMetric":
+        sk = ds.kll_doubles_sketch(k=config.kll_k)
         return DistributionMetric(
             kll=KllComponent(sk),
             mean=FractionalComponent(0.0),
@@ -374,8 +389,8 @@ class FrequentItemsMetric(Metric):
         return {"frequent_strings": items}
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "FrequentItemsMetric":
-        sk = ds.frequent_strings_sketch(lg_max_k=schema.cfg.fi_lg_max_k)
+    def zero(cls, config: MetricConfig) -> "FrequentItemsMetric":
+        sk = ds.frequent_strings_sketch(lg_max_k=config.fi_lg_max_k)
         return FrequentItemsMetric(frequent_strings=FrequentStringsComponent(sk))
 
 
@@ -424,8 +439,8 @@ class CardinalityMetric(Metric):
         }
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "CardinalityMetric":
-        sk = ds.hll_sketch(schema.cfg.hll_lg_k)
+    def zero(cls, config: MetricConfig) -> "CardinalityMetric":
+        sk = ds.hll_sketch(config.hll_lg_k)
         return CardinalityMetric(hll=HllComponent(sk))
 
 

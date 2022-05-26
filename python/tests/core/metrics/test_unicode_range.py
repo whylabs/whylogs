@@ -5,7 +5,7 @@ import pytest
 
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
-from whylogs.core.metrics import Metric
+from whylogs.core.metrics import Metric, MetricConfig
 from whylogs.core.metrics.unicode_range import _STRING_LENGTH, UnicodeRangeMetric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.resolvers import Resolver
@@ -23,6 +23,12 @@ def test_unicode_range_metric() -> None:
     assert metric.submetrics["digits"].mean.value == np.array(digit_counts).mean()
     assert metric.submetrics["alpha"].mean.value == np.array(alpha_counts).mean()
     assert metric.submetrics[_STRING_LENGTH].mean.value == np.array([len(s) for s in strings]).mean()
+
+
+def test_unicode_range_metric_zero() -> None:
+    metric = UnicodeRangeMetric.zero(MetricConfig())
+    for range in MetricConfig().unicode_ranges.keys():
+        assert range in metric.submetrics
 
 
 @pytest.mark.parametrize(

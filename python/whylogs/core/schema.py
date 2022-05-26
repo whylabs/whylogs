@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
-from whylogs.core.metrics import Metric
+from whylogs.core.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import Resolver, StandardResolver
 from whylogs.core.stubs import pd
 
@@ -12,23 +12,6 @@ logger = logging.getLogger(__name__)
 LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 
 T = TypeVar("T", bound="DatasetSchema")
-
-
-@dataclass(frozen=True)
-class ColumnConfig:
-    hll_lg_k: int = 12
-    kll_k: int = 256
-    fi_lg_max_k: int = 10  # 128 entries
-    fi_disabled: bool = False
-    unicode_ranges = {
-        "emoji": (0x1F600, 0x1F64F),
-        "control": (0x00, 0x1F),
-        "digits": (0x30, 0x39),
-        "latin-lower": (0x41, 0x5A),
-        "latin-upper": (0x61, 0x7A),
-        "basic-latin": (0x00, 0x7F),
-        "extended-latin": (0x0080, 0x02AF),
-    }
 
 
 class DatasetSchema:
@@ -72,7 +55,7 @@ class DatasetSchema:
     """
 
     types: Dict[str, Any] = {}
-    default_configs: ColumnConfig = ColumnConfig()
+    default_configs: MetricConfig = MetricConfig()
     type_mapper: TypeMapper = StandardTypeMapper()
     resolvers: Resolver = StandardResolver()
     cache_size: int = 1024
@@ -165,7 +148,7 @@ class ColumnSchema:
     """
 
     dtype: Any
-    cfg: ColumnConfig = ColumnConfig()
+    cfg: MetricConfig = MetricConfig()
     type_mapper: TypeMapper = StandardTypeMapper()
     resolver: Resolver = StandardResolver()
 
