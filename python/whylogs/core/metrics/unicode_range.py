@@ -24,7 +24,7 @@ class UnicodeRangeMetric(CompoundMetric):
     """
     For string values, maintains a DistributionMetric for the counts of
     characters that fall within user-defined codepoint ranges.
- 
+
     Parameters
      ----------
      range_definitions : Dict[str, Tuple[int, int]]
