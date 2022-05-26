@@ -1,4 +1,5 @@
 import unicodedata
+from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
 from typing_extensions import TypeAlias
@@ -15,57 +16,41 @@ from whylogs.core.proto import MetricMessage
 ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
 
 
-DEFAULT_RANGES = {
-    "emoji": (0x1F600, 0x1F64F),
-    "control": (0x00, 0x1F),
-    "digits": (0x30, 0x39),
-    "latin-lower": (0x41, 0x5A),
-    "latin-upper": (0x61, 0x7A),
-    "basic-latin": (0x00, 0x7F),
-    "extended-latin": (0x0080, 0x02AF),
-}
-
-
 _STRING_LENGTH = "string_length"
 
 
+@dataclass
 class UnicodeRangeMetric(CompoundMetric):
     """
     For string values, maintains a DistributionMetric for the counts of
     characters that fall within user-defined codepoint ranges.
+ 
+    Parameters
+     ----------
+     range_definitions : Dict[str, Tuple[int, int]]
+         Defines the character ranges to be counted. The key servers as
+         the range name and should only contain alphanumeric, hyphen, and
+         underscore characters. The tuple defines the Unicode codepoint
+         range to be tracked. The string length is tracked under the key
+         "STRING_LENGTH" so don't use that as a range name.
     """
 
     range_definitions: Dict[str, Tuple[int, int]]
 
-    def __init__(
-        self,
-        range_definitions: Dict[str, Tuple[int, int]] = None,
-    ):
-        """
-        Parameters
-        ----------
-        range_definitions : Dict[str, Tuple[int, int]]
-            Defines the character ranges to be counted. The key servers as
-            the range name and should only contain alphanumeric, hyphen, and
-            underscore characters. The tuple defines the Unicode codepoint
-            range to be tracked. The string length is tracked under the key
-            "STRING_LENGTH" so don't use that as a range name.
-        """
-        if range_definitions is None:
-            range_definitions = DEFAULT_RANGES
-        range_definitions["UNKNOWN"] = (0, 0)  # catchall for characters not in a defined range
-        for key, range in range_definitions.items():
+    def __post_init__(self):
+        super(type(self), self).__post_init__()
+        self.range_definitions["UNKNOWN"] = (0, 0)  # catchall for characters not in a defined range
+        for key, range in self.range_definitions.items():
             if range[0] > range[1]:
                 raise ValueError(f"Invalid codepoint range {key}")
             if range[0] < 0 or 0x10FFFF < range[1]:
                 raise ValueError(f"Invalid codepoint range {key}")
             if ":" in key or "/" in key:
                 raise ValueError(f"Invalid range name {key}")
-        if _STRING_LENGTH in range_definitions:
+        if _STRING_LENGTH in self.range_definitions:
             raise ValueError("STRING_LENGTH cannot be used as a range name")
 
-        self.range_definitions = range_definitions
-        submetrics = {key: DistributionMetric.zero(MetricConfig()) for key in range_definitions.keys()}
+        submetrics = {key: DistributionMetric.zero(MetricConfig()) for key in self.range_definitions.keys()}
         submetrics[_STRING_LENGTH] = DistributionMetric.zero(MetricConfig())
         super(type(self), self).__init__(submetrics)  # type: ignore
 
