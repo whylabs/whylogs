@@ -12,13 +12,13 @@ import whylogs_sketching as ds  # type: ignore
 
 from whylogs.core import ColumnProfile, ColumnSchema
 from whylogs.core.dataset_profile import DatasetProfile
+from whylogs.core.metrics.metrics import MetricConfig
 from whylogs.core.resolvers import (
     HistogramCountingTrackingResolver,
     LimitedTrackingResolver,
     Resolver,
     StandardResolver,
 )
-from whylogs.core.schema import ColumnConfig
 
 TEST_LOGGER = getLogger(__name__)
 
@@ -29,7 +29,7 @@ _TEST_RESOLVERS = [HistogramCountingTrackingResolver(), LimitedTrackingResolver(
 @dataclass
 class TestHistogramMetric:
     histogram: ds.kll_floats_sketch = field(
-        default=ds.kll_floats_sketch(ColumnConfig.kll_k),
+        default=ds.kll_floats_sketch(MetricConfig.kll_k),
     )
 
     def track(self, val: Any) -> "TestHistogramMetric":
