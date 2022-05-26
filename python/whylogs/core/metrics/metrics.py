@@ -185,22 +185,26 @@ class DistributionMetric(Metric):
     def namespace(self) -> str:
         return "distribution"
 
-    def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Union[int, float, str, None]]:
+    def to_summary_dict(self, cfg: SummaryConfig = None) -> Dict[str, Union[int, float, str, None]]:
         if self.n == 0:
-            quantiles = [None, None, None, None, None]
+            quantiles = [None, None, None, None, None, None, None, None, None]
         else:
-            quantiles = self.kll.value.get_quantiles([0.1, 0.25, 0.5, 0.75, 0.9])
+            quantiles = self.kll.value.get_quantiles([0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99])
         return {
             "mean": self.mean.value,
             "stddev": self.stddev,
             "n": self.kll.value.get_n(),
             "max": self.kll.value.get_max_value(),
             "min": self.kll.value.get_min_value(),
-            "q_10": quantiles[0],
-            "q_25": quantiles[1],
-            "median": quantiles[2],
-            "q_75": quantiles[3],
-            "q_90": quantiles[4],
+            "q_01": quantiles[0],
+            "q_05": quantiles[1],
+            "q_10": quantiles[2],
+            "q_25": quantiles[3],
+            "median": quantiles[4],
+            "q_75": quantiles[5],
+            "q_90": quantiles[6],
+            "q_95": quantiles[7],
+            "q_99": quantiles[8],
         }
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:

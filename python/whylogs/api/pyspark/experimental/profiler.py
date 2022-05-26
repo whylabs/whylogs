@@ -1,10 +1,12 @@
+from datetime import datetime
 from functools import reduce
 from logging import getLogger
-from typing import Dict, Iterable, Tuple
+from typing import Dict, Iterable, Optional, Tuple
 
 import whylogs as why
 from whylogs.core.stubs import pd
 from whylogs.core.view.column_profile_view import ColumnProfileView
+from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 logger = getLogger(__name__)
 
@@ -56,3 +58,20 @@ def collect_column_profile_views(input_df: SparkDataFrame) -> Dict[str, ColumnPr
         row.col_name: ColumnProfileView.from_bytes(row.col_profile) for row in column_profiles.collect()
     }
     return collected_profile_views
+
+
+def collect_dataset_profile_view(
+    input_df: SparkDataFrame, dataset_timestamp: Optional[int] = None, creation_timestamp: Optional[int] = None
+) -> DatasetProfileView:
+    now = datetime.utcnow()
+
+    _dataset_timestamp = dataset_timestamp or now
+    _creation_timestamp = creation_timestamp or now
+
+    column_views_dict = collect_column_profile_views(input_df=input_df)
+
+    profile_view = DatasetProfileView(
+        columns=column_views_dict, dataset_timestamp=_dataset_timestamp, creation_timestamp=_creation_timestamp
+    )
+
+    return profile_view
