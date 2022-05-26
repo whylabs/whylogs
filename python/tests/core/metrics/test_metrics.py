@@ -17,6 +17,12 @@ def test_distribution_metrics_numpy() -> None:
     assert dist.mean.value == arr.mean()
     assert dist.variance == arr.var()
 
+    distribution_summary = dist.to_summary_dict()
+    assert distribution_summary["q_01"] == 1.0
+    assert distribution_summary["q_05"] == 5.0
+    assert distribution_summary["q_95"] == 95.0
+    assert distribution_summary["q_99"] == 99.0
+
 
 def test_distribution_metrics_list() -> None:
     dist = DistributionMetric.zero(MetricConfig())
