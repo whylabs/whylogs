@@ -7,6 +7,7 @@ from whylogs.core.metrics.metrics import (
     FrequentItemsMetric,
     IntsMetric,
     Metric,
+    MetricConfig,
 )
 from whylogs.core.metrics.unicode_range import UnicodeRangeMetric
 
@@ -23,5 +24,5 @@ class StandardMetric(Enum):
     def __init__(self, clz: Metric):
         self._clz = clz
 
-    def zero(self, schema) -> Metric:  # type: ignore
-        return self._clz.zero(schema)
+    def zero(self, config: MetricConfig) -> Metric:  # type: ignore
+        return self._clz.zero(config)

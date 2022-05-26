@@ -1,9 +1,8 @@
 import numpy as np
 import pytest
 
-from whylogs.core import ColumnSchema
 from whylogs.core.metrics.compound_metric import CompoundMetric
-from whylogs.core.metrics.metrics import DistributionMetric, custom_metric
+from whylogs.core.metrics.metrics import DistributionMetric, MetricConfig, custom_metric
 from whylogs.core.preprocessing import PreprocessedColumn
 
 
@@ -16,15 +15,15 @@ class GoodCM(CompoundMetric):
         return "good"
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "GoodCM":
+    def zero(cls, config: MetricConfig) -> "GoodCM":
         return cls({})
 
 
 def test_compound_metric() -> None:
     metric = GoodCM(
         {
-            "Metric1": DistributionMetric.zero(ColumnSchema(dtype=int)),
-            "Metric2": DistributionMetric.zero(ColumnSchema(dtype=int)),
+            "Metric1": DistributionMetric.zero(MetricConfig()),
+            "Metric2": DistributionMetric.zero(MetricConfig()),
         },
     )
     data = [10, 20, 30]
@@ -46,7 +45,7 @@ def test_colon_in_namespace_fails() -> None:
                 return "bad:namespace"
 
             @classmethod
-            def zero(cls, schema: ColumnSchema) -> "BadCM1":
+            def zero(cls, config: MetricConfig) -> "BadCM1":
                 return cls({})
 
 
@@ -60,15 +59,15 @@ def test_slash_in_namespace_fails() -> None:
                 return "bad/namespace"
 
             @classmethod
-            def zero(cls, schema: ColumnSchema) -> "BadCM2":
+            def zero(cls, config: MetricConfig) -> "BadCM2":
                 return cls({})
 
 
 @pytest.mark.parametrize(
     "cls, metrics",
     [
-        (GoodCM, {"bad:name": DistributionMetric.zero(ColumnSchema(dtype=int))}),
-        (GoodCM, {"bad/name": DistributionMetric.zero(ColumnSchema(dtype=int))}),
+        (GoodCM, {"bad:name": DistributionMetric.zero(MetricConfig())}),
+        (GoodCM, {"bad/name": DistributionMetric.zero(MetricConfig())}),
     ],
 )
 def test_compound_metric_invalid_initialization(cls, metrics):
@@ -79,8 +78,8 @@ def test_compound_metric_invalid_initialization(cls, metrics):
 def test_compound_metric_serialization() -> None:
     metric = GoodCM(
         {
-            "Metric1": DistributionMetric.zero(ColumnSchema(dtype=int)),
-            "Metric2": DistributionMetric.zero(ColumnSchema(dtype=int)),
+            "Metric1": DistributionMetric.zero(MetricConfig()),
+            "Metric2": DistributionMetric.zero(MetricConfig()),
         },
     )
     data = [10, 20, 30]
@@ -99,8 +98,8 @@ def test_compound_metric_serialization() -> None:
 def test_compound_metric_summary() -> None:
     metric = GoodCM(
         {
-            "Metric1": DistributionMetric.zero(ColumnSchema(dtype=int)),
-            "Metric2": DistributionMetric.zero(ColumnSchema(dtype=int)),
+            "Metric1": DistributionMetric.zero(MetricConfig()),
+            "Metric2": DistributionMetric.zero(MetricConfig()),
         },
     )
     data = [10, 20, 30]
@@ -118,28 +117,28 @@ def test_compound_metric_summary() -> None:
 def test_compound_metric_merge() -> None:
     metric1 = GoodCM(
         {
-            "Metric1": DistributionMetric.zero(ColumnSchema(dtype=int)),
-            "Metric2": DistributionMetric.zero(ColumnSchema(dtype=int)),
+            "Metric1": DistributionMetric.zero(MetricConfig()),
+            "Metric2": DistributionMetric.zero(MetricConfig()),
         },
     )
     data1 = [10, 20, 30]
     arr1 = np.array(data1)
     col = PreprocessedColumn.apply(arr1)
     metric1.columnar_update(col)
-    d1 = DistributionMetric.zero(ColumnSchema(dtype=int))
+    d1 = DistributionMetric.zero(MetricConfig())
     d1.columnar_update(col)
 
     metric2 = GoodCM(
         {
-            "Metric1": DistributionMetric.zero(ColumnSchema(dtype=int)),
-            "Metric2": DistributionMetric.zero(ColumnSchema(dtype=int)),
+            "Metric1": DistributionMetric.zero(MetricConfig()),
+            "Metric2": DistributionMetric.zero(MetricConfig()),
         },
     )
     data2 = [40, 50, 60]
     arr2 = np.array(data2)
     col = PreprocessedColumn.apply(arr2)
     metric2.columnar_update(col)
-    d2 = DistributionMetric.zero(ColumnSchema(dtype=int))
+    d2 = DistributionMetric.zero(MetricConfig())
     d2.columnar_update(col)
 
     merged = metric1 + metric2

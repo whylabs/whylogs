@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metric_components import IntegralComponent
-from whylogs.core.metrics.metrics import ColumnSchema, Metric, OperationResult
+from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 
 
@@ -78,7 +78,7 @@ class TypeCountersMetric(Metric):
         return OperationResult.ok(successes)
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "TypeCountersMetric":
+    def zero(cls, config: MetricConfig) -> "TypeCountersMetric":
         return TypeCountersMetric(
             integral=IntegralComponent(0),
             fractional=IntegralComponent(0),
@@ -113,5 +113,5 @@ class ColumnCountsMetric(Metric):
         return {"n": self.n.value, "null": self.null.value}
 
     @classmethod
-    def zero(cls, schema: ColumnSchema) -> "ColumnCountsMetric":
+    def zero(cls, config: MetricConfig) -> "ColumnCountsMetric":
         return ColumnCountsMetric(n=IntegralComponent(0), null=IntegralComponent(0))

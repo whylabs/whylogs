@@ -43,7 +43,7 @@ class StandardResolver(Resolver):
 
         result: Dict[str, Metric] = {}
         for m in metrics:
-            result[m.name] = m.zero(column_schema)
+            result[m.name] = m.zero(column_schema.cfg)
         return result
 
 
@@ -61,7 +61,7 @@ class LimitedTrackingResolver(Resolver):
 
         result: Dict[str, Metric] = {}
         for m in metrics:
-            result[m.name] = m.zero(column_schema)
+            result[m.name] = m.zero(column_schema.cfg)
         return result
 
 
@@ -72,5 +72,5 @@ class HistogramCountingTrackingResolver(Resolver):
         metrics: List[StandardMetric] = [StandardMetric.distribution]
         result: Dict[str, Metric] = {}
         for m in metrics:
-            result[m.name] = m.zero(column_schema)
+            result[m.name] = m.zero(column_schema.cfg)
         return result
