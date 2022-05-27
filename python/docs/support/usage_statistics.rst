@@ -12,7 +12,7 @@ This data helps our developers to deliver the best possible product to our users
 
 Data is only collected at the time of importing the whylogs library or its modules. We do not collect any sensitive information, or user code.
 
-If users wish to opt out of this usage statistics collection, they can do so by setting the WHYLOGS_NO_ANALYTICS environment variable as follows:
+If users wish to opt out of this usage statistics collection, they can do so by setting the :code:`WHYLOGS_NO_ANALYTICS` environment variable as follows:
 
 .. code-block:: python
 
