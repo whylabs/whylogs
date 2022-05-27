@@ -10,8 +10,9 @@ build:
       - asdf install poetry latest
       - asdf global poetry latest
       - poetry config virtualenvs.create false
-    post_install:
+    pre_build:
       - cd python && poetry config virtualenvs.create false && poetry install -E docs
+      - pip list
 
 sphinx:
    configuration: python/docs/conf.py
