@@ -6,9 +6,7 @@ build:
     python: "3.9"
   jobs:
     pre_create_environment:
-      - asdf plugin add poetry
-      - asdf install poetry latest
-      - asdf global poetry latest
+      - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
     pre_build:
       - which python
       - which pip
