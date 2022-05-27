@@ -162,7 +162,7 @@ jobs:
           NETLIFY_SITE_ID: "6c942dd9-863c-4ce5-8c26-eb4ee546ed60"
         if: ${{ github.ref != 'refs/heads/mainline' }}
 
-      - name: "Deploy to Netlify - Mainline"
+      - name: "Deploy to Netlify - 1.0.x"
         uses: nwtgck/actions-netlify@v1.2
         with:
           production-deploy: true
@@ -171,7 +171,7 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
           NETLIFY_SITE_ID: "6c942dd9-863c-4ce5-8c26-eb4ee546ed60"
-        if: ${{ github.ref == 'refs/heads/mainline' }}
+        if: ${{ github.ref == 'refs/heads/1.0.x' }}
 
       - name: Publish docs
         uses: JamesIves/github-pages-deploy-action@4.0.0
