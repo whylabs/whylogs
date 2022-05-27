@@ -11,6 +11,8 @@ build:
       - asdf global poetry latest
       - poetry config virtualenvs.create false
     pre_build:
+      - which python
+      - which pip
       - cd python && poetry config virtualenvs.create false && poetry install -E docs
       - pip list
 
