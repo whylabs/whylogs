@@ -20,7 +20,6 @@ _summary_funcs1: Mapping[int, Callable[..., Callable[[Any], Any]]] = {
     Op.CONTAIN: lambda f, v: lambda s: v in getattr(s, f),
 }
 
-
 def _create_column_profile_summary_object(**kwargs: Optional[float]) -> type:
     """
     Wrapper method for summary constraints update object creation
@@ -91,16 +90,12 @@ class SummaryConstraints:
         ----------
         constraints : Mapping[str, SummaryConstraint]
             A dictionary of summary constraints with their names as keys.
-            Can also accept a list of summary constraints.
 
         """
 
         if constraints is None:
             constraints = dict()
 
-        # Support list of constraints for back compat with previous version.
-        if isinstance(constraints, list):
-            self.constraints = {constraint._name: constraint for constraint in constraints}
         elif isinstance(constraints, dict):
             self.constraints = constraints
         else:

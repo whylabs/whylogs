@@ -228,3 +228,4 @@ class DatasetProfileView(object):
             all_dicts.append(sum_dict)
         df = pd.DataFrame(all_dicts)
         return df.set_index("column")
+
