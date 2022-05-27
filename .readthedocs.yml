@@ -14,7 +14,7 @@ build:
       - which python
       - which pip
       - cd python && poetry config virtualenvs.create false && poetry install -E docs
-      - poetry run which python
+      - cd python && poetry run which python
       - pip list
 
 sphinx:
