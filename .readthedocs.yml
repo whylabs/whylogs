@@ -7,11 +7,7 @@ build:
   jobs:
     pre_build:
       - curl -sSL https://install.python-poetry.org | python -
-      - which python
-      - which pip
-      - cd python && /home/docs/.local/bin/poetry config virtualenvs.create false --local && /home/docs/.local/bin/poetry install -E docs
-      - cd python && /home/docs/.local/bin/poetry run which python
-      - pip list
+      - cd python && /home/docs/.local/bin/poetry export -E docs --without-hashes -f requirements.txt --output requirements.txt && pip install requirements.txt
 
 sphinx:
    configuration: python/docs/conf.py
