@@ -11,10 +11,10 @@ build:
       - asdf global poetry latest
       - poetry config virtualenvs.create false
     pre_build:
-      - poetry run which python
       - which python
       - which pip
       - cd python && poetry config virtualenvs.create false && poetry install -E docs
+      - poetry run which python
       - pip list
 
 sphinx:
