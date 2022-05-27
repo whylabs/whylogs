@@ -12,6 +12,8 @@ build:
     pre_build:
       - cd python && poetry export -E docs --without-hashes -f requirements.txt --output requirements.txt
       - pip install -r python/requirements.txt
+      - which pip
+      - pip list
 
 sphinx:
    configuration: python/docs/conf.py
