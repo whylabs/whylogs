@@ -10,8 +10,8 @@ build:
     pre_build:
       - which python
       - which pip
-      - cd python && poetry config virtualenvs.create false --local && poetry install -E docs
-      - cd python && poetry run which python
+      - cd python && $HOME/.poetry/bin/poetry config virtualenvs.create false --local && $HOME/.poetry/bin/poetry install -E docs
+      - cd python && $HOME/.poetry/bin/poetry run which python
       - pip list
 
 sphinx:
