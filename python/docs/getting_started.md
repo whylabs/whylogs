@@ -29,13 +29,13 @@ df = pd.read_csv("/my/local/path/dataset.csv")
 
 ## Profile your data
 
-Profiling a dataset is as simple as running the following code. 
+Profiling a dataset is as simple as running the following code.
 
 ```python
 results = why.log(df)
 ```
 
-From here, users can take advantage of a variety of features for inspecting their profiles, visualizing their profiles, and more. See the “Examples” section for more. 
+From here, users can take advantage of a variety of features for inspecting their profiles, visualizing their profiles, and more. See the “Examples” section for more.
 
 ## Inspect your profile
 
