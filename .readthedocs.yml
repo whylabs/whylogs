@@ -9,11 +9,12 @@ build:
       - asdf plugin add poetry
       - asdf install poetry latest
       - asdf global poetry latest
-    pre_build:
       - cd python && poetry export -E docs --without-hashes -f requirements.txt --output requirements.txt
-      - pip install -r python/requirements.txt
-      - which pip
-      - pip list
 
 sphinx:
    configuration: python/docs/conf.py
+
+# Optionally declare the Python requirements required to build your docs
+python:
+   install:
+   - requirements: python/requirements.txt
