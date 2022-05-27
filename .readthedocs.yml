@@ -5,9 +5,12 @@ build:
   tools:
     python: "3.9"
   jobs:
+    pre_create_environment:
+      - asdf plugin add poetry
+      - asdf install poetry latest
+      - asdf global poetry latest
     pre_build:
-      - curl -sSL https://install.python-poetry.org | python -
-      - cd python && /home/docs/.local/bin/poetry export -E docs --without-hashes -f requirements.txt --output requirements.txt
+      - cd python && poetry export -E docs --without-hashes -f requirements.txt --output requirements.txt
       - pip install -r python/requirements.txt
 
 sphinx:
