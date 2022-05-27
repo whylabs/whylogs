@@ -5,9 +5,8 @@ build:
   tools:
     python: "3.9"
   jobs:
-    pre_create_environment:
-      - curl -sSL https://install.python-poetry.org | python -
     pre_build:
+      - curl -sSL https://install.python-poetry.org | python -
       - which python
       - which pip
       - cd python && $HOME/.poetry/bin/poetry config virtualenvs.create false --local && $HOME/.poetry/bin/poetry install -E docs
