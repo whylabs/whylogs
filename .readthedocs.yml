@@ -12,9 +12,9 @@ build:
       - cd python && poetry export -E docs --without-hashes -f requirements.txt --output requirements.txt
       - cd python/docs && make pre-build
 sphinx:
-   configuration: python/docs/conf.py
+  configuration: python/docs/conf.py
 
 # Optionally declare the Python requirements required to build your docs
 python:
-   install:
-   - requirements: python/requirements.txt
+  install:
+    - requirements: python/requirements.txt
