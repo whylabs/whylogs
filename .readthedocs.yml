@@ -10,7 +10,7 @@ build:
       - asdf install poetry latest
       - asdf global poetry latest
       - cd python && poetry export -E docs --without-hashes -f requirements.txt --output requirements.txt
-
+      - cd python/docs && make pre-build
 sphinx:
    configuration: python/docs/conf.py
 
