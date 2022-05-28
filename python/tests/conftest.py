@@ -2,6 +2,12 @@ import os
 
 import pandas as pd
 import pytest
+from python.whylogs.core.constraints.metric_constraints import (
+    Constraints,
+    ConstraintsBuilder,
+    MetricConstraint,
+    MetricsSelector,
+)
 
 import whylogs as why
 from whylogs import ResultSet
@@ -53,6 +59,7 @@ def pandas_dataframe() -> pd.DataFrame:
     df = pd.DataFrame(data)
     return df
 
+
 @pytest.fixture(scope="session")
 def pandas_constraint_dataframe() -> pd.DataFrame:
     data = {
@@ -63,6 +70,18 @@ def pandas_constraint_dataframe() -> pd.DataFrame:
 
     df = pd.DataFrame(data)
     return df
+
+
+@pytest.fixture(scope="session")
+def max_less_than_equal_constraints(profile_view) -> Constraints:
+    constraints_builder = ConstraintsBuilder(dataset_profile_view=profile_view)
+    metric_constraint = MetricConstraint(
+        name="legs less than 12",
+        condition=lambda x: x.max < 12,
+        metric_selector=MetricsSelector(metric_name="distribution", column_name="legs"),
+    )
+    constraints_builder.add_constraint(metric_constraint)
+    return constraints_builder.build()
 
 
 @pytest.fixture(scope="session")

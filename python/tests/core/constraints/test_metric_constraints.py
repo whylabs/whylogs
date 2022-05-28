@@ -1,7 +1,12 @@
 from logging import getLogger
 from typing import List
 
-from python.whylogs.core.constraints import ConstraintsBuilder, MetricConstraint, MetricsSelector
+from python.whylogs.core.constraints import (
+    ConstraintsBuilder,
+    MetricConstraint,
+    MetricsSelector,
+)
+
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
@@ -9,19 +14,27 @@ from whylogs.core.preprocessing import PreprocessedColumn
 
 TEST_LOGGER = getLogger(__name__)
 
+
 def test_metric_constraint_lambdas() -> None:
-    test_integer_column_values = [0,1,2,3,4]
+    test_integer_column_values = [0, 1, 2, 3, 4]
     distribution_metric = DistributionMetric.zero(MetricConfig())
     column_data = PreprocessedColumn.apply(test_integer_column_values)
     distribution_metric.columnar_update(column_data)
-    distribution_stddev_between_constraint = MetricConstraint(name="stddev_between_constraint", condition=lambda dist: 1.1 < dist.stddev < 2.3)
-    avg_greater_than_two_constraint = MetricConstraint(name="avg_greater_than_two", condition=lambda dist: dist.avg > 2.0)
+    distribution_stddev_between_constraint = MetricConstraint(
+        name="stddev_between_constraint",
+        condition=lambda dist: 1.1 < dist.stddev < 2.3,
+        metric_selector=MetricsSelector(""),
+    )
+    avg_greater_than_two_constraint = MetricConstraint(
+        name="avg_greater_than_two", condition=lambda dist: dist.avg > 2.0, metric_selector=MetricsSelector("")
+    )
     TEST_LOGGER.info(f"stddev is {distribution_metric.stddev}")
     assert distribution_stddev_between_constraint.condition(distribution_metric)
     assert not avg_greater_than_two_constraint.condition(distribution_metric)
 
+
 def test_metric_constraint_callable() -> None:
-    test_integer_column_values = [0,1,2,3,4]
+    test_integer_column_values = [0, 1, 2, 3, 4]
     distribution_metric = DistributionMetric.zero(MetricConfig())
     empty_distribution = DistributionMetric.zero(MetricConfig())
     column_data = PreprocessedColumn.apply(test_integer_column_values)
@@ -33,11 +46,14 @@ def test_metric_constraint_callable() -> None:
         TEST_LOGGER.info(f"{metric.stddev} > {metric.avg} -> c1:{c1}, c2:{c2}")
         return c1 or c2
 
-    distribution_stddev_gt_avg = MetricConstraint(name="stddev_gt_avg", condition=custom_function)
+    distribution_stddev_gt_avg = MetricConstraint(
+        name="stddev_gt_avg", condition=custom_function, metric_selector=MetricsSelector("")
+    )
     TEST_LOGGER.info(f"distribution is {distribution_metric.to_summary_dict()}")
     TEST_LOGGER.info(f"empy distribution is {empty_distribution.to_summary_dict()}")
     assert distribution_stddev_gt_avg.condition(distribution_metric)
     assert distribution_stddev_gt_avg.condition(empty_distribution)
+
 
 def test_constraints_builder(pandas_constraint_dataframe) -> None:
     profile = DatasetProfile()
@@ -47,8 +63,6 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     selectors = constraints_builder.get_metric_selectors()
     TEST_LOGGER.info(f"selectors are: {selectors}")
 
-    # pick a metric name from available selectors
-    metric_selector = MetricsSelector(metric_name="distribution", column_name="legs")
     def metric_resolver(profile_view) -> List[Metric]:
         column_profiles = profile_view.get_columns()
         distribution_metrics = []
@@ -58,18 +72,22 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
                 distribution_metrics.append(metric)
         return distribution_metrics
 
-    constraint_condition = lambda distribution: distribution.max < 12
     legs_less_than_12_constraint = MetricConstraint(
         name="legs less than 12",
-        condition=constraint_condition,
-        metric_selector=metric_selector)
+        condition=lambda x: x.max < 12,
+        metric_selector=MetricsSelector(metric_name="distribution", column_name="legs"),
+    )
 
-    distribution_selector = MetricsSelector(metric_name="distribution", metrics_resolver=metric_resolver, )
+    distribution_selector = MetricsSelector(
+        metric_name="distribution",
+        metrics_resolver=metric_resolver,
+    )
     no_negative_numbers = MetricConstraint(
         name="no negative numbers",
-        condition=lambda numbers: numbers.min >= 0,
+        condition=lambda x: x.min >= 0,
         metric_selector=distribution_selector,
-        require_column_existence = False) 
+        require_column_existence=False,
+    )
 
     constraints_builder.add_constraint(constraint=legs_less_than_12_constraint)
     constraints_builder.add_constraint(constraint=no_negative_numbers, ignore_missing=True)
@@ -80,5 +98,4 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     TEST_LOGGER.info(f"constraints report is: {report_results}")
     assert constraints_valid
     assert len(report_results) == 2
-    assert report_results[0] == ('legs less than 12', 1, 0)
-
+    assert report_results[0] == ("legs less than 12", 1, 0)

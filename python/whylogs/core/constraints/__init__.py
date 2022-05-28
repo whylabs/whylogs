@@ -2,7 +2,7 @@ from .metric_constraints import (
     Constraints,
     ConstraintsBuilder,
     MetricConstraint,
-    MetricsSelector
+    MetricsSelector,
 )
 
 __ALL__ = [
@@ -11,6 +11,3 @@ __ALL__ = [
     MetricConstraint,
     MetricsSelector,
 ]
-
-
-
