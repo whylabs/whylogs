@@ -1,26 +1,15 @@
 from logging import getLogger
+from typing import List
+
 import pandas as pd
-from python.whylogs.core.constraints.metric_constraint import ConstraintsBuilder, MetricConstraint, NumericConstraint
+from python.whylogs.core.constraints.metric_constraint import ConstraintsBuilder, MetricConstraint, MetricsSelector
 
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics import DistributionMetric
-from whylogs.core.metrics.metrics import MetricConfig
+from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
 
 TEST_LOGGER = getLogger(__name__)
-
-def test_numneric_constraint() -> None:
-    test_integer_column_values = [0,1,2,3,4]
-    integer_metric = DistributionMetric.zero(MetricConfig())
-    column_data = PreprocessedColumn.apply(test_integer_column_values)
-    integer_metric.columnar_update(column_data)
-    numeric_constraint = NumericConstraint()
-    numeric_constraint.max.lower_bound = 3
-    numeric_constraint.max.upper_bound = 10
-    assert numeric_constraint.validate(integer_metric)
-
-    numeric_constraint.max.lower_bound = 5
-    assert not numeric_constraint.validate(integer_metric)
 
 def test_metric_constraint_lambdas() -> None:
     test_integer_column_values = [0,1,2,3,4]
@@ -53,31 +42,49 @@ def test_metric_constraint_callable() -> None:
     assert distribution_stddev_gt_avg.condition(empty_distribution)
 
 def test_constraints_builder() -> None:
-    d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
-    df = pd.DataFrame(data=d)
-
+    data = {
+        "animal": ["cat", "hawk", "snake", "cat", "mosquito"],
+        "legs": [4, 2, 0, 4, 6],
+        "weight": [4.3, 1.8, 1.3, 4.1, 5.5e-6],
+    }
+    df = pd.DataFrame(data)
     profile = DatasetProfile()
     profile.track(pandas=df)
     view = profile.view()
     constraints_builder = ConstraintsBuilder(dataset_profile_view=view)
+    selectors = constraints_builder.get_metric_selectors()
+    TEST_LOGGER.info(f"selectors are: {selectors}")
 
-    constraints_builder.add_constraint(column_name="col1", max_less_than=3) # <- signature hard to infer what is valid
-    #constraints_builder.add_constraint(column_name="col1", ctype="numeric", max_less_than=3)
-    # constraints_builder.add_constraint(column_name="col10", constraint=MetricConstraint(condition=lambda x: x % 2 == 0)) # Andy votes to include
-    # constraints_builder.add_numeric_constraint() # Some kind of namespacing
-    # constraints_builder.add_text_constraint()
+    # pick a metric name from available selectors
+    metric_selector = MetricsSelector(metric_name="distribution", column_name="legs")
+    def metric_resolver(profile_view) -> List[Metric]:
+        column_profiles = profile_view.get_columns()
+        distribution_metrics = []
+        for column_name in column_profiles:
+            metric = column_profiles[column_name].get_metric("distribution")
+            if metric is not None:
+                distribution_metrics.append(metric)
+        return distribution_metrics
 
-    # multi column, apply to multiple columns
+    constraint_condition = lambda distribution: distribution.max < 12
+    legs_less_than_12_constraint = MetricConstraint(
+        name="legs less than 12",
+        condition=constraint_condition,
+        metric_selector=metric_selector)
 
-    # recipes for simple constraints.
-    # could create a MetricConstraint <- Andy and Felipe
+    distribution_selector = MetricsSelector(metric_name="distribution", metrics_resolver=metric_resolver, )
+    no_negative_numbers = MetricConstraint(
+        name="no negative numbers",
+        condition=lambda numbers: numbers.min >= 0,
+        metric_selector=distribution_selector,
+        require_column_existence = False) 
 
+    constraints_builder.add_constraint(constraint=legs_less_than_12_constraint)
+    constraints_builder.add_constraint(constraint=no_negative_numbers, ignore_missing=True)
     contraints = constraints_builder.execute()
+    TEST_LOGGER.info(f"constraints are: {contraints.column_constraints}")
     constraints_valid = contraints.validate()
     report_results = contraints.report()
     TEST_LOGGER.info(f"constraints report is: {report_results}")
-    # constraints.unbind ??
-    # passes_contraints = profile_view.validate(contraints) # fail or ignore missing columns
-    #profile_report = profile_view.report(contraints)
     assert constraints_valid
 
