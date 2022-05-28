@@ -1,9 +1,7 @@
 from logging import getLogger
 from typing import List
 
-import pandas as pd
-from python.whylogs.core.constraints.metric_constraint import ConstraintsBuilder, MetricConstraint, MetricsSelector
-
+from python.whylogs.core.constraints import ConstraintsBuilder, MetricConstraint, MetricsSelector
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
@@ -41,15 +39,9 @@ def test_metric_constraint_callable() -> None:
     assert distribution_stddev_gt_avg.condition(distribution_metric)
     assert distribution_stddev_gt_avg.condition(empty_distribution)
 
-def test_constraints_builder() -> None:
-    data = {
-        "animal": ["cat", "hawk", "snake", "cat", "mosquito"],
-        "legs": [4, 2, 0, 4, 6],
-        "weight": [4.3, 1.8, 1.3, 4.1, 5.5e-6],
-    }
-    df = pd.DataFrame(data)
+def test_constraints_builder(pandas_constraint_dataframe) -> None:
     profile = DatasetProfile()
-    profile.track(pandas=df)
+    profile.track(pandas=pandas_constraint_dataframe)
     view = profile.view()
     constraints_builder = ConstraintsBuilder(dataset_profile_view=view)
     selectors = constraints_builder.get_metric_selectors()
@@ -81,10 +73,12 @@ def test_constraints_builder() -> None:
 
     constraints_builder.add_constraint(constraint=legs_less_than_12_constraint)
     constraints_builder.add_constraint(constraint=no_negative_numbers, ignore_missing=True)
-    contraints = constraints_builder.execute()
+    contraints = constraints_builder.build()
     TEST_LOGGER.info(f"constraints are: {contraints.column_constraints}")
     constraints_valid = contraints.validate()
     report_results = contraints.report()
     TEST_LOGGER.info(f"constraints report is: {report_results}")
     assert constraints_valid
+    assert len(report_results) == 2
+    assert report_results[0] == ('legs less than 12', 1, 0)
 

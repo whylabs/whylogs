@@ -1,7 +1,7 @@
 from dataclasses import dataclass
+from copy import deepcopy
 from logging import getLogger
 from typing import Callable, Dict, List, Optional
-from python.tests.core import metrics
 
 from whylogs.core.metrics.metrics import Metric
 from whylogs.core.view.column_profile_view import ColumnProfileView
@@ -187,6 +187,6 @@ class ConstraintsBuilder:
 
         return self
 
-    def execute(self) -> Constraints:
-        return self._constraints
+    def build(self) -> Constraints:
+        return deepcopy(self._constraints)
 
