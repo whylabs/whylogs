@@ -1,12 +1,11 @@
 from logging import getLogger
 from typing import List
 
-from python.whylogs.core.constraints import (
+from whylogs.core.constraints import (
     ConstraintsBuilder,
     MetricConstraint,
     MetricsSelector,
 )
-
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics import DistributionMetric
 from whylogs.core.metrics.metrics import Metric, MetricConfig
@@ -47,7 +46,7 @@ def test_metric_constraint_callable() -> None:
         return c1 or c2
 
     distribution_stddev_gt_avg = MetricConstraint(
-        name="stddev_gt_avg", condition=custom_function, metric_selector=MetricsSelector("")
+        name="stddev_gt_avg", condition=custom_function, metric_selector=MetricsSelector(metric_name="custom_metric")
     )
     TEST_LOGGER.info(f"distribution is {distribution_metric.to_summary_dict()}")
     TEST_LOGGER.info(f"empy distribution is {empty_distribution.to_summary_dict()}")
@@ -99,3 +98,54 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     assert constraints_valid
     assert len(report_results) == 2
     assert report_results[0] == ("legs less than 12", 1, 0)
+
+
+def test_same_constraint_on_multiple_columns(profile_view):
+    def not_null(column_name):
+        constraint = MetricConstraint(
+            name="not_null",
+            condition=lambda x: x.null.value == 0,
+            metric_selector=MetricsSelector(column_name=column_name, metric_name="counts"),
+        )
+        return constraint
+
+    def greater_than_zero(column_name):
+        constraint = MetricConstraint(
+            name="greater_than_zero",
+            condition=lambda x: x.min > 0,
+            metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        )
+        return constraint
+
+    def greater_than_number(column_name, number):
+        constraint = MetricConstraint(
+            name="greater_than_number",
+            condition=lambda x: x.min > number,
+            metric_selector=MetricsSelector(column_name=column_name, metric_name="distribution"),
+        )
+        return constraint
+
+    builder = ConstraintsBuilder(dataset_profile_view=profile_view)
+    builder.add_constraint(not_null(column_name="weight"))
+    builder.add_constraint(not_null(column_name="animal"))
+    builder.add_constraint(not_null(column_name="legs"))
+    builder.add_constraint(greater_than_zero(column_name="weight"))
+    builder.add_constraint(greater_than_zero(column_name="legs"))
+    builder.add_constraint(greater_than_number(column_name="weight", number=10))
+    builder.add_constraint(greater_than_number(column_name="legs", number=20))
+
+    constraints = builder.build()
+    report = constraints.report()
+    assert isinstance(report, list)
+
+    assert sorted(report) == sorted(
+        [
+            ("not_null", 0, 1),
+            ("greater_than_zero", 1, 0),
+            ("greater_than_number", 0, 1),
+            ("greater_than_number", 0, 1),
+            ("not_null", 1, 0),
+            ("not_null", 1, 0),
+            ("greater_than_zero", 0, 1),
+        ]
+    )
