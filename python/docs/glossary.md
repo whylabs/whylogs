@@ -43,7 +43,7 @@ single pass. This term is sometimes used to refer specifically to the Apache Dat
 **Metadata** is data that describes either a dataset or information from whylogs’ processing of the dataset.
 
 #### Metric
-The summary statistics of a dataset is composed by a collection of metrics. Metrics are defined according to its namespaces. Some of the whylogs' default namespaces are: `counts`, `types`, `distribution`, `cardinality`, `frequent items/frequent strings`. By default, a column of a given data type will have a defined set of metrics assigned to it. The metrics to be tracked are customizable according to data type or column name (see [Schema Configuration](examples/basic/Schema_Configuration.ipynb)) . New metrics can also be created in a custom fashion, according to the need of the user (see TBD).
+The summary statistics of a dataset is composed by a collection of metrics. Metrics are defined according to its namespaces. Some of the whylogs' default namespaces are: `counts`, `types`, `distribution`, `cardinality`, `frequent items/frequent strings`. By default, a column of a given data type will have a defined set of metrics assigned to it. The metrics to be tracked are customizable according to data type or column name (see [Schema Configuration](examples/basic/Schema_Configuration.ipynb)). New metrics can also be created in a custom fashion, according to the need of the user (see TBD).
 
 
 ##### Metric component
@@ -52,5 +52,4 @@ A metric component is the smallest unit for a metric.A metric might consist of m
 
 #### whylogs file
 
-A whylogs-generated profile can be stored as a protobuf binary file. Protobuf is a lightweight binary
-format that maps one-to-one with the memory representation of a whylogs object.
+A whylogs-generated profile can be stored as a protobuf binary file. [Protobuf](https://developers.google.com/protocol-buffers) stands for a serialization technology called protocol buffer, and is a lightweight binary format that maps one-to-one with the memory representation of a whylogs object.
