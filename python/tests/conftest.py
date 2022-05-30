@@ -2,11 +2,15 @@ import os
 
 import pandas as pd
 import pytest
+from python.whylogs.core.constraints.metric_constraints import (
+    Constraints,
+    ConstraintsBuilder,
+    MetricConstraint,
+    MetricsSelector,
+)
 
 import whylogs as why
 from whylogs import ResultSet
-from whylogs.core.constraints import DatasetConstraints
-from whylogs.core.constraints.summary_constraints import maxLessThanEqualConstraint
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
@@ -57,6 +61,30 @@ def pandas_dataframe() -> pd.DataFrame:
 
 
 @pytest.fixture(scope="session")
+def pandas_constraint_dataframe() -> pd.DataFrame:
+    data = {
+        "animal": ["cat", "hawk", "snake", "cat", "mosquito"],
+        "legs": [4, 2, 0, 4, 6],
+        "weight": [4.3, 1.8, 1.3, 4.1, 5.5e-6],
+    }
+
+    df = pd.DataFrame(data)
+    return df
+
+
+@pytest.fixture(scope="session")
+def max_less_than_equal_constraints(profile_view) -> Constraints:
+    constraints_builder = ConstraintsBuilder(dataset_profile_view=profile_view)
+    metric_constraint = MetricConstraint(
+        name="legs less than 12",
+        condition=lambda x: x.max < 12,
+        metric_selector=MetricsSelector(metric_name="distribution", column_name="legs"),
+    )
+    constraints_builder.add_constraint(metric_constraint)
+    return constraints_builder.build()
+
+
+@pytest.fixture(scope="session")
 def result_set(pandas_dataframe) -> ResultSet:
     results = why.log(pandas=pandas_dataframe)
     return results
@@ -66,14 +94,6 @@ def result_set(pandas_dataframe) -> ResultSet:
 def profile_view(result_set) -> DatasetProfileView:
     profile_view = result_set.view()
     return profile_view
-
-
-@pytest.fixture(scope="session")
-def max_less_than_equal_constraints():
-    max_less_than_equal_value = maxLessThanEqualConstraint(value=4)
-    summary_constraints = {"legs": [max_less_than_equal_value]}
-    dc = DatasetConstraints(summary_constraints=summary_constraints)
-    return dc
 
 
 @pytest.fixture(scope="session")

@@ -78,6 +78,9 @@ class ColumnProfileView(object):
                 res.append(f"{m.namespace}/{mc_name}")
         return res
 
+    def get_metric_names(self) -> List[str]:
+        return [name for name in self._metrics]
+
     def to_summary_dict(
         self, *, column_metric: Optional[str] = None, cfg: Optional[SummaryConfig] = None
     ) -> Dict[str, Any]:
