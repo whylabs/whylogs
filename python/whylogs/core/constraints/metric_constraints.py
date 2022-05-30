@@ -40,7 +40,8 @@ class MetricsSelector:
         metric = column_profile_view.get_metric(self.metric_name)
         if metric is None:
             logger.warning(
-                f"{self.metric_name} not found in {self.column_name} available metrics are: {column_profile_view.get_metric_component_paths()}"
+                f"{self.metric_name} not found in {self.column_name} available metrics are: "
+                f"{column_profile_view.get_metric_component_paths()}"
             )
         else:
             results.append(metric)
@@ -200,14 +201,14 @@ class ConstraintsBuilder:
         column_profile_view = self._dataset_profile_view.get_column(column_name)
         if column_profile_view is None and not ignore_missing and constraint.metric_selector.metrics_resolver is None:
             raise ValueError(
-                f"{column_name} was not found in set of this profile, the lis of columns are: {self._dataset_profile_view.get_columns()}"
+                f"{column_name} was not found in set of this profile, the list of columns are: {self._dataset_profile_view.get_columns()}"
             )
 
         metric_selector = constraint.metric_selector
         metrics = metric_selector.apply(self._dataset_profile_view)
         if (metrics is None or len(metrics) == 0) and not (ignore_missing or column_name is None):
             raise ValueError(
-                f"metrics not found for {column_name} metric, available metric compoenents are: {column_profile_view.get_metric_component_paths()}"
+                f"metrics not found for column {column_name}, available metric components are: {column_profile_view.get_metric_component_paths()}"
             )
 
         if column_name is None:
