@@ -42,12 +42,14 @@ whylogs is an open source library for logging any kind of data. With whylogs, us
 
 These three functionalities enable a variety of use cases for data scientists, machine learning engineers, and data engineers:
 
-- Data and concept drift detection
-- ML model performance degradation detection
-- Exploratory data analysis via data profiling
-- Tracking data for ML experiments
-- Data auditing and governance
-- And many more
+- Detect data drift in model input features
+- Detect training-serving skew, concept drift, and model performance degradation
+- Validate data quality in model inputs or in a data pipeline
+- Perform exploratory data analysis of massive datasets
+- Track data distributions & data quality for ML experiments
+- Enable data auditing and governance across the organization
+- Standardize data documentation practices across the organization
+- And more
 
 whylogs can be run in Python or [Apache Spark](https://docs.whylabs.ai/docs/spark-integration) (both PySpark and Scala) environments on a variety of [data types](#data-types). We [integrate](#integrations) with lots of other tools including Pandas, [AWS Sagemaker](https://aws.amazon.com/blogs/startups/preventing-amazon-sagemaker-model-degradation-with-whylabs/), [MLflow](https://docs.whylabs.ai/docs/mlflow-integration), [Flask](https://whylabs.ai/blog/posts/deploy-and-monitor-your-ml-application-with-flask-and-whylabs), [Ray](https://docs.whylabs.ai/docs/ray-integration), [RAPIDS](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs), [Apache Kafka](https://docs.whylabs.ai/docs/kafka-integration), and more.
 
@@ -92,23 +94,19 @@ whylogs profiles have three properties that make them ideal for data logging: th
 
 <br />
 
-<img align="left" src="https://user-images.githubusercontent.com/7946482/170717932-342ef879-40fb-40eb-b7f0-3073c29aabd0.png">
+<img align="left" src="https://user-images.githubusercontent.com/7946482/171064257-26bf727e-3480-4ec3-9c9d-5d8a79567bca.png">
 
 **Efficient**: whylogs profiles efficiently describe the dataset that they represent. This high fidelity representation of datasets is what enables whylogs profiles to be effective snapshots of the data. They are better at capturing the characteristics of a dataset than a sample would be—as discussed in our [Data Logging: Sampling versus Profiling](https://whylabs.ai/blog/posts/data-logging-sampling-versus-profiling) blog post—and are very compact.
 
 <br />
-<br />
-<br />
 
-<img align="left" src="https://user-images.githubusercontent.com/7946482/170716640-c918ca92-1234-439d-ab21-5bcc4151a43e.png">
+<img align="left" src="https://user-images.githubusercontent.com/7946482/171064575-72ee0f76-7365-4fd1-9cab-4debb673baa8.png">
 
 **Customizable**: The statistics that whylogs profiles collect are easily configured and customizable. This is useful because different data types and use cases require different metrics, and whylogs users need to be able to easily define custom trackers for those metrics. It’s the customizability of whylogs that enables our text, image, and other complex data trackers.
 
 <br />
-<br />
-<br />
 
-<img align="left" src="https://user-images.githubusercontent.com/7946482/170718582-f8042134-f3e2-4284-a0d9-af91d8d8484d.png">
+<img align="left" src="https://user-images.githubusercontent.com/7946482/171064525-2d314534-6cdb-4c07-9d9f-5c74d5c03029.png">
 
 **Mergeable**: One of the most powerful features of whylogs profiles is their mergeability. Mergeability means that whylogs profiles can be combined together to form new profiles which represent the aggregate of their constituent profiles. This enables logging for distributed and streaming systems, and allows users to view aggregated data across any time granularity.
 
@@ -147,7 +145,23 @@ Constraints are a powerful feature built on top of whylogs profiles that enable 
 
 A simple example of setting and testing a constraint is:
 
-To learn more about constraints, check out the constraints example.
+```python
+import whylogs as why
+from whylogs.core.constraints import Constraints, ConstraintsBuilder, MetricsSelector, MetricConstraint
+
+profile_view = why.log(df).view()
+builder = ConstraintsBuilder(profile_view)
+
+builder.add_constraint(MetricConstraint(
+    name="col_name >= 0",
+    condition=lambda x: x.min >= 0,
+    metric_selector=MetricsSelector(metric_name='distribution', column_name='col_name')
+)
+constraints: Constraints = builder.build()
+constraints.report()
+```
+
+To learn more about constraints, check out: the [Constraints Example](https://bit.ly/whylogsconstraintsexample).
 
 ## Profile Visualization<a name="profile-visualization" />
 
@@ -157,13 +171,14 @@ To access the profile visualizer, install the `[viz]` module of whylogs by runni
 
 ```python
 import whylogs as why
+
+from whylogs.viz import NotebookProfileVisualizer
+
 result = why.log(pandas=df_target)
 prof_view = result.view()
 
 result_ref = why.log(pandas=df_reference)
 prof_view_ref = result_ref.view()
-
-from whylogs.viz import NotebookProfileVisualizer
 
 visualization = NotebookProfileVisualizer()
 visualization.set_profiles(target_profile_view=prof_view, reference_profile_view=prof_view_ref)
@@ -173,7 +188,7 @@ visualization.summary_drift_report()
 
 ![image](https://user-images.githubusercontent.com/7946482/169669536-a25cce95-acde-4637-b7b9-c2a685f0bc3f.png)
 
-To learn more about visualizing your profiles, check out:
+To learn more about visualizing your profiles, check out: the [Visualizer Example](https://bit.ly/whylogsvisualizerexample)
 
 ## Data Types<a name="data-types" />
 
@@ -189,7 +204,7 @@ whylogs supports both structured and unstructured data, specifically:
 
 ## Integrations
 
-![current integration](https://user-images.githubusercontent.com/7946482/170717239-05d0d2f4-9a60-4aba-8f2c-20335bcaa87a.png)
+![current integration](https://user-images.githubusercontent.com/7946482/171062942-01c420f2-7768-4b7c-88b5-e3f291e1b7d8.png)
 | Integration | Features | Resources |
 | --- | --- | --- |
 | Spark | Run whylogs in Apache Spark environment| <ul><li>[Code Example](https://github.com/whylabs/whylogs-examples/blob/mainline/scala/src/main/scala/WhyLogsDemo.scala)</li></ul> |
