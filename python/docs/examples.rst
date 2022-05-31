@@ -19,7 +19,7 @@ Basic
     examples/basic/Metric_Constraints
     examples/basic/Schema_Configuration
     examples/basic/Merging_Profiles
-    
+
 
 Intermediate
 ------------
