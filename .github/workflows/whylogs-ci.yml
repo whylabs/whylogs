@@ -52,8 +52,9 @@ jobs:
         with:
           poetry-version: ${{ env.POETRY_VERSION }}
       - name: Install Protoc
-        uses: arduino/setup-protoc@master
+        uses: arduino/setup-protoc@v1
         with:
+          version: "3.19.4"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           version: '3.19.4'
 
