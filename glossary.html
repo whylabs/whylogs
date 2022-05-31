@@ -363,49 +363,49 @@ have a special meaning in the context of whylogs/WhyLabs.</p>
 data points together into micro batches.</p>
 </section>
 </section>
+<section id="column-profile">
+<h2>Column Profile<a class="headerlink" href="#column-profile" title="Permalink to this headline">#</a></h2>
+<p>A collection of metrics that represents a feature/column in the dataset.</p>
+</section>
+<section id="constraints">
+<h2>Constraints<a class="headerlink" href="#constraints" title="Permalink to this headline">#</a></h2>
+<p>Constraints are rules you create to assert that your data lies within the expected range. You can define a set of constraints to be applied to a given dataset profile in order to generate a report or a boolean check if any of the defined constrains failed to be met.</p>
+</section>
 <section id="dataset">
 <h2>Dataset<a class="headerlink" href="#dataset" title="Permalink to this headline">#</a></h2>
 <p><strong>Dataset</strong> is a collection of related data that will be analyzed together. In case of tabular data: each column of
 the table represents a particular variable, and each row represents a record of the dataset. When used alongside a
-statistical model, the dataset often represents features as columns, with additional columns for the output. For
-non-structured/complex data, the representation depends on the datatype, explore other data
-types <a class="reference external" href="https://docs.whylabs.ai/docs/whylabs-monitoring/#discrete-vs-continuous-columns">here</a>.</p>
+statistical model, the dataset often represents features as columns, with additional columns for the output.</p>
 </section>
-<section id="datasetprofile">
-<h2>DatasetProfile<a class="headerlink" href="#datasetprofile" title="Permalink to this headline">#</a></h2>
-<p>A <strong>DatasetProfile</strong> is a collection of summary statistics and related metadata for a dataset that whylogs has
-processed.</p>
+<section id="dataset-profile">
+<h2>Dataset Profile<a class="headerlink" href="#dataset-profile" title="Permalink to this headline">#</a></h2>
+<p>A <strong>Dataset Profile</strong> is a collection of summary statistics and related metadata for a dataset that whylogs has
+processed. A <strong>Dataset Profile</strong> is a collection of Column Profiles.</p>
+</section>
+<section id="dataset-schema">
+<h2>Dataset Schema<a class="headerlink" href="#dataset-schema" title="Permalink to this headline">#</a></h2>
+<p>A <strong>Dataset Schema</strong> defines the schema for tracking metrics in whylogs. In a dataset schema, the columns of the dataset are mapped to specific data types, and metrics are mapped to each data type. A <strong>Dataset Schema</strong> is created automatically when logging, but it can also be customized by the user, defining column types and/or metrics to be tracked.</p>
 </section>
 <section id="data-sketching">
 <h2>Data Sketching<a class="headerlink" href="#data-sketching" title="Permalink to this headline">#</a></h2>
 <p><strong>Data sketching</strong> is a class of algorithms that efficiently extract information from large or streaming datasets in a
 single pass. This term is sometimes used to refer specifically to the Apache DataSketches project.</p>
 </section>
-<section id="logger">
-<h2>Logger<a class="headerlink" href="#logger" title="Permalink to this headline">#</a></h2>
-<p>A <strong>logger</strong> represents the whylogs tracking object for a given dataset (in batch mode) or a collection of data points (
-in streaming mode). A logger is always associated with a timestamp for its creation and a timestamp for the dataset.
-Different loggers may write to different storage systems using different output formats.</p>
-</section>
 <section id="metadata">
 <h2>Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">#</a></h2>
 <p><strong>Metadata</strong> is data that describes either a dataset or information from whylogs’ processing of the dataset.</p>
 </section>
-<section id="whylogs-file">
-<h2>whylogs file<a class="headerlink" href="#whylogs-file" title="Permalink to this headline">#</a></h2>
-<p>[NEED UPDATING] The <strong>whylogs output</strong> is available in the following formats: protobuf, JSON, and flat. Protobuf is a lightweight binary
-format that maps one-to-one with the memory representation of a whylogs object. JSON displays the protobuf data in JSON
-format. Flat outputs multiple files with both CSV and JSON content to represent different views of the data, including
-histograms, upper-bound, lower-bound, and frequent values. To apply advanced transformation on whylogs, we recommend
-using Protobuf.</p>
-</section>
 <section id="metric">
 <h2>Metric<a class="headerlink" href="#metric" title="Permalink to this headline">#</a></h2>
-<p>TBD New world</p>
+<p>The summary statistics of a dataset is composed by a collection of metrics. Metrics are defined according to its namespaces. Some of the whylogs’ default namespaces are: <code class="docutils literal notranslate"><span class="pre">counts</span></code>, <code class="docutils literal notranslate"><span class="pre">types</span></code>, <code class="docutils literal notranslate"><span class="pre">distribution</span></code>, <code class="docutils literal notranslate"><span class="pre">cardinality</span></code>, <code class="docutils literal notranslate"><span class="pre">frequent</span> <span class="pre">items/frequent</span> <span class="pre">strings</span></code>. By default, a column of a given data type will have a defined set of metrics assigned to it. The metrics to be tracked are customizable according to data type or column name (see <a class="reference internal" href="examples/basic/Schema_Configuration.html"><span class="doc std std-doc">Schema Configuration</span></a>). New metrics can also be created in a custom fashion, according to the need of the user (see TBD).</p>
 <section id="metric-component">
 <h3>Metric component<a class="headerlink" href="#metric-component" title="Permalink to this headline">#</a></h3>
-<p>NEED TO DEFINE HERE</p>
+<p>A metric component is the smallest unit for a metric.A metric might consist of multiple components. An example is ints metric, which consists of min and max metric components. The calculation of components could be independent or could be coupled with other components.</p>
 </section>
+</section>
+<section id="whylogs-file">
+<h2>whylogs file<a class="headerlink" href="#whylogs-file" title="Permalink to this headline">#</a></h2>
+<p>A whylogs-generated profile can be stored as a protobuf binary file. <a class="reference external" href="https://developers.google.com/protocol-buffers">Protobuf</a> stands for a serialization technology called protocol buffer, and is a lightweight binary format that maps one-to-one with the memory representation of a whylogs object.</p>
 </section>
 </section>
 
@@ -498,16 +498,18 @@ using Protobuf.</p>
 <li><a class="reference internal" href="#streaming-mode">Streaming Mode</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#column-profile">Column Profile</a></li>
+<li><a class="reference internal" href="#constraints">Constraints</a></li>
 <li><a class="reference internal" href="#dataset">Dataset</a></li>
-<li><a class="reference internal" href="#datasetprofile">DatasetProfile</a></li>
+<li><a class="reference internal" href="#dataset-profile">Dataset Profile</a></li>
+<li><a class="reference internal" href="#dataset-schema">Dataset Schema</a></li>
 <li><a class="reference internal" href="#data-sketching">Data Sketching</a></li>
-<li><a class="reference internal" href="#logger">Logger</a></li>
 <li><a class="reference internal" href="#metadata">Metadata</a></li>
-<li><a class="reference internal" href="#whylogs-file">whylogs file</a></li>
 <li><a class="reference internal" href="#metric">Metric</a><ul>
 <li><a class="reference internal" href="#metric-component">Metric component</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#whylogs-file">whylogs file</a></li>
 </ul>
 </li>
 </ul>
