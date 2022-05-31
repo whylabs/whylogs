@@ -22,12 +22,12 @@ Basic
 Intermediate
 ------------
 
-TBD
+Coming soon!
 
 Advanced
 --------
 
-TBD
+Coming soon!
 
 Integrations
 ------------
@@ -35,5 +35,5 @@ Integrations
 .. toctree::
     :maxdepth: 1
 
-    examples/integrations/writing_profiles
-    examples/integrations/pyspark_profiling
+    examples/integrations/Writing_Profiles
+    examples/integrations/Pyspark_Profiling
