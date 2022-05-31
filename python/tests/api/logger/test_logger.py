@@ -149,8 +149,11 @@ def test_bool_count():
     assert prof_view._columns.get("fly")._metrics.get("types").boolean.value == 4
     assert prof_view._columns.get("fly")._metrics.get("types").integral.value == 0
 
+
 def test_unicode_range_defaults() -> None:
-    strings = { "words":  ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoji"], } # fix ❤️  /u+fe0f
+    strings = {
+        "words": ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoji"],
+    }  # fix ❤️  /u+fe0f
     data = pd.DataFrame(strings)
     digit_counts = [1, 2, 3, 4, 0, 3, 0]
     latin_counts = [1, 2, 3, 5, 3, 6, 6]
@@ -171,7 +174,9 @@ def test_unicode_range_defaults() -> None:
 
 
 def test_unicode_range_config_off() -> None:
-    strings = { "words":  ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoji"], }
+    strings = {
+        "words": ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoji"],
+    }
     data = pd.DataFrame(strings)
 
     configured_schema = DatasetSchema(MetricConfig(track_unicode_ranges=False))
@@ -180,8 +185,11 @@ def test_unicode_range_config_off() -> None:
     column_profile = prof_view.get_column("words")
     assert "unicode_range" not in column_profile.get_metric_names()
 
+
 def test_frequent_items() -> None:
-    strings = { "words":  ["1", "12", "123"], }
+    strings = {
+        "words": ["1", "12", "123"],
+    }
     data = pd.DataFrame(strings)
 
     prof_view = why.log(data).view()
@@ -189,8 +197,11 @@ def test_frequent_items() -> None:
     column_profile = prof_view.get_column("words")
     assert "frequent_items" in column_profile.get_metric_names()
 
+
 def test_frequent_items_disabled() -> None:
-    strings = { "words":  ["1", "12", "123"], }
+    strings = {
+        "words": ["1", "12", "123"],
+    }
     data = pd.DataFrame(strings)
     configured_schema = DatasetSchema(MetricConfig(fi_disabled=True))
 
@@ -198,4 +209,3 @@ def test_frequent_items_disabled() -> None:
     assert "words" in prof_view.get_columns()
     column_profile = prof_view.get_column("words")
     assert "frequent_items" not in column_profile.get_metric_names()
-
