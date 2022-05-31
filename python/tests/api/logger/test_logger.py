@@ -4,13 +4,11 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import pytest
-from python.tests.core.metrics.test_metric_components import TEST_LOGGER
-from python.whylogs.core.metrics.metrics import MetricConfig
-from python.whylogs.core.schema import DatasetSchema
-from python.whylogs.core.view import column_profile_view
 
 import whylogs as why
 from whylogs.core import ColumnProfileView
+from whylogs.core.metrics.metrics import MetricConfig
+from whylogs.core.schema import DatasetSchema
 
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]

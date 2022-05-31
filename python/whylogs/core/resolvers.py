@@ -5,7 +5,7 @@ from typing_extensions import TypeAlias
 
 from whylogs.core.datatypes import DataType, Fractional, Integral, String
 from whylogs.core.metrics import StandardMetric
-from whylogs.core.metrics.metrics import Metric, MetricConfig
+from whylogs.core.metrics.metrics import Metric
 
 M = TypeVar("M", bound=Metric)
 ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
