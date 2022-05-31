@@ -4,17 +4,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="PySpark Integration" />
+<meta property="og:title" content="Writing profiles" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/pyspark_profiling.html" />
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/Writing_Profiles.html" />
   
-<meta property="og:description" content="Hi! Perhaps you’re already feeling confident with our library, but you really wish there was an easy way to plug our profiling into your existing PySpark jobs. Well, glad you’ve made it here, becau..." />
-  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Integration" href="../../integrations/index.html" /><link rel="prev" title="Writing profiles" href="writing_profiles.html" />
+<meta property="og:description" content="Open in Colab Hello there! If you’ve come to this tutorial, perhaps you are wondering what can you do after you generated your first (or maybe not the first) profile. Well, a good practice is to st..." />
+  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="PySpark Integration" href="Pyspark_Profiling.html" /><link rel="prev" title="Inspecting Profiles" href="../basic/Inspecting_Profiles.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
-        <title>PySpark Integration - whylogs v1.0.0</title>
+        <title>Writing profiles - whylogs v1.0.0</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -194,8 +194,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html">Inspecting Profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html#Understanding-The-whylogs-Profile-Statistics">Understanding The whylogs Profile Statistics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html#Data-Types-and-Metrics">Data Types and Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="writing_profiles.html">Writing profiles</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">PySpark Integration</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Writing profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Pyspark_Profiling.html">PySpark Integration</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../integrations/index.html">Integration</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -590,264 +590,134 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="PySpark-Integration">
-<h1>PySpark Integration<a class="headerlink" href="#PySpark-Integration" title="Permalink to this headline">#</a></h1>
-<p>Hi! Perhaps you’re already feeling confident with our library, but you really wish there was an easy way to plug our profiling into your existing PySpark jobs. Well, glad you’ve made it here, because this is what we are going to cover in this example notebook 😃</p>
-<p>If you wish to have other insights on how to use whylogs, feel free to check our <a class="reference external" href="https://github.com/whylabs/whylogs/tree/1.0.x/python/examples">other existing examples</a>, as they might be extremely useful!</p>
-<section id="Installing-the-extra-dependency">
-<h2>Installing the extra dependency<a class="headerlink" href="#Installing-the-extra-dependency" title="Permalink to this headline">#</a></h2>
-<p>As we want to enable users to have exactly what they need to use from whylogs, the <code class="docutils literal notranslate"><span class="pre">pyspark</span></code> integration comes as an extra dependency. In order to have it available, simply uncomment and run the following cell:</p>
+<section id="Writing-profiles">
+<h1>Writing profiles<a class="headerlink" href="#Writing-profiles" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Writing_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p>Hello there! If you’ve come to this tutorial, perhaps you are wondering what can you do after you generated your first (or maybe not the first) profile. Well, a good practice is to store these profiles as <em>lightweight</em> files, which is one of the cool features <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> brings to the table.</p>
+<p>Here we will check different flavors of writing, and you can check which one of these will meet your current needs. Shall we?</p>
+<section id="Creating-simple-profiles">
+<h2>Creating simple profiles<a class="headerlink" href="#Creating-simple-profiles" title="Permalink to this headline">#</a></h2>
+<p>In order for us to get started, let’s take a very simple example dataset and profile it.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ! pip install whylogs[spark]</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Initializing-a-SparkSession">
-<h2>Initializing a SparkSession<a class="headerlink" href="#Initializing-a-SparkSession" title="Permalink to this headline">#</a></h2>
-<p>Here we will initialize a SparkSession. I’m also setting the <code class="docutils literal notranslate"><span class="pre">pyarrow</span></code> execution config, because it makes our methods even more performant.</p>
-<blockquote>
-<div><p><strong>IMPORTANT</strong>: Make sure you have Spark 3.0+ available in your environment, as our implementation relies on it for a smoother integration</p>
-</div></blockquote>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s1">'whylogs-testing'</span><span class="p">)</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
-<span class="n">arrow_config_key</span> <span class="o">=</span> <span class="s2">"spark.sql.execution.arrow.pyspark.enabled"</span>
-<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">arrow_config_key</span><span class="p">,</span> <span class="s2">"true"</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
-<section id="Reading-the-data">
-<h2>Reading the data<a class="headerlink" href="#Reading-the-data" title="Permalink to this headline">#</a></h2>
-<p>For the sake of simplicity (and computational efforts, so you can run this notebook from your local machine), we will read the Wine Quality dataset, available in this URL: “<a class="reference external" href="http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv">http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv</a>”.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkFiles</span>
-
-<span class="n">data_url</span> <span class="o">=</span> <span class="s2">"http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"</span>
-<span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span><span class="o">.</span><span class="n">addFile</span><span class="p">(</span><span class="n">data_url</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">"delimiter"</span><span class="p">,</span> <span class="s2">";"</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">"inferSchema"</span><span class="p">,</span> <span class="s2">"true"</span><span class="p">)</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">SparkFiles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"winequality-red.csv"</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">vertical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
--RECORD 0----------------------
- fixed acidity        | 7.4
- volatile acidity     | 0.7
- citric acid          | 0.0
- residual sugar       | 1.9
- chlorides            | 0.076
- free sulfur dioxide  | 11.0
- total sulfur dioxide | 34.0
- density              | 0.9978
- pH                   | 3.51
- sulphates            | 0.56
- alcohol              | 9.4
- quality              | 5
-only showing top 1 row
-
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-root
- |-- fixed acidity: double (nullable = true)
- |-- volatile acidity: double (nullable = true)
- |-- citric acid: double (nullable = true)
- |-- residual sugar: double (nullable = true)
- |-- chlorides: double (nullable = true)
- |-- free sulfur dioxide: double (nullable = true)
- |-- total sulfur dioxide: double (nullable = true)
- |-- density: double (nullable = true)
- |-- pH: double (nullable = true)
- |-- sulphates: double (nullable = true)
- |-- alcohol: double (nullable = true)
- |-- quality: integer (nullable = true)
-
-</pre></div></div>
-</div>
-</section>
-<section id="Profiling-the-data-with-whylogs">
-<h2>Profiling the data with whylogs<a class="headerlink" href="#Profiling-the-data-with-whylogs" title="Permalink to this headline">#</a></h2>
-<p>Now that we have a Spark DataFrame in place, let’s see how easy it is to profile our data with whylogs.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.pyspark.experimental</span> <span class="kn">import</span> <span class="n">collect_column_profile_views</span>
-
-<span class="n">column_views_dict</span> <span class="o">=</span> <span class="n">collect_column_profile_views</span><span class="p">(</span><span class="n">spark_dataframe</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-
-</pre></div></div>
-</div>
-<p>Yeap. It’s done. It is <strong>that</strong> easy.</p>
-<p>But what do we get with a <code class="docutils literal notranslate"><span class="pre">column_views_dict</span></code>?</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">column_views_dict</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-{'alcohol': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d240e20&gt;, 'chlorides': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d29ec70&gt;, 'citric acid': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a2d00&gt;, 'density': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a6d90&gt;, 'fixed acidity': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a3e20&gt;, 'free sulfur dioxide': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2aaeb0&gt;, 'pH': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2adf40&gt;, 'quality': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2b7100&gt;, 'residual sugar': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2b7d60&gt;, 'sulphates': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2bddf0&gt;, 'total sulfur dioxide': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2c0d90&gt;, 'volatile acidity': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2c4e20&gt;}
-</pre></div></div>
-</div>
-<p>It is a dictionary with one <code class="docutils literal notranslate"><span class="pre">ColumnProfileView</span></code> object per column in your dataset. And we can inspect some of the metrics on each one of them, such as the counts for a given column</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">column_views_dict</span><span class="p">[</span><span class="s2">"density"</span><span class="p">]</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">"counts"</span><span class="p">)</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">spark_dataframe</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-(1599, 1599)
-</pre></div></div>
-</div>
-<p>Or their <code class="docutils literal notranslate"><span class="pre">mean</span></code> value:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">column_views_dict</span><span class="p">[</span><span class="s2">"density"</span><span class="p">]</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">"distribution"</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-0.9967466791744841
-</pre></div></div>
-</div>
-<p>And now let’s check how accurate whylogs did store that <code class="docutils literal notranslate"><span class="pre">mean</span></code> calculation.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">mean</span>
-<span class="n">spark_dataframe</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">mean</span><span class="p">(</span><span class="s2">"density"</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-+------------------+
-|      avg(density)|
-+------------------+
-|0.9967466791744831|
-+------------------+
-
-</pre></div></div>
-</div>
-<p>It is not the literal exact value, but it gets really close, right? That is because we are not extracting the exact information, but we are also <strong>not sampling</strong> the data. <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> will look at <strong>every data point</strong> and <em>statistically</em> decide wether or not that data point is relevant to the final calculation.</p>
-<p>Is it just me or this is extremely powerful? Yes, it is.</p>
-<blockquote>
-<div><p>“Cool! But what can I do with a bunch of <code class="docutils literal notranslate"><span class="pre">ColumnProfileView</span></code>’s from my Dataset? I want to see everything together</p>
-</div></blockquote>
-<p>Well, you’ve come to the right place, because we will inspect the next method that does just that!</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.pyspark.experimental</span> <span class="kn">import</span> <span class="n">collect_dataset_profile_view</span>
-
-<span class="n">dataset_profile_view</span> <span class="o">=</span> <span class="n">collect_dataset_profile_view</span><span class="p">(</span><span class="n">input_df</span><span class="o">=</span><span class="n">spark_dataframe</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>Yes, that easy. You now have a <code class="docutils literal notranslate"><span class="pre">DatasetProfileView</span></code>. As you might have seen from other example notebooks in our repo, you can turn this <em>lightweight</em> object into a pandas DataFrame, and visualize all the important metrics that we’ve profiled, like this:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="n">dataset_profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"col_1"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+    <span class="s2">"col_2"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"some"</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">,</span> <span class="s2">"column"</span><span class="p">,</span> <span class="s2">"example"</span><span class="p">],</span>
+    <span class="s2">"col_3"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<div class="table-wrapper"><table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>col_1</th>
+<th>col_2</th>
+<th>col_3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>1.0</td>
+<td>some</td>
+<td>4</td>
+</tr>
+<tr>
+<th>1</th>
+<td>2.2</td>
+<td>text</td>
+<td>2</td>
+</tr>
+<tr>
+<th>2</th>
+<td>0.1</td>
+<td>column</td>
+<td>3</td>
+</tr>
+<tr>
+<th>3</th>
+<td>1.2</td>
+<td>example</td>
+<td>5</td>
+</tr>
+</tbody>
+</table></div>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+
+<span class="n">profile_results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">profile_results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+whylogs.api.logger.result_set.ProfileResultSet
+</pre></div></div>
+</div>
+<p>And now we can check its collected metrics by transforming it into a <code class="docutils literal notranslate"><span class="pre">DatasetProfileView</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span> <span class="o">=</span> <span class="n">profile_results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+<span class="n">profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -880,16 +750,16 @@ root
 <th>cardinality/upper_1</th>
 <th>cardinality/lower_1</th>
 <th>...</th>
+<th>distribution/n</th>
+<th>distribution/max</th>
 <th>distribution/min</th>
 <th>distribution/q_10</th>
 <th>distribution/q_25</th>
 <th>distribution/median</th>
 <th>distribution/q_75</th>
 <th>distribution/q_90</th>
-<th>type</th>
 <th>ints/max</th>
 <th>ints/min</th>
-<th>frequent_items/frequent_strings</th>
 </tr>
 <tr>
 <th>column</th>
@@ -918,149 +788,310 @@ root
 </thead>
 <tbody>
 <tr>
-<th>alcohol</th>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>1599</td>
+<th>col_2</th>
+<td>4</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
-<td>65.000010</td>
-<td>65.003256</td>
-<td>65.000000</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>4.0</td>
+<td>4.0002</td>
+<td>4.0</td>
 <td>...</td>
-<td>8.40000</td>
-<td>9.30000</td>
-<td>9.5000</td>
-<td>10.20000</td>
-<td>11.10000</td>
-<td>12.00000</td>
-<td>SummaryType.COLUMN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
 </tr>
 <tr>
-<th>chlorides</th>
-<td>1599</td>
+<th>col_1</th>
+<td>4</td>
 <td>0</td>
 <td>0</td>
-<td>1599</td>
+<td>4</td>
 <td>0</td>
 <td>0</td>
 <td>0</td>
-<td>153.000058</td>
-<td>153.007697</td>
-<td>153.000000</td>
+<td>4.0</td>
+<td>4.0002</td>
+<td>4.0</td>
 <td>...</td>
-<td>0.01200</td>
-<td>0.06000</td>
-<td>0.0700</td>
-<td>0.07900</td>
-<td>0.09100</td>
-<td>0.10900</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
+<td>4.0</td>
+<td>2.2</td>
+<td>0.1</td>
+<td>0.1</td>
+<td>1.0</td>
+<td>1.2</td>
+<td>2.2</td>
+<td>2.2</td>
 <td>NaN</td>
 <td>NaN</td>
 </tr>
 <tr>
-<th>citric acid</th>
-<td>1599</td>
+<th>col_3</th>
+<td>4</td>
+<td>0</td>
+<td>4</td>
 <td>0</td>
 <td>0</td>
-<td>1599</td>
 <td>0</td>
 <td>0</td>
-<td>0</td>
-<td>80.000016</td>
-<td>80.004010</td>
-<td>80.000000</td>
+<td>4.0</td>
+<td>4.0002</td>
+<td>4.0</td>
 <td>...</td>
-<td>0.00000</td>
-<td>0.01000</td>
-<td>0.0900</td>
-<td>0.26000</td>
-<td>0.43000</td>
-<td>0.53000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>density</th>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>439.557368</td>
-<td>445.310933</td>
-<td>433.943761</td>
-<td>...</td>
-<td>0.99007</td>
-<td>0.99451</td>
-<td>0.9956</td>
-<td>0.99675</td>
-<td>0.99786</td>
-<td>0.99914</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>fixed acidity</th>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>96.000023</td>
-<td>96.004816</td>
-<td>96.000000</td>
-<td>...</td>
-<td>4.60000</td>
-<td>6.60000</td>
-<td>7.1000</td>
-<td>7.90000</td>
-<td>9.20000</td>
-<td>10.70000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
+<td>4.0</td>
+<td>5.0</td>
+<td>2.0</td>
+<td>2.0</td>
+<td>3.0</td>
+<td>4.0</td>
+<td>5.0</td>
+<td>5.0</td>
+<td>5.0</td>
+<td>2.0</td>
 </tr>
 </tbody>
 </table></div>
-<p>5 rows × 24 columns</p>
+<p>3 rows × 24 columns</p>
 </div></div>
 </div>
+<p>Cool! So now that we have a proper profile created, let’s see how we can persist is as a file.</p>
 </section>
-<section id="Persisting-as-a-file">
-<h2>Persisting as a file<a class="headerlink" href="#Persisting-as-a-file" title="Permalink to this headline">#</a></h2>
-<p>After collecting profiles, it is a good practice to store them as a file. This will allow you to later on read them back, merge with future profiles and track how is your data behaving along the way.</p>
+<section id="Local-writer">
+<h2>Local writer<a class="headerlink" href="#Local-writer" title="Permalink to this headline">#</a></h2>
+<p>The first and most straight-forward way of persisting a <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> profile as a file is to write it directly to your disk. Our API makes it possible with the following commands. You could either write it from the <code class="docutils literal notranslate"><span class="pre">ProfileResultSet</span></code></p>
 <div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"local"</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">"my_profile.bin"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>If you want, you can also not specify a <code class="docutils literal notranslate"><span class="pre">dest</span></code>, but an optional <code class="docutils literal notranslate"><span class="pre">base_dir</span></code>, which will write your profile with its timestamp to this base directory you want. Let’s see how:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"local"</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s2">"my_directory"</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Or from the <code class="docutils literal notranslate"><span class="pre">DatasetProfileView</span></code> directly, with a <code class="docutils literal notranslate"><span class="pre">path</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"my_profile.bin"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>And if it couldn’t get any more convenient, you can also use the <strong>same logic for logging</strong> to also write your profile, like:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">why</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">profile_view</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s2">"my_directory/my_profile.bin"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s2">"./my_directory"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+['profile_2022-05-26 20:04:07.484778.bin', 'my_profile.bin']
+</pre></div></div>
+</div>
+<p>And that’s it! Now you can go ahead and decide where and how to store these profiles, for further inspection and guaranteeing your data and ML model pipelines are generating useful and quality data for your end users.</p>
+</section>
+<section id="s3-Writer">
+<h2>s3 Writer<a class="headerlink" href="#s3-Writer" title="Permalink to this headline">#</a></h2>
+<p>From an enterprise perspective, it can be interesting to use <code class="docutils literal notranslate"><span class="pre">s3</span></code> buckets to store your profiles instead of manually deciding what to do with them from your local machine. And that is why we have created an integration to do just that!</p>
+<p>To try to maintain this example simple enough, we won’t use an actual cloud-based storage, but we will mock one with the <code class="docutils literal notranslate"><span class="pre">moto</span></code> library. This way, you can test this anywhere without worrying about credentials too much :) In order to keep <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> as light as possible, and allow users to extend as they need, we have made <code class="docutils literal notranslate"><span class="pre">s3</span></code> an extra dependency.</p>
+<p>So let’s get started by creating this mocked <code class="docutils literal notranslate"><span class="pre">s3</span></code> bucket.</p>
+<p>P.S.: if you haven’t installed the <code class="docutils literal notranslate"><span class="pre">whylogs[s3]</span></code> extra dependency already, uncomment and run the cell below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ! pip install "whylogs[s3]"</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">from</span> <span class="nn">moto</span> <span class="kn">import</span> <span class="n">mock_s3</span>
+<span class="kn">from</span> <span class="nn">moto.s3.responses</span> <span class="kn">import</span> <span class="n">DEFAULT_REGION_NAME</span>
+
+<span class="n">BUCKET_NAME</span> <span class="o">=</span> <span class="s2">"my_great_bucket"</span>
+
+
+<span class="n">mocks3</span> <span class="o">=</span> <span class="n">mock_s3</span><span class="p">()</span>
+<span class="n">mocks3</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">resource</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s2">"s3"</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">DEFAULT_REGION_NAME</span><span class="p">)</span>
+<span class="n">resource</span><span class="o">.</span><span class="n">create_bucket</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+s3.Bucket(name='my_great_bucket')
+</pre></div></div>
+</div>
+<p>Now that we have created our <code class="docutils literal notranslate"><span class="pre">s3</span></code> bucket we will already be able to communicate with the mocked storage object. A good practice here is to declare your access credentials as environment variables. For a production setting, this won’t be persisted into code, but this will give you a sense of how to safely use our <code class="docutils literal notranslate"><span class="pre">s3</span></code> writer.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"AWS_ACCESS_KEY_ID"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"my_key_id"</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"AWS_SECRET_ACCESS_KEY"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"my_access_key"</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"s3"</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>And you’ve done it! Seems too good to be true. How would I know if the profiles are there? 🤔 Well, let’s investigate them.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">s3_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">"s3"</span><span class="p">)</span>
+<span class="n">objects</span> <span class="o">=</span> <span class="n">s3_client</span><span class="o">.</span><span class="n">list_objects</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Name"</span><span class="p">,</span> <span class="p">[])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+'my_great_bucket'
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"my_super_awesome_profile.bin"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Contents"</span><span class="p">,</span> <span class="p">[])</span>
 </pre></div>
 </div>
 </div>
-<p>And that’s it, you have just written a profile generated with spark to your local environment! If you wish to upload to different locations, such as s3, whylabs or others, please make sure to check out our <a class="reference external" href="https://github.com/whylabs/whylogs/tree/1.0.x/python/examples">other examples</a> page.</p>
-<p>Hopefully this tutorial will help you get started to profile and observe your data behaviour in your Spark jobs with almost no friction :)</p>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[{'Key': 'profile_2022-05-26 20:04:07.484778.bin',
+  'LastModified': datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
+  'ETag': '"ae976af8f52532e3ab58bfe089d2bc44"',
+  'Size': 1115,
+  'StorageClass': 'STANDARD',
+  'Owner': {'DisplayName': 'webfile',
+   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}}]
+</pre></div></div>
+</div>
+<p>And there we have it, our local <code class="docutils literal notranslate"><span class="pre">s3</span></code> bucket has our profile written! If we want to put our profile into a special “directory” - often referred to as prefix - we can do the following instead:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"s3"</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+    <span class="n">bucket_name</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">,</span>
+    <span class="n">object_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"my_prefix/somewhere/profile_</span><span class="si">{</span><span class="n">profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span><span class="si">}</span><span class="s2">.bin"</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span> <span class="o">=</span> <span class="n">s3_client</span><span class="o">.</span><span class="n">list_objects</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span>
+<span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Contents"</span><span class="p">,</span> <span class="p">[])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[{'Key': 'my_prefix/somewhere/profile_2022-05-26 20:04:07.484778.bin',
+  'LastModified': datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
+  'ETag': '"ae976af8f52532e3ab58bfe089d2bc44"',
+  'Size': 1115,
+  'StorageClass': 'STANDARD',
+  'Owner': {'DisplayName': 'webfile',
+   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}},
+ {'Key': 'profile_2022-05-26 20:04:07.484778.bin',
+  'LastModified': datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
+  'ETag': '"ae976af8f52532e3ab58bfe089d2bc44"',
+  'Size': 1115,
+  'StorageClass': 'STANDARD',
+  'Owner': {'DisplayName': 'webfile',
+   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}}]
+</pre></div></div>
+</div>
+<section id="Wrapping-up-the-s3-objects">
+<h3>Wrapping up the s3 objects<a class="headerlink" href="#Wrapping-up-the-s3-objects" title="Permalink to this headline">#</a></h3>
+<p>Now let’s close our connection to our mocked <code class="docutils literal notranslate"><span class="pre">s3</span></code> object.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mocks3</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>And that’s it, you have just written a profile to an s3 bucket! If you want to check other integrations that we’ve made, please make sure to check out our <a class="reference external" href="https://github.com/whylabs/whylogs/tree/mainline/python/examples">other examples</a> page.</p>
+<p>Hopefully this tutorial will help you get started to save your profiles and make sure to keep your Data and ML Pipelines always Robust and Responsible :)</p>
 </section>
-<section id="Important-note">
-<h2>Important note<a class="headerlink" href="#Important-note" title="Permalink to this headline">#</a></h2>
-<p>As you might have seen from the imports, currently this pyspark implementation is the <strong>experimental</strong> phase. We ran some benchmark ourselves with it, and for the sake of example, a <code class="docutils literal notranslate"><span class="pre">90Gb</span></code> dataset with 80M rows could be profiled in under 3 minutes! Cool, right? But we still want more users to try this on their own, see if there are places to be improved and give us feedback before we make it officially <strong>the</strong> spark module here. Please, feel free to reach out to our <a class="reference external" href="https://communityinviter.com/apps/whylabs-community/rsqrd-ai-community">community
-Slack</a> and interact with us there. We will love to hear from you :)</p>
 </section>
 </section>
 
@@ -1069,23 +1100,23 @@ Slack</a> and interact with us there. We will love to hear from you :)</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../../integrations/index.html">
+          <a class="next-page" href="Pyspark_Profiling.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Integration</div>
+                <div class="title">PySpark Integration</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="writing_profiles.html">
+          <a class="prev-page" href="../basic/Inspecting_Profiles.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Writing profiles</div>
+                <div class="title">Inspecting Profiles</div>
                 
               </div>
             </a>
@@ -1146,13 +1177,13 @@ Slack</a> and interact with us there. We will love to hear from you :)</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">PySpark Integration</a><ul>
-<li><a class="reference internal" href="#Installing-the-extra-dependency">Installing the extra dependency</a></li>
-<li><a class="reference internal" href="#Initializing-a-SparkSession">Initializing a SparkSession</a></li>
-<li><a class="reference internal" href="#Reading-the-data">Reading the data</a></li>
-<li><a class="reference internal" href="#Profiling-the-data-with-whylogs">Profiling the data with whylogs</a></li>
-<li><a class="reference internal" href="#Persisting-as-a-file">Persisting as a file</a></li>
-<li><a class="reference internal" href="#Important-note">Important note</a></li>
+<li><a class="reference internal" href="#">Writing profiles</a><ul>
+<li><a class="reference internal" href="#Creating-simple-profiles">Creating simple profiles</a></li>
+<li><a class="reference internal" href="#Local-writer">Local writer</a></li>
+<li><a class="reference internal" href="#s3-Writer">s3 Writer</a><ul>
+<li><a class="reference internal" href="#Wrapping-up-the-s3-objects">Wrapping up the s3 objects</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
