@@ -55,6 +55,7 @@ jobs:
         uses: arduino/setup-protoc@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          version: '3.19.4'
 
       - name: Check Poetry version
         run: |
