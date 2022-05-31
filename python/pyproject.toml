@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.0.0rc3"
+version = "1.0.0rc4"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -20,7 +20,7 @@ typing-extensions = ">=typing-extensions"
 # viz module. Everything after this should be optional
 pybars3 = { version = "^0.9", optional = true }
 ipython = { version = "*", optional = true }
-scipy = { version = "<1.8", optional = true }
+scipy = { version = ">=1.5, <1.8", optional = true }
 
 # Doc dependencies
 sphinx = { version = "*", optional = true }
