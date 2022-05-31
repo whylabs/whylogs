@@ -1,0 +1,89 @@
+:py:mod:`whylogs.api.writer.whylabs`
+====================================
+
+.. py:module:: whylogs.api.writer.whylabs
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.whylabs.WhyLabsWriter
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.whylabs.FIVE_MINUTES_IN_SECONDS
+   whylogs.api.writer.whylabs.logger
+
+
+.. py:data:: FIVE_MINUTES_IN_SECONDS
+   
+
+   
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: WhyLabsWriter(org_id: Optional[str] = None, api_key: Optional[str] = None, dataset_id: Optional[str] = None)
+
+   Bases: :py:obj:`whylogs.api.writer.Writer`
+
+   A WhyLogs writer to upload DatasetProfileView's onto the WhyLabs platform.
+
+   >**IMPORTANT**: In order to correctly send your profiles over, make sure you have
+   the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY]`. You
+   can also set them with the option method or within the constructor, although it
+   is highly recommended you don't persist credentials in code!
+
+   :param org_id: Your organization ID on the WhyLabs platform. If not informed, will get the mentioned environment
+                  variable instead.
+   :type org_id: str, optional
+   :param api_key: The API Key to authenticate with WhyLabs. If not informed, will get the mentioned environment
+                   variable instead.
+   :type api_key: str, optional
+   :param dataset_id: The Dataset ID, often referred to as model ID, that will tie the profile to your tracked data.
+                      If not informed, will get the mentioned environment variable instead.
+   :type dataset_id: str, optional
+
+   :returns:
+   :rtype: None
+
+   .. rubric:: Examples
+
+   An example usage of this method can be represented with the simple code above. Here we
+   are assuming the user has already assigned a pandas.DataFrame to the `df` variable.
+
+   ```python
+   import whylogs as why
+
+   profile = why.log(pandas=df)
+   profile.writer("whylabs").write()
+   ```
+
+   .. py:method:: check_interval(self, interval_seconds: int)
+
+      Validate an interval configuration for a given writer.
+
+      Some writer only accepts certain interval configuration. By default, this should return True for a valid
+      non-negative interval.
+
+
+   .. py:method:: option(self, org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None) -> None
+
+
+   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView, dataset_id: Optional[str] = None) -> Any
+
+
+

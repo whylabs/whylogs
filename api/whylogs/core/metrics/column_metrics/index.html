@@ -1,0 +1,759 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+<meta property="og:title" content="whylogs.core.metrics.column_metrics" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://whylogs.readthedocs.io/api/whylogs/core/metrics/column_metrics/index.html" />
+  
+<meta property="og:description" content="Module Contents: Classes:" />
+  <link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" /><link rel="next" title="whylogs.core.metrics.compound_metric" href="../compound_metric/index.html" /><link rel="prev" title="whylogs.core.metrics.aggregators" href="../aggregators/index.html" />
+
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+        <title>whylogs.core.metrics.column_metrics - whylogs v1.0.0rc4</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f0f0f0;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>whylogs v1</em> has been launched! Make sure you checkout the
+    <a href="migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
+    transition 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.0rc4</div></div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../../../../_static/images/logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../../../../_static/images/logo.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.0rc4</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary.html">Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../features/profiling.html">Profiling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../features/config.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../features/writing.html">Writers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/basic/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/basic/Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/integrations/writing_profiles.html">Writing profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/integrations/pyspark_profiling.html">PySpark Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../integrations/index.html">Integration</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../integrations/mlflow.html">MlFlow integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../integrations/sagemaker.html">Sagemaker integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../integrations/ray.html">Ray integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../integrations/rapids.html">Sagemaker integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../integrations/flask.html">Flask integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../integrations/fastapi.html">FastAPI integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../integrations/pyspark.html">pySpark integration</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Migration Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../migration/basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../migration/format.html">Storage Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../migration/log_rotation.html">Log Rotation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Support</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../support/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../support/faqs.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../support/usage_statistics.html">Usage Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bit.ly/whylogs-slack">Slack</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API References</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../../../index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/logger/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/logger/result_set/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/logger/rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/logger/transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/writer/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.writer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/annotations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.annotations</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 current has-children"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../constraints/metric_constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.metric_constraints</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 current has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l5"><a class="reference internal" href="../aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
+<li class="toctree-l5 current current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../proto/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../proto/v0/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../proto/v0/v0_constraints_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_constraints_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../proto/v0/v0_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_messages_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../proto/v0/v0_summaries_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_summaries_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../proto/whylogs_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.whylogs_messages_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../view/column_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.column_profile_view</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../view/dataset_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.dataset_profile_view</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../column_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.column_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../common/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../dataset_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.dataset_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../datatypes/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.datatypes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../migration/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../migration/converters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.converters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../viz/jupyter_notebook_viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.jupyter_notebook_viz</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="module-whylogs.core.metrics.column_metrics">
+<span id="whylogs-core-metrics-column-metrics"></span><h1><a class="reference internal" href="#module-whylogs.core.metrics.column_metrics" title="whylogs.core.metrics.column_metrics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a><a class="headerlink" href="#module-whylogs.core.metrics.column_metrics" title="Permalink to this headline">#</a></h1>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">#</a></h3>
+<div class="table-wrapper"><table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%"/>
+<col style="width: 90%"/>
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric" title="whylogs.core.metrics.column_metrics.TypeCountersMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TypeCountersMetric</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric" title="whylogs.core.metrics.column_metrics.ColumnCountsMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnCountsMetric</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+</tbody>
+</table></div>
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.column_metrics.</span></span><span class="sig-name descname"><span class="pre">TypeCountersMetric</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics.Metric</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.integral">
+<span class="sig-name descname"><span class="pre">integral</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.integral" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.fractional">
+<span class="sig-name descname"><span class="pre">fractional</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.fractional" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.boolean">
+<span class="sig-name descname"><span class="pre">boolean</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.boolean" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.string">
+<span class="sig-name descname"><span class="pre">string</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.string" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.object">
+<span class="sig-name descname"><span class="pre">object</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.object" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.namespace">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.to_summary_dict">
+<span class="sig-name descname"><span class="pre">to_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><span class="pre">whylogs.core.configs.SummaryConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric.to_summary_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.to_summary_dict" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><em>whylogs.core.configs.SummaryConfig</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.columnar_update">
+<span class="sig-name descname"><span class="pre">columnar_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">whylogs.core.preprocessing.PreprocessedColumn</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult"><span class="pre">whylogs.core.metrics.metrics.OperationResult</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric.columnar_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.columnar_update" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><em>whylogs.core.preprocessing.PreprocessedColumn</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult">whylogs.core.metrics.metrics.OperationResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.zero">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric" title="whylogs.core.metrics.column_metrics.TypeCountersMetric"><span class="pre">TypeCountersMetric</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric.zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.zero" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><em>whylogs.core.metrics.metrics.MetricConfig</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric" title="whylogs.core.metrics.column_metrics.TypeCountersMetric">TypeCountersMetric</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.get_namespace">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MetricConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.get_namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../index.html#whylogs.core.metrics.MetricConfig" title="whylogs.core.metrics.MetricConfig"><em>MetricConfig</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.merge">
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.merge" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<em>METRIC</em>) – </p></li>
+<li><p><strong>other</strong> (<em>METRIC</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>METRIC</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.to_protobuf">
+<span class="sig-name descname"><span class="pre">to_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.to_protobuf" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>whylogs.core.proto.MetricMessage</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.get_component_paths">
+<span class="sig-name descname"><span class="pre">get_component_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.get_component_paths" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.from_protobuf">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">METRIC</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.from_protobuf" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cls</strong> (<em>Type</em><em>[</em><em>METRIC</em><em>]</em>) – </p></li>
+<li><p><strong>msg</strong> (<em>whylogs.core.proto.MetricMessage</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>METRIC</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.column_metrics.</span></span><span class="sig-name descname"><span class="pre">ColumnCountsMetric</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics.Metric</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.n">
+<span class="sig-name descname"><span class="pre">n</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.n" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.null">
+<span class="sig-name descname"><span class="pre">null</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.null" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.namespace">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.columnar_update">
+<span class="sig-name descname"><span class="pre">columnar_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">whylogs.core.preprocessing.PreprocessedColumn</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult"><span class="pre">whylogs.core.metrics.metrics.OperationResult</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric.columnar_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.columnar_update" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><em>whylogs.core.preprocessing.PreprocessedColumn</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult">whylogs.core.metrics.metrics.OperationResult</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_summary_dict">
+<span class="sig-name descname"><span class="pre">to_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><span class="pre">whylogs.core.configs.SummaryConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric.to_summary_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_summary_dict" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cfg</strong> (<a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><em>whylogs.core.configs.SummaryConfig</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.zero">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric" title="whylogs.core.metrics.column_metrics.ColumnCountsMetric"><span class="pre">ColumnCountsMetric</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric.zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.zero" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><em>whylogs.core.metrics.metrics.MetricConfig</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric" title="whylogs.core.metrics.column_metrics.ColumnCountsMetric">ColumnCountsMetric</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_namespace">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MetricConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_namespace" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../index.html#whylogs.core.metrics.MetricConfig" title="whylogs.core.metrics.MetricConfig"><em>MetricConfig</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.merge">
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.merge" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<em>METRIC</em>) – </p></li>
+<li><p><strong>other</strong> (<em>METRIC</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>METRIC</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_protobuf">
+<span class="sig-name descname"><span class="pre">to_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_protobuf" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>whylogs.core.proto.MetricMessage</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_component_paths">
+<span class="sig-name descname"><span class="pre">get_component_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_component_paths" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.from_protobuf">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">METRIC</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.from_protobuf" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cls</strong> (<em>Type</em><em>[</em><em>METRIC</em><em>]</em>) – </p></li>
+<li><p><strong>msg</strong> (<em>whylogs.core.proto.MetricMessage</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>METRIC</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../compound_metric/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../aggregators/index.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, whylogs developers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://bit.ly/whylogs-slack" aria-label="Slack">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"><path d="M213.6
+            236.216l64.003-21.438 20.708 61.823-64.004
+            21.438z"></path><path d="M213.6 236.216l64.003-21.438 20.708 61.823-64.004 21.438z"></path><path
+            d="M475.9 190C426.4 25 355-13.4 190 36.1S-13.4 157 36.1 322 157 525.4 322 475.9 525.4 355 475.9
+            190zm-83.3 107.1l-31.1 10.4 10.7 32.2c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9l-10.7-32.2-64.1 21.5L261 377c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9L203 360.4l-31 10.3c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-20.7-61.8-31.1 10.4c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-10.9-32.1c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2
+            64.1-21.5-10.7-32.2c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2 31.1-10.4c13-4.2 27.2
+            2.7 31.5 15.7 4.2 13-2.7 27.2-15.7 31.5l-31.1 10.4 20.7 61.8 31.1-10.4c13-4.2 27.2 2.7 31.5 15.7 4.2
+            13.2-2.7 27.4-15.8 31.7z"></path></svg>
+            </a>
+              <a class="muted-link " href="https://github.com/whylabs/whylogs" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+                    0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53
+                    .63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+                    0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0
+                    1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87
+                    3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16
+                    8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a><ul>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric">TypeCountersMetric</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.integral">integral</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.fractional">fractional</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.boolean">boolean</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.string">string</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.object">object</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.namespace">namespace</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.to_summary_dict">to_summary_dict</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.columnar_update">columnar_update</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.zero">zero</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.get_namespace">get_namespace</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.merge">merge</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.to_protobuf">to_protobuf</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.get_component_paths">get_component_paths</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.from_protobuf">from_protobuf</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric">ColumnCountsMetric</a><ul>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.n">n</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.null">null</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.namespace">namespace</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.columnar_update">columnar_update</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_summary_dict">to_summary_dict</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.zero">zero</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_namespace">get_namespace</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.merge">merge</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_protobuf">to_protobuf</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_component_paths">get_component_paths</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.from_protobuf">from_protobuf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+    <script src="../../../../../_static/jquery.js"></script>
+    <script src="../../../../../_static/underscore.js"></script>
+    <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/scripts/furo.js"></script>
+    <script src="../../../../../_static/tabs.js"></script>
+    <script src="../../../../../_static/clipboard.min.js"></script>
+    <script src="../../../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

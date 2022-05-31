@@ -1,0 +1,144 @@
+:py:mod:`whylogs`
+=================
+
+.. py:module:: whylogs
+
+.. autoapi-nested-parse::
+
+   whylogs is an open source library for logging any kind of data. With whylogs, users are able to generate summaries
+   of their datasets (called whylogs profiles) which they can use to:
+
+   * Track changes in their dataset
+   * Create data constraints to know whether their data looks they way it should
+   * Quickly visualize key summary statistics about their datasets
+
+   These three functionalities enable a variety of use cases for data scientists, machine learning engineers, and
+    data engineers:
+
+   * Detecting data drift (and resultant ML model performance degradation)
+   * Data quality validation
+   * Exploratory data analysis via data profiling
+   * Tracking data for ML experiments
+   * And many more...
+
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   api/index.rst
+   core/index.rst
+   migration/index.rst
+   viz/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.ResultSet
+   whylogs.DatasetProfileView
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.log
+   whylogs.profiling
+   whylogs.read
+   whylogs.write
+   whylogs.v0_to_v1_view
+   whylogs.package_version
+
+
+
+.. py:class:: ResultSet
+
+   Bases: :py:obj:`abc.ABC`
+
+   A holder object for profiling results.
+
+   A whylogs.log call can result in more than one profile. This wrapper class
+   simplifies the navigation among these profiles.
+
+   Note that currently we only hold one profile but we're planning to add other
+   kinds of profiles such as segmented profiles here.
+
+   .. py:method:: read(cls, multi_profile_file: str) -> ResultSet
+      :classmethod:
+
+
+   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+
+
+   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+      :abstractmethod:
+
+
+   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+      :abstractmethod:
+
+
+
+.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None) -> result_set.ResultSet
+
+
+.. py:function:: profiling(schema: Optional[whylogs.core.DatasetSchema] = None)
+
+
+.. py:function:: read(path: str) -> result_set.ResultSet
+
+
+.. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: str) -> None
+
+
+.. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: datetime.datetime, creation_timestamp: datetime.datetime)
+
+   Bases: :py:obj:`object`
+
+   .. py:method:: dataset_timestamp(self) -> datetime.datetime
+      :property:
+
+
+   .. py:method:: creation_timestamp(self) -> datetime.datetime
+      :property:
+
+
+   .. py:method:: merge(self, other: DatasetProfileView) -> DatasetProfileView
+
+
+   .. py:method:: get_column(self, col_name: str) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
+
+
+   .. py:method:: get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
+
+
+   .. py:method:: write(self, path: str) -> None
+
+
+   .. py:method:: read(cls, path: str) -> DatasetProfileView
+      :classmethod:
+
+
+   .. py:method:: to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> whylogs.core.stubs.pd.DataFrame
+
+
+
+.. py:function:: v0_to_v1_view(msg: whylogs.core.proto.v0.DatasetProfileMessageV0) -> whylogs.core.DatasetProfileView
+
+
+.. py:function:: package_version(package: str = __package__) -> str
+
+   Calculate version number based on pyproject.toml
+
+

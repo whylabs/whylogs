@@ -1,0 +1,20 @@
+:py:mod:`whylogs.migration`
+===========================
+
+.. py:module:: whylogs.migration
+
+.. autoapi-nested-parse::
+
+   Module for converting profiles from v0 to v1.
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   converters/index.rst
+
+

@@ -1,0 +1,44 @@
+:py:mod:`whylogs.api.logger.transient`
+======================================
+
+.. py:module:: whylogs.api.logger.transient
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.transient.TransientLogger
+
+
+
+
+.. py:class:: TransientLogger(schema: Optional[whylogs.core.DatasetSchema] = None)
+
+   Bases: :py:obj:`whylogs.api.logger.logger.Logger`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: flush(self) -> None
+
+
+   .. py:method:: close(self) -> None
+
+
+   .. py:method:: check_writer(self, _: whylogs.api.writer.Writer) -> None
+
+      Checks if a writer is configured correctly for this class
+
+
+   .. py:method:: append_writer(self, name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
+
+
+   .. py:method:: log(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
+
+
+

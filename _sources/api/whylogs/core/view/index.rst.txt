@@ -1,0 +1,117 @@
+:py:mod:`whylogs.core.view`
+===========================
+
+.. py:module:: whylogs.core.view
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   column_profile_view/index.rst
+   dataset_profile_view/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.view.ColumnProfileView
+   whylogs.core.view.DatasetProfileView
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.view.WHYLOGS_MAGIC_HEADER
+
+
+.. py:class:: ColumnProfileView(metrics: Dict[str, METRIC], success_count: int = 0, failure_count: int = 0)
+
+   Bases: :py:obj:`object`
+
+   .. py:method:: merge(self, other: ColumnProfileView) -> ColumnProfileView
+
+
+   .. py:method:: serialize(self) -> bytes
+
+
+   .. py:method:: deserialize(cls, serialized_profile: bytes) -> ColumnProfileView
+      :classmethod:
+
+
+   .. py:method:: get_metric(self, m_name: str) -> Optional[METRIC]
+
+
+   .. py:method:: to_protobuf(self) -> whylogs.core.proto.ColumnMessage
+
+
+   .. py:method:: get_metric_component_paths(self) -> List[str]
+
+
+   .. py:method:: get_metric_names(self) -> List[str]
+
+
+   .. py:method:: to_summary_dict(self, *, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
+
+
+   .. py:method:: zero(cls, msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
+      :classmethod:
+
+
+   .. py:method:: from_protobuf(cls, msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
+      :classmethod:
+
+
+   .. py:method:: from_bytes(cls, data: bytes) -> ColumnProfileView
+      :classmethod:
+
+
+
+.. py:data:: WHYLOGS_MAGIC_HEADER
+   :annotation: = WHY1
+
+   
+
+.. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: datetime.datetime, creation_timestamp: datetime.datetime)
+
+   Bases: :py:obj:`object`
+
+   .. py:method:: dataset_timestamp(self) -> datetime.datetime
+      :property:
+
+
+   .. py:method:: creation_timestamp(self) -> datetime.datetime
+      :property:
+
+
+   .. py:method:: merge(self, other: DatasetProfileView) -> DatasetProfileView
+
+
+   .. py:method:: get_column(self, col_name: str) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
+
+
+   .. py:method:: get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
+
+
+   .. py:method:: write(self, path: str) -> None
+
+
+   .. py:method:: read(cls, path: str) -> DatasetProfileView
+      :classmethod:
+
+
+   .. py:method:: to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> whylogs.core.stubs.pd.DataFrame
+
+
+

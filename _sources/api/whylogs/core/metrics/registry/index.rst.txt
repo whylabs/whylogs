@@ -1,0 +1,6 @@
+:py:mod:`whylogs.core.metrics.registry`
+=======================================
+
+.. py:module:: whylogs.core.metrics.registry
+
+

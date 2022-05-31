@@ -1,0 +1,64 @@
+:py:mod:`whylogs.api.writer`
+============================
+
+.. py:module:: whylogs.api.writer
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   local/index.rst
+   mlflow/index.rst
+   s3/index.rst
+   whylabs/index.rst
+   writer/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.Writer
+   whylogs.api.writer.Writers
+
+
+
+
+.. py:class:: Writer
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: check_interval(self, interval_seconds: int) -> None
+
+      Validate an interval configuration for a given writer.
+
+      Some writer only accepts certain interval configuration. By default, this should return True for a valid
+      non-negative interval.
+
+
+   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView, dest: Optional[str] = None) -> None
+      :abstractmethod:
+
+
+   .. py:method:: option(self: T, **kwargs: Any) -> T
+      :abstractmethod:
+
+
+
+.. py:class:: Writers
+
+   .. py:method:: get(cls, name: str, **kwargs: Any) -> writer.Writer
+      :classmethod:
+
+
+

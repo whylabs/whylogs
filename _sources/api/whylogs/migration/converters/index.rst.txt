@@ -1,0 +1,26 @@
+:py:mod:`whylogs.migration.converters`
+======================================
+
+.. py:module:: whylogs.migration.converters
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.migration.converters.read_v0_to_view
+   whylogs.migration.converters.v0_to_v1_view
+
+
+
+.. py:function:: read_v0_to_view(path: str) -> whylogs.core.DatasetProfileView
+
+
+.. py:function:: v0_to_v1_view(msg: whylogs.core.proto.v0.DatasetProfileMessageV0) -> whylogs.core.DatasetProfileView
+
+

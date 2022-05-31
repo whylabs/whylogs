@@ -1,0 +1,761 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+<meta property="og:title" content="What is whylogs" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://whylogs.readthedocs.io/index.html" />
+  
+<meta property="og:description" content="whylogs is an open source library for logging any kind of data. With whylogs, users are able to generate summaries of their datasets (called whylogs profiles) which they can use to: Track changes i..." />
+  <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Getting started" href="getting_started.html" />
+
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+        <title>whylogs v1.0.0rc4</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f0f0f0;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>whylogs v1</em> has been launched! Make sure you checkout the
+    <a href="migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
+    transition 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="#"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.0rc4</div></div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/logo.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.0rc4</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="features/profiling.html">Profiling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/config.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features/writing.html">Writers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="examples/basic/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/basic/Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/integrations/writing_profiles.html">Writing profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples/integrations/pyspark_profiling.html">PySpark Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="integrations/index.html">Integration</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="integrations/mlflow.html">MlFlow integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrations/sagemaker.html">Sagemaker integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrations/ray.html">Ray integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrations/rapids.html">Sagemaker integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrations/flask.html">Flask integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrations/fastapi.html">FastAPI integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="integrations/pyspark.html">pySpark integration</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Migration Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="migration/basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration/format.html">Storage Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration/log_rotation.html">Log Rotation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Support</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="support/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support/faqs.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="support/usage_statistics.html">Usage Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bit.ly/whylogs-slack">Slack</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API References</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="api/whylogs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="api/whylogs/api/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="api/whylogs/api/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/result_set/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/logger/transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="api/whylogs/api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/writer/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/api/writer/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.writer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/api/annotations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.annotations</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="api/whylogs/core/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="api/whylogs/core/constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/constraints/metric_constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.metric_constraints</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="api/whylogs/core/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="api/whylogs/core/proto/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5 has-children"><a class="reference internal" href="api/whylogs/core/proto/v0/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_constraints_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/whylogs/core/proto/v0/v0_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_messages_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="api/whylogs/core/proto/v0/v0_summaries_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_summaries_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/proto/whylogs_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.whylogs_messages_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="api/whylogs/core/view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/view/column_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.column_profile_view</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/view/dataset_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.dataset_profile_view</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/column_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.column_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/common/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/dataset_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.dataset_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/datatypes/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.datatypes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="api/whylogs/migration/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/migration/converters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.converters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="api/whylogs/viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/viz/jupyter_notebook_viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.jupyter_notebook_viz</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <p><img alt="https://static.scarf.sh/a.png?x-pxid=bc3c57b0-9a65-49fe-b8ea-f711c4d35b82" src="https://static.scarf.sh/a.png?x-pxid=bc3c57b0-9a65-49fe-b8ea-f711c4d35b82"/><p align="center">
+<img alt="https://i.imgur.com/nv33goV.png" src="https://i.imgur.com/nv33goV.png" style="width: 35%;"/>
+</p>
+<h1 align="center">The open source standard for data logging
+ </h1>
+<h3 align="center">
+<a href="https://docs.whylabs.ai/docs/"><b>Documentation</b></a> •
+   <a href="https://bit.ly/whylogsslack"><b>Slack Community</b></a> •
+   <a href="https://github.com/whylabs/whylogs#python-quickstart"><b>Python Quickstart</b></a>
+</h3>
+<p align="center">
+<a href="https://github.com/whylabs/whylogs-python/blob/mainline/LICENSE" target="_blank">
+<img alt="License" src="http://img.shields.io/:license-Apache%202-blue.svg"/>
+</a>
+<a href="https://badge.fury.io/py/whylogs" target="_blank">
+<img alt="PyPi Version" src="https://badge.fury.io/py/whylogs.svg"/>
+</a>
+<a href="https://github.com/python/black" target="_blank">
+<img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"/>
+</a>
+<a href="https://pepy.tech/project/whylogs" target="_blank">
+<img alt="PyPi Downloads" src="https://pepy.tech/badge/whylogs"/>
+</a>
+<a href="bit.ly/whylogs" target="_blank">
+<img alt="CI" src="https://github.com/whylabs/whylogs-python/workflows/whylogs%20CI/badge.svg"/>
+</a>
+<a href="https://codeclimate.com/github/whylabs/whylogs-python/maintainability" target="_blank">
+<img alt="Maintainability" src="https://api.codeclimate.com/v1/badges/442f6ca3dca1e583a488/maintainability"/>
+</a>
+</p>
+<section id="what-is-whylogs">
+<h1>What is whylogs<a class="headerlink" href="#what-is-whylogs" title="Permalink to this headline">#</a></h1>
+<p>whylogs is an open source library for logging any kind of data. With whylogs, users are able to generate summaries of their datasets (called <em>whylogs profiles</em>) which they can use to:</p>
+<ol class="arabic simple">
+<li><p>Track changes in their dataset</p></li>
+<li><p>Create <em>data constraints</em> to know whether their data looks the way it should</p></li>
+<li><p>Quickly visualize key summary statistics about their datasets</p></li>
+</ol>
+<p>These three functionalities enable a variety of use cases for data scientists, machine learning engineers, and data engineers:</p>
+<ul class="simple">
+<li><p>Detect data drift in model input features</p></li>
+<li><p>Detect training-serving skew, concept drift, and model performance degradation</p></li>
+<li><p>Validate data quality in model inputs or in a data pipeline</p></li>
+<li><p>Perform exploratory data analysis of massive datasets</p></li>
+<li><p>Track data distributions &amp; data quality for ML experiments</p></li>
+<li><p>Enable data auditing and governance across the organization</p></li>
+<li><p>Standardize data documentation practices across the organization</p></li>
+<li><p>And more</p></li>
+</ul>
+<p>whylogs can be run in Python or <a class="reference external" href="https://docs.whylabs.ai/docs/spark-integration">Apache Spark</a> (both PySpark and Scala) environments on a variety of <span class="xref myst">data types</span>. We <span class="xref myst">integrate</span> with lots of other tools including Pandas, <a class="reference external" href="https://aws.amazon.com/blogs/startups/preventing-amazon-sagemaker-model-degradation-with-whylabs/">AWS Sagemaker</a>, <a class="reference external" href="https://docs.whylabs.ai/docs/mlflow-integration">MLflow</a>, <a class="reference external" href="https://whylabs.ai/blog/posts/deploy-and-monitor-your-ml-application-with-flask-and-whylabs">Flask</a>, <a class="reference external" href="https://docs.whylabs.ai/docs/ray-integration">Ray</a>, <a class="reference external" href="https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs">RAPIDS</a>, <a class="reference external" href="https://docs.whylabs.ai/docs/kafka-integration">Apache Kafka</a>, and more.</p>
+<p>If you have any questions, comments, or just want to hang out with us, please join <a class="reference external" href="https://bit.ly/rsqrd-slack">our Slack Community</a>. In addition to joining the Slack Community, you can also help this project by giving us a ⭐ in the upper right corner of this page.</p>
+</section>
+<section id="python-quickstart-a-name-python-quickstart">
+<h1>Python Quickstart<a name="python-quickstart"></a><a class="headerlink" href="#python-quickstart-a-name-python-quickstart" title="Permalink to this headline">#</a></h1>
+<p>Installing whylogs using the pip package manager is as easy as running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">whylogs</span></code> in your terminal.</p>
+<p>From here, you can quickly log a dataset:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1">#dataframe</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"path/to/file.csv"</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And voila, you now have a whylogs profile. To learn more about about a whylogs profile is and what you can do with it, read on.</p>
+</section>
+<section id="table-of-contents">
+<h1>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">#</a></h1>
+<ul class="simple">
+<li><p><span class="xref myst">whylogs Profiles</span></p></li>
+<li><p><span class="xref myst">Data Constraints</span></p></li>
+<li><p><span class="xref myst">Profile Visualization</span></p></li>
+<li><p><span class="xref myst">Integrations</span></p></li>
+<li><p><span class="xref myst">Supported Data Types</span></p></li>
+<li><p><span class="xref myst">Examples</span></p></li>
+<li><p><span class="xref myst">Usage Statistics</span></p></li>
+<li><p><span class="xref myst">Community</span></p></li>
+<li><p><span class="xref myst">Contribute</span></p></li>
+</ul>
+</section>
+<section id="whylogs-profiles-a-name-whylogs-profiles">
+<h1>whylogs Profiles<a name="whylogs-profiles"></a><a class="headerlink" href="#whylogs-profiles-a-name-whylogs-profiles" title="Permalink to this headline">#</a></h1>
+<section id="what-are-profiles">
+<h2>What are profiles<a class="headerlink" href="#what-are-profiles" title="Permalink to this headline">#</a></h2>
+<p>whylogs profiles are the core of the whylogs library. They capture key statistical properties of data, such as the distribution (far beyond simple mean, median, and standard deviation measures), the number of missing values, and a wide range of configurable custom metrics. By capturing these summary statistics, we are able to accurately represent the data and enable all of the use cases described in the introduction.</p>
+<p>whylogs profiles have three properties that make them ideal for data logging: they are <strong>efficient</strong>, <strong>customizable</strong>, and <strong>mergeable</strong>.</p>
+<br/>
+<img alt="https://user-images.githubusercontent.com/7946482/171064257-26bf727e-3480-4ec3-9c9d-5d8a79567bca.png" class="align-left" src="https://user-images.githubusercontent.com/7946482/171064257-26bf727e-3480-4ec3-9c9d-5d8a79567bca.png">
+<p><strong>Efficient</strong>: whylogs profiles efficiently describe the dataset that they represent. This high fidelity representation of datasets is what enables whylogs profiles to be effective snapshots of the data. They are better at capturing the characteristics of a dataset than a sample would be—as discussed in our <a class="reference external" href="https://whylabs.ai/blog/posts/data-logging-sampling-versus-profiling">Data Logging: Sampling versus Profiling</a> blog post—and are very compact.</p>
+<br/>
+<img alt="https://user-images.githubusercontent.com/7946482/171064575-72ee0f76-7365-4fd1-9cab-4debb673baa8.png" class="align-left" src="https://user-images.githubusercontent.com/7946482/171064575-72ee0f76-7365-4fd1-9cab-4debb673baa8.png">
+<p><strong>Customizable</strong>: The statistics that whylogs profiles collect are easily configured and customizable. This is useful because different data types and use cases require different metrics, and whylogs users need to be able to easily define custom trackers for those metrics. It’s the customizability of whylogs that enables our text, image, and other complex data trackers.</p>
+<br/>
+<img alt="https://user-images.githubusercontent.com/7946482/171064525-2d314534-6cdb-4c07-9d9f-5c74d5c03029.png" class="align-left" src="https://user-images.githubusercontent.com/7946482/171064525-2d314534-6cdb-4c07-9d9f-5c74d5c03029.png">
+<p><strong>Mergeable</strong>: One of the most powerful features of whylogs profiles is their mergeability. Mergeability means that whylogs profiles can be combined together to form new profiles which represent the aggregate of their constituent profiles. This enables logging for distributed and streaming systems, and allows users to view aggregated data across any time granularity.</p>
+<br/>
+</img></img></img></section>
+<section id="how-do-you-generate-profiles">
+<h2>How do you generate profiles<a class="headerlink" href="#how-do-you-generate-profiles" title="Permalink to this headline">#</a></h2>
+<p>Once whylogs is installed, it’s easy to generate profiles in both Python and Java environments.</p>
+<p>To generate a profile from a Pandas dataframe in Python, simply run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1">#dataframe</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"path/to/file.csv"</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<!---
+For images, replace `df` with `image="path/to/image.png"`. Similarly, you can profile Python dicts by replacing the dataframe within the `log()` function with a Python `dict` object.
+--->
+</section>
+<section id="what-can-you-do-with-profiles">
+<h2>What can you do with profiles<a class="headerlink" href="#what-can-you-do-with-profiles" title="Permalink to this headline">#</a></h2>
+<p>Once you’ve generated whylogs profiles, a few things can be done with them:</p>
+<p>In your local Python environment, you can set data constraints or visualize your profiles. Setting data constraints on your profiles allows you to get notified when your data don’t match your expectations, allowing you to do data unit testing and some baseline data monitoring. With the Profile Visualizer, you can visually explore your data, allowing you to understand it and ensure that your ML models are ready for production.</p>
+<p>In addition, you can send whylogs profiles to the SaaS ML monitoring and AI observability platform <a class="reference external" href="https://whylabs.ai">WhyLabs</a>. With WhyLabs, you can automatically set up monitoring for your machine learning models, getting notified on both data quality and data change issues (such as data drift). If you’re interested in trying out WhyLabs, check out the always free <a class="reference external" href="https://whylabs.ai/free">Starter edition</a>, which allows you to experience the entire platform’s capabilities with no credit card required.</p>
+</section>
+</section>
+<section id="data-constraints-a-name-data-constraints">
+<h1>Data Constraints<a name="data-constraints"></a><a class="headerlink" href="#data-constraints-a-name-data-constraints" title="Permalink to this headline">#</a></h1>
+<p>Constraints are a powerful feature built on top of whylogs profiles that enable you to quickly and easily validate that your data looks the way that it should. There are numerous types of constraints that you can set on your data (that numerical data will always fall within a certain range, that text data will always be in a JSON format, etc) and, if your dataset fails to satisfy a constraint, you can fail your unit tests or your CI/CD pipeline.</p>
+<p>A simple example of setting and testing a constraint is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">Constraints</span><span class="p">,</span> <span class="n">ConstraintsBuilder</span><span class="p">,</span> <span class="n">MetricsSelector</span><span class="p">,</span> <span class="n">MetricConstraint</span>
+
+<span class="n">profile_view</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
+
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">MetricConstraint</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"col_name &gt;= 0"</span><span class="p">,</span>
+    <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">metric_name</span><span class="o">=</span><span class="s1">'distribution'</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="s1">'col_name'</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">constraints</span><span class="p">:</span> <span class="n">Constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">constraints</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>To learn more about constraints, check out: the <a class="reference external" href="https://bit.ly/whylogsconstraintsexample">Constraints Example</a>.</p>
+</section>
+<section id="profile-visualization-a-name-profile-visualization">
+<h1>Profile Visualization<a name="profile-visualization"></a><a class="headerlink" href="#profile-visualization-a-name-profile-visualization" title="Permalink to this headline">#</a></h1>
+<p>In addition to being able to automatically get notified about potential issues in data, it’s also useful to be able to inspect your data manually. With the profile visualizer, you can generate interactive reports about your profiles (either a single profile or comparing profiles against each other) directly in your Jupyter notebook environment. This enables exploratory data analysis, data drift detection, and data observability.</p>
+<p>To access the profile visualizer, install the <code class="docutils literal notranslate"><span class="pre">[viz]</span></code> module of whylogs by running <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">whylogs[viz]</span></code> in your terminal. One type of profile visualization that we can create is a drift report; here’s a simple example of how to analyze the drift between two profiles:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+
+<span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">df_target</span><span class="p">)</span>
+<span class="n">prof_view</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+
+<span class="n">result_ref</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">df_reference</span><span class="p">)</span>
+<span class="n">prof_view_ref</span> <span class="o">=</span> <span class="n">result_ref</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+
+<span class="n">visualization</span> <span class="o">=</span> <span class="n">NotebookProfileVisualizer</span><span class="p">()</span>
+<span class="n">visualization</span><span class="o">.</span><span class="n">set_profiles</span><span class="p">(</span><span class="n">target_profile_view</span><span class="o">=</span><span class="n">prof_view</span><span class="p">,</span> <span class="n">reference_profile_view</span><span class="o">=</span><span class="n">prof_view_ref</span><span class="p">)</span>
+
+<span class="n">visualization</span><span class="o">.</span><span class="n">summary_drift_report</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><img alt="image" src="https://user-images.githubusercontent.com/7946482/169669536-a25cce95-acde-4637-b7b9-c2a685f0bc3f.png"/></p>
+<p>To learn more about visualizing your profiles, check out: the <a class="reference external" href="https://bit.ly/whylogsvisualizerexample">Visualizer Example</a></p>
+</section>
+<section id="data-types-a-name-data-types">
+<h1>Data Types<a name="data-types"></a><a class="headerlink" href="#data-types-a-name-data-types" title="Permalink to this headline">#</a></h1>
+<p>whylogs supports both structured and unstructured data, specifically:</p>
+<div class="table-wrapper"><table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Data type</p></th>
+<th class="head"><p>Features</p></th>
+<th class="head"><p>Notebook Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Tabular Data</p></td>
+<td><p>✅</p></td>
+<td><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb">Getting started with structured data</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Image Data</p></td>
+<td><p>✅</p></td>
+<td><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb">Getting started with images</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Text Data</p></td>
+<td><p>✅</p></td>
+<td><p><a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/examples/String_Features.ipynb">String Features</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Embeddings</p></td>
+<td><p>🛠</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Other Data Types</p></td>
+<td><p>✋</p></td>
+<td><p>Do you have a request for a data type that you don’t see listed here? Raise an issue or join our Slack community and make a request! We’re always happy to help</p></td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="integrations">
+<h1>Integrations<a class="headerlink" href="#integrations" title="Permalink to this headline">#</a></h1>
+<p><img alt="current integration" src="https://user-images.githubusercontent.com/7946482/171062942-01c420f2-7768-4b7c-88b5-e3f291e1b7d8.png"/></p>
+<div class="table-wrapper"><table class="colwidths-auto docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Integration</p></th>
+<th class="head"><p>Features</p></th>
+<th class="head"><p>Resources</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Spark</p></td>
+<td><p>Run whylogs in Apache Spark environment</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/scala/src/main/scala/WhyLogsDemo.scala">Code Example</a></li></ul></p></td>
+</tr>
+<tr class="row-odd"><td><p>Pandas</p></td>
+<td><p>Log and monitor any pandas dataframe</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb">Notebook Example</a></li><li><a class="reference external" href="https://whylabs.ai/blog/posts/whylogs-embrace-data-logging">whylogs: Embrace Data Logging</a></li></ul></p></td>
+</tr>
+<tr class="row-even"><td><p>Kafka</p></td>
+<td><p>Log and monitor Kafka topics with whylogs</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/Kafka.ipynb">Notebook Example</a></li><li> <a class="reference external" href="https://whylabs.ai/blog/posts/integrating-whylogs-into-your-kafka-ml-pipeline">Integrating whylogs into your Kafka ML Pipeline</a> </li></ul></p></td>
+</tr>
+<tr class="row-odd"><td><p>MLflow</p></td>
+<td><p>Enhance MLflow metrics with whylogs:</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb">Notebook Example</a></li><li><a class="reference external" href="https://whylabs.ai/blog/posts/on-model-lifecycle-and-monitoring">Streamlining data monitoring with whylogs and MLflow</a></li></ul></p></td>
+</tr>
+<tr class="row-even"><td><p>Github actions</p></td>
+<td><p>Unit test data with whylogs and github actions</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs-examples/tree/mainline/github-actions">Notebook Example</a></li></ul></p></td>
+</tr>
+<tr class="row-odd"><td><p>RAPIDS</p></td>
+<td><p>Use whylogs in RAPIDS environment</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/RAPIDS%20GPU%20Integration%20Example.ipynb">Notebook Example</a></li><li><a class="reference external" href="https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs">Monitoring High-Performance Machine Learning Models with RAPIDS and whylogs</a></li></ul></p></td>
+</tr>
+<tr class="row-even"><td><p>Java</p></td>
+<td><p>Run whylogs in Java environment</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/java/demo1/src/main/java/com/whylogs/examples/WhyLogsDemo.java">Notebook Example</a></li></ul></p></td>
+</tr>
+<tr class="row-odd"><td><p>Docker</p></td>
+<td><p>Run whylogs as in Docker</p></td>
+<td><p><ul><li><a class="reference external" href="https://docs.whylabs.ai/docs/integrations-rest-container">Rest Container</a></li></ul></p></td>
+</tr>
+<tr class="row-even"><td><p>AWS S3</p></td>
+<td><p>Store whylogs profiles in S3</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/S3%20example.ipynb">S3 example</a></li></ul></p></td>
+</tr>
+</tbody>
+</table></div>
+</section>
+<section id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">#</a></h1>
+<p>For a full set of our examples, please check out the <a class="reference internal" href="examples.html"><span class="doc std std-doc">examples folder</span></a>.</p>
+<p>Check out our example notebooks with Binder: <a class="reference external" href="https://mybinder.org/v2/gh/whylabs/whylogs-examples/HEAD"><img alt="Binder" src="https://mybinder.org/badge_logo.svg"/></a></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb">Getting Started notebook</a></p></li>
+<li><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb">Logging Example notebook</a></p></li>
+<li><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb">Logging Images</a></p></li>
+<li><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb">MLflow Integration</a></p></li>
+</ul>
+</section>
+<section id="usage-statistics-a-name-whylogs-profiles">
+<h1>Usage Statistics<a name="whylogs-profiles"></a><a class="headerlink" href="#usage-statistics-a-name-whylogs-profiles" title="Permalink to this headline">#</a></h1>
+<p>Starting with whylogs v1.0.0, whylogs collects anonymous information about a user’s environment. These usage statistics do not include any information about the user or the data that they are profiling, only the environment that the user in which the user is running whylogs.</p>
+<p>To read more about what usage statistics whylogs collects, check out the relevant <a class="reference external" href="https://docs.whylabs.ai/docs/usage-statistics/">documentation</a>.</p>
+<p>To turn off Usage Statistics, simply set the <code class="docutils literal notranslate"><span class="pre">WHYLOGS_NO_ANALYTICS</span></code> environment variable to True, like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'WHYLOGS_NO_ANALYTICS'</span><span class="p">]</span><span class="o">=</span><span class="s1">'True'</span>
+</pre></div>
+</div>
+</section>
+<section id="community">
+<h1>Community<a class="headerlink" href="#community" title="Permalink to this headline">#</a></h1>
+<p>If you have any questions, comments, or just want to hang out with us, please join <a class="reference external" href="http://join.slack.whylabs.ai/">our Slack channel</a>.</p>
+</section>
+<section id="contribute">
+<h1>Contribute<a class="headerlink" href="#contribute" title="Permalink to this headline">#</a></h1>
+<section id="how-to-contribute">
+<h2>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">#</a></h2>
+<p>We welcome contributions to whylogs. Please see our <a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/CONTRIBUTING.md">contribution guide</a> and our <a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md">development guide</a> for details.</p>
+</section>
+<section id="contributors">
+<h2>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">#</a></h2>
+<a href="https://github.com/whylabs/whylogs/graphs/contributors">
+<img src="https://contrib.rocks/image?repo=whylabs/whylogs"/>
+</a>
+<p>Made with <a class="reference external" href="https://contrib.rocks">contrib.rocks</a>.</p>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+</ul>
+</section>
+</section>
+</p>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="getting_started.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Getting started</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, whylogs developers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://bit.ly/whylogs-slack" aria-label="Slack">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"><path d="M213.6
+            236.216l64.003-21.438 20.708 61.823-64.004
+            21.438z"></path><path d="M213.6 236.216l64.003-21.438 20.708 61.823-64.004 21.438z"></path><path
+            d="M475.9 190C426.4 25 355-13.4 190 36.1S-13.4 157 36.1 322 157 525.4 322 475.9 525.4 355 475.9
+            190zm-83.3 107.1l-31.1 10.4 10.7 32.2c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9l-10.7-32.2-64.1 21.5L261 377c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9L203 360.4l-31 10.3c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-20.7-61.8-31.1 10.4c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-10.9-32.1c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2
+            64.1-21.5-10.7-32.2c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2 31.1-10.4c13-4.2 27.2
+            2.7 31.5 15.7 4.2 13-2.7 27.2-15.7 31.5l-31.1 10.4 20.7 61.8 31.1-10.4c13-4.2 27.2 2.7 31.5 15.7 4.2
+            13.2-2.7 27.4-15.8 31.7z"></path></svg>
+            </a>
+              <a class="muted-link " href="https://github.com/whylabs/whylogs" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+                    0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53
+                    .63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+                    0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0
+                    1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87
+                    3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16
+                    8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">What is whylogs</a></li>
+<li><a class="reference internal" href="#python-quickstart-a-name-python-quickstart">Python Quickstart<a name="python-quickstart" /></a></li>
+<li><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+<li><a class="reference internal" href="#whylogs-profiles-a-name-whylogs-profiles">whylogs Profiles<a name="whylogs-profiles" /></a><ul>
+<li><a class="reference internal" href="#what-are-profiles">What are profiles</a></li>
+<li><a class="reference internal" href="#how-do-you-generate-profiles">How do you generate profiles</a></li>
+<li><a class="reference internal" href="#what-can-you-do-with-profiles">What can you do with profiles</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#data-constraints-a-name-data-constraints">Data Constraints<a name="data-constraints" /></a></li>
+<li><a class="reference internal" href="#profile-visualization-a-name-profile-visualization">Profile Visualization<a name="profile-visualization" /></a></li>
+<li><a class="reference internal" href="#data-types-a-name-data-types">Data Types<a name="data-types" /></a></li>
+<li><a class="reference internal" href="#integrations">Integrations</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#usage-statistics-a-name-whylogs-profiles">Usage Statistics<a name="whylogs-profiles" /></a></li>
+<li><a class="reference internal" href="#community">Community</a></li>
+<li><a class="reference internal" href="#contribute">Contribute</a><ul>
+<li><a class="reference internal" href="#how-to-contribute">How to Contribute</a></li>
+<li><a class="reference internal" href="#contributors">Contributors</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script src="_static/tabs.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

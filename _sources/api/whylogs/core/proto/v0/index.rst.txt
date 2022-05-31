@@ -1,0 +1,427 @@
+:py:mod:`whylogs.core.proto.v0`
+===============================
+
+.. py:module:: whylogs.core.proto.v0
+
+.. autoapi-nested-parse::
+
+   Auto-generated protobuf class definitions.
+
+   Protobuf allows us to serialize/deserialize classes across languages
+
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   v0_constraints_pb2/index.rst
+   v0_messages_pb2/index.rst
+   v0_summaries_pb2/index.rst
+
+
+Package Contents
+----------------
+
+.. py:data:: DESCRIPTOR
+   
+
+   
+
+.. py:data:: Op
+   
+
+   
+
+.. py:data:: unused
+   :annotation: = 0
+
+   
+
+.. py:data:: LT
+   :annotation: = 1
+
+   
+
+.. py:data:: LE
+   :annotation: = 2
+
+   
+
+.. py:data:: EQ
+   :annotation: = 3
+
+   
+
+.. py:data:: NE
+   :annotation: = 4
+
+   
+
+.. py:data:: GE
+   :annotation: = 5
+
+   
+
+.. py:data:: GT
+   :annotation: = 6
+
+   
+
+.. py:data:: MATCH
+   :annotation: = 7
+
+   
+
+.. py:data:: NOMATCH
+   :annotation: = 8
+
+   
+
+.. py:data:: BTWN
+   :annotation: = 9
+
+   
+
+.. py:data:: IN_SET
+   :annotation: = 10
+
+   
+
+.. py:data:: CONTAIN_SET
+   :annotation: = 11
+
+   
+
+.. py:data:: EQ_SET
+   :annotation: = 12
+
+   
+
+.. py:data:: APPLY_FUNC
+   :annotation: = 13
+
+   
+
+.. py:data:: IN
+   :annotation: = 14
+
+   
+
+.. py:data:: CONTAIN
+   :annotation: = 15
+
+   
+
+.. py:data:: NOT_IN
+   :annotation: = 16
+
+   
+
+.. py:data:: SUM
+   :annotation: = 17
+
+   
+
+.. py:data:: SummaryConstraintMsg
+   
+
+   
+
+.. py:data:: ReferenceDistributionContinuousMessage
+   
+
+   
+
+.. py:data:: ReferenceDistributionDiscreteMessage
+   
+
+   
+
+.. py:data:: SummaryBetweenConstraintMsg
+   
+
+   
+
+.. py:data:: ApplyFunctionMsg
+   
+
+   
+
+.. py:data:: ValueConstraintMsg
+   
+
+   
+
+.. py:data:: MultiColumnValueConstraintMsg
+   
+
+   
+
+.. py:data:: ValueConstraintMsgs
+   
+
+   
+
+.. py:data:: SummaryConstraintMsgs
+   
+
+   
+
+.. py:data:: DatasetConstraintMsg
+   
+
+   
+
+.. py:data:: DESCRIPTOR
+   
+
+   
+
+.. py:data:: ModelType
+   
+
+   
+
+.. py:data:: UNKNOWN
+   :annotation: = 0
+
+   
+
+.. py:data:: CLASSIFICATION
+   :annotation: = 1
+
+   
+
+.. py:data:: REGRESSION
+   :annotation: = 2
+
+   
+
+.. py:data:: EMBEDDINGS
+   :annotation: = 3
+
+   
+
+.. py:data:: NLP
+   :annotation: = 4
+
+   
+
+.. py:data:: CountersV0
+   
+
+   
+
+.. py:data:: InferredType
+   
+
+   
+
+.. py:data:: DoublesMessage
+   
+
+   
+
+.. py:data:: LongsMessage
+   
+
+   
+
+.. py:data:: VarianceMessage
+   
+
+   
+
+.. py:data:: FrequentNumbersSketchMessage
+   
+
+   
+
+.. py:data:: FrequentItemsSketchMessageV0
+   
+
+   
+
+.. py:data:: NumbersMessageV0
+   
+
+   
+
+.. py:data:: CharPosMessage
+   
+
+   
+
+.. py:data:: StringsMessageV0
+   
+
+   
+
+.. py:data:: SchemaMessageV0
+   
+
+   
+
+.. py:data:: ColumnMessageV0
+   
+
+   
+
+.. py:data:: DatasetPropertiesV0
+   
+
+   
+
+.. py:data:: ScoreMatrixMessage
+   
+
+   
+
+.. py:data:: RegressionMetricsMessage
+   
+
+   
+
+.. py:data:: NLPMetricsMessage
+   
+
+   
+
+.. py:data:: ModelMetricsMessage
+   
+
+   
+
+.. py:data:: ModelProfileMessage
+   
+
+   
+
+.. py:data:: DatasetProfileMessageV0
+   
+
+   
+
+.. py:data:: ColumnsChunkSegment
+   
+
+   
+
+.. py:data:: DatasetMetadataSegment
+   
+
+   
+
+.. py:data:: MessageSegment
+   
+
+   
+
+.. py:data:: HllSketchMessageV0
+   
+
+   
+
+.. py:data:: KllFloatsSketchMessage
+   
+
+   
+
+.. py:data:: DESCRIPTOR
+   
+
+   
+
+.. py:data:: UniqueCountSummary
+   
+
+   
+
+.. py:data:: FrequentStringsSummary
+   
+
+   
+
+.. py:data:: FrequentNumbersSummary
+   
+
+   
+
+.. py:data:: FrequentItemsSummary
+   
+
+   
+
+.. py:data:: CharPosSummary
+   
+
+   
+
+.. py:data:: StringsSummary
+   
+
+   
+
+.. py:data:: SchemaSummary
+   
+
+   
+
+.. py:data:: HistogramSummary
+   
+
+   
+
+.. py:data:: QuantileSummary
+   
+
+   
+
+.. py:data:: NumberSummary
+   
+
+   
+
+.. py:data:: ColumnSummary
+   
+
+   
+
+.. py:data:: DatasetSummary
+   
+
+   
+
+.. py:data:: ModelSummary
+   
+
+   
+
+.. py:data:: MetricsSummary
+   
+
+   
+
+.. py:data:: ConfusionMatrix
+   
+
+   
+
+.. py:data:: ROCCurve
+   
+
+   
+
+.. py:data:: RecallCurve
+   
+
+   
+
+.. py:data:: DatasetSummaries
+   
+
+   
+

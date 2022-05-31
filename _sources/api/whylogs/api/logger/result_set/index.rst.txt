@@ -1,0 +1,115 @@
+:py:mod:`whylogs.api.logger.result_set`
+=======================================
+
+.. py:module:: whylogs.api.logger.result_set
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.result_set.ResultSet
+   whylogs.api.logger.result_set.ProfileResultSet
+   whylogs.api.logger.result_set.ViewResultSet
+   whylogs.api.logger.result_set.ResultSetWriter
+
+
+
+
+.. py:class:: ResultSet
+
+   Bases: :py:obj:`abc.ABC`
+
+   A holder object for profiling results.
+
+   A whylogs.log call can result in more than one profile. This wrapper class
+   simplifies the navigation among these profiles.
+
+   Note that currently we only hold one profile but we're planning to add other
+   kinds of profiles such as segmented profiles here.
+
+   .. py:method:: read(cls, multi_profile_file: str) -> ResultSet
+      :classmethod:
+
+
+   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+
+
+   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+      :abstractmethod:
+
+
+   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+      :abstractmethod:
+
+
+
+.. py:class:: ProfileResultSet(profile: whylogs.core.DatasetProfile)
+
+   Bases: :py:obj:`ResultSet`
+
+   A holder object for profiling results.
+
+   A whylogs.log call can result in more than one profile. This wrapper class
+   simplifies the navigation among these profiles.
+
+   Note that currently we only hold one profile but we're planning to add other
+   kinds of profiles such as segmented profiles here.
+
+   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+
+
+   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+
+
+   .. py:method:: read(cls, multi_profile_file: str) -> ResultSet
+      :classmethod:
+
+
+   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+
+
+
+.. py:class:: ViewResultSet(view: whylogs.core.DatasetProfileView)
+
+   Bases: :py:obj:`ResultSet`
+
+   A holder object for profiling results.
+
+   A whylogs.log call can result in more than one profile. This wrapper class
+   simplifies the navigation among these profiles.
+
+   Note that currently we only hold one profile but we're planning to add other
+   kinds of profiles such as segmented profiles here.
+
+   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+
+
+   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+
+
+   .. py:method:: read(cls, multi_profile_file: str) -> ResultSet
+      :classmethod:
+
+
+   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+
+
+
+.. py:class:: ResultSetWriter(results: ResultSet, writer: whylogs.api.writer.Writer)
+
+   Result of a logging call.
+
+   A result set might contain one or multiple profiles or profile views.
+
+   .. py:method:: option(self, **kwargs: Any) -> ResultSetWriter
+
+
+   .. py:method:: write(self, **kwargs) -> None
+
+
+

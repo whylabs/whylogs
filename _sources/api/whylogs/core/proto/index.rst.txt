@@ -1,0 +1,119 @@
+:py:mod:`whylogs.core.proto`
+============================
+
+.. py:module:: whylogs.core.proto
+
+.. autoapi-nested-parse::
+
+   Auto-generated protobuf class definitions.
+
+   Protobuf allows us to serialize/deserialize classes across languages
+
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   v0/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   whylogs_messages_pb2/index.rst
+
+
+Package Contents
+----------------
+
+.. py:data:: DESCRIPTOR
+   
+
+   
+
+.. py:data:: DataType
+   
+
+   
+
+.. py:data:: HllSketchMessage
+   
+
+   
+
+.. py:data:: FrequentItemsSketchMessage
+   
+
+   
+
+.. py:data:: KllSketchMessage
+   
+
+   
+
+.. py:data:: CpcSketchMessage
+   
+
+   
+
+.. py:data:: MetricComponentMessage
+   
+
+   
+
+.. py:data:: MetricMessage
+   
+
+   
+
+.. py:data:: ColumnMessage
+   
+
+   
+
+.. py:data:: DatasetProperties
+   
+
+   
+
+.. py:data:: ChunkOffsets
+   
+
+   
+
+.. py:data:: ChunkMessage
+   
+
+   
+
+.. py:data:: ChunkHeader
+   
+
+   
+
+.. py:data:: DatasetProfileHeader
+   
+
+   
+
+.. py:data:: SegmentTag
+   
+
+   
+
+.. py:data:: Segment
+   
+
+   
+
+.. py:data:: DatasetSegmentHeader
+   
+
+   
+

@@ -1,0 +1,99 @@
+:py:mod:`whylogs.core.proto.whylogs_messages_pb2`
+=================================================
+
+.. py:module:: whylogs.core.proto.whylogs_messages_pb2
+
+.. autoapi-nested-parse::
+
+   Generated protocol buffer code.
+
+
+
+Module Contents
+---------------
+
+.. py:data:: DESCRIPTOR
+   
+
+   
+
+.. py:data:: DataType
+   
+
+   
+
+.. py:data:: HllSketchMessage
+   
+
+   
+
+.. py:data:: FrequentItemsSketchMessage
+   
+
+   
+
+.. py:data:: KllSketchMessage
+   
+
+   
+
+.. py:data:: CpcSketchMessage
+   
+
+   
+
+.. py:data:: MetricComponentMessage
+   
+
+   
+
+.. py:data:: MetricMessage
+   
+
+   
+
+.. py:data:: ColumnMessage
+   
+
+   
+
+.. py:data:: DatasetProperties
+   
+
+   
+
+.. py:data:: ChunkOffsets
+   
+
+   
+
+.. py:data:: ChunkMessage
+   
+
+   
+
+.. py:data:: ChunkHeader
+   
+
+   
+
+.. py:data:: DatasetProfileHeader
+   
+
+   
+
+.. py:data:: SegmentTag
+   
+
+   
+
+.. py:data:: Segment
+   
+
+   
+
+.. py:data:: DatasetSegmentHeader
+   
+
+   
+

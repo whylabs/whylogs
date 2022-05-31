@@ -1,0 +1,121 @@
+:py:mod:`whylogs.core.constraints.metric_constraints`
+=====================================================
+
+.. py:module:: whylogs.core.constraints.metric_constraints
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.metric_constraints.MetricsSelector
+   whylogs.core.constraints.metric_constraints.MetricConstraint
+   whylogs.core.constraints.metric_constraints.Constraints
+   whylogs.core.constraints.metric_constraints.ConstraintsBuilder
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.metric_constraints.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: MetricsSelector
+
+   .. py:attribute:: metric_name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: column_name
+      :annotation: :Optional[str]
+
+      
+
+   .. py:attribute:: metrics_resolver
+      :annotation: :Optional[Callable[[whylogs.core.view.dataset_profile_view.DatasetProfileView], List[whylogs.core.metrics.metrics.Metric]]]
+
+      
+
+   .. py:method:: column_profile(self, profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
+
+
+   .. py:method:: apply(self, profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> List[whylogs.core.metrics.metrics.Metric]
+
+
+
+.. py:class:: MetricConstraint
+
+   .. py:attribute:: condition
+      :annotation: :Callable[[whylogs.core.metrics.metrics.Metric], bool]
+
+      
+
+   .. py:attribute:: name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: metric_selector
+      :annotation: :MetricsSelector
+
+      
+
+   .. py:attribute:: require_column_existence
+      :annotation: :bool = True
+
+      
+
+   .. py:method:: validate(self, dataset_profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> bool
+
+
+
+.. py:class:: Constraints(dataset_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None, column_constraints: Optional[Dict[str, Dict[str, MetricConstraint]]] = None)
+
+   .. py:attribute:: column_constraints
+      :annotation: :Dict[str, Dict[str, MetricConstraint]]
+
+      
+
+   .. py:attribute:: dataset_constraints
+      :annotation: :Dict[str, MetricConstraint]
+
+      
+
+   .. py:attribute:: dataset_profile_view
+      :annotation: :Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView]
+
+      
+
+   .. py:method:: validate(self, profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> bool
+
+
+   .. py:method:: report(self, profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> List[Tuple[str, int, int]]
+
+
+
+.. py:class:: ConstraintsBuilder(dataset_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, constraints: Optional[Constraints] = None)
+
+   .. py:method:: get_metric_selectors(self) -> List[MetricsSelector]
+
+
+   .. py:method:: add_constraint(self, constraint: MetricConstraint, ignore_missing: bool = False) -> ConstraintsBuilder
+
+
+   .. py:method:: build(self) -> Constraints
+
+
+

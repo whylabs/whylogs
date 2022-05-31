@@ -1,0 +1,59 @@
+:py:mod:`whylogs.core.metrics.aggregators`
+==========================================
+
+.. py:module:: whylogs.core.metrics.aggregators
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.aggregators.AggregatorRegistry
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.aggregators.aggregator
+   whylogs.core.metrics.aggregators.get_aggregator
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.aggregators.M
+   whylogs.core.metrics.aggregators.NUM
+
+
+.. py:data:: M
+   
+
+   
+
+.. py:data:: NUM
+   
+
+   
+
+.. py:class:: AggregatorRegistry
+
+   .. py:method:: get(self, *, type_id: int = 0, mtype: Optional[type] = None) -> Optional[_Aggregator]
+
+
+
+.. py:function:: aggregator(type_id: int, registry: Optional[AggregatorRegistry] = None)
+
+
+.. py:function:: get_aggregator(type_id: int = 0, mtype: Optional[type] = None, registry: Optional[AggregatorRegistry] = None) -> Optional[_Aggregator]
+
+

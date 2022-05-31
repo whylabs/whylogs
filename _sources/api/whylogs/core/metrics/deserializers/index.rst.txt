@@ -1,0 +1,59 @@
+:py:mod:`whylogs.core.metrics.deserializers`
+============================================
+
+.. py:module:: whylogs.core.metrics.deserializers
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.deserializers.DeserializerRegistry
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.deserializers.get_deserializer
+   whylogs.core.metrics.deserializers.deserializer
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.deserializers.M
+   whylogs.core.metrics.deserializers.NUM
+
+
+.. py:data:: M
+   
+
+   
+
+.. py:data:: NUM
+   
+
+   
+
+.. py:class:: DeserializerRegistry
+
+   .. py:method:: get(self, *, mtype: Optional[type] = None, type_id: int = 0) -> Optional[_Deserializer]
+
+
+
+.. py:function:: get_deserializer(mtype: Optional[type] = None, type_id: int = 0, registry: Optional[DeserializerRegistry] = None) -> Optional[_Deserializer]
+
+
+.. py:function:: deserializer(type_id: int, registry: Optional[DeserializerRegistry] = None)
+
+

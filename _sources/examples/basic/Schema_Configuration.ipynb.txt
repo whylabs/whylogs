@@ -1,0 +1,813 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Schema Configuration for Tracking Metrics"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/whylabs/whylogs-v1/blob/mainline/python/examples/basic/Schema_Configuration.ipynb)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "When logging data, whylogs outputs certain metrics according to the column type. While whylogs provide a default behaviour, you can configure it in order to only track metrics that are important to you.\n",
+    "\n",
+    "In this example, we'll see how you can configure the Schema for a dataset level to control which metrics you want to calculate.\n",
+    "We'll see how to specify metrics:\n",
+    "\n",
+    "1. Per data type\n",
+    "\n",
+    "2. Per column name\n",
+    "\n",
+    "\n",
+    "But first, let's talk briefly about whylogs' data types and basic metrics."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## whylogs DataTypes"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "whylogs maps different data types, like numpy arrays, list, integers, etc. to specific whylogs data types. The three most important whylogs data types are:\n",
+    "\n",
+    "- Integral\n",
+    "- Fractional\n",
+    "- String"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Anything that doesn't end up matching the above types will have an `AnyType` type.\n",
+    "\n",
+    "If you want to check to which type a certain Python type is mapped to whylogs, you can use the StandardTypeMapper:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<whylogs.core.datatypes.AnyType at 0x7efe0fb48ca0>"
+      ]
+     },
+     "execution_count": 1,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from whylogs.core.datatypes import StandardTypeMapper\n",
+    "\n",
+    "type_mapper = StandardTypeMapper()\n",
+    "\n",
+    "type_mapper(list)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Basic Metrics"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The standard metrics available in whylogs are grouped in __namespaces__. They are:\n",
+    "\n",
+    "- __counts__: Counters, such as number of samples and null values\n",
+    "- __types__: Inferred types, such as boolean, string or fractional\n",
+    "- __ints__: Max and Min Values\n",
+    "- __distribution__: min,max, median, quantile values\n",
+    "- __cardinality__\n",
+    "- __frequent_items__ "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Configuring Metrics in the Dataset Schema"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now, let's see how we can control which metrics are tracked according to the column's type or column name. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Metrics per Type"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's assume you're not interested in every metric listed above, and you have a performance-critical application, so you'd like to do as few calculations as possible.\n",
+    "\n",
+    "For example, you might only be interested in:\n",
+    "\n",
+    "- Counts/Types metrics for every data type\n",
+    "- Distribution metrics for Fractional\n",
+    "- Frequent Items for Integral\n",
+    "\n",
+    "Let's see how we can configure our Schema to track only the above metrics for the related types."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's create a sample dataframe to illustrate:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "d = {\"col1\": [1, 2, 3], \"col2\": [3.0, 4.0, 5.0], \"col3\": [\"a\", \"b\", \"c\"], \"col4\": [3.0, 4.0, 5.0]}\n",
+    "df = pd.DataFrame(data=d)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "whylogs use `Resolvers` in order to define how a column name or data type gets mapped to different metrics.\n",
+    "\n",
+    "We will need to create a custom Resolver class in order to customize it."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from whylogs.core.resolvers import Resolver\n",
+    "from whylogs.core.datatypes import DataType, Fractional, Integral\n",
+    "from typing import Dict, List\n",
+    "from whylogs.core.metrics import StandardMetric\n",
+    "from whylogs.core.metrics.metrics import Metric\n",
+    "\n",
+    "class MyCustomResolver(Resolver):\n",
+    "    \"\"\"Resolver that keeps distribution metrics for Fractional and frequent items for Integral, and counters and types metrics for all data types.\"\"\"\n",
+    "\n",
+    "    def resolve(self, name: str, why_type: DataType, column_schema) -> Dict[str, Metric]:\n",
+    "        metrics: List[StandardMetric] = [StandardMetric.counts, StandardMetric.types]\n",
+    "        if isinstance(why_type, Fractional):\n",
+    "            metrics.append(StandardMetric.distribution)\n",
+    "        if isinstance(why_type, Integral):\n",
+    "            metrics.append(StandardMetric.frequent_items)\n",
+    "\n",
+    "\n",
+    "        result: Dict[str, Metric] = {}\n",
+    "        for m in metrics:\n",
+    "            result[m.name] = m.zero(column_schema)\n",
+    "        return result\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In the case above, the `name` parameter is not being used, as the column name is not relevant to map the metrics, only the `why_type`.\n",
+    "\n",
+    "We basically initialize `metrics` with metrics of both `counts` and `types` namespaces regardless of the data type. Then, we check for the whylogs data type in order to add the desired metric namespace (`distribution` for __Fractional__ columns and `frequent_items` for __Integral__ columns)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Resolvers are passed to whylogs through a `Dataset Schema`, so we'll have to create a custom Schema as well.\n",
+    "\n",
+    "In this case, since we're only interested in the resolvers, we could create a custom schema as follows:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from whylogs.core import DatasetSchema"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class MyCustomSchema(DatasetSchema):\n",
+    "    resolvers = MyCustomResolver()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now we can proceed with the normal process of logging a dataframe, remembering to pass our schema when making the `log` call:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>counts/n</th>\n",
+       "      <th>counts/null</th>\n",
+       "      <th>types/integral</th>\n",
+       "      <th>types/fractional</th>\n",
+       "      <th>types/boolean</th>\n",
+       "      <th>types/string</th>\n",
+       "      <th>types/object</th>\n",
+       "      <th>distribution/mean</th>\n",
+       "      <th>distribution/stddev</th>\n",
+       "      <th>distribution/n</th>\n",
+       "      <th>distribution/max</th>\n",
+       "      <th>distribution/min</th>\n",
+       "      <th>distribution/q_10</th>\n",
+       "      <th>distribution/q_25</th>\n",
+       "      <th>distribution/median</th>\n",
+       "      <th>distribution/q_75</th>\n",
+       "      <th>distribution/q_90</th>\n",
+       "      <th>type</th>\n",
+       "      <th>frequent_items/frequent_strings</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>column</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>col2</th>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>col4</th>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>col3</th>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>col1</th>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>[FrequentItem(value='1.000000', est=1, upper=1...</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "        counts/n  counts/null  types/integral  types/fractional  \\\n",
+       "column                                                            \n",
+       "col2           3            0               0                 3   \n",
+       "col4           3            0               0                 3   \n",
+       "col3           3            0               0                 0   \n",
+       "col1           3            0               3                 0   \n",
+       "\n",
+       "        types/boolean  types/string  types/object  distribution/mean  \\\n",
+       "column                                                                 \n",
+       "col2                0             0             0                4.0   \n",
+       "col4                0             0             0                4.0   \n",
+       "col3                0             3             0                NaN   \n",
+       "col1                0             0             0                NaN   \n",
+       "\n",
+       "        distribution/stddev  distribution/n  distribution/max  \\\n",
+       "column                                                          \n",
+       "col2                    1.0             3.0               5.0   \n",
+       "col4                    1.0             3.0               5.0   \n",
+       "col3                    NaN             NaN               NaN   \n",
+       "col1                    NaN             NaN               NaN   \n",
+       "\n",
+       "        distribution/min  distribution/q_10  distribution/q_25  \\\n",
+       "column                                                           \n",
+       "col2                 3.0                3.0                3.0   \n",
+       "col4                 3.0                3.0                3.0   \n",
+       "col3                 NaN                NaN                NaN   \n",
+       "col1                 NaN                NaN                NaN   \n",
+       "\n",
+       "        distribution/median  distribution/q_75  distribution/q_90  \\\n",
+       "column                                                              \n",
+       "col2                    4.0                5.0                5.0   \n",
+       "col4                    4.0                5.0                5.0   \n",
+       "col3                    NaN                NaN                NaN   \n",
+       "col1                    NaN                NaN                NaN   \n",
+       "\n",
+       "                      type                    frequent_items/frequent_strings  \n",
+       "column                                                                         \n",
+       "col2    SummaryType.COLUMN                                                NaN  \n",
+       "col4    SummaryType.COLUMN                                                NaN  \n",
+       "col3    SummaryType.COLUMN                                                NaN  \n",
+       "col1    SummaryType.COLUMN  [FrequentItem(value='1.000000', est=1, upper=1...  "
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import whylogs as why\n",
+    "\n",
+    "result = why.log(df, schema=MyCustomSchema())\n",
+    "prof = result.profile()\n",
+    "prof_view = prof.view()\n",
+    "pd.set_option(\"display.max_columns\", None)\n",
+    "prof_view.to_pandas()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Notice we have `counts` and `types` metrics for every type, `distribution` metrics only for `col2` and `col4` (floats) and `frequent_items` only for `col1` (ints).\n",
+    "\n",
+    "That's precisely what we wanted."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Metrics per Column"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now, suppose we don't want to specify the tracked metrics per data type, and rather by each specific columns.\n",
+    "\n",
+    "For example, we might want to track:"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- Count metrics for `col1`\n",
+    "- Distribution Metrics for `col2`\n",
+    "- Cardinality for `col3`\n",
+    "- Distribution Metrics + Cardinality for `col4`\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The process is similar to the previous case. We only need to change the if clauses to check for the `name` instead of `why_type`, like this: "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from whylogs.core.resolvers import Resolver\n",
+    "from whylogs.core.datatypes import DataType, Fractional, Integral\n",
+    "from typing import Dict, List\n",
+    "from whylogs.core.metrics import StandardMetric\n",
+    "from whylogs.core.metrics.metrics import Metric\n",
+    "\n",
+    "class MyCustomResolver(Resolver):\n",
+    "    \"\"\"Resolver that keeps distribution metrics for Fractional and frequent items for Integral, and counters and types metrics for all data types.\"\"\"\n",
+    "\n",
+    "    def resolve(self, name: str, why_type: DataType, column_schema) -> Dict[str, Metric]:\n",
+    "        metrics = []\n",
+    "        if name=='col1':\n",
+    "            metrics.append(StandardMetric.counts)\n",
+    "        if name=='col2':\n",
+    "            metrics.append(StandardMetric.distribution)\n",
+    "        if name=='col3':\n",
+    "            metrics.append(StandardMetric.cardinality)\n",
+    "        if name=='col4':\n",
+    "            metrics.append(StandardMetric.distribution)\n",
+    "            metrics.append(StandardMetric.cardinality)\n",
+    "\n",
+    "\n",
+    "\n",
+    "        result: Dict[str, Metric] = {}\n",
+    "        for m in metrics:\n",
+    "            result[m.name] = m.zero(column_schema)\n",
+    "        return result\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Since there's no common metrics for all columns, we can initialize `metrics` as an empty list, and then append the relevant metrics for each columns.\n",
+    "\n",
+    "Now, we create a custom schema, just like before:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class MyCustomSchema(DatasetSchema):\n",
+    "    resolvers = MyCustomResolver()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>counts/n</th>\n",
+       "      <th>counts/null</th>\n",
+       "      <th>type</th>\n",
+       "      <th>distribution/mean</th>\n",
+       "      <th>distribution/stddev</th>\n",
+       "      <th>distribution/n</th>\n",
+       "      <th>distribution/max</th>\n",
+       "      <th>distribution/min</th>\n",
+       "      <th>distribution/q_10</th>\n",
+       "      <th>distribution/q_25</th>\n",
+       "      <th>distribution/median</th>\n",
+       "      <th>distribution/q_75</th>\n",
+       "      <th>distribution/q_90</th>\n",
+       "      <th>cardinality/est</th>\n",
+       "      <th>cardinality/upper_1</th>\n",
+       "      <th>cardinality/lower_1</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>column</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>col1</th>\n",
+       "      <td>3.0</td>\n",
+       "      <td>0.0</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>col5</th>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>col4</th>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.00015</td>\n",
+       "      <td>3.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>col3</th>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.00015</td>\n",
+       "      <td>3.0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>col2</th>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "        counts/n  counts/null                type  distribution/mean  \\\n",
+       "column                                                                 \n",
+       "col1         3.0          0.0  SummaryType.COLUMN                NaN   \n",
+       "col5         NaN          NaN  SummaryType.COLUMN                NaN   \n",
+       "col4         NaN          NaN  SummaryType.COLUMN                4.0   \n",
+       "col3         NaN          NaN  SummaryType.COLUMN                NaN   \n",
+       "col2         NaN          NaN  SummaryType.COLUMN                4.0   \n",
+       "\n",
+       "        distribution/stddev  distribution/n  distribution/max  \\\n",
+       "column                                                          \n",
+       "col1                    NaN             NaN               NaN   \n",
+       "col5                    NaN             NaN               NaN   \n",
+       "col4                    1.0             3.0               5.0   \n",
+       "col3                    NaN             NaN               NaN   \n",
+       "col2                    1.0             3.0               5.0   \n",
+       "\n",
+       "        distribution/min  distribution/q_10  distribution/q_25  \\\n",
+       "column                                                           \n",
+       "col1                 NaN                NaN                NaN   \n",
+       "col5                 NaN                NaN                NaN   \n",
+       "col4                 3.0                3.0                3.0   \n",
+       "col3                 NaN                NaN                NaN   \n",
+       "col2                 3.0                3.0                3.0   \n",
+       "\n",
+       "        distribution/median  distribution/q_75  distribution/q_90  \\\n",
+       "column                                                              \n",
+       "col1                    NaN                NaN                NaN   \n",
+       "col5                    NaN                NaN                NaN   \n",
+       "col4                    4.0                5.0                5.0   \n",
+       "col3                    NaN                NaN                NaN   \n",
+       "col2                    4.0                5.0                5.0   \n",
+       "\n",
+       "        cardinality/est  cardinality/upper_1  cardinality/lower_1  \n",
+       "column                                                             \n",
+       "col1                NaN                  NaN                  NaN  \n",
+       "col5                NaN                  NaN                  NaN  \n",
+       "col4                3.0              3.00015                  3.0  \n",
+       "col3                3.0              3.00015                  3.0  \n",
+       "col2                NaN                  NaN                  NaN  "
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import whylogs as why\n",
+    "\n",
+    "df['col5'] = 0\n",
+    "result = why.log(df, schema=MyCustomSchema())\n",
+    "prof = result.profile()\n",
+    "prof_view = prof.view()\n",
+    "pd.set_option(\"display.max_columns\", None)\n",
+    "prof_view.to_pandas()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Note that existing columns that are not specified in your custom resolver won't have any metrics tracked. In the example above, we added a `col5` column, but since we didn't link any metrics to it, all of the metrics are `NaN`s."
+   ]
+  }
+ ],
+ "metadata": {
+  "interpreter": {
+   "hash": "f76ec28949fecf16b926a3fc5a03c1aa6468ee82fa5da4ce6fd607df021af5b5"
+  },
+  "kernelspec": {
+   "display_name": "Python 3.8.13 ('v1.x')",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.13"
+  },
+  "orig_nbformat": 4
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

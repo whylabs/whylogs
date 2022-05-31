@@ -1,0 +1,105 @@
+:py:mod:`whylogs.core.errors`
+=============================
+
+.. py:module:: whylogs.core.errors
+
+
+Module Contents
+---------------
+
+.. py:exception:: Error
+
+   Bases: :py:obj:`Exception`
+
+   Base error type for this module.
+
+   .. py:class:: args
+
+
+   .. py:method:: with_traceback()
+
+      Exception.with_traceback(tb) --
+      set self.__traceback__ to tb and return self.
+
+
+
+.. py:exception:: DeserializationError
+
+   Bases: :py:obj:`Error`
+
+   Exception raised when deserializing data.
+
+   .. py:class:: args
+
+
+   .. py:method:: with_traceback()
+
+      Exception.with_traceback(tb) --
+      set self.__traceback__ to tb and return self.
+
+
+
+.. py:exception:: SerializationError
+
+   Bases: :py:obj:`Error`
+
+   Exception raised when serializing data.
+
+   .. py:class:: args
+
+
+   .. py:method:: with_traceback()
+
+      Exception.with_traceback(tb) --
+      set self.__traceback__ to tb and return self.
+
+
+
+.. py:exception:: UnsupportedError
+
+   Bases: :py:obj:`Error`
+
+   Exception raised when an operation is not supported.
+
+   .. py:class:: args
+
+
+   .. py:method:: with_traceback()
+
+      Exception.with_traceback(tb) --
+      set self.__traceback__ to tb and return self.
+
+
+
+.. py:exception:: LoggingError
+
+   Bases: :py:obj:`Error`
+
+   Exception when an error happens during logging.
+
+   .. py:class:: args
+
+
+   .. py:method:: with_traceback()
+
+      Exception.with_traceback(tb) --
+      set self.__traceback__ to tb and return self.
+
+
+
+.. py:exception:: BadConfigError
+
+   Bases: :py:obj:`Error`
+
+   Exception when an error is due to bad configuration.
+
+   .. py:class:: args
+
+
+   .. py:method:: with_traceback()
+
+      Exception.with_traceback(tb) --
+      set self.__traceback__ to tb and return self.
+
+
+

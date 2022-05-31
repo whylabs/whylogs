@@ -1,0 +1,83 @@
+:py:mod:`whylogs.api.writer.s3`
+===============================
+
+.. py:module:: whylogs.api.writer.s3
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.s3.S3Writer
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.s3.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: S3Writer(s3_client: Optional[botocore.client.BaseClient] = None, base_prefix: Optional[str] = None, bucket_name: Optional[str] = None, object_name: Optional[str] = None)
+
+   Bases: :py:obj:`whylogs.api.writer.Writer`
+
+   A WhyLogs writer to upload DatasetProfileViews onto Amazon S3.
+
+   >**IMPORTANT**: In order to correctly connect to your Amazon S3 bucket, make sure you have
+   the following environment variables set: `[AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]`
+
+   :param s3_client: The s3 client used to authenticate and perform operations on the s3 bucket.
+                     Should be a BaseClient from the boto3 library
+   :type s3_client: BaseClient, optional
+   :param base_prefix: The base file prefix for s3, in order to organize. A placeholder 'profile' will take place if None is provided.
+   :type base_prefix: str, optional
+   :param bucket_name: The name of the bucket to connect to. Made optional so the user can also access it
+                       via the `option` method
+   :type bucket_name: str, optional
+   :param object_name: The s3's object name. It basically states the location where the file goes to.
+                       Also made optional, so it can be defined through the `option` method
+   :type object_name: str, optional
+
+   :returns:
+   :rtype: None
+
+   .. rubric:: Examples
+
+   An example usage of this method can be represented with the simple code above. Here we
+   are assuming the user has already assigned a pandas.DataFrame to the `df` variable.
+
+   ```python
+   import whylogs as why
+
+   profile = why.log(pandas=df)
+   profile.writer("s3").option(bucket_name="my_bucket").write()
+   ```
+
+   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView, dest: Optional[str] = None) -> None
+
+
+   .. py:method:: option(self, bucket_name: Optional[str] = None, object_name: Optional[str] = None, s3_client: Optional[botocore.client.BaseClient] = None) -> None
+
+
+   .. py:method:: check_interval(self, interval_seconds: int) -> None
+
+      Validate an interval configuration for a given writer.
+
+      Some writer only accepts certain interval configuration. By default, this should return True for a valid
+      non-negative interval.
+
+
+

@@ -1,0 +1,144 @@
+:py:mod:`whylogs.core.preprocessing`
+====================================
+
+.. py:module:: whylogs.core.preprocessing
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.preprocessing.ListView
+   whylogs.core.preprocessing.NumpyView
+   whylogs.core.preprocessing.PandasView
+   whylogs.core.preprocessing.PreprocessedColumn
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.preprocessing.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: ListView
+
+   .. py:attribute:: ints
+      :annotation: :Optional[List[int]]
+
+      
+
+   .. py:attribute:: floats
+      :annotation: :Optional[List[float]]
+
+      
+
+   .. py:attribute:: strings
+      :annotation: :Optional[List[str]]
+
+      
+
+   .. py:attribute:: objs
+      :annotation: :Optional[List[Any]]
+
+      
+
+   .. py:method:: iterables(self) -> List[List[Any]]
+
+
+
+.. py:class:: NumpyView
+
+   .. py:attribute:: ints
+      :annotation: :Optional[whylogs.core.stubs.np.ndarray]
+
+      
+
+   .. py:attribute:: floats
+      :annotation: :Optional[whylogs.core.stubs.np.ndarray]
+
+      
+
+   .. py:method:: iterables(self) -> List[whylogs.core.stubs.np.ndarray]
+
+
+   .. py:method:: len(self) -> int
+      :property:
+
+
+
+.. py:class:: PandasView
+
+   .. py:attribute:: strings
+      :annotation: :Optional[whylogs.core.stubs.pd.Series]
+
+      
+
+   .. py:attribute:: objs
+      :annotation: :Optional[whylogs.core.stubs.pd.Series]
+
+      
+
+   .. py:method:: iterables(self) -> List[whylogs.core.stubs.pd.Series]
+
+
+
+.. py:class:: PreprocessedColumn
+
+   View of a column with data of various underlying storage.
+
+   If Pandas is available, we will use Pandas to handle batch processing.
+   If numpy is available, we will use ndarray for numerical values.
+   Otherwise, we preprocess values into typed lists for downstream consumers.
+   We also track the null count and ensure that processed lists/Series don't contain null values.
+
+   .. py:attribute:: numpy
+      :annotation: :NumpyView
+
+      
+
+   .. py:attribute:: pandas
+      :annotation: :PandasView
+
+      
+
+   .. py:attribute:: list
+      :annotation: :ListView
+
+      
+
+   .. py:attribute:: null_count
+      :annotation: :int = 0
+
+      
+
+   .. py:attribute:: len
+      :annotation: :int = 0
+
+      
+
+   .. py:attribute:: original
+      :annotation: :Any
+
+      
+
+   .. py:method:: raw_iterator(self) -> Iterator[Any]
+
+
+   .. py:method:: apply(data: Any) -> PreprocessedColumn
+      :staticmethod:
+
+
+

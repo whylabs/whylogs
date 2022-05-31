@@ -1,0 +1,42 @@
+/*
+    the ipython3 code blocks and dataframes coming from
+    the notebooks were not getting the dark theme styles
+    applied, so manually overriding them
+*/
+@media (prefers-color-scheme: dark) {
+    .dataframe {
+        color: white !important;
+    }
+
+    .highlight-ipython3 {
+        border: none !important;
+        border-radius: 2px !important;
+    }
+
+
+    tr:nth-child(odd) {
+        background-color: #676767 !important;
+    }
+
+    tr:nth-child(even) {
+        background-color: #030303 !important;
+    }
+}
+
+/* hides the dashboard cells' HTTP logs in the examples */
+div.output_area.stderr {
+    display: none;
+}
+
+.hidden {
+    display: none;
+}
+
+.sidebar-brand {
+    margin-top: 1rem;
+}
+
+.version {
+    font-size: 1rem;
+    text-align: right;
+}

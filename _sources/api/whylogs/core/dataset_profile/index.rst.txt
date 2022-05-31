@@ -1,0 +1,88 @@
+:py:mod:`whylogs.core.dataset_profile`
+======================================
+
+.. py:module:: whylogs.core.dataset_profile
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.dataset_profile.DatasetProfile
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.dataset_profile.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None)
+
+   Bases: :py:obj:`object`
+
+   Dataset profile represents a collection of in-memory profiling stats for a dataset.
+
+   :param schema: :class:`DatasetSchema`, optional
+                  An object that represents the data column names and types
+   :param dataset_timestamp: int, optional
+                             A timestamp integer that best represents the date tied to the dataset generation.
+                             i.e.: A January 1st 2019 Sales Dataset will have 1546300800000 as the timestamp in miliseconds (UTC).
+                             If None is provided, it will take the current timestamp as default
+   :param creation_timestamp: int, optional
+                              The timestamp tied to the exact moment when the :class:`DatasetProfile` is created.
+                              If None is provided, it will take the current timestamp as default
+
+   .. py:method:: creation_timestamp(self) -> datetime.datetime
+      :property:
+
+
+   .. py:method:: dataset_timestamp(self) -> datetime.datetime
+      :property:
+
+
+   .. py:method:: is_active(self) -> bool
+      :property:
+
+      Returns True if the profile tracking code is currently running.
+
+
+   .. py:method:: is_empty(self) -> bool
+      :property:
+
+      Returns True if the profile tracking code is currently running.
+
+
+   .. py:method:: set_dataset_timestamp(self, dataset_timestamp: datetime.datetime) -> None
+
+
+   .. py:method:: track(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
+
+
+   .. py:method:: view(self) -> whylogs.core.view.DatasetProfileView
+
+
+   .. py:method:: flush(self) -> None
+
+
+   .. py:method:: write(self, path_or_base_dir: str) -> None
+
+
+   .. py:method:: read(cls, input_path: str) -> whylogs.core.view.DatasetProfileView
+      :classmethod:
+
+
+

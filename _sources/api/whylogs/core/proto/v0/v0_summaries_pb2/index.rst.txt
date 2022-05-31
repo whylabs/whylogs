@@ -1,0 +1,109 @@
+:py:mod:`whylogs.core.proto.v0.v0_summaries_pb2`
+================================================
+
+.. py:module:: whylogs.core.proto.v0.v0_summaries_pb2
+
+.. autoapi-nested-parse::
+
+   Generated protocol buffer code.
+
+
+
+Module Contents
+---------------
+
+.. py:data:: DESCRIPTOR
+   
+
+   
+
+.. py:data:: UniqueCountSummary
+   
+
+   
+
+.. py:data:: FrequentStringsSummary
+   
+
+   
+
+.. py:data:: FrequentNumbersSummary
+   
+
+   
+
+.. py:data:: FrequentItemsSummary
+   
+
+   
+
+.. py:data:: CharPosSummary
+   
+
+   
+
+.. py:data:: StringsSummary
+   
+
+   
+
+.. py:data:: SchemaSummary
+   
+
+   
+
+.. py:data:: HistogramSummary
+   
+
+   
+
+.. py:data:: QuantileSummary
+   
+
+   
+
+.. py:data:: NumberSummary
+   
+
+   
+
+.. py:data:: ColumnSummary
+   
+
+   
+
+.. py:data:: DatasetSummary
+   
+
+   
+
+.. py:data:: ModelSummary
+   
+
+   
+
+.. py:data:: MetricsSummary
+   
+
+   
+
+.. py:data:: ConfusionMatrix
+   
+
+   
+
+.. py:data:: ROCCurve
+   
+
+   
+
+.. py:data:: RecallCurve
+   
+
+   
+
+.. py:data:: DatasetSummaries
+   
+
+   
+

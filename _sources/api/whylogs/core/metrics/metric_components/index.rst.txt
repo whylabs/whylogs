@@ -1,0 +1,356 @@
+:py:mod:`whylogs.core.metrics.metric_components`
+================================================
+
+.. py:module:: whylogs.core.metrics.metric_components
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.metric_components.Registries
+   whylogs.core.metrics.metric_components.MetricComponent
+   whylogs.core.metrics.metric_components.IntegralComponent
+   whylogs.core.metrics.metric_components.MinIntegralComponent
+   whylogs.core.metrics.metric_components.MaxIntegralComponent
+   whylogs.core.metrics.metric_components.FractionalComponent
+   whylogs.core.metrics.metric_components.KllComponent
+   whylogs.core.metrics.metric_components.HllComponent
+   whylogs.core.metrics.metric_components.FrequentStringsComponent
+   whylogs.core.metrics.metric_components.CustomComponent
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.metric_components.T
+   whylogs.core.metrics.metric_components.M
+
+
+.. py:data:: T
+   
+
+   
+
+.. py:data:: M
+   
+
+   
+
+.. py:class:: Registries
+
+   .. py:attribute:: aggregatorRegistry
+      :annotation: :Optional[whylogs.core.metrics.aggregators.AggregatorRegistry]
+
+      
+
+   .. py:attribute:: serializerRegistry
+      :annotation: :Optional[whylogs.core.metrics.serializers.SerializerRegistry]
+
+      
+
+   .. py:attribute:: deserializerRegistry
+      :annotation: :Optional[whylogs.core.metrics.deserializers.DeserializerRegistry]
+
+      
+
+
+.. py:class:: MetricComponent(value: T)
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ]
+
+   A metric component is the smallest unit for a metric.
+
+   A metric might consist of multiple components. An example is distribution metric, which consists of kll sketch for
+   histogram, mean and m2. The calculation of components could be independent or could be coupled with other
+   components.
+
+   .. py:attribute:: mtype
+      :annotation: :Optional[Type[T]]
+
+      
+
+   .. py:attribute:: type_id
+      :annotation: :int = 0
+
+      
+
+   .. py:attribute:: registries
+      :annotation: :Optional[Registries]
+
+      
+
+   .. py:method:: value(self) -> T
+      :property:
+
+
+   .. py:method:: set(self, value: T) -> None
+
+
+   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+
+
+   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+      :classmethod:
+
+
+
+.. py:class:: IntegralComponent(value: T)
+
+   Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`int`\ ]
+
+   A metric component is the smallest unit for a metric.
+
+   A metric might consist of multiple components. An example is distribution metric, which consists of kll sketch for
+   histogram, mean and m2. The calculation of components could be independent or could be coupled with other
+   components.
+
+   .. py:attribute:: mtype
+      
+
+      
+
+   .. py:attribute:: type_id
+      :annotation: :int = 0
+
+      
+
+   .. py:attribute:: registries
+      :annotation: :Optional[Registries]
+
+      
+
+   .. py:method:: value(self) -> T
+      :property:
+
+
+   .. py:method:: set(self, value: T) -> None
+
+
+   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+
+
+   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+      :classmethod:
+
+
+
+.. py:class:: MinIntegralComponent(value: T)
+
+   Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`int`\ ]
+
+   A metric component is the smallest unit for a metric.
+
+   A metric might consist of multiple components. An example is distribution metric, which consists of kll sketch for
+   histogram, mean and m2. The calculation of components could be independent or could be coupled with other
+   components.
+
+   .. py:attribute:: mtype
+      
+
+      
+
+   .. py:attribute:: type_id
+      :annotation: = 1
+
+      
+
+   .. py:attribute:: registries
+      :annotation: :Optional[Registries]
+
+      
+
+   .. py:method:: min(lhs: int, rhs: int) -> int
+      :staticmethod:
+
+
+   .. py:method:: value(self) -> T
+      :property:
+
+
+   .. py:method:: set(self, value: T) -> None
+
+
+   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+
+
+   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+      :classmethod:
+
+
+
+.. py:class:: MaxIntegralComponent(value: T)
+
+   Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`int`\ ]
+
+   A metric component is the smallest unit for a metric.
+
+   A metric might consist of multiple components. An example is distribution metric, which consists of kll sketch for
+   histogram, mean and m2. The calculation of components could be independent or could be coupled with other
+   components.
+
+   .. py:attribute:: mtype
+      
+
+      
+
+   .. py:attribute:: type_id
+      :annotation: = 2
+
+      
+
+   .. py:attribute:: registries
+      :annotation: :Optional[Registries]
+
+      
+
+   .. py:method:: max(lhs: int, rhs: int) -> int
+      :staticmethod:
+
+
+   .. py:method:: value(self) -> T
+      :property:
+
+
+   .. py:method:: set(self, value: T) -> None
+
+
+   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+
+
+   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+      :classmethod:
+
+
+
+.. py:class:: FractionalComponent(value: T)
+
+   Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`float`\ ]
+
+   A metric component is the smallest unit for a metric.
+
+   A metric might consist of multiple components. An example is distribution metric, which consists of kll sketch for
+   histogram, mean and m2. The calculation of components could be independent or could be coupled with other
+   components.
+
+   .. py:attribute:: mtype
+      
+
+      
+
+   .. py:attribute:: type_id
+      :annotation: :int = 0
+
+      
+
+   .. py:attribute:: registries
+      :annotation: :Optional[Registries]
+
+      
+
+   .. py:method:: value(self) -> T
+      :property:
+
+
+   .. py:method:: set(self, value: T) -> None
+
+
+   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+
+
+   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+      :classmethod:
+
+
+
+.. py:class:: KllComponent
+
+   Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`whylogs_sketching.kll_doubles_sketch`\ ]
+
+   .. py:attribute:: mtype
+      
+
+      
+
+
+.. py:class:: HllComponent
+
+   Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`whylogs_sketching.hll_sketch`\ ]
+
+   .. py:attribute:: mtype
+      
+
+      
+
+
+.. py:class:: FrequentStringsComponent
+
+   Bases: :py:obj:`MetricComponent`\ [\ :py:obj:`whylogs_sketching.frequent_strings_sketch`\ ]
+
+   .. py:attribute:: mtype
+      
+
+      
+
+
+.. py:class:: CustomComponent(value: T)
+
+   Bases: :py:obj:`Generic`\ [\ :py:obj:`T`\ ], :py:obj:`MetricComponent`\ [\ :py:obj:`T`\ ]
+
+   Abstract base class for generic types.
+
+   A generic type is typically declared by inheriting from
+   this class parameterized with one or more type variables.
+   For example, a generic mapping type might be defined as::
+
+     class Mapping(Generic[KT, VT]):
+         def __getitem__(self, key: KT) -> VT:
+             ...
+         # Etc.
+
+   This class can then be used as follows::
+
+     def lookup_name(mapping: Mapping[KT, VT], key: KT, default: VT) -> VT:
+         try:
+             return mapping[key]
+         except KeyError:
+             return default
+
+   .. py:attribute:: type_id
+      
+
+      
+
+   .. py:attribute:: mtype
+      :annotation: :Optional[Type[T]]
+
+      
+
+   .. py:attribute:: registries
+      :annotation: :Optional[Registries]
+
+      
+
+   .. py:method:: value(self) -> T
+      :property:
+
+
+   .. py:method:: set(self, value: T) -> None
+
+
+   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+
+
+   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+      :classmethod:
+
+
+

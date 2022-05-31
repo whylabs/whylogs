@@ -1,0 +1,90 @@
+:py:mod:`whylogs.api`
+=====================
+
+.. py:module:: whylogs.api
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   logger/index.rst
+   usage_stats/index.rst
+   writer/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   annotations/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.ResultSet
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.profiling
+   whylogs.api.log
+   whylogs.api.read
+   whylogs.api.write
+
+
+
+.. py:function:: profiling(schema: Optional[whylogs.core.DatasetSchema] = None)
+
+
+.. py:class:: ResultSet
+
+   Bases: :py:obj:`abc.ABC`
+
+   A holder object for profiling results.
+
+   A whylogs.log call can result in more than one profile. This wrapper class
+   simplifies the navigation among these profiles.
+
+   Note that currently we only hold one profile but we're planning to add other
+   kinds of profiles such as segmented profiles here.
+
+   .. py:method:: read(cls, multi_profile_file: str) -> ResultSet
+      :classmethod:
+
+
+   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+
+
+   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+      :abstractmethod:
+
+
+   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+      :abstractmethod:
+
+
+
+.. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None) -> result_set.ResultSet
+
+
+.. py:function:: read(path: str) -> result_set.ResultSet
+
+
+.. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: str) -> None
+
+

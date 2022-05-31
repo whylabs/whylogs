@@ -1,0 +1,253 @@
+:py:mod:`whylogs.viz`
+=====================
+
+.. py:module:: whylogs.viz
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   jupyter_notebook_viz/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.viz.NotebookProfileVisualizer
+
+
+
+
+.. py:class:: NotebookProfileVisualizer
+
+   Visualize and compare profiles for drift detection, data quality, distribution comparison and feature statistics.
+
+   NotebookProfileVisualizer enables visualization features for Jupyter Notebook environments, but also enables
+   download
+   of the generated reports as HTML files.
+
+   .. rubric:: Examples
+
+   Create target and reference dataframes:
+
+   .. code-block:: python
+
+       import pandas as pd
+
+       data_target = {
+           "animal": ["cat", "hawk", "snake", "cat", "snake", "cat", "cat", "snake", "hawk","cat"],
+           "legs": [4, 2, 0, 4, 0, 4, 4, 0, 2, 4],
+           "weight": [4.3, None, 2.3, 7.8, 3.7, 2.5, 5.5, 3.3, 0.6, 13.3],
+       }
+
+       data_reference = {
+           "animal": ["hawk", "hawk", "snake", "hawk", "snake", "snake", "cat", "snake", "hawk","snake"],
+           "legs": [2, 2, 0, 2, 0, 0, 4, 0, 2, 0],
+           "weight": [2.7, None, 1.2, 10.5, 2.2, 4.6, 3.8, 4.7, 0.6, 11.2],
+       }
+
+       target_df = pd.DataFrame(data_target)
+       reference_df = pd.DataFrame(data_reference)
+
+   Log data and create profile views:
+
+   .. code-block:: python
+
+       import whylogs as why
+
+       results = why.log(pandas=target_df)
+       prof_view = results.view()
+
+       results_ref = why.log(pandas=reference_df)
+       prof_view_ref = results_ref.view()
+
+   Log data and create profile views:
+
+   .. code-block:: python
+
+       import whylogs as why
+
+       results = why.log(pandas=target_df)
+       prof_view = results.view()
+
+       results_ref = why.log(pandas=reference_df)
+       prof_view_ref = results_ref.view()
+
+   Instantiate and set profile views:
+
+   .. code-block:: python
+
+       from whylogs.viz import NotebookProfileVisualizer
+
+       visualization = NotebookProfileVisualizer()
+       visualization.set_profiles(target_profile_view=prof_view,reference_profile_view=prof_view_ref)
+
+   .. py:method:: set_profiles(self, target_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, reference_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> None
+
+      Set profiles for Visualization/Comparison.
+
+      Drift calculation is done if both `target_profile` and `reference profile` are passed.
+
+      :param target_profile_view: Target profile to visualize.
+      :type target_profile_view: DatasetProfileView, required
+      :param reference_profile_view: Reference, or baseline, profile to be compared against the target profile.
+      :type reference_profile_view: DatasetProfileView, optional
+
+
+   .. py:method:: summary_drift_report(self, cell_height: str = None) -> IPython.core.display.HTML
+
+      Generate drift report between target and reference profiles.
+
+      KS test is applied for continuous variables and ChiSquared test for categorical variables.
+      If feature is missing from any profile, it will not be included in the report.
+      Both target_profile_view and reference_profile_view must be set previously with `set_profiles`.
+
+      :param cell_height: Preferred cell height, in pixels, for in-notebook visualization. Example:
+                          `"1000px"`. (Default is None)
+      :type cell_height: str, optional
+
+      :returns: HTML Page of the given plot.
+      :rtype: HTML
+
+      .. rubric:: Examples
+
+      Generate Summary Drift Report (after setting profiles with `set_profiles`):
+
+      .. code-block:: python
+
+          visualization.summary_drift_report()
+
+
+   .. py:method:: double_histogram(self, feature_name: str, cell_height: str = None) -> IPython.core.display.HTML
+
+      Plot overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
+
+      Applicable to numerical features only.
+      If reference profile was not set, `double_histogram` will plot single histogram for target profile.
+
+      :param feature_name: Name of the feature to generate histograms.
+      :type feature_name: str
+      :param cell_height: Preferred cell height, in pixels, for in-notebook visualization. Example:
+                          `"1000px"`. (Default is None)
+      :type cell_height: str, optional
+
+      .. rubric:: Examples
+
+      Generate double histogram plot for feature named `weight` (after setting profiles with `set_profiles`)
+
+      .. code-block:: python
+
+          visualization.double_histogram(feature_name="weight")
+
+
+   .. py:method:: distribution_chart(self, feature_name: str, cell_height: str = None) -> IPython.core.display.HTML
+
+      Plot overlayed distribution charts for specified feature between two profiles.
+
+      Applicable to categorical features.
+      If reference profile was not set, `distribution_chart` will plot single chart for target profile.
+
+
+      :param feature_name: Name of the feature to plot chart.
+      :type feature_name: str
+      :param cell_height: Preferred cell height, in pixels, for in-notebook visualization. Example:
+                          `cell_height="1000px"`. (Default is None)
+      :type cell_height: str, optional
+
+      :returns: HTML Page of the given plot.
+      :rtype: HTML
+
+      .. rubric:: Examples
+
+      Generate distribution chart for `animal` feature (after setting profiles with `set_profiles`):
+
+      .. code-block:: python
+
+          visualization.distribution_chart(feature_name="animal")
+
+
+   .. py:method:: difference_distribution_chart(self, feature_name: str, cell_height: str = None) -> IPython.core.display.HTML
+
+      Plot overlayed distribution charts of differences between the categories of both profiles.
+
+      Applicable to categorical features.
+
+      :param feature_name: Name of the feature to plot chart.
+      :type feature_name: str
+      :param cell_height: Preferred cell height, in pixels, for in-notebook visualization. Example:
+                          `cell_height="1000px"`. (Default is None)
+      :type cell_height: str, optional
+
+      :returns: HTML Page of the given plot.
+      :rtype: HTML
+
+      .. rubric:: Examples
+
+      Generate Difference Distribution Chart for feature named "animal":
+
+      .. code-block:: python
+
+          visualization.difference_distribution_chart(feature_name="animal")
+
+
+   .. py:method:: constraints_report(self, constraints: whylogs.core.constraints.Constraints, cell_height: str = None) -> IPython.core.display.HTML
+
+
+   .. py:method:: feature_statistics(self, feature_name: str, profile: str = 'reference', cell_height: str = None) -> IPython.core.display.HTML
+
+      Generate a report for the main statistics of specified feature, for a given profile (target or reference).
+
+      Statistics include overall metrics such as distinct and missing values, as well as quantile and descriptive
+      statistics.
+      If `profile` is not passed, the default is the reference profile.
+
+      :param feature_name: Name of the feature to generate histograms.
+      :type feature_name: str
+      :param profile: Profile to be used to generate the report. (Default is `reference`)
+      :type profile: str
+      :param cell_height: Preferred cell height, in pixels, for in-notebook visualization. Example:
+                          `cell_height="1000px"`. (Default is None)
+      :type cell_height: str, optional
+
+      .. rubric:: Examples
+
+      Generate Difference Distribution Chart for feature named "weight", for target profile:
+
+      .. code-block:: python
+
+          visualization.feature_statistics(feature_name="weight", profile="target")
+
+
+   .. py:method:: write(self, rendered_html: IPython.core.display.HTML, preferred_path: str = None, html_file_name: str = None) -> None
+
+      Create HTML file for the given report.
+
+      :param rendered_html: Rendered HTML returned by a given report.
+      :type rendered_html: HTML
+      :param preferred_path: Preferred path to write the HTML file.
+      :type preferred_path: str, optional
+      :param html_file_name: Name for the created HTML file. If none is passed, created HTML will be named `ProfileVisualizer.html`
+      :type html_file_name: str, optional
+
+      .. rubric:: Examples
+
+      Dowloads an HTML page named `test.html` into the current working directory, with feature statistics for `weight` feature for the target profile.
+
+      .. code-block:: python
+
+          import os
+          visualization.write(
+              rendered_html=visualization.feature_statistics(feature_name="weight", profile="target"),
+              html_file_name=os.getcwd() + "/test",
+          )
+
+
+

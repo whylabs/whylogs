@@ -1,0 +1,51 @@
+:py:mod:`whylogs.api.logger.logger`
+===================================
+
+.. py:module:: whylogs.api.logger.logger
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.logger.BasicCache
+   whylogs.api.logger.logger.Logger
+
+
+
+
+.. py:class:: BasicCache
+
+   Bases: :py:obj:`object`
+
+   .. py:method:: get(self, schema: whylogs.core.DatasetSchema) -> whylogs.core.DatasetProfile
+
+
+
+.. py:class:: Logger(schema: Optional[whylogs.core.DatasetSchema] = None)
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: check_writer(self, _: whylogs.api.writer.Writer) -> None
+
+      Checks if a writer is configured correctly for this class
+
+
+   .. py:method:: append_writer(self, name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
+
+
+   .. py:method:: log(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
+
+
+   .. py:method:: close(self) -> None
+      :abstractmethod:
+
+
+

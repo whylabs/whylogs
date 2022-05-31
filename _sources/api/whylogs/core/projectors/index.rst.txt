@@ -1,0 +1,27 @@
+:py:mod:`whylogs.core.projectors`
+=================================
+
+.. py:module:: whylogs.core.projectors
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.projectors.SingleFieldProjector
+
+
+
+
+.. py:class:: SingleFieldProjector(col_name: str)
+
+   Bases: :py:obj:`object`
+
+   .. py:method:: apply(self, row: Dict[str, Any]) -> Any
+
+
+

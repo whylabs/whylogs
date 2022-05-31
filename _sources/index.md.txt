@@ -1,0 +1,75 @@
+```{include} ../README.md
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+
+    Overview<self>
+    getting_started
+    glossary
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 2
+    :caption: Features
+    :hidden:
+
+    features/profiling
+    features/config
+    features/writing
+    examples
+    integrations/index
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 1
+    :caption: Migration Guide
+    :hidden:
+
+    Basics<migration/basics>
+    migration/configuration
+    migration/format
+    migration/log_rotation
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 1
+    :caption: Support
+    :hidden:
+
+    support/license
+    support/faqs
+    support/usage_statistics
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 1
+    :caption: Community
+    :hidden:
+
+    Changelog<https://github.com/whylabs/whylogs/releases>
+    Feedback<https://github.com/whylabs/whylogs/issues/new/choose>
+    GitHub<https://github.com/whylabs/whylogs>
+    Slack<https://bit.ly/whylogs-slack>
+```
+
+```{eval-rst}
+.. toctree::
+    :maxdepth: 3
+    :caption: API References
+    :hidden:
+
+    api/index
+```
+
+```{eval-rst}
+* :ref:`genindex`
+* :ref:`search`
+* :ref:`modindex`
+```

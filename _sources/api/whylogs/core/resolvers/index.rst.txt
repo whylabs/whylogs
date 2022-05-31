@@ -1,0 +1,84 @@
+:py:mod:`whylogs.core.resolvers`
+================================
+
+.. py:module:: whylogs.core.resolvers
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.resolvers.Resolver
+   whylogs.core.resolvers.StandardResolver
+   whylogs.core.resolvers.LimitedTrackingResolver
+   whylogs.core.resolvers.HistogramCountingTrackingResolver
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.resolvers.M
+   whylogs.core.resolvers.ColumnSchema
+
+
+.. py:data:: M
+   
+
+   
+
+.. py:data:: ColumnSchema
+   :annotation: :typing_extensions.TypeAlias = ColumnSchema
+
+   
+
+.. py:class:: Resolver
+
+   Bases: :py:obj:`abc.ABC`
+
+   A resolver maps from a column name and a data type to trackers.
+
+   Note that the key of the result dictionaries defines the namespaces of the metrics in the serialized form.
+
+   .. py:method:: resolve(self, name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+      :abstractmethod:
+
+
+
+.. py:class:: StandardResolver
+
+   Bases: :py:obj:`Resolver`
+
+   Standard metric resolution with builtin types.
+
+   .. py:method:: resolve(self, name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+
+
+
+.. py:class:: LimitedTrackingResolver
+
+   Bases: :py:obj:`Resolver`
+
+   Resolver that skips frequent item and cardinality trackers.
+
+   .. py:method:: resolve(self, name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+
+
+
+.. py:class:: HistogramCountingTrackingResolver
+
+   Bases: :py:obj:`Resolver`
+
+   Resolver that only adds distribution tracker.
+
+   .. py:method:: resolve(self, name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+
+
+

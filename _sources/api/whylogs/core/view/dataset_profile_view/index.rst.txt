@@ -1,0 +1,522 @@
+:py:mod:`whylogs.core.view.dataset_profile_view`
+================================================
+
+.. py:module:: whylogs.core.view.dataset_profile_view
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.view.dataset_profile_view.SummaryType
+   whylogs.core.view.dataset_profile_view.DatasetProfileView
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.view.dataset_profile_view.WHYLOGS_MAGIC_HEADER
+   whylogs.core.view.dataset_profile_view.WHYLOGS_MAGIC_HEADER_LEN
+   whylogs.core.view.dataset_profile_view.WHYLOGS_MAGIC_HEADER_BYTES
+   whylogs.core.view.dataset_profile_view.logger
+
+
+.. py:data:: WHYLOGS_MAGIC_HEADER
+   :annotation: = WHY1
+
+   
+
+.. py:data:: WHYLOGS_MAGIC_HEADER_LEN
+   :annotation: = 4
+
+   
+
+.. py:data:: WHYLOGS_MAGIC_HEADER_BYTES
+   
+
+   
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: SummaryType
+
+   Bases: :py:obj:`str`, :py:obj:`enum.Enum`
+
+   str(object='') -> str
+   str(bytes_or_buffer[, encoding[, errors]]) -> str
+
+   Create a new string object from the given object. If encoding or
+   errors is specified, then the object must expose a data buffer
+   that will be decoded using the given encoding and error handler.
+   Otherwise, returns the result of object.__str__() (if defined)
+   or repr(object).
+   encoding defaults to sys.getdefaultencoding().
+   errors defaults to 'strict'.
+
+   .. py:attribute:: COLUMN
+      :annotation: = COLUMN
+
+      
+
+   .. py:attribute:: DATASET
+      :annotation: = DATASET
+
+      
+
+   .. py:method:: capitalize()
+
+      Return a capitalized version of the string.
+
+      More specifically, make the first character have upper case and the rest lower
+      case.
+
+
+   .. py:method:: casefold()
+
+      Return a version of the string suitable for caseless comparisons.
+
+
+   .. py:method:: center()
+
+      Return a centered string of length width.
+
+      Padding is done using the specified fill character (default is a space).
+
+
+   .. py:method:: count()
+
+      S.count(sub[, start[, end]]) -> int
+
+      Return the number of non-overlapping occurrences of substring sub in
+      string S[start:end].  Optional arguments start and end are
+      interpreted as in slice notation.
+
+
+   .. py:method:: encode()
+
+      Encode the string using the codec registered for encoding.
+
+      encoding
+        The encoding in which to encode the string.
+      errors
+        The error handling scheme to use for encoding errors.
+        The default is 'strict' meaning that encoding errors raise a
+        UnicodeEncodeError.  Other possible values are 'ignore', 'replace' and
+        'xmlcharrefreplace' as well as any other name registered with
+        codecs.register_error that can handle UnicodeEncodeErrors.
+
+
+   .. py:method:: endswith()
+
+      S.endswith(suffix[, start[, end]]) -> bool
+
+      Return True if S ends with the specified suffix, False otherwise.
+      With optional start, test S beginning at that position.
+      With optional end, stop comparing S at that position.
+      suffix can also be a tuple of strings to try.
+
+
+   .. py:method:: expandtabs()
+
+      Return a copy where all tab characters are expanded using spaces.
+
+      If tabsize is not given, a tab size of 8 characters is assumed.
+
+
+   .. py:method:: find()
+
+      S.find(sub[, start[, end]]) -> int
+
+      Return the lowest index in S where substring sub is found,
+      such that sub is contained within S[start:end].  Optional
+      arguments start and end are interpreted as in slice notation.
+
+      Return -1 on failure.
+
+
+   .. py:method:: format()
+
+      S.format(*args, **kwargs) -> str
+
+      Return a formatted version of S, using substitutions from args and kwargs.
+      The substitutions are identified by braces ('{' and '}').
+
+
+   .. py:method:: format_map()
+
+      S.format_map(mapping) -> str
+
+      Return a formatted version of S, using substitutions from mapping.
+      The substitutions are identified by braces ('{' and '}').
+
+
+   .. py:method:: index()
+
+      S.index(sub[, start[, end]]) -> int
+
+      Return the lowest index in S where substring sub is found,
+      such that sub is contained within S[start:end].  Optional
+      arguments start and end are interpreted as in slice notation.
+
+      Raises ValueError when the substring is not found.
+
+
+   .. py:method:: isalnum()
+
+      Return True if the string is an alpha-numeric string, False otherwise.
+
+      A string is alpha-numeric if all characters in the string are alpha-numeric and
+      there is at least one character in the string.
+
+
+   .. py:method:: isalpha()
+
+      Return True if the string is an alphabetic string, False otherwise.
+
+      A string is alphabetic if all characters in the string are alphabetic and there
+      is at least one character in the string.
+
+
+   .. py:method:: isascii()
+
+      Return True if all characters in the string are ASCII, False otherwise.
+
+      ASCII characters have code points in the range U+0000-U+007F.
+      Empty string is ASCII too.
+
+
+   .. py:method:: isdecimal()
+
+      Return True if the string is a decimal string, False otherwise.
+
+      A string is a decimal string if all characters in the string are decimal and
+      there is at least one character in the string.
+
+
+   .. py:method:: isdigit()
+
+      Return True if the string is a digit string, False otherwise.
+
+      A string is a digit string if all characters in the string are digits and there
+      is at least one character in the string.
+
+
+   .. py:method:: isidentifier()
+
+      Return True if the string is a valid Python identifier, False otherwise.
+
+      Call keyword.iskeyword(s) to test whether string s is a reserved identifier,
+      such as "def" or "class".
+
+
+   .. py:method:: islower()
+
+      Return True if the string is a lowercase string, False otherwise.
+
+      A string is lowercase if all cased characters in the string are lowercase and
+      there is at least one cased character in the string.
+
+
+   .. py:method:: isnumeric()
+
+      Return True if the string is a numeric string, False otherwise.
+
+      A string is numeric if all characters in the string are numeric and there is at
+      least one character in the string.
+
+
+   .. py:method:: isprintable()
+
+      Return True if the string is printable, False otherwise.
+
+      A string is printable if all of its characters are considered printable in
+      repr() or if it is empty.
+
+
+   .. py:method:: isspace()
+
+      Return True if the string is a whitespace string, False otherwise.
+
+      A string is whitespace if all characters in the string are whitespace and there
+      is at least one character in the string.
+
+
+   .. py:method:: istitle()
+
+      Return True if the string is a title-cased string, False otherwise.
+
+      In a title-cased string, upper- and title-case characters may only
+      follow uncased characters and lowercase characters only cased ones.
+
+
+   .. py:method:: isupper()
+
+      Return True if the string is an uppercase string, False otherwise.
+
+      A string is uppercase if all cased characters in the string are uppercase and
+      there is at least one cased character in the string.
+
+
+   .. py:method:: join()
+
+      Concatenate any number of strings.
+
+      The string whose method is called is inserted in between each given string.
+      The result is returned as a new string.
+
+      Example: '.'.join(['ab', 'pq', 'rs']) -> 'ab.pq.rs'
+
+
+   .. py:method:: ljust()
+
+      Return a left-justified string of length width.
+
+      Padding is done using the specified fill character (default is a space).
+
+
+   .. py:method:: lower()
+
+      Return a copy of the string converted to lowercase.
+
+
+   .. py:method:: lstrip()
+
+      Return a copy of the string with leading whitespace removed.
+
+      If chars is given and not None, remove characters in chars instead.
+
+
+   .. py:method:: partition()
+
+      Partition the string into three parts using the given separator.
+
+      This will search for the separator in the string.  If the separator is found,
+      returns a 3-tuple containing the part before the separator, the separator
+      itself, and the part after it.
+
+      If the separator is not found, returns a 3-tuple containing the original string
+      and two empty strings.
+
+
+   .. py:method:: removeprefix()
+
+      Return a str with the given prefix string removed if present.
+
+      If the string starts with the prefix string, return string[len(prefix):].
+      Otherwise, return a copy of the original string.
+
+
+   .. py:method:: removesuffix()
+
+      Return a str with the given suffix string removed if present.
+
+      If the string ends with the suffix string and that suffix is not empty,
+      return string[:-len(suffix)]. Otherwise, return a copy of the original
+      string.
+
+
+   .. py:method:: replace()
+
+      Return a copy with all occurrences of substring old replaced by new.
+
+        count
+          Maximum number of occurrences to replace.
+          -1 (the default value) means replace all occurrences.
+
+      If the optional argument count is given, only the first count occurrences are
+      replaced.
+
+
+   .. py:method:: rfind()
+
+      S.rfind(sub[, start[, end]]) -> int
+
+      Return the highest index in S where substring sub is found,
+      such that sub is contained within S[start:end].  Optional
+      arguments start and end are interpreted as in slice notation.
+
+      Return -1 on failure.
+
+
+   .. py:method:: rindex()
+
+      S.rindex(sub[, start[, end]]) -> int
+
+      Return the highest index in S where substring sub is found,
+      such that sub is contained within S[start:end].  Optional
+      arguments start and end are interpreted as in slice notation.
+
+      Raises ValueError when the substring is not found.
+
+
+   .. py:method:: rjust()
+
+      Return a right-justified string of length width.
+
+      Padding is done using the specified fill character (default is a space).
+
+
+   .. py:method:: rpartition()
+
+      Partition the string into three parts using the given separator.
+
+      This will search for the separator in the string, starting at the end. If
+      the separator is found, returns a 3-tuple containing the part before the
+      separator, the separator itself, and the part after it.
+
+      If the separator is not found, returns a 3-tuple containing two empty strings
+      and the original string.
+
+
+   .. py:method:: rsplit()
+
+      Return a list of the words in the string, using sep as the delimiter string.
+
+        sep
+          The delimiter according which to split the string.
+          None (the default value) means split according to any whitespace,
+          and discard empty strings from the result.
+        maxsplit
+          Maximum number of splits to do.
+          -1 (the default value) means no limit.
+
+      Splits are done starting at the end of the string and working to the front.
+
+
+   .. py:method:: rstrip()
+
+      Return a copy of the string with trailing whitespace removed.
+
+      If chars is given and not None, remove characters in chars instead.
+
+
+   .. py:method:: split()
+
+      Return a list of the words in the string, using sep as the delimiter string.
+
+      sep
+        The delimiter according which to split the string.
+        None (the default value) means split according to any whitespace,
+        and discard empty strings from the result.
+      maxsplit
+        Maximum number of splits to do.
+        -1 (the default value) means no limit.
+
+
+   .. py:method:: splitlines()
+
+      Return a list of the lines in the string, breaking at line boundaries.
+
+      Line breaks are not included in the resulting list unless keepends is given and
+      true.
+
+
+   .. py:method:: startswith()
+
+      S.startswith(prefix[, start[, end]]) -> bool
+
+      Return True if S starts with the specified prefix, False otherwise.
+      With optional start, test S beginning at that position.
+      With optional end, stop comparing S at that position.
+      prefix can also be a tuple of strings to try.
+
+
+   .. py:method:: strip()
+
+      Return a copy of the string with leading and trailing whitespace removed.
+
+      If chars is given and not None, remove characters in chars instead.
+
+
+   .. py:method:: swapcase()
+
+      Convert uppercase characters to lowercase and lowercase characters to uppercase.
+
+
+   .. py:method:: title()
+
+      Return a version of the string where each word is titlecased.
+
+      More specifically, words start with uppercased characters and all remaining
+      cased characters have lower case.
+
+
+   .. py:method:: translate()
+
+      Replace each character in the string using the given translation table.
+
+        table
+          Translation table, which must be a mapping of Unicode ordinals to
+          Unicode ordinals, strings, or None.
+
+      The table must implement lookup/indexing via __getitem__, for instance a
+      dictionary or list.  If this operation raises LookupError, the character is
+      left untouched.  Characters mapped to None are deleted.
+
+
+   .. py:method:: upper()
+
+      Return a copy of the string converted to uppercase.
+
+
+   .. py:method:: zfill()
+
+      Pad a numeric string with zeros on the left, to fill a field of the given width.
+
+      The string is never truncated.
+
+
+   .. py:method:: name(self)
+
+      The name of the Enum member.
+
+
+   .. py:method:: value(self)
+
+      The value of the Enum member.
+
+
+
+.. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: datetime.datetime, creation_timestamp: datetime.datetime)
+
+   Bases: :py:obj:`object`
+
+   .. py:method:: dataset_timestamp(self) -> datetime.datetime
+      :property:
+
+
+   .. py:method:: creation_timestamp(self) -> datetime.datetime
+      :property:
+
+
+   .. py:method:: merge(self, other: DatasetProfileView) -> DatasetProfileView
+
+
+   .. py:method:: get_column(self, col_name: str) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
+
+
+   .. py:method:: get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
+
+
+   .. py:method:: write(self, path: str) -> None
+
+
+   .. py:method:: read(cls, path: str) -> DatasetProfileView
+      :classmethod:
+
+
+   .. py:method:: to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> whylogs.core.stubs.pd.DataFrame
+
+
+

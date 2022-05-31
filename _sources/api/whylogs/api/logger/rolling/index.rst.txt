@@ -1,0 +1,69 @@
+:py:mod:`whylogs.api.logger.rolling`
+====================================
+
+.. py:module:: whylogs.api.logger.rolling
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.rolling.Scheduler
+   whylogs.api.logger.rolling.TimedRollingLogger
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.rolling.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: Scheduler(initial: float, interval: float, function: Callable, *args: Any, **kwargs: Any)
+
+   Bases: :py:obj:`object`
+
+   Multithreading scheduler.
+
+   Schedule a function to be called repeatedly based on a schedule.
+
+   .. py:method:: start(self) -> None
+
+
+   .. py:method:: stop(self) -> None
+
+
+
+.. py:class:: TimedRollingLogger(schema: Optional[whylogs.core.DatasetSchema] = None, *, base_name: Optional[str] = None, file_extension: Optional[str] = None, interval: int = 1, when: typing_extensions.Literal[S, M, H, D] = 'H', utc: bool = False, aligned: bool = True, fork: bool = False, skip_empty: bool = False)
+
+   Bases: :py:obj:`whylogs.api.logger.logger.Logger`
+
+   A rolling logger that continuously rotates files based on time.
+
+   .. py:method:: check_writer(self, writer: whylogs.api.writer.Writer) -> None
+
+      Checks if a writer is configured correctly for this class
+
+
+   .. py:method:: close(self) -> None
+
+
+   .. py:method:: append_writer(self, name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
+
+
+   .. py:method:: log(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
+
+
+

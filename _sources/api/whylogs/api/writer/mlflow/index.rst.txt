@@ -1,0 +1,41 @@
+:py:mod:`whylogs.api.writer.mlflow`
+===================================
+
+.. py:module:: whylogs.api.writer.mlflow
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.mlflow.MlflowWriter
+
+
+
+
+.. py:class:: MlflowWriter
+
+   Bases: :py:obj:`whylogs.api.writer.Writer`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView, dest: Optional[str] = None) -> None
+
+
+   .. py:method:: option(self, param: Optional[str] = None) -> MlflowWriter
+
+
+   .. py:method:: check_interval(self, interval_seconds: int) -> None
+
+      Validate an interval configuration for a given writer.
+
+      Some writer only accepts certain interval configuration. By default, this should return True for a valid
+      non-negative interval.
+
+
+

@@ -1,0 +1,65 @@
+:py:mod:`whylogs.api.usage_stats`
+=================================
+
+.. py:module:: whylogs.api.usage_stats
+
+
+Package Contents
+----------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.usage_stats.emit_usage
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.usage_stats.HEAP_APPID_PROD
+   whylogs.api.usage_stats.HEAP_ENDPOINT
+   whylogs.api.usage_stats.HEAP_HEADERS
+   whylogs.api.usage_stats.TIMESTAMP_FORMAT
+   whylogs.api.usage_stats.logger
+   whylogs.api.usage_stats.ANALYTICS_OPT_OUT
+
+
+.. py:data:: HEAP_APPID_PROD
+   :annotation: = 2170415941
+
+   
+
+.. py:data:: HEAP_ENDPOINT
+   :annotation: = https://heapanalytics.com/api/track
+
+   
+
+.. py:data:: HEAP_HEADERS
+   
+
+   
+
+.. py:data:: TIMESTAMP_FORMAT
+   :annotation: = %Y-%m-%dT%H:%M:%S.%fZ
+
+   
+
+.. py:data:: logger
+   
+
+   
+
+.. py:data:: ANALYTICS_OPT_OUT
+   :annotation: = WHYLOGS_NO_ANALYTICS
+
+   
+
+.. py:function:: emit_usage(event: str) -> None
+
+

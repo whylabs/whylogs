@@ -1,0 +1,154 @@
+:py:mod:`whylogs.core.datatypes`
+================================
+
+.. py:module:: whylogs.core.datatypes
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.datatypes.DataType
+   whylogs.core.datatypes.Integral
+   whylogs.core.datatypes.Fractional
+   whylogs.core.datatypes.String
+   whylogs.core.datatypes.AnyType
+   whylogs.core.datatypes.TypeMapper
+   whylogs.core.datatypes.StandardTypeMapper
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.datatypes.CategoricalDtype
+   whylogs.core.datatypes.NT
+   whylogs.core.datatypes.NumericalType
+   whylogs.core.datatypes.NUMBER
+
+
+.. py:data:: CategoricalDtype
+   
+
+   
+
+.. py:data:: NT
+   
+
+   
+
+.. py:class:: DataType(tpe: Type[NT])
+
+   Bases: :py:obj:`abc.ABC`, :py:obj:`Generic`\ [\ :py:obj:`NT`\ ]
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: return_type(self) -> Type[NT]
+      :property:
+
+
+   .. py:method:: match(cls, dtype_or_type: Any) -> bool
+      :classmethod:
+
+
+
+.. py:data:: NumericalType
+   
+
+   
+
+.. py:data:: NUMBER
+   
+
+   
+
+.. py:class:: Integral
+
+   Bases: :py:obj:`DataType`\ [\ :py:obj:`int`\ ]
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: return_type(self) -> Type[NT]
+      :property:
+
+
+   .. py:method:: match(cls, dtype_or_type: Any) -> bool
+      :classmethod:
+
+
+
+.. py:class:: Fractional
+
+   Bases: :py:obj:`DataType`\ [\ :py:obj:`float`\ ]
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: return_type(self) -> Type[NT]
+      :property:
+
+
+   .. py:method:: match(cls, dtype_or_type: Any) -> bool
+      :classmethod:
+
+
+
+.. py:class:: String
+
+   Bases: :py:obj:`DataType`\ [\ :py:obj:`str`\ ]
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: return_type(self) -> Type[NT]
+      :property:
+
+
+   .. py:method:: match(cls, dtype_or_type: Any) -> bool
+      :classmethod:
+
+
+
+.. py:class:: AnyType
+
+   Bases: :py:obj:`DataType`\ [\ :py:obj:`Any`\ ]
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: is_compatible(self, value: Any) -> bool
+
+
+   .. py:method:: return_type(self) -> Type[NT]
+      :property:
+
+
+   .. py:method:: match(cls, dtype_or_type: Any) -> bool
+      :classmethod:
+
+
+
+.. py:class:: TypeMapper
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+
+.. py:class:: StandardTypeMapper(custom_types: Optional[List[Type[DataType]]] = None)
+
+   Bases: :py:obj:`TypeMapper`
+
+   Map a dtype (Pandas) or a Python type to a data type.
+
+

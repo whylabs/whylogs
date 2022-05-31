@@ -1,0 +1,35 @@
+:py:mod:`whylogs.api.annotations`
+=================================
+
+.. py:module:: whylogs.api.annotations
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.annotations.profiling
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.annotations.FuncType
+
+
+.. py:data:: FuncType
+   
+
+   
+
+.. py:function:: profiling(schema: Optional[whylogs.core.DatasetSchema] = None)
+
+

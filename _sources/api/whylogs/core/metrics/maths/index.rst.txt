@@ -1,0 +1,55 @@
+:py:mod:`whylogs.core.metrics.maths`
+====================================
+
+.. py:module:: whylogs.core.metrics.maths
+
+.. autoapi-nested-parse::
+
+   Centralized module for core math logic.
+
+   These utility functions can be hard to reason about so it's important to keep them as
+   centralized as possible and close to the original pseudo code.
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.maths.parallel_variance_m2
+   whylogs.core.metrics.maths.welford_online_variance_m2
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.metrics.maths.VarianceM2Result
+
+
+.. py:data:: VarianceM2Result
+   
+
+   
+
+.. py:function:: parallel_variance_m2(first: VarianceM2Result, second: VarianceM2Result) -> VarianceM2Result
+
+   Verbatim copy of the parallel variance algorithm from Wikipedia.
+
+   Source: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm
+   :param first: the :class:VarianceM2Result object for the first stream
+   :param second: the :class:VarianceM2Result object for the second stream
+
+   :returns: The variance result of the overall stream.
+
+
+.. py:function:: welford_online_variance_m2(existing: VarianceM2Result, new_value: float) -> VarianceM2Result
+
+

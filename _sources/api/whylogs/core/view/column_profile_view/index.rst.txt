@@ -1,0 +1,80 @@
+:py:mod:`whylogs.core.view.column_profile_view`
+===============================================
+
+.. py:module:: whylogs.core.view.column_profile_view
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.view.column_profile_view.ColumnProfileView
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.view.column_profile_view.logger
+   whylogs.core.view.column_profile_view.METRIC
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:data:: METRIC
+   
+
+   
+
+.. py:class:: ColumnProfileView(metrics: Dict[str, METRIC], success_count: int = 0, failure_count: int = 0)
+
+   Bases: :py:obj:`object`
+
+   .. py:method:: merge(self, other: ColumnProfileView) -> ColumnProfileView
+
+
+   .. py:method:: serialize(self) -> bytes
+
+
+   .. py:method:: deserialize(cls, serialized_profile: bytes) -> ColumnProfileView
+      :classmethod:
+
+
+   .. py:method:: get_metric(self, m_name: str) -> Optional[METRIC]
+
+
+   .. py:method:: to_protobuf(self) -> whylogs.core.proto.ColumnMessage
+
+
+   .. py:method:: get_metric_component_paths(self) -> List[str]
+
+
+   .. py:method:: get_metric_names(self) -> List[str]
+
+
+   .. py:method:: to_summary_dict(self, *, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
+
+
+   .. py:method:: zero(cls, msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
+      :classmethod:
+
+
+   .. py:method:: from_protobuf(cls, msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
+      :classmethod:
+
+
+   .. py:method:: from_bytes(cls, data: bytes) -> ColumnProfileView
+      :classmethod:
+
+
+

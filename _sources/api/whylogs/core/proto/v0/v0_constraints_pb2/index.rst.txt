@@ -1,0 +1,164 @@
+:py:mod:`whylogs.core.proto.v0.v0_constraints_pb2`
+==================================================
+
+.. py:module:: whylogs.core.proto.v0.v0_constraints_pb2
+
+.. autoapi-nested-parse::
+
+   Generated protocol buffer code.
+
+
+
+Module Contents
+---------------
+
+.. py:data:: DESCRIPTOR
+   
+
+   
+
+.. py:data:: Op
+   
+
+   
+
+.. py:data:: unused
+   :annotation: = 0
+
+   
+
+.. py:data:: LT
+   :annotation: = 1
+
+   
+
+.. py:data:: LE
+   :annotation: = 2
+
+   
+
+.. py:data:: EQ
+   :annotation: = 3
+
+   
+
+.. py:data:: NE
+   :annotation: = 4
+
+   
+
+.. py:data:: GE
+   :annotation: = 5
+
+   
+
+.. py:data:: GT
+   :annotation: = 6
+
+   
+
+.. py:data:: MATCH
+   :annotation: = 7
+
+   
+
+.. py:data:: NOMATCH
+   :annotation: = 8
+
+   
+
+.. py:data:: BTWN
+   :annotation: = 9
+
+   
+
+.. py:data:: IN_SET
+   :annotation: = 10
+
+   
+
+.. py:data:: CONTAIN_SET
+   :annotation: = 11
+
+   
+
+.. py:data:: EQ_SET
+   :annotation: = 12
+
+   
+
+.. py:data:: APPLY_FUNC
+   :annotation: = 13
+
+   
+
+.. py:data:: IN
+   :annotation: = 14
+
+   
+
+.. py:data:: CONTAIN
+   :annotation: = 15
+
+   
+
+.. py:data:: NOT_IN
+   :annotation: = 16
+
+   
+
+.. py:data:: SUM
+   :annotation: = 17
+
+   
+
+.. py:data:: SummaryConstraintMsg
+   
+
+   
+
+.. py:data:: ReferenceDistributionContinuousMessage
+   
+
+   
+
+.. py:data:: ReferenceDistributionDiscreteMessage
+   
+
+   
+
+.. py:data:: SummaryBetweenConstraintMsg
+   
+
+   
+
+.. py:data:: ApplyFunctionMsg
+   
+
+   
+
+.. py:data:: ValueConstraintMsg
+   
+
+   
+
+.. py:data:: MultiColumnValueConstraintMsg
+   
+
+   
+
+.. py:data:: ValueConstraintMsgs
+   
+
+   
+
+.. py:data:: SummaryConstraintMsgs
+   
+
+   
+
+.. py:data:: DatasetConstraintMsg
+   
+
+   
+
