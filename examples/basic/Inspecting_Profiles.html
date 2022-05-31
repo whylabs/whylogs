@@ -4,17 +4,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Whylogs Integrations" />
+<meta property="og:title" content="Inspecting Profiles" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/README.html" />
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/basic/Inspecting_Profiles.html" />
   
-<meta property="og:description" content="In here you will find examples on whylogs ’ main integration modules. Feel free to check out: How to create profiles with Pyspark ( pyspark_profiling), How to write your profiles to different locat..." />
-  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+<meta property="og:description" content="Open in Colab In this notebook, we’ll show how you can use whylog’s Profile Viewer ( profile.view()) to find useful statistics in a dataset. This includes: Counters, such as number of samples and n..." />
+  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Writing profiles" href="../integrations/writing_profiles.html" /><link rel="prev" title="(why)Logging" href="Logging_Different_Data.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
-        <title>Whylogs Integrations - whylogs v1.0.0rc4</title>
+        <title>Inspecting Profiles - whylogs v1.0.0rc4</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -152,7 +152,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -182,20 +182,20 @@
 <li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../features/profiling.html">Profiling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../features/config.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../features/writing.html">Writers</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../basic/Getting_Started.html">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic/Logging_Different_Data.html">(why)Logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html">Inspecting Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html#Understanding-The-whylogs-Profile-Statistics">Understanding The whylogs Profile Statistics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html#Data-Types-and-Metrics">Data Types and Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="writing_profiles.html">Writing profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyspark_profiling.html">PySpark Integration</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Inspecting Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Understanding-The-whylogs-Profile-Statistics">Understanding The whylogs Profile Statistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#Data-Types-and-Metrics">Data Types and Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/writing_profiles.html">Writing profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/pyspark_profiling.html">PySpark Integration</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../integrations/index.html">Integration</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -336,21 +336,625 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <section id="whylogs-integrations">
-<h1>Whylogs Integrations<a class="headerlink" href="#whylogs-integrations" title="Permalink to this headline">#</a></h1>
-<p>In here you will find examples on <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>’ main integration modules. Feel free to check out:</p>
+          
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Inspecting-Profiles">
+<h1>Inspecting Profiles<a class="headerlink" href="#Inspecting-Profiles" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/1.0.x/python/examples/basic/Inspecting_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p>In this notebook, we’ll show how you can use whylog’s Profile Viewer (<code class="docutils literal notranslate"><span class="pre">profile.view()</span></code>) to find useful statistics in a dataset.</p>
+<p>This includes:</p>
 <ul class="simple">
-<li><p>How to create profiles with Pyspark (<code class="docutils literal notranslate"><span class="pre">pyspark_profiling</span></code>)</p></li>
-<li><p>How to write your profiles to different locations, such as local, s3, etc. (<code class="docutils literal notranslate"><span class="pre">writing_profiles</span></code>)</p></li>
-<li><p>More to come!</p></li>
+<li><p>Counters, such as number of samples and null values</p></li>
+<li><p>Inferred types, such as integral, fractional, boolean, and strings</p></li>
+<li><p>Estimated cardinality</p></li>
+<li><p>Frequent items</p></li>
+<li><p>Distribution metrics: min, max, mean, median, standard deviation, and quantile values</p></li>
 </ul>
-<p>Feel free to hit the <code class="docutils literal notranslate"><span class="pre">Open</span> <span class="pre">in</span> <span class="pre">Colab</span></code> button on the top of any of the examples to explore and interact with it!</p>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this headline">#</a></h2>
+<p>We’ll need the <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> and <code class="docutils literal notranslate"><span class="pre">pandas</span></code> libraries for this example.</p>
+<p>We’ll also populate a dataframe with some data to inspect.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># install whylogs &amp; pandas if needed</span>
+<span class="o">!</span>pip install -q whylogs --pre
+<span class="o">!</span>pip install pandas
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Looking in indexes: https://pypi.org/simple, https://us-python.pkg.dev/colab-wheels/public/simple/
+Requirement already satisfied: pandas in /usr/local/lib/python3.7/dist-packages (1.3.5)
+Requirement already satisfied: numpy&gt;=1.17.3 in /usr/local/lib/python3.7/dist-packages (from pandas) (1.21.6)
+Requirement already satisfied: pytz&gt;=2017.3 in /usr/local/lib/python3.7/dist-packages (from pandas) (2022.1)
+Requirement already satisfied: python-dateutil&gt;=2.7.3 in /usr/local/lib/python3.7/dist-packages (from pandas) (2.8.2)
+Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-packages (from python-dateutil&gt;=2.7.3-&gt;pandas) (1.15.0)
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import whylogs and pandas</span>
+<span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># Set to show all columns in dataframe</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_columns"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a simple test dataset</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"animal"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"lion"</span><span class="p">,</span> <span class="s2">"shark"</span><span class="p">,</span> <span class="s2">"cat"</span><span class="p">,</span> <span class="s2">"bear"</span><span class="p">,</span> <span class="s2">"jellyfish"</span><span class="p">,</span> <span class="s2">"kangaroo"</span><span class="p">,</span>
+                                      <span class="s2">"jellyfish"</span><span class="p">,</span> <span class="s2">"jellyfish"</span><span class="p">,</span> <span class="s2">"fish"</span><span class="p">],</span>
+    <span class="s2">"legs"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"fins"</span><span class="p">],</span>
+    <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">14.3</span><span class="p">,</span> <span class="mf">11.8</span><span class="p">,</span> <span class="mf">4.3</span><span class="p">,</span> <span class="mf">30.1</span><span class="p">,</span><span class="mf">2.0</span><span class="p">,</span><span class="mf">120.0</span><span class="p">,</span><span class="mf">2.7</span><span class="p">,</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="c1"># Create dataframe with test dataset</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Log-data-with-whylogs,-create-a-profile,-and-view-statistics:">
+<h2>Log data with whylogs, create a profile, and view statistics:<a class="headerlink" href="#Log-data-with-whylogs,-create-a-profile,-and-view-statistics:" title="Permalink to this headline">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Log data with whylogs &amp; create profile</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
+
+<span class="c1"># Create profile view dataframe</span>
+<span class="n">prof_view</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+<span class="n">prof_df</span> <span class="o">=</span> <span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># View Profile dataframe for dataset statistics</span>
+<span class="n">prof_df</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<div class="table-wrapper"><table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>counts/n</th>
+<th>counts/null</th>
+<th>types/integral</th>
+<th>types/fractional</th>
+<th>types/boolean</th>
+<th>types/string</th>
+<th>types/object</th>
+<th>cardinality/est</th>
+<th>cardinality/upper_1</th>
+<th>cardinality/lower_1</th>
+<th>frequent_items/frequent_strings</th>
+<th>type</th>
+<th>distribution/mean</th>
+<th>distribution/stddev</th>
+<th>distribution/n</th>
+<th>distribution/max</th>
+<th>distribution/min</th>
+<th>distribution/q_10</th>
+<th>distribution/q_25</th>
+<th>distribution/median</th>
+<th>distribution/q_75</th>
+<th>distribution/q_90</th>
+</tr>
+<tr>
+<th>column</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>legs</th>
+<td>9</td>
+<td>3</td>
+<td>4</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>4.0</td>
+<td>4.00020</td>
+<td>4.0</td>
+<td>[FrequentItem(value='4.000000', est=3, upper=3...</td>
+<td>SummaryType.COLUMN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>weight</th>
+<td>9</td>
+<td>0</td>
+<td>0</td>
+<td>9</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>9.0</td>
+<td>9.00045</td>
+<td>9.0</td>
+<td>NaN</td>
+<td>SummaryType.COLUMN</td>
+<td>20.955556</td>
+<td>38.29749</td>
+<td>9.0</td>
+<td>120.0</td>
+<td>1.2</td>
+<td>1.2</td>
+<td>2.2</td>
+<td>4.3</td>
+<td>14.3</td>
+<td>120.0</td>
+</tr>
+<tr>
+<th>animal</th>
+<td>9</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>9</td>
+<td>0</td>
+<td>7.0</td>
+<td>7.00035</td>
+<td>7.0</td>
+<td>[FrequentItem(value='jellyfish', est=3, upper=...</td>
+<td>SummaryType.COLUMN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table></div>
+</div></div>
+</div>
+<p>The number of rows of our dataframe will be equal to the number of columns in the logged data. Each column of the statistics’ dataframe contains a specific dimension of a given <strong>Metric</strong>.</p>
+<p>Taking a quick look at the generated statistics:</p>
+<section id="animal">
+<h3>animal<a class="headerlink" href="#animal" title="Permalink to this headline">#</a></h3>
+<p>The animal row shows there are <code class="docutils literal notranslate"><span class="pre">9</span></code> entries (counts/n). All the data types are strings. Cardinality estimates that <code class="docutils literal notranslate"><span class="pre">7</span></code> different animal types are in the dataset. Frequent items show <code class="docutils literal notranslate"><span class="pre">jellyfish</span></code> appearing the most.</p>
+</section>
+<section id="weight">
+<h3>weight<a class="headerlink" href="#weight" title="Permalink to this headline">#</a></h3>
+<p>Our weight data contains <code class="docutils literal notranslate"><span class="pre">9</span></code> entries. All of them are <code class="docutils literal notranslate"><span class="pre">fractional</span></code> values. Cardinality shows that all <code class="docutils literal notranslate"><span class="pre">9</span></code> values are estimated to be unique. Since all entries were numerical the distribution statistics are generated.</p>
+</section>
+<section id="legs">
+<h3>legs<a class="headerlink" href="#legs" title="Permalink to this headline">#</a></h3>
+<p>We can see that there are <code class="docutils literal notranslate"><span class="pre">9</span></code> entries for leg values, but they’re several different data types. <code class="docutils literal notranslate"><span class="pre">3</span> <span class="pre">null</span></code>, <code class="docutils literal notranslate"><span class="pre">4</span> <span class="pre">integrals</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">float</span></code>, and <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">string</span></code>. Cardinality estimates <code class="docutils literal notranslate"><span class="pre">5</span></code> unique values. The most frequent number of legs that appear in the dataset is <code class="docutils literal notranslate"><span class="pre">4</span></code>.</p>
+<section id="Selecting-a-single-value">
+<h4>Selecting a single value<a class="headerlink" href="#Selecting-a-single-value" title="Permalink to this headline">#</a></h4>
+<p>A single cell can be selected to see full results if needed.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select a single statistic by feature and row</span>
+<span class="n">prof_df</span><span class="p">[</span><span class="s1">'frequent_items/frequent_strings'</span><span class="p">][</span><span class="s1">'animal'</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[64]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[FrequentItem(value='jellyfish', est=3, upper=3, lower=3),
+ FrequentItem(value='cat', est=1, upper=1, lower=1),
+ FrequentItem(value='lion', est=1, upper=1, lower=1),
+ FrequentItem(value='fish', est=1, upper=1, lower=1),
+ FrequentItem(value='shark', est=1, upper=1, lower=1),
+ FrequentItem(value='kangaroo', est=1, upper=1, lower=1),
+ FrequentItem(value='bear', est=1, upper=1, lower=1)]
+</pre></div></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+<section id="Understanding-The-whylogs-Profile-Statistics">
+<h1>Understanding The whylogs Profile Statistics<a class="headerlink" href="#Understanding-The-whylogs-Profile-Statistics" title="Permalink to this headline">#</a></h1>
+<p>By default whylogs will automatically generate these metrics based on data types.</p>
+<p>The standard metrics available in whylogs are grouped in namespaces. They are:</p>
+<p>Counts and inferred data types track how many entries exist and what type data they contain.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">counts/n</span></code> - the total number of entries in a feature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">counts/null</span></code> the number of null values</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">types/integral</span></code> - the number of values consisting of an integral (whole number)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">types/fractional</span></code> - the number of values consisting of a fractional value (float)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">types/boolean</span></code> - the number of values consisting of a boolean</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">types/string</span></code> - the number of values consisting of a string</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">types/object</span></code> - the number of values consisting of an object. If the data is not of any of the previous types, it will be assumed as an object</p></li>
+</ul>
+<p>Cardinality tracks an approximate unique value for each feature</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cardinality/est</span></code> - the estimated unique values for each feature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cardinality/upper_1</span></code> - upper bound for the cardinality estimation. The actual cardinality will always be below this number.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cardinality/lower_1</span></code> - lower bound for the cardinality estimation. The actual cardinality will always be above this number.</p></li>
+</ul>
+<p>Frequent items track which items show up the most.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">frequent_items/frequent_strings</span></code> - the most frequent items</p></li>
+</ul>
+<p>Distribution statistics are generated when a feature contains numerical data.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">distribution/mean</span></code> - the calculated mean of the feature data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distribution/stddev</span></code> - the calculated standard deviation of the feature data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distribution/n</span></code> - the number of rows belonging to the feature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distribution/max</span></code> - the highest (max) value in the feature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distribution/min</span></code> - the smallest (min) value in the feature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distribution/median</span></code> - the median value of the feature data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distribution/q_xx</span></code> - the xx-th quantile value of the data’s distribution</p></li>
+</ul>
+</section>
+<section id="Data-Types-and-Metrics">
+<h1>Data Types and Metrics<a class="headerlink" href="#Data-Types-and-Metrics" title="Permalink to this headline">#</a></h1>
+<p>whylogs maps different data types, like numpy arrays, list, integers, etc. to specific whylogs data types. The three most important whylogs data types are:</p>
+<ul class="simple">
+<li><p>Integral</p></li>
+<li><p>Fractional</p></li>
+<li><p>String</p></li>
+</ul>
+<p>By default, whylogs will track the following metrics according to the column’s inferred data type:</p>
+<ul class="simple">
+<li><p>Integral:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">counts</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">types</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distribution</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ints</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cardinality</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">frequent_items</span></code></p></li>
+</ul>
+</li>
+<li><p>Fractional:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">counts</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">types</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cardinality</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distribution</span></code></p></li>
+</ul>
+</li>
+<li><p>String:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">counts</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">types</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cardinality</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">frequent_items</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p>If you want to know how you can customize this configuration, selecting the metrics according to the data type or column name, please go to the <a class="reference internal" href="Schema_Configuration.html"><span class="doc">Schema Configuration example</span></a></p>
+<p>That’s it! If you want to know more about whylogs, check our documentation at <a class="reference external" href="https://whylogs.readthedocs.io/en/1.0.x/">https://whylogs.readthedocs.io/en/1.0.x/</a></p>
 </section>
 
         </article>
@@ -358,8 +962,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="../integrations/writing_profiles.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Writing profiles</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="Logging_Different_Data.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">(why)Logging</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -405,8 +1027,38 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Inspecting Profiles</a><ul>
+<li><a class="reference internal" href="#Setup">Setup</a></li>
+<li><a class="reference internal" href="#Log-data-with-whylogs,-create-a-profile,-and-view-statistics:">Log data with whylogs, create a profile, and view statistics:</a><ul>
+<li><a class="reference internal" href="#animal">animal</a></li>
+<li><a class="reference internal" href="#weight">weight</a></li>
+<li><a class="reference internal" href="#legs">legs</a><ul>
+<li><a class="reference internal" href="#Selecting-a-single-value">Selecting a single value</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Understanding-The-whylogs-Profile-Statistics">Understanding The whylogs Profile Statistics</a></li>
+<li><a class="reference internal" href="#Data-Types-and-Metrics">Data Types and Metrics</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
@@ -420,5 +1072,7 @@
     <script src="../../_static/clipboard.min.js"></script>
     <script src="../../_static/copybutton.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     </body>
 </html>
