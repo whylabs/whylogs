@@ -61,8 +61,11 @@ class DatasetSchema:
     cache_size: int = 1024
     schema_based_automerge: bool = False
 
-    def __init__(self) -> None:
+    def __init__(self, config: MetricConfig = None) -> None:
         self._columns = {}
+
+        if config is not None:
+            self.default_configs = config
 
         if self.cache_size < 0:
             logger.warning("Negative cache size value. Disabling caching")
@@ -123,6 +126,7 @@ class DatasetSchema:
             col_dtype = df.dtypes[col_name]
             self._columns[col_name] = ColumnSchema(
                 dtype=col_dtype,
+                cfg=self.default_configs,
                 resolver=self.resolvers,
                 type_mapper=self.type_mapper,
             )

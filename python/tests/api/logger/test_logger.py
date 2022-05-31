@@ -4,6 +4,10 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import pytest
+from python.tests.core.metrics.test_metric_components import TEST_LOGGER
+from python.whylogs.core.metrics.metrics import MetricConfig
+from python.whylogs.core.schema import DatasetSchema
+from python.whylogs.core.view import column_profile_view
 
 import whylogs as why
 from whylogs.core import ColumnProfileView
@@ -144,3 +148,54 @@ def test_bool_count():
     prof_view = results.profile().view()
     assert prof_view._columns.get("fly")._metrics.get("types").boolean.value == 4
     assert prof_view._columns.get("fly")._metrics.get("types").integral.value == 0
+
+def test_unicode_range_defaults() -> None:
+    strings = { "words":  ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoji"], } # fix ❤️  /u+fe0f
+    data = pd.DataFrame(strings)
+    digit_counts = [1, 2, 3, 4, 0, 3, 0]
+    latin_counts = [1, 2, 3, 5, 3, 6, 6]
+    emoji_counts = [0, 0, 0, 0, 0, 0, 1]
+    prof_view = why.log(data).view()
+    assert "words" in prof_view.get_columns()
+    column_profile = prof_view.get_column("words")
+    assert "unicode_range" in column_profile.get_metric_names()
+    metric = column_profile.get_metric("unicode_range")
+
+    assert "digits" in metric.submetrics
+    assert "basic-latin" in metric.submetrics
+    assert "emoji" in metric.submetrics
+
+    assert metric.submetrics["digits"].mean.value == np.array(digit_counts).mean()
+    assert metric.submetrics["emoji"].mean.value == np.array(emoji_counts).mean()
+    assert metric.submetrics["basic-latin"].mean.value == np.array(latin_counts).mean()
+
+
+def test_unicode_range_config_off() -> None:
+    strings = { "words":  ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoji"], }
+    data = pd.DataFrame(strings)
+
+    configured_schema = DatasetSchema(MetricConfig(track_unicode_ranges=False))
+    prof_view = why.log(data, schema=configured_schema).view()
+    assert "words" in prof_view.get_columns()
+    column_profile = prof_view.get_column("words")
+    assert "unicode_range" not in column_profile.get_metric_names()
+
+def test_frequent_items() -> None:
+    strings = { "words":  ["1", "12", "123"], }
+    data = pd.DataFrame(strings)
+
+    prof_view = why.log(data).view()
+    assert "words" in prof_view.get_columns()
+    column_profile = prof_view.get_column("words")
+    assert "frequent_items" in column_profile.get_metric_names()
+
+def test_frequent_items_disabled() -> None:
+    strings = { "words":  ["1", "12", "123"], }
+    data = pd.DataFrame(strings)
+    configured_schema = DatasetSchema(MetricConfig(fi_disabled=True))
+
+    prof_view = why.log(data, schema=configured_schema).view()
+    assert "words" in prof_view.get_columns()
+    column_profile = prof_view.get_column("words")
+    assert "frequent_items" not in column_profile.get_metric_names()
+

@@ -5,7 +5,7 @@ from typing_extensions import TypeAlias
 
 from whylogs.core.datatypes import DataType, Fractional, Integral, String
 from whylogs.core.metrics import StandardMetric
-from whylogs.core.metrics.metrics import Metric
+from whylogs.core.metrics.metrics import Metric, MetricConfig
 
 M = TypeVar("M", bound=Metric)
 ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
@@ -26,6 +26,7 @@ class StandardResolver(Resolver):
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
         metrics: List[StandardMetric] = [StandardMetric.counts, StandardMetric.types]
+
         if isinstance(why_type, Integral):
             metrics.append(StandardMetric.distribution)
             metrics.append(StandardMetric.ints)
@@ -36,6 +37,8 @@ class StandardResolver(Resolver):
             metrics.append(StandardMetric.distribution)
         elif isinstance(why_type, String):
             metrics.append(StandardMetric.cardinality)
+            if column_schema.cfg.track_unicode_ranges:
+                metrics.append(StandardMetric.unicode_range)
             metrics.append(StandardMetric.frequent_items)
 
         if column_schema.cfg.fi_disabled:
