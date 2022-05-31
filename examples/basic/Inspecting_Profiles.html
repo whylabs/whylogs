@@ -11,7 +11,7 @@
 <meta property="og:url" content="https://whylogs.readthedocs.io/examples/basic/Inspecting_Profiles.html" />
   
 <meta property="og:description" content="Open in Colab In this notebook, we’ll show how you can use whylog’s Profile Viewer ( profile.view()) to find useful statistics in a dataset. This includes: Counters, such as number of samples and n..." />
-  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Writing profiles" href="../integrations/Writing_Profiles.html" /><link rel="prev" title="(why)Logging" href="Logging_Different_Data.html" />
+  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Drift Analysis with Profile Visualizer" href="Notebook_Profile_Visualizer.html" /><link rel="prev" title="Getting Started" href="Getting_Started.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
         <title>Inspecting Profiles - whylogs v1.0.0</title>
@@ -184,16 +184,15 @@
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../features/profiling.html">Profiling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features/config.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../features/writing.html">Writers</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../../examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="Getting_Started.html">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Logging_Different_Data.html">(why)Logging</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Inspecting Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Understanding-The-whylogs-Profile-Statistics">Understanding The whylogs Profile Statistics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Data-Types-and-Metrics">Data Types and Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Merging_Profiles.html">Merging Profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../integrations/Writing_Profiles.html">Writing profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../integrations/Pyspark_Profiling.html">PySpark Integration</a></li>
 </ul>
@@ -880,9 +879,8 @@ Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-pack
 </section>
 </section>
 </section>
-</section>
 <section id="Understanding-The-whylogs-Profile-Statistics">
-<h1>Understanding The whylogs Profile Statistics<a class="headerlink" href="#Understanding-The-whylogs-Profile-Statistics" title="Permalink to this headline">#</a></h1>
+<h2>Understanding The whylogs Profile Statistics<a class="headerlink" href="#Understanding-The-whylogs-Profile-Statistics" title="Permalink to this headline">#</a></h2>
 <p>By default whylogs will automatically generate these metrics based on data types.</p>
 <p>The standard metrics available in whylogs are grouped in namespaces. They are:</p>
 <p>Counts and inferred data types track how many entries exist and what type data they contain.</p>
@@ -917,7 +915,7 @@ Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-pack
 </ul>
 </section>
 <section id="Data-Types-and-Metrics">
-<h1>Data Types and Metrics<a class="headerlink" href="#Data-Types-and-Metrics" title="Permalink to this headline">#</a></h1>
+<h2>Data Types and Metrics<a class="headerlink" href="#Data-Types-and-Metrics" title="Permalink to this headline">#</a></h2>
 <p>whylogs maps different data types, like numpy arrays, list, integers, etc. to specific whylogs data types. The three most important whylogs data types are:</p>
 <ul class="simple">
 <li><p>Integral</p></li>
@@ -956,29 +954,30 @@ Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-pack
 <p>If you want to know how you can customize this configuration, selecting the metrics according to the data type or column name, please go to the <a class="reference internal" href="Schema_Configuration.html"><span class="doc">Schema Configuration example</span></a></p>
 <p>That’s it! If you want to know more about whylogs, check our documentation at <a class="reference external" href="https://whylogs.readthedocs.io/en/1.0.x/">https://whylogs.readthedocs.io/en/1.0.x/</a></p>
 </section>
+</section>
 
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../integrations/Writing_Profiles.html">
+          <a class="next-page" href="Notebook_Profile_Visualizer.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Writing profiles</div>
+                <div class="title">Drift Analysis with Profile Visualizer</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="Logging_Different_Data.html">
+          <a class="prev-page" href="Getting_Started.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">(why)Logging</div>
+                <div class="title">Getting Started</div>
                 
               </div>
             </a>
@@ -1050,10 +1049,10 @@ Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.7/dist-pack
 </li>
 </ul>
 </li>
-</ul>
-</li>
 <li><a class="reference internal" href="#Understanding-The-whylogs-Profile-Statistics">Understanding The whylogs Profile Statistics</a></li>
 <li><a class="reference internal" href="#Data-Types-and-Metrics">Data Types and Metrics</a></li>
+</ul>
+</li>
 </ul>
 
           </div>

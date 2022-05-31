@@ -10,8 +10,8 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/examples/basic/Merging_Profiles.html" />
   
-<meta property="og:description" content="Sometimes we may want to profile a dataset in chunks. For example, we may have our dataset distributed across multiple files or nodes, or perhaps our dataset is too large to fit in memory. Maybe we..." />
-  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+<meta property="og:description" content="Open in Colab Sometimes we may want to profile a dataset in chunks. For example, we may have our dataset distributed across multiple files or nodes, or perhaps our dataset is too large to fit in me..." />
+  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Writing profiles" href="../integrations/Writing_Profiles.html" /><link rel="prev" title="Schema Configuration for Tracking Metrics" href="Schema_Configuration.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
         <title>Merging Profiles - whylogs v1.0.0</title>
@@ -182,18 +182,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../features/profiling.html">Profiling</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../features/config.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../features/writing.html">Writers</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="Getting_Started.html">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Logging_Different_Data.html">(why)Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Inspecting_Profiles.html">Inspecting Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Inspecting_Profiles.html#Understanding-The-whylogs-Profile-Statistics">Understanding The whylogs Profile Statistics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Inspecting_Profiles.html#Data-Types-and-Metrics">Data Types and Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Merging Profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../integrations/Writing_Profiles.html">Writing profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../integrations/Pyspark_Profiling.html">PySpark Integration</a></li>
 </ul>
@@ -592,6 +591,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Merging-Profiles">
 <h1>Merging Profiles<a class="headerlink" href="#Merging-Profiles" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Merging_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
 <p>Sometimes we may want to profile a dataset in chunks. For example, we may have our dataset distributed across multiple files or nodes, or perhaps our dataset is too large to fit in memory. Maybe we already profiled our dataset for several different date ranges and we want to see a holistic view of our data across the entire range.</p>
 <p>In any case, merging profiles is a solution!</p>
 <section id="Installing-whylogs">
@@ -2422,16 +2422,7 @@ Subset 3: 545
 </section>
 <section id="What’s-Next?">
 <h2>What’s Next?<a class="headerlink" href="#What’s-Next?" title="Permalink to this headline">#</a></h2>
-<p>There’s a lot you can do with the profiles you just created. Keep getting your hands dirty with the following examples!</p>
-<ul class="simple">
-<li><p>Basic</p>
-<ul>
-<li><p><a class="reference external" href="https://whylogs-v1-doc-dev.netlify.app/examples/basic/notebook_profile_visualizer">Visualizing Profiles</a> - Compare profiles to detect distribution shifts, visualize histograms and bar charts and explore your data</p></li>
-<li><p><a class="reference external" href="https://whylogs-v1-doc-dev.netlify.app/examples/basic/schema_configuration">Schema Configuration for Tracking Metrics</a> - Configure tracking metrics according to data type or column features</p></li>
-<li><p>More to Come!</p></li>
-</ul>
-</li>
-</ul>
+<p>There’s a lot you can do with the profiles you just created. You can take a look at our other examples at <a class="reference external" href="https://whylogs.readthedocs.io/en/latest/examples">https://whylogs.readthedocs.io/en/latest/examples</a> !</p>
 </section>
 </section>
 
@@ -2440,8 +2431,26 @@ Subset 3: 545
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="../integrations/Writing_Profiles.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Writing profiles</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="Schema_Configuration.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Schema Configuration for Tracking Metrics</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
