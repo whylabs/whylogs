@@ -2,7 +2,7 @@
 <img src="https://i.imgur.com/nv33goV.png" width="35%"/>
 </br>
 
-<h1 align="center">The open source standard for data logging
+<h1 align="center">The open standard for data logging
 
  </h1>
   <h3 align="center">
