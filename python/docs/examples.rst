@@ -14,8 +14,10 @@ Basic
 
     examples/basic/Getting_Started
     examples/basic/Notebook_Profile_Visualizer
+    examples/basic/Metric_Constraints
     examples/basic/Schema_Configuration
     examples/basic/Logging_Different_Data
+    examples/basic/Inspecting_Profiles
 
 Intermediate
 ------------
