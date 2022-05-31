@@ -13,11 +13,13 @@ Basic
     :maxdepth: 1
 
     examples/basic/Getting_Started
+    examples/basic/Inspecting_Profiles
     examples/basic/Notebook_Profile_Visualizer
+    examples/basic/Logging_Different_Data
     examples/basic/Metric_Constraints
     examples/basic/Schema_Configuration
-    examples/basic/Logging_Different_Data
-    examples/basic/Inspecting_Profiles
+    examples/basic/Merging_Profiles
+    
 
 Intermediate
 ------------
@@ -35,5 +37,5 @@ Integrations
 .. toctree::
     :maxdepth: 1
 
-    examples/integrations/writing_profiles
-    examples/integrations/pyspark_profiling
+    examples/integrations/Writing_Profiles
+    examples/integrations/Pyspark_Profiling
