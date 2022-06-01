@@ -32,11 +32,11 @@ With the profile visualizer, users can generate interactive reports about their 
 
 ### Profile vs View
 
-In whylogs v1, the concept of **Profile View** is introduced. The Profile View is obtained from a Profile object. The profile object should be used while logging operations are underway. Once logging is done for the desired set of data, you can inspect, visualize, merge and upload your profile through the Profile View object. When a profile is written to a binary file, it is converted to a Profile View. This separates both concepts according to their intended use: logging vs. inspection.  
+In whylogs v1, the concept of **Profile View** is introduced. The Profile View is obtained from a Profile object. The profile object should be used while logging operations are underway. Once logging is done for the desired set of data, you can inspect, visualize, merge and upload your profile through the Profile View object. When a profile is written to a binary file, it is converted to a Profile View. This separates both concepts according to their intended use: logging vs. inspection.
 
 ### Easier Configuration
 
-In v0, config (yaml) files were used at various points throughout the project. In whylogs v1, configuration relies on user-provided parameters rather than config files. 
+In v0, config (yaml) files were used at various points throughout the project. In whylogs v1, configuration relies on user-provided parameters rather than config files.
 
 ### Usability Refresh
 
