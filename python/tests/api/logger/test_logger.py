@@ -161,7 +161,7 @@ def test_unicode_range_enabled() -> None:
     digit_counts = [1, 2, 3, 4, 0, 3, 0]
     latin_counts = [1, 2, 3, 5, 3, 6, 10]
     emoticon_counts = [0, 0, 0, 0, 0, 0, 1]
-    configured_schema = DatasetSchema(MetricConfig(track_unicode_ranges=True))
+    configured_schema = DatasetSchema(default_configs=MetricConfig(track_unicode_ranges=True))
     prof_view = why.log(data, schema=configured_schema).view()
     assert "words" in prof_view.get_columns()
     column_profile = prof_view.get_column("words")
@@ -206,7 +206,7 @@ def test_frequent_items_disabled() -> None:
         "words": ["1", "12", "123"],
     }
     data = pd.DataFrame(strings)
-    configured_schema = DatasetSchema(MetricConfig(fi_disabled=True))
+    configured_schema = DatasetSchema(default_configs=MetricConfig(fi_disabled=True))
 
     prof_view = why.log(data, schema=configured_schema).view()
     assert "words" in prof_view.get_columns()

@@ -28,12 +28,7 @@ def test_override_schema_col2_as_string() -> None:
     d = {"col1": [1, 2, 3], "col2": [3.0, 4.0, "c"], "col3": ["a", "b", "c"]}
     df = pd.DataFrame(data=d)
 
-    class MyCustomSchema(DatasetSchema):
-        types = {
-            "col2": str,
-        }
-
-    profile = DatasetProfile(MyCustomSchema())
+    profile = DatasetProfile(DatasetSchema(types={"col2": str}))
     profile.track(pandas=df)
     view = profile.view()
     assert view.get_column("col1") is not None
