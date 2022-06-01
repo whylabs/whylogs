@@ -1,3 +1,4 @@
+from decimal import Decimal
 from logging import getLogger
 from typing import Dict
 
@@ -11,6 +12,7 @@ from whylogs.api.pyspark.experimental import (
     whylogs_pandas_map_profiler,
 )
 from whylogs.core import ColumnProfileView
+from whylogs.core.stubs import pd as pd
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 TEST_LOGGER = getLogger(__name__)
@@ -80,3 +82,19 @@ class TestPySpark(object):
         assert profile_view.get_column("0").get_metric("counts").n.value == 3
         assert profile_view.get_column("0").get_metric("distribution").max == 0.2
         assert profile_view.get_column("0").get_metric("distribution").min == 0.0
+
+    def test_decimals_are_fractional(self):
+        decimal_data=[[Decimal(8.4), Decimal(13.8)],[Decimal(2.9), Decimal(7.2)],]
+        pandas_decimals = pd.DataFrame({'wine': [Decimal(8.4), Decimal(13.8)], 'beer': [Decimal(2.9), Decimal(7.2)]})
+        decimals_df = self.spark.createDataFrame(decimal_data, schema=['wine', 'beer'])
+        dataset_profile_view = collect_dataset_profile_view(decimals_df)
+        type_counts = dataset_profile_view.get_column('wine').get_metric("types")
+        assert type_counts.integral.value == 0
+        assert  type_counts.fractional.value == 2
+
+        # check that pandas dataframes without spark also behave similarly
+        import whylogs as why
+        pandas_decimals_profile_view = why.log(pandas_decimals).view()
+        pandas_type_counts = pandas_decimals_profile_view.get_column('wine').get_metric("types")
+        assert pandas_type_counts.integral.value == 0
+        assert  pandas_type_counts.fractional.value == 2
