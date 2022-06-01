@@ -6,8 +6,7 @@ import pandas as pd
 import pytest
 
 import whylogs as why
-from whylogs.core import ColumnProfileView
-from whylogs.core.metrics.metrics import MetricConfig
+from whylogs.core import ColumnProfileView, MetricConfig
 from whylogs.core.schema import DatasetSchema
 
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
