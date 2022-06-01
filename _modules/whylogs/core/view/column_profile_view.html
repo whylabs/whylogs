@@ -477,6 +477,8 @@
 <div class="viewcode-block" id="ColumnProfileView.from_bytes"><a class="viewcode-back" href="../../../../api/whylogs/core/view/index.html#whylogs.core.ColumnProfileView.from_bytes">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_bytes</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ColumnProfileView"</span><span class="p">:</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">ColumnMessage</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">msg</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ColumnProfileView</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div></div>
 </pre></div>
