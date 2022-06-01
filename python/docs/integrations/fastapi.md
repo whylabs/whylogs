@@ -1,3 +1,0 @@
-# FastAPI integration
-
-TBD
