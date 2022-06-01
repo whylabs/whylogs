@@ -37,3 +37,4 @@ Integrations
 
     examples/integrations/writing_profiles
     examples/integrations/pyspark_profiling
+    examples/integrations/Mlflow_Logging
