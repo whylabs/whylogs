@@ -11,11 +11,13 @@ Based on user feedback, the following areas of improvement have been the focus f
 
 ### Performance Improvements
 
-Users will see substantial improvements to performance, allowing larger datasets to be profiled in much less time.
+One of the major causes for performance improvements with whylogs v1 is a change from row-level operations to columnar operations. Columnar operations allow us to take advantage of [vectorization](https://www.pythonlikeyoumeanit.com/Module3_IntroducingNumpy/VectorizedOperations.html#Vectorized-Operations) built into the NumPy and pandas packages, which significantly speeds up the process of generating profiles by pushing summarization from slow Python code to lightning-fast C code. Importantly, we can take advantage of vectorization without changes to the end user experience.
 
 ### API Simplification
 
-Previously, profiling a dataset involved initializing a session, creating a logger within that session, and calling a logging function. With whylogs v1, this process is simplified and made more intuitive by simplifying the number of entities you need to configure at first.
+In whylogs v1, generating whylogs profile takes a single line of code: `results = why.log(pandas_df)`.
+
+In the original whylogs v0 API, if you wanted to log a dataframe, you would need to start by initializing a session. Within that session, you would need to create a logger, and then, finally, within that logger call a log_dataframe() function. We heard from our users that these concepts were often confusing and slowed them down. The new simplified API enables users to  easily create whylogs profiles as artifacts to represent their datasets.
 
 ### Customizability
 
