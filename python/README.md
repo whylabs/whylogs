@@ -156,7 +156,7 @@ builder.add_constraint(MetricConstraint(
     name="col_name >= 0",
     condition=lambda x: x.min >= 0,
     metric_selector=MetricsSelector(metric_name='distribution', column_name='col_name')
-)
+))
 constraints: Constraints = builder.build()
 constraints.report()
 ```
