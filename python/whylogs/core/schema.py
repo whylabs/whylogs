@@ -86,7 +86,7 @@ class DatasetSchema:
 
     def copy(self) -> "DatasetSchema":
         """Returns a new instance of the same underlying schema"""
-        copy = DatasetSchema()
+        copy = DatasetSchema(self.default_configs)
         copy._columns = self._columns.copy()
         copy.cache_size = self.cache_size
         copy.type_mapper = self.type_mapper
@@ -105,6 +105,7 @@ class DatasetSchema:
 
                 self._columns[k] = ColumnSchema(
                     dtype=type(v),
+                    cfg=self.default_configs,
                     resolver=self.resolvers,
                     type_mapper=self.type_mapper,
                 )
