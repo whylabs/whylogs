@@ -129,10 +129,10 @@ class PreprocessedColumn:
         if parse_numeric_string:
             non_null_series = pd.to_numeric(non_null_series, errors="ignore")
 
-        float_mask = non_null_series.apply(lambda x: pdc.is_float(x))
+        float_mask = non_null_series.apply(lambda x: pdc.is_float(x) or pdc.is_decimal(x))
         bool_mask = non_null_series.apply(lambda x: pdc.is_bool(x))
         bool_mask_where_true = non_null_series.apply(lambda x: pdc.is_bool(x) and x)
-        int_mask = non_null_series.apply(lambda x: pdc.is_number(x) and not pdc.is_float(x) and not pdc.is_bool(x))
+        int_mask = non_null_series.apply(lambda x: pdc.is_number(x) and pdc.is_integer(x) and not pdc.is_bool(x))
         str_mask = non_null_series.apply(lambda x: isinstance(x, str))
 
         floats = non_null_series[float_mask]
