@@ -1,3 +1,0 @@
-# Ray integration
-
-TBD
