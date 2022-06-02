@@ -40,3 +40,4 @@ Integrations
 
     examples/integrations/Writing_Profiles
     examples/integrations/Pyspark_Profiling
+    examples/integrations/Mlflow_Logging
