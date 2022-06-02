@@ -1,8 +1,8 @@
 import os
 import shutil
 
-import pytest
 import mlflow
+import pytest
 
 import whylogs as why
 from whylogs.api.logger.result_set import ViewResultSet
@@ -22,8 +22,8 @@ class TestMlflowWriter(object):
 
     def test_writes_profile_to_mlflow_experiment(self, profile_view, mlflow_writer):
         mlflow_writer.write(profile_view)
-        assert os.getcwd() == "/Users/murilomendonca/Documents/repos/whylogs" # 
-        
+        assert os.getcwd() == "/Users/murilomendonca/Documents/repos/whylogs"  #
+
         run_id = mlflow_writer._run_id
         file_dir = f"artifacts/{mlflow_writer._profile_dir}"
         file_path = os.path.join(file_dir, f"{mlflow_writer._profile_name}_{run_id}.bin")
@@ -31,7 +31,7 @@ class TestMlflowWriter(object):
 
     def test_get_temp_directory(self, mlflow_writer):
         run_id = "example_run_id"
-        
+
         # default path
         actual_url = mlflow_writer._get_temp_directory(run_id)
         expected_url = "whylogs/whylogs_profile_" + run_id + ".bin"
@@ -46,9 +46,9 @@ class TestMlflowWriter(object):
     def test_result_set_api_creates_file_in_mlflow(self, result_set):
         run = mlflow.start_run()
         run_id = run.info.run_id
-        
+
         result_set.writer("mlflow").write()
-        
+
         # verify we can fetch the profile with mlflow
         client = mlflow.tracking.MlflowClient()
 
@@ -59,4 +59,3 @@ class TestMlflowWriter(object):
         read_profile = why.read(path=f"{local_path}/whylogs_profile_{run_id}.bin")
 
         assert isinstance(read_profile, ViewResultSet)
-        
