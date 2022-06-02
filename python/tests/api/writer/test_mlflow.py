@@ -22,8 +22,6 @@ class TestMlflowWriter(object):
 
     def test_writes_profile_to_mlflow_experiment(self, profile_view, mlflow_writer):
         mlflow_writer.write(profile_view)
-        assert os.getcwd() == "/Users/murilomendonca/Documents/repos/whylogs"  #
-
         run_id = mlflow_writer._run_id
         file_dir = f"artifacts/{mlflow_writer._profile_dir}"
         file_path = os.path.join(file_dir, f"{mlflow_writer._profile_name}_{run_id}.bin")
