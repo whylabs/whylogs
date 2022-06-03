@@ -50,7 +50,7 @@ def test_metric_constraint_callable() -> None:
     )
     TEST_LOGGER.info(f"distribution is {distribution_metric.to_summary_dict()}")
     TEST_LOGGER.info(f"empy distribution is {empty_distribution.to_summary_dict()}")
-    assert distribution_stddev_gt_avg.condition(distribution_metric)
+    assert not distribution_stddev_gt_avg.condition(distribution_metric)
     assert distribution_stddev_gt_avg.condition(empty_distribution)
 
 
