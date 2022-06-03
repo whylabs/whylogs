@@ -581,7 +581,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Schema-Configuration-for-Tracking-Metrics">
 <h1>Schema Configuration for Tracking Metrics<a class="headerlink" href="#Schema-Configuration-for-Tracking-Metrics" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs-v1/blob/mainline/python/examples/basic/Schema_Configuration.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Schema_Configuration.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
 <p>When logging data, whylogs outputs certain metrics according to the column type. While whylogs provide a default behaviour, you can configure it in order to only track metrics that are important to you.</p>
 <p>In this example, we’ll see how you can configure the Schema for a dataset level to control which metrics you want to calculate. We’ll see how to specify metrics:</p>
 <ol class="arabic simple">
@@ -589,6 +589,33 @@ div.rendered_html tbody tr:hover {
 <li><p>Per column name</p></li>
 </ol>
 <p>But first, let’s talk briefly about whylogs’ data types and basic metrics.</p>
+<section id="Installing-whylogs">
+<h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Requirement already satisfied: whylogs in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (1.0.0)
+Requirement already satisfied: typing-extensions in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from whylogs) (4.2.0)
+Requirement already satisfied: flake8==4.0.1 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from whylogs) (4.0.1)
+Requirement already satisfied: whylogs-sketching==3.4.0.dev9 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from whylogs) (3.4.0.dev9)
+Requirement already satisfied: protobuf&gt;=3.15.5 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from whylogs) (4.21.1)
+Requirement already satisfied: pyflakes&lt;2.5.0,&gt;=2.4.0 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from flake8==4.0.1-&gt;whylogs) (2.4.0)
+Requirement already satisfied: pycodestyle&lt;2.9.0,&gt;=2.8.0 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from flake8==4.0.1-&gt;whylogs) (2.8.0)
+Requirement already satisfied: mccabe&lt;0.7.0,&gt;=0.6.0 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from flake8==4.0.1-&gt;whylogs) (0.6.1)
+Note: you may need to restart the kernel to use updated packages.
+</pre></div></div>
+</div>
+</section>
 <section id="whylogs-DataTypes">
 <h2>whylogs DataTypes<a class="headerlink" href="#whylogs-DataTypes" title="Permalink to this headline">#</a></h2>
 <p>whylogs maps different data types, like numpy arrays, list, integers, etc. to specific whylogs data types. The three most important whylogs data types are:</p>
@@ -617,7 +644,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;whylogs.core.datatypes.AnyType at 0x7efe0fb48ca0&gt;
+&lt;whylogs.core.datatypes.AnyType at 0x7f506c6872b0&gt;
 </pre></div></div>
 </div>
 </section>
@@ -647,6 +674,15 @@ div.rendered_html tbody tr:hover {
 </ul>
 <p>Let’s see how we can configure our Schema to track only the above metrics for the related types.</p>
 <p>Let’s create a sample dataframe to illustrate:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pandas if you don't have it already</span>
+<span class="c1"># %pip install pandas</span>
+<br/></pre></div>
+</div>
+</div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -682,7 +718,7 @@ div.rendered_html tbody tr:hover {
 
         <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
-            <span class="n">result</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 <br/></pre></div>
 </div>
@@ -753,21 +789,29 @@ div.rendered_html tbody tr:hover {
 <th>types/boolean</th>
 <th>types/string</th>
 <th>types/object</th>
+<th>frequent_items/frequent_strings</th>
+<th>type</th>
 <th>distribution/mean</th>
 <th>distribution/stddev</th>
 <th>distribution/n</th>
 <th>distribution/max</th>
 <th>distribution/min</th>
+<th>distribution/q_01</th>
+<th>distribution/q_05</th>
 <th>distribution/q_10</th>
 <th>distribution/q_25</th>
 <th>distribution/median</th>
 <th>distribution/q_75</th>
 <th>distribution/q_90</th>
-<th>type</th>
-<th>frequent_items/frequent_strings</th>
+<th>distribution/q_95</th>
+<th>distribution/q_99</th>
 </tr>
 <tr>
 <th>column</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
 <th></th>
 <th></th>
 <th></th>
@@ -791,6 +835,32 @@ div.rendered_html tbody tr:hover {
 </thead>
 <tbody>
 <tr>
+<th>col1</th>
+<td>3</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>[FrequentItem(value='1.000000', est=1, upper=1...</td>
+<td>SummaryType.COLUMN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
 <th>col2</th>
 <td>3</td>
 <td>0</td>
@@ -799,6 +869,8 @@ div.rendered_html tbody tr:hover {
 <td>0</td>
 <td>0</td>
 <td>0</td>
+<td>NaN</td>
+<td>SummaryType.COLUMN</td>
 <td>4.0</td>
 <td>1.0</td>
 <td>3.0</td>
@@ -806,11 +878,13 @@ div.rendered_html tbody tr:hover {
 <td>3.0</td>
 <td>3.0</td>
 <td>3.0</td>
+<td>3.0</td>
+<td>3.0</td>
 <td>4.0</td>
 <td>5.0</td>
 <td>5.0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
+<td>5.0</td>
+<td>5.0</td>
 </tr>
 <tr>
 <th>col4</th>
@@ -821,6 +895,8 @@ div.rendered_html tbody tr:hover {
 <td>0</td>
 <td>0</td>
 <td>0</td>
+<td>NaN</td>
+<td>SummaryType.COLUMN</td>
 <td>4.0</td>
 <td>1.0</td>
 <td>3.0</td>
@@ -828,11 +904,13 @@ div.rendered_html tbody tr:hover {
 <td>3.0</td>
 <td>3.0</td>
 <td>3.0</td>
+<td>3.0</td>
+<td>3.0</td>
 <td>4.0</td>
 <td>5.0</td>
 <td>5.0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
+<td>5.0</td>
+<td>5.0</td>
 </tr>
 <tr>
 <th>col3</th>
@@ -844,27 +922,8 @@ div.rendered_html tbody tr:hover {
 <td>3</td>
 <td>0</td>
 <td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
 <td>SummaryType.COLUMN</td>
 <td>NaN</td>
-</tr>
-<tr>
-<th>col1</th>
-<td>3</td>
-<td>0</td>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
@@ -875,8 +934,9 @@ div.rendered_html tbody tr:hover {
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>[FrequentItem(value='1.000000', est=1, upper=1...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
 </tr>
 </tbody>
 </table></div>
@@ -897,7 +957,7 @@ div.rendered_html tbody tr:hover {
 </ul>
 <p>The process is similar to the previous case. We only need to change the if clauses to check for the <code class="docutils literal notranslate"><span class="pre">name</span></code> instead of <code class="docutils literal notranslate"><span class="pre">why_type</span></code>, like this:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
@@ -925,7 +985,7 @@ div.rendered_html tbody tr:hover {
 
         <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">metrics</span><span class="p">:</span>
-            <span class="n">result</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="p">)</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 <br/></pre></div>
 </div>
@@ -933,7 +993,7 @@ div.rendered_html tbody tr:hover {
 <p>Since there’s no common metrics for all columns, we can initialize <code class="docutils literal notranslate"><span class="pre">metrics</span></code> as an empty list, and then append the relevant metrics for each columns.</p>
 <p>Now, we create a custom schema, just like before:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCustomSchema</span><span class="p">(</span><span class="n">DatasetSchema</span><span class="p">):</span>
@@ -942,7 +1002,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -957,7 +1017,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -987,17 +1047,25 @@ div.rendered_html tbody tr:hover {
 <th>distribution/n</th>
 <th>distribution/max</th>
 <th>distribution/min</th>
+<th>distribution/q_01</th>
+<th>distribution/q_05</th>
 <th>distribution/q_10</th>
 <th>distribution/q_25</th>
 <th>distribution/median</th>
 <th>distribution/q_75</th>
 <th>distribution/q_90</th>
+<th>distribution/q_95</th>
+<th>distribution/q_99</th>
 <th>cardinality/est</th>
 <th>cardinality/upper_1</th>
 <th>cardinality/lower_1</th>
 </tr>
 <tr>
 <th>column</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
 <th></th>
 <th></th>
 <th></th>
@@ -1035,6 +1103,56 @@ div.rendered_html tbody tr:hover {
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>col2</th>
+<td>NaN</td>
+<td>NaN</td>
+<td>SummaryType.COLUMN</td>
+<td>4.0</td>
+<td>1.0</td>
+<td>3.0</td>
+<td>5.0</td>
+<td>3.0</td>
+<td>3.0</td>
+<td>3.0</td>
+<td>3.0</td>
+<td>3.0</td>
+<td>4.0</td>
+<td>5.0</td>
+<td>5.0</td>
+<td>5.0</td>
+<td>5.0</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>col4</th>
+<td>NaN</td>
+<td>NaN</td>
+<td>SummaryType.COLUMN</td>
+<td>4.0</td>
+<td>1.0</td>
+<td>3.0</td>
+<td>5.0</td>
+<td>3.0</td>
+<td>3.0</td>
+<td>3.0</td>
+<td>3.0</td>
+<td>3.0</td>
+<td>4.0</td>
+<td>5.0</td>
+<td>5.0</td>
+<td>5.0</td>
+<td>5.0</td>
+<td>3.0</td>
+<td>3.00015</td>
+<td>3.0</td>
 </tr>
 <tr>
 <th>col5</th>
@@ -1054,25 +1172,10 @@ div.rendered_html tbody tr:hover {
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
-</tr>
-<tr>
-<th>col4</th>
 <td>NaN</td>
 <td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>4.0</td>
-<td>1.0</td>
-<td>3.0</td>
-<td>5.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>4.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>3.0</td>
-<td>3.00015</td>
-<td>3.0</td>
+<td>NaN</td>
+<td>NaN</td>
 </tr>
 <tr>
 <th>col3</th>
@@ -1089,28 +1192,13 @@ div.rendered_html tbody tr:hover {
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
 <td>3.0</td>
 <td>3.00015</td>
 <td>3.0</td>
-</tr>
-<tr>
-<th>col2</th>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>4.0</td>
-<td>1.0</td>
-<td>3.0</td>
-<td>5.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>4.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
 </tr>
 </tbody>
 </table></div>
@@ -1204,6 +1292,7 @@ div.rendered_html tbody tr:hover {
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Schema Configuration for Tracking Metrics</a><ul>
+<li><a class="reference internal" href="#Installing-whylogs">Installing whylogs</a></li>
 <li><a class="reference internal" href="#whylogs-DataTypes">whylogs DataTypes</a></li>
 <li><a class="reference internal" href="#Basic-Metrics">Basic Metrics</a></li>
 <li><a class="reference internal" href="#Configuring-Metrics-in-the-Dataset-Schema">Configuring Metrics in the Dataset Schema</a><ul>
