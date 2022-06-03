@@ -24,10 +24,10 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView, dest: Optional[str] = None) -> None
+   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView) -> None
 
 
-   .. py:method:: option(self, param: Optional[str] = None) -> MlflowWriter
+   .. py:method:: option(self, profile_name: Optional[str] = None, profile_dir: Optional[str] = None, end_run: Optional[bool] = None) -> None
 
 
    .. py:method:: check_interval(self, interval_seconds: int) -> None

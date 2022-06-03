@@ -581,7 +581,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="MLflow-Logging">
 <h1>MLflow Logging<a class="headerlink" href="#MLflow-Logging" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://www.mlflow.org/">MLflow</a> is an open-source model platform that can track, manage and help users deploy their models to production with a very consistent API and good software engineering practices. Whylogs users can benefit from our API to seamlessly log and fetch profiles from their Mlflow environment. Let’s see how.</p>
+<p><a class="reference external" href="https://www.mlflow.org/">MLflow</a> is an open-source model platform that can track, manage and help users deploy their models to production with a very consistent API and good software engineering practices. Whylogs users can benefit from our API to seamlessly log profiles to their Mlflow environment. Let’s see how.</p>
 <section id="Setup">
 <h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this headline">#</a></h2>
 <p>For this tutorial we will simplify the approach by using MLflow’s local client. One of MLflow’s advantages is that it uses the exact same API to work both locally and in the cloud. So with a minor setup, the code shown here can be easily extended if you’re working with MLflow in Kubernetes or in Databricks, for example. In order to get started, make sure you have both <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> and <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> installed in your environment by uncommenting the following cells:</p>
@@ -607,7 +607,7 @@ div.rendered_html tbody tr:hover {
 <h2>Get the data<a class="headerlink" href="#Get-the-data" title="Permalink to this headline">#</a></h2>
 <p>Now let us get an example dataset from the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> library and create a function that returns an aggregated dataframe with it. We will use this same function later on!</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -622,7 +622,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
@@ -630,7 +630,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -638,7 +638,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -715,9 +715,9 @@ div.rendered_html tbody tr:hover {
 </section>
 <section id="Train-a-model">
 <h2>Train a model<a class="headerlink" href="#Train-a-model" title="Permalink to this headline">#</a></h2>
-<p>Now let us define the simplest model to be trained with <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>. We aren’t interested in model performance nor ML concepts, but only in having some baseline model being trained and having the overall idea of how to use <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> with your existing training pipeline.</p>
+<p>Let’s define the simplest model to be trained with <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>. We aren’t interested in model performance nor deep ML concepts, but only in having some baseline model being trained and having the overall idea of how to use <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> with your existing training pipeline.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
@@ -731,7 +731,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>We could serialize a model, but we will take a shortcut here taking advantage of <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>’s awesome <code class="docutils literal notranslate"><span class="pre">autolog</span></code> method.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
@@ -750,7 +750,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>And now we should see that a <code class="docutils literal notranslate"><span class="pre">mlruns/</span></code> directory was created and that we already have our trained model in there!</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -759,7 +759,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -772,7 +772,7 @@ div.rendered_html tbody tr:hover {
 <h2>Profile the training data with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code><a class="headerlink" href="#Profile-the-training-data-with-whylogs" title="Permalink to this headline">#</a></h2>
 <p>Now in order to profile your training data with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>, you’ll basically need to use our <code class="docutils literal notranslate"><span class="pre">logger</span></code> API, which is as simple as:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
@@ -783,7 +783,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
@@ -791,7 +791,308 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<div class="table-wrapper"><table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>counts/n</th>
+<th>counts/null</th>
+<th>types/integral</th>
+<th>types/fractional</th>
+<th>types/boolean</th>
+<th>types/string</th>
+<th>types/object</th>
+<th>distribution/mean</th>
+<th>distribution/stddev</th>
+<th>distribution/n</th>
+<th>...</th>
+<th>distribution/q_90</th>
+<th>distribution/q_95</th>
+<th>distribution/q_99</th>
+<th>ints/max</th>
+<th>ints/min</th>
+<th>cardinality/est</th>
+<th>cardinality/upper_1</th>
+<th>cardinality/lower_1</th>
+<th>frequent_items/frequent_strings</th>
+<th>type</th>
+</tr>
+<tr>
+<th>column</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>target</th>
+<td>150</td>
+<td>0</td>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1.000000</td>
+<td>0.819232</td>
+<td>150</td>
+<td>...</td>
+<td>2.0</td>
+<td>2.0</td>
+<td>2.0</td>
+<td>2.0</td>
+<td>0.0</td>
+<td>3.000000</td>
+<td>3.000150</td>
+<td>3.0</td>
+<td>[FrequentItem(value='0.000000', est=50, upper=...</td>
+<td>SummaryType.COLUMN</td>
+</tr>
+<tr>
+<th>petal width (cm)</th>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1.199333</td>
+<td>0.762238</td>
+<td>150</td>
+<td>...</td>
+<td>2.2</td>
+<td>2.3</td>
+<td>2.5</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>22.000001</td>
+<td>22.001100</td>
+<td>22.0</td>
+<td>NaN</td>
+<td>SummaryType.COLUMN</td>
+</tr>
+<tr>
+<th>sepal width (cm)</th>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3.057333</td>
+<td>0.435866</td>
+<td>150</td>
+<td>...</td>
+<td>3.7</td>
+<td>3.8</td>
+<td>4.2</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>23.000001</td>
+<td>23.001150</td>
+<td>23.0</td>
+<td>NaN</td>
+<td>SummaryType.COLUMN</td>
+</tr>
+<tr>
+<th>petal length (cm)</th>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3.758000</td>
+<td>1.765298</td>
+<td>150</td>
+<td>...</td>
+<td>5.8</td>
+<td>6.1</td>
+<td>6.7</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>43.000004</td>
+<td>43.002151</td>
+<td>43.0</td>
+<td>NaN</td>
+<td>SummaryType.COLUMN</td>
+</tr>
+<tr>
+<th>sepal length (cm)</th>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5.843333</td>
+<td>0.828066</td>
+<td>150</td>
+<td>...</td>
+<td>6.9</td>
+<td>7.3</td>
+<td>7.7</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>35.000003</td>
+<td>35.001750</td>
+<td>35.0</td>
+<td>NaN</td>
+<td>SummaryType.COLUMN</td>
+</tr>
+</tbody>
+</table></div>
+<p>5 rows × 28 columns</p>
+</div></div>
+</div>
+</section>
+<section id="Writing-your-profile-to-mlflow">
+<h2>Writing your profile to <code class="docutils literal notranslate"><span class="pre">mlflow</span></code><a class="headerlink" href="#Writing-your-profile-to-mlflow" title="Permalink to this headline">#</a></h2>
+<p>Now even more interesting than writing this profile locally is the ability to use <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>‘s API <strong>together</strong> with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>’, in order to store the training data profile and analyze the results of your experiments over time. For that, we basically need to define a function that will</p>
+<ol class="arabic simple">
+<li><p>Profile our training data</p></li>
+<li><p>Log the profile as an <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> artifact</p></li>
+</ol>
+<p>Let’s see how this function can be written:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">log_profile</span><span class="p">(</span><span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">profile_result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
+    <span class="n">profile_result</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"mlflow"</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>And we can call that function we defined in our <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> run experiment, like this:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">autolog</span><span class="p">()</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
+    <span class="n">train</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="n">log_profile</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
+
+    <span class="n">mlflow</span><span class="o">.</span><span class="n">end_run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>If we inspect the recently created experiment folder, we will see that a <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> directory was created there with our profile.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mlruns/0/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/artifacts/whylogs"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+['whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin']
+</pre></div></div>
+</div>
+<p>And we can even use <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>’s API to fetch and read back our profile, like:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.tracking</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
+
+<span class="n">local_dir</span> <span class="o">=</span> <span class="s2">"/tmp/artifact_downloads"</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">local_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">local_dir</span><span class="p">)</span>
+<span class="n">local_path</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">"whylogs"</span><span class="p">,</span> <span class="n">local_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+['whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin']
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -862,7 +1163,7 @@ div.rendered_html tbody tr:hover {
 </thead>
 <tbody>
 <tr>
-<th>sepal length (cm)</th>
+<th>petal length (cm)</th>
 <td>150</td>
 <td>0</td>
 <td>0</td>
@@ -870,44 +1171,20 @@ div.rendered_html tbody tr:hover {
 <td>0</td>
 <td>0</td>
 <td>0</td>
-<td>35.000003</td>
-<td>35.001750</td>
-<td>35.0</td>
+<td>43.000004</td>
+<td>43.002151</td>
+<td>43.0</td>
 <td>...</td>
+<td>1.6</td>
+<td>4.4</td>
 <td>5.1</td>
 <td>5.8</td>
-<td>6.4</td>
-<td>6.9</td>
-<td>7.3</td>
-<td>7.7</td>
+<td>6.1</td>
+<td>6.7</td>
 <td>SummaryType.COLUMN</td>
 <td>NaN</td>
 <td>NaN</td>
 <td>NaN</td>
-</tr>
-<tr>
-<th>target</th>
-<td>150</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>3.000000</td>
-<td>3.000150</td>
-<td>3.0</td>
-<td>...</td>
-<td>0.0</td>
-<td>1.0</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>SummaryType.COLUMN</td>
-<td>2.0</td>
-<td>0.0</td>
-<td>[FrequentItem(value='0.000000', est=50, upper=...</td>
 </tr>
 <tr>
 <th>petal width (cm)</th>
@@ -928,6 +1205,30 @@ div.rendered_html tbody tr:hover {
 <td>2.2</td>
 <td>2.3</td>
 <td>2.5</td>
+<td>SummaryType.COLUMN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>sepal length (cm)</th>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>150</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>35.000003</td>
+<td>35.001750</td>
+<td>35.0</td>
+<td>...</td>
+<td>5.1</td>
+<td>5.8</td>
+<td>6.4</td>
+<td>6.9</td>
+<td>7.3</td>
+<td>7.7</td>
 <td>SummaryType.COLUMN</td>
 <td>NaN</td>
 <td>NaN</td>
@@ -958,329 +1259,9 @@ div.rendered_html tbody tr:hover {
 <td>NaN</td>
 </tr>
 <tr>
-<th>petal length (cm)</th>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>43.000004</td>
-<td>43.002151</td>
-<td>43.0</td>
-<td>...</td>
-<td>1.6</td>
-<td>4.4</td>
-<td>5.1</td>
-<td>5.8</td>
-<td>6.1</td>
-<td>6.7</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
-<p>5 rows × 28 columns</p>
-</div></div>
-</div>
-<p>Awesome! But wouldn’t it be better to store this profile somewhere? So let’s see how to do it:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"my_awesome_profile.bin"</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>And now you should see a created profile in your current working directory.</p>
-</section>
-<section id="Writing-your-profile-to-mlflow">
-<h2>Writing your profile to <code class="docutils literal notranslate"><span class="pre">mlflow</span></code><a class="headerlink" href="#Writing-your-profile-to-mlflow" title="Permalink to this headline">#</a></h2>
-<p>Now even more interesting than writing this profile locally is the ability to use <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>‘s API <strong>together</strong> with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>’, in order to store the training data profile and analyze the results of your experiments over time. We will create a temporary directory, write the profile locally and then upload it to your <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> run. Let’s see how this looks like in the following function:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tempfile</span>
-
-<span class="k">def</span> <span class="nf">log_training_data_profile</span><span class="p">(</span>
-        <span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-        <span class="n">profile_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"whylogs"</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="c1"># make temp directory</span>
-    <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
-    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">profile_path</span><span class="p">)</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">"profile.bin"</span><span class="p">)</span>
-
-    <span class="c1"># generate and write profile</span>
-    <span class="n">profile_result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
-    <span class="n">profile_view</span> <span class="o">=</span> <span class="n">profile_result</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-    <span class="n">profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-
-    <span class="c1"># log as an artifact</span>
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">log_artifact</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">artifact_path</span><span class="o">=</span><span class="n">profile_path</span><span class="p">)</span>
-<br/></pre></div>
-</div>
-</div>
-<p>And we can call that function we defined in our <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> run experiment, like this:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">autolog</span><span class="p">()</span>
-
-    <span class="n">df</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
-    <span class="n">train</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
-
-    <span class="n">log_training_data_profile</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
-
-    <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
-
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">end_run</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<p>If we inspect the recently created experiment folder, we will see that a <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> directory was created there with our profile.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mlruns/0/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/artifacts/whylogs"</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-['profile.bin']
-</pre></div></div>
-</div>
-<p>And we can even use <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>’s API to fetch and read back our profile, like:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.tracking</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
-
-<span class="n">local_dir</span> <span class="o">=</span> <span class="s2">"/tmp/artifact_downloads"</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">local_dir</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">local_dir</span><span class="p">)</span>
-<span class="n">local_path</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">"whylogs"</span><span class="p">,</span> <span class="n">local_dir</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-['profile.bin']
-</pre></div></div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/profile.bin"</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>distribution/mean</th>
-<th>distribution/stddev</th>
-<th>...</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>type</th>
-<th>ints/max</th>
-<th>ints/min</th>
-<th>frequent_items/frequent_strings</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>petal length (cm)</th>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>43.000004</td>
-<td>43.002151</td>
-<td>43.0</td>
-<td>3.758000</td>
-<td>1.765298</td>
-<td>...</td>
-<td>5.1</td>
-<td>5.8</td>
-<td>6.1</td>
-<td>6.7</td>
-<td>150</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>petal width (cm)</th>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>22.000001</td>
-<td>22.001100</td>
-<td>22.0</td>
-<td>1.199333</td>
-<td>0.762238</td>
-<td>...</td>
-<td>1.8</td>
-<td>2.2</td>
-<td>2.3</td>
-<td>2.5</td>
-<td>150</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>sepal length (cm)</th>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>35.000003</td>
-<td>35.001750</td>
-<td>35.0</td>
-<td>5.843333</td>
-<td>0.828066</td>
-<td>...</td>
-<td>6.4</td>
-<td>6.9</td>
-<td>7.3</td>
-<td>7.7</td>
-<td>150</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>sepal width (cm)</th>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>23.000001</td>
-<td>23.001150</td>
-<td>23.0</td>
-<td>3.057333</td>
-<td>0.435866</td>
-<td>...</td>
-<td>3.3</td>
-<td>3.7</td>
-<td>3.8</td>
-<td>4.2</td>
-<td>150</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
 <th>target</th>
+<td>150</td>
+<td>0</td>
 <td>150</td>
 <td>0</td>
 <td>0</td>
@@ -1289,15 +1270,13 @@ div.rendered_html tbody tr:hover {
 <td>3.000000</td>
 <td>3.000150</td>
 <td>3.0</td>
-<td>1.000000</td>
-<td>0.819232</td>
 <td>...</td>
+<td>0.0</td>
+<td>1.0</td>
 <td>2.0</td>
 <td>2.0</td>
 <td>2.0</td>
 <td>2.0</td>
-<td>150</td>
-<td>0</td>
 <td>SummaryType.COLUMN</td>
 <td>2.0</td>
 <td>0.0</td>
