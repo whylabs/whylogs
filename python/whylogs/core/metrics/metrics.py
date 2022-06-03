@@ -250,10 +250,10 @@ class DistributionMetric(Metric):
 
                         second = VarianceM2Result(n=n_b, mean=mean_b, m2=m2_b)
                         first = parallel_variance_m2(first=first, second=second)
-                    else:
+                    elif n_b == 1:
                         # fall back to https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
                         # #Weighted_incremental_algorithm
-                        first = welford_online_variance_m2(existing=first, new_value=first[0])
+                        first = welford_online_variance_m2(existing=first, new_value=arr[0])
 
         for lst in [view.list.ints, view.list.floats]:
             if lst is not None and len(lst) > 0:
