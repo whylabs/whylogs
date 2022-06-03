@@ -13,7 +13,7 @@ class TestMlflowWriter(object):
     @classmethod
     def teardown_class(cls):
         shutil.rmtree("mlruns")
-        shutil.rmtree("/tmp/artifact_downloads")
+        shutil.rmtree("artifact_downloads")
 
     @pytest.fixture
     def mlflow_writer(self):
@@ -50,7 +50,7 @@ class TestMlflowWriter(object):
         # verify we can fetch the profile with mlflow
         client = mlflow.tracking.MlflowClient()
 
-        local_dir = "/tmp/artifact_downloads"
+        local_dir = "artifact_downloads"
         if not os.path.exists(local_dir):
             os.mkdir(local_dir)
         local_path = client.download_artifacts(run_id, "whylogs", local_dir)
