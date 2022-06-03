@@ -33,9 +33,12 @@ sphinxext-opengraph = { version = "^0.6.3", optional = true }
 sphinx-inline-tabs = { version = "*", optional = true }
 flake8 = { version = "4.0.1", optional = true }
 nbsphinx = { version = "^0.8.8", optional = true }
+
+# Integrations dependencies
 boto3 = {version = "^1.22.13", optional = true }
 whylabs-client = {version = "^0.3.0", optional = true}
 mlflow-skinny = {version = "^1.26.1", optional = true}
+
 
 # Pyspark related dependencies
 pyarrow = {version = "^8.0.0", optional = true}
