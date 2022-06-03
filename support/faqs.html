@@ -10,7 +10,7 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/support/faqs.html" />
   
-<meta property="og:description" content="Does whylogs collect my raw data?: No What data is collected in whylogs?: See here. How do I disable usage statistics?: TBD" />
+<meta property="og:description" content="Technical: What is Data Logging?: Unlike traditional logging which is standard practice in all software systems, data logging is a practice necessary for ML/AI applications. Data logging involves c..." />
   <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Usage Statistics" href="usage_statistics.html" /><link rel="prev" title="License" href="license.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
@@ -333,17 +333,42 @@
         <article role="main">
           <section class="tex2jax_ignore mathjax_ignore" id="faqs">
 <h1>FAQs<a class="headerlink" href="#faqs" title="Permalink to this headline">#</a></h1>
+<section id="technical">
+<h2>Technical<a class="headerlink" href="#technical" title="Permalink to this headline">#</a></h2>
+<section id="what-is-data-logging">
+<h3>What is Data Logging?<a class="headerlink" href="#what-is-data-logging" title="Permalink to this headline">#</a></h3>
+<p>Unlike traditional logging which is standard practice in all software systems, data logging is a practice necessary for ML/AI applications. Data logging involves creating a log of statistical properties of the data that flows through an ML/AI application. Checkout our <a class="reference external" href="https://medium.com/whylabs/whylogs-embrace-data-logging-a9449cd121d">blogs on parallels between DevOps and MLOps logging approaches</a> and on the practice of data logging in data science.</p>
+</section>
+<section id="can-you-handle-large-scale-data">
+<h3>Can you handle large scale data?<a class="headerlink" href="#can-you-handle-large-scale-data" title="Permalink to this headline">#</a></h3>
+<p>whylogs is built for scale and optimized for massive data sets. With whylogs users can profile massive amounts of data faster than ever before. In our tests, logging 1.2 million rows took 4 seconds and a dataset of 288 million rows x 43 columns took 3.5 minutes! Stay tuned for the upcoming article showing the complete benchmark!</p>
+</section>
+<section id="what-integrations-do-you-support">
+<h3>What integrations do you support?<a class="headerlink" href="#what-integrations-do-you-support" title="Permalink to this headline">#</a></h3>
+<p>To check which integrations whylogs support, please see the examples in our <a class="reference internal" href="../examples.html"><span class="doc std std-doc">integrations section</span></a>. We are currently migrating integration examples from v0 to v1. If there’s an example or integration that you need that you don’t see here, please reach out to us on the Rsqrd AI Community <a class="reference external" href="http://www.bit.ly/rsqrd-slack">Slack workspace</a> in the #whylogs-java-support or #whylogs-python-support channels.</p>
+</section>
+</section>
+<section id="privacy">
+<h2>Privacy<a class="headerlink" href="#privacy" title="Permalink to this headline">#</a></h2>
 <section id="does-whylogs-collect-my-raw-data">
-<h2>Does whylogs collect my raw data?<a class="headerlink" href="#does-whylogs-collect-my-raw-data" title="Permalink to this headline">#</a></h2>
-<p>No</p>
+<h3>Does whylogs collect my raw data?<a class="headerlink" href="#does-whylogs-collect-my-raw-data" title="Permalink to this headline">#</a></h3>
+<p>Data is only collected at the time of importing the whylogs library or its modules. We do not collect any sensitive information, raw data or user code. For more information, please see the page <a class="reference internal" href="usage_statistics.html"><span class="doc std std-doc">Usage Statistics</span></a></p>
 </section>
 <section id="what-data-is-collected-in-whylogs">
-<h2>What data is collected in whylogs?<a class="headerlink" href="#what-data-is-collected-in-whylogs" title="Permalink to this headline">#</a></h2>
-<p>See here.</p>
+<h3>What data is collected in whylogs?<a class="headerlink" href="#what-data-is-collected-in-whylogs" title="Permalink to this headline">#</a></h3>
+<p>whylogs collects anonymous information about a user’s environment. This includes information such as: whylogs version, Operating system, Python version and Execution environment. For more information, please see the page <a class="reference internal" href="usage_statistics.html"><span class="doc std std-doc">Usage Statistics</span></a></p>
 </section>
 <section id="how-do-i-disable-usage-statistics">
-<h2>How do I disable usage statistics?<a class="headerlink" href="#how-do-i-disable-usage-statistics" title="Permalink to this headline">#</a></h2>
-<p>TBD</p>
+<h3>How do I disable usage statistics?<a class="headerlink" href="#how-do-i-disable-usage-statistics" title="Permalink to this headline">#</a></h3>
+<p>To know how to disable usage statistics, please see the page <a class="reference internal" href="usage_statistics.html"><span class="doc std std-doc">Usage Statistics</span></a></p>
+</section>
+</section>
+<section id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">#</a></h2>
+<section id="how-do-i-report-a-bug-i-found">
+<h3>How do I report a bug I found?<a class="headerlink" href="#how-do-i-report-a-bug-i-found" title="Permalink to this headline">#</a></h3>
+<p>You can report a bug by opening an issue on our <a class="reference external" href="https://github.com/whylabs/whylogs/issues">Github page</a>, or by reaching out to us on our <a class="reference external" href="https://communityinviter.com/apps/whylabs-community/rsqrd-ai-community">public Slack channel</a>, on the #whylogs-python-support channel.</p>
+</section>
 </section>
 </section>
 
@@ -430,9 +455,22 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">FAQs</a><ul>
+<li><a class="reference internal" href="#technical">Technical</a><ul>
+<li><a class="reference internal" href="#what-is-data-logging">What is Data Logging?</a></li>
+<li><a class="reference internal" href="#can-you-handle-large-scale-data">Can you handle large scale data?</a></li>
+<li><a class="reference internal" href="#what-integrations-do-you-support">What integrations do you support?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#privacy">Privacy</a><ul>
 <li><a class="reference internal" href="#does-whylogs-collect-my-raw-data">Does whylogs collect my raw data?</a></li>
 <li><a class="reference internal" href="#what-data-is-collected-in-whylogs">What data is collected in whylogs?</a></li>
 <li><a class="reference internal" href="#how-do-i-disable-usage-statistics">How do I disable usage statistics?</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#support">Support</a><ul>
+<li><a class="reference internal" href="#how-do-i-report-a-bug-i-found">How do I report a bug I found?</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
