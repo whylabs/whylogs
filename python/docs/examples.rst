@@ -41,3 +41,4 @@ Integrations
     examples/integrations/Writing_Profiles
     examples/integrations/Pyspark_Profiling
     examples/integrations/Mlflow_Logging
+    examples/integrations/kafka-example/Kafka_Example
