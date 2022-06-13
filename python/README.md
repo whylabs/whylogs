@@ -249,7 +249,7 @@ If you have any questions, comments, or just want to hang out with us, please jo
 
 ### How to Contribute
 
-We welcome contributions to whylogs. Please see our [contribution guide](.github/CONTRIBUTING.md) and our [development guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
+We welcome contributions to whylogs. Please see our [contribution guide](../.github/CONTRIBUTING.md) and our [development guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
 
 ### Contributors
 
