@@ -584,6 +584,18 @@ div.rendered_html tbody tr:hover {
 <p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Writing_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
 <p>Hello there! If you’ve come to this tutorial, perhaps you are wondering what can you do after you generated your first (or maybe not the first) profile. Well, a good practice is to store these profiles as <em>lightweight</em> files, which is one of the cool features <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> brings to the table.</p>
 <p>Here we will check different flavors of writing, and you can check which one of these will meet your current needs. Shall we?</p>
+<section id="Installing-whylogs">
+<h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
+<p>Let’s first install whylogs:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs
+</pre></div>
+</div>
+</div>
+</section>
 <section id="Creating-simple-profiles">
 <h2>Creating simple profiles<a class="headerlink" href="#Creating-simple-profiles" title="Permalink to this headline">#</a></h2>
 <p>In order for us to get started, let’s take a very simple example dataset and profile it.</p>
@@ -1167,6 +1179,7 @@ s3.Bucket(name='my_great_bucket')
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Writing profiles</a><ul>
+<li><a class="reference internal" href="#Installing-whylogs">Installing whylogs</a></li>
 <li><a class="reference internal" href="#Creating-simple-profiles">Creating simple profiles</a></li>
 <li><a class="reference internal" href="#Local-writer">Local writer</a></li>
 <li><a class="reference internal" href="#s3-Writer">s3 Writer</a><ul>
