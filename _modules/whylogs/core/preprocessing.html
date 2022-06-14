@@ -467,6 +467,10 @@
         <span class="n">strings</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="p">[</span><span class="n">str_mask</span><span class="p">]</span>
         <span class="n">objs</span> <span class="o">=</span> <span class="n">non_null_series</span><span class="p">[</span><span class="o">~</span><span class="p">(</span><span class="n">float_mask</span> <span class="o">|</span> <span class="n">str_mask</span> <span class="o">|</span> <span class="n">int_mask</span> <span class="o">|</span> <span class="n">bool_mask</span><span class="p">)]</span>
 
+        <span class="c1"># convert numeric types to float if they are considered</span>
+        <span class="c1"># Fractional types e.g. decimal.Decimal only if there are values</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">floats</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">floats</span> <span class="o">=</span> <span class="n">floats</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">numpy</span> <span class="o">=</span> <span class="n">NumpyView</span><span class="p">(</span><span class="n">floats</span><span class="o">=</span><span class="n">floats</span><span class="p">,</span> <span class="n">ints</span><span class="o">=</span><span class="n">ints</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pandas</span><span class="o">.</span><span class="n">strings</span> <span class="o">=</span> <span class="n">strings</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pandas</span><span class="o">.</span><span class="n">objs</span> <span class="o">=</span> <span class="n">objs</span>
