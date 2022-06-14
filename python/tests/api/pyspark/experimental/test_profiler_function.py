@@ -102,3 +102,12 @@ class TestPySpark(object):
         pandas_type_counts = pandas_decimals_profile_view.get_column("wine").get_metric("types")
         assert pandas_type_counts.integral.value == 0
         assert pandas_type_counts.fractional.value == 2
+
+        wine_column = dataset_profile_view.get_column("wine")
+
+        distribution_metric = wine_column.get_metric("distribution")
+        if distribution_metric is None:
+            TEST_LOGGER.info(
+                f"Could not find distribution metric on decimal series: metrics are {wine_column.get_metric_names()}"
+            )
+        assert distribution_metric is not None

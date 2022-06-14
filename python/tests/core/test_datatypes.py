@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -11,7 +13,7 @@ from whylogs.core.datatypes import (
 )
 
 NUMERICAL_TYPE = [int, bool, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
-DOUBLE_TYPE = [float, np.double, np.longdouble, np.float16, np.float64]
+DOUBLE_TYPE = [float, np.double, np.longdouble, np.float16, np.float64, Decimal]
 DATETIME_TYPE = [np.datetime64, np.timedelta64, pd.Timestamp, pd.Timedelta]
 STRING_TYPE = [str, pd.CategoricalDtype()]
 

@@ -45,6 +45,9 @@ def _compute_ks_test_p_value(
         kll_floats_sketch summaries
 
     """
+    if reference_distribution.is_empty() or target_distribution.is_empty():
+        return None
+
     D_max = 0
     target_quantile_values = target_distribution.get_quantiles(QUANTILES)
     ref_quantile_values = reference_distribution.get_quantiles(QUANTILES)
