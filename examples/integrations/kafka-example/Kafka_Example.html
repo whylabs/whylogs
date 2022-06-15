@@ -1,0 +1,1245 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+<meta property="og:title" content="Profiling with whylogs from a Kafka topic" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/kafka-example/Kafka_Example.html" />
+  
+<meta property="og:description" content="In this example we will show how you can profile and merge different profiles from a Kafka topic. To simplify our example and make it reproducible anywhere, we will create a Kafka topic, generate t..." />
+  <link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" /><link rel="next" title="Basics - v0 to v1" href="../../../migration/basics.html" /><link rel="prev" title="MLflow Logging" href="../Mlflow_Logging.html" />
+
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+        <title>Profiling with whylogs from a Kafka topic - whylogs v1.0.1</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f0f0f0;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>whylogs v1</em> has been launched! Make sure you checkout the
+    <a href="migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
+    transition 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.1</div></div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../../_static/images/logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../../_static/images/logo.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.1</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../features/profiling.html">Profiling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../features/writing.html">Writers</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../../examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Inspecting_Profiles.html">Inspecting Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Merging_Profiles.html">Merging Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Writing_Profiles.html">Writing profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Pyspark_Profiling.html">PySpark Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Mlflow_Logging.html">MLflow Logging</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Migration Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration/basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../migration/log_rotation.html">Log Rotation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Support</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../support/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../support/faqs.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../support/usage_statistics.html">Usage Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bit.ly/whylogs-slack">Slack</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API References</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../api/whylogs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/whylogs/api/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/whylogs/api/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/logger/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/logger/result_set/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/logger/rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/logger/transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/whylogs/api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/writer/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/api/writer/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.writer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/api/annotations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.annotations</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/whylogs/core/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/whylogs/core/constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/constraints/metric_constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.metric_constraints</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/whylogs/core/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/whylogs/core/proto/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../../api/whylogs/core/proto/v0/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/whylogs/core/proto/v0/v0_constraints_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_constraints_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/whylogs/core/proto/v0/v0_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_messages_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../api/whylogs/core/proto/v0/v0_summaries_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_summaries_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/proto/whylogs_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.whylogs_messages_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../api/whylogs/core/view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/view/column_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.column_profile_view</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/view/dataset_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.dataset_profile_view</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/column_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.column_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/common/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/dataset_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.dataset_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/datatypes/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.datatypes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/whylogs/migration/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/migration/converters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.converters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../api/whylogs/viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/whylogs/viz/jupyter_notebook_viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.jupyter_notebook_viz</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Profiling-with-whylogs-from-a-Kafka-topic">
+<h1>Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic<a class="headerlink" href="#Profiling-with-whylogs-from-a-Kafka-topic" title="Permalink to this headline">#</a></h1>
+<p>In this example we will show how you can profile and merge different profiles from a Kafka topic. To simplify our example and make it reproducible anywhere, we will create a Kafka topic, generate the data from an existing CSV file and ingest it, consume the messages from the topic and then profile these consumed messages.</p>
+<blockquote>
+<div><p><strong>NOTE</strong>: In order to get this example going, we will use Apache Zookeper and Apache Kafka locally with Docker Compose, so be sure to have it installed and ready in your environment. If you want to read more on how this YAML file was built, check out <a class="reference external" href="https://medium.com/better-programming/your-local-event-driven-environment-using-dockerised-kafka-cluster-6e84af09cd95">this blogpost</a>.</p>
+</div></blockquote>
+<p>To get things going, we will put the services up and create the topic in kafka with the following commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ docker-compose up -d
+
+% docker <span class="nb">exec</span> -ti kafka bash
+
+root@kafka: kafka-topics --create --bootstrap-server localhost:9092 --replication-factor <span class="m">1</span> --partitions <span class="m">1</span> --topic whylogs-stream
+</pre></div>
+</div>
+<p>If you haven’t already, make sure to also install <code class="docutils literal notranslate"><span class="pre">kafka-python</span></code> and <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> in your environment by uncommenting the following cell.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install -q whylogs</span>
+<span class="c1"># %pip install -q kafka-python</span>
+</pre></div>
+</div>
+</div>
+<section id="Generating-Data">
+<h2>Generating Data<a class="headerlink" href="#Generating-Data" title="Permalink to this headline">#</a></h2>
+<p>To generate the data, we will fetch a small CSV file from a publicly available s3 endpoint and then use the KafkaProducer to send this data over to the topic we have created above</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">kafka</span> <span class="kn">import</span> <span class="n">KafkaProducer</span>
+
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">)</span>
+
+<span class="n">producer</span> <span class="o">=</span> <span class="n">KafkaProducer</span><span class="p">(</span><span class="n">bootstrap_servers</span><span class="o">=</span><span class="s1">'localhost:9092'</span><span class="p">,</span>
+                         <span class="n">value_serializer</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">))</span>
+
+
+<span class="n">data_url</span> <span class="o">=</span> <span class="s2">"https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"</span>
+<span class="n">full_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_url</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">full_data</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="n">producer</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">'whylogs-stream'</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Consuming-the-messages-with-KafkaConsumer">
+<h2>Consuming the messages with KafkaConsumer<a class="headerlink" href="#Consuming-the-messages-with-KafkaConsumer" title="Permalink to this headline">#</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kafka</span> <span class="kn">import</span> <span class="n">KafkaConsumer</span><span class="p">,</span> <span class="n">TopicPartition</span>
+
+
+<span class="n">consumer</span> <span class="o">=</span> <span class="n">KafkaConsumer</span><span class="p">(</span><span class="n">bootstrap_servers</span><span class="o">=</span><span class="s1">'localhost:9092'</span><span class="p">,</span>
+                         <span class="n">value_deserializer</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)))</span>
+
+<span class="n">assignments</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">topics</span><span class="o">=</span><span class="p">[</span><span class="s1">'whylogs-stream'</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
+    <span class="n">partitions</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="n">partitions_for_topic</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">partitions</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'topic </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s1"> - partition </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">assignments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TopicPartition</span><span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">consumer</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">assignments</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+topic whylogs-stream - partition 0
+</pre></div></div>
+</div>
+</section>
+<section id="Profiling-with-whylogs">
+<h2>Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code><a class="headerlink" href="#Profiling-with-whylogs" title="Permalink to this headline">#</a></h2>
+<p>For the sake of simplicity, we will build a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> from the read messages and then profile and write profiles locally until there aren’t more messages in the topic. This is done with our log rotation implementation, which we will see in the code block below. You will also need a directory called “profiles”, which is the base where the logger will save profiles to, so let’s go ahead and create it as well.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s2">"profiles"</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">FileExistsError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="n">consumer</span><span class="o">.</span><span class="n">seek_to_beginning</span><span class="p">()</span>
+
+<span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">with</span> <span class="n">why</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"rolling"</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="s2">"M"</span><span class="p">,</span> <span class="n">base_name</span><span class="o">=</span><span class="s2">"whylogs-kafka"</span><span class="p">)</span> <span class="k">as</span> <span class="n">logger</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">append_writer</span><span class="p">(</span><span class="s2">"local"</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s2">"profiles"</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">finished</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="n">timeout_ms</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">max_records</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">update_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">row</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+            <span class="n">total</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">finished</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">finished</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"total </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">break</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+TopicPartition(topic='whylogs-stream', partition=0) - 100
+TopicPartition(topic='whylogs-stream', partition=0) - 100
+TopicPartition(topic='whylogs-stream', partition=0) - 100
+TopicPartition(topic='whylogs-stream', partition=0) - 100
+TopicPartition(topic='whylogs-stream', partition=0) - 100
+TopicPartition(topic='whylogs-stream', partition=0) - 100
+TopicPartition(topic='whylogs-stream', partition=0) - 100
+TopicPartition(topic='whylogs-stream', partition=0) - 100
+TopicPartition(topic='whylogs-stream', partition=0) - 100
+TopicPartition(topic='whylogs-stream', partition=0) - 45
+total 945
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+
+<span class="n">profiles_binaries</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="s2">"profiles/*"</span><span class="p">)</span>
+<span class="n">profiles_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">profile</span> <span class="ow">in</span> <span class="n">profiles_binaries</span><span class="p">:</span>
+    <span class="n">profiles_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+
+<span class="n">merged_profile</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">((</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">y</span><span class="p">)),</span> <span class="n">profiles_list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">merged_profile</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<div class="table-wrapper"><table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>types/integral</th>
+<th>types/fractional</th>
+<th>types/boolean</th>
+<th>types/string</th>
+<th>types/object</th>
+<th>cardinality/est</th>
+<th>cardinality/upper_1</th>
+<th>cardinality/lower_1</th>
+<th>distribution/mean</th>
+<th>distribution/stddev</th>
+<th>...</th>
+<th>distribution/q_75</th>
+<th>distribution/q_90</th>
+<th>distribution/q_95</th>
+<th>distribution/q_99</th>
+<th>counts/n</th>
+<th>counts/null</th>
+<th>type</th>
+<th>frequent_items/frequent_strings</th>
+<th>ints/max</th>
+<th>ints/min</th>
+</tr>
+<tr>
+<th>column</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>Age</th>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>25.000001</td>
+<td>25.001250</td>
+<td>25.000000</td>
+<td>31.609524</td>
+<td>6.747796</td>
+<td>...</td>
+<td>38.0000</td>
+<td>41.000</td>
+<td>42.0000</td>
+<td>43.0000</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Customer ID</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>869.683985</td>
+<td>881.067672</td>
+<td>858.577213</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>[FrequentItem(value='C268100', est=3, upper=2,...</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Gender</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>2.000000</td>
+<td>2.000100</td>
+<td>2.000000</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>[FrequentItem(value='M', est=489, upper=489, l...</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Item Price</th>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>705.028228</td>
+<td>714.256661</td>
+<td>696.024282</td>
+<td>79.848148</td>
+<td>41.921716</td>
+<td>...</td>
+<td>116.6000</td>
+<td>138.200</td>
+<td>145.1000</td>
+<td>149.0000</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Product Category</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>6.000000</td>
+<td>6.000300</td>
+<td>6.000000</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>[FrequentItem(value='Books', est=243, upper=24...</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Product Subcategory</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>18.000001</td>
+<td>18.000899</td>
+<td>18.000000</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>[FrequentItem(value='Mens', est=141, upper=141...</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Quantity</th>
+<td>945</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>10.000000</td>
+<td>10.000500</td>
+<td>10.000000</td>
+<td>2.450794</td>
+<td>2.279227</td>
+<td>...</td>
+<td>4.0000</td>
+<td>5.000</td>
+<td>5.0000</td>
+<td>5.0000</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>[FrequentItem(value='2.000000', est=183, upper...</td>
+<td>5.0</td>
+<td>-5.0</td>
+</tr>
+<tr>
+<th>Store Type</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>4.000000</td>
+<td>4.000200</td>
+<td>4.000000</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>[FrequentItem(value='e-Shop', est=392, upper=3...</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Total Amount</th>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>844.069184</td>
+<td>855.117588</td>
+<td>833.289540</td>
+<td>214.615556</td>
+<td>261.215174</td>
+<td>...</td>
+<td>361.5560</td>
+<td>580.346</td>
+<td>656.8120</td>
+<td>804.4400</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Total Tax</th>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>828.657950</td>
+<td>839.504628</td>
+<td>818.075123</td>
+<td>25.664756</td>
+<td>19.314519</td>
+<td>...</td>
+<td>36.7605</td>
+<td>57.834</td>
+<td>62.7375</td>
+<td>76.5975</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Transaction ID</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>935.275741</td>
+<td>947.517988</td>
+<td>923.331294</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>[]</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr>
+<th>Transaction Type</th>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>945</td>
+<td>0</td>
+<td>2.000000</td>
+<td>2.000100</td>
+<td>2.000000</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>...</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>NaN</td>
+<td>945</td>
+<td>0</td>
+<td>SummaryType.COLUMN</td>
+<td>[FrequentItem(value='Purchase', est=859, upper...</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table></div>
+<p>12 rows × 28 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">shutil</span>
+<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s2">"profiles"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>And voilà! With just a few lines of code we could profile and track incoming messages from a Kafka topic. Hopefully this tutorial will get you going for your existing streaming pipelines. If there are any other integrations you wanted to see, or maybe see how other users are getting the most out of <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>, please check out our <a class="reference external" href="https://bit.ly/rsqrd-slack">community Slack</a>.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../../../migration/basics.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Basics - v0 to v1</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../Mlflow_Logging.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">MLflow Logging</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, whylogs developers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://bit.ly/whylogs-slack" aria-label="Slack">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"><path d="M213.6
+            236.216l64.003-21.438 20.708 61.823-64.004
+            21.438z"></path><path d="M213.6 236.216l64.003-21.438 20.708 61.823-64.004 21.438z"></path><path
+            d="M475.9 190C426.4 25 355-13.4 190 36.1S-13.4 157 36.1 322 157 525.4 322 475.9 525.4 355 475.9
+            190zm-83.3 107.1l-31.1 10.4 10.7 32.2c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9l-10.7-32.2-64.1 21.5L261 377c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9L203 360.4l-31 10.3c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-20.7-61.8-31.1 10.4c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-10.9-32.1c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2
+            64.1-21.5-10.7-32.2c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2 31.1-10.4c13-4.2 27.2
+            2.7 31.5 15.7 4.2 13-2.7 27.2-15.7 31.5l-31.1 10.4 20.7 61.8 31.1-10.4c13-4.2 27.2 2.7 31.5 15.7 4.2
+            13.2-2.7 27.4-15.8 31.7z"></path></svg>
+            </a>
+              <a class="muted-link " href="https://github.com/whylabs/whylogs" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+                    0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53
+                    .63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+                    0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0
+                    1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87
+                    3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16
+                    8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a><ul>
+<li><a class="reference internal" href="#Generating-Data">Generating Data</a></li>
+<li><a class="reference internal" href="#Consuming-the-messages-with-KafkaConsumer">Consuming the messages with KafkaConsumer</a></li>
+<li><a class="reference internal" href="#Profiling-with-whylogs">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/scripts/furo.js"></script>
+    <script src="../../../_static/tabs.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    </body>
+</html>
