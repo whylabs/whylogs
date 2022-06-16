@@ -25,6 +25,7 @@ class StandardResolver(Resolver):
     """Standard metric resolution with builtin types."""
 
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+
         metrics: List[StandardMetric] = [StandardMetric.counts, StandardMetric.types]
 
         if isinstance(why_type, Integral):
@@ -35,10 +36,11 @@ class StandardResolver(Resolver):
         elif isinstance(why_type, Fractional):
             metrics.append(StandardMetric.cardinality)
             metrics.append(StandardMetric.distribution)
-        elif isinstance(why_type, String):
+        elif isinstance(why_type, String):  # Catch all category as we map 'object' here
             metrics.append(StandardMetric.cardinality)
             if column_schema.cfg.track_unicode_ranges:
                 metrics.append(StandardMetric.unicode_range)
+            metrics.append(StandardMetric.distribution)  # 'object' columns can contain Decimal
             metrics.append(StandardMetric.frequent_items)
 
         if column_schema.cfg.fi_disabled:

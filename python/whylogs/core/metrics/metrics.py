@@ -251,10 +251,10 @@ class DistributionMetric(Metric):
 
                         second = VarianceM2Result(n=n_b, mean=mean_b, m2=m2_b)
                         first = parallel_variance_m2(first=first, second=second)
-                    else:
+                    elif n_b == 1:
                         # fall back to https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
                         # #Weighted_incremental_algorithm
-                        first = welford_online_variance_m2(existing=first, new_value=first[0])
+                        first = welford_online_variance_m2(existing=first, new_value=arr[0])
 
         for lst in [view.list.ints, view.list.floats]:
             if lst is not None and len(lst) > 0:
@@ -281,9 +281,13 @@ class DistributionMetric(Metric):
 
         delta = other.mean.value - self.mean.value
         new_n = a_n + b_n
-        m2 = self.m2.value + other.m2.value + delta**2 * a_n * b_n / new_n
+        if a_n != 0 or b_n != 0:
+            m2 = self.m2.value + other.m2.value + delta**2 * a_n * b_n / new_n
 
-        mean = (a_n / new_n) * (self.mean.value) + (b_n / new_n) * (other.mean.value)
+            mean = (a_n / new_n) * (self.mean.value) + (b_n / new_n) * (other.mean.value)
+        else:
+            m2 = 0
+            mean = 0
 
         # merge the sketch
         kll = self.kll + other.kll

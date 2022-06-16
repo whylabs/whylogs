@@ -50,7 +50,7 @@ def test_metric_constraint_callable() -> None:
     )
     TEST_LOGGER.info(f"distribution is {distribution_metric.to_summary_dict()}")
     TEST_LOGGER.info(f"empy distribution is {empty_distribution.to_summary_dict()}")
-    assert distribution_stddev_gt_avg.condition(distribution_metric)
+    assert not distribution_stddev_gt_avg.condition(distribution_metric)
     assert distribution_stddev_gt_avg.condition(empty_distribution)
 
 
@@ -73,7 +73,7 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
 
     legs_less_than_12_constraint = MetricConstraint(
         name="legs less than 12",
-        condition=lambda x: x.max < 12,
+        condition=lambda x: not x.max >= 12,
         metric_selector=MetricsSelector(metric_name="distribution", column_name="legs"),
     )
 
@@ -83,7 +83,7 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     )
     no_negative_numbers = MetricConstraint(
         name="no negative numbers",
-        condition=lambda x: x.min >= 0,
+        condition=lambda x: not x.min < 0,
         metric_selector=distribution_selector,
         require_column_existence=False,
     )

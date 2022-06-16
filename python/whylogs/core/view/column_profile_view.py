@@ -142,5 +142,7 @@ class ColumnProfileView(object):
     @classmethod
     def from_bytes(cls, data: bytes) -> "ColumnProfileView":
         msg = ColumnMessage()
+        if isinstance(data, bytearray):
+            data = bytes(data)
         msg.ParseFromString(data)
         return ColumnProfileView.from_protobuf(msg)
