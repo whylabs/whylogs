@@ -9,6 +9,7 @@ from whylogs.core.view.dataset_profile_view import DatasetProfileView  # type: i
 from whylogs.viz.utils.frequent_items_calculations import (
     FrequentStats,
     get_frequent_stats,
+    zero_padding_frequent_items,
 )
 
 QUANTILES = [0.0, 0.01, 0.05, 0.25, 0.5, 0.75, 0.95, 0.99, 1.0]
@@ -135,6 +136,7 @@ def _compute_chi_squared_test_p_value(
         frequent and unique items summaries
     """
     target_freq_items = target_distribution["frequent_items"]
+    ref_freq_items = reference_distribution["frequent_items"]
     target_total_count = target_distribution["total_count"]
     target_unique_count = target_distribution["unique_count"]
     ref_total_count = reference_distribution["total_count"]
@@ -142,10 +144,11 @@ def _compute_chi_squared_test_p_value(
     if ref_total_count <= 0 or target_total_count <= 0:
         return None
 
+    target_freq_items, ref_freq_items = zero_padding_frequent_items(target_freq_items, ref_freq_items)
+
     ref_dist_items = dict()
     for item in reference_distribution["frequent_items"]:
         ref_dist_items[item["value"]] = item["estimate"]
-
     proportion_ref_dist_items = {k: v / ref_total_count for k, v in ref_dist_items.items()}
 
     chi_sq = 0.0
