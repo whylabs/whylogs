@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from decimal import Decimal
 from typing import Any, Generic, List, Optional, Type, TypeVar, Union
 
 from whylogs.core.stubs import np
@@ -36,7 +37,7 @@ class DataType(ABC, Generic[NT]):
         raise NotImplementedError
 
 
-NumericalType = Union[int, float, np.number]
+NumericalType = Union[int, float, np.number, Decimal]
 
 NUMBER = TypeVar("NUMBER")
 
@@ -75,7 +76,7 @@ class Fractional(DataType[float]):
         if not isinstance(dtype_or_type, type):
             return False
 
-        return issubclass(dtype_or_type, (float, np.floating))
+        return issubclass(dtype_or_type, (float, np.floating, Decimal))
 
 
 class String(DataType[str]):
