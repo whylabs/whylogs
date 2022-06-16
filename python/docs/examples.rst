@@ -29,7 +29,9 @@ Coming soon!
 Advanced
 --------
 
-Coming soon!
+.. toctree::
+    :maxdepth: 1
+    examples/advanced/Streaming_Data_with_Log_Rotation
 
 Integrations
 ------------
