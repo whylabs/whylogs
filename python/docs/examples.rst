@@ -42,3 +42,4 @@ Integrations
     examples/integrations/Pyspark_Profiling
     examples/integrations/Mlflow_Logging
     examples/integrations/kafka-example/Kafka_Example
+    examples/integrations/Feature_Stores_and_whylogs
