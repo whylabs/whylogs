@@ -147,15 +147,16 @@ def test_bool_count():
     assert prof_view._columns.get("fly")._metrics.get("types").integral.value == 0
 
 
-def test_unicode_range_defaults() -> None:
+def test_unicode_range_enabled() -> None:
     strings = {
-        "words": ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoji"],
-    }  # fix ❤️  /u+fe0f
+        "words": ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoticons"],
+    }  # TODO: follow and create ranges for common emoji like ❤️  /u+fe0f
     data = pd.DataFrame(strings)
     digit_counts = [1, 2, 3, 4, 0, 3, 0]
     latin_counts = [1, 2, 3, 5, 3, 6, 6]
-    emoji_counts = [0, 0, 0, 0, 0, 0, 1]
-    prof_view = why.log(data).view()
+    emoticon_counts = [0, 0, 0, 0, 0, 0, 1]
+    configured_schema = DatasetSchema(MetricConfig(track_unicode_ranges=True))
+    prof_view = why.log(data, schema=configured_schema).view()
     assert "words" in prof_view.get_columns()
     column_profile = prof_view.get_column("words")
     assert "unicode_range" in column_profile.get_metric_names()
@@ -163,21 +164,20 @@ def test_unicode_range_defaults() -> None:
 
     assert "digits" in metric.submetrics
     assert "basic-latin" in metric.submetrics
-    assert "emoji" in metric.submetrics
+    assert "emoticon" in metric.submetrics
 
     assert metric.submetrics["digits"].mean.value == np.array(digit_counts).mean()
-    assert metric.submetrics["emoji"].mean.value == np.array(emoji_counts).mean()
+    assert metric.submetrics["emoticon"].mean.value == np.array(emoticon_counts).mean()
     assert metric.submetrics["basic-latin"].mean.value == np.array(latin_counts).mean()
 
 
-def test_unicode_range_config_off() -> None:
+def test_unicode_range_default_config_off() -> None:
     strings = {
-        "words": ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoji"],
+        "words": ["1", "12", "123", "1234a", "abc", "abc123", "I😍emoticon"],
     }
     data = pd.DataFrame(strings)
 
-    configured_schema = DatasetSchema(MetricConfig(track_unicode_ranges=False))
-    prof_view = why.log(data, schema=configured_schema).view()
+    prof_view = why.log(data).view()
     assert "words" in prof_view.get_columns()
     column_profile = prof_view.get_column("words")
     assert "unicode_range" not in column_profile.get_metric_names()

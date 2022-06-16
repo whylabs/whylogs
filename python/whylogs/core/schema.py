@@ -61,7 +61,7 @@ class DatasetSchema:
     cache_size: int = 1024
     schema_based_automerge: bool = False
 
-    def __init__(self, config: MetricConfig = None) -> None:
+    def __init__(self, config: Optional[MetricConfig] = None) -> None:
         self._columns = {}
 
         if config is not None:

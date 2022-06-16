@@ -40,7 +40,7 @@ class MetricConfig:
     kll_k: int = 256
     fi_lg_max_k: int = 10  # 128 entries
     fi_disabled: bool = False
-    track_unicode_ranges: bool = True
+    track_unicode_ranges: bool = False
     unicode_ranges = {
         "emoji": (0x1F600, 0x1F64F),
         "control": (0x00, 0x1F),
