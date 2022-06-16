@@ -45,6 +45,7 @@ Classes
    whylogs.core.ColumnProfile
    whylogs.core.DatasetProfile
    whylogs.core.TypeMapper
+   whylogs.core.MetricConfig
    whylogs.core.Resolver
    whylogs.core.ColumnSchema
    whylogs.core.DatasetSchema
@@ -148,6 +149,39 @@ Attributes
    inheritance.
 
 
+.. py:class:: MetricConfig
+
+   .. py:attribute:: hll_lg_k
+      :annotation: :int = 12
+
+      
+
+   .. py:attribute:: kll_k
+      :annotation: :int = 256
+
+      
+
+   .. py:attribute:: fi_lg_max_k
+      :annotation: :int = 10
+
+      
+
+   .. py:attribute:: fi_disabled
+      :annotation: :bool = False
+
+      
+
+   .. py:attribute:: track_unicode_ranges
+      :annotation: :bool = False
+
+      
+
+   .. py:attribute:: unicode_ranges
+      
+
+      
+
+
 .. py:class:: Resolver
 
    Bases: :py:obj:`abc.ABC`
@@ -193,7 +227,7 @@ Attributes
 
 
 
-.. py:class:: DatasetSchema
+.. py:class:: DatasetSchema(config: Optional[whylogs.core.metrics.MetricConfig] = None)
 
    Defines the schema for tracking metrics in whylogs.
 

@@ -388,8 +388,11 @@
     <span class="n">cache_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
     <span class="n">schema_based_automerge</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">default_configs</span> <span class="o">=</span> <span class="n">config</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_size</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Negative cache size value. Disabling caching"</span><span class="p">)</span>
@@ -410,7 +413,7 @@
 
 <div class="viewcode-block" id="DatasetSchema.copy"><a class="viewcode-back" href="../../../api/whylogs/core/schema/index.html#whylogs.api.logger.DatasetSchema.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DatasetSchema"</span><span class="p">:</span>
         <span class="sd">"""Returns a new instance of the same underlying schema"""</span>
-        <span class="n">copy</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">()</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_configs</span><span class="p">)</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">cache_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_size</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">type_mapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_mapper</span>
@@ -429,6 +432,7 @@
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnSchema</span><span class="p">(</span>
                     <span class="n">dtype</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+                    <span class="n">cfg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_configs</span><span class="p">,</span>
                     <span class="n">resolver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resolvers</span><span class="p">,</span>
                     <span class="n">type_mapper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type_mapper</span><span class="p">,</span>
                 <span class="p">)</span>
@@ -450,6 +454,7 @@
             <span class="n">col_dtype</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnSchema</span><span class="p">(</span>
                 <span class="n">dtype</span><span class="o">=</span><span class="n">col_dtype</span><span class="p">,</span>
+                <span class="n">cfg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_configs</span><span class="p">,</span>
                 <span class="n">resolver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">resolvers</span><span class="p">,</span>
                 <span class="n">type_mapper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type_mapper</span><span class="p">,</span>
             <span class="p">)</span>

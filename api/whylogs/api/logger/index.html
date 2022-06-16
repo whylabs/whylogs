@@ -798,11 +798,16 @@ If None is provided, it will take the current timestamp as default</p></li>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.api.logger.DatasetSchema">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.</span></span><span class="sig-name descname"><span class="pre">DatasetSchema</span></span><a class="reference internal" href="../../../../_modules/whylogs/core/schema.html#DatasetSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.DatasetSchema" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.api.logger.</span></span><span class="sig-name descname"><span class="pre">DatasetSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../../core/metrics/index.html#whylogs.core.metrics.MetricConfig" title="whylogs.core.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.MetricConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/core/schema.html#DatasetSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.api.logger.DatasetSchema" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the schema for tracking metrics in whylogs.</p>
 <p>In order to customize your tracking, you can extend this class to specify your own column schema
 or your own type resolution. Otherwise, you can just use the default DatasetSchema object.</p>
 <p>Schema objects are also used to group datasets together.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../../core/metrics/index.html#whylogs.core.metrics.MetricConfig" title="whylogs.core.metrics.MetricConfig"><em>whylogs.core.metrics.MetricConfig</em></a><em>]</em>) – </p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.api.logger.DatasetSchema.types">
 <span class="sig-name descname"><span class="pre">types</span></span><a class="headerlink" href="#whylogs.api.logger.DatasetSchema.types" title="Permalink to this definition">#</a></dt>

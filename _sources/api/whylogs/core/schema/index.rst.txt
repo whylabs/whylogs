@@ -43,7 +43,7 @@ Attributes
 
    
 
-.. py:class:: DatasetSchema
+.. py:class:: DatasetSchema(config: Optional[whylogs.core.metrics.MetricConfig] = None)
 
    Defines the schema for tracking metrics in whylogs.
 

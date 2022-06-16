@@ -411,19 +411,22 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.TypeMapper" title="whylogs.core.TypeMapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TypeMapper</span></code></a></p></td>
 <td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.Resolver" title="whylogs.core.Resolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Resolver</span></code></a></p></td>
-<td><p>A resolver maps from a column name and a data type to trackers.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.ColumnSchema" title="whylogs.core.ColumnSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnSchema</span></code></a></p></td>
-<td><p>Schema of a column.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.DatasetSchema" title="whylogs.core.DatasetSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetSchema</span></code></a></p></td>
-<td><p>Defines the schema for tracking metrics in whylogs.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.ColumnProfileView" title="whylogs.core.ColumnProfileView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnProfileView</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.MetricConfig" title="whylogs.core.MetricConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricConfig</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetProfileView</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.Resolver" title="whylogs.core.Resolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Resolver</span></code></a></p></td>
+<td><p>A resolver maps from a column name and a data type to trackers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.ColumnSchema" title="whylogs.core.ColumnSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnSchema</span></code></a></p></td>
+<td><p>Schema of a column.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.DatasetSchema" title="whylogs.core.DatasetSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetSchema</span></code></a></p></td>
+<td><p>Defines the schema for tracking metrics in whylogs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.ColumnProfileView" title="whylogs.core.ColumnProfileView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnProfileView</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.DatasetProfileView" title="whylogs.core.DatasetProfileView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetProfileView</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -645,6 +648,34 @@ If None is provided, it will take the current timestamp as default</p></li>
 inheritance.</p>
 </dd></dl>
 <dl class="py class">
+<dt class="sig sig-object py" id="whylogs.core.MetricConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">MetricConfig</span></span><a class="reference internal" href="../../../_modules/whylogs/core/metrics/metrics.html#MetricConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.MetricConfig" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.MetricConfig.hll_lg_k">
+<span class="sig-name descname"><span class="pre">hll_lg_k</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">12</span></em><a class="headerlink" href="#whylogs.core.MetricConfig.hll_lg_k" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.MetricConfig.kll_k">
+<span class="sig-name descname"><span class="pre">kll_k</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">256</span></em><a class="headerlink" href="#whylogs.core.MetricConfig.kll_k" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.MetricConfig.fi_lg_max_k">
+<span class="sig-name descname"><span class="pre">fi_lg_max_k</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">10</span></em><a class="headerlink" href="#whylogs.core.MetricConfig.fi_lg_max_k" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.MetricConfig.fi_disabled">
+<span class="sig-name descname"><span class="pre">fi_disabled</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#whylogs.core.MetricConfig.fi_disabled" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.MetricConfig.track_unicode_ranges">
+<span class="sig-name descname"><span class="pre">track_unicode_ranges</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#whylogs.core.MetricConfig.track_unicode_ranges" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.MetricConfig.unicode_ranges">
+<span class="sig-name descname"><span class="pre">unicode_ranges</span></span><a class="headerlink" href="#whylogs.core.MetricConfig.unicode_ranges" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.Resolver">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">Resolver</span></span><a class="reference internal" href="../../../_modules/whylogs/core/resolvers.html#Resolver"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.Resolver" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/abc.html#abc.ABC" title="(in Python v3.9)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
@@ -705,11 +736,16 @@ factories) and any additional trackers here.</p>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.DatasetSchema">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">DatasetSchema</span></span><a class="reference internal" href="../../../_modules/whylogs/core/schema.html#DatasetSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.DatasetSchema" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.</span></span><span class="sig-name descname"><span class="pre">DatasetSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="metrics/index.html#whylogs.core.metrics.MetricConfig" title="whylogs.core.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.MetricConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/whylogs/core/schema.html#DatasetSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.DatasetSchema" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the schema for tracking metrics in whylogs.</p>
 <p>In order to customize your tracking, you can extend this class to specify your own column schema
 or your own type resolution. Otherwise, you can just use the default DatasetSchema object.</p>
 <p>Schema objects are also used to group datasets together.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="metrics/index.html#whylogs.core.metrics.MetricConfig" title="whylogs.core.metrics.MetricConfig"><em>whylogs.core.metrics.MetricConfig</em></a><em>]</em>) – </p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.DatasetSchema.types">
 <span class="sig-name descname"><span class="pre">types</span></span><a class="headerlink" href="#whylogs.core.DatasetSchema.types" title="Permalink to this definition">#</a></dt>
@@ -1182,6 +1218,15 @@ schema to metrics.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.TypeMapper">TypeMapper</a></li>
+<li><a class="reference internal" href="#whylogs.core.MetricConfig">MetricConfig</a><ul>
+<li><a class="reference internal" href="#whylogs.core.MetricConfig.hll_lg_k">hll_lg_k</a></li>
+<li><a class="reference internal" href="#whylogs.core.MetricConfig.kll_k">kll_k</a></li>
+<li><a class="reference internal" href="#whylogs.core.MetricConfig.fi_lg_max_k">fi_lg_max_k</a></li>
+<li><a class="reference internal" href="#whylogs.core.MetricConfig.fi_disabled">fi_disabled</a></li>
+<li><a class="reference internal" href="#whylogs.core.MetricConfig.track_unicode_ranges">track_unicode_ranges</a></li>
+<li><a class="reference internal" href="#whylogs.core.MetricConfig.unicode_ranges">unicode_ranges</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#whylogs.core.Resolver">Resolver</a><ul>
 <li><a class="reference internal" href="#whylogs.core.Resolver.resolve">resolve</a></li>
 </ul>

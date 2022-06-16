@@ -449,6 +449,11 @@ Classes
 
       
 
+   .. py:attribute:: track_unicode_ranges
+      :annotation: :bool = False
+
+      
+
    .. py:attribute:: unicode_ranges
       
 
