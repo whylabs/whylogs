@@ -153,7 +153,7 @@ def test_unicode_range_enabled() -> None:
     }  # TODO: follow and create ranges for common emoji like ❤️  /u+fe0f
     data = pd.DataFrame(strings)
     digit_counts = [1, 2, 3, 4, 0, 3, 0]
-    latin_counts = [1, 2, 3, 5, 3, 6, 6]
+    latin_counts = [1, 2, 3, 5, 3, 6, 10]
     emoticon_counts = [0, 0, 0, 0, 0, 0, 1]
     configured_schema = DatasetSchema(MetricConfig(track_unicode_ranges=True))
     prof_view = why.log(data, schema=configured_schema).view()

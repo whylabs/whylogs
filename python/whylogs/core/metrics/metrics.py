@@ -42,7 +42,7 @@ class MetricConfig:
     fi_disabled: bool = False
     track_unicode_ranges: bool = False
     unicode_ranges = {
-        "emoji": (0x1F600, 0x1F64F),
+        "emoticon": (0x1F600, 0x1F64F),
         "control": (0x00, 0x1F),
         "digits": (0x30, 0x39),
         "latin-lower": (0x41, 0x5A),
