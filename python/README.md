@@ -196,8 +196,8 @@ whylogs supports both structured and unstructured data, specifically:
 
 | Data type        | Features | Notebook Example                                                                                                                                                |
 | ---------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tabular Data     | ✅       | [Getting started with structured data](https://github.com/whylabs/whylogs/blob/mainline/python/examples/basic/Getting_Started.ipynb)                                   |
-| Image Data       | ✅       | [Getting started with images](https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/logging_images.ipynb)                                            |
+| Tabular Data     | ✅       | [Getting started with structured data](https://github.com/whylabs/whylogs/blob/mainline/python/examples/basic/Getting_Started.ipynb)                            |
+| Image Data       | ✅       | [Getting started with images](https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/logging_images.ipynb)                                          |
 | Text Data        | ✅       | [String Features](https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/String_Features.ipynb)                                                     |
 | Embeddings       | 🛠        |                                                                                                                                                                 |
 | Other Data Types | ✋       | Do you have a request for a data type that you don’t see listed here? Raise an issue or join our Slack community and make a request! We’re always happy to help |
@@ -213,6 +213,7 @@ whylogs supports both structured and unstructured data, specifically:
 | Java | Run whylogs in Java environment| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/java/demo1/src/main/java/com/whylogs/examples/WhyLogsDemo.java)</li></ul> |
 | Docker | Run whylogs as in Docker | <ul><li>[Rest Container](https://docs.whylabs.ai/docs/integrations-rest-container)</li></ul>|
 | AWS S3 | Store whylogs profiles in S3 | <ul><li>[S3 example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Writing_Profiles.ipynb)</li></ul>
+
 <!--| Kafka | Log and monitor Kafka topics with whylogs| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Kafka.ipynb)</li><li> [Integrating whylogs into your Kafka ML Pipeline](https://whylabs.ai/blog/posts/integrating-whylogs-into-your-kafka-ml-pipeline) </li></ul>|-->
 <!--| Github actions | Unit test data with whylogs and github actions| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/tree/mainline/github-actions)</li></ul> |-->
 <!--| RAPIDS | Use whylogs in RAPIDS environment | <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/RAPIDS%20GPU%20Integration%20Example.ipynb)</li><li>[Monitoring High-Performance Machine Learning Models with RAPIDS and whylogs](https://whylabs.ai/blog/posts/monitoring-high-performance-machine-learning-models-with-rapids-and-whylogs)</li></ul> |-->
