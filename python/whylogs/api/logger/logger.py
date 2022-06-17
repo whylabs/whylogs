@@ -61,6 +61,9 @@ class Logger(ABC):
     ) -> ResultSet:
         if self._is_closed:
             raise LoggingError("Cannot log to a closed logger")
+        if obj is None and pandas is None and row is None:
+            # TODO: check for shell environment and emit more verbose error string to let user know how to correct.
+            raise LoggingError("log() was called without passing in any input!")
 
         profiles = self._get_matching_profiles(obj, pandas=pandas, row=row)
 
