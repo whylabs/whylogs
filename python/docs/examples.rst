@@ -28,8 +28,13 @@ Basic
 .. ------------
 
 
-.. Advanced
-.. --------
+Advanced
+--------
+
+.. toctree::
+    :maxdepth: 1
+
+    examples/advanced/Constraints_Suite
 
 
 Integrations
