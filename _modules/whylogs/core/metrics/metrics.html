@@ -353,6 +353,7 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricComponentMessage</span><span class="p">,</span> <span class="n">MetricMessage</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span> <span class="k">as</span> <span class="n">pd</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">)</span>
 <span class="n">M</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"M"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">MetricComponent</span><span class="p">)</span>
@@ -581,7 +582,10 @@
                     <span class="k">elif</span> <span class="n">n_b</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="c1"># fall back to https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance</span>
                         <span class="c1"># #Weighted_incremental_algorithm</span>
-                        <span class="n">first</span> <span class="o">=</span> <span class="n">welford_online_variance_m2</span><span class="p">(</span><span class="n">existing</span><span class="o">=</span><span class="n">first</span><span class="p">,</span> <span class="n">new_value</span><span class="o">=</span><span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+                            <span class="n">first</span> <span class="o">=</span> <span class="n">welford_online_variance_m2</span><span class="p">(</span><span class="n">existing</span><span class="o">=</span><span class="n">first</span><span class="p">,</span> <span class="n">new_value</span><span class="o">=</span><span class="n">arr</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">first</span> <span class="o">=</span> <span class="n">welford_online_variance_m2</span><span class="p">(</span><span class="n">existing</span><span class="o">=</span><span class="n">first</span><span class="p">,</span> <span class="n">new_value</span><span class="o">=</span><span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="k">for</span> <span class="n">lst</span> <span class="ow">in</span> <span class="p">[</span><span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">ints</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">floats</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">lst</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
