@@ -25,6 +25,27 @@ def test_distribution_metrics_numpy() -> None:
     assert distribution_summary["q_99"] == 99.0
 
 
+def test_distribution_metrics_series() -> None:
+    dist = DistributionMetric.zero(MetricConfig())
+    data = pd.Series(list(range(100)))
+    col = PreprocessedColumn.apply(data)
+    dist.columnar_update(col)
+
+    assert dist.kll.value.get_n() == 100
+    assert dist.mean.value == data.mean()
+    assert dist.variance == data.var()
+
+
+def test_distribution_metrics_indexed_series_single_row() -> None:
+    dist = DistributionMetric.zero(MetricConfig())
+    data = pd.Series(list(range(1)), index=[284])
+    col = PreprocessedColumn.apply(data)
+    dist.columnar_update(col)
+
+    assert dist.kll.value.get_n() == 1
+    assert dist.mean.value == data.mean()
+
+
 def test_distribution_metrics_list() -> None:
     dist = DistributionMetric.zero(MetricConfig())
     col = PreprocessedColumn()
