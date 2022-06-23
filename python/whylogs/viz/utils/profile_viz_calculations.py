@@ -149,8 +149,14 @@ def generate_summaries(
                 col_drift_value = drift_values[target_col_name]
                 if col_drift_value:
                     ref_column_summary["drift_from_ref"] = col_drift_value["p_value"]
-
-            if target_col_view.get_metric("distribution") and ref_col_view.get_metric("distribution"):
+            target_dist = target_col_view.get_metric("distribution")
+            reference_dist = ref_col_view.get_metric("distribution")
+            if (
+                target_dist
+                and reference_dist
+                and not target_dist.kll.value.is_empty()
+                and not reference_dist.kll.value.is_empty()
+            ):
                 target_column_summary["isDiscrete"] = ref_column_summary["isDiscrete"] = False
 
                 target_histogram = histogram_from_view(target_col_view, target_col_name)

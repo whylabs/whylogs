@@ -2,6 +2,7 @@ import os.path
 
 import pandas as pd
 
+import whylogs as why
 from whylogs.core import DatasetProfile, DatasetProfileView
 
 
@@ -17,3 +18,19 @@ def test_view_serde_roundtrip(tmp_path: str) -> None:
     res = DatasetProfileView.read(output_file)
 
     assert len(view.to_pandas()) == len(res.to_pandas())
+
+
+def test_merge_nan_column(lending_club_df) -> None:
+    series_1 = lending_club_df.head(500)
+    series_2 = lending_club_df.tail(500)
+    prof_view_1 = why.log(series_1).view()
+    prof_view_2 = why.log(series_2).view()
+    merged_profile_view = prof_view_1.merge(prof_view_2)
+
+    mean = merged_profile_view.get_column("member_id").get_metric("distribution").mean.value
+    stddev = merged_profile_view.get_column("member_id").get_metric("distribution").stddev
+    null_count = merged_profile_view.get_column("member_id").get_metric("counts").null.value
+    n_count = merged_profile_view.get_column("member_id").get_metric("counts").n.value
+    assert mean == 0
+    assert stddev == 0
+    assert null_count == n_count
