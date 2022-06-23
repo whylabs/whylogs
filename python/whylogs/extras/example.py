@@ -2,11 +2,15 @@ import numpy as np
 from nltk.corpus import inaugural, stopwords
 from nltk.stem import PorterStemmer
 
+from whylogs.core.configs import SummaryConfig
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.extras.nlp_metric import NlpMetric, NlpMetricConfig, SvdMetric, SvdMetricConfig, UpdatableSvdMetric, _preprocessifier
+from whylogs.extras.nlp_metric import NlpMetric, NlpConfig, SvdMetric, SvdMetricConfig, UpdatableSvdMetric, _preprocessifier
 
 # from nltk.tokenize import word_tokenize
 
+# import nltk
+# nltk.download('stopwords')
+# nltk.download('inaugural')
 
 # inverted index weighting utility functions
 
@@ -106,7 +110,7 @@ old_doc_decay_rate = 0.8
 svd_config = SvdMetricConfig(num_concepts, old_doc_decay_rate)
 svd = UpdatableSvdMetric.zero(svd_config)
 
-nlp_config = NlpMetricConfig(svd)
+nlp_config = NlpConfig(svd)
 ref_nlp = NlpMetric.zero(nlp_config)
 
 for fid in inaugural.fileids():
@@ -129,7 +133,7 @@ svd_write_me = ref_nlp.svd.to_protobuf()  # big--contains the SVD approximation 
 # production tracking, no reference update
 
 svd = SvdMetric.from_protobuf(svd_write_me)  # use UpdatableSvdMetric to train in production
-nlp_config = NlpMetricConfig(svd)
+nlp_config = NlpConfig(svd)
 prod_nlp = NlpMetric.zero(nlp_config)
 
 for fid in inaugural.fileids():
@@ -151,4 +155,5 @@ for fid in inaugural.fileids():
 send_me = prod_nlp.to_protobuf()
 
 # get stats on doc length, term length, SVD "fit"
-view_me = prod_nlp.to_summary()
+view_me = prod_nlp.to_summary_dict(SummaryConfig())
+print(view_me)

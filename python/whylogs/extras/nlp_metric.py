@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 from io import BytesIO
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.compound_metric import CompoundMetric
+from whylogs.core.metrics.deserializers import deserializer
+from whylogs.core.metrics.serializers import serializer
 from whylogs.core.metrics.metric_components import (
     FractionalComponent,
     IntegralComponent,
@@ -19,7 +21,7 @@ from whylogs.core.metrics.metrics import (
     MetricConfig,
     OperationResult,
 )
-from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.preprocessing import PreprocessedColumn, ListView
 from whylogs.core.proto import MetricComponentMessage, MetricMessage
 
 _SMALL = np.finfo(float).eps
@@ -43,20 +45,30 @@ def _deserialize_ndarray(a: bytes) -> np.ndarray:
 
 
 class VectorComponent(MetricComponent[np.ndarray]):
-    mtype = np.ndarray
-    index = 101
+    #mtype = np.ndarray
+    type_id = 101
 
+@serializer(type_id=101)
+def serialize(value: np.ndarray) -> MetricComponentMessage:
+    return MetricComponentMessage(serialized_bytes=_serialize_ndarray(value))
+
+@deserializer(type_id=101)
+def deserialize(msg: MetricComponentMessage) -> "VectorComponent":
+    return VectorComponent(value=_deserialize_ndarray(msg.serialized_bytes))
+
+"""
     def to_protobuf(self) -> MetricComponentMessage:
-        return MetricComponentMessage(serialized_bytes=_serialize_ndarray(self.value))
+        return MetricComponentMessage(type_id=self.type_id, serialized_bytes=_serialize_ndarray(self.value))
 
     @classmethod
     def from_protobuf(cls, msg: MetricComponentMessage, registries: Optional[Registries] = None) -> "VectorComponent":
         return VectorComponent(value=_deserialize_ndarray(msg.serialized_bytes))
+"""
 
 
 @dataclass(frozen=True)
 class SvdMetricConfig(MetricConfig):
-    k: int
+    k: int = 0
     decay: float = 1.0
 
 
@@ -87,7 +99,7 @@ class SvdMetric(Metric):
         """
         U = self.U.value
         S = self.S.value
-        residual = U.transpose * vector
+        residual = U.transpose() * vector
         residual = _reciprocal(S) * residual
         residual = S * residual
         residual = U * residual
@@ -121,7 +133,7 @@ class SvdMetric(Metric):
         if config is None or not isinstance(config, SvdMetricConfig):
             raise ValueError("SvdMetric.zero() requires SvdMetricConfig argument")
 
-         return SvdMetric(
+        return SvdMetric(
             k=IntegralComponent(0),  # not usable with k = 0
             decay=FractionalComponent(1.0),
             U=VectorComponent(np.zeros((1, 1))),
@@ -200,9 +212,11 @@ class NlpConfig(MetricConfig):
     You'll have to manage that yourself.
     """
 
-    svd: SvdMetric
+    # The default will not allow updates or residual computation
+    svd: SvdMetric = SvdMetric.zero(SvdMetricConfig())
 
 
+@dataclass
 class NlpMetric(CompoundMetric):
     """
     Natural language processing metric
@@ -212,11 +226,12 @@ class NlpMetric(CompoundMetric):
 
     def __post_init__(self):
         submetrics = {
-            "doc_length": DistributionMetric.zero(ColumnSchema(dtype=int)),
-            "term_length": DistributionMetric.zero(ColumnSchema(dtype=int)),
-            "residual": DistributionMetric.zero(ColumnSchema(dtype=float)),
-            "frequent_terms": FrequentItemsMetric.zero(ColumnSchema(dtype=str)),
+            "doc_length": DistributionMetric.zero(MetricConfig()),
+            "term_length": DistributionMetric.zero(MetricConfig()),
+            "residual": DistributionMetric.zero(MetricConfig()),
+            "frequent_terms": FrequentItemsMetric.zero(MetricConfig()),
         }
+        super(NlpMetric, self).__init__(submetrics)
         super(NlpMetric, self).__post_init__()
 
     @property
@@ -238,12 +253,13 @@ class NlpMetric(CompoundMetric):
         if terms:
             term_lengths = [len(term) for term in terms]
             self.submetrics["term_length"].columnar_update(PreprocessedColumn.apply(term_lengths))
-            self.submetrics["frequent_terms"].columnar_update(PreprecessedColumn.apply(terms))
+            self.submetrics["frequent_terms"].columnar_update(PreprocessedColumn.apply(terms))
             self.submetrics["doc_length"].columnar_update(PreprocessedColumn.apply([len(terms)]))
 
         self.svd.columnar_update(data)  # no-op if SVD is not updating
         residuals: List[float] = []
-        for vector in data.list.objs
+        for vector in data.list.objs:  # TODO: batch these
+            assert isinstance(vector, np.ndarray)
             residuals += self.svd.residual(vector)
 
         self.submetrics["residual"].columnar_update(PreprocessedColumn.apply(residuals))
@@ -251,7 +267,7 @@ class NlpMetric(CompoundMetric):
 
     @classmethod
     def zero(cls, config: NlpConfig) -> "NlpMetric":
-        return NlpMetric(config.svd)  # k, decay?
+        return NlpMetric(svd=config.svd)
 
     @classmethod
     def from_protobuf(cls, msg: MetricMessage) -> "NlpMetric":
@@ -261,9 +277,10 @@ class NlpMetric(CompoundMetric):
         return result
 
 
-def _preprocessifier(terms: List[str], vector: np.ndarray) -> PreproccessedColumn:
+def _preprocessifier(terms: List[str], vector: np.ndarray) -> PreprocessedColumn:
     strings = terms
     objs = [vector]
     list_view = ListView(strings=strings, objs=objs)
     result = PreprocessedColumn()
     result.list = list_view
+    return result
