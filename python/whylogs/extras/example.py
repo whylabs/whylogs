@@ -3,8 +3,14 @@ from nltk.corpus import inaugural, stopwords
 from nltk.stem import PorterStemmer
 
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.extras.nlp_metric import NlpMetric, NlpConfig, SvdMetric, SvdMetricConfig, UpdatableSvdMetric, _preprocessifier
+from whylogs.extras.nlp_metric import (
+    NlpConfig,
+    NlpMetric,
+    SvdMetric,
+    SvdMetricConfig,
+    UpdatableSvdMetric,
+    _preprocessifier,
+)
 
 # from nltk.tokenize import word_tokenize
 
