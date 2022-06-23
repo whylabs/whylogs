@@ -1,18 +1,16 @@
 from dataclasses import dataclass
 from io import BytesIO
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.metrics.deserializers import deserializer
-from whylogs.core.metrics.serializers import serializer
 from whylogs.core.metrics.metric_components import (
     FractionalComponent,
     IntegralComponent,
     MetricComponent,
-    Registries,
 )
 from whylogs.core.metrics.metrics import (
     DistributionMetric,
@@ -21,7 +19,8 @@ from whylogs.core.metrics.metrics import (
     MetricConfig,
     OperationResult,
 )
-from whylogs.core.preprocessing import PreprocessedColumn, ListView
+from whylogs.core.metrics.serializers import serializer
+from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.proto import MetricComponentMessage, MetricMessage
 
 _SMALL = np.finfo(float).eps
@@ -45,16 +44,19 @@ def _deserialize_ndarray(a: bytes) -> np.ndarray:
 
 
 class VectorComponent(MetricComponent[np.ndarray]):
-    #mtype = np.ndarray
+    # mtype = np.ndarray
     type_id = 101
+
 
 @serializer(type_id=101)
 def serialize(value: np.ndarray) -> MetricComponentMessage:
     return MetricComponentMessage(serialized_bytes=_serialize_ndarray(value))
 
+
 @deserializer(type_id=101)
 def deserialize(msg: MetricComponentMessage) -> "VectorComponent":
     return VectorComponent(value=_deserialize_ndarray(msg.serialized_bytes))
+
 
 """
     def to_protobuf(self) -> MetricComponentMessage:
@@ -77,6 +79,7 @@ class SvdMetricConfig(MetricConfig):
 # but they do not maintain any statistics about the distribution. See
 # the NlpMetric for tracking the residual distribution.
 
+
 @dataclass(frozen=True)
 class SvdMetric(Metric):
     """
@@ -91,7 +94,7 @@ class SvdMetric(Metric):
     @property
     def namespace(self) -> str:
         return "svd"
-            
+
     def residual(self, vector: np.ndarray) -> float:
         """
         Retruns the residual of the vector given the current approximate SVD:
@@ -260,7 +263,7 @@ class NlpMetric(CompoundMetric):
         residuals: List[float] = []
         for vector in data.list.objs:  # TODO: batch these
             assert isinstance(vector, np.ndarray)
-            residuals += self.svd.residual(vector)
+            residuals.append(self.svd.residual(vector))
 
         self.submetrics["residual"].columnar_update(PreprocessedColumn.apply(residuals))
         return OperationResult.ok(1)
