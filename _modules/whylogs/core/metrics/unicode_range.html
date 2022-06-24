@@ -408,8 +408,8 @@
                     <span class="k">if</span> <span class="n">range_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">range_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                         <span class="n">range_counter</span><span class="p">[</span><span class="n">range_name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                         <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-                        <span class="n">range_counter</span><span class="p">[</span><span class="s2">"UNKNOWN"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="n">range_counter</span><span class="p">[</span><span class="s2">"UNKNOWN"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="k">for</span> <span class="n">range_name</span><span class="p">,</span> <span class="n">range_count</span> <span class="ow">in</span> <span class="n">range_counter</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">range_data</span><span class="p">[</span><span class="n">range_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">range_count</span><span class="p">)</span>
