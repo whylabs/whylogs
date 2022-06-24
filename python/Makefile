@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.0.0
+version := 1.0.2
 
 dist.dir := dist
 egg.dir := .eggs
@@ -132,7 +132,7 @@ test-system-python: dist ## Run tests using the system `python` instead of the l
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install -E "viz s3 spark whylabs"
+	poetry install -E "viz s3 spark whylabs mlflow"
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)

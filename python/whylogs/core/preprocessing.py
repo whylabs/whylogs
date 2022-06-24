@@ -142,6 +142,10 @@ class PreprocessedColumn:
         strings = non_null_series[str_mask]
         objs = non_null_series[~(float_mask | str_mask | int_mask | bool_mask)]
 
+        # convert numeric types to float if they are considered
+        # Fractional types e.g. decimal.Decimal only if there are values
+        if not floats.empty:
+            floats = floats.astype(float)
         self.numpy = NumpyView(floats=floats, ints=ints)
         self.pandas.strings = strings
         self.pandas.objs = objs
