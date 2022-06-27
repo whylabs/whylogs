@@ -2,9 +2,7 @@ import html
 import json
 import logging
 import os
-from dataclasses import dataclass
-from enum import Enum
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Dict, Optional
 
 from IPython.core.display import HTML  # type: ignore
 
@@ -19,44 +17,14 @@ from whylogs.viz.utils.profile_viz_calculations import (
     generate_summaries,
     histogram_from_view,
 )
+from whylogs.viz.utils.html_template_utils import (
+    _get_compiled_template
+)
+from whylogs.viz.enums.enums import PageSpecEnum, PageSpec
+
 
 logger = logging.getLogger(__name__)
-_MY_DIR = os.path.realpath(os.path.dirname(__file__))
 emit_usage("visualizer")
-
-
-def _get_template_path(html_file_name: str) -> str:
-    template_path = os.path.abspath(os.path.join(_MY_DIR, "html", "templates", html_file_name))
-    return template_path
-
-
-def _get_compiled_template(template_name: str) -> "Callable":
-    template_path = _get_template_path(template_name)
-    try:
-        from pybars import Compiler  # type: ignore
-    except ImportError as e:
-        logger.debug(e, exc_info=True)
-        logger.warning("Unable to load pybars; install pybars3 to load profile directly from the current session ")
-        return lambda _: None  # returns a no-op lambda
-
-    with open(template_path, "r+t") as file_with_template:
-        source = file_with_template.read()
-    return Compiler().compile(source)
-
-
-@dataclass
-class PageSpec:
-    html: str
-    height: str
-
-
-class PageSpecEnum(Enum):
-    SUMMARY_REPORT = PageSpec(html="index-hbs-cdn-all-in-for-jupyter-notebook.html", height="1000px")
-    DOUBLE_HISTOGRAM = PageSpec(html="index-hbs-cdn-all-in-jupyter-distribution-chart.html", height="300px")
-    DISTRIBUTION_CHART = PageSpec(html="index-hbs-cdn-all-in-jupyter-bar-chart.html", height="277px")
-    DIFFERENCED_CHART = PageSpec(html="index-hbs-cdn-all-in-jupyter-differenced-chart.html", height="277px")
-    FEATURE_STATISTICS = PageSpec(html="index-hbs-cdn-all-in-jupyter-feature-summary-statistics.html", height="650px")
-    CONSTRAINTS_REPORT = PageSpec(html="index-hbs-cdn-all-in-jupyter-constraints-report.html", height="750px")
 
 
 class NotebookProfileVisualizer:
@@ -125,8 +93,12 @@ class NotebookProfileVisualizer:
         visualization.set_profiles(target_profile_view=prof_view,reference_profile_view=prof_view_ref)
     """
 
-    _ref_view: Optional[DatasetProfileView]
-    _target_view: DatasetProfileView
+    def __init__(self,
+                 ref_view: Optional[DatasetProfileView] = None,
+                 target_view: Optional[DatasetProfileView] = None,
+                 ):
+        self._ref_view = ref_view
+        self._target_view = target_view
 
     @staticmethod
     def _display(template: str, page_spec: PageSpec, height: Optional[str]) -> HTML:
@@ -138,7 +110,7 @@ class NotebookProfileVisualizer:
         return display
 
     def _display_distribution_chart(
-        self, feature_name: str, difference: bool, cell_height: str = None, config: Optional[SummaryConfig] = None
+            self, feature_name: str, difference: bool, cell_height: str = None, config: Optional[SummaryConfig] = None
     ) -> Optional[HTML]:
         if config is None:
             config = SummaryConfig()
@@ -186,7 +158,8 @@ class NotebookProfileVisualizer:
                     "reference_profile_from_whylogs": json.dumps(reference_profile_features),
                 }
             )
-            return self._display(distribution_chart, page_spec, cell_height)
+            result = self._display(distribution_chart, page_spec, cell_height)
+            return result
 
         else:
             logger.warning("This method has to get at least a target profile, with valid feature title")
@@ -201,7 +174,7 @@ class NotebookProfileVisualizer:
 
             target_col_view = self._target_view.get_column(feature_name)
             if not target_col_view:
-                raise ValueError("ColumnProfileView for feature {} not found.".format(feature_name))
+                raise ValueError(f"ColumnProfileView for feature {feature_name} not found.")
 
             target_histogram = histogram_from_view(target_col_view, feature_name)
             if self._ref_view:
@@ -230,7 +203,7 @@ class NotebookProfileVisualizer:
             return None
 
     def set_profiles(
-        self, target_profile_view: DatasetProfileView, reference_profile_view: Optional[DatasetProfileView] = None
+            self, target_profile_view: DatasetProfileView, reference_profile_view: Optional[DatasetProfileView] = None
     ) -> None:
         """Set profiles for Visualization/Comparison.
 
@@ -247,7 +220,7 @@ class NotebookProfileVisualizer:
         self._target_view = target_profile_view
         self._ref_view = reference_profile_view
 
-    def summary_drift_report(self, cell_height: str = None) -> HTML:
+    def summary_drift_report(self, height: Optional[str] = None) -> HTML:
         """Generate drift report between target and reference profiles.
 
         KS test is applied for continuous variables and ChiSquared test for categorical variables.
@@ -256,8 +229,8 @@ class NotebookProfileVisualizer:
 
         Parameters
         ----------
-        cell_height: str, optional
-            Preferred cell height, in pixels, for in-notebook visualization. Example:
+        height: str, optional
+            Preferred height, in pixels, for in-notebook visualization. Example:
             `"1000px"`. (Default is None)
 
         Returns
@@ -275,18 +248,19 @@ class NotebookProfileVisualizer:
             visualization.summary_drift_report()
 
         """
+        if not self._target_view and not self._ref_view:
+            logger.error("This method has to get both target and reference profiles")
+            raise ValueError
+
         page_spec = PageSpecEnum.SUMMARY_REPORT.value
         template = _get_compiled_template(page_spec.html)
 
-        try:
-            profiles_summary = generate_summaries(self._target_view, self._ref_view, config=None)
-            rendered_template = template(profiles_summary)
-            return self._display(rendered_template, page_spec, cell_height)
-        except ValueError as e:
-            logger.error("This method has to get both target and reference profiles")
-            raise e
+        profiles_summary = generate_summaries(self._target_view, self._ref_view, config=None)
+        rendered_template = template(profiles_summary)
+        summary_drift_report = self._display(rendered_template, page_spec, height)
+        return summary_drift_report
 
-    def double_histogram(self, feature_name: str, cell_height: str = None) -> HTML:
+    def double_histogram(self, feature_name: str, cell_height: Optional[str] = None) -> HTML:
         """Plot overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
 
         Applicable to numerical features only.
@@ -309,9 +283,10 @@ class NotebookProfileVisualizer:
 
             visualization.double_histogram(feature_name="weight")
         """
-        return self._display_histogram_chart(feature_name, cell_height)
+        double_histogram = self._display_histogram_chart(feature_name, cell_height)
+        return double_histogram
 
-    def distribution_chart(self, feature_name: str, cell_height: str = None) -> HTML:
+    def distribution_chart(self, feature_name: str, cell_height: Optional[str] = None) -> HTML:
         """Plot overlayed distribution charts for specified feature between two profiles.
 
         Applicable to categorical features.
@@ -341,9 +316,10 @@ class NotebookProfileVisualizer:
             visualization.distribution_chart(feature_name="animal")
         """
         difference = False
-        return self._display_distribution_chart(feature_name, difference, cell_height)
+        distribution_chart = self._display_distribution_chart(feature_name, difference, cell_height)
+        return distribution_chart
 
-    def difference_distribution_chart(self, feature_name: str, cell_height: str = None) -> HTML:
+    def difference_distribution_chart(self, feature_name: str, cell_height: Optional[str] = None) -> HTML:
         """Plot overlayed distribution charts of differences between the categories of both profiles.
 
         Applicable to categorical features.
@@ -372,15 +348,18 @@ class NotebookProfileVisualizer:
 
         """
         difference = True
-        return self._display_distribution_chart(feature_name, difference, cell_height)
+        difference_distribution_chart = self._display_distribution_chart(feature_name, difference, cell_height)
+        return difference_distribution_chart
 
-    def constraints_report(self, constraints: Constraints, cell_height: str = None) -> HTML:
+    def constraints_report(self, constraints: Constraints, cell_height: Optional[str] = None) -> HTML:
         page_spec = PageSpecEnum.CONSTRAINTS_REPORT.value
         template = _get_compiled_template(page_spec.html)
         rendered_template = template({"constraints_report": json.dumps(constraints.report())})
-        return self._display(rendered_template, page_spec, cell_height)
+        constraints_report = self._display(rendered_template, page_spec, cell_height)
+        return constraints_report
 
-    def feature_statistics(self, feature_name: str, profile: str = "reference", cell_height: str = None) -> HTML:
+    def feature_statistics(self, feature_name: str, profile: str = "reference",
+                           cell_height: Optional[str] = None) -> HTML:
         """
         Generate a report for the main statistics of specified feature, for a given profile (target or reference).
 
@@ -422,14 +401,21 @@ class NotebookProfileVisualizer:
                 )
             }
         )
-        return self._display(rendered_template, page_spec, cell_height)
+        feature_statistics = self._display(rendered_template, page_spec, cell_height)
+        return feature_statistics
 
-    def write(self, rendered_html: HTML, preferred_path: str = None, html_file_name: str = None) -> None:
-        """Create HTML file for the given report.
+    @staticmethod
+    def write(
+        rendered_html: HTML,
+        path: Optional[str] = None,
+        preferred_path: Optional[str] = None,
+        html_file_name: Optional[str] = None
+    ) -> None:
+        """Create HTML file for a given report.
 
         Parameters
         ----------
-        rendered_html: HTML
+        rendered_html: HTML, optional
             Rendered HTML returned by a given report.
         preferred_path: str, optional
             Preferred path to write the HTML file.
@@ -450,18 +436,16 @@ class NotebookProfileVisualizer:
 
 
         """
+        # TODO refresh if else logics
         if not html_file_name:
-            if self._ref_view:
-                html_file_name = "ProfileVisualizer"  # todo on v1
-                # html_file_name = self._reference_profile.dataset_timestamp #v0 reference
-            else:
-                html_file_name = "ProfileVisualizer"
-                # html_file_name = self._target_profile.dataset_timestamp
-        if preferred_path:
+            html_file_name = "ProfileVisualizer"
+        if not path or preferred_path:
+            path = preferred_path
+            logger.warn("`preferred_path` will be deprecated in future versions. Use `path` instead", DeprecationWarning)
             path = os.path.join(os.path.expanduser(preferred_path), str(html_file_name) + ".html")
-        else:
+        elif not path and not preferred_path:
             path = os.path.join(os.pardir, "html_reports", str(html_file_name) + ".html")
+        
         full_path = os.path.abspath(path)
         with open(full_path, "w") as saved_html:
             saved_html.write(rendered_html.data)
-        saved_html.close()
