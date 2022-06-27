@@ -1,6 +1,6 @@
 import IPython  # type: ignore  # noqa  # import ipython to make
 
-from whylogs.viz.jupyter_notebook_viz import NotebookProfileVisualizer
+from whylogs.viz.notebook_profile_viz import NotebookProfileVisualizer
 
 __ALL__ = [
     # column

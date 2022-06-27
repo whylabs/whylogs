@@ -10,18 +10,15 @@ from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.viz.enums.enums import PageSpec, PageSpecEnum
 from whylogs.viz.utils.frequent_items_calculations import zero_padding_frequent_items
+from whylogs.viz.utils.html_template_utils import _get_compiled_template
 from whylogs.viz.utils.profile_viz_calculations import (
     add_feature_statistics,
     frequent_items_from_view,
     generate_summaries,
     histogram_from_view,
 )
-from whylogs.viz.utils.html_template_utils import (
-    _get_compiled_template
-)
-from whylogs.viz.enums.enums import PageSpecEnum, PageSpec
-
 
 logger = logging.getLogger(__name__)
 emit_usage("visualizer")
@@ -93,12 +90,8 @@ class NotebookProfileVisualizer:
         visualization.set_profiles(target_profile_view=prof_view,reference_profile_view=prof_view_ref)
     """
 
-    def __init__(self,
-                 ref_view: Optional[DatasetProfileView] = None,
-                 target_view: Optional[DatasetProfileView] = None,
-                 ):
-        self._ref_view = ref_view
-        self._target_view = target_view
+    _ref_view: Optional[DatasetProfileView]
+    _target_view: DatasetProfileView
 
     @staticmethod
     def _display(template: str, page_spec: PageSpec, height: Optional[str]) -> HTML:
@@ -110,7 +103,7 @@ class NotebookProfileVisualizer:
         return display
 
     def _display_distribution_chart(
-            self, feature_name: str, difference: bool, cell_height: str = None, config: Optional[SummaryConfig] = None
+        self, feature_name: str, difference: bool, cell_height: str = None, config: Optional[SummaryConfig] = None
     ) -> Optional[HTML]:
         if config is None:
             config = SummaryConfig()
@@ -203,7 +196,7 @@ class NotebookProfileVisualizer:
             return None
 
     def set_profiles(
-            self, target_profile_view: DatasetProfileView, reference_profile_view: Optional[DatasetProfileView] = None
+        self, target_profile_view: DatasetProfileView, reference_profile_view: Optional[DatasetProfileView] = None
     ) -> None:
         """Set profiles for Visualization/Comparison.
 
@@ -358,8 +351,9 @@ class NotebookProfileVisualizer:
         constraints_report = self._display(rendered_template, page_spec, cell_height)
         return constraints_report
 
-    def feature_statistics(self, feature_name: str, profile: str = "reference",
-                           cell_height: Optional[str] = None) -> HTML:
+    def feature_statistics(
+        self, feature_name: str, profile: str = "reference", cell_height: Optional[str] = None
+    ) -> HTML:
         """
         Generate a report for the main statistics of specified feature, for a given profile (target or reference).
 
@@ -407,9 +401,9 @@ class NotebookProfileVisualizer:
     @staticmethod
     def write(
         rendered_html: HTML,
+        preferred_path: Optional[str] = None,  # type: ignore
         path: Optional[str] = None,
-        preferred_path: Optional[str] = None,
-        html_file_name: Optional[str] = None
+        html_file_name: Optional[str] = None,  # type: ignore
     ) -> None:
         """Create HTML file for a given report.
 
@@ -436,16 +430,17 @@ class NotebookProfileVisualizer:
 
 
         """
-        # TODO refresh if else logics
+        if preferred_path:
+            path = preferred_path
+            logger.warn(
+                "`preferred_path` will be deprecated in future versions. Use `path` instead", DeprecationWarning
+            )
         if not html_file_name:
             html_file_name = "ProfileVisualizer"
-        if not path or preferred_path:
-            path = preferred_path
-            logger.warn("`preferred_path` will be deprecated in future versions. Use `path` instead", DeprecationWarning)
-            path = os.path.join(os.path.expanduser(preferred_path), str(html_file_name) + ".html")
-        elif not path and not preferred_path:
-            path = os.path.join(os.pardir, "html_reports", str(html_file_name) + ".html")
-        
-        full_path = os.path.abspath(path)
-        with open(full_path, "w") as saved_html:
+        if path:
+            full_path = os.path.join(os.path.expanduser(path), str(html_file_name) + ".html")
+        else:
+            full_path = os.path.join(os.pardir, "html_reports", str(html_file_name) + ".html")
+
+        with open(os.path.abspath(full_path), "w") as saved_html:
             saved_html.write(rendered_html.data)

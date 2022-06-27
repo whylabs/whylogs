@@ -1,6 +1,6 @@
+import logging
 import os
 from pathlib import Path
-import logging
 from typing import Callable
 
 logger = logging.getLogger(__name__)

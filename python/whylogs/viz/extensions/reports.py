@@ -1,28 +1,25 @@
 import html
-from abc import ABC
 import logging
+from abc import ABC
 from typing import Optional
 
 from IPython.core.display import HTML
 
 from whylogs import DatasetProfileView
-from whylogs.viz.enums.enums import PageSpecEnum, PageSpec
-from whylogs.viz.utils.html_template_utils import (
-    get_compiled_template
-)
-from whylogs.viz.utils.profile_viz_calculations import (
-    generate_summaries,
-)
+from whylogs.viz.enums.enums import PageSpec, PageSpecEnum
+from whylogs.viz.utils.html_template_utils import get_compiled_template
+from whylogs.viz.utils.profile_viz_calculations import generate_summaries
 
 logger = logging.getLogger(__name__)
 
 
 class HTMLReport(ABC):
-    def __init__(self,
-                 ref_view: Optional[DatasetProfileView] = None,
-                 target_view: Optional[DatasetProfileView] = None,
-                 height: Optional[str] = None
-                 ):
+    def __init__(
+        self,
+        ref_view: Optional[DatasetProfileView] = None,
+        target_view: Optional[DatasetProfileView] = None,
+        height: Optional[str] = None,
+    ):
         self.ref_view = ref_view
         self.target_view = target_view
         self.height = height or None
@@ -37,11 +34,8 @@ class HTMLReport(ABC):
 
 
 class SummaryDriftReport(HTMLReport):
-    def __init__(self, ref_view, target_view, height: Optional[str] = None):
+    def __init__(self, ref_view: DatasetProfileView, target_view: DatasetProfileView, height: Optional[str] = None):
         super().__init__(ref_view=ref_view, target_view=target_view, height=height)
-        if not self.target_view and not self.ref_view:
-            logger.error("This report has to get both target and reference profile views")
-            raise ValueError
 
     def report(self):
         page_spec = PageSpecEnum.SUMMARY_REPORT.value
