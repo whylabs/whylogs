@@ -28,8 +28,13 @@ Basic
 .. ------------
 
 
-.. Advanced
-.. --------
+Advanced
+--------
+
+.. toctree::
+    :maxdepth: 1
+
+    examples/advanced/String_Tracking
 
 
 Integrations
