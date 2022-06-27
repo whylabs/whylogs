@@ -81,8 +81,8 @@ class UnicodeRangeMetric(CompoundMetric):
                     if range_limits[0] <= ord(char) <= range_limits[1]:
                         range_counter[range_name] += 1
                         found = True
-                    if not found:
-                        range_counter["UNKNOWN"] += 1
+                if not found:
+                    range_counter["UNKNOWN"] += 1
 
             for range_name, range_count in range_counter.items():
                 range_data[range_name].append(range_count)

@@ -8,7 +8,7 @@ if shutil.which("pandoc") is None:
     print("Pandoc is required to build our documentation.")
     sys.exit(1)
 
-version = "1.0.1"
+version = "1.0.2"
 
 project = "whylogs"
 author = "whylogs developers"
@@ -20,11 +20,9 @@ extensions = [
     "autoapi.extension",
     "sphinx.ext.autodoc",
     "sphinx.ext.autodoc.typehints",
-
     "nbsphinx",
-
     "sphinx.ext.githubpages",
-    'sphinx.ext.autosectionlabel',
+    "sphinx.ext.autosectionlabel",
     "sphinxext.opengraph",
     "sphinx_inline_tabs",
     "sphinx_copybutton",
@@ -39,8 +37,8 @@ autoapi_python_use_implicit_namespaces = True
 autosummary_generate = True
 autoapi_keep_files = True
 autoapi_root = "api"
-autodoc_typehints = 'both'
-autoapi_dirs = [os.path.abspath('../whylogs')]
+autodoc_typehints = "both"
+autoapi_dirs = [os.path.abspath("../whylogs")]
 autoapi_options = [
     "members",
     "inherited-members",
@@ -51,7 +49,7 @@ autoapi_options = [
 ]
 autoapi_ignore = ["*utils*", "*stubs*"]
 always_document_param_types = True
-typehints_defaults = 'braces'
+typehints_defaults = "braces"
 
 pygments_style = "friendly"
 pygments_dark_style = "material"
@@ -73,15 +71,15 @@ html_css_files = ["custom.css"]
 html_scaled_image_link = False
 
 intersphinx_mapping = {
-    'py': ('https://docs.python.org/{0.major}.{0.minor}'.format(sys.version_info), None),
-    'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy': ('https://numpy.org/doc/stable/', None),
+    "py": ("https://docs.python.org/{0.major}.{0.minor}".format(sys.version_info), None),
+    "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
 
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.txt': 'markdown',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".txt": "markdown",
+    ".md": "markdown",
 }
 
 # opengraph
@@ -104,7 +102,7 @@ myst_enable_extensions = [
 
 html_theme_options: Dict[str, Any] = {
     "announcement": """<em>whylogs v1</em> has been launched! Make sure you checkout the
-    <a href="migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
+    <a href="/migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
     transition""",
     "light_logo": "images/logo.png",
     "dark_logo": "images/logo.png",

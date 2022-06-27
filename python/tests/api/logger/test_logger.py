@@ -7,6 +7,7 @@ import pytest
 
 import whylogs as why
 from whylogs.core import ColumnProfileView, MetricConfig
+from whylogs.core.errors import LoggingError
 from whylogs.core.schema import DatasetSchema
 
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
@@ -26,6 +27,11 @@ def test_basic_log() -> None:
     assert profile._columns["col1"]._schema.dtype == np.int64
     assert profile._columns["col2"]._schema.dtype == np.float64
     assert profile._columns["col3"]._schema.dtype.name == "object"
+
+
+def test_log_nothing_raises_error() -> None:
+    with pytest.raises(LoggingError):
+        why.log()
 
 
 def test_basic_log_row() -> None:
