@@ -32,8 +32,57 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: test
+      - name: Set up Poetry cache for Python dependencies
+        uses: actions/cache@v2
+        if: startsWith(runner.os, 'Linux')
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: ${{ runner.os }}-poetry-
+
+      - name: Set up pre-commit cache
+        uses: actions/cache@v2
+        if: startsWith(runner.os, 'Linux')
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: ${{ runner.os }}-pre-commit-
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          version: "3.19.4"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check Poetry version
         run: |
-          echo "hello!"
+          POETRY_VERSION_INSTALLED=$(poetry -V)
+          echo "The POETRY_VERSION environment variable is set to $POETRY_VERSION."
+          echo "The installed Poetry version is $POETRY_VERSION_INSTALLED."
+          case $POETRY_VERSION_INSTALLED in
+          *$POETRY_VERSION*) echo "Poetry version correct." ;;
+          *) echo "Poetry version incorrect." && exit 1 ;;
+          esac
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Check virtualenv location
+        run: |
+          EXPECTED_VIRTUALENV_PATH=${{ github.workspace }}/python/.venv
+          INSTALLED_VIRTUALENV_PATH=$(poetry env info --path)
+          echo "The virtualenv should be at $EXPECTED_VIRTUALENV_PATH."
+          echo "Poetry is using a virtualenv at $INSTALLED_VIRTUALENV_PATH."
+          case "$INSTALLED_VIRTUALENV_PATH" in
+          "$EXPECTED_VIRTUALENV_PATH") echo "Correct Poetry virtualenv." ;;
+          *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
+          esac
+
+      - name: Test-notebooks
+        run: make test-notebooks
 
 
