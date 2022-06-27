@@ -46,8 +46,12 @@ def test_all_notebooks(remove_fail_test=True):
     notebooks = [fn for fn in git_files if fn.endswith(".ipynb") and os.path.basename(fn) not in skip_notebooks]
     print(notebooks)
     # Test each notebook
-    # for notebook in notebooks:
-    #     print("Testing", notebook)
-    #     process_notebook(os.path.join(PARENT_DIR, notebook))
+    for notebook in notebooks:
+        print("Testing", notebook)
+        process_notebook(os.path.join(PARENT_DIR, notebook))
 
     return
+
+
+# if __name__ == "__main__":
+#    test_all_notebooks()
