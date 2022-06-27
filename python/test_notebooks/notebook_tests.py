@@ -5,8 +5,7 @@ import nbformat
 from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
-PARENT_DIR = os.path.join(TEST_DIR, os.pardir)
-
+PARENT_DIR = os.path.join(TEST_DIR, os.pardir, os.pardir)
 skip_notebooks = []
 
 
@@ -54,4 +53,4 @@ def test_all_notebooks(remove_fail_test=True):
 
 
 # if __name__ == "__main__":
-#    test_all_notebooks()
+#     test_all_notebooks()
