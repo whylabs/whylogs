@@ -1,0 +1,39 @@
+name: notebook test
+
+on:
+  pull_request:
+  push:
+    branches: [mainline, dev/felipe/test-nb]
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+
+defaults:
+  run:
+    working-directory: python
+
+env:
+  CODECOV_UPLOAD: false
+  POETRY_VERSION: "1.1.11"
+  PROTOC_VERSION: "3.19.4"
+  PYPI_PUBLISH: false
+  HEAP_APPID_DEV: "3422045963"
+
+jobs:
+  notebook-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.9"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: test
+        run: |
+          echo "hello!"
+
+
