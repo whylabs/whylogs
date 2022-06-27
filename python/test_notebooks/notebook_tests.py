@@ -19,7 +19,7 @@ def process_notebook(notebook_filename, html_directory="notebook-html"):
         nb = nbformat.read(f, as_version=4)
 
     os.path.abspath(os.path.dirname(notebook_filename))
-    ep = ExecutePreprocessor(timeout=2000, kernel_name="whylogs-dev", allow_errors=False)
+    ep = ExecutePreprocessor(timeout=2000, kernel_name="whylogs-v1-dev", allow_errors=False)
 
     try:
         # Check that the notebook runs
