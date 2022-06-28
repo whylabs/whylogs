@@ -8,8 +8,10 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir, os.pardir)
 skip_notebooks = ["Mlflow_Logging.ipynb", "Pyspark_Profiling.ipynb", "Writing_Profiles.ipynb", "Kafka_Example.ipynb"]
 
+
 # https://docs.pytest.org/en/6.2.x/example/parametrize.html#a-quick-port-of-testscenarios
 def pytest_generate_tests(metafunc):
+
     idlist = []
     argvalues = []
     for scenario in metafunc.cls.scenarios:
