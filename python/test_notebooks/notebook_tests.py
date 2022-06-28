@@ -6,7 +6,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir, os.pardir)
-skip_notebooks = []
+skip_notebooks = ["Mlflow_Logging.ipynb", "Pyspark_Profiling.ipynb", "Writing_Profiles.ipynb", "Kafka_Example.ipynb"]
 
 
 def process_notebook(notebook_filename, html_directory="notebook-html"):
@@ -23,7 +23,7 @@ def process_notebook(notebook_filename, html_directory="notebook-html"):
 
     try:
         # Check that the notebook runs
-        ep.preprocess(nb, {"metadata": {"path": os.path.join(PARENT_DIR, "examples")}})
+        ep.preprocess(nb, {"metadata": {"path": os.path.join(PARENT_DIR, "python", "examples")}})
     except CellExecutionError:
         raise
 
