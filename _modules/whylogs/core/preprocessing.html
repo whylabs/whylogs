@@ -449,6 +449,12 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">numpy</span><span class="o">.</span><span class="n">ints</span> <span class="o">=</span> <span class="n">ints</span>
                 <span class="k">return</span>
 
+        <span class="c1"># if non_null_series is empty, then early exit.</span>
+        <span class="c1"># this fixes a bug where empty columns produce masks of types other than bool</span>
+        <span class="c1"># and DatetimeArrays do not support | operator for example.</span>
+        <span class="k">if</span> <span class="n">non_null_series</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span>
+
         <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">series</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pandas</span><span class="o">.</span><span class="n">strings</span> <span class="o">=</span> <span class="n">non_null_series</span>
             <span class="k">return</span>
