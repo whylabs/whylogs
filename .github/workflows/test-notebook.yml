@@ -82,6 +82,10 @@ jobs:
           *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
           esac
 
+      - name: Build proto
+        run: make proto
+
+
       - name: make jupyter-kernel
         run: make jupyter-kernel
 
