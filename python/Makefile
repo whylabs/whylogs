@@ -130,6 +130,11 @@ test-system-python: dist ## Run tests using the system `python` instead of the l
 	python -m poetry run python --version
 	python -m poetry run pytest -vv --cov='whylogs_v1/.' tests/
 
+test-notebooks: ## Run tests for the notebooks
+	@$(call i, Running notebook tests)
+	poetry run pytest --no-cov test_notebooks/notebook_tests.py
+
+
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
 	poetry install -E "viz s3 spark whylabs mlflow"
