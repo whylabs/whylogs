@@ -212,3 +212,12 @@ def test_frequent_items_disabled() -> None:
     assert "words" in prof_view.get_columns()
     column_profile = prof_view.get_column("words")
     assert "frequent_items" not in column_profile.get_metric_names()
+
+
+def test_key_error() -> None:
+    data = {
+        "emptyDates": ["NaT", "NaT"],
+    }
+    df = pd.DataFrame(data, dtype="datetime64[ns]")
+    results = why.log(df)
+    assert results is not None
