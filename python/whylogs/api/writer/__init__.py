@@ -23,9 +23,3 @@ class Writers:
 
             return MlflowWriter(**kwargs)  # type: ignore
         raise ValueError(f"Unrecognized writer: {name}")
-
-
-class HTMLWriters:
-    @classmethod
-    def get(cls, name: str, **kwargs: Any) -> "Writer":
-        pass

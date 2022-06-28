@@ -7,6 +7,7 @@ import boto3
 from botocore.client import BaseClient
 from botocore.exceptions import ClientError
 
+from whylogs.api.writer.writer import Writable
 from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfileView
 
@@ -63,7 +64,10 @@ class S3Writer(Writer):
         self.bucket_name = bucket_name or None
         self.object_name = object_name or None
 
-    def write(self, profile: DatasetProfileView, dest: Optional[str] = None) -> None:
+    def write(self, file: Optional[Writable] = None, profile: Optional[DatasetProfileView] = None, dest: Optional[str] = None) -> None:
+        if profile:
+            logger.warn("You should use `file` instead", DeprecationWarning)
+            file = profile
         if dest is None:
             dest = f"{self.base_prefix}_{profile.creation_timestamp}.bin"
         if self.object_name is None:
@@ -71,7 +75,7 @@ class S3Writer(Writer):
 
         try:
             with tempfile.NamedTemporaryFile() as tmp_file:
-                profile.write(path=tmp_file.name)
+                file.write(path=tmp_file.name)
                 tmp_file.flush()
                 self.s3_client.upload_file(tmp_file.name, self.bucket_name, self.object_name)
         except ClientError as e:
