@@ -3,7 +3,7 @@ name: notebook test
 on:
   pull_request:
   push:
-    branches: [mainline, dev/felipe/test-nb]
+    branches: [mainline]
     tags:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
@@ -84,7 +84,6 @@ jobs:
 
       - name: Build proto
         run: make proto
-
 
       - name: make jupyter-kernel
         run: make jupyter-kernel
