@@ -11,10 +11,10 @@
 <meta property="og:url" content="https://whylogs.readthedocs.io/migration/log_rotation.html" />
   <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="License" href="../support/license.html" /><link rel="prev" title="Basics - v0 to v1" href="basics.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>Log Rotation - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -317,7 +317,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -337,9 +338,9 @@
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 
 <span class="c1"># create a 5-minutely rolling logger</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"rolling"</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="s2">"M"</span><span class="p">,</span> <span class="n">base_name</span><span class="o">=</span><span class="s2">"test_base_name"</span><span class="p">)</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rolling&quot;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="n">base_name</span><span class="o">=</span><span class="s2">&quot;test_base_name&quot;</span><span class="p">)</span>
 <span class="c1"># add a local writer</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">append_writer</span><span class="p">(</span><span class="s2">"local"</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s2">"whylogs_output"</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">append_writer</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s2">&quot;whylogs_output&quot;</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>

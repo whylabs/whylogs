@@ -13,10 +13,10 @@
 <meta property="og:description" content="Open in Colab This is a whylogs v1 example. For the analog example in v0, please refer to this example Context: In this walkthrough, we’ll see how you can use Feast and whylogs together at differen..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Basics - v0 to v1" href="../../migration/basics.html" /><link rel="prev" title="Profiling with whylogs from a Kafka topic" href="kafka-example/Kafka_Example.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>Logging data from Feature Stores with Feast and whylogs - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,19 +577,22 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
 <section id="Logging-data-from-Feature-Stores-with-Feast-and-whylogs">
 <h1>Logging data from Feature Stores with Feast and whylogs<a class="headerlink" href="#Logging-data-from-Feature-Stores-with-Feast-and-whylogs" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Feature_Stores_and_whylogs.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Feature_Stores_and_whylogs.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <blockquote>
 <div><p>This is a <code class="docutils literal notranslate"><span class="pre">whylogs</span> <span class="pre">v1</span></code> example. For the analog example in <code class="docutils literal notranslate"><span class="pre">v0</span></code>, please refer to <a class="reference external" href="https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/feast_whylogs_example/feast_whylogs.ipynb">this example</a></p>
 </div></blockquote>
@@ -592,7 +601,7 @@ div.rendered_html tbody tr:hover {
 <p>In this walkthrough, we’ll see how you can use Feast and whylogs together at different parts of your ML pipeline - We’ll use Feast to set up an online feature store, and then use it to enrich our serving data with additional features. After assembling our feature vector, we’ll proceed to log it with whylogs. As the requests for prediction arrives, the logged input features will be statistically profiled. We will explore these profiles to see what kind of insights we can have.</p>
 <p>To do so, we’ll use a sample dataset of daily taxi rides in NYC, extracted from <a class="reference external" href="https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page">here</a>. Our final goal could be a prediction requested at the start of a given ride. This prediction could be whether the customer will give a high tip to the driver, or maybe whether the customer will give him a good review. As an input to the prediction model, in addition to the ride information (like number of passengers, day of the week or trip
 distance), we might be interested in enriching our feature vector with information about the driver, like the driver’s average speed, average rating or avg trips in the last 24 hours, with the hopes of improving the model’s performances.</p>
-<img alt="alt text" src="https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/feast_integration/images/context.jpg"/>
+<img alt="alt text" src="https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/feast_integration/images/context.jpg" />
 <p>The info about the specific ride will be known at inference time. However, the driver statistics might be available to us in a different data source, updated at specific time intervals. We will join these information to assemble a single feature vector by using Feast to set up an online feature store. Feast will materialize the features into the online store from a data source file. This data source will have driver statistic’s, according the each driver’s ID updated in an hourly basis.</p>
 <p>We will simulate a production pipeline, where requests for predictions will be made at different timestamps. We’ll then log the feature vectors for each request into daily profiles for a period of 7 days. We’ll then see how we can compare the obtained profiles for possible data issues or drifts we might have between days.</p>
 </section>
@@ -655,28 +664,28 @@ touch feature_repo/__init__.py
 <span class="c1"># production, you can use your favorite DWH, such as BigQuery. See Feast documentation</span>
 <span class="c1"># for more info.</span>
 <span class="n">driver_hourly_stats</span> <span class="o">=</span> <span class="n">FileSource</span><span class="p">(</span>
-    <span class="n">path</span><span class="o">=</span><span class="s2">"data/driver_stats.parquet"</span><span class="p">,</span>
-    <span class="n">timestamp_field</span><span class="o">=</span><span class="s2">"event_timestamp"</span><span class="p">,</span>
-    <span class="n">created_timestamp_column</span><span class="o">=</span><span class="s2">"created"</span><span class="p">,</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">&quot;data/driver_stats.parquet&quot;</span><span class="p">,</span>
+    <span class="n">timestamp_field</span><span class="o">=</span><span class="s2">&quot;event_timestamp&quot;</span><span class="p">,</span>
+    <span class="n">created_timestamp_column</span><span class="o">=</span><span class="s2">&quot;created&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="c1"># Define an entity for the driver. You can think of entity as a primary key used to</span>
 <span class="c1"># fetch features.</span>
 <span class="c1"># Entity has a name used for later reference (in a feature view, eg)</span>
 <span class="c1"># and join_key to identify physical field name used in storages</span>
-<span class="n">driver</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"driver"</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="n">ValueType</span><span class="o">.</span><span class="n">INT64</span><span class="p">,</span> <span class="n">join_keys</span><span class="o">=</span><span class="p">[</span><span class="s2">"driver_id"</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">"driver id"</span><span class="p">,)</span>
+<span class="n">driver</span> <span class="o">=</span> <span class="n">Entity</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;driver&quot;</span><span class="p">,</span> <span class="n">value_type</span><span class="o">=</span><span class="n">ValueType</span><span class="o">.</span><span class="n">INT64</span><span class="p">,</span> <span class="n">join_keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;driver_id&quot;</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;driver id&quot;</span><span class="p">,)</span>
 
 <span class="c1"># Our parquet files contain sample data that includes a driver_id column, timestamps and</span>
 <span class="c1"># three feature column. Here we define a Feature View that will allow us to serve this</span>
 <span class="c1"># data to our model online.</span>
 <span class="n">driver_hourly_stats_view</span> <span class="o">=</span> <span class="n">FeatureView</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">"driver_hourly_stats"</span><span class="p">,</span>
-    <span class="n">entities</span><span class="o">=</span><span class="p">[</span><span class="s2">"driver"</span><span class="p">],</span>  <span class="c1"># reference entity by name</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;driver_hourly_stats&quot;</span><span class="p">,</span>
+    <span class="n">entities</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;driver&quot;</span><span class="p">],</span>  <span class="c1"># reference entity by name</span>
     <span class="n">ttl</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">86400</span> <span class="o">*</span> <span class="mi">1</span><span class="p">),</span>
     <span class="n">schema</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"rate_1m"</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Int64</span><span class="p">),</span>
-        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"avg_daily_trips"</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Int64</span><span class="p">),</span>
-        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"avg_speed"</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Float32</span><span class="p">),</span>
+        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;rate_1m&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Int64</span><span class="p">),</span>
+        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;avg_daily_trips&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Int64</span><span class="p">),</span>
+        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;avg_speed&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">Float32</span><span class="p">),</span>
 
     <span class="p">],</span>
     <span class="n">online</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -685,7 +694,7 @@ touch feature_repo/__init__.py
 <span class="p">)</span>
 
 <span class="n">driver_stats_fs</span> <span class="o">=</span> <span class="n">FeatureService</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">"driver_activity"</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;driver_activity&quot;</span><span class="p">,</span>
     <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="n">driver_hourly_stats_view</span><span class="p">]</span>
 <span class="p">)</span>
 <br/></pre></div>
@@ -769,12 +778,12 @@ Writing feature_repo/feature_store.yaml
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/feast_integration/driver_stats.parquet"</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loading data from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/feast_integration/driver_stats.parquet&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading data from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">driver_stats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saving file source locally"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving file source locally&quot;</span><span class="p">)</span>
 
-<span class="n">driver_stats</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="s2">"data/driver_stats.parquet"</span><span class="p">)</span>
+<span class="n">driver_stats</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="s2">&quot;data/driver_stats.parquet&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -802,7 +811,7 @@ Saving file source locally
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -815,72 +824,72 @@ Saving file source locally
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>index</th>
-<th>event_timestamp</th>
-<th>driver_id</th>
-<th>created</th>
-<th>avg_daily_trips</th>
-<th>rate_1m</th>
-<th>avg_speed</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>0</th>
-<td>0.0</td>
-<td>2020-02-10 00:00:00</td>
-<td>1001</td>
-<td>2022-02-16 16:17:56.446774</td>
-<td>25</td>
-<td>3</td>
-<td>16.87</td>
-</tr>
-<tr>
-<th>1</th>
-<td>0.0</td>
-<td>2020-02-10 00:00:00</td>
-<td>1002</td>
-<td>2022-02-16 16:17:56.446774</td>
-<td>35</td>
-<td>1</td>
-<td>20.21</td>
-</tr>
-<tr>
-<th>2</th>
-<td>1.0</td>
-<td>2020-02-10 01:00:00</td>
-<td>1001</td>
-<td>2022-02-16 16:17:56.446774</td>
-<td>19</td>
-<td>4</td>
-<td>20.77</td>
-</tr>
-<tr>
-<th>3</th>
-<td>1.0</td>
-<td>2020-02-10 01:00:00</td>
-<td>1002</td>
-<td>2022-02-16 16:17:56.446774</td>
-<td>29</td>
-<td>3</td>
-<td>19.20</td>
-</tr>
-<tr>
-<th>4</th>
-<td>2.0</td>
-<td>2020-02-10 02:00:00</td>
-<td>1001</td>
-<td>2022-02-16 16:17:56.446774</td>
-<td>31</td>
-<td>3</td>
-<td>17.41</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>index</th>
+      <th>event_timestamp</th>
+      <th>driver_id</th>
+      <th>created</th>
+      <th>avg_daily_trips</th>
+      <th>rate_1m</th>
+      <th>avg_speed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>2020-02-10 00:00:00</td>
+      <td>1001</td>
+      <td>2022-02-16 16:17:56.446774</td>
+      <td>25</td>
+      <td>3</td>
+      <td>16.87</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>2020-02-10 00:00:00</td>
+      <td>1002</td>
+      <td>2022-02-16 16:17:56.446774</td>
+      <td>35</td>
+      <td>1</td>
+      <td>20.21</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.0</td>
+      <td>2020-02-10 01:00:00</td>
+      <td>1001</td>
+      <td>2022-02-16 16:17:56.446774</td>
+      <td>19</td>
+      <td>4</td>
+      <td>20.77</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.0</td>
+      <td>2020-02-10 01:00:00</td>
+      <td>1002</td>
+      <td>2022-02-16 16:17:56.446774</td>
+      <td>29</td>
+      <td>3</td>
+      <td>19.20</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2.0</td>
+      <td>2020-02-10 02:00:00</td>
+      <td>1001</td>
+      <td>2022-02-16 16:17:56.446774</td>
+      <td>31</td>
+      <td>3</td>
+      <td>17.41</td>
+    </tr>
+  </tbody>
+</table>
 </div></div>
 </div>
 <div class="nbinput docutils container">
@@ -939,8 +948,8 @@ Created sqlite table <span class="ansi-green-intense-fg ansi-bold">feature_repo_
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/nyc_taxi_rides_feb_2020_changed.parquet"</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loading data from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/nyc_taxi_rides_feb_2020_changed.parquet&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading data from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">rides_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
 <span class="n">rides_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -961,7 +970,7 @@ Loading data from https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_exam
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -974,73 +983,73 @@ Loading data from https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_exam
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>pickup_weekday</th>
-<th>passenger_count</th>
-<th>trip_distance</th>
-<th>PULocationID</th>
-<th>tpep_pickup_datetime</th>
-<th>pickup_date</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>225897</th>
-<td>0</td>
-<td>1.0</td>
-<td>1.20</td>
-<td>249</td>
-<td>2020-02-10 00:23:21</td>
-<td>2020-02-10</td>
-</tr>
-<tr>
-<th>108301</th>
-<td>0</td>
-<td>5.0</td>
-<td>19.03</td>
-<td>132</td>
-<td>2020-02-10 01:19:01</td>
-<td>2020-02-10</td>
-</tr>
-<tr>
-<th>196729</th>
-<td>0</td>
-<td>6.0</td>
-<td>0.38</td>
-<td>68</td>
-<td>2020-02-10 01:29:23</td>
-<td>2020-02-10</td>
-</tr>
-<tr>
-<th>239495</th>
-<td>0</td>
-<td>1.0</td>
-<td>2.90</td>
-<td>263</td>
-<td>2020-02-10 02:44:20</td>
-<td>2020-02-10</td>
-</tr>
-<tr>
-<th>72014</th>
-<td>0</td>
-<td>6.0</td>
-<td>16.05</td>
-<td>233</td>
-<td>2020-02-10 04:12:22</td>
-<td>2020-02-10</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pickup_weekday</th>
+      <th>passenger_count</th>
+      <th>trip_distance</th>
+      <th>PULocationID</th>
+      <th>tpep_pickup_datetime</th>
+      <th>pickup_date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>225897</th>
+      <td>0</td>
+      <td>1.0</td>
+      <td>1.20</td>
+      <td>249</td>
+      <td>2020-02-10 00:23:21</td>
+      <td>2020-02-10</td>
+    </tr>
+    <tr>
+      <th>108301</th>
+      <td>0</td>
+      <td>5.0</td>
+      <td>19.03</td>
+      <td>132</td>
+      <td>2020-02-10 01:19:01</td>
+      <td>2020-02-10</td>
+    </tr>
+    <tr>
+      <th>196729</th>
+      <td>0</td>
+      <td>6.0</td>
+      <td>0.38</td>
+      <td>68</td>
+      <td>2020-02-10 01:29:23</td>
+      <td>2020-02-10</td>
+    </tr>
+    <tr>
+      <th>239495</th>
+      <td>0</td>
+      <td>1.0</td>
+      <td>2.90</td>
+      <td>263</td>
+      <td>2020-02-10 02:44:20</td>
+      <td>2020-02-10</td>
+    </tr>
+    <tr>
+      <th>72014</th>
+      <td>0</td>
+      <td>6.0</td>
+      <td>16.05</td>
+      <td>233</td>
+      <td>2020-02-10 04:12:22</td>
+      <td>2020-02-10</td>
+    </tr>
+  </tbody>
+</table>
 </div></div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rides_df</span><span class="p">[</span><span class="s1">'passenger_count'</span><span class="p">]</span> <span class="o">=</span> <span class="n">rides_df</span><span class="p">[</span><span class="s1">'passenger_count'</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'int64'</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rides_df</span><span class="p">[</span><span class="s1">&#39;passenger_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rides_df</span><span class="p">[</span><span class="s1">&#39;passenger_count&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;int64&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1054,7 +1063,7 @@ Loading data from https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_exam
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="n">rides_df</span><span class="p">[</span><span class="s1">'driver_id'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1001</span><span class="p">,</span> <span class="mi">1003</span><span class="p">,</span> <span class="n">rides_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">rides_df</span><span class="p">[</span><span class="s1">&#39;driver_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1001</span><span class="p">,</span> <span class="mi">1003</span><span class="p">,</span> <span class="n">rides_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1080,7 +1089,7 @@ Loading data from https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_exam
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 
-<span class="n">store</span> <span class="o">=</span> <span class="n">FeatureStore</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="s2">"."</span><span class="p">)</span>
+<span class="n">store</span> <span class="o">=</span> <span class="n">FeatureStore</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
 
 <span class="n">prev_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">00</span><span class="p">,</span> <span class="mi">00</span><span class="p">)</span>
 <span class="n">target_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">00</span><span class="p">)</span>
@@ -1092,14 +1101,14 @@ Loading data from https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_exam
 <span class="n">profile</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="k">for</span> <span class="n">index</span><span class="p">,</span><span class="n">row</span> <span class="ow">in</span> <span class="n">rides_df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
 
-    <span class="n">request_timestamp</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">'tpep_pickup_datetime'</span><span class="p">]</span>
+    <span class="n">request_timestamp</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;tpep_pickup_datetime&#39;</span><span class="p">]</span>
 
     <span class="c1"># If new request is from the next day, close logger, save profile in-memory and start logger for the next day</span>
     <span class="k">if</span> <span class="n">request_timestamp</span><span class="o">.</span><span class="n">day</span> <span class="o">&gt;</span> <span class="n">day_to_log</span><span class="o">.</span><span class="n">day</span><span class="p">:</span>
-        <span class="c1"># let's write our profiles to whylogs_output folder</span>
-        <span class="n">why</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"whylogs_output"</span><span class="p">,</span><span class="s2">"profile_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">.bin"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">day</span><span class="p">,</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">month</span><span class="p">,</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">year</span><span class="p">)))</span>
+        <span class="c1"># let&#39;s write our profiles to whylogs_output folder</span>
+        <span class="n">why</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;whylogs_output&quot;</span><span class="p">,</span><span class="s2">&quot;profile_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">.bin&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">day</span><span class="p">,</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">month</span><span class="p">,</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">year</span><span class="p">)))</span>
         <span class="n">day_to_log</span> <span class="o">=</span> <span class="n">request_timestamp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">second</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">microsecond</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">"Starting logger for day </span><span class="si">{}</span><span class="s2">...."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">day_to_log</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Starting logger for day </span><span class="si">{}</span><span class="s2">....&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">day_to_log</span><span class="p">))</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">request_timestamp</span><span class="o">&gt;</span><span class="n">target_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">target_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="n">request_timestamp</span><span class="o">.</span><span class="n">year</span><span class="p">,</span><span class="n">request_timestamp</span><span class="o">.</span><span class="n">month</span><span class="p">,</span><span class="n">request_timestamp</span><span class="o">.</span><span class="n">day</span><span class="p">,</span><span class="n">request_timestamp</span><span class="o">.</span><span class="n">hour</span><span class="p">)</span>
@@ -1108,34 +1117,34 @@ Loading data from https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_exam
 
     <span class="n">driver_feature_vector</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">get_online_features</span><span class="p">(</span>
     <span class="n">features</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">"driver_hourly_stats:rate_1m"</span><span class="p">,</span>
-        <span class="s2">"driver_hourly_stats:avg_daily_trips"</span><span class="p">,</span>
-        <span class="s2">"driver_hourly_stats:avg_speed"</span>
+        <span class="s2">&quot;driver_hourly_stats:rate_1m&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;driver_hourly_stats:avg_daily_trips&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;driver_hourly_stats:avg_speed&quot;</span>
     <span class="p">],</span>
-    <span class="n">entity_rows</span><span class="o">=</span><span class="p">[{</span><span class="s2">"driver_id"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">'driver_id'</span><span class="p">]},],</span>
+    <span class="n">entity_rows</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;driver_id&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;driver_id&#39;</span><span class="p">]},],</span>
     <span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
 
     <span class="c1"># Get features from both ride and driver</span>
     <span class="n">assembled_feature_vector</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"pickup_weekday"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"pickup_weekday"</span><span class="p">],</span>
-        <span class="s2">"passenger_count"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"passenger_count"</span><span class="p">],</span>
-        <span class="s2">"trip_distance"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"trip_distance"</span><span class="p">],</span>
-        <span class="s2">"PULocationID"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"PULocationID"</span><span class="p">],</span>
-        <span class="s2">"driver_avg_daily_trips"</span><span class="p">:</span> <span class="n">driver_feature_vector</span><span class="p">[</span><span class="s2">"avg_daily_trips"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-        <span class="s2">"driver_rate_1m"</span><span class="p">:</span> <span class="n">driver_feature_vector</span><span class="p">[</span><span class="s2">"rate_1m"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-        <span class="s2">"driver_avg_speed"</span><span class="p">:</span> <span class="n">driver_feature_vector</span><span class="p">[</span><span class="s2">"avg_speed"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s2">&quot;pickup_weekday&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;pickup_weekday&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;passenger_count&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;passenger_count&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;trip_distance&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;trip_distance&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;PULocationID&quot;</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;PULocationID&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;driver_avg_daily_trips&quot;</span><span class="p">:</span> <span class="n">driver_feature_vector</span><span class="p">[</span><span class="s2">&quot;avg_daily_trips&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s2">&quot;driver_rate_1m&quot;</span><span class="p">:</span> <span class="n">driver_feature_vector</span><span class="p">[</span><span class="s2">&quot;rate_1m&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+        <span class="s2">&quot;driver_avg_speed&quot;</span><span class="p">:</span> <span class="n">driver_feature_vector</span><span class="p">[</span><span class="s2">&quot;avg_speed&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
 
     <span class="p">}</span>
 
     <span class="c1"># Now that we have the complete set of features, model prediction could go here.</span>
 
-    <span class="c1"># The first time data is logged to a profile, we call log(). For subsequent data to be logged in the same profile, let's use track(), until the daily batch is finished.</span>
+    <span class="c1"># The first time data is logged to a profile, we call log(). For subsequent data to be logged in the same profile, let&#39;s use track(), until the daily batch is finished.</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">profile</span><span class="p">:</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">assembled_feature_vector</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">profile</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">assembled_feature_vector</span><span class="p">)</span>
 
-<span class="n">why</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"whylogs_output"</span><span class="p">,</span><span class="s2">"profile_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">.bin"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">day</span><span class="p">,</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">month</span><span class="p">,</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">year</span><span class="p">)))</span>
+<span class="n">why</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;whylogs_output&quot;</span><span class="p">,</span><span class="s2">&quot;profile_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">_</span><span class="si">{}</span><span class="s2">.bin&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">day</span><span class="p">,</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">month</span><span class="p">,</span><span class="n">day_to_log</span><span class="o">.</span><span class="n">year</span><span class="p">)))</span>
 </pre></div>
 </div>
 </div>
@@ -1168,7 +1177,7 @@ profile_16_2_2020.bin
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reference_profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"whylogs_output"</span><span class="p">,</span><span class="s2">"profile_10_2_2020.bin"</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">reference_profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;whylogs_output&quot;</span><span class="p">,</span><span class="s2">&quot;profile_10_2_2020.bin&quot;</span><span class="p">))</span>
 <span class="c1"># we generate a profile view, and then call to_pandas() to have a dataframe with the metrics to be inspected</span>
 <span class="n">reference_metrics</span> <span class="o">=</span> <span class="n">reference_profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
 <span class="n">reference_metrics</span>
@@ -1181,7 +1190,7 @@ profile_16_2_2020.bin
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -1194,228 +1203,228 @@ profile_16_2_2020.bin
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>distribution/mean</th>
-<th>distribution/stddev</th>
-<th>distribution/n</th>
-<th>distribution/max</th>
-<th>distribution/min</th>
-<th>distribution/q_01</th>
-<th>distribution/q_05</th>
-<th>...</th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>ints/max</th>
-<th>ints/min</th>
-<th>type</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>PULocationID</th>
-<td>39.000004</td>
-<td>39.001951</td>
-<td>39.0</td>
-<td>161.663265</td>
-<td>64.712997</td>
-<td>98</td>
-<td>264.000000</td>
-<td>41.00</td>
-<td>41.00</td>
-<td>50.00</td>
-<td>...</td>
-<td>98</td>
-<td>0</td>
-<td>98</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>264.0</td>
-<td>41.0</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>driver_avg_daily_trips</th>
-<td>20.000001</td>
-<td>20.001000</td>
-<td>20.0</td>
-<td>29.367347</td>
-<td>7.602750</td>
-<td>98</td>
-<td>44.000000</td>
-<td>9.00</td>
-<td>9.00</td>
-<td>9.00</td>
-<td>...</td>
-<td>98</td>
-<td>0</td>
-<td>98</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>44.0</td>
-<td>9.0</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>driver_avg_speed</th>
-<td>38.000003</td>
-<td>38.001901</td>
-<td>38.0</td>
-<td>20.868877</td>
-<td>3.860859</td>
-<td>98</td>
-<td>31.139999</td>
-<td>12.00</td>
-<td>12.00</td>
-<td>14.83</td>
-<td>...</td>
-<td>98</td>
-<td>0</td>
-<td>0</td>
-<td>98</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>driver_rate_1m</th>
-<td>4.000000</td>
-<td>4.000200</td>
-<td>4.0</td>
-<td>2.622449</td>
-<td>0.793210</td>
-<td>98</td>
-<td>4.000000</td>
-<td>1.00</td>
-<td>1.00</td>
-<td>1.00</td>
-<td>...</td>
-<td>98</td>
-<td>0</td>
-<td>98</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>4.0</td>
-<td>1.0</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>passenger_count</th>
-<td>6.000000</td>
-<td>6.000300</td>
-<td>6.0</td>
-<td>1.408163</td>
-<td>1.199972</td>
-<td>98</td>
-<td>6.000000</td>
-<td>0.00</td>
-<td>0.00</td>
-<td>1.00</td>
-<td>...</td>
-<td>98</td>
-<td>0</td>
-<td>98</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>6.0</td>
-<td>0.0</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>pickup_weekday</th>
-<td>1.000000</td>
-<td>1.000050</td>
-<td>1.0</td>
-<td>0.000000</td>
-<td>0.000000</td>
-<td>98</td>
-<td>0.000000</td>
-<td>0.00</td>
-<td>0.00</td>
-<td>0.00</td>
-<td>...</td>
-<td>98</td>
-<td>0</td>
-<td>98</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>trip_distance</th>
-<td>83.000017</td>
-<td>83.004161</td>
-<td>83.0</td>
-<td>2.791531</td>
-<td>3.606351</td>
-<td>98</td>
-<td>20.220000</td>
-<td>0.24</td>
-<td>0.24</td>
-<td>0.40</td>
-<td>...</td>
-<td>98</td>
-<td>0</td>
-<td>0</td>
-<td>98</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>distribution/mean</th>
+      <th>distribution/stddev</th>
+      <th>distribution/n</th>
+      <th>distribution/max</th>
+      <th>distribution/min</th>
+      <th>distribution/q_01</th>
+      <th>distribution/q_05</th>
+      <th>...</th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+      <th>type</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>PULocationID</th>
+      <td>39.000004</td>
+      <td>39.001951</td>
+      <td>39.0</td>
+      <td>161.663265</td>
+      <td>64.712997</td>
+      <td>98</td>
+      <td>264.000000</td>
+      <td>41.00</td>
+      <td>41.00</td>
+      <td>50.00</td>
+      <td>...</td>
+      <td>98</td>
+      <td>0</td>
+      <td>98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>264.0</td>
+      <td>41.0</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>driver_avg_daily_trips</th>
+      <td>20.000001</td>
+      <td>20.001000</td>
+      <td>20.0</td>
+      <td>29.367347</td>
+      <td>7.602750</td>
+      <td>98</td>
+      <td>44.000000</td>
+      <td>9.00</td>
+      <td>9.00</td>
+      <td>9.00</td>
+      <td>...</td>
+      <td>98</td>
+      <td>0</td>
+      <td>98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>44.0</td>
+      <td>9.0</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>driver_avg_speed</th>
+      <td>38.000003</td>
+      <td>38.001901</td>
+      <td>38.0</td>
+      <td>20.868877</td>
+      <td>3.860859</td>
+      <td>98</td>
+      <td>31.139999</td>
+      <td>12.00</td>
+      <td>12.00</td>
+      <td>14.83</td>
+      <td>...</td>
+      <td>98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>driver_rate_1m</th>
+      <td>4.000000</td>
+      <td>4.000200</td>
+      <td>4.0</td>
+      <td>2.622449</td>
+      <td>0.793210</td>
+      <td>98</td>
+      <td>4.000000</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>1.00</td>
+      <td>...</td>
+      <td>98</td>
+      <td>0</td>
+      <td>98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>1.0</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>passenger_count</th>
+      <td>6.000000</td>
+      <td>6.000300</td>
+      <td>6.0</td>
+      <td>1.408163</td>
+      <td>1.199972</td>
+      <td>98</td>
+      <td>6.000000</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>1.00</td>
+      <td>...</td>
+      <td>98</td>
+      <td>0</td>
+      <td>98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>6.0</td>
+      <td>0.0</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>pickup_weekday</th>
+      <td>1.000000</td>
+      <td>1.000050</td>
+      <td>1.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>98</td>
+      <td>0.000000</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>98</td>
+      <td>0</td>
+      <td>98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>trip_distance</th>
+      <td>83.000017</td>
+      <td>83.004161</td>
+      <td>83.0</td>
+      <td>2.791531</td>
+      <td>3.606351</td>
+      <td>98</td>
+      <td>20.220000</td>
+      <td>0.24</td>
+      <td>0.24</td>
+      <td>0.40</td>
+      <td>...</td>
+      <td>98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>98</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+  </tbody>
+</table>
 <p>7 rows × 28 columns</p>
 </div></div>
 </div>
@@ -1434,8 +1443,8 @@ profile_16_2_2020.bin
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">target_profile_1</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"whylogs_output"</span><span class="p">,</span><span class="s2">"profile_11_2_2020.bin"</span><span class="p">))</span>
-<span class="n">target_profile_2</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"whylogs_output"</span><span class="p">,</span><span class="s2">"profile_16_2_2020.bin"</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">target_profile_1</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;whylogs_output&quot;</span><span class="p">,</span><span class="s2">&quot;profile_11_2_2020.bin&quot;</span><span class="p">))</span>
+<span class="n">target_profile_2</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;whylogs_output&quot;</span><span class="p">,</span><span class="s2">&quot;profile_16_2_2020.bin&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -1447,8 +1456,8 @@ profile_16_2_2020.bin
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">card</span> <span class="o">=</span> <span class="n">reference_metrics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">'driver_avg_speed'</span><span class="p">][</span><span class="s1">'cardinality/est'</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Cardinality for driver average speed for Reference dataset:"</span><span class="p">,</span><span class="n">card</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">card</span> <span class="o">=</span> <span class="n">reference_metrics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;driver_avg_speed&#39;</span><span class="p">][</span><span class="s1">&#39;cardinality/est&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cardinality for driver average speed for Reference dataset:&quot;</span><span class="p">,</span><span class="n">card</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1469,10 +1478,10 @@ Cardinality for driver average speed for Reference dataset: 38.00000349183915
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_1_metrics</span> <span class="o">=</span> <span class="n">target_profile_1</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
 <span class="n">profile_2_metrics</span> <span class="o">=</span> <span class="n">target_profile_2</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Cardinality for driver average speed for profile #1:"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">profile_1_metrics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">'driver_avg_speed'</span><span class="p">][</span><span class="s1">'cardinality/est'</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Cardinality for driver average speed for profile #2:"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">profile_2_metrics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">'driver_avg_speed'</span><span class="p">][</span><span class="s1">'cardinality/est'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cardinality for driver average speed for profile #1:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">profile_1_metrics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;driver_avg_speed&#39;</span><span class="p">][</span><span class="s1">&#39;cardinality/est&#39;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cardinality for driver average speed for profile #2:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">profile_2_metrics</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;driver_avg_speed&#39;</span><span class="p">][</span><span class="s1">&#39;cardinality/est&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1517,7 +1526,7 @@ Cardinality for driver average speed for profile #2:
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div></div><iframe frameborder="0" height="1000px" srcdoc="&lt;!DOCTYPE html&gt;
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt;
     &lt;meta charset=&quot;UTF-8&quot; /&gt;
@@ -2365,7 +2374,7 @@ Cardinality for driver average speed for profile #2:
     const referenceProfile = getReferenceProfile()
 
     function fixNumberTo(number, decimals = 3) {
-      const fractionalDigits = String(number % 1).split('').slice(2, 2 + decimals).join('')
+      const fractionalDigits = String(number % 1).split(&#x27;&#x27;).slice(2, 2 + decimals).join(&#x27;&#x27;)
       return `${Math.trunc(number)}.${fractionalDigits}`
     }
 
@@ -2480,14 +2489,14 @@ Cardinality for driver average speed for profile #2:
           data = chartData(column)
         } else if (referenceColumn === null ) {
             $(&quot;.svg-container&quot;).css(&quot;padding-bottom&quot;, &quot;0&quot;)
-            return '&lt;span class=&quot;wl-table-cell__bedge-wrap&quot;&gt;No data to show the chart&lt;/span&gt;';
+            return &#x27;&lt;span class=&quot;wl-table-cell__bedge-wrap&quot;&gt;No data to show the chart&lt;/span&gt;&#x27;;
         } else if (referenceColumn === undefined) {
             $(document).ready(function() {
               $(&quot;.reference-table-head&quot;).addClass(&quot;d-none&quot;)
             });
-            return ''
+            return &#x27;&#x27;
         } else if (referenceColumn.frequentItems === undefined){
-            return '';
+            return &#x27;&#x27;;
         }
         return `
           &lt;div class=&quot;svg-container&quot;&gt;
@@ -2545,25 +2554,25 @@ Cardinality for driver average speed for profile #2:
     abbreviate_number = function(value, fixed = 0) {
       value = +value
       if (value === null) { return null; } // terminate early
-      if (value === 0) { return '0'; } // terminate early
+      if (value === 0) { return &#x27;0&#x27;; } // terminate early
       fixed = (!fixed || fixed &lt; 0) ? 0 : fixed; // number of decimal places to show
       var b = (value).toPrecision(2).split(&quot;e&quot;), // get power
           k = b.length === 1 ? 0 : Math.floor(Math.min(b[1].slice(1), 14) / 3), // floor at decimals, ceiling at trillions
           c = k &lt; 1 ? value.toFixed(0 + fixed) : (value / Math.pow(10, k * 3) ).toFixed(1 + fixed), // divide by power
           d = c &lt; 0 ? c : Math.abs(c), // enforce -0 is 0
           newValue = d,
-          suffixe = ['', 'K', 'M', 'B', 'T'][k]; // append power
+          suffixe = [&#x27;&#x27;, &#x27;K&#x27;, &#x27;M&#x27;, &#x27;B&#x27;, &#x27;T&#x27;][k]; // append power
       return {value, newValue, suffixe};
     }
 
      function formatBytes(bytes, decimals = 2) {
        let newValue,
        suffixe = &quot;&quot;
-       if (bytes === 0) return '0 Bytes';
+       if (bytes === 0) return &#x27;0 Bytes&#x27;;
 
        const k = 1024;
        const dm = decimals &lt; 0 ? 0 : decimals;
-       const sizes = ['Bytes', 'KiB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+       const sizes = [&#x27;Bytes&#x27;, &#x27;KiB&#x27;, &#x27;MB&#x27;, &#x27;GB&#x27;, &#x27;TB&#x27;, &#x27;PB&#x27;, &#x27;EB&#x27;, &#x27;ZB&#x27;, &#x27;YB&#x27;];
 
        const i = Math.floor(Math.log(bytes) / Math.log(k));
        newValue = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
@@ -2596,18 +2605,18 @@ Cardinality for driver average speed for profile #2:
 
      Handlebars.registerHelper(&quot;missingCells&quot;, function (properties) {
        const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_cells)
-       if (typeof value !== 'undefined' &amp;&amp; typeof newValue !== 'undefined'  &amp;&amp; typeof suffixe !== 'undefined' ) {
+       if (typeof value !== &#x27;undefined&#x27; &amp;&amp; typeof newValue !== &#x27;undefined&#x27;  &amp;&amp; typeof suffixe !== &#x27;undefined&#x27; ) {
         return numberWithSuffixe(value, valueSuffixe(`${newValue}`), suffixe);
        }
-       return numberWithSuffixe(0, valueNumber(0), valueNumber(''));
+       return numberWithSuffixe(0, valueNumber(0), valueNumber(&#x27;&#x27;));
      });
 
      Handlebars.registerHelper(&quot;missingCellsPercentage&quot;, function (properties) {
        const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_percentage)
-       if (typeof value !== 'undefined' &amp;&amp; typeof newValue !== 'undefined'  &amp;&amp; typeof suffixe !== 'undefined' ) {
+       if (typeof value !== &#x27;undefined&#x27; &amp;&amp; typeof newValue !== &#x27;undefined&#x27;  &amp;&amp; typeof suffixe !== &#x27;undefined&#x27; ) {
         return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
        }
-       return numberWithSuffixe(0, valueSuffixe(`(${0}%)`), '');
+       return numberWithSuffixe(0, valueSuffixe(`(${0}%)`), &#x27;&#x27;);
      });
 
      Handlebars.registerHelper(&quot;getProfileTimeStamp&quot;, function (properties) {
@@ -2657,7 +2666,7 @@ Cardinality for driver average speed for profile #2:
           return diffFromRefTableElement(&quot;undefined&quot;, &quot;severe-drift-circle-color&quot;)
         }
 
-        return '&lt;p style=&quot;color: black&quot;&gt;-&lt;/p&gt;';
+        return &#x27;&lt;p style=&quot;color: black&quot;&gt;-&lt;/p&gt;&#x27;;
       });
 
       $(document).ready(() =&gt;
@@ -2684,7 +2693,7 @@ Cardinality for driver average speed for profile #2:
           const slicedFrequentItems = column.frequentItems.items.slice(0, 5);
           for (let fi = 0; fi &lt; slicedFrequentItems.length; fi++) {
             frequentItemsElemString +=
-              '&lt;span class=&quot;wl-table-cell__bedge&quot;&gt;' + slicedFrequentItems[fi].jsonValue + &quot;&lt;/span&gt;&quot;;
+              &#x27;&lt;span class=&quot;wl-table-cell__bedge&quot;&gt;&#x27; + slicedFrequentItems[fi].jsonValue + &quot;&lt;/span&gt;&quot;;
           }
         } else {
           frequentItemsElemString += &quot;No data to show&quot;;
@@ -2790,7 +2799,7 @@ Cardinality for driver average speed for profile #2:
 
       function filterNotification() {
         const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
-        const $boxes = $('.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked');
+        const $boxes = $(&#x27;.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked&#x27;);
         const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
         if (item === undefined) {
           $notifCircleContainer.removeClass(&quot;d-none&quot;)
@@ -2871,7 +2880,7 @@ Cardinality for driver average speed for profile #2:
     }
 
     function checkedBoxes() {
-      const $boxes = $('input[name=checkbox]:checked');
+      const $boxes = $(&#x27;input[name=checkbox]:checked&#x27;);
       const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
 
       if ($boxes.length) {
@@ -2903,7 +2912,8 @@ Cardinality for driver average speed for profile #2:
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-" width="100%"></iframe></div>
+" width=100% height=1000px
+        frameBorder=0></iframe></div>
 </div>
 <p>The report warns us of 3 possible drifts in the following features:</p>
 <ul class="simple">
@@ -2921,7 +2931,7 @@ visualization.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">distribution_chart</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">"driver_rate_1m"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">distribution_chart</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;driver_rate_1m&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2930,7 +2940,7 @@ visualization.</p>
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div></div><iframe frameborder="0" height="277px" srcdoc="&lt;!DOCTYPE html&gt;
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt;
     &lt;meta charset=&quot;UTF-8&quot; /&gt;
@@ -3239,7 +3249,7 @@ visualization.</p>
         } = sizes
 
         const rectColors = [&quot;#44C0E7&quot;, &quot;#F5843C&quot;]
-        const subgroups = ['reference_profile', 'profile']
+        const subgroups = [&#x27;reference_profile&#x27;, &#x27;profile&#x27;]
 
         xScale.padding([0.3])
 
@@ -3367,14 +3377,15 @@ visualization.</p>
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-" width="100%"></iframe></div>
+" width=100% height=277px
+        frameBorder=0></iframe></div>
 </div>
 <p>There’s a lot of ratings that don’t even show in the reference profile, so it really likes like there’s a significant drift here.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">double_histogram</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">"driver_avg_daily_trips"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">double_histogram</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;driver_avg_daily_trips&quot;</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -3383,32 +3394,32 @@ visualization.</p>
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div></div><iframe frameborder="0" height="300px" srcdoc='&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt;
-    &lt;meta charset="UTF-8" /&gt;
-    &lt;meta http-equiv="X-UA-Compatible" content="IE=edge" /&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
-    &lt;meta name="description" content="" /&gt;
-    &lt;meta name="author" content="" /&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
 
     &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
 
-    &lt;link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.googleapis.com" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /&gt;
-    &lt;link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap" rel="stylesheet" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" /&gt;
-    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" /&gt;
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
 
     &lt;script
-      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
-      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
     &gt;&lt;/script&gt;
 
-    &lt;style type="text/css"&gt;
+    &lt;style type=&quot;text/css&quot;&gt;
 
       :root {
         /** Branded colors */
@@ -3549,30 +3560,30 @@ visualization.</p>
     &lt;/style&gt;
   &lt;/head&gt;
 
-  &lt;body id="generated-html"&gt;&lt;/body&gt;
-  &lt;script id="entry-template" type="text/x-handlebars-template"&gt;
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
 
-      &lt;div class="desktop-content"&gt;
-{{#each this}}              &lt;div class="chart-box" id="chart-box"&gt;
-                &lt;div class="chart-box-title display-flex"&gt;
+      &lt;div class=&quot;desktop-content&quot;&gt;
+{{#each this}}              &lt;div class=&quot;chart-box&quot; id=&quot;chart-box&quot;&gt;
+                &lt;div class=&quot;chart-box-title display-flex&quot;&gt;
                   &lt;p&gt;{{@key}}&lt;/p&gt;
-                  &lt;div class="display-flex"&gt;
-                    &lt;div class="colors-for-distingushing-charts"&gt;
-                      &lt;div class="circle-color" style="background: #44C0E7;"&gt;&lt;/div&gt;
-                      &lt;text alignment-baseline="middle" style="font-size: 15px;"&gt;Target&lt;/text&gt;
+                  &lt;div class=&quot;display-flex&quot;&gt;
+                    &lt;div class=&quot;colors-for-distingushing-charts&quot;&gt;
+                      &lt;div class=&quot;circle-color&quot; style=&quot;background: #44C0E7;&quot;&gt;&lt;/div&gt;
+                      &lt;text alignment-baseline=&quot;middle&quot; style=&quot;font-size: 15px;&quot;&gt;Target&lt;/text&gt;
                     &lt;/div&gt;
-                    &lt;div class="colors-for-distingushing-charts"&gt;
-                      &lt;div class="circle-color" style="background: #F5843C"&gt;&lt;/div&gt;
-                      &lt;text alignment-baseline="middle" style="font-size: 15px;"&gt;Reference&lt;/text&gt;
+                    &lt;div class=&quot;colors-for-distingushing-charts&quot;&gt;
+                      &lt;div class=&quot;circle-color&quot; style=&quot;background: #F5843C&quot;&gt;&lt;/div&gt;
+                      &lt;text alignment-baseline=&quot;middle&quot; style=&quot;font-size: 15px;&quot;&gt;Reference&lt;/text&gt;
                     &lt;/div&gt;
                   &lt;/div&gt;&lt;/div&gt;
-                &lt;div class="svg-container"&gt;{{{getDoubleHistogramChart this}}}&lt;/div&gt;
+                &lt;div class=&quot;svg-container&quot;&gt;{{{getDoubleHistogramChart this}}}&lt;/div&gt;
               &lt;/div&gt;
 {{/each}}      &lt;/div&gt;
-      &lt;div class="no-responsive"&gt;
-        &lt;div class="no-responsive__content"&gt;
-          &lt;h1 class="no-responsive__title"&gt;Hold on! :)&lt;/h1&gt;
-          &lt;p class="no-responsive__text"&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
             It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
             best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
             are working on adding support for a larger variety of devices.
@@ -3582,9 +3593,9 @@ visualization.</p>
 
   &lt;/script&gt;
 
-  &lt;script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
 
-  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
 
   &lt;script&gt;
     function registerHandlebarHelperFunctions() {
@@ -3602,10 +3613,10 @@ visualization.</p>
           this.SVG_HEIGHT = height;
           this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
-          this.svgEl = d3.create("svg")
-             .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `0 0 ${$(window).width()+100} ${$(window).height()-30}`)
-             .classed("svg-content-responsive", true)
+          this.svgEl = d3.create(&quot;svg&quot;)
+             .attr(&quot;preserveAspectRatio&quot;, &quot;xMinYMin meet&quot;)
+             .attr(&quot;viewBox&quot;, `0 0 ${$(window).width()+100} ${$(window).height()-30}`)
+             .classed(&quot;svg-content-responsive&quot;, true)
           this.maxYValue = d3.max(targetData, (d) =&gt; Math.abs(d.axisY));
           this.minYValue = d3.min(targetData, (d) =&gt; Math.abs(d.axisY));
           const mergedReferenceData = referenceData.map(({axisX, axisY}) =&gt; {
@@ -3629,8 +3640,8 @@ visualization.</p>
          .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth &gt;= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])
          .range([0, this.CHART_WIDTH ]);
 
-         this.svgEl.append("g")
-             .attr("transform", "translate("+ this.MARGIN.LEFT +"," + this.SVG_HEIGHT + ")")
+         this.svgEl.append(&quot;g&quot;)
+             .attr(&quot;transform&quot;, &quot;translate(&quot;+ this.MARGIN.LEFT +&quot;,&quot; + this.SVG_HEIGHT + &quot;)&quot;)
              .call(d3.axisBottom(this.xScale));
           this.yScale = d3.scaleLinear()
               .range([this.CHART_HEIGHT , 0])
@@ -3650,8 +3661,8 @@ visualization.</p>
           }
         } else {
             $(document).ready(() =&gt;
-              $(".desktop-content").html(`
-                &lt;p style="height: ${$(window).height()}px" class="error-message"&gt;
+              $(&quot;.desktop-content&quot;).html(`
+                &lt;p style=&quot;height: ${$(window).height()}px&quot; class=&quot;error-message&quot;&gt;
                   Something went wrong. Please try again.
                 &lt;/p&gt;
               `)
@@ -3683,81 +3694,81 @@ visualization.</p>
           yScale
         } = sizes
 
-        const rectColors = ["#44C0E7", "#F5843C"]
+        const rectColors = [&quot;#44C0E7&quot;, &quot;#F5843C&quot;]
         const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40);
 
-        svgEl.append("g")
-          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
+        svgEl.append(&quot;g&quot;)
+          .attr(&quot;transform&quot;, `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
           .call(yAxis)
-          .call(g =&gt; g.select(".domain").remove())
-          .call(g =&gt; g.selectAll(".tick line")
-              .attr("x2", CHART_WIDTH)
-              .attr("stroke-opacity", 0.1))
-          .call(g =&gt; g.append("text")
-              .attr("x", -MARGIN.LEFT)
-              .attr("y", 10)
-              .attr("fill", "currentColor")
-              .attr("text-anchor", "start"))
+          .call(g =&gt; g.select(&quot;.domain&quot;).remove())
+          .call(g =&gt; g.selectAll(&quot;.tick line&quot;)
+              .attr(&quot;x2&quot;, CHART_WIDTH)
+              .attr(&quot;stroke-opacity&quot;, 0.1))
+          .call(g =&gt; g.append(&quot;text&quot;)
+              .attr(&quot;x&quot;, -MARGIN.LEFT)
+              .attr(&quot;y&quot;, 10)
+              .attr(&quot;fill&quot;, &quot;currentColor&quot;)
+              .attr(&quot;text-anchor&quot;, &quot;start&quot;))
 
-        svgEl.append("text")
-          .attr("transform",
-                "translate(" + (CHART_WIDTH/2) + " ," +
-                               (CHART_HEIGHT + MARGIN.TOP + 75) + ")")
-          .style("text-anchor", "middle")
-          .text("Values")
-          .style("font-size", "15")
-          .style("opacity", "0.6")
+        svgEl.append(&quot;text&quot;)
+          .attr(&quot;transform&quot;,
+                &quot;translate(&quot; + (CHART_WIDTH/2) + &quot; ,&quot; +
+                               (CHART_HEIGHT + MARGIN.TOP + 75) + &quot;)&quot;)
+          .style(&quot;text-anchor&quot;, &quot;middle&quot;)
+          .text(&quot;Values&quot;)
+          .style(&quot;font-size&quot;, &quot;15&quot;)
+          .style(&quot;opacity&quot;, &quot;0.6&quot;)
 
-        svgEl.append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 0)
-          .attr("x", 0 - (SVG_HEIGHT / 2))
-          .attr("dy", "1em")
-          .style("text-anchor", "middle")
-          .text("Counts")
-          .style("font-size", "15")
-          .style("opacity", "0.6")
+        svgEl.append(&quot;text&quot;)
+          .attr(&quot;transform&quot;, &quot;rotate(-90)&quot;)
+          .attr(&quot;y&quot;, 0)
+          .attr(&quot;x&quot;, 0 - (SVG_HEIGHT / 2))
+          .attr(&quot;dy&quot;, &quot;1em&quot;)
+          .style(&quot;text-anchor&quot;, &quot;middle&quot;)
+          .text(&quot;Counts&quot;)
+          .style(&quot;font-size&quot;, &quot;15&quot;)
+          .style(&quot;opacity&quot;, &quot;0.6&quot;)
 
-          const gChart = svgEl.append("g");
+          const gChart = svgEl.append(&quot;g&quot;);
           gChart
-          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
-          .selectAll(".bar")
+          .attr(&quot;transform&quot;, &quot;translate(&quot;+ MARGIN.LEFT +&quot;,0)&quot;)
+          .selectAll(&quot;.bar&quot;)
           .data(histogramData)
           .enter()
-          .append("rect")
-          .style("stroke", "#021826")
-          .classed("bar", true)
-          .attr("width", function(d) { return xScale(histogramData[1]?.axisX)-xScale(histogramData[0]?.axisX); })
-          .attr("height", (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
-          .attr("x", 1)
-          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
-          .attr("y", (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
-          .attr("fill", rectColors[0])
-          .style("opacity","0.6")
+          .append(&quot;rect&quot;)
+          .style(&quot;stroke&quot;, &quot;#021826&quot;)
+          .classed(&quot;bar&quot;, true)
+          .attr(&quot;width&quot;, function(d) { return xScale(histogramData[1]?.axisX)-xScale(histogramData[0]?.axisX); })
+          .attr(&quot;height&quot;, (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
+          .attr(&quot;x&quot;, 1)
+          .attr(&quot;transform&quot;, function(d) { return &quot;translate(&quot; + xScale(d.axisX) + &quot;,&quot; + 0  +  &quot;)&quot;; })
+          .attr(&quot;y&quot;, (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr(&quot;fill&quot;, rectColors[0])
+          .style(&quot;opacity&quot;,&quot;0.6&quot;)
 
-          const gChart1 = svgEl.append("g");
+          const gChart1 = svgEl.append(&quot;g&quot;);
           gChart1
-          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
-          .selectAll(".bar")
+          .attr(&quot;transform&quot;, &quot;translate(&quot;+ MARGIN.LEFT +&quot;,0)&quot;)
+          .selectAll(&quot;.bar&quot;)
           .data(overlappedHistogramData)
           .enter()
-          .append("rect")
-          .style("stroke", "#021826")
-          .classed("bar", true)
-          .attr("width", function(d) { return xScale(overlappedHistogramData[1]?.axisX)-xScale(overlappedHistogramData[0]?.axisX); })
-          .attr("height", (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
-          .attr("x", 1)
-          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
-          .attr("y", (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
-          .attr("fill", rectColors[1])
-          .style("opacity","0.6")
+          .append(&quot;rect&quot;)
+          .style(&quot;stroke&quot;, &quot;#021826&quot;)
+          .classed(&quot;bar&quot;, true)
+          .attr(&quot;width&quot;, function(d) { return xScale(overlappedHistogramData[1]?.axisX)-xScale(overlappedHistogramData[0]?.axisX); })
+          .attr(&quot;height&quot;, (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
+          .attr(&quot;x&quot;, 1)
+          .attr(&quot;transform&quot;, function(d) { return &quot;translate(&quot; + xScale(d.axisX) + &quot;,&quot; + 0  +  &quot;)&quot;; })
+          .attr(&quot;y&quot;, (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr(&quot;fill&quot;, rectColors[1])
+          .style(&quot;opacity&quot;,&quot;0.6&quot;)
 
         return svgEl._groups[0][0].outerHTML;
       }
 
-      const profileFromCSVfile = {"driver_avg_daily_trips": {"histogram": {"start": 9.0, "end": 44.0000044, "width": 0, "counts": [4, 0, 0, 0, 1, 0, 3, 4, 0, 1, 8, 1, 21, 0, 16, 1, 0, 5, 7, 19, 5, 0, 1, 0, 1], "max": 44.0, "min": 9.0, "bins": [9.0, 10.400000176, 11.800000352, 13.200000528, 14.600000704, 16.00000088, 17.400001056, 18.800001232, 20.200001408, 21.600001584, 23.00000176, 24.400001936000002, 25.800002112, 27.200002288, 28.600002464, 30.00000264, 31.400002816, 32.800002992, 34.200003168, 35.600003344, 37.00000352, 38.400003696, 39.800003872000005, 41.200004048000004, 42.600004224, 44.0000044], "n": 98}}}
+      const profileFromCSVfile = {&quot;driver_avg_daily_trips&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 9.0, &quot;end&quot;: 44.0000044, &quot;width&quot;: 0, &quot;counts&quot;: [4, 0, 0, 0, 1, 0, 3, 4, 0, 1, 8, 1, 21, 0, 16, 1, 0, 5, 7, 19, 5, 0, 1, 0, 1], &quot;max&quot;: 44.0, &quot;min&quot;: 9.0, &quot;bins&quot;: [9.0, 10.400000176, 11.800000352, 13.200000528, 14.600000704, 16.00000088, 17.400001056, 18.800001232, 20.200001408, 21.600001584, 23.00000176, 24.400001936000002, 25.800002112, 27.200002288, 28.600002464, 30.00000264, 31.400002816, 32.800002992, 34.200003168, 35.600003344, 37.00000352, 38.400003696, 39.800003872000005, 41.200004048000004, 42.600004224, 44.0000044], &quot;n&quot;: 98}}}
 
-      Handlebars.registerHelper("getDoubleHistogramChart",(column,key) =&gt; {
+      Handlebars.registerHelper(&quot;getDoubleHistogramChart&quot;,(column,key) =&gt; {
           const columnKey = key.data.key
         try {
           if (profileFromCSVfile) {
@@ -3768,8 +3779,8 @@ visualization.</p>
           }
         } catch (err) {
           $(document).ready(() =&gt;
-            $(".desktop-content").html(`
-              &lt;p style="height: ${$(window).height()}px" class="error-message"&gt;
+            $(&quot;.desktop-content&quot;).html(`
+              &lt;p style=&quot;height: ${$(window).height()}px&quot; class=&quot;error-message&quot;&gt;
                 Something went wrong. Please try again.
               &lt;/p&gt;
             `)
@@ -3779,17 +3790,17 @@ visualization.</p>
     }
 
     function initWebsiteScripts() {
-      $(".svg-container").css("height", $(window).height() - 32)
+      $(&quot;.svg-container&quot;).css(&quot;height&quot;, $(window).height() - 32)
     }
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {"driver_avg_daily_trips": {"histogram": {"start": 0.0, "end": 20.000002, "width": 0, "counts": [23, 6, 0, 12, 8, 8, 4, 2, 3, 0, 0, 0, 6, 3, 0, 0, 0, 0, 5, 0, 2], "max": 20.0, "min": 0.0, "bins": [0.0, 0.9523810476190475, 1.904762095238095, 2.8571431428571428, 3.80952419047619, 4.761905238095237, 5.7142862857142855, 6.666667333333333, 7.61904838095238, 8.571429428571427, 9.523810476190475, 10.476191523809522, 11.428572571428571, 12.380953619047618, 13.333334666666666, 14.285715714285713, 15.23809676190476, 16.19047780952381, 17.142858857142855, 18.095239904761904, 19.04762095238095, 20.000002], "n": 82}}};
+      const context = {&quot;driver_avg_daily_trips&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 20.000002, &quot;width&quot;: 0, &quot;counts&quot;: [23, 6, 0, 12, 8, 8, 4, 2, 3, 0, 0, 0, 6, 3, 0, 0, 0, 0, 5, 0, 2], &quot;max&quot;: 20.0, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 0.9523810476190475, 1.904762095238095, 2.8571431428571428, 3.80952419047619, 4.761905238095237, 5.7142862857142855, 6.666667333333333, 7.61904838095238, 8.571429428571427, 9.523810476190475, 10.476191523809522, 11.428572571428571, 12.380953619047618, 13.333334666666666, 14.285715714285713, 15.23809676190476, 16.19047780952381, 17.142858857142855, 18.095239904761904, 19.04762095238095, 20.000002], &quot;n&quot;: 82}}};
       // Config handlebars and pass data to HBS template
-      const source = document.getElementById("entry-template").innerHTML;
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
       const html = template(context);
-      const target = document.getElementById("generated-html");
+      const target = document.getElementById(&quot;generated-html&quot;);
       target.innerHTML = html;
     }
 
@@ -3799,7 +3810,8 @@ visualization.</p>
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-' width="100%"></iframe></div>
+" width=100% height=300px
+        frameBorder=0></iframe></div>
 </div>
 <p>Likewise, these histograms almost don’t overlap, so it’s pretty clear that these distributions are different.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">NotebookProfileVisualizer</span></code> has a bunch of other types of features and visualization. If you like to know more, be sure to check the example on the <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/basic/Notebook_Profile_Visualizer.html">Notebook Profile Visualizer</a></p>
@@ -3819,14 +3831,14 @@ visualization.</p>
 
 
 <span class="n">dstats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-        <span class="p">{</span><span class="s1">'event_timestamp'</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s1">'2020-02-10'</span><span class="p">,</span> <span class="s1">'2020-02-17'</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">'1H'</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s1">'left'</span><span class="p">)}</span>
+        <span class="p">{</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s1">&#39;2020-02-10&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-02-17&#39;</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;1H&#39;</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)}</span>
      <span class="p">)</span>
-<span class="n">dstats</span><span class="p">[</span><span class="s1">'driver_id'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'1001'</span>
+<span class="n">dstats</span><span class="p">[</span><span class="s1">&#39;driver_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1001&#39;</span>
 
 <span class="n">dstats2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-        <span class="p">{</span><span class="s1">'event_timestamp'</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s1">'2020-02-10'</span><span class="p">,</span> <span class="s1">'2020-02-17'</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">'1H'</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s1">'left'</span><span class="p">)}</span>
+        <span class="p">{</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s1">&#39;2020-02-10&#39;</span><span class="p">,</span> <span class="s1">&#39;2020-02-17&#39;</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;1H&#39;</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)}</span>
      <span class="p">)</span>
-<span class="n">dstats2</span><span class="p">[</span><span class="s1">'driver_id'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'1002'</span>
+<span class="n">dstats2</span><span class="p">[</span><span class="s1">&#39;driver_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1002&#39;</span>
 
 <span class="n">dstats_tot</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dstats</span><span class="p">,</span> <span class="n">dstats2</span><span class="p">])</span>
 </pre></div>
@@ -3836,7 +3848,7 @@ visualization.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dstats_tot</span> <span class="o">=</span> <span class="n">dstats_tot</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"event_timestamp"</span><span class="p">,</span><span class="s2">"driver_id"</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dstats_tot</span> <span class="o">=</span> <span class="n">dstats_tot</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;event_timestamp&quot;</span><span class="p">,</span><span class="s2">&quot;driver_id&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -3845,7 +3857,7 @@ visualization.</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">datetime</span>
-<span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'created'</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+<span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;created&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -3859,7 +3871,7 @@ visualization.</p>
 <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="p">))</span>
 <span class="n">daily_trips</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 <span class="n">daily_trips</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">daily_trips</span><span class="p">]</span>
-<span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'avg_daily_trips'</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily_trips</span>
+<span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;avg_daily_trips&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily_trips</span>
 </pre></div>
 </div>
 </div>
@@ -3875,7 +3887,7 @@ visualization.</p>
 
 <span class="n">X</span> <span class="o">=</span> <span class="n">get_truncated_normal</span><span class="p">()</span>
 
-<span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'rate_1m'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="p">))]</span>
+<span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;rate_1m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="p">))]</span>
 </pre></div>
 </div>
 </div>
@@ -3889,7 +3901,7 @@ visualization.</p>
 <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="p">))</span>
 <span class="n">avg_speed</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">avg_speed</span>
-<span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'avg_speed'</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_speed</span>
+<span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;avg_speed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_speed</span>
 </pre></div>
 </div>
 </div>
@@ -3900,7 +3912,7 @@ visualization.</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dstats_tot</span> <span class="o">=</span> <span class="n">dstats_tot</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">11</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">hour</span><span class="o">%</span><span class="k">2</span>)!=0)
+<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">11</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">hour</span><span class="o">%</span><span class="k">2</span>)!=0)
 <span class="n">df2</span> <span class="o">=</span> <span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">]</span>
 <span class="n">dstats_tot</span> <span class="o">=</span> <span class="n">dstats_tot</span><span class="p">[</span><span class="o">~</span><span class="n">dstats_tot</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df2</span><span class="p">)]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
 </pre></div>
@@ -3915,28 +3927,28 @@ visualization.</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">14</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">14</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">])</span>
 
 <span class="n">X</span> <span class="o">=</span> <span class="n">get_truncated_normal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upp</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">rate_1m</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
-<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">'rate_1m'</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate_1m</span>
+<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">&#39;rate_1m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate_1m</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">])</span>
 
 <span class="n">X</span> <span class="o">=</span> <span class="n">get_truncated_normal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upp</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">rate_1m</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
-<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">'rate_1m'</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate_1m</span>
+<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">&#39;rate_1m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate_1m</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">])</span>
 
 <span class="n">X</span> <span class="o">=</span> <span class="n">get_truncated_normal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">low</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upp</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">rate_1m</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="p">)]</span>
-<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">'rate_1m'</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate_1m</span>
+<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">&#39;rate_1m&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rate_1m</span>
 </pre></div>
 </div>
 </div>
@@ -3947,7 +3959,7 @@ visualization.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">14</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">14</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">])</span>
 
 <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">6</span> <span class="c1"># mean and standard deviation</span>
@@ -3956,9 +3968,9 @@ visualization.</p>
 <span class="n">daily_trips</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">daily_trips</span><span class="p">]</span>
 <span class="c1"># daily_trips</span>
 
-<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">'avg_daily_trips'</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily_trips</span>
+<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">&#39;avg_daily_trips&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily_trips</span>
 
-<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">15</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">])</span>
 
 <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">6</span> <span class="c1"># mean and standard deviation</span>
@@ -3967,9 +3979,9 @@ visualization.</p>
 <span class="n">daily_trips</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">daily_trips</span><span class="p">]</span>
 <span class="c1"># daily_trips</span>
 
-<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">'avg_daily_trips'</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily_trips</span>
+<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">&#39;avg_daily_trips&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily_trips</span>
 
-<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">'event_timestamp'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="o">==</span><span class="mi">16</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dstats_tot</span><span class="p">[</span><span class="s1">&#39;event_timestamp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">])</span>
 
 <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span> <span class="c1"># mean and standard deviation</span>
@@ -3978,10 +3990,10 @@ visualization.</p>
 <span class="n">daily_trips</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">&gt;</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">daily_trips</span><span class="p">]</span>
 <span class="c1"># daily_trips</span>
 
-<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">'avg_daily_trips'</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily_trips</span>
+<span class="n">dstats_tot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="s1">&#39;avg_daily_trips&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily_trips</span>
 
-<span class="n">dstats_tot</span> <span class="o">=</span> <span class="n">dstats_tot</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s1">'driver_id'</span><span class="p">:</span> <span class="s1">'int64'</span><span class="p">,</span><span class="s1">'avg_daily_trips'</span><span class="p">:</span><span class="s1">'int64'</span><span class="p">,</span><span class="s1">'rate_1m'</span><span class="p">:</span><span class="s1">'int64'</span><span class="p">})</span>
-<span class="c1"># dstats_tot.to_parquet("driver_stats.parquet")</span>
+<span class="n">dstats_tot</span> <span class="o">=</span> <span class="n">dstats_tot</span><span class="o">.</span><span class="n">astype</span><span class="p">({</span><span class="s1">&#39;driver_id&#39;</span><span class="p">:</span> <span class="s1">&#39;int64&#39;</span><span class="p">,</span><span class="s1">&#39;avg_daily_trips&#39;</span><span class="p">:</span><span class="s1">&#39;int64&#39;</span><span class="p">,</span><span class="s1">&#39;rate_1m&#39;</span><span class="p">:</span><span class="s1">&#39;int64&#39;</span><span class="p">})</span>
+<span class="c1"># dstats_tot.to_parquet(&quot;driver_stats.parquet&quot;)</span>
 </pre></div>
 </div>
 </div>

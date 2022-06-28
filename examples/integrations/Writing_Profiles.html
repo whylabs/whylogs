@@ -13,10 +13,10 @@
 <meta property="og:description" content="Open in Colab Hello there! If you’ve come to this tutorial, perhaps you are wondering what can you do after you generated your first (or maybe not the first) profile. Well, a good practice is to st..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="PySpark Integration" href="Pyspark_Profiling.html" /><link rel="prev" title="Merging Profiles" href="../basic/Merging_Profiles.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>Writing profiles - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,19 +577,22 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
 <section id="Writing-profiles">
 <h1>Writing profiles<a class="headerlink" href="#Writing-profiles" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Writing_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Writing_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p>Hello there! If you’ve come to this tutorial, perhaps you are wondering what can you do after you generated your first (or maybe not the first) profile. Well, a good practice is to store these profiles as <em>lightweight</em> files, which is one of the cool features <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> brings to the table.</p>
 <p>Here we will check different flavors of writing, and you can check which one of these will meet your current needs. Shall we?</p>
 <section id="Installing-whylogs">
@@ -608,9 +617,9 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"col_1"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
-    <span class="s2">"col_2"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"some"</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">,</span> <span class="s2">"column"</span><span class="p">,</span> <span class="s2">"example"</span><span class="p">],</span>
-    <span class="s2">"col_3"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+    <span class="s2">&quot;col_1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+    <span class="s2">&quot;col_2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;some&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;column&quot;</span><span class="p">,</span> <span class="s2">&quot;example&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;col_3&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
 <span class="p">}</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -631,7 +640,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -644,42 +653,42 @@ div.rendered_html tbody tr:hover {
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>col_1</th>
-<th>col_2</th>
-<th>col_3</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>0</th>
-<td>1.0</td>
-<td>some</td>
-<td>4</td>
-</tr>
-<tr>
-<th>1</th>
-<td>2.2</td>
-<td>text</td>
-<td>2</td>
-</tr>
-<tr>
-<th>2</th>
-<td>0.1</td>
-<td>column</td>
-<td>3</td>
-</tr>
-<tr>
-<th>3</th>
-<td>1.2</td>
-<td>example</td>
-<td>5</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>col_1</th>
+      <th>col_2</th>
+      <th>col_3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>some</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2.2</td>
+      <td>text</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.1</td>
+      <td>column</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.2</td>
+      <td>example</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
 </div></div>
 </div>
 <div class="nbinput nblast docutils container">
@@ -725,7 +734,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -738,132 +747,132 @@ whylogs.api.logger.result_set.ProfileResultSet
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/n</th>
-<th>distribution/max</th>
-<th>distribution/min</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>ints/max</th>
-<th>ints/min</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>col_2</th>
-<td>4</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>4</td>
-<td>0</td>
-<td>4.0</td>
-<td>4.0002</td>
-<td>4.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>col_1</th>
-<td>4</td>
-<td>0</td>
-<td>0</td>
-<td>4</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>4.0</td>
-<td>4.0002</td>
-<td>4.0</td>
-<td>...</td>
-<td>4.0</td>
-<td>2.2</td>
-<td>0.1</td>
-<td>0.1</td>
-<td>1.0</td>
-<td>1.2</td>
-<td>2.2</td>
-<td>2.2</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>col_3</th>
-<td>4</td>
-<td>0</td>
-<td>4</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>4.0</td>
-<td>4.0002</td>
-<td>4.0</td>
-<td>...</td>
-<td>4.0</td>
-<td>5.0</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>3.0</td>
-<td>4.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>2.0</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/n</th>
+      <th>distribution/max</th>
+      <th>distribution/min</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>col_2</th>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>4.0002</td>
+      <td>4.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col_1</th>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>4.0002</td>
+      <td>4.0</td>
+      <td>...</td>
+      <td>4.0</td>
+      <td>2.2</td>
+      <td>0.1</td>
+      <td>0.1</td>
+      <td>1.0</td>
+      <td>1.2</td>
+      <td>2.2</td>
+      <td>2.2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col_3</th>
+      <td>4</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>4.0002</td>
+      <td>4.0</td>
+      <td>...</td>
+      <td>4.0</td>
+      <td>5.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>2.0</td>
+    </tr>
+  </tbody>
+</table>
 <p>3 rows × 24 columns</p>
 </div></div>
 </div>
@@ -876,7 +885,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"local"</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">"my_profile.bin"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;my_profile.bin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -885,7 +894,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"local"</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s2">"my_directory"</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s2">&quot;my_directory&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -894,7 +903,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"my_profile.bin"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;my_profile.bin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -903,7 +912,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">why</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">profile_view</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s2">"my_directory/my_profile.bin"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">why</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">profile_view</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s2">&quot;my_directory/my_profile.bin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -912,7 +921,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s2">"./my_directory"</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s2">&quot;./my_directory&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -922,7 +931,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-['profile_2022-05-26 20:04:07.484778.bin', 'my_profile.bin']
+[&#39;profile_2022-05-26 20:04:07.484778.bin&#39;, &#39;my_profile.bin&#39;]
 </pre></div></div>
 </div>
 <p>And that’s it! Now you can go ahead and decide where and how to store these profiles, for further inspection and guaranteeing your data and ML model pipelines are generating useful and quality data for your end users.</p>
@@ -937,7 +946,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ! pip install "whylogs[s3]"</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ! pip install &quot;whylogs[s3]&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -949,12 +958,12 @@ whylogs.api.logger.result_set.ProfileResultSet
 <span class="kn">from</span> <span class="nn">moto</span> <span class="kn">import</span> <span class="n">mock_s3</span>
 <span class="kn">from</span> <span class="nn">moto.s3.responses</span> <span class="kn">import</span> <span class="n">DEFAULT_REGION_NAME</span>
 
-<span class="n">BUCKET_NAME</span> <span class="o">=</span> <span class="s2">"my_great_bucket"</span>
+<span class="n">BUCKET_NAME</span> <span class="o">=</span> <span class="s2">&quot;my_great_bucket&quot;</span>
 
 
 <span class="n">mocks3</span> <span class="o">=</span> <span class="n">mock_s3</span><span class="p">()</span>
 <span class="n">mocks3</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="n">resource</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s2">"s3"</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">DEFAULT_REGION_NAME</span><span class="p">)</span>
+<span class="n">resource</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">DEFAULT_REGION_NAME</span><span class="p">)</span>
 <span class="n">resource</span><span class="o">.</span><span class="n">create_bucket</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -965,7 +974,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-s3.Bucket(name='my_great_bucket')
+s3.Bucket(name=&#39;my_great_bucket&#39;)
 </pre></div></div>
 </div>
 <p>Now that we have created our <code class="docutils literal notranslate"><span class="pre">s3</span></code> bucket we will already be able to communicate with the mocked storage object. A good practice here is to declare your access credentials as environment variables. For a production setting, this won’t be persisted into code, but this will give you a sense of how to safely use our <code class="docutils literal notranslate"><span class="pre">s3</span></code> writer.</p>
@@ -975,8 +984,8 @@ s3.Bucket(name='my_great_bucket')
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"AWS_ACCESS_KEY_ID"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"my_key_id"</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"AWS_SECRET_ACCESS_KEY"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"my_access_key"</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_ACCESS_KEY_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;my_key_id&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AWS_SECRET_ACCESS_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;my_access_key&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -984,7 +993,7 @@ s3.Bucket(name='my_great_bucket')
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"s3"</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -993,7 +1002,7 @@ s3.Bucket(name='my_great_bucket')
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">s3_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">"s3"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">s3_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
 <span class="n">objects</span> <span class="o">=</span> <span class="n">s3_client</span><span class="o">.</span><span class="n">list_objects</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1002,7 +1011,7 @@ s3.Bucket(name='my_great_bucket')
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Name"</span><span class="p">,</span> <span class="p">[])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="p">[])</span>
 </pre></div>
 </div>
 </div>
@@ -1012,14 +1021,14 @@ s3.Bucket(name='my_great_bucket')
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-'my_great_bucket'
+&#39;my_great_bucket&#39;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Contents"</span><span class="p">,</span> <span class="p">[])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Contents&quot;</span><span class="p">,</span> <span class="p">[])</span>
 </pre></div>
 </div>
 </div>
@@ -1029,13 +1038,13 @@ s3.Bucket(name='my_great_bucket')
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[{'Key': 'profile_2022-05-26 20:04:07.484778.bin',
-  'LastModified': datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
-  'ETag': '"ae976af8f52532e3ab58bfe089d2bc44"',
-  'Size': 1115,
-  'StorageClass': 'STANDARD',
-  'Owner': {'DisplayName': 'webfile',
-   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}}]
+[{&#39;Key&#39;: &#39;profile_2022-05-26 20:04:07.484778.bin&#39;,
+  &#39;LastModified&#39;: datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
+  &#39;ETag&#39;: &#39;&#34;ae976af8f52532e3ab58bfe089d2bc44&#34;&#39;,
+  &#39;Size&#39;: 1115,
+  &#39;StorageClass&#39;: &#39;STANDARD&#39;,
+  &#39;Owner&#39;: {&#39;DisplayName&#39;: &#39;webfile&#39;,
+   &#39;ID&#39;: &#39;75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a&#39;}}]
 </pre></div></div>
 </div>
 <p>And there we have it, our local <code class="docutils literal notranslate"><span class="pre">s3</span></code> bucket has our profile written! If we want to put our profile into a special “directory” - often referred to as prefix - we can do the following instead:</p>
@@ -1043,9 +1052,9 @@ s3.Bucket(name='my_great_bucket')
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"s3"</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
     <span class="n">bucket_name</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">,</span>
-    <span class="n">object_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"my_prefix/somewhere/profile_</span><span class="si">{</span><span class="n">profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span><span class="si">}</span><span class="s2">.bin"</span>
+    <span class="n">object_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;my_prefix/somewhere/profile_</span><span class="si">{</span><span class="n">profile_view</span><span class="o">.</span><span class="n">creation_timestamp</span><span class="si">}</span><span class="s2">.bin&quot;</span>
     <span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1055,7 +1064,7 @@ s3.Bucket(name='my_great_bucket')
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span> <span class="o">=</span> <span class="n">s3_client</span><span class="o">.</span><span class="n">list_objects</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span>
-<span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"Contents"</span><span class="p">,</span> <span class="p">[])</span>
+<span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Contents&quot;</span><span class="p">,</span> <span class="p">[])</span>
 </pre></div>
 </div>
 </div>
@@ -1065,20 +1074,20 @@ s3.Bucket(name='my_great_bucket')
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[{'Key': 'my_prefix/somewhere/profile_2022-05-26 20:04:07.484778.bin',
-  'LastModified': datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
-  'ETag': '"ae976af8f52532e3ab58bfe089d2bc44"',
-  'Size': 1115,
-  'StorageClass': 'STANDARD',
-  'Owner': {'DisplayName': 'webfile',
-   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}},
- {'Key': 'profile_2022-05-26 20:04:07.484778.bin',
-  'LastModified': datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
-  'ETag': '"ae976af8f52532e3ab58bfe089d2bc44"',
-  'Size': 1115,
-  'StorageClass': 'STANDARD',
-  'Owner': {'DisplayName': 'webfile',
-   'ID': '75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a'}}]
+[{&#39;Key&#39;: &#39;my_prefix/somewhere/profile_2022-05-26 20:04:07.484778.bin&#39;,
+  &#39;LastModified&#39;: datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
+  &#39;ETag&#39;: &#39;&#34;ae976af8f52532e3ab58bfe089d2bc44&#34;&#39;,
+  &#39;Size&#39;: 1115,
+  &#39;StorageClass&#39;: &#39;STANDARD&#39;,
+  &#39;Owner&#39;: {&#39;DisplayName&#39;: &#39;webfile&#39;,
+   &#39;ID&#39;: &#39;75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a&#39;}},
+ {&#39;Key&#39;: &#39;profile_2022-05-26 20:04:07.484778.bin&#39;,
+  &#39;LastModified&#39;: datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
+  &#39;ETag&#39;: &#39;&#34;ae976af8f52532e3ab58bfe089d2bc44&#34;&#39;,
+  &#39;Size&#39;: 1115,
+  &#39;StorageClass&#39;: &#39;STANDARD&#39;,
+  &#39;Owner&#39;: {&#39;DisplayName&#39;: &#39;webfile&#39;,
+   &#39;ID&#39;: &#39;75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a&#39;}}]
 </pre></div></div>
 </div>
 <section id="Wrapping-up-the-s3-objects">

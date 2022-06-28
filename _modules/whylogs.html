@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -310,7 +310,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -325,7 +326,7 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">whylogs is an open source library for logging any kind of data. With whylogs, users are able to generate summaries</span>
 <span class="sd">of their datasets (called whylogs profiles) which they can use to:</span>
 
@@ -341,7 +342,7 @@
 <span class="sd">* Exploratory data analysis via data profiling</span>
 <span class="sd">* Tracking data for ML experiments</span>
 <span class="sd">* And many more...</span>
-<span class="sd">"""</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">.api</span> <span class="kn">import</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">log</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">profiling</span><span class="p">,</span> <span class="n">read</span><span class="p">,</span> <span class="n">write</span>
 <span class="kn">from</span> <span class="nn">.api.usage_stats</span> <span class="kn">import</span> <span class="n">emit_usage</span> <span class="k">as</span> <span class="n">__emit_usage_stats</span>
 <span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
@@ -349,7 +350,7 @@
 
 
 <div class="viewcode-block" id="package_version"><a class="viewcode-back" href="../api/whylogs/index.html#whylogs.package_version">[docs]</a><span class="k">def</span> <span class="nf">package_version</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">__package__</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">"""Calculate version number based on pyproject.toml"""</span>
+    <span class="sd">&quot;&quot;&quot;Calculate version number based on pyproject.toml&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">importlib</span> <span class="kn">import</span> <span class="n">metadata</span>  <span class="c1"># type: ignore</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -359,7 +360,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">version</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">metadata</span><span class="o">.</span><span class="n">PackageNotFoundError</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
-        <span class="n">version</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2"> is not installed."</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">package</span><span class="si">}</span><span class="s2"> is not installed.&quot;</span>
 
     <span class="k">return</span> <span class="n">version</span></div>
 
@@ -378,7 +379,7 @@
     <span class="n">__version__</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">__emit_usage_stats</span><span class="p">(</span><span class="s2">"import"</span><span class="p">)</span>
+<span class="n">__emit_usage_stats</span><span class="p">(</span><span class="s2">&quot;import&quot;</span><span class="p">)</span>
 </pre></div>
         </article>
       </div>

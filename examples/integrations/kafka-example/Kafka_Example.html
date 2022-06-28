@@ -13,10 +13,10 @@
 <meta property="og:description" content="In this example we will show how you can profile and merge different profiles from a Kafka topic. To simplify our example and make it reproducible anywhere, we will create a Kafka topic, generate t..." />
   <link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" /><link rel="next" title="Logging data from Feature Stores with Feast and whylogs" href="../Feature_Stores_and_whylogs.html" /><link rel="prev" title="MLflow Logging" href="../Mlflow_Logging.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>Profiling with whylogs from a Kafka topic - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,12 +577,15 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
@@ -620,17 +629,17 @@ root@kafka: kafka-topics --create --bootstrap-server localhost:9092 --replicatio
 <span class="kn">from</span> <span class="nn">kafka</span> <span class="kn">import</span> <span class="n">KafkaProducer</span>
 
 
-<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
 
-<span class="n">producer</span> <span class="o">=</span> <span class="n">KafkaProducer</span><span class="p">(</span><span class="n">bootstrap_servers</span><span class="o">=</span><span class="s1">'localhost:9092'</span><span class="p">,</span>
-                         <span class="n">value_serializer</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">))</span>
+<span class="n">producer</span> <span class="o">=</span> <span class="n">KafkaProducer</span><span class="p">(</span><span class="n">bootstrap_servers</span><span class="o">=</span><span class="s1">&#39;localhost:9092&#39;</span><span class="p">,</span>
+                         <span class="n">value_serializer</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
 
 
-<span class="n">data_url</span> <span class="o">=</span> <span class="s2">"https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"</span>
+<span class="n">data_url</span> <span class="o">=</span> <span class="s2">&quot;https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv&quot;</span>
 <span class="n">full_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_url</span><span class="p">))</span>
 
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">full_data</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-    <span class="n">producer</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">'whylogs-stream'</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+    <span class="n">producer</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;whylogs-stream&#39;</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -644,16 +653,16 @@ root@kafka: kafka-topics --create --bootstrap-server localhost:9092 --replicatio
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kafka</span> <span class="kn">import</span> <span class="n">KafkaConsumer</span><span class="p">,</span> <span class="n">TopicPartition</span>
 
 
-<span class="n">consumer</span> <span class="o">=</span> <span class="n">KafkaConsumer</span><span class="p">(</span><span class="n">bootstrap_servers</span><span class="o">=</span><span class="s1">'localhost:9092'</span><span class="p">,</span>
-                         <span class="n">value_deserializer</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)))</span>
+<span class="n">consumer</span> <span class="o">=</span> <span class="n">KafkaConsumer</span><span class="p">(</span><span class="n">bootstrap_servers</span><span class="o">=</span><span class="s1">&#39;localhost:9092&#39;</span><span class="p">,</span>
+                         <span class="n">value_deserializer</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)))</span>
 
 <span class="n">assignments</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">topics</span><span class="o">=</span><span class="p">[</span><span class="s1">'whylogs-stream'</span><span class="p">]</span>
+<span class="n">topics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;whylogs-stream&#39;</span><span class="p">]</span>
 
 <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="n">topics</span><span class="p">:</span>
     <span class="n">partitions</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="n">partitions_for_topic</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">partitions</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'topic </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s1"> - partition </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;topic </span><span class="si">{</span><span class="n">topic</span><span class="si">}</span><span class="s1"> - partition </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">assignments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TopicPartition</span><span class="p">(</span><span class="n">topic</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
 <span class="n">consumer</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">assignments</span><span class="p">)</span>
 </pre></div>
@@ -680,28 +689,28 @@ topic whylogs-stream - partition 0
 
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s2">"profiles"</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s2">&quot;profiles&quot;</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">FileExistsError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
     <span class="k">pass</span>
 
 <span class="n">consumer</span><span class="o">.</span><span class="n">seek_to_beginning</span><span class="p">()</span>
 
 <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="k">with</span> <span class="n">why</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"rolling"</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="s2">"M"</span><span class="p">,</span> <span class="n">base_name</span><span class="o">=</span><span class="s2">"whylogs-kafka"</span><span class="p">)</span> <span class="k">as</span> <span class="n">logger</span><span class="p">:</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">append_writer</span><span class="p">(</span><span class="s2">"local"</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s2">"profiles"</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">why</span><span class="o">.</span><span class="n">logger</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rolling&quot;</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="n">base_name</span><span class="o">=</span><span class="s2">&quot;whylogs-kafka&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">logger</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">append_writer</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s2">&quot;profiles&quot;</span><span class="p">)</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">finished</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">record</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="n">timeout_ms</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">max_records</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">update_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">record</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">row</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
             <span class="n">total</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
             <span class="n">finished</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">finished</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"total </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;total </span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">break</span>
 </pre></div>
 </div>
@@ -711,16 +720,16 @@ topic whylogs-stream - partition 0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-TopicPartition(topic='whylogs-stream', partition=0) - 100
-TopicPartition(topic='whylogs-stream', partition=0) - 100
-TopicPartition(topic='whylogs-stream', partition=0) - 100
-TopicPartition(topic='whylogs-stream', partition=0) - 100
-TopicPartition(topic='whylogs-stream', partition=0) - 100
-TopicPartition(topic='whylogs-stream', partition=0) - 100
-TopicPartition(topic='whylogs-stream', partition=0) - 100
-TopicPartition(topic='whylogs-stream', partition=0) - 100
-TopicPartition(topic='whylogs-stream', partition=0) - 100
-TopicPartition(topic='whylogs-stream', partition=0) - 45
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 100
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 100
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 100
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 100
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 100
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 100
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 100
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 100
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 100
+TopicPartition(topic=&#39;whylogs-stream&#39;, partition=0) - 45
 total 945
 </pre></div></div>
 </div>
@@ -731,7 +740,7 @@ total 945
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 <span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
 
-<span class="n">profiles_binaries</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="s2">"profiles/*"</span><span class="p">)</span>
+<span class="n">profiles_binaries</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="s2">&quot;profiles/*&quot;</span><span class="p">)</span>
 <span class="n">profiles_list</span> <span class="o">=</span> <span class="p">[]</span>
 
 <span class="k">for</span> <span class="n">profile</span> <span class="ow">in</span> <span class="n">profiles_binaries</span><span class="p">:</span>
@@ -763,7 +772,7 @@ total 945
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -776,348 +785,348 @@ total 945
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>distribution/mean</th>
-<th>distribution/stddev</th>
-<th>...</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>type</th>
-<th>frequent_items/frequent_strings</th>
-<th>ints/max</th>
-<th>ints/min</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>Age</th>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>25.000001</td>
-<td>25.001250</td>
-<td>25.000000</td>
-<td>31.609524</td>
-<td>6.747796</td>
-<td>...</td>
-<td>38.0000</td>
-<td>41.000</td>
-<td>42.0000</td>
-<td>43.0000</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Customer ID</th>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>869.683985</td>
-<td>881.067672</td>
-<td>858.577213</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>[FrequentItem(value='C268100', est=3, upper=2,...</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Gender</th>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.000000</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>[FrequentItem(value='M', est=489, upper=489, l...</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Item Price</th>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>705.028228</td>
-<td>714.256661</td>
-<td>696.024282</td>
-<td>79.848148</td>
-<td>41.921716</td>
-<td>...</td>
-<td>116.6000</td>
-<td>138.200</td>
-<td>145.1000</td>
-<td>149.0000</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Product Category</th>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>6.000000</td>
-<td>6.000300</td>
-<td>6.000000</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>[FrequentItem(value='Books', est=243, upper=24...</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Product Subcategory</th>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>18.000001</td>
-<td>18.000899</td>
-<td>18.000000</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>[FrequentItem(value='Mens', est=141, upper=141...</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Quantity</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>10.000000</td>
-<td>10.000500</td>
-<td>10.000000</td>
-<td>2.450794</td>
-<td>2.279227</td>
-<td>...</td>
-<td>4.0000</td>
-<td>5.000</td>
-<td>5.0000</td>
-<td>5.0000</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>[FrequentItem(value='2.000000', est=183, upper...</td>
-<td>5.0</td>
-<td>-5.0</td>
-</tr>
-<tr>
-<th>Store Type</th>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>4.000000</td>
-<td>4.000200</td>
-<td>4.000000</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>[FrequentItem(value='e-Shop', est=392, upper=3...</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Total Amount</th>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>844.069184</td>
-<td>855.117588</td>
-<td>833.289540</td>
-<td>214.615556</td>
-<td>261.215174</td>
-<td>...</td>
-<td>361.5560</td>
-<td>580.346</td>
-<td>656.8120</td>
-<td>804.4400</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Total Tax</th>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>828.657950</td>
-<td>839.504628</td>
-<td>818.075123</td>
-<td>25.664756</td>
-<td>19.314519</td>
-<td>...</td>
-<td>36.7605</td>
-<td>57.834</td>
-<td>62.7375</td>
-<td>76.5975</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction ID</th>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>935.275741</td>
-<td>947.517988</td>
-<td>923.331294</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>[]</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction Type</th>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.000000</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>945</td>
-<td>0</td>
-<td>SummaryType.COLUMN</td>
-<td>[FrequentItem(value='Purchase', est=859, upper...</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>distribution/mean</th>
+      <th>distribution/stddev</th>
+      <th>...</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>type</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Age</th>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>25.000001</td>
+      <td>25.001250</td>
+      <td>25.000000</td>
+      <td>31.609524</td>
+      <td>6.747796</td>
+      <td>...</td>
+      <td>38.0000</td>
+      <td>41.000</td>
+      <td>42.0000</td>
+      <td>43.0000</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Customer ID</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>869.683985</td>
+      <td>881.067672</td>
+      <td>858.577213</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>[FrequentItem(value='C268100', est=3, upper=2,...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Gender</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>[FrequentItem(value='M', est=489, upper=489, l...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Item Price</th>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>705.028228</td>
+      <td>714.256661</td>
+      <td>696.024282</td>
+      <td>79.848148</td>
+      <td>41.921716</td>
+      <td>...</td>
+      <td>116.6000</td>
+      <td>138.200</td>
+      <td>145.1000</td>
+      <td>149.0000</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Product Category</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>6.000000</td>
+      <td>6.000300</td>
+      <td>6.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>[FrequentItem(value='Books', est=243, upper=24...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Product Subcategory</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>18.000001</td>
+      <td>18.000899</td>
+      <td>18.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>[FrequentItem(value='Mens', est=141, upper=141...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Quantity</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>10.000000</td>
+      <td>10.000500</td>
+      <td>10.000000</td>
+      <td>2.450794</td>
+      <td>2.279227</td>
+      <td>...</td>
+      <td>4.0000</td>
+      <td>5.000</td>
+      <td>5.0000</td>
+      <td>5.0000</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>[FrequentItem(value='2.000000', est=183, upper...</td>
+      <td>5.0</td>
+      <td>-5.0</td>
+    </tr>
+    <tr>
+      <th>Store Type</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>4.000000</td>
+      <td>4.000200</td>
+      <td>4.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>[FrequentItem(value='e-Shop', est=392, upper=3...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Total Amount</th>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>844.069184</td>
+      <td>855.117588</td>
+      <td>833.289540</td>
+      <td>214.615556</td>
+      <td>261.215174</td>
+      <td>...</td>
+      <td>361.5560</td>
+      <td>580.346</td>
+      <td>656.8120</td>
+      <td>804.4400</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Total Tax</th>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>828.657950</td>
+      <td>839.504628</td>
+      <td>818.075123</td>
+      <td>25.664756</td>
+      <td>19.314519</td>
+      <td>...</td>
+      <td>36.7605</td>
+      <td>57.834</td>
+      <td>62.7375</td>
+      <td>76.5975</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction ID</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>935.275741</td>
+      <td>947.517988</td>
+      <td>923.331294</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>[]</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction Type</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>945</td>
+      <td>0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>[FrequentItem(value='Purchase', est=859, upper...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 <p>12 rows × 28 columns</p>
 </div></div>
 </div>
@@ -1126,7 +1135,7 @@ total 945
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">shutil</span>
-<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s2">"profiles"</span><span class="p">)</span>
+<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s2">&quot;profiles&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

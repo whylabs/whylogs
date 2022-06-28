@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.api.logger.result_set - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -310,7 +310,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -333,23 +334,23 @@
 
 
 <div class="viewcode-block" id="ResultSet"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet">[docs]</a><span class="k">class</span> <span class="nc">ResultSet</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">"""</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A holder object for profiling results.</span>
 
 <span class="sd">    A whylogs.log call can result in more than one profile. This wrapper class</span>
 <span class="sd">    simplifies the navigation among these profiles.</span>
 
-<span class="sd">    Note that currently we only hold one profile but we're planning to add other</span>
+<span class="sd">    Note that currently we only hold one profile but we&#39;re planning to add other</span>
 <span class="sd">    kinds of profiles such as segmented profiles here.</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ResultSet.read"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.read">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">multi_profile_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ResultSet"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">multi_profile_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResultSet&quot;</span><span class="p">:</span>
         <span class="c1"># TODO: parse multiple profile</span>
         <span class="n">view</span> <span class="o">=</span> <span class="n">DatasetProfileView</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">multi_profile_file</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ViewResultSet</span><span class="p">(</span><span class="n">view</span><span class="o">=</span><span class="n">view</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ResultSet.writer"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.writer">[docs]</a>    <span class="k">def</span> <span class="nf">writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"local"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ResultSetWriter"</span><span class="p">:</span>
+<div class="viewcode-block" id="ResultSet.writer"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.writer">[docs]</a>    <span class="k">def</span> <span class="nf">writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResultSetWriter&quot;</span><span class="p">:</span>
         <span class="n">writer</span> <span class="o">=</span> <span class="n">Writers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ResultSetWriter</span><span class="p">(</span><span class="n">results</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="o">=</span><span class="n">writer</span><span class="p">)</span></div>
 
@@ -378,24 +379,24 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_view</span> <span class="o">=</span> <span class="n">view</span>
 
 <div class="viewcode-block" id="ViewResultSet.profile"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfile</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"No profile available. Can only view"</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No profile available. Can only view&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ViewResultSet.view"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ViewResultSet.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span></div></div>
 
 
 <div class="viewcode-block" id="ResultSetWriter"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ResultSetWriter">[docs]</a><span class="k">class</span> <span class="nc">ResultSetWriter</span><span class="p">:</span>
-    <span class="sd">"""</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Result of a logging call.</span>
 
 <span class="sd">    A result set might contain one or multiple profiles or profile views.</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="n">ResultSet</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">Writer</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_result_set</span> <span class="o">=</span> <span class="n">results</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span> <span class="o">=</span> <span class="n">writer</span>
 
-<div class="viewcode-block" id="ResultSetWriter.option"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ResultSetWriter.option">[docs]</a>    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"ResultSetWriter"</span><span class="p">:</span>
+<div class="viewcode-block" id="ResultSetWriter.option"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/result_set/index.html#whylogs.api.ResultSetWriter.option">[docs]</a>    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ResultSetWriter&quot;</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_writer</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 

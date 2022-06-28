@@ -13,10 +13,10 @@
 <meta property="og:description" content="Open in Colab This is a whylogs v1 example. For the analog feature in v0, please refer to this example In this notebook, we’ll show how you can use whylog’s Notebook Profile Visualizer to compare t..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="(why)Logging" href="Logging_Different_Data.html" /><link rel="prev" title="Inspecting Profiles" href="Inspecting_Profiles.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>Drift Analysis with Profile Visualizer - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,19 +577,22 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
 <section id="Drift-Analysis-with-Profile-Visualizer">
 <h1>Drift Analysis with Profile Visualizer<a class="headerlink" href="#Drift-Analysis-with-Profile-Visualizer" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Notebook_Profile_Visualizer.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Notebook_Profile_Visualizer.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <blockquote>
 <div><p>This is a <code class="docutils literal notranslate"><span class="pre">whylogs</span> <span class="pre">v1</span></code> example. For the analog feature in <code class="docutils literal notranslate"><span class="pre">v0</span></code>, please refer to <a class="reference external" href="https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/Notebook_Profile_Visualizer.ipynb">this example</a></p>
 </div></blockquote>
@@ -615,8 +624,8 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Disabling false positive warning</span>
 
-<span class="n">url</span> <span class="o">=</span> <span class="s2">"http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"</span>
-<span class="n">wine</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">";"</span><span class="p">)</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv&quot;</span>
+<span class="n">wine</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
 <span class="n">wine</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -627,7 +636,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -640,102 +649,102 @@ div.rendered_html tbody tr:hover {
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>fixed acidity</th>
-<th>volatile acidity</th>
-<th>citric acid</th>
-<th>residual sugar</th>
-<th>chlorides</th>
-<th>free sulfur dioxide</th>
-<th>total sulfur dioxide</th>
-<th>density</th>
-<th>pH</th>
-<th>sulphates</th>
-<th>alcohol</th>
-<th>quality</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>0</th>
-<td>7.4</td>
-<td>0.70</td>
-<td>0.00</td>
-<td>1.9</td>
-<td>0.076</td>
-<td>11.0</td>
-<td>34.0</td>
-<td>0.9978</td>
-<td>3.51</td>
-<td>0.56</td>
-<td>9.4</td>
-<td>5</td>
-</tr>
-<tr>
-<th>1</th>
-<td>7.8</td>
-<td>0.88</td>
-<td>0.00</td>
-<td>2.6</td>
-<td>0.098</td>
-<td>25.0</td>
-<td>67.0</td>
-<td>0.9968</td>
-<td>3.20</td>
-<td>0.68</td>
-<td>9.8</td>
-<td>5</td>
-</tr>
-<tr>
-<th>2</th>
-<td>7.8</td>
-<td>0.76</td>
-<td>0.04</td>
-<td>2.3</td>
-<td>0.092</td>
-<td>15.0</td>
-<td>54.0</td>
-<td>0.9970</td>
-<td>3.26</td>
-<td>0.65</td>
-<td>9.8</td>
-<td>5</td>
-</tr>
-<tr>
-<th>3</th>
-<td>11.2</td>
-<td>0.28</td>
-<td>0.56</td>
-<td>1.9</td>
-<td>0.075</td>
-<td>17.0</td>
-<td>60.0</td>
-<td>0.9980</td>
-<td>3.16</td>
-<td>0.58</td>
-<td>9.8</td>
-<td>6</td>
-</tr>
-<tr>
-<th>4</th>
-<td>7.4</td>
-<td>0.70</td>
-<td>0.00</td>
-<td>1.9</td>
-<td>0.076</td>
-<td>11.0</td>
-<td>34.0</td>
-<td>0.9978</td>
-<td>3.51</td>
-<td>0.56</td>
-<td>9.4</td>
-<td>5</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>fixed acidity</th>
+      <th>volatile acidity</th>
+      <th>citric acid</th>
+      <th>residual sugar</th>
+      <th>chlorides</th>
+      <th>free sulfur dioxide</th>
+      <th>total sulfur dioxide</th>
+      <th>density</th>
+      <th>pH</th>
+      <th>sulphates</th>
+      <th>alcohol</th>
+      <th>quality</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>7.4</td>
+      <td>0.70</td>
+      <td>0.00</td>
+      <td>1.9</td>
+      <td>0.076</td>
+      <td>11.0</td>
+      <td>34.0</td>
+      <td>0.9978</td>
+      <td>3.51</td>
+      <td>0.56</td>
+      <td>9.4</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>7.8</td>
+      <td>0.88</td>
+      <td>0.00</td>
+      <td>2.6</td>
+      <td>0.098</td>
+      <td>25.0</td>
+      <td>67.0</td>
+      <td>0.9968</td>
+      <td>3.20</td>
+      <td>0.68</td>
+      <td>9.8</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>7.8</td>
+      <td>0.76</td>
+      <td>0.04</td>
+      <td>2.3</td>
+      <td>0.092</td>
+      <td>15.0</td>
+      <td>54.0</td>
+      <td>0.9970</td>
+      <td>3.26</td>
+      <td>0.65</td>
+      <td>9.8</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>11.2</td>
+      <td>0.28</td>
+      <td>0.56</td>
+      <td>1.9</td>
+      <td>0.075</td>
+      <td>17.0</td>
+      <td>60.0</td>
+      <td>0.9980</td>
+      <td>3.16</td>
+      <td>0.58</td>
+      <td>9.8</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7.4</td>
+      <td>0.70</td>
+      <td>0.00</td>
+      <td>1.9</td>
+      <td>0.076</td>
+      <td>11.0</td>
+      <td>34.0</td>
+      <td>0.9978</td>
+      <td>3.51</td>
+      <td>0.56</td>
+      <td>9.4</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
 </div></div>
 </div>
 <div class="nbinput docutils container">
@@ -751,7 +760,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;class 'pandas.core.frame.DataFrame'&gt;
+&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
 RangeIndex: 1599 entries, 0 to 1598
 Data columns (total 12 columns):
  #   Column                Non-Null Count  Dtype
@@ -777,10 +786,10 @@ memory usage: 150.0 KB
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cond_reference</span> <span class="o">=</span> <span class="p">(</span><span class="n">wine</span><span class="p">[</span><span class="s1">'alcohol'</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">11</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cond_reference</span> <span class="o">=</span> <span class="p">(</span><span class="n">wine</span><span class="p">[</span><span class="s1">&#39;alcohol&#39;</span><span class="p">]</span><span class="o">&lt;=</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">wine_reference</span> <span class="o">=</span> <span class="n">wine</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond_reference</span><span class="p">]</span>
 
-<span class="n">cond_target</span> <span class="o">=</span> <span class="p">(</span><span class="n">wine</span><span class="p">[</span><span class="s1">'alcohol'</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">11</span><span class="p">)</span>
+<span class="n">cond_target</span> <span class="o">=</span> <span class="p">(</span><span class="n">wine</span><span class="p">[</span><span class="s1">&#39;alcohol&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">11</span><span class="p">)</span>
 <span class="n">wine_target</span> <span class="o">=</span> <span class="n">wine</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cond_target</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -791,7 +800,7 @@ memory usage: 150.0 KB
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ixs</span> <span class="o">=</span> <span class="n">wine_target</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">110</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
-<span class="n">wine_target</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ixs</span><span class="p">,</span><span class="s1">'citric acid'</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">wine_target</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">ixs</span><span class="p">,</span><span class="s1">&#39;citric acid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 </div>
 </div>
@@ -803,10 +812,10 @@ memory usage: 150.0 KB
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="n">bins</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-<span class="n">group_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'bad'</span><span class="p">,</span> <span class="s1">'good'</span><span class="p">]</span>
+<span class="n">group_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;bad&#39;</span><span class="p">,</span> <span class="s1">&#39;good&#39;</span><span class="p">]</span>
 
-<span class="n">wine_reference</span><span class="p">[</span><span class="s1">'quality'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">wine_reference</span><span class="p">[</span><span class="s1">'quality'</span><span class="p">],</span> <span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">group_names</span><span class="p">)</span>
-<span class="n">wine_target</span><span class="p">[</span><span class="s1">'quality'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">wine_target</span><span class="p">[</span><span class="s1">'quality'</span><span class="p">],</span> <span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">group_names</span><span class="p">)</span>
+<span class="n">wine_reference</span><span class="p">[</span><span class="s1">&#39;quality&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">wine_reference</span><span class="p">[</span><span class="s1">&#39;quality&#39;</span><span class="p">],</span> <span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">group_names</span><span class="p">)</span>
+<span class="n">wine_target</span><span class="p">[</span><span class="s1">&#39;quality&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">wine_target</span><span class="p">[</span><span class="s1">&#39;quality&#39;</span><span class="p">],</span> <span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">group_names</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -862,7 +871,7 @@ memory usage: 150.0 KB
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div></div><iframe frameborder="0" height="1000px" srcdoc="&lt;!DOCTYPE html&gt;
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt;
     &lt;meta charset=&quot;UTF-8&quot; /&gt;
@@ -1710,7 +1719,7 @@ memory usage: 150.0 KB
     const referenceProfile = getReferenceProfile()
 
     function fixNumberTo(number, decimals = 3) {
-      const fractionalDigits = String(number % 1).split('').slice(2, 2 + decimals).join('')
+      const fractionalDigits = String(number % 1).split(&#x27;&#x27;).slice(2, 2 + decimals).join(&#x27;&#x27;)
       return `${Math.trunc(number)}.${fractionalDigits}`
     }
 
@@ -1825,14 +1834,14 @@ memory usage: 150.0 KB
           data = chartData(column)
         } else if (referenceColumn === null ) {
             $(&quot;.svg-container&quot;).css(&quot;padding-bottom&quot;, &quot;0&quot;)
-            return '&lt;span class=&quot;wl-table-cell__bedge-wrap&quot;&gt;No data to show the chart&lt;/span&gt;';
+            return &#x27;&lt;span class=&quot;wl-table-cell__bedge-wrap&quot;&gt;No data to show the chart&lt;/span&gt;&#x27;;
         } else if (referenceColumn === undefined) {
             $(document).ready(function() {
               $(&quot;.reference-table-head&quot;).addClass(&quot;d-none&quot;)
             });
-            return ''
+            return &#x27;&#x27;
         } else if (referenceColumn.frequentItems === undefined){
-            return '';
+            return &#x27;&#x27;;
         }
         return `
           &lt;div class=&quot;svg-container&quot;&gt;
@@ -1894,25 +1903,25 @@ memory usage: 150.0 KB
     abbreviate_number = function(value, fixed = 0) {
       value = +value
       if (value === null) { return null; } // terminate early
-      if (value === 0) { return '0'; } // terminate early
+      if (value === 0) { return &#x27;0&#x27;; } // terminate early
       fixed = (!fixed || fixed &lt; 0) ? 0 : fixed; // number of decimal places to show
       var b = (value).toPrecision(2).split(&quot;e&quot;), // get power
           k = b.length === 1 ? 0 : Math.floor(Math.min(b[1].slice(1), 14) / 3), // floor at decimals, ceiling at trillions
           c = k &lt; 1 ? value.toFixed(0 + fixed) : (value / Math.pow(10, k * 3) ).toFixed(1 + fixed), // divide by power
           d = c &lt; 0 ? c : Math.abs(c), // enforce -0 is 0
           newValue = d,
-          suffixe = ['', 'K', 'M', 'B', 'T'][k]; // append power
+          suffixe = [&#x27;&#x27;, &#x27;K&#x27;, &#x27;M&#x27;, &#x27;B&#x27;, &#x27;T&#x27;][k]; // append power
       return {value, newValue, suffixe};
     }
 
      function formatBytes(bytes, decimals = 2) {
        let newValue,
        suffixe = &quot;&quot;
-       if (bytes === 0) return '0 Bytes';
+       if (bytes === 0) return &#x27;0 Bytes&#x27;;
 
        const k = 1024;
        const dm = decimals &lt; 0 ? 0 : decimals;
-       const sizes = ['Bytes', 'KiB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+       const sizes = [&#x27;Bytes&#x27;, &#x27;KiB&#x27;, &#x27;MB&#x27;, &#x27;GB&#x27;, &#x27;TB&#x27;, &#x27;PB&#x27;, &#x27;EB&#x27;, &#x27;ZB&#x27;, &#x27;YB&#x27;];
 
        const i = Math.floor(Math.log(bytes) / Math.log(k));
        newValue = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
@@ -1945,18 +1954,18 @@ memory usage: 150.0 KB
 
      Handlebars.registerHelper(&quot;missingCells&quot;, function (properties) {
        const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_cells)
-       if (typeof value !== 'undefined' &amp;&amp; typeof newValue !== 'undefined'  &amp;&amp; typeof suffixe !== 'undefined' ) {
+       if (typeof value !== &#x27;undefined&#x27; &amp;&amp; typeof newValue !== &#x27;undefined&#x27;  &amp;&amp; typeof suffixe !== &#x27;undefined&#x27; ) {
         return numberWithSuffixe(value, valueSuffixe(`${newValue}`), suffixe);
        }
-       return numberWithSuffixe(0, valueNumber(0), valueNumber(''));
+       return numberWithSuffixe(0, valueNumber(0), valueNumber(&#x27;&#x27;));
      });
 
      Handlebars.registerHelper(&quot;missingCellsPercentage&quot;, function (properties) {
        const {value, newValue, suffixe} = abbreviate_number(referenceProfile.properties.missing_percentage)
-       if (typeof value !== 'undefined' &amp;&amp; typeof newValue !== 'undefined'  &amp;&amp; typeof suffixe !== 'undefined' ) {
+       if (typeof value !== &#x27;undefined&#x27; &amp;&amp; typeof newValue !== &#x27;undefined&#x27;  &amp;&amp; typeof suffixe !== &#x27;undefined&#x27; ) {
         return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
        }
-       return numberWithSuffixe(0, valueSuffixe(`(${0}%)`), '');
+       return numberWithSuffixe(0, valueSuffixe(`(${0}%)`), &#x27;&#x27;);
      });
 
      Handlebars.registerHelper(&quot;getProfileTimeStamp&quot;, function (properties) {
@@ -2005,7 +2014,7 @@ memory usage: 150.0 KB
           return diffFromRefTableElement(&quot;undefined&quot;, &quot;severe-drift-circle-color&quot;)
         }
 
-        return '&lt;p style=&quot;color: black&quot;&gt;-&lt;/p&gt;';
+        return &#x27;&lt;p style=&quot;color: black&quot;&gt;-&lt;/p&gt;&#x27;;
       });
 
       $(document).ready(() =&gt;
@@ -2032,7 +2041,7 @@ memory usage: 150.0 KB
           const slicedFrequentItems = column.frequentItems.items.slice(0, 5);
           for (let fi = 0; fi &lt; slicedFrequentItems.length; fi++) {
             frequentItemsElemString +=
-              '&lt;span class=&quot;wl-table-cell__bedge&quot;&gt;' + slicedFrequentItems[fi].jsonValue + &quot;&lt;/span&gt;&quot;;
+              &#x27;&lt;span class=&quot;wl-table-cell__bedge&quot;&gt;&#x27; + slicedFrequentItems[fi].jsonValue + &quot;&lt;/span&gt;&quot;;
           }
         } else {
           frequentItemsElemString += &quot;No data to show&quot;;
@@ -2138,7 +2147,7 @@ memory usage: 150.0 KB
 
       function filterNotification() {
         const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
-        const $boxes = $('.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked');
+        const $boxes = $(&#x27;.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked&#x27;);
         const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
         if (item === undefined) {
           $notifCircleContainer.removeClass(&quot;d-none&quot;)
@@ -2219,7 +2228,7 @@ memory usage: 150.0 KB
     }
 
     function checkedBoxes() {
-      const $boxes = $('input[name=checkbox]:checked');
+      const $boxes = $(&#x27;input[name=checkbox]:checked&#x27;);
       const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
 
       if ($boxes.length) {
@@ -2251,7 +2260,8 @@ memory usage: 150.0 KB
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-" width="100%"></iframe></div>
+" width=100% height=1000px
+        frameBorder=0></iframe></div>
 </div>
 <p>The drift values are calculated in different ways, depending on the inferred type. For fractional features, the drift detection uses the quantile values and the corresponding CDFs to calculate the approximate KS statistic.For categorical features, the drift detections uses the top frequent items summary, unique count estimate and total count estimate for each feature to calculate the estimated Chi-Squared statistic.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">alcohol</span></code>, there’s an alert of severe drift, with calculated p-value of 0.00. That makes sense, since both distributions are mutually exclusive.</p>
@@ -2266,7 +2276,7 @@ memory usage: 150.0 KB
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">double_histogram</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">"density"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">double_histogram</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2275,32 +2285,32 @@ memory usage: 150.0 KB
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div></div><iframe frameborder="0" height="300px" srcdoc='&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt;
-    &lt;meta charset="UTF-8" /&gt;
-    &lt;meta http-equiv="X-UA-Compatible" content="IE=edge" /&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
-    &lt;meta name="description" content="" /&gt;
-    &lt;meta name="author" content="" /&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
 
     &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
 
-    &lt;link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.googleapis.com" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /&gt;
-    &lt;link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap" rel="stylesheet" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" /&gt;
-    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" /&gt;
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
 
     &lt;script
-      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
-      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
     &gt;&lt;/script&gt;
 
-    &lt;style type="text/css"&gt;
+    &lt;style type=&quot;text/css&quot;&gt;
 
       :root {
         /** Branded colors */
@@ -2441,30 +2451,30 @@ memory usage: 150.0 KB
     &lt;/style&gt;
   &lt;/head&gt;
 
-  &lt;body id="generated-html"&gt;&lt;/body&gt;
-  &lt;script id="entry-template" type="text/x-handlebars-template"&gt;
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
 
-      &lt;div class="desktop-content"&gt;
-{{#each this}}              &lt;div class="chart-box" id="chart-box"&gt;
-                &lt;div class="chart-box-title display-flex"&gt;
+      &lt;div class=&quot;desktop-content&quot;&gt;
+{{#each this}}              &lt;div class=&quot;chart-box&quot; id=&quot;chart-box&quot;&gt;
+                &lt;div class=&quot;chart-box-title display-flex&quot;&gt;
                   &lt;p&gt;{{@key}}&lt;/p&gt;
-                  &lt;div class="display-flex"&gt;
-                    &lt;div class="colors-for-distingushing-charts"&gt;
-                      &lt;div class="circle-color" style="background: #44C0E7;"&gt;&lt;/div&gt;
-                      &lt;text alignment-baseline="middle" style="font-size: 15px;"&gt;Target&lt;/text&gt;
+                  &lt;div class=&quot;display-flex&quot;&gt;
+                    &lt;div class=&quot;colors-for-distingushing-charts&quot;&gt;
+                      &lt;div class=&quot;circle-color&quot; style=&quot;background: #44C0E7;&quot;&gt;&lt;/div&gt;
+                      &lt;text alignment-baseline=&quot;middle&quot; style=&quot;font-size: 15px;&quot;&gt;Target&lt;/text&gt;
                     &lt;/div&gt;
-                    &lt;div class="colors-for-distingushing-charts"&gt;
-                      &lt;div class="circle-color" style="background: #F5843C"&gt;&lt;/div&gt;
-                      &lt;text alignment-baseline="middle" style="font-size: 15px;"&gt;Reference&lt;/text&gt;
+                    &lt;div class=&quot;colors-for-distingushing-charts&quot;&gt;
+                      &lt;div class=&quot;circle-color&quot; style=&quot;background: #F5843C&quot;&gt;&lt;/div&gt;
+                      &lt;text alignment-baseline=&quot;middle&quot; style=&quot;font-size: 15px;&quot;&gt;Reference&lt;/text&gt;
                     &lt;/div&gt;
                   &lt;/div&gt;&lt;/div&gt;
-                &lt;div class="svg-container"&gt;{{{getDoubleHistogramChart this}}}&lt;/div&gt;
+                &lt;div class=&quot;svg-container&quot;&gt;{{{getDoubleHistogramChart this}}}&lt;/div&gt;
               &lt;/div&gt;
 {{/each}}      &lt;/div&gt;
-      &lt;div class="no-responsive"&gt;
-        &lt;div class="no-responsive__content"&gt;
-          &lt;h1 class="no-responsive__title"&gt;Hold on! :)&lt;/h1&gt;
-          &lt;p class="no-responsive__text"&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
             It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
             best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
             are working on adding support for a larger variety of devices.
@@ -2474,9 +2484,9 @@ memory usage: 150.0 KB
 
   &lt;/script&gt;
 
-  &lt;script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
 
-  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
 
   &lt;script&gt;
     function registerHandlebarHelperFunctions() {
@@ -2494,10 +2504,10 @@ memory usage: 150.0 KB
           this.SVG_HEIGHT = height;
           this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
-          this.svgEl = d3.create("svg")
-             .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `0 0 ${$(window).width()+100} ${$(window).height()-30}`)
-             .classed("svg-content-responsive", true)
+          this.svgEl = d3.create(&quot;svg&quot;)
+             .attr(&quot;preserveAspectRatio&quot;, &quot;xMinYMin meet&quot;)
+             .attr(&quot;viewBox&quot;, `0 0 ${$(window).width()+100} ${$(window).height()-30}`)
+             .classed(&quot;svg-content-responsive&quot;, true)
           this.maxYValue = d3.max(targetData, (d) =&gt; Math.abs(d.axisY));
           this.minYValue = d3.min(targetData, (d) =&gt; Math.abs(d.axisY));
           const mergedReferenceData = referenceData.map(({axisX, axisY}) =&gt; {
@@ -2521,8 +2531,8 @@ memory usage: 150.0 KB
          .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth &gt;= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])     // I was too lazy to do basic math of max(bin_start + width for each distribution)
          .range([0, this.CHART_WIDTH ]);
 
-         this.svgEl.append("g")
-             .attr("transform", "translate("+ this.MARGIN.LEFT +"," + this.SVG_HEIGHT + ")")
+         this.svgEl.append(&quot;g&quot;)
+             .attr(&quot;transform&quot;, &quot;translate(&quot;+ this.MARGIN.LEFT +&quot;,&quot; + this.SVG_HEIGHT + &quot;)&quot;)
              .call(d3.axisBottom(this.xScale));
           this.yScale = d3.scaleLinear()
               .range([this.CHART_HEIGHT , 0])
@@ -2541,8 +2551,8 @@ memory usage: 150.0 KB
           }
         } else {
             $(document).ready(() =&gt;
-              $(".desktop-content").html(`
-                &lt;p style="height: ${$(window).height()}px" class="error-message"&gt;
+              $(&quot;.desktop-content&quot;).html(`
+                &lt;p style=&quot;height: ${$(window).height()}px&quot; class=&quot;error-message&quot;&gt;
                   Something went wrong. Please try again.
                 &lt;/p&gt;
               `)
@@ -2574,82 +2584,82 @@ memory usage: 150.0 KB
           yScale
         } = sizes
 
-        const rectColors = ["#44C0E7", "#F5843C"]
+        const rectColors = [&quot;#44C0E7&quot;, &quot;#F5843C&quot;]
         const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
         yFormat = yScale.tickFormat(100, yFormat);
 
-        svgEl.append("g")
-          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
+        svgEl.append(&quot;g&quot;)
+          .attr(&quot;transform&quot;, `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
           .call(yAxis)
-          .call(g =&gt; g.select(".domain").remove())
-          .call(g =&gt; g.selectAll(".tick line")
-              .attr("x2", CHART_WIDTH)
-              .attr("stroke-opacity", 0.1))
-          .call(g =&gt; g.append("text")
-              .attr("x", -MARGIN.LEFT)
-              .attr("y", 10)
-              .attr("fill", "currentColor")
-              .attr("text-anchor", "start"))
+          .call(g =&gt; g.select(&quot;.domain&quot;).remove())
+          .call(g =&gt; g.selectAll(&quot;.tick line&quot;)
+              .attr(&quot;x2&quot;, CHART_WIDTH)
+              .attr(&quot;stroke-opacity&quot;, 0.1))
+          .call(g =&gt; g.append(&quot;text&quot;)
+              .attr(&quot;x&quot;, -MARGIN.LEFT)
+              .attr(&quot;y&quot;, 10)
+              .attr(&quot;fill&quot;, &quot;currentColor&quot;)
+              .attr(&quot;text-anchor&quot;, &quot;start&quot;))
 
-        svgEl.append("text")
-          .attr("transform",
-                "translate(" + (CHART_WIDTH/2) + " ," +
-                               (CHART_HEIGHT + MARGIN.TOP + 75) + ")")
-          .style("text-anchor", "middle")
-          .text("Values")
-          .style("font-size", "15")
-          .style("opacity", "0.6")
+        svgEl.append(&quot;text&quot;)
+          .attr(&quot;transform&quot;,
+                &quot;translate(&quot; + (CHART_WIDTH/2) + &quot; ,&quot; +
+                               (CHART_HEIGHT + MARGIN.TOP + 75) + &quot;)&quot;)
+          .style(&quot;text-anchor&quot;, &quot;middle&quot;)
+          .text(&quot;Values&quot;)
+          .style(&quot;font-size&quot;, &quot;15&quot;)
+          .style(&quot;opacity&quot;, &quot;0.6&quot;)
 
-        svgEl.append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 0)
-          .attr("x", 0 - (SVG_HEIGHT / 2))
-          .attr("dy", "1em")
-          .style("text-anchor", "middle")
-          .text("Counts")
-          .style("font-size", "15")
-          .style("opacity", "0.6")
+        svgEl.append(&quot;text&quot;)
+          .attr(&quot;transform&quot;, &quot;rotate(-90)&quot;)
+          .attr(&quot;y&quot;, 0)
+          .attr(&quot;x&quot;, 0 - (SVG_HEIGHT / 2))
+          .attr(&quot;dy&quot;, &quot;1em&quot;)
+          .style(&quot;text-anchor&quot;, &quot;middle&quot;)
+          .text(&quot;Counts&quot;)
+          .style(&quot;font-size&quot;, &quot;15&quot;)
+          .style(&quot;opacity&quot;, &quot;0.6&quot;)
 
-          const gChart = svgEl.append("g");
+          const gChart = svgEl.append(&quot;g&quot;);
           gChart
-          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
-          .selectAll(".bar")
+          .attr(&quot;transform&quot;, &quot;translate(&quot;+ MARGIN.LEFT +&quot;,0)&quot;)
+          .selectAll(&quot;.bar&quot;)
           .data(histogramData)
           .enter()
-          .append("rect")
-          .style("stroke", "#021826")
-          .classed("bar", true)
-          .attr("width", function(d) { return xScale(histogramData[1]?.axisX)-xScale(histogramData[0]?.axisX); })
-          .attr("height", (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
-          .attr("x", 1)
-          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
-          .attr("y", (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
-          .attr("fill", rectColors[0])
-          .style("opacity","0.6")
+          .append(&quot;rect&quot;)
+          .style(&quot;stroke&quot;, &quot;#021826&quot;)
+          .classed(&quot;bar&quot;, true)
+          .attr(&quot;width&quot;, function(d) { return xScale(histogramData[1]?.axisX)-xScale(histogramData[0]?.axisX); })
+          .attr(&quot;height&quot;, (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
+          .attr(&quot;x&quot;, 1)
+          .attr(&quot;transform&quot;, function(d) { return &quot;translate(&quot; + xScale(d.axisX) + &quot;,&quot; + 0  +  &quot;)&quot;; })
+          .attr(&quot;y&quot;, (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr(&quot;fill&quot;, rectColors[0])
+          .style(&quot;opacity&quot;,&quot;0.6&quot;)
 
-          const gChart1 = svgEl.append("g");
+          const gChart1 = svgEl.append(&quot;g&quot;);
           gChart1
-          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
-          .selectAll(".bar")
+          .attr(&quot;transform&quot;, &quot;translate(&quot;+ MARGIN.LEFT +&quot;,0)&quot;)
+          .selectAll(&quot;.bar&quot;)
           .data(overlappedHistogramData)
           .enter()
-          .append("rect")
-          .style("stroke", "#021826")
-          .classed("bar", true)
-          .attr("width", function(d) { return xScale(overlappedHistogramData[1]?.axisX)-xScale(overlappedHistogramData[0]?.axisX); })
-          .attr("height", (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
-          .attr("x", 1)
-          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
-          .attr("y", (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
-          .attr("fill", rectColors[1])
-          .style("opacity","0.6")
+          .append(&quot;rect&quot;)
+          .style(&quot;stroke&quot;, &quot;#021826&quot;)
+          .classed(&quot;bar&quot;, true)
+          .attr(&quot;width&quot;, function(d) { return xScale(overlappedHistogramData[1]?.axisX)-xScale(overlappedHistogramData[0]?.axisX); })
+          .attr(&quot;height&quot;, (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
+          .attr(&quot;x&quot;, 1)
+          .attr(&quot;transform&quot;, function(d) { return &quot;translate(&quot; + xScale(d.axisX) + &quot;,&quot; + 0  +  &quot;)&quot;; })
+          .attr(&quot;y&quot;, (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr(&quot;fill&quot;, rectColors[1])
+          .style(&quot;opacity&quot;,&quot;0.6&quot;)
 
         return svgEl._groups[0][0].outerHTML;
       }
 
-      const profileFromCSVfile = {"density": {"histogram": {"start": 0.99236, "end": 1.003690100369, "width": 0, "counts": [0, 2, 0, 4, 4, 12, 36, 38, 75, 98, 129, 138, 130, 125, 102, 80, 46, 38, 40, 34, 26, 12, 8, 4, 0, 0, 6, 2, 0, 2], "max": 1.00369, "min": 0.99236, "bins": [0.99236, 0.9927376700123001, 0.9931153400246, 0.9934930100369, 0.9938706800492, 0.9942483500615, 0.9946260200738, 0.9950036900861, 0.9953813600984001, 0.9957590301107, 0.996136700123, 0.9965143701353, 0.9968920401476, 0.9972697101599, 0.9976473801722, 0.9980250501845, 0.9984027201968, 0.9987803902091, 0.9991580602214, 0.9995357302337, 0.999913400246, 1.0002910702582999, 1.0006687402706, 1.0010464102829, 1.0014240802952, 1.0018017503075, 1.0021794203198, 1.0025570903321, 1.0029347603443999, 1.0033124303567, 1.003690100369], "n": 1191}}}
+      const profileFromCSVfile = {&quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99236, &quot;end&quot;: 1.003690100369, &quot;width&quot;: 0, &quot;counts&quot;: [0, 2, 0, 4, 4, 12, 36, 38, 75, 98, 129, 138, 130, 125, 102, 80, 46, 38, 40, 34, 26, 12, 8, 4, 0, 0, 6, 2, 0, 2], &quot;max&quot;: 1.00369, &quot;min&quot;: 0.99236, &quot;bins&quot;: [0.99236, 0.9927376700123001, 0.9931153400246, 0.9934930100369, 0.9938706800492, 0.9942483500615, 0.9946260200738, 0.9950036900861, 0.9953813600984001, 0.9957590301107, 0.996136700123, 0.9965143701353, 0.9968920401476, 0.9972697101599, 0.9976473801722, 0.9980250501845, 0.9984027201968, 0.9987803902091, 0.9991580602214, 0.9995357302337, 0.999913400246, 1.0002910702582999, 1.0006687402706, 1.0010464102829, 1.0014240802952, 1.0018017503075, 1.0021794203198, 1.0025570903321, 1.0029347603443999, 1.0033124303567, 1.003690100369], &quot;n&quot;: 1191}}}
 
-      Handlebars.registerHelper("getDoubleHistogramChart",(column,key) =&gt; {
+      Handlebars.registerHelper(&quot;getDoubleHistogramChart&quot;,(column,key) =&gt; {
           const columnKey = key.data.key
         try {
           if (profileFromCSVfile) {
@@ -2660,8 +2670,8 @@ memory usage: 150.0 KB
           }
         } catch (err) {
           $(document).ready(() =&gt;
-            $(".desktop-content").html(`
-              &lt;p style="height: ${$(window).height()}px" class="error-message"&gt;
+            $(&quot;.desktop-content&quot;).html(`
+              &lt;p style=&quot;height: ${$(window).height()}px&quot; class=&quot;error-message&quot;&gt;
                 Something went wrong. Please try again.
               &lt;/p&gt;
             `)
@@ -2671,17 +2681,17 @@ memory usage: 150.0 KB
     }
 
     function initWebsiteScripts() {
-      $(".svg-container").css("height", $(window).height() - 32)
+      $(&quot;.svg-container&quot;).css(&quot;height&quot;, $(window).height() - 32)
     }
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {"density": {"histogram": {"start": 0.99007, "end": 1.0032001003200002, "width": 0, "counts": [4, 4, 0, 10, 4, 11, 8, 32, 32, 37, 38, 49, 46, 25, 25, 18, 15, 8, 4, 8, 6, 6, 2, 4, 4, 2, 0, 2, 0, 4], "max": 1.0032, "min": 0.99007, "bins": [0.99007, 0.9905076700106666, 0.9909453400213334, 0.991383010032, 0.9918206800426667, 0.9922583500533334, 0.992696020064, 0.9931336900746667, 0.9935713600853334, 0.9940090300960001, 0.9944467001066667, 0.9948843701173334, 0.9953220401280001, 0.9957597101386667, 0.9961973801493335, 0.9966350501600001, 0.9970727201706667, 0.9975103901813335, 0.9979480601920001, 0.9983857302026667, 0.9988234002133335, 0.9992610702240001, 0.9996987402346668, 1.0001364102453334, 1.0005740802560001, 1.0010117502666669, 1.0014494202773334, 1.0018870902880002, 1.002324760298667, 1.0027624303093334, 1.0032001003200002], "n": 408}}};
+      const context = {&quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99007, &quot;end&quot;: 1.0032001003200002, &quot;width&quot;: 0, &quot;counts&quot;: [4, 4, 0, 10, 4, 11, 8, 32, 32, 37, 38, 49, 46, 25, 25, 18, 15, 8, 4, 8, 6, 6, 2, 4, 4, 2, 0, 2, 0, 4], &quot;max&quot;: 1.0032, &quot;min&quot;: 0.99007, &quot;bins&quot;: [0.99007, 0.9905076700106666, 0.9909453400213334, 0.991383010032, 0.9918206800426667, 0.9922583500533334, 0.992696020064, 0.9931336900746667, 0.9935713600853334, 0.9940090300960001, 0.9944467001066667, 0.9948843701173334, 0.9953220401280001, 0.9957597101386667, 0.9961973801493335, 0.9966350501600001, 0.9970727201706667, 0.9975103901813335, 0.9979480601920001, 0.9983857302026667, 0.9988234002133335, 0.9992610702240001, 0.9996987402346668, 1.0001364102453334, 1.0005740802560001, 1.0010117502666669, 1.0014494202773334, 1.0018870902880002, 1.002324760298667, 1.0027624303093334, 1.0032001003200002], &quot;n&quot;: 408}}};
       // Config handlebars and pass data to HBS template
-      const source = document.getElementById("entry-template").innerHTML;
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
       const html = template(context);
-      const target = document.getElementById("generated-html");
+      const target = document.getElementById(&quot;generated-html&quot;);
       target.innerHTML = html;
     }
 
@@ -2691,7 +2701,8 @@ memory usage: 150.0 KB
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-' width="100%"></iframe></div>
+" width=100% height=300px
+        frameBorder=0></iframe></div>
 </div>
 <p>We can visually assess that there seems to be a drift between both distributions indeed. Maybe the alcohol content plays a significant role on the wine’s density.</p>
 <p>As is the case with the alcohol content, our potential model would see density values in production never before seen in the training test. We can certainly expect performance degradation during production.</p>
@@ -2700,7 +2711,7 @@ memory usage: 150.0 KB
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">double_histogram</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">"alcohol"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">double_histogram</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;alcohol&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2709,32 +2720,32 @@ memory usage: 150.0 KB
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div></div><iframe frameborder="0" height="300px" srcdoc='&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt;
-    &lt;meta charset="UTF-8" /&gt;
-    &lt;meta http-equiv="X-UA-Compatible" content="IE=edge" /&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
-    &lt;meta name="description" content="" /&gt;
-    &lt;meta name="author" content="" /&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
 
     &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
 
-    &lt;link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.googleapis.com" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /&gt;
-    &lt;link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap" rel="stylesheet" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" /&gt;
-    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" /&gt;
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
 
     &lt;script
-      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
-      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
     &gt;&lt;/script&gt;
 
-    &lt;style type="text/css"&gt;
+    &lt;style type=&quot;text/css&quot;&gt;
 
       :root {
         /** Branded colors */
@@ -2875,30 +2886,30 @@ memory usage: 150.0 KB
     &lt;/style&gt;
   &lt;/head&gt;
 
-  &lt;body id="generated-html"&gt;&lt;/body&gt;
-  &lt;script id="entry-template" type="text/x-handlebars-template"&gt;
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
 
-      &lt;div class="desktop-content"&gt;
-{{#each this}}              &lt;div class="chart-box" id="chart-box"&gt;
-                &lt;div class="chart-box-title display-flex"&gt;
+      &lt;div class=&quot;desktop-content&quot;&gt;
+{{#each this}}              &lt;div class=&quot;chart-box&quot; id=&quot;chart-box&quot;&gt;
+                &lt;div class=&quot;chart-box-title display-flex&quot;&gt;
                   &lt;p&gt;{{@key}}&lt;/p&gt;
-                  &lt;div class="display-flex"&gt;
-                    &lt;div class="colors-for-distingushing-charts"&gt;
-                      &lt;div class="circle-color" style="background: #44C0E7;"&gt;&lt;/div&gt;
-                      &lt;text alignment-baseline="middle" style="font-size: 15px;"&gt;Target&lt;/text&gt;
+                  &lt;div class=&quot;display-flex&quot;&gt;
+                    &lt;div class=&quot;colors-for-distingushing-charts&quot;&gt;
+                      &lt;div class=&quot;circle-color&quot; style=&quot;background: #44C0E7;&quot;&gt;&lt;/div&gt;
+                      &lt;text alignment-baseline=&quot;middle&quot; style=&quot;font-size: 15px;&quot;&gt;Target&lt;/text&gt;
                     &lt;/div&gt;
-                    &lt;div class="colors-for-distingushing-charts"&gt;
-                      &lt;div class="circle-color" style="background: #F5843C"&gt;&lt;/div&gt;
-                      &lt;text alignment-baseline="middle" style="font-size: 15px;"&gt;Reference&lt;/text&gt;
+                    &lt;div class=&quot;colors-for-distingushing-charts&quot;&gt;
+                      &lt;div class=&quot;circle-color&quot; style=&quot;background: #F5843C&quot;&gt;&lt;/div&gt;
+                      &lt;text alignment-baseline=&quot;middle&quot; style=&quot;font-size: 15px;&quot;&gt;Reference&lt;/text&gt;
                     &lt;/div&gt;
                   &lt;/div&gt;&lt;/div&gt;
-                &lt;div class="svg-container"&gt;{{{getDoubleHistogramChart this}}}&lt;/div&gt;
+                &lt;div class=&quot;svg-container&quot;&gt;{{{getDoubleHistogramChart this}}}&lt;/div&gt;
               &lt;/div&gt;
 {{/each}}      &lt;/div&gt;
-      &lt;div class="no-responsive"&gt;
-        &lt;div class="no-responsive__content"&gt;
-          &lt;h1 class="no-responsive__title"&gt;Hold on! :)&lt;/h1&gt;
-          &lt;p class="no-responsive__text"&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
             It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
             best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
             are working on adding support for a larger variety of devices.
@@ -2908,9 +2919,9 @@ memory usage: 150.0 KB
 
   &lt;/script&gt;
 
-  &lt;script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
 
-  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
 
   &lt;script&gt;
     function registerHandlebarHelperFunctions() {
@@ -2928,10 +2939,10 @@ memory usage: 150.0 KB
           this.SVG_HEIGHT = height;
           this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
-          this.svgEl = d3.create("svg")
-             .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `0 0 ${$(window).width()+100} ${$(window).height()-30}`)
-             .classed("svg-content-responsive", true)
+          this.svgEl = d3.create(&quot;svg&quot;)
+             .attr(&quot;preserveAspectRatio&quot;, &quot;xMinYMin meet&quot;)
+             .attr(&quot;viewBox&quot;, `0 0 ${$(window).width()+100} ${$(window).height()-30}`)
+             .classed(&quot;svg-content-responsive&quot;, true)
           this.maxYValue = d3.max(targetData, (d) =&gt; Math.abs(d.axisY));
           this.minYValue = d3.min(targetData, (d) =&gt; Math.abs(d.axisY));
           const mergedReferenceData = referenceData.map(({axisX, axisY}) =&gt; {
@@ -2955,8 +2966,8 @@ memory usage: 150.0 KB
          .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth &gt;= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])     // I was too lazy to do basic math of max(bin_start + width for each distribution)
          .range([0, this.CHART_WIDTH ]);
 
-         this.svgEl.append("g")
-             .attr("transform", "translate("+ this.MARGIN.LEFT +"," + this.SVG_HEIGHT + ")")
+         this.svgEl.append(&quot;g&quot;)
+             .attr(&quot;transform&quot;, &quot;translate(&quot;+ this.MARGIN.LEFT +&quot;,&quot; + this.SVG_HEIGHT + &quot;)&quot;)
              .call(d3.axisBottom(this.xScale));
           this.yScale = d3.scaleLinear()
               .range([this.CHART_HEIGHT , 0])
@@ -2975,8 +2986,8 @@ memory usage: 150.0 KB
           }
         } else {
             $(document).ready(() =&gt;
-              $(".desktop-content").html(`
-                &lt;p style="height: ${$(window).height()}px" class="error-message"&gt;
+              $(&quot;.desktop-content&quot;).html(`
+                &lt;p style=&quot;height: ${$(window).height()}px&quot; class=&quot;error-message&quot;&gt;
                   Something went wrong. Please try again.
                 &lt;/p&gt;
               `)
@@ -3008,82 +3019,82 @@ memory usage: 150.0 KB
           yScale
         } = sizes
 
-        const rectColors = ["#44C0E7", "#F5843C"]
+        const rectColors = [&quot;#44C0E7&quot;, &quot;#F5843C&quot;]
         const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
         yFormat = yScale.tickFormat(100, yFormat);
 
-        svgEl.append("g")
-          .attr("transform", `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
+        svgEl.append(&quot;g&quot;)
+          .attr(&quot;transform&quot;, `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
           .call(yAxis)
-          .call(g =&gt; g.select(".domain").remove())
-          .call(g =&gt; g.selectAll(".tick line")
-              .attr("x2", CHART_WIDTH)
-              .attr("stroke-opacity", 0.1))
-          .call(g =&gt; g.append("text")
-              .attr("x", -MARGIN.LEFT)
-              .attr("y", 10)
-              .attr("fill", "currentColor")
-              .attr("text-anchor", "start"))
+          .call(g =&gt; g.select(&quot;.domain&quot;).remove())
+          .call(g =&gt; g.selectAll(&quot;.tick line&quot;)
+              .attr(&quot;x2&quot;, CHART_WIDTH)
+              .attr(&quot;stroke-opacity&quot;, 0.1))
+          .call(g =&gt; g.append(&quot;text&quot;)
+              .attr(&quot;x&quot;, -MARGIN.LEFT)
+              .attr(&quot;y&quot;, 10)
+              .attr(&quot;fill&quot;, &quot;currentColor&quot;)
+              .attr(&quot;text-anchor&quot;, &quot;start&quot;))
 
-        svgEl.append("text")
-          .attr("transform",
-                "translate(" + (CHART_WIDTH/2) + " ," +
-                               (CHART_HEIGHT + MARGIN.TOP + 75) + ")")
-          .style("text-anchor", "middle")
-          .text("Values")
-          .style("font-size", "15")
-          .style("opacity", "0.6")
+        svgEl.append(&quot;text&quot;)
+          .attr(&quot;transform&quot;,
+                &quot;translate(&quot; + (CHART_WIDTH/2) + &quot; ,&quot; +
+                               (CHART_HEIGHT + MARGIN.TOP + 75) + &quot;)&quot;)
+          .style(&quot;text-anchor&quot;, &quot;middle&quot;)
+          .text(&quot;Values&quot;)
+          .style(&quot;font-size&quot;, &quot;15&quot;)
+          .style(&quot;opacity&quot;, &quot;0.6&quot;)
 
-        svgEl.append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 0)
-          .attr("x", 0 - (SVG_HEIGHT / 2))
-          .attr("dy", "1em")
-          .style("text-anchor", "middle")
-          .text("Counts")
-          .style("font-size", "15")
-          .style("opacity", "0.6")
+        svgEl.append(&quot;text&quot;)
+          .attr(&quot;transform&quot;, &quot;rotate(-90)&quot;)
+          .attr(&quot;y&quot;, 0)
+          .attr(&quot;x&quot;, 0 - (SVG_HEIGHT / 2))
+          .attr(&quot;dy&quot;, &quot;1em&quot;)
+          .style(&quot;text-anchor&quot;, &quot;middle&quot;)
+          .text(&quot;Counts&quot;)
+          .style(&quot;font-size&quot;, &quot;15&quot;)
+          .style(&quot;opacity&quot;, &quot;0.6&quot;)
 
-          const gChart = svgEl.append("g");
+          const gChart = svgEl.append(&quot;g&quot;);
           gChart
-          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
-          .selectAll(".bar")
+          .attr(&quot;transform&quot;, &quot;translate(&quot;+ MARGIN.LEFT +&quot;,0)&quot;)
+          .selectAll(&quot;.bar&quot;)
           .data(histogramData)
           .enter()
-          .append("rect")
-          .style("stroke", "#021826")
-          .classed("bar", true)
-          .attr("width", function(d) { return xScale(histogramData[1]?.axisX)-xScale(histogramData[0]?.axisX); })
-          .attr("height", (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
-          .attr("x", 1)
-          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
-          .attr("y", (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
-          .attr("fill", rectColors[0])
-          .style("opacity","0.6")
+          .append(&quot;rect&quot;)
+          .style(&quot;stroke&quot;, &quot;#021826&quot;)
+          .classed(&quot;bar&quot;, true)
+          .attr(&quot;width&quot;, function(d) { return xScale(histogramData[1]?.axisX)-xScale(histogramData[0]?.axisX); })
+          .attr(&quot;height&quot;, (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
+          .attr(&quot;x&quot;, 1)
+          .attr(&quot;transform&quot;, function(d) { return &quot;translate(&quot; + xScale(d.axisX) + &quot;,&quot; + 0  +  &quot;)&quot;; })
+          .attr(&quot;y&quot;, (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr(&quot;fill&quot;, rectColors[0])
+          .style(&quot;opacity&quot;,&quot;0.6&quot;)
 
-          const gChart1 = svgEl.append("g");
+          const gChart1 = svgEl.append(&quot;g&quot;);
           gChart1
-          .attr("transform", "translate("+ MARGIN.LEFT +",0)")
-          .selectAll(".bar")
+          .attr(&quot;transform&quot;, &quot;translate(&quot;+ MARGIN.LEFT +&quot;,0)&quot;)
+          .selectAll(&quot;.bar&quot;)
           .data(overlappedHistogramData)
           .enter()
-          .append("rect")
-          .style("stroke", "#021826")
-          .classed("bar", true)
-          .attr("width", function(d) { return xScale(overlappedHistogramData[1]?.axisX)-xScale(overlappedHistogramData[0]?.axisX); })
-          .attr("height", (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
-          .attr("x", 1)
-          .attr("transform", function(d) { return "translate(" + xScale(d.axisX) + "," + 0  +  ")"; })
-          .attr("y", (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
-          .attr("fill", rectColors[1])
-          .style("opacity","0.6")
+          .append(&quot;rect&quot;)
+          .style(&quot;stroke&quot;, &quot;#021826&quot;)
+          .classed(&quot;bar&quot;, true)
+          .attr(&quot;width&quot;, function(d) { return xScale(overlappedHistogramData[1]?.axisX)-xScale(overlappedHistogramData[0]?.axisX); })
+          .attr(&quot;height&quot;, (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
+          .attr(&quot;x&quot;, 1)
+          .attr(&quot;transform&quot;, function(d) { return &quot;translate(&quot; + xScale(d.axisX) + &quot;,&quot; + 0  +  &quot;)&quot;; })
+          .attr(&quot;y&quot;, (d) =&gt; yScale(d.axisY) + MARGIN.TOP + MARGIN.BOTTOM)
+          .attr(&quot;fill&quot;, rectColors[1])
+          .style(&quot;opacity&quot;,&quot;0.6&quot;)
 
         return svgEl._groups[0][0].outerHTML;
       }
 
-      const profileFromCSVfile = {"alcohol": {"histogram": {"start": 8.4, "end": 11.0000011, "width": 0, "counts": [2, 0, 0, 4, 2, 0, 30, 0, 26, 74, 58, 104, 138, 62, 52, 0, 79, 50, 70, 47, 44, 32, 0, 46, 65, 28, 26, 46, 47, 59], "max": 11.0, "min": 8.4, "bins": [8.4, 8.486666703333334, 8.573333406666666, 8.66000011, 8.746666813333334, 8.833333516666666, 8.92000022, 9.006666923333334, 9.093333626666666, 9.18000033, 9.266667033333334, 9.353333736666666, 9.44000044, 9.526667143333334, 9.613333846666666, 9.70000055, 9.786667253333334, 9.873333956666666, 9.96000066, 10.046667363333334, 10.133334066666666, 10.22000077, 10.306667473333334, 10.393334176666666, 10.48000088, 10.566667583333334, 10.653334286666666, 10.74000099, 10.826667693333334, 10.913334396666666, 11.0000011], "n": 1191}}}
+      const profileFromCSVfile = {&quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 8.4, &quot;end&quot;: 11.0000011, &quot;width&quot;: 0, &quot;counts&quot;: [2, 0, 0, 4, 2, 0, 30, 0, 26, 74, 58, 104, 138, 62, 52, 0, 79, 50, 70, 47, 44, 32, 0, 46, 65, 28, 26, 46, 47, 59], &quot;max&quot;: 11.0, &quot;min&quot;: 8.4, &quot;bins&quot;: [8.4, 8.486666703333334, 8.573333406666666, 8.66000011, 8.746666813333334, 8.833333516666666, 8.92000022, 9.006666923333334, 9.093333626666666, 9.18000033, 9.266667033333334, 9.353333736666666, 9.44000044, 9.526667143333334, 9.613333846666666, 9.70000055, 9.786667253333334, 9.873333956666666, 9.96000066, 10.046667363333334, 10.133334066666666, 10.22000077, 10.306667473333334, 10.393334176666666, 10.48000088, 10.566667583333334, 10.653334286666666, 10.74000099, 10.826667693333334, 10.913334396666666, 11.0000011], &quot;n&quot;: 1191}}}
 
-      Handlebars.registerHelper("getDoubleHistogramChart",(column,key) =&gt; {
+      Handlebars.registerHelper(&quot;getDoubleHistogramChart&quot;,(column,key) =&gt; {
           const columnKey = key.data.key
         try {
           if (profileFromCSVfile) {
@@ -3094,8 +3105,8 @@ memory usage: 150.0 KB
           }
         } catch (err) {
           $(document).ready(() =&gt;
-            $(".desktop-content").html(`
-              &lt;p style="height: ${$(window).height()}px" class="error-message"&gt;
+            $(&quot;.desktop-content&quot;).html(`
+              &lt;p style=&quot;height: ${$(window).height()}px&quot; class=&quot;error-message&quot;&gt;
                 Something went wrong. Please try again.
               &lt;/p&gt;
             `)
@@ -3105,17 +3116,17 @@ memory usage: 150.0 KB
     }
 
     function initWebsiteScripts() {
-      $(".svg-container").css("height", $(window).height() - 32)
+      $(&quot;.svg-container&quot;).css(&quot;height&quot;, $(window).height() - 32)
     }
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {"alcohol": {"histogram": {"start": 11.0666666666667, "end": 14.900001490000001, "width": 0, "counts": [28, 68, 32, 30, 39, 28, 21, 22, 24, 13, 13, 27, 9, 17, 8, 8, 2, 2, 4, 5, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0], "max": 14.9, "min": 11.0666666666667, "bins": [11.0666666666667, 11.194444494111144, 11.322222321555587, 11.45000014900003, 11.577777976444473, 11.705555803888917, 11.83333363133336, 11.961111458777804, 12.088889286222248, 12.216667113666691, 12.344444941111133, 12.472222768555577, 12.60000059600002, 12.727778423444464, 12.855556250888908, 12.98333407833335, 13.111111905777793, 13.238889733222237, 13.36666756066668, 13.494445388111124, 13.622223215555568, 13.750001043000012, 13.877778870444454, 14.005556697888897, 14.133334525333341, 14.261112352777785, 14.388890180222226, 14.51666800766667, 14.644445835111114, 14.772223662555557, 14.900001490000001], "n": 408}}};
+      const context = {&quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 11.0666666666667, &quot;end&quot;: 14.900001490000001, &quot;width&quot;: 0, &quot;counts&quot;: [28, 68, 32, 30, 39, 28, 21, 22, 24, 13, 13, 27, 9, 17, 8, 8, 2, 2, 4, 5, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0], &quot;max&quot;: 14.9, &quot;min&quot;: 11.0666666666667, &quot;bins&quot;: [11.0666666666667, 11.194444494111144, 11.322222321555587, 11.45000014900003, 11.577777976444473, 11.705555803888917, 11.83333363133336, 11.961111458777804, 12.088889286222248, 12.216667113666691, 12.344444941111133, 12.472222768555577, 12.60000059600002, 12.727778423444464, 12.855556250888908, 12.98333407833335, 13.111111905777793, 13.238889733222237, 13.36666756066668, 13.494445388111124, 13.622223215555568, 13.750001043000012, 13.877778870444454, 14.005556697888897, 14.133334525333341, 14.261112352777785, 14.388890180222226, 14.51666800766667, 14.644445835111114, 14.772223662555557, 14.900001490000001], &quot;n&quot;: 408}}};
       // Config handlebars and pass data to HBS template
-      const source = document.getElementById("entry-template").innerHTML;
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
       const html = template(context);
-      const target = document.getElementById("generated-html");
+      const target = document.getElementById(&quot;generated-html&quot;);
       target.innerHTML = html;
     }
 
@@ -3125,14 +3136,15 @@ memory usage: 150.0 KB
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-' width="100%"></iframe></div>
+" width=100% height=300px
+        frameBorder=0></iframe></div>
 </div>
 <p>In addition to the histograms, we can also plot distribution charts for categorical variables, like the <code class="docutils literal notranslate"><span class="pre">quality</span></code> feature.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">distribution_chart</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">"quality"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">distribution_chart</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;quality&quot;</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -3141,7 +3153,7 @@ memory usage: 150.0 KB
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div></div><iframe frameborder="0" height="277px" srcdoc="&lt;!DOCTYPE html&gt;
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
 &lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt;
     &lt;meta charset=&quot;UTF-8&quot; /&gt;
@@ -3450,7 +3462,7 @@ memory usage: 150.0 KB
         } = sizes
 
         const rectColors = [&quot;#44C0E7&quot;, &quot;#F5843C&quot;]
-        const subgroups = ['reference_profile', 'profile']
+        const subgroups = [&#x27;reference_profile&#x27;, &#x27;profile&#x27;]
 
         xScale.padding([0.3])
 
@@ -3578,14 +3590,15 @@ memory usage: 150.0 KB
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-" width="100%"></iframe></div>
+" width=100% height=277px
+        frameBorder=0></iframe></div>
 </div>
 <p>We can also look at the difference between distributions:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">difference_distribution_chart</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">"quality"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">difference_distribution_chart</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;quality&quot;</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -3594,32 +3607,32 @@ memory usage: 150.0 KB
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div></div><iframe frameborder="0" height="277px" srcdoc='&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt;
-    &lt;meta charset="UTF-8" /&gt;
-    &lt;meta http-equiv="X-UA-Compatible" content="IE=edge" /&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
-    &lt;meta name="description" content="" /&gt;
-    &lt;meta name="author" content="" /&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
 
     &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
 
-    &lt;link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.googleapis.com" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /&gt;
-    &lt;link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap" rel="stylesheet" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" /&gt;
-    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" /&gt;
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
 
     &lt;script
-      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
-      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
     &gt;&lt;/script&gt;
 
-    &lt;style type="text/css"&gt;
+    &lt;style type=&quot;text/css&quot;&gt;
 
       :root {
         /** Branded colors */
@@ -3761,32 +3774,32 @@ memory usage: 150.0 KB
     &lt;/style&gt;
   &lt;/head&gt;
 
-  &lt;body id="generated-html"&gt;&lt;/body&gt;
-  &lt;script id="entry-template" type="text/x-handlebars-template"&gt;
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
 
-      &lt;div class="desktop-content"&gt;
-{{#each this}}              &lt;div class="chart-box" id="chart-box"&gt;
-                &lt;div class="chart-box-title display-flex"&gt;
+      &lt;div class=&quot;desktop-content&quot;&gt;
+{{#each this}}              &lt;div class=&quot;chart-box&quot; id=&quot;chart-box&quot;&gt;
+                &lt;div class=&quot;chart-box-title display-flex&quot;&gt;
                   &lt;p&gt;{{@key}}&lt;/p&gt;
-                  &lt;div class="display-flex"&gt;
-                    &lt;div class="colors-for-distingushing-charts"&gt;
-                      &lt;div class="circle-color" style="background: #44C0E7;"&gt;&lt;/div&gt;
-                      &lt;text alignment-baseline="middle" style="font-size: 15px;"&gt;Target&lt;/text&gt;
+                  &lt;div class=&quot;display-flex&quot;&gt;
+                    &lt;div class=&quot;colors-for-distingushing-charts&quot;&gt;
+                      &lt;div class=&quot;circle-color&quot; style=&quot;background: #44C0E7;&quot;&gt;&lt;/div&gt;
+                      &lt;text alignment-baseline=&quot;middle&quot; style=&quot;font-size: 15px;&quot;&gt;Target&lt;/text&gt;
                     &lt;/div&gt;
-                    &lt;div class="colors-for-distingushing-charts"&gt;
-                      &lt;div class="circle-color" style="background: #F5843C"&gt;&lt;/div&gt;
-                      &lt;text alignment-baseline="middle" style="font-size: 15px;"&gt;Reference&lt;/text&gt;
+                    &lt;div class=&quot;colors-for-distingushing-charts&quot;&gt;
+                      &lt;div class=&quot;circle-color&quot; style=&quot;background: #F5843C&quot;&gt;&lt;/div&gt;
+                      &lt;text alignment-baseline=&quot;middle&quot; style=&quot;font-size: 15px;&quot;&gt;Reference&lt;/text&gt;
                     &lt;/div&gt;
                   &lt;/div&gt;&lt;/div&gt;
-                &lt;div class="svg-container"&gt;
+                &lt;div class=&quot;svg-container&quot;&gt;
                   {{{getDoubleHistogramChart this}}}
                 &lt;/div&gt;
               &lt;/div&gt;
 {{/each}}      &lt;/div&gt;
-      &lt;div class="no-responsive"&gt;
-        &lt;div class="no-responsive__content"&gt;
-          &lt;h1 class="no-responsive__title"&gt;Hold on! :)&lt;/h1&gt;
-          &lt;p class="no-responsive__text"&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
             It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
             best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
             are working on adding support for a larger variety of devices.
@@ -3796,9 +3809,9 @@ memory usage: 150.0 KB
 
   &lt;/script&gt;
 
-  &lt;script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
 
-  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
 
   &lt;script&gt;
     function registerHandlebarHelperFunctions() {
@@ -3844,10 +3857,10 @@ memory usage: 150.0 KB
           this.SVG_HEIGHT = height;
           this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
           this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
-          this.svgEl = d3.create("svg")
-             .attr("preserveAspectRatio", "xMinYMin meet")
-             .attr("viewBox", `0 -10 ${$(window).width()} ${$(window).height()-30}`)
-             .classed("svg-content-responsive", true)
+          this.svgEl = d3.create(&quot;svg&quot;)
+             .attr(&quot;preserveAspectRatio&quot;, &quot;xMinYMin meet&quot;)
+             .attr(&quot;viewBox&quot;, `0 -10 ${$(window).width()} ${$(window).height()-30}`)
+             .classed(&quot;svg-content-responsive&quot;, true)
           this.maxYValue = d3.max(data, (d) =&gt; Math.abs(d.axisY));
           this.xScale = d3
             .scaleBand()
@@ -3872,8 +3885,8 @@ memory usage: 150.0 KB
             });
           } else {
             $(document).ready(() =&gt;
-              $(".desktop-content").html(`
-                &lt;p style="height: ${$(window).height()}px" class="error-message"&gt;
+              $(&quot;.desktop-content&quot;).html(`
+                &lt;p style=&quot;height: ${$(window).height()}px&quot; class=&quot;error-message&quot;&gt;
                   Something went wrong. Please try again.
                 &lt;/p&gt;
               `)
@@ -3907,7 +3920,7 @@ memory usage: 150.0 KB
          svgEl
         } = sizes
 
-        const rectColors = ["bar positive", "bar negative"]
+        const rectColors = [&quot;bar positive&quot;, &quot;bar negative&quot;]
         const maxY = Math.abs(d3.max(data));
         const minY = Math.abs(d3.min(data));
         let positiveY = Math.ceil(maxY) % 1 ? maxY + 2*(maxY/(maxY*10)) : maxY + 2*(maxY/(maxY/10)),
@@ -3921,68 +3934,68 @@ memory usage: 150.0 KB
         const yAxis = d3.axisLeft(yScale).ticks(CHART_HEIGHT / 30, yFormat);
         yFormat = yScale.tickFormat(100, yFormat);
 
-          svgEl.append("g")
-          .attr("transform", `translate(${MARGIN.LEFT}, 0)`)
+          svgEl.append(&quot;g&quot;)
+          .attr(&quot;transform&quot;, `translate(${MARGIN.LEFT}, 0)`)
           .call(yAxis)
-          .call(g =&gt; g.select(".domain").remove())
-          .call(g =&gt; g.selectAll(".tick line")
-          .attr("x2", CHART_WIDTH )
-          .attr("stroke-opacity", 0.1))
-          .call(g =&gt; g.append("text")
-          .attr("x", - MARGIN.LEFT)
-          .attr("y", 10)
-          .attr("fill", "currentColor")
-          .attr("text-anchor", "start"));
+          .call(g =&gt; g.select(&quot;.domain&quot;).remove())
+          .call(g =&gt; g.selectAll(&quot;.tick line&quot;)
+          .attr(&quot;x2&quot;, CHART_WIDTH )
+          .attr(&quot;stroke-opacity&quot;, 0.1))
+          .call(g =&gt; g.append(&quot;text&quot;)
+          .attr(&quot;x&quot;, - MARGIN.LEFT)
+          .attr(&quot;y&quot;, 10)
+          .attr(&quot;fill&quot;, &quot;currentColor&quot;)
+          .attr(&quot;text-anchor&quot;, &quot;start&quot;));
 
-          svgEl.append("text")
-          .attr("transform",
-                "translate(" + (CHART_WIDTH/2) + " ," +
-                               (CHART_HEIGHT + MARGIN.TOP + 30) + ")")
-          .style("text-anchor", "middle")
-          .text("Values")
-          .style("font-size", "15")
-          .style("opacity", "0.6")
+          svgEl.append(&quot;text&quot;)
+          .attr(&quot;transform&quot;,
+                &quot;translate(&quot; + (CHART_WIDTH/2) + &quot; ,&quot; +
+                               (CHART_HEIGHT + MARGIN.TOP + 30) + &quot;)&quot;)
+          .style(&quot;text-anchor&quot;, &quot;middle&quot;)
+          .text(&quot;Values&quot;)
+          .style(&quot;font-size&quot;, &quot;15&quot;)
+          .style(&quot;opacity&quot;, &quot;0.6&quot;)
 
-        svgEl.append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 0)
-          .attr("x", 0 - (SVG_HEIGHT / 2))
-          .attr("dy", "1em")
-          .style("text-anchor", "middle")
-          .text("Counts")
-          .style("font-size", "15")
-          .style("opacity", "0.6")
+        svgEl.append(&quot;text&quot;)
+          .attr(&quot;transform&quot;, &quot;rotate(-90)&quot;)
+          .attr(&quot;y&quot;, 0)
+          .attr(&quot;x&quot;, 0 - (SVG_HEIGHT / 2))
+          .attr(&quot;dy&quot;, &quot;1em&quot;)
+          .style(&quot;text-anchor&quot;, &quot;middle&quot;)
+          .text(&quot;Counts&quot;)
+          .style(&quot;font-size&quot;, &quot;15&quot;)
+          .style(&quot;opacity&quot;, &quot;0.6&quot;)
 
           svgEl
-          .append("g")
-          .attr("transform", `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM - 7})`)
+          .append(&quot;g&quot;)
+          .attr(&quot;transform&quot;, `translate(0,${SVG_HEIGHT - MARGIN.BOTTOM - 7})`)
           .call(xAxis)
-          .call(g =&gt; g.select(".domain").remove())
-          .call(g =&gt; g.selectAll(".tick&gt;line").remove())
-          .call(g =&gt; g.append("text")
-              .attr("x", SVG_WIDTH - MARGIN.RIGHT)
-              .attr("y", 27)
-              .attr("fill", "currentColor")
-              .attr("text-anchor", "end"));
+          .call(g =&gt; g.select(&quot;.domain&quot;).remove())
+          .call(g =&gt; g.selectAll(&quot;.tick&gt;line&quot;).remove())
+          .call(g =&gt; g.append(&quot;text&quot;)
+              .attr(&quot;x&quot;, SVG_WIDTH - MARGIN.RIGHT)
+              .attr(&quot;y&quot;, 27)
+              .attr(&quot;fill&quot;, &quot;currentColor&quot;)
+              .attr(&quot;text-anchor&quot;, &quot;end&quot;));
 
-        svgEl.selectAll(".bar")
+        svgEl.selectAll(&quot;.bar&quot;)
             .data(data)
           .enter()
-          .append("rect")
-            .attr("class", function(d) { return d &lt; 0 ? rectColors[0] : rectColors[1]; })
-            .attr("y", function(d) { return yScale(Math.max(0, d)); })
-            .attr("x", function(d, i) { return xScale(filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData))[i]?.axisX) })
-            .attr("height", function(d) { return Math.abs(yScale(d) - yScale(0)); })
-            .attr("width", xScale.bandwidth())
-            .style("opacity", "0.8")
+          .append(&quot;rect&quot;)
+            .attr(&quot;class&quot;, function(d) { return d &lt; 0 ? rectColors[0] : rectColors[1]; })
+            .attr(&quot;y&quot;, function(d) { return yScale(Math.max(0, d)); })
+            .attr(&quot;x&quot;, function(d, i) { return xScale(filterAndSortChartData(chartData(histogramData), chartData(overlappedHistogramData))[i]?.axisX) })
+            .attr(&quot;height&quot;, function(d) { return Math.abs(yScale(d) - yScale(0)); })
+            .attr(&quot;width&quot;, xScale.bandwidth())
+            .style(&quot;opacity&quot;, &quot;0.8&quot;)
 
 
             return svgEl._groups[0][0].outerHTML;
       }
 
-      const profileFromCSVfile = {"quality": {"frequentItems": [{"value": "bad", "estimate": 1115}, {"value": "good", "estimate": 76}]}}
+      const profileFromCSVfile = {&quot;quality&quot;: {&quot;frequentItems&quot;: [{&quot;value&quot;: &quot;bad&quot;, &quot;estimate&quot;: 1115}, {&quot;value&quot;: &quot;good&quot;, &quot;estimate&quot;: 76}]}}
 
-      Handlebars.registerHelper("getDoubleHistogramChart",(column,key) =&gt; {
+      Handlebars.registerHelper(&quot;getDoubleHistogramChart&quot;,(column,key) =&gt; {
         const columnKey = key.data.key
         try {
           if (profileFromCSVfile) {
@@ -3993,8 +4006,8 @@ memory usage: 150.0 KB
           }
         } catch (err) {
           $(document).ready(() =&gt;
-            $(".desktop-content").html(`
-              &lt;p style="height: ${$(window).height()}px" class="error-message"&gt;
+            $(&quot;.desktop-content&quot;).html(`
+              &lt;p style=&quot;height: ${$(window).height()}px&quot; class=&quot;error-message&quot;&gt;
                 Something went wrong. Please try again.
               &lt;/p&gt;
             `)
@@ -4004,17 +4017,17 @@ memory usage: 150.0 KB
     }
 
     function initWebsiteScripts() {
-      $(".svg-container").css("height", $(window).height() - 32)
+      $(&quot;.svg-container&quot;).css(&quot;height&quot;, $(window).height() - 32)
     }
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {"quality": {"frequentItems": [{"value": "bad", "estimate": 267}, {"value": "good", "estimate": 141}]}};
+      const context = {&quot;quality&quot;: {&quot;frequentItems&quot;: [{&quot;value&quot;: &quot;bad&quot;, &quot;estimate&quot;: 267}, {&quot;value&quot;: &quot;good&quot;, &quot;estimate&quot;: 141}]}};
       // Config handlebars and pass data to HBS template
-      const source = document.getElementById("entry-template").innerHTML;
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
       const html = template(context);
-      const target = document.getElementById("generated-html");
+      const target = document.getElementById(&quot;generated-html&quot;);
       target.innerHTML = html;
     }
 
@@ -4024,7 +4037,8 @@ memory usage: 150.0 KB
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-' width="100%"></iframe></div>
+" width=100% height=277px
+        frameBorder=0></iframe></div>
 </div>
 <p>We can see that there is 800 or so more “bads” in the Reference profile, and 50 or so more “goods” on the target profile.</p>
 </section>
@@ -4035,7 +4049,7 @@ memory usage: 150.0 KB
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">feature_statistics</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">"citric acid"</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="s2">"target"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">feature_statistics</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;citric acid&quot;</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -4044,32 +4058,32 @@ memory usage: 150.0 KB
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div></div><iframe frameborder="0" height="650px" srcdoc='&lt;!DOCTYPE html&gt;
-&lt;html lang="en"&gt;
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt;
-    &lt;meta charset="UTF-8" /&gt;
-    &lt;meta http-equiv="X-UA-Compatible" content="IE=edge" /&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
-    &lt;meta name="description" content="" /&gt;
-    &lt;meta name="author" content="" /&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
 
     &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
 
-    &lt;link rel="icon" href="images/whylabs-favicon.png" type="image/png" sizes="16x16" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.googleapis.com" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin /&gt;
-    &lt;link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap" rel="stylesheet" /&gt;
-    &lt;link rel="preconnect" href="https://fonts.gstatic.com" /&gt;
-    &lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" /&gt;
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
 
     &lt;script
-      src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"
-      integrity="sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
     &gt;&lt;/script&gt;
 
-    &lt;style type="text/css"&gt;
+    &lt;style type=&quot;text/css&quot;&gt;
 
       /* Screen on smaller screens */
       .no-responsive {
@@ -4217,98 +4231,98 @@ memory usage: 150.0 KB
     &lt;/style&gt;
   &lt;/head&gt;
 
-  &lt;body id="generated-html"&gt;&lt;/body&gt;
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
 
-  &lt;script id="entry-template" type="text/x-handlebars-template"&gt;
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
 
-      &lt;div class="desktop-content"&gt;
-        &lt;div class="full-summary-statistics-wrap"&gt;
-          &lt;div class="full-summary-statistics"&gt;
-            &lt;div class="mb-4"&gt;
-                &lt;strong class="header-title"&gt;{{featureName this}}: Summary Statistics&lt;/strong&gt;
+      &lt;div class=&quot;desktop-content&quot;&gt;
+        &lt;div class=&quot;full-summary-statistics-wrap&quot;&gt;
+          &lt;div class=&quot;full-summary-statistics&quot;&gt;
+            &lt;div class=&quot;mb-4&quot;&gt;
+                &lt;strong class=&quot;header-title&quot;&gt;{{featureName this}}: Summary Statistics&lt;/strong&gt;
             &lt;/div&gt;
-            &lt;div class="statistics-wrap border-solid-gray display-flex justify-content-center mb-5"&gt;
-              &lt;div class="statistics display-flex justify-content-space-between"&gt;
-                  &lt;div class="statistic-item padding-right-30"&gt;
-                    &lt;div class="statistic-number-title"&gt;Distinct (%)&lt;/div&gt;
-                    &lt;div class="statistic-number"&gt;{{distinct this}}&lt;/div&gt;
+            &lt;div class=&quot;statistics-wrap border-solid-gray display-flex justify-content-center mb-5&quot;&gt;
+              &lt;div class=&quot;statistics display-flex justify-content-space-between&quot;&gt;
+                  &lt;div class=&quot;statistic-item padding-right-30&quot;&gt;
+                    &lt;div class=&quot;statistic-number-title&quot;&gt;Distinct (%)&lt;/div&gt;
+                    &lt;div class=&quot;statistic-number&quot;&gt;{{distinct this}}&lt;/div&gt;
                   &lt;/div&gt;
-                  &lt;div class="statistic-item padding-right-30"&gt;
-                    &lt;div class="statistic-number-title"&gt;Missing&lt;/div&gt;
-                    &lt;div class="statistic-number"&gt;{{missing this}}&lt;/div&gt;
+                  &lt;div class=&quot;statistic-item padding-right-30&quot;&gt;
+                    &lt;div class=&quot;statistic-number-title&quot;&gt;Missing&lt;/div&gt;
+                    &lt;div class=&quot;statistic-number&quot;&gt;{{missing this}}&lt;/div&gt;
                   &lt;/div&gt;
-                  &lt;div class="statistic-item padding-right-30"&gt;
-                    &lt;div class="statistic-number-title"&gt;Mean&lt;/div&gt;
-                    &lt;div class="statistic-number"&gt;{{mean this}}&lt;/div&gt;
+                  &lt;div class=&quot;statistic-item padding-right-30&quot;&gt;
+                    &lt;div class=&quot;statistic-number-title&quot;&gt;Mean&lt;/div&gt;
+                    &lt;div class=&quot;statistic-number&quot;&gt;{{mean this}}&lt;/div&gt;
                   &lt;/div&gt;
-                  &lt;div class="statistic-item padding-right-30"&gt;
-                    &lt;div class="statistic-number-title"&gt;Minimum&lt;/div&gt;
-                    &lt;div class="statistic-number"&gt;{{minimum this}}&lt;/div&gt;
+                  &lt;div class=&quot;statistic-item padding-right-30&quot;&gt;
+                    &lt;div class=&quot;statistic-number-title&quot;&gt;Minimum&lt;/div&gt;
+                    &lt;div class=&quot;statistic-number&quot;&gt;{{minimum this}}&lt;/div&gt;
                   &lt;/div&gt;
-                  &lt;div class="statistic-item padding-right-30"&gt;
-                    &lt;div class="statistic-number-title"&gt;Maximum&lt;/div&gt;
-                    &lt;div class="statistic-number"&gt;{{maximum this}}&lt;/div&gt;
+                  &lt;div class=&quot;statistic-item padding-right-30&quot;&gt;
+                    &lt;div class=&quot;statistic-number-title&quot;&gt;Maximum&lt;/div&gt;
+                    &lt;div class=&quot;statistic-number&quot;&gt;{{maximum this}}&lt;/div&gt;
                   &lt;/div&gt;
               &lt;/div&gt;
             &lt;/div&gt;
             &lt;div&gt;
-              &lt;div class="display-flex justify-content-space-between"&gt;
-                &lt;div class="statistics-list border-solid-gray"&gt;
+              &lt;div class=&quot;display-flex justify-content-space-between&quot;&gt;
+                &lt;div class=&quot;statistics-list border-solid-gray&quot;&gt;
                   &lt;div&gt;
-                    &lt;div class="mb-3"&gt;
-                      &lt;strong class="statistics-header-title"&gt;Quantile statistics&lt;/strong&gt;
+                    &lt;div class=&quot;mb-3&quot;&gt;
+                      &lt;strong class=&quot;statistics-header-title&quot;&gt;Quantile statistics&lt;/strong&gt;
                     &lt;/div&gt;
                     &lt;div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;5-th percentile&lt;/div&gt;
                         &lt;div&gt;{{fifthPercentile this}}&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;Q1&lt;/div&gt;
                         &lt;div&gt;{{q1 this}}&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;median&lt;/div&gt;
                         &lt;div&gt;{{median this}}&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;Q3&lt;/div&gt;
                         &lt;div&gt;{{q3 this}}&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;95-th percentile&lt;/div&gt;
                         &lt;div&gt;{{ninetyFifthPercentile this}}&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;Range&lt;/div&gt;
                         &lt;div&gt;{{range this}}&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;Interquartile range (IQR)&lt;/div&gt;
                         &lt;div&gt;{{iqr this}}&lt;/div&gt;
                       &lt;/div&gt;
                     &lt;/div&gt;
                   &lt;/div&gt;
                 &lt;/div&gt;
-                &lt;div class="statistics-list border-solid-gray"&gt;
+                &lt;div class=&quot;statistics-list border-solid-gray&quot;&gt;
                   &lt;div&gt;
-                    &lt;div class="mb-3"&gt;
-                      &lt;strong class="statistics-header-title"&gt;Descriptive statistics&lt;/strong&gt;
+                    &lt;div class=&quot;mb-3&quot;&gt;
+                      &lt;strong class=&quot;statistics-header-title&quot;&gt;Descriptive statistics&lt;/strong&gt;
                     &lt;/div&gt;
                     &lt;div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;Standard deviation&lt;/div&gt;
                         &lt;div&gt;{{stddev this}}&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;Coefficient of variation (CV)&lt;/div&gt;
                         &lt;div&gt;{{coefficientOfVariation this}}&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;Sum&lt;/div&gt;
                         &lt;div&gt;{{getSum this}}&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class="display-flex justify-content-space-between mb-2"&gt;
+                      &lt;div class=&quot;display-flex justify-content-space-between mb-2&quot;&gt;
                         &lt;div&gt;Variance&lt;/div&gt;
                         &lt;div&gt;{{variance this}}&lt;/div&gt;
                       &lt;/div&gt;
@@ -4320,10 +4334,10 @@ memory usage: 150.0 KB
           &lt;/div&gt;
         &lt;/div&gt;
       &lt;/div&gt;
-      &lt;div class="no-responsive"&gt;
-        &lt;div class="no-responsive__content"&gt;
-          &lt;h1 class="no-responsive__title"&gt;Hold on! :)&lt;/h1&gt;
-          &lt;p class="no-responsive__text"&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
             It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
             best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
             are working on adding support for a larger variety of devices.
@@ -4333,16 +4347,16 @@ memory usage: 150.0 KB
 
   &lt;/script&gt;
 
-  &lt;script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
 
-  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js" integrity="sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==" crossorigin="anonymous" referrerpolicy="no-referrer"&gt;&lt;/script&gt;
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
 
   &lt;script&gt;
     function registerHandlebarHelperFunctions() {
       //helper fun
       // function formatLabelDate(timestamp) {
       //   const date = new Date(timestamp);
-      //   const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
+      //   const format = d3.timeFormat(&quot;%Y-%m-%d %I:%M:%S %p %Z&quot;);
       //   return format(date);
       // }
 
@@ -4350,157 +4364,157 @@ memory usage: 150.0 KB
         return parseFloat(number).toFixed(decimals);
       }
 
-      Handlebars.registerHelper("variance", function (column) {
+      Handlebars.registerHelper(&quot;variance&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.descriptive_statistics &amp;&amp; feature.descriptive_statistics.variance) {
           return fixNumberTo(feature.descriptive_statistics.variance,2);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("coefficientOfVariation", function (column) {
+      Handlebars.registerHelper(&quot;coefficientOfVariation&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.descriptive_statistics &amp;&amp; feature.descriptive_statistics.coefficient_of_variation) {
           return fixNumberTo(feature.descriptive_statistics.coefficient_of_variation,2);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("median", function (column) {
+      Handlebars.registerHelper(&quot;median&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.quantile_statistics &amp;&amp; feature.quantile_statistics.median) {
           return fixNumberTo(feature.quantile_statistics.median);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("fifthPercentile", function (column) {
+      Handlebars.registerHelper(&quot;fifthPercentile&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.quantile_statistics &amp;&amp; feature.quantile_statistics.fifth_percentile) {
           return fixNumberTo(feature.quantile_statistics.fifth_percentile);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("ninetyFifthPercentile", function (column) {
+      Handlebars.registerHelper(&quot;ninetyFifthPercentile&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.quantile_statistics &amp;&amp; feature.quantile_statistics.ninety_fifth_percentile) {
           return fixNumberTo(feature.quantile_statistics.ninety_fifth_percentile);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("range", function (column) {
+      Handlebars.registerHelper(&quot;range&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.range) {
           return fixNumberTo(feature.range);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("q3", function (column) {
+      Handlebars.registerHelper(&quot;q3&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.quantile_statistics &amp;&amp; feature.quantile_statistics.q3) {
           return fixNumberTo(feature.quantile_statistics.q3);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("q1", function (column) {
+      Handlebars.registerHelper(&quot;q1&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.quantile_statistics &amp;&amp; feature.quantile_statistics.q1) {
           return fixNumberTo(feature.quantile_statistics.q1);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("getSum", function (column) {
+      Handlebars.registerHelper(&quot;getSum&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.descriptive_statistics &amp;&amp; feature.descriptive_statistics.sum) {
           return fixNumberTo(feature.descriptive_statistics.sum,2);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("iqr", function (column) {
+      Handlebars.registerHelper(&quot;iqr&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.quantile_statistics &amp;&amp; feature.quantile_statistics.iqr) {
           return fixNumberTo(feature.quantile_statistics.iqr);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
 
-      Handlebars.registerHelper("distinct", function (column) {
+      Handlebars.registerHelper(&quot;distinct&quot;, function (column) {
         const feature = Object.values(column)[0]
         const distinct_pct = feature.distinct
 
         return fixNumberTo(distinct_pct,2);
       });
 
-      Handlebars.registerHelper("missing", function (column) {
+      Handlebars.registerHelper(&quot;missing&quot;, function (column) {
         const feature = Object.values(column)[0]
         if (feature.missing) {
           return feature.missing;
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("mean", function (column) {
+      Handlebars.registerHelper(&quot;mean&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.descriptive_statistics &amp;&amp; feature.descriptive_statistics.mean) {
           return fixNumberTo(feature.descriptive_statistics.mean);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("stddev", function (column) {
+      Handlebars.registerHelper(&quot;stddev&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.descriptive_statistics &amp;&amp; feature.descriptive_statistics.stddev) {
           return fixNumberTo(feature.descriptive_statistics.stddev);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("minimum", function (column) {
+      Handlebars.registerHelper(&quot;minimum&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.min) {
           return fixNumberTo(feature.min);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      Handlebars.registerHelper("maximum", function (column) {
+      Handlebars.registerHelper(&quot;maximum&quot;, function (column) {
         const feature = Object.values(column)[0]
 
         if (feature.max) {
           return fixNumberTo(feature.max);
         }
-        return "0";
+        return &quot;0&quot;;
       });
 
-      // Handlebars.registerHelper("getProfileTimeStamp", function (column) {
+      // Handlebars.registerHelper(&quot;getProfileTimeStamp&quot;, function (column) {
       //   return formatLabelDate(+column.properties.dataTimestamp)
       // });
 
-      // Handlebars.registerHelper("getProfileName", function (column) {
+      // Handlebars.registerHelper(&quot;getProfileName&quot;, function (column) {
       //   return column.properties.tags.name
       // });
 
-      Handlebars.registerHelper("featureName", function (column) {
+      Handlebars.registerHelper(&quot;featureName&quot;, function (column) {
         const featureName = Object.keys(column)[0]
         return featureName
       });
@@ -4508,12 +4522,12 @@ memory usage: 150.0 KB
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {"citric acid": {"total_count": 398, "missing": 10, "distinct": 18.090455451204008, "min": 0.0, "max": 0.79, "range": 0.79, "quantile_statistics": {"fifth_percentile": 0.0, "iqr": 0.37, "q1": 0.1, "median": 0.35, "q3": 0.47, "ninety_fifth_percentile": 0.66}, "descriptive_statistics": {"stddev": 0.20859943016152155, "coefficient_of_variation": 0.6620619872750046, "sum": 125.4, "variance": 0.04351372226371151, "mean": 0.3150753768844221}}};
+      const context = {&quot;citric acid&quot;: {&quot;total_count&quot;: 398, &quot;missing&quot;: 10, &quot;distinct&quot;: 18.090455451204008, &quot;min&quot;: 0.0, &quot;max&quot;: 0.79, &quot;range&quot;: 0.79, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.0, &quot;iqr&quot;: 0.37, &quot;q1&quot;: 0.1, &quot;median&quot;: 0.35, &quot;q3&quot;: 0.47, &quot;ninety_fifth_percentile&quot;: 0.66}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.20859943016152155, &quot;coefficient_of_variation&quot;: 0.6620619872750046, &quot;sum&quot;: 125.4, &quot;variance&quot;: 0.04351372226371151, &quot;mean&quot;: 0.3150753768844221}}};
       // Config handlebars and pass data to HBS template
-      const source = document.getElementById("entry-template").innerHTML;
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
       const html = template(context);
-      const target = document.getElementById("generated-html");
+      const target = document.getElementById(&quot;generated-html&quot;);
       target.innerHTML = html;
     }
 
@@ -4522,7 +4536,8 @@ memory usage: 150.0 KB
     initHandlebarsTemplate();
   &lt;/script&gt;
 &lt;/html&gt;
-' width="100%"></iframe></div>
+" width=100% height=650px
+        frameBorder=0></iframe></div>
 </div>
 <p>Looks like we have 72 distinct values for <code class="docutils literal notranslate"><span class="pre">citric</span> <span class="pre">acid</span></code>, ranging from 0 to 0.79. We can also see the 10 missing values injected earlier.</p>
 </section>
@@ -4537,9 +4552,9 @@ memory usage: 150.0 KB
 <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
 <span class="n">visualization</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
     <span class="n">rendered_html</span><span class="o">=</span><span class="n">visualization</span><span class="o">.</span><span class="n">feature_statistics</span><span class="p">(</span>
-        <span class="n">feature_name</span><span class="o">=</span><span class="s2">"density"</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="s2">"target"</span>
+        <span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="s2">&quot;target&quot;</span>
     <span class="p">),</span>
-    <span class="n">html_file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"/example"</span><span class="p">,</span>
+    <span class="n">html_file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;/example&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>

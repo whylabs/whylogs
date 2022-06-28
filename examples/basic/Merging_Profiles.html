@@ -13,10 +13,10 @@
 <meta property="og:description" content="Open in Colab Sometimes we may want to profile a dataset in chunks. For example, we may have our dataset distributed across multiple files or nodes, or perhaps our dataset is too large to fit in me..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Writing profiles" href="../integrations/Writing_Profiles.html" /><link rel="prev" title="Schema Configuration for Tracking Metrics" href="Schema_Configuration.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>Merging Profiles - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,19 +577,22 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
 <section id="Merging-Profiles">
 <h1>Merging Profiles<a class="headerlink" href="#Merging-Profiles" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Merging_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Merging_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p>Sometimes we may want to profile a dataset in chunks. For example, we may have our dataset distributed across multiple files or nodes, or perhaps our dataset is too large to fit in memory. Maybe we already profiled our dataset for several different date ranges and we want to see a holistic view of our data across the entire range.</p>
 <p>In any case, merging profiles is a solution!</p>
 <section id="Installing-whylogs">
@@ -607,9 +616,9 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="n">df_full</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv"</span><span class="p">)</span>
+<span class="n">df_full</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;https://whylabs-public.s3.us-west-2.amazonaws.com/datasets/tour/current.csv&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">'row count: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_full</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;row count: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_full</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 <span class="n">df_full</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -627,10 +636,10 @@ row count: 945
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div id="df-5ec231cd-3765-4aaa-857c-0434535980f2">
-<div class="colab-df-container">
-<div>
-<style scoped="">
+  <div id="df-5ec231cd-3765-4aaa-857c-0434535980f2">
+    <div class="colab-df-container">
+      <div>
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -643,185 +652,190 @@ row count: 945
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>Transaction ID</th>
-<th>Customer ID</th>
-<th>Quantity</th>
-<th>Item Price</th>
-<th>Total Tax</th>
-<th>Total Amount</th>
-<th>Store Type</th>
-<th>Product Category</th>
-<th>Product Subcategory</th>
-<th>Gender</th>
-<th>Transaction Type</th>
-<th>Age</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>682</th>
-<td>T74278458640</td>
-<td>C267835</td>
-<td>2</td>
-<td>63.2</td>
-<td>13.2720</td>
-<td>139.6720</td>
-<td>TeleShop</td>
-<td>Books</td>
-<td>DIY</td>
-<td>M</td>
-<td>Purchase</td>
-<td>33.0</td>
-</tr>
-<tr>
-<th>256</th>
-<td>T54377774372</td>
-<td>C270496</td>
-<td>5</td>
-<td>75.5</td>
-<td>39.6375</td>
-<td>417.1375</td>
-<td>MBR</td>
-<td>Electronics</td>
-<td>Audio and video</td>
-<td>M</td>
-<td>Purchase</td>
-<td>23.0</td>
-</tr>
-<tr>
-<th>67</th>
-<td>T64030190529</td>
-<td>C269524</td>
-<td>5</td>
-<td>52.5</td>
-<td>27.5625</td>
-<td>290.0625</td>
-<td>e-Shop</td>
-<td>Bags</td>
-<td>Mens</td>
-<td>F</td>
-<td>Purchase</td>
-<td>24.0</td>
-</tr>
-<tr>
-<th>762</th>
-<td>T18970114223</td>
-<td>C272730</td>
-<td>2</td>
-<td>80.6</td>
-<td>16.9260</td>
-<td>178.1260</td>
-<td>e-Shop</td>
-<td>Home and kitchen</td>
-<td>Kitchen</td>
-<td>M</td>
-<td>Purchase</td>
-<td>39.0</td>
-</tr>
-<tr>
-<th>94</th>
-<td>T94404065446</td>
-<td>C271648</td>
-<td>5</td>
-<td>48.0</td>
-<td>25.2000</td>
-<td>265.2000</td>
-<td>e-Shop</td>
-<td>Clothing</td>
-<td>Kids</td>
-<td>F</td>
-<td>Purchase</td>
-<td>34.0</td>
-</tr>
-<tr>
-<th>197</th>
-<td>T30540748600</td>
-<td>C269603</td>
-<td>1</td>
-<td>127.4</td>
-<td>13.3770</td>
-<td>140.7770</td>
-<td>TeleShop</td>
-<td>Footwear</td>
-<td>Women</td>
-<td>M</td>
-<td>Purchase</td>
-<td>41.0</td>
-</tr>
-<tr>
-<th>161</th>
-<td>T78998671169</td>
-<td>C270907</td>
-<td>1</td>
-<td>104.9</td>
-<td>11.0145</td>
-<td>115.9145</td>
-<td>MBR</td>
-<td>Books</td>
-<td>DIY</td>
-<td>F</td>
-<td>Purchase</td>
-<td>41.0</td>
-</tr>
-<tr>
-<th>574</th>
-<td>T19424023275</td>
-<td>C270462</td>
-<td>2</td>
-<td>127.5</td>
-<td>26.7750</td>
-<td>281.7750</td>
-<td>TeleShop</td>
-<td>Electronics</td>
-<td>Cameras</td>
-<td>F</td>
-<td>Purchase</td>
-<td>38.0</td>
-</tr>
-<tr>
-<th>583</th>
-<td>T7986658313</td>
-<td>C269047</td>
-<td>3</td>
-<td>25.9</td>
-<td>8.1585</td>
-<td>85.8585</td>
-<td>e-Shop</td>
-<td>Clothing</td>
-<td>Women</td>
-<td>M</td>
-<td>Purchase</td>
-<td>25.0</td>
-</tr>
-<tr>
-<th>805</th>
-<td>T36786634925</td>
-<td>C267437</td>
-<td>3</td>
-<td>50.0</td>
-<td>15.7500</td>
-<td>165.7500</td>
-<td>TeleShop</td>
-<td>Books</td>
-<td>Children</td>
-<td>M</td>
-<td>Purchase</td>
-<td>35.0</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Transaction ID</th>
+      <th>Customer ID</th>
+      <th>Quantity</th>
+      <th>Item Price</th>
+      <th>Total Tax</th>
+      <th>Total Amount</th>
+      <th>Store Type</th>
+      <th>Product Category</th>
+      <th>Product Subcategory</th>
+      <th>Gender</th>
+      <th>Transaction Type</th>
+      <th>Age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>682</th>
+      <td>T74278458640</td>
+      <td>C267835</td>
+      <td>2</td>
+      <td>63.2</td>
+      <td>13.2720</td>
+      <td>139.6720</td>
+      <td>TeleShop</td>
+      <td>Books</td>
+      <td>DIY</td>
+      <td>M</td>
+      <td>Purchase</td>
+      <td>33.0</td>
+    </tr>
+    <tr>
+      <th>256</th>
+      <td>T54377774372</td>
+      <td>C270496</td>
+      <td>5</td>
+      <td>75.5</td>
+      <td>39.6375</td>
+      <td>417.1375</td>
+      <td>MBR</td>
+      <td>Electronics</td>
+      <td>Audio and video</td>
+      <td>M</td>
+      <td>Purchase</td>
+      <td>23.0</td>
+    </tr>
+    <tr>
+      <th>67</th>
+      <td>T64030190529</td>
+      <td>C269524</td>
+      <td>5</td>
+      <td>52.5</td>
+      <td>27.5625</td>
+      <td>290.0625</td>
+      <td>e-Shop</td>
+      <td>Bags</td>
+      <td>Mens</td>
+      <td>F</td>
+      <td>Purchase</td>
+      <td>24.0</td>
+    </tr>
+    <tr>
+      <th>762</th>
+      <td>T18970114223</td>
+      <td>C272730</td>
+      <td>2</td>
+      <td>80.6</td>
+      <td>16.9260</td>
+      <td>178.1260</td>
+      <td>e-Shop</td>
+      <td>Home and kitchen</td>
+      <td>Kitchen</td>
+      <td>M</td>
+      <td>Purchase</td>
+      <td>39.0</td>
+    </tr>
+    <tr>
+      <th>94</th>
+      <td>T94404065446</td>
+      <td>C271648</td>
+      <td>5</td>
+      <td>48.0</td>
+      <td>25.2000</td>
+      <td>265.2000</td>
+      <td>e-Shop</td>
+      <td>Clothing</td>
+      <td>Kids</td>
+      <td>F</td>
+      <td>Purchase</td>
+      <td>34.0</td>
+    </tr>
+    <tr>
+      <th>197</th>
+      <td>T30540748600</td>
+      <td>C269603</td>
+      <td>1</td>
+      <td>127.4</td>
+      <td>13.3770</td>
+      <td>140.7770</td>
+      <td>TeleShop</td>
+      <td>Footwear</td>
+      <td>Women</td>
+      <td>M</td>
+      <td>Purchase</td>
+      <td>41.0</td>
+    </tr>
+    <tr>
+      <th>161</th>
+      <td>T78998671169</td>
+      <td>C270907</td>
+      <td>1</td>
+      <td>104.9</td>
+      <td>11.0145</td>
+      <td>115.9145</td>
+      <td>MBR</td>
+      <td>Books</td>
+      <td>DIY</td>
+      <td>F</td>
+      <td>Purchase</td>
+      <td>41.0</td>
+    </tr>
+    <tr>
+      <th>574</th>
+      <td>T19424023275</td>
+      <td>C270462</td>
+      <td>2</td>
+      <td>127.5</td>
+      <td>26.7750</td>
+      <td>281.7750</td>
+      <td>TeleShop</td>
+      <td>Electronics</td>
+      <td>Cameras</td>
+      <td>F</td>
+      <td>Purchase</td>
+      <td>38.0</td>
+    </tr>
+    <tr>
+      <th>583</th>
+      <td>T7986658313</td>
+      <td>C269047</td>
+      <td>3</td>
+      <td>25.9</td>
+      <td>8.1585</td>
+      <td>85.8585</td>
+      <td>e-Shop</td>
+      <td>Clothing</td>
+      <td>Women</td>
+      <td>M</td>
+      <td>Purchase</td>
+      <td>25.0</td>
+    </tr>
+    <tr>
+      <th>805</th>
+      <td>T36786634925</td>
+      <td>C267437</td>
+      <td>3</td>
+      <td>50.0</td>
+      <td>15.7500</td>
+      <td>165.7500</td>
+      <td>TeleShop</td>
+      <td>Books</td>
+      <td>Children</td>
+      <td>M</td>
+      <td>Purchase</td>
+      <td>35.0</td>
+    </tr>
+  </tbody>
+</table>
 </div>
-<button class="colab-df-convert" onclick="convertToInteractive('df-5ec231cd-3765-4aaa-857c-0434535980f2')" style="display:none;" title="Convert this dataframe to an interactive table.">
-<svg height="24px" viewbox="0 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 0h24v24H0V0z" fill="none"></path>
-<path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"></path><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"></path>
-</svg>
-</button>
-<style>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-5ec231cd-3765-4aaa-857c-0434535980f2')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
     .colab-df-container {
       display:flex;
       flex-wrap:wrap;
@@ -858,7 +872,8 @@ row count: 945
       fill: #FFFFFF;
     }
   </style>
-<script>
+
+      <script>
         const buttonEl =
           document.querySelector('#df-5ec231cd-3765-4aaa-857c-0434535980f2 button.colab-df-convert');
         buttonEl.style.display =
@@ -882,8 +897,8 @@ row count: 945
           element.appendChild(docLink);
         }
       </script>
-</div>
-</div></div>
+    </div>
+  </div></div>
 </div>
 <p>This dataset contains 945 rows and contains a mix of numeric and categorical features. Lets split this DataFrame into 3 chunks of different sizes.</p>
 </section>
@@ -897,10 +912,10 @@ row count: 945
 <span class="n">df_subset2</span><span class="o">=</span> <span class="n">df_full</span><span class="p">[</span><span class="mi">100</span><span class="p">:</span><span class="mi">400</span><span class="p">]</span>
 <span class="n">df_subset3</span><span class="o">=</span> <span class="n">df_full</span><span class="p">[</span><span class="mi">400</span><span class="p">:]</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Row Counts:'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Subset 1: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_subset1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Subset 2: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_subset2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'Subset 3: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_subset3</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Row Counts:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Subset 1: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_subset1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Subset 2: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_subset2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Subset 3: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">df_subset3</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 </pre></div>
 </div>
 </div>
@@ -946,10 +961,10 @@ Subset 3: 545
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div id="df-17744163-ef87-4587-955f-862f70699167">
-<div class="colab-df-container">
-<div>
-<style scoped="">
+  <div id="df-17744163-ef87-4587-955f-862f70699167">
+    <div class="colab-df-container">
+      <div>
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -962,189 +977,194 @@ Subset 3: 545
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/q_05</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>ints/max</th>
-<th>ints/min</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>Gender</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Total Amount</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>99.000024</td>
-<td>99.004967</td>
-<td>99.0</td>
-<td>...</td>
-<td>-153.816</td>
-<td>8.619</td>
-<td>66.521</td>
-<td>216.359</td>
-<td>321.555</td>
-<td>580.788</td>
-<td>642.5575</td>
-<td>795.6</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Customer ID</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>98.000024</td>
-<td>98.004917</td>
-<td>98.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Item Price</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>97.000023</td>
-<td>97.004866</td>
-<td>97.0</td>
-<td>...</td>
-<td>10.000</td>
-<td>25.700</td>
-<td>40.700</td>
-<td>76.800</td>
-<td>111.100</td>
-<td>135.200</td>
-<td>139.8000</td>
-<td>148.9</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction ID</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>99.000024</td>
-<td>99.004967</td>
-<td>99.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Gender</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Total Amount</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>99.000024</td>
+      <td>99.004967</td>
+      <td>99.0</td>
+      <td>...</td>
+      <td>-153.816</td>
+      <td>8.619</td>
+      <td>66.521</td>
+      <td>216.359</td>
+      <td>321.555</td>
+      <td>580.788</td>
+      <td>642.5575</td>
+      <td>795.6</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Customer ID</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>98.000024</td>
+      <td>98.004917</td>
+      <td>98.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Item Price</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>97.000023</td>
+      <td>97.004866</td>
+      <td>97.0</td>
+      <td>...</td>
+      <td>10.000</td>
+      <td>25.700</td>
+      <td>40.700</td>
+      <td>76.800</td>
+      <td>111.100</td>
+      <td>135.200</td>
+      <td>139.8000</td>
+      <td>148.9</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction ID</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>99.000024</td>
+      <td>99.004967</td>
+      <td>99.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 <p>5 rows × 28 columns</p>
 </div>
-<button class="colab-df-convert" onclick="convertToInteractive('df-17744163-ef87-4587-955f-862f70699167')" style="display:none;" title="Convert this dataframe to an interactive table.">
-<svg height="24px" viewbox="0 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 0h24v24H0V0z" fill="none"></path>
-<path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"></path><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"></path>
-</svg>
-</button>
-<style>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-17744163-ef87-4587-955f-862f70699167')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
     .colab-df-container {
       display:flex;
       flex-wrap:wrap;
@@ -1181,7 +1201,8 @@ Subset 3: 545
       fill: #FFFFFF;
     }
   </style>
-<script>
+
+      <script>
         const buttonEl =
           document.querySelector('#df-17744163-ef87-4587-955f-862f70699167 button.colab-df-convert');
         buttonEl.style.display =
@@ -1205,15 +1226,15 @@ Subset 3: 545
           element.appendChild(docLink);
         }
       </script>
-</div>
-</div></div>
+    </div>
+  </div></div>
 </div>
 <p>From the <strong>counts/n</strong> column, we can see that our subset of data contained 100 rows, as expected. Before we start merging new profiles, lets grab the mean of the “Item Price” column for another point of reference.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="s2">"Mean Item Price for Subset 1: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">subset1_profile_df</span><span class="p">[</span><span class="s1">'distribution/mean'</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">'Item Price'</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;Mean Item Price for Subset 1: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">subset1_profile_df</span><span class="p">[</span><span class="s1">&#39;distribution/mean&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Item Price&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1223,7 +1244,7 @@ Subset 3: 545
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-'Mean Item Price for Subset 1: 74.189'
+&#39;Mean Item Price for Subset 1: 74.189&#39;
 </pre></div></div>
 </div>
 </section>
@@ -1254,10 +1275,10 @@ Subset 3: 545
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div id="df-07259287-e766-47b0-8dfa-e0f75d746d32">
-<div class="colab-df-container">
-<div>
-<style scoped="">
+  <div id="df-07259287-e766-47b0-8dfa-e0f75d746d32">
+    <div class="colab-df-container">
+      <div>
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -1270,189 +1291,194 @@ Subset 3: 545
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/q_05</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>ints/max</th>
-<th>ints/min</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>Gender</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.000000</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Total Amount</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>844.069184</td>
-<td>855.117588</td>
-<td>833.289540</td>
-<td>...</td>
-<td>-233.376</td>
-<td>14.365</td>
-<td>79.0075</td>
-<td>179.452</td>
-<td>356.915</td>
-<td>580.788</td>
-<td>654.16</td>
-<td>804.44</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Customer ID</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>869.683985</td>
-<td>881.067672</td>
-<td>858.577213</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Item Price</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>705.028228</td>
-<td>714.256661</td>
-<td>696.024282</td>
-<td>...</td>
-<td>13.800</td>
-<td>22.300</td>
-<td>45.0000</td>
-<td>80.600</td>
-<td>116.600</td>
-<td>138.200</td>
-<td>145.10</td>
-<td>149.00</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction ID</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>935.275741</td>
-<td>947.517988</td>
-<td>923.331294</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Gender</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.000000</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Total Amount</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>844.069184</td>
+      <td>855.117588</td>
+      <td>833.289540</td>
+      <td>...</td>
+      <td>-233.376</td>
+      <td>14.365</td>
+      <td>79.0075</td>
+      <td>179.452</td>
+      <td>356.915</td>
+      <td>580.788</td>
+      <td>654.16</td>
+      <td>804.44</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Customer ID</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>869.683985</td>
+      <td>881.067672</td>
+      <td>858.577213</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Item Price</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>705.028228</td>
+      <td>714.256661</td>
+      <td>696.024282</td>
+      <td>...</td>
+      <td>13.800</td>
+      <td>22.300</td>
+      <td>45.0000</td>
+      <td>80.600</td>
+      <td>116.600</td>
+      <td>138.200</td>
+      <td>145.10</td>
+      <td>149.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction ID</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>935.275741</td>
+      <td>947.517988</td>
+      <td>923.331294</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 <p>5 rows × 28 columns</p>
 </div>
-<button class="colab-df-convert" onclick="convertToInteractive('df-07259287-e766-47b0-8dfa-e0f75d746d32')" style="display:none;" title="Convert this dataframe to an interactive table.">
-<svg height="24px" viewbox="0 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 0h24v24H0V0z" fill="none"></path>
-<path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"></path><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"></path>
-</svg>
-</button>
-<style>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-07259287-e766-47b0-8dfa-e0f75d746d32')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
     .colab-df-container {
       display:flex;
       flex-wrap:wrap;
@@ -1489,7 +1515,8 @@ Subset 3: 545
       fill: #FFFFFF;
     }
   </style>
-<script>
+
+      <script>
         const buttonEl =
           document.querySelector('#df-07259287-e766-47b0-8dfa-e0f75d746d32 button.colab-df-convert');
         buttonEl.style.display =
@@ -1513,15 +1540,15 @@ Subset 3: 545
           element.appendChild(docLink);
         }
       </script>
-</div>
-</div></div>
+    </div>
+  </div></div>
 </div>
 <p>We now see that each column has a count of 945 which we expect. Lets revisit the mean of the Items Price column.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="s2">"Mean Item Price from merged profile: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">full_profile_df</span><span class="p">[</span><span class="s1">'distribution/mean'</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">'Item Price'</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;Mean Item Price from merged profile: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">full_profile_df</span><span class="p">[</span><span class="s1">&#39;distribution/mean&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">&#39;Item Price&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1531,7 +1558,7 @@ Subset 3: 545
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-'Mean Item Price from merged profile: 79.84814814814818'
+&#39;Mean Item Price from merged profile: 79.84814814814818&#39;
 </pre></div></div>
 </div>
 <p>Lets compare this with the mean we get using the the <strong>mean</strong> method from Pandas.</p>
@@ -1539,7 +1566,7 @@ Subset 3: 545
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_full</span><span class="p">[</span><span class="s1">'Item Price'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df_full</span><span class="p">[</span><span class="s1">&#39;Item Price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1590,10 +1617,10 @@ Subset 3: 545
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div id="df-d1ae8943-5e48-4026-a120-d800856f157e">
-<div class="colab-df-container">
-<div>
-<style scoped="">
+  <div id="df-d1ae8943-5e48-4026-a120-d800856f157e">
+    <div class="colab-df-container">
+      <div>
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -1606,189 +1633,194 @@ Subset 3: 545
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/q_05</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>ints/max</th>
-<th>ints/min</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>Gender</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Total Amount</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>99.000024</td>
-<td>99.004967</td>
-<td>99.0</td>
-<td>...</td>
-<td>-153.816</td>
-<td>8.619</td>
-<td>66.521</td>
-<td>216.359</td>
-<td>321.555</td>
-<td>580.788</td>
-<td>642.5575</td>
-<td>795.6</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Customer ID</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>98.000024</td>
-<td>98.004917</td>
-<td>98.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Item Price</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>97.000023</td>
-<td>97.004866</td>
-<td>97.0</td>
-<td>...</td>
-<td>10.000</td>
-<td>25.700</td>
-<td>40.700</td>
-<td>76.800</td>
-<td>111.100</td>
-<td>135.200</td>
-<td>139.8000</td>
-<td>148.9</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction ID</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>99.000024</td>
-<td>99.004967</td>
-<td>99.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Gender</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Total Amount</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>99.000024</td>
+      <td>99.004967</td>
+      <td>99.0</td>
+      <td>...</td>
+      <td>-153.816</td>
+      <td>8.619</td>
+      <td>66.521</td>
+      <td>216.359</td>
+      <td>321.555</td>
+      <td>580.788</td>
+      <td>642.5575</td>
+      <td>795.6</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Customer ID</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>98.000024</td>
+      <td>98.004917</td>
+      <td>98.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Item Price</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>97.000023</td>
+      <td>97.004866</td>
+      <td>97.0</td>
+      <td>...</td>
+      <td>10.000</td>
+      <td>25.700</td>
+      <td>40.700</td>
+      <td>76.800</td>
+      <td>111.100</td>
+      <td>135.200</td>
+      <td>139.8000</td>
+      <td>148.9</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction ID</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>99.000024</td>
+      <td>99.004967</td>
+      <td>99.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 <p>5 rows × 28 columns</p>
 </div>
-<button class="colab-df-convert" onclick="convertToInteractive('df-d1ae8943-5e48-4026-a120-d800856f157e')" style="display:none;" title="Convert this dataframe to an interactive table.">
-<svg height="24px" viewbox="0 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 0h24v24H0V0z" fill="none"></path>
-<path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"></path><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"></path>
-</svg>
-</button>
-<style>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-d1ae8943-5e48-4026-a120-d800856f157e')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
     .colab-df-container {
       display:flex;
       flex-wrap:wrap;
@@ -1825,7 +1857,8 @@ Subset 3: 545
       fill: #FFFFFF;
     }
   </style>
-<script>
+
+      <script>
         const buttonEl =
           document.querySelector('#df-d1ae8943-5e48-4026-a120-d800856f157e button.colab-df-convert');
         buttonEl.style.display =
@@ -1849,8 +1882,8 @@ Subset 3: 545
           element.appendChild(docLink);
         }
       </script>
-</div>
-</div></div>
+    </div>
+  </div></div>
 </div>
 <p>We can merge these ProfileView objects using the <strong>merge</strong> method. We assign the result to a new variable and view a few rows of the profile’s DataFrame.</p>
 <div class="nbinput docutils container">
@@ -1868,10 +1901,10 @@ Subset 3: 545
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div id="df-b02d2f5e-2db6-46f3-ad7f-8ee84fcc1901">
-<div class="colab-df-container">
-<div>
-<style scoped="">
+  <div id="df-b02d2f5e-2db6-46f3-ad7f-8ee84fcc1901">
+    <div class="colab-df-container">
+      <div>
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -1884,189 +1917,194 @@ Subset 3: 545
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>frequent_items/frequent_strings</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>...</th>
-<th>distribution/q_05</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>ints/max</th>
-<th>ints/min</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>Gender</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>[FrequentItem(value='M', est=489, upper=489, l...</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Total Amount</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>NaN</td>
-<td>849.185065</td>
-<td>860.300432</td>
-<td>...</td>
-<td>-233.376</td>
-<td>14.365</td>
-<td>78.676</td>
-<td>178.126</td>
-<td>357.0255</td>
-<td>580.346</td>
-<td>657.475</td>
-<td>804.44</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Customer ID</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>[FrequentItem(value='C273096', est=3, upper=2,...</td>
-<td>858.998625</td>
-<td>873.131713</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Item Price</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>NaN</td>
-<td>701.002487</td>
-<td>710.178225</td>
-<td>...</td>
-<td>15.000</td>
-<td>22.700</td>
-<td>45.200</td>
-<td>81.200</td>
-<td>116.7000</td>
-<td>138.200</td>
-<td>145.600</td>
-<td>149.00</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction ID</th>
-<td>945</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>945</td>
-<td>0</td>
-<td>[FrequentItem(value='T79960195196', est=3, upp...</td>
-<td>942.466233</td>
-<td>957.972612</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>...</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Gender</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>[FrequentItem(value='M', est=489, upper=489, l...</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Total Amount</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>849.185065</td>
+      <td>860.300432</td>
+      <td>...</td>
+      <td>-233.376</td>
+      <td>14.365</td>
+      <td>78.676</td>
+      <td>178.126</td>
+      <td>357.0255</td>
+      <td>580.346</td>
+      <td>657.475</td>
+      <td>804.44</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Customer ID</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>[FrequentItem(value='C273096', est=3, upper=2,...</td>
+      <td>858.998625</td>
+      <td>873.131713</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Item Price</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>701.002487</td>
+      <td>710.178225</td>
+      <td>...</td>
+      <td>15.000</td>
+      <td>22.700</td>
+      <td>45.200</td>
+      <td>81.200</td>
+      <td>116.7000</td>
+      <td>138.200</td>
+      <td>145.600</td>
+      <td>149.00</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction ID</th>
+      <td>945</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>945</td>
+      <td>0</td>
+      <td>[FrequentItem(value='T79960195196', est=3, upp...</td>
+      <td>942.466233</td>
+      <td>957.972612</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 <p>5 rows × 28 columns</p>
 </div>
-<button class="colab-df-convert" onclick="convertToInteractive('df-b02d2f5e-2db6-46f3-ad7f-8ee84fcc1901')" style="display:none;" title="Convert this dataframe to an interactive table.">
-<svg height="24px" viewbox="0 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 0h24v24H0V0z" fill="none"></path>
-<path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"></path><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"></path>
-</svg>
-</button>
-<style>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-b02d2f5e-2db6-46f3-ad7f-8ee84fcc1901')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
     .colab-df-container {
       display:flex;
       flex-wrap:wrap;
@@ -2103,7 +2141,8 @@ Subset 3: 545
       fill: #FFFFFF;
     }
   </style>
-<script>
+
+      <script>
         const buttonEl =
           document.querySelector('#df-b02d2f5e-2db6-46f3-ad7f-8ee84fcc1901 button.colab-df-convert');
         buttonEl.style.display =
@@ -2127,8 +2166,8 @@ Subset 3: 545
           element.appendChild(docLink);
         }
       </script>
-</div>
-</div></div>
+    </div>
+  </div></div>
 </div>
 <p>As expected, we see 945 rows. Unlike the <strong>track</strong> method, the merge method doesn’t update the original objects directly. In other words, we can still inspect the individual profiles views from our subsets of data.</p>
 <p>Keep in mind that the <strong>track</strong> method only works on <em>DatasetProfile</em> objects, while the <strong>merge</strong> method only operates on <em>DatasetProfileView</em> objects.</p>
@@ -2145,10 +2184,10 @@ Subset 3: 545
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
-<div id="df-60447814-1fb5-4dcf-93da-2dd880673131">
-<div class="colab-df-container">
-<div>
-<style scoped="">
+  <div id="df-60447814-1fb5-4dcf-93da-2dd880673131">
+    <div class="colab-df-container">
+      <div>
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -2161,189 +2200,194 @@ Subset 3: 545
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/q_05</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>ints/max</th>
-<th>ints/min</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>Gender</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Total Amount</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>99.000024</td>
-<td>99.004967</td>
-<td>99.0</td>
-<td>...</td>
-<td>-153.816</td>
-<td>8.619</td>
-<td>66.521</td>
-<td>216.359</td>
-<td>321.555</td>
-<td>580.788</td>
-<td>642.5575</td>
-<td>795.6</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Customer ID</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>98.000024</td>
-<td>98.004917</td>
-<td>98.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Item Price</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>97.000023</td>
-<td>97.004866</td>
-<td>97.0</td>
-<td>...</td>
-<td>10.000</td>
-<td>25.700</td>
-<td>40.700</td>
-<td>76.800</td>
-<td>111.100</td>
-<td>135.200</td>
-<td>139.8000</td>
-<td>148.9</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction ID</th>
-<td>100</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>100</td>
-<td>0</td>
-<td>99.000024</td>
-<td>99.004967</td>
-<td>99.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Gender</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Total Amount</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>99.000024</td>
+      <td>99.004967</td>
+      <td>99.0</td>
+      <td>...</td>
+      <td>-153.816</td>
+      <td>8.619</td>
+      <td>66.521</td>
+      <td>216.359</td>
+      <td>321.555</td>
+      <td>580.788</td>
+      <td>642.5575</td>
+      <td>795.6</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Customer ID</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>98.000024</td>
+      <td>98.004917</td>
+      <td>98.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Item Price</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>97.000023</td>
+      <td>97.004866</td>
+      <td>97.0</td>
+      <td>...</td>
+      <td>10.000</td>
+      <td>25.700</td>
+      <td>40.700</td>
+      <td>76.800</td>
+      <td>111.100</td>
+      <td>135.200</td>
+      <td>139.8000</td>
+      <td>148.9</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction ID</th>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>99.000024</td>
+      <td>99.004967</td>
+      <td>99.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 <p>5 rows × 28 columns</p>
 </div>
-<button class="colab-df-convert" onclick="convertToInteractive('df-60447814-1fb5-4dcf-93da-2dd880673131')" style="display:none;" title="Convert this dataframe to an interactive table.">
-<svg height="24px" viewbox="0 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg">
-<path d="M0 0h24v24H0V0z" fill="none"></path>
-<path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"></path><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"></path>
-</svg>
-</button>
-<style>
+      <button class="colab-df-convert" onclick="convertToInteractive('df-60447814-1fb5-4dcf-93da-2dd880673131')"
+              title="Convert this dataframe to an interactive table."
+              style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+       width="24px">
+    <path d="M0 0h24v24H0V0z" fill="none"/>
+    <path d="M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z"/><path d="M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z"/>
+  </svg>
+      </button>
+
+  <style>
     .colab-df-container {
       display:flex;
       flex-wrap:wrap;
@@ -2380,7 +2424,8 @@ Subset 3: 545
       fill: #FFFFFF;
     }
   </style>
-<script>
+
+      <script>
         const buttonEl =
           document.querySelector('#df-60447814-1fb5-4dcf-93da-2dd880673131 button.colab-df-convert');
         buttonEl.style.display =
@@ -2404,8 +2449,8 @@ Subset 3: 545
           element.appendChild(docLink);
         }
       </script>
-</div>
-</div></div>
+    </div>
+  </div></div>
 </div>
 </section>
 <section id="Mergeability-in-WhyLabs">

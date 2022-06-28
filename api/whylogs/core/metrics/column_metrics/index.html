@@ -13,10 +13,10 @@
 <meta property="og:description" content="Module Contents: Classes:" />
   <link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" /><link rel="next" title="whylogs.core.metrics.compound_metric" href="../compound_metric/index.html" /><link rel="prev" title="whylogs.core.metrics.aggregators" href="../aggregators/index.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.core.metrics.column_metrics - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -339,10 +340,11 @@
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">#</a></h3>
-<div class="table-wrapper"><table class="longtable docutils align-default">
+<div class="table-wrapper longtable docutils container">
+<table class="longtable docutils align-default">
 <colgroup>
-<col style="width: 10%"/>
-<col style="width: 90%"/>
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric" title="whylogs.core.metrics.column_metrics.TypeCountersMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TypeCountersMetric</span></code></a></p></td>
@@ -352,7 +354,8 @@
 <td><p>Helper class that provides a standard way to create an ABC using</p></td>
 </tr>
 </tbody>
-</table></div>
+</table>
+</div>
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.column_metrics.</span></span><span class="sig-name descname"><span class="pre">TypeCountersMetric</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric" title="Permalink to this definition">#</a></dt>
@@ -363,34 +366,40 @@ inheritance.</p>
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.integral">
 <span class="sig-name descname"><span class="pre">integral</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.integral" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.fractional">
 <span class="sig-name descname"><span class="pre">fractional</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.fractional" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.boolean">
 <span class="sig-name descname"><span class="pre">boolean</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.boolean" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.string">
 <span class="sig-name descname"><span class="pre">string</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.string" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.object">
 <span class="sig-name descname"><span class="pre">object</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.object" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.namespace" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.namespace" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.to_summary_dict">
-<span class="sig-name descname"><span class="pre">to_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><span class="pre">whylogs.core.configs.SummaryConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric.to_summary_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.to_summary_dict" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><span class="pre">whylogs.core.configs.SummaryConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric.to_summary_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.to_summary_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>cfg</strong> (<a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><em>whylogs.core.configs.SummaryConfig</em></a>) – </p>
@@ -400,9 +409,10 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.columnar_update">
-<span class="sig-name descname"><span class="pre">columnar_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">whylogs.core.preprocessing.PreprocessedColumn</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult"><span class="pre">whylogs.core.metrics.metrics.OperationResult</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric.columnar_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.columnar_update" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">columnar_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">whylogs.core.preprocessing.PreprocessedColumn</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult"><span class="pre">whylogs.core.metrics.metrics.OperationResult</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric.columnar_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.columnar_update" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><em>whylogs.core.preprocessing.PreprocessedColumn</em></a>) – </p>
@@ -412,9 +422,10 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.zero">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric" title="whylogs.core.metrics.column_metrics.TypeCountersMetric"><span class="pre">TypeCountersMetric</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric.zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.zero" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric" title="whylogs.core.metrics.column_metrics.TypeCountersMetric"><span class="pre">TypeCountersMetric</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#TypeCountersMetric.zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.zero" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><em>whylogs.core.metrics.metrics.MetricConfig</em></a>) – </p>
@@ -424,9 +435,10 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.get_namespace">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MetricConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.get_namespace" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MetricConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.get_namespace" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../../index.html#whylogs.core.MetricConfig" title="whylogs.core.MetricConfig"><em>MetricConfig</em></a>) – </p>
@@ -436,9 +448,10 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.merge">
-<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.merge" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.merge" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -451,27 +464,30 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.to_protobuf">
-<span class="sig-name descname"><span class="pre">to_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.to_protobuf" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.to_protobuf" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>whylogs.core.proto.MetricMessage</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.get_component_paths">
-<span class="sig-name descname"><span class="pre">get_component_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.get_component_paths" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_component_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.get_component_paths" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.TypeCountersMetric.from_protobuf">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">METRIC</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.from_protobuf" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">METRIC</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.TypeCountersMetric.from_protobuf" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -484,7 +500,9 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.column_metrics.</span></span><span class="sig-name descname"><span class="pre">ColumnCountsMetric</span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric" title="Permalink to this definition">#</a></dt>
@@ -495,22 +513,25 @@ inheritance.</p>
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.n">
 <span class="sig-name descname"><span class="pre">n</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.n" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.null">
 <span class="sig-name descname"><span class="pre">null</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metric_components.IntegralComponent</span></em><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.null" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.namespace">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.namespace" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.namespace" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.columnar_update">
-<span class="sig-name descname"><span class="pre">columnar_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">whylogs.core.preprocessing.PreprocessedColumn</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult"><span class="pre">whylogs.core.metrics.metrics.OperationResult</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric.columnar_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.columnar_update" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">columnar_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">whylogs.core.preprocessing.PreprocessedColumn</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.OperationResult" title="whylogs.core.metrics.metrics.OperationResult"><span class="pre">whylogs.core.metrics.metrics.OperationResult</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric.columnar_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.columnar_update" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="../../preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><em>whylogs.core.preprocessing.PreprocessedColumn</em></a>) – </p>
@@ -520,9 +541,10 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_summary_dict">
-<span class="sig-name descname"><span class="pre">to_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><span class="pre">whylogs.core.configs.SummaryConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric.to_summary_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_summary_dict" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_summary_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><span class="pre">whylogs.core.configs.SummaryConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric.to_summary_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_summary_dict" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>cfg</strong> (<a class="reference internal" href="../../configs/index.html#whylogs.core.configs.SummaryConfig" title="whylogs.core.configs.SummaryConfig"><em>whylogs.core.configs.SummaryConfig</em></a>) – </p>
@@ -532,9 +554,10 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.zero">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric" title="whylogs.core.metrics.column_metrics.ColumnCountsMetric"><span class="pre">ColumnCountsMetric</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric.zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.zero" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zero</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.metrics.MetricConfig</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric" title="whylogs.core.metrics.column_metrics.ColumnCountsMetric"><span class="pre">ColumnCountsMetric</span></a></span></span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/column_metrics.html#ColumnCountsMetric.zero"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.zero" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.metrics.MetricConfig" title="whylogs.core.metrics.metrics.MetricConfig"><em>whylogs.core.metrics.metrics.MetricConfig</em></a>) – </p>
@@ -544,9 +567,10 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_namespace">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MetricConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_namespace" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MetricConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_namespace" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../../index.html#whylogs.core.MetricConfig" title="whylogs.core.MetricConfig"><em>MetricConfig</em></a>) – </p>
@@ -556,9 +580,10 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.merge">
-<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.merge" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">METRIC</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.merge" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -571,27 +596,30 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_protobuf">
-<span class="sig-name descname"><span class="pre">to_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_protobuf" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.to_protobuf" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>whylogs.core.proto.MetricMessage</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_component_paths">
-<span class="sig-name descname"><span class="pre">get_component_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_component_paths" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_component_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.get_component_paths" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>]</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.metrics.column_metrics.ColumnCountsMetric.from_protobuf">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">METRIC</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.from_protobuf" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_protobuf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">METRIC</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../proto/index.html#whylogs.core.proto.MetricMessage" title="whylogs.core.proto.MetricMessage"><span class="pre">whylogs.core.proto.MetricMessage</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">METRIC</span></span></span><a class="headerlink" href="#whylogs.core.metrics.column_metrics.ColumnCountsMetric.from_protobuf" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -604,7 +632,9 @@ inheritance.</p>
 </dd>
 </dl>
 </dd></dl>
+
 </dd></dl>
+
 </section>
 </section>
 </section>

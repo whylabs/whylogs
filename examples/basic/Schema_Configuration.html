@@ -13,10 +13,10 @@
 <meta property="og:description" content="Open in Colab When logging data, whylogs outputs certain metrics according to the column type. While whylogs provide a default behaviour, you can configure it in order to only track metrics that ar..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Merging Profiles" href="Merging_Profiles.html" /><link rel="prev" title="Data Validation with Metric Constraints" href="Metric_Constraints.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>Schema Configuration for Tracking Metrics - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,19 +577,22 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
 <section id="Schema-Configuration-for-Tracking-Metrics">
 <h1>Schema Configuration for Tracking Metrics<a class="headerlink" href="#Schema-Configuration-for-Tracking-Metrics" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Schema_Configuration.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Schema_Configuration.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p>When logging data, whylogs outputs certain metrics according to the column type. While whylogs provide a default behaviour, you can configure it in order to only track metrics that are important to you.</p>
 <p>In this example, we’ll see how you can configure the Schema for a dataset level to control which metrics you want to calculate. We’ll see how to specify metrics:</p>
 <ol class="arabic simple">
@@ -680,7 +689,7 @@ Note: you may need to restart the kernel to use updated packages.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pandas if you don't have it already</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pandas if you don&#39;t have it already</span>
 <span class="c1"># %pip install pandas</span>
 <br/></pre></div>
 </div>
@@ -690,7 +699,7 @@ Note: you may need to restart the kernel to use updated packages.
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"col1"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">"col2"</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span> <span class="s2">"col3"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span> <span class="s2">"col4"</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]}</span>
+<span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;col1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s2">&quot;col2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span> <span class="s2">&quot;col3&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">],</span> <span class="s2">&quot;col4&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]}</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -708,7 +717,7 @@ Note: you may need to restart the kernel to use updated packages.
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
 
 <span class="k">class</span> <span class="nc">MyCustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="sd">"""Resolver that keeps distribution metrics for Fractional and frequent items for Integral, and counters and types metrics for all data types."""</span>
+    <span class="sd">&quot;&quot;&quot;Resolver that keeps distribution metrics for Fractional and frequent items for Integral, and counters and types metrics for all data types.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
         <span class="n">metrics</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">StandardMetric</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">counts</span><span class="p">,</span> <span class="n">StandardMetric</span><span class="o">.</span><span class="n">types</span><span class="p">]</span>
@@ -756,7 +765,7 @@ Note: you may need to restart the kernel to use updated packages.
 <span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">MyCustomSchema</span><span class="p">())</span>
 <span class="n">prof</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_columns"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_columns&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 <span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -767,7 +776,7 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -780,168 +789,168 @@ Note: you may need to restart the kernel to use updated packages.
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>frequent_items/frequent_strings</th>
-<th>type</th>
-<th>distribution/mean</th>
-<th>distribution/stddev</th>
-<th>distribution/n</th>
-<th>distribution/max</th>
-<th>distribution/min</th>
-<th>distribution/q_01</th>
-<th>distribution/q_05</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>col1</th>
-<td>3</td>
-<td>0</td>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>[FrequentItem(value='1.000000', est=1, upper=1...</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>col2</th>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>4.0</td>
-<td>1.0</td>
-<td>3.0</td>
-<td>5.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>4.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>5.0</td>
-</tr>
-<tr>
-<th>col4</th>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>4.0</td>
-<td>1.0</td>
-<td>3.0</td>
-<td>5.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>4.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>5.0</td>
-</tr>
-<tr>
-<th>col3</th>
-<td>3</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>3</td>
-<td>0</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>type</th>
+      <th>distribution/mean</th>
+      <th>distribution/stddev</th>
+      <th>distribution/n</th>
+      <th>distribution/max</th>
+      <th>distribution/min</th>
+      <th>distribution/q_01</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>col1</th>
+      <td>3</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>[FrequentItem(value='1.000000', est=1, upper=1...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col2</th>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>4.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>col4</th>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>4.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>col3</th>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 </div></div>
 </div>
 <p>Notice we have <code class="docutils literal notranslate"><span class="pre">counts</span></code> and <code class="docutils literal notranslate"><span class="pre">types</span></code> metrics for every type, <code class="docutils literal notranslate"><span class="pre">distribution</span></code> metrics only for <code class="docutils literal notranslate"><span class="pre">col2</span></code> and <code class="docutils literal notranslate"><span class="pre">col4</span></code> (floats) and <code class="docutils literal notranslate"><span class="pre">frequent_items</span></code> only for <code class="docutils literal notranslate"><span class="pre">col1</span></code> (ints).</p>
@@ -969,17 +978,17 @@ Note: you may need to restart the kernel to use updated packages.
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span>
 
 <span class="k">class</span> <span class="nc">MyCustomResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
-    <span class="sd">"""Resolver that keeps distribution metrics for Fractional and frequent items for Integral, and counters and types metrics for all data types."""</span>
+    <span class="sd">&quot;&quot;&quot;Resolver that keeps distribution metrics for Fractional and frequent items for Integral, and counters and types metrics for all data types.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
         <span class="n">metrics</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s1">'col1'</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s1">&#39;col1&#39;</span><span class="p">:</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">counts</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s1">'col2'</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s1">&#39;col2&#39;</span><span class="p">:</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s1">'col3'</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s1">&#39;col3&#39;</span><span class="p">:</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s1">'col4'</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">==</span><span class="s1">&#39;col4&#39;</span><span class="p">:</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">distribution</span><span class="p">)</span>
             <span class="n">metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="p">)</span>
 
@@ -1009,11 +1018,11 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 
-<span class="n">df</span><span class="p">[</span><span class="s1">'col5'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;col5&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">MyCustomSchema</span><span class="p">())</span>
 <span class="n">prof</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_columns"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_columns&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 <span class="n">prof_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1024,7 +1033,7 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -1037,173 +1046,173 @@ Note: you may need to restart the kernel to use updated packages.
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>type</th>
-<th>distribution/mean</th>
-<th>distribution/stddev</th>
-<th>distribution/n</th>
-<th>distribution/max</th>
-<th>distribution/min</th>
-<th>distribution/q_01</th>
-<th>distribution/q_05</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>col1</th>
-<td>3.0</td>
-<td>0.0</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>col2</th>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>4.0</td>
-<td>1.0</td>
-<td>3.0</td>
-<td>5.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>4.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>col4</th>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>4.0</td>
-<td>1.0</td>
-<td>3.0</td>
-<td>5.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>3.0</td>
-<td>4.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>5.0</td>
-<td>3.0</td>
-<td>3.00015</td>
-<td>3.0</td>
-</tr>
-<tr>
-<th>col5</th>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>col3</th>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>3.0</td>
-<td>3.00015</td>
-<td>3.0</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>type</th>
+      <th>distribution/mean</th>
+      <th>distribution/stddev</th>
+      <th>distribution/n</th>
+      <th>distribution/max</th>
+      <th>distribution/min</th>
+      <th>distribution/q_01</th>
+      <th>distribution/q_05</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>col1</th>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col2</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>4.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col4</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>4.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>3.0</td>
+      <td>3.00015</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>col5</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col3</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>3.0</td>
+      <td>3.00015</td>
+      <td>3.0</td>
+    </tr>
+  </tbody>
+</table>
 </div></div>
 </div>
 <p>Note that existing columns that are not specified in your custom resolver won’t have any metrics tracked. In the example above, we added a <code class="docutils literal notranslate"><span class="pre">col5</span></code> column, but since we didn’t link any metrics to it, all of the metrics are <code class="docutils literal notranslate"><span class="pre">NaN</span></code>s.</p>

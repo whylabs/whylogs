@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.api.logger - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -310,7 +310,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -358,30 +359,30 @@
 <div class="viewcode-block" id="logger"><a class="viewcode-back" href="../../../api/whylogs/api/logger/index.html#whylogs.api.logger">[docs]</a><span class="k">def</span> <span class="nf">logger</span><span class="p">(</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"transient"</span><span class="p">,</span> <span class="s2">"rolling"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"transient"</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;transient&quot;</span><span class="p">,</span> <span class="s2">&quot;rolling&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;transient&quot;</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Logger</span><span class="p">:</span>
-    <span class="sd">"""</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Logger: a logger object</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"transient"</span><span class="p">:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;transient&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">TransientLogger</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"rolling"</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;rolling&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">TimedRollingLogger</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Unsupported logger mode"</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported logger mode&quot;</span><span class="p">)</span></div>
 
 
 <span class="n">__ALL__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"log"</span><span class="p">,</span>
-    <span class="s2">"read"</span><span class="p">,</span>
-    <span class="s2">"write"</span><span class="p">,</span>
-    <span class="s2">"logger"</span><span class="p">,</span>
-    <span class="s2">"Logger"</span><span class="p">,</span>
-    <span class="s2">"ResultSet"</span><span class="p">,</span>
-    <span class="s2">"RollingLogger"</span><span class="p">,</span>
+    <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;read&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;write&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;logger&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Logger&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ResultSet&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RollingLogger&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
         </article>

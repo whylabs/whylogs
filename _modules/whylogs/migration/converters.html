@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.migration.converters - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -310,7 +310,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -353,10 +354,10 @@
 
 
 <div class="viewcode-block" id="read_v0_to_view"><a class="viewcode-back" href="../../../api/whylogs/migration/converters/index.html#whylogs.read_v0_to_view">[docs]</a><span class="k">def</span> <span class="nf">read_v0_to_view</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"r+b"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">v0_msg</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatasetProfileMessageV0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">v0_msg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="s2">"Unexpected empty message"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="s2">&quot;Unexpected empty message&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">v0_to_v1_view</span><span class="p">(</span><span class="n">v0_msg</span><span class="p">)</span></div>
 
 

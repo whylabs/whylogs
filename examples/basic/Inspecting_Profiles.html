@@ -13,10 +13,10 @@
 <meta property="og:description" content="Open in Colab In this notebook, we’ll show how you can use whylog’s Profile Viewer ( profile.view()) to find useful statistics in a dataset. This includes: Counters, such as number of samples and n..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Drift Analysis with Profile Visualizer" href="Notebook_Profile_Visualizer.html" /><link rel="prev" title="Getting Started" href="Getting_Started.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>Inspecting Profiles - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,19 +577,22 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
 <section id="Inspecting-Profiles">
 <h1>Inspecting Profiles<a class="headerlink" href="#Inspecting-Profiles" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Inspecting_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Inspecting_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p>In this notebook, we’ll show how you can use whylog’s Profile Viewer (<code class="docutils literal notranslate"><span class="pre">profile.view()</span></code>) to find useful statistics in a dataset.</p>
 <p>This includes:</p>
 <ul class="simple">
@@ -616,7 +625,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="c1"># Set to show all columns in dataframe</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_columns"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_columns&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -626,10 +635,10 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># create a simple test dataset</span>
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"animal"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"lion"</span><span class="p">,</span> <span class="s2">"shark"</span><span class="p">,</span> <span class="s2">"cat"</span><span class="p">,</span> <span class="s2">"bear"</span><span class="p">,</span> <span class="s2">"jellyfish"</span><span class="p">,</span> <span class="s2">"kangaroo"</span><span class="p">,</span>
-                                      <span class="s2">"jellyfish"</span><span class="p">,</span> <span class="s2">"jellyfish"</span><span class="p">,</span> <span class="s2">"fish"</span><span class="p">],</span>
-    <span class="s2">"legs"</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"fins"</span><span class="p">],</span>
-    <span class="s2">"weight"</span><span class="p">:</span> <span class="p">[</span><span class="mf">14.3</span><span class="p">,</span> <span class="mf">11.8</span><span class="p">,</span> <span class="mf">4.3</span><span class="p">,</span> <span class="mf">30.1</span><span class="p">,</span><span class="mf">2.0</span><span class="p">,</span><span class="mf">120.0</span><span class="p">,</span><span class="mf">2.7</span><span class="p">,</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
+    <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;lion&quot;</span><span class="p">,</span> <span class="s2">&quot;shark&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;bear&quot;</span><span class="p">,</span> <span class="s2">&quot;jellyfish&quot;</span><span class="p">,</span> <span class="s2">&quot;kangaroo&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;jellyfish&quot;</span><span class="p">,</span> <span class="s2">&quot;jellyfish&quot;</span><span class="p">,</span> <span class="s2">&quot;fish&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;fins&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">14.3</span><span class="p">,</span> <span class="mf">11.8</span><span class="p">,</span> <span class="mf">4.3</span><span class="p">,</span> <span class="mf">30.1</span><span class="p">,</span><span class="mf">2.0</span><span class="p">,</span><span class="mf">120.0</span><span class="p">,</span><span class="mf">2.7</span><span class="p">,</span><span class="mf">2.2</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span>
 <span class="p">}</span>
 
 <span class="c1"># Create dataframe with test dataset</span>
@@ -669,7 +678,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -682,137 +691,137 @@ div.rendered_html tbody tr:hover {
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>frequent_items/frequent_strings</th>
-<th>type</th>
-<th>distribution/mean</th>
-<th>distribution/stddev</th>
-<th>distribution/n</th>
-<th>distribution/max</th>
-<th>distribution/min</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>legs</th>
-<td>9</td>
-<td>3</td>
-<td>4</td>
-<td>1</td>
-<td>0</td>
-<td>1</td>
-<td>0</td>
-<td>4.0</td>
-<td>4.00020</td>
-<td>4.0</td>
-<td>[FrequentItem(value='4.000000', est=3, upper=3...</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>weight</th>
-<td>9</td>
-<td>0</td>
-<td>0</td>
-<td>9</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>9.0</td>
-<td>9.00045</td>
-<td>9.0</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>20.955556</td>
-<td>38.29749</td>
-<td>9.0</td>
-<td>120.0</td>
-<td>1.2</td>
-<td>1.2</td>
-<td>2.2</td>
-<td>4.3</td>
-<td>14.3</td>
-<td>120.0</td>
-</tr>
-<tr>
-<th>animal</th>
-<td>9</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>9</td>
-<td>0</td>
-<td>7.0</td>
-<td>7.00035</td>
-<td>7.0</td>
-<td>[FrequentItem(value='jellyfish', est=3, upper=...</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>type</th>
+      <th>distribution/mean</th>
+      <th>distribution/stddev</th>
+      <th>distribution/n</th>
+      <th>distribution/max</th>
+      <th>distribution/min</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>legs</th>
+      <td>9</td>
+      <td>3</td>
+      <td>4</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>4.00020</td>
+      <td>4.0</td>
+      <td>[FrequentItem(value='4.000000', est=3, upper=3...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>weight</th>
+      <td>9</td>
+      <td>0</td>
+      <td>0</td>
+      <td>9</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>9.0</td>
+      <td>9.00045</td>
+      <td>9.0</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>20.955556</td>
+      <td>38.29749</td>
+      <td>9.0</td>
+      <td>120.0</td>
+      <td>1.2</td>
+      <td>1.2</td>
+      <td>2.2</td>
+      <td>4.3</td>
+      <td>14.3</td>
+      <td>120.0</td>
+    </tr>
+    <tr>
+      <th>animal</th>
+      <td>9</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>9</td>
+      <td>0</td>
+      <td>7.0</td>
+      <td>7.00035</td>
+      <td>7.0</td>
+      <td>[FrequentItem(value='jellyfish', est=3, upper=...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 </div></div>
 </div>
 <p>The number of rows of our dataframe will be equal to the number of columns in the logged data. Each column of the statistics’ dataframe contains a specific dimension of a given <strong>Metric</strong>.</p>
@@ -836,7 +845,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select a single statistic by feature and row</span>
-<span class="n">prof_df</span><span class="p">[</span><span class="s1">'frequent_items/frequent_strings'</span><span class="p">][</span><span class="s1">'animal'</span><span class="p">]</span>
+<span class="n">prof_df</span><span class="p">[</span><span class="s1">&#39;frequent_items/frequent_strings&#39;</span><span class="p">][</span><span class="s1">&#39;animal&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -846,13 +855,13 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[FrequentItem(value='jellyfish', est=3, upper=3, lower=3),
- FrequentItem(value='cat', est=1, upper=1, lower=1),
- FrequentItem(value='lion', est=1, upper=1, lower=1),
- FrequentItem(value='fish', est=1, upper=1, lower=1),
- FrequentItem(value='shark', est=1, upper=1, lower=1),
- FrequentItem(value='kangaroo', est=1, upper=1, lower=1),
- FrequentItem(value='bear', est=1, upper=1, lower=1)]
+[FrequentItem(value=&#39;jellyfish&#39;, est=3, upper=3, lower=3),
+ FrequentItem(value=&#39;cat&#39;, est=1, upper=1, lower=1),
+ FrequentItem(value=&#39;lion&#39;, est=1, upper=1, lower=1),
+ FrequentItem(value=&#39;fish&#39;, est=1, upper=1, lower=1),
+ FrequentItem(value=&#39;shark&#39;, est=1, upper=1, lower=1),
+ FrequentItem(value=&#39;kangaroo&#39;, est=1, upper=1, lower=1),
+ FrequentItem(value=&#39;bear&#39;, est=1, upper=1, lower=1)]
 </pre></div></div>
 </div>
 </section>

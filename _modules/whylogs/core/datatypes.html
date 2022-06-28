@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.core.datatypes - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -310,7 +310,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -336,7 +337,7 @@
 <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
     <span class="n">CategoricalDtype</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
 
-<span class="n">NT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"NT"</span><span class="p">)</span>
+<span class="n">NT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;NT&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="DataType"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.DataType">[docs]</a><span class="k">class</span> <span class="nc">DataType</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
@@ -351,7 +352,7 @@
     <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">dtype_or_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">):</span>
             <span class="n">maybe_type</span> <span class="o">=</span> <span class="n">dtype_or_type</span><span class="o">.</span><span class="n">type</span>  <span class="c1"># type: ignore</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">maybe_type</span> <span class="o">=</span> <span class="kc">None</span>
@@ -366,7 +367,7 @@
 
 <span class="n">NumericalType</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">]</span>
 
-<span class="n">NUMBER</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"NUMBER"</span><span class="p">)</span>
+<span class="n">NUMBER</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;NUMBER&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Integral"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.Integral">[docs]</a><span class="k">class</span> <span class="nc">Integral</span><span class="p">(</span><span class="n">DataType</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
@@ -416,9 +417,9 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="n">CategoricalDtype</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="c1"># handle pandas series. Anything 'object' is treated as a Series of strings</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">dtype_or_type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"object"</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+        <span class="c1"># handle pandas series. Anything &#39;object&#39; is treated as a Series of strings</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dtype_or_type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
                 <span class="k">return</span> <span class="kc">True</span>
 
         <span class="c1"># use the underlying type within a dtype object</span>
@@ -453,14 +454,14 @@
 
 
 <div class="viewcode-block" id="StandardTypeMapper"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.StandardTypeMapper">[docs]</a><span class="k">class</span> <span class="nc">StandardTypeMapper</span><span class="p">(</span><span class="n">TypeMapper</span><span class="p">):</span>
-    <span class="sd">"""Map a dtype (Pandas) or a Python type to a data type."""</span>
+    <span class="sd">&quot;&quot;&quot;Map a dtype (Pandas) or a Python type to a data type.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_types</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">DataType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">"""</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            custom_types: List of additional DataType classes that you want to extend.</span>
-<span class="sd">        """</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_all_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">Integral</span><span class="p">,</span> <span class="n">Fractional</span><span class="p">,</span> <span class="n">String</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">custom_types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_all_types</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">custom_types</span><span class="p">)</span>

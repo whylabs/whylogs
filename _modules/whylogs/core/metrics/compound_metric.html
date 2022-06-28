@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.core.metrics.compound_metric - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -310,7 +310,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -335,11 +336,11 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricComponentMessage</span><span class="p">,</span> <span class="n">MetricMessage</span>
 
-<span class="n">COMPOUND_METRIC</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"COMPOUND_METRIC"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"CompoundMetric"</span><span class="p">)</span>
+<span class="n">COMPOUND_METRIC</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;COMPOUND_METRIC&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;CompoundMetric&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="CompoundMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric">[docs]</a><span class="k">class</span> <span class="nc">CompoundMetric</span><span class="p">(</span><span class="n">Metric</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">"""</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    CompoundMetric serves as a base class for custom metrics that consist</span>
 <span class="sd">    of one or more metrics. It is handy when you need to do some</span>
 <span class="sd">    processing of the logged values and track serveral metrics on</span>
@@ -349,43 +350,43 @@
 
 <span class="sd">    Typically you will need to override namespace(); columnar_update(), calling</span>
 <span class="sd">    it on the submetrics as needed; and the zero() method to return an</span>
-<span class="sd">    appropriate "empty" instance of your metric. You will need to override from_protobuf()</span>
+<span class="sd">    appropriate &quot;empty&quot; instance of your metric. You will need to override from_protobuf()</span>
 <span class="sd">    and merge() if your subclass __init__() method takes arguments different than</span>
-<span class="sd">    CompoundMetrtic's. You can use the submetrics_from_protbuf() and merge_submetrics()</span>
+<span class="sd">    CompoundMetrtic&#39;s. You can use the submetrics_from_protbuf() and merge_submetrics()</span>
 <span class="sd">    helper methods to implement them. The CompoundMetric class will handle the rest of</span>
-<span class="sd">    the Metric interface. Don't use / or : in the subclass' namespace.</span>
+<span class="sd">    the Metric interface. Don&#39;t use / or : in the subclass&#39; namespace.</span>
 
 <span class="sd">    See UnicodeRangeMetric for an example.</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">submetrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">submetrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]):</span>
-        <span class="sd">"""</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        submetrics : Dict[str, Metric]</span>
 <span class="sd">            The collection of metrics that comprise the CompoundMetric.</span>
 <span class="sd">            The key servers as the name of the sub-metric. E.g., the</span>
 <span class="sd">            metric summary entries will have keys of the form</span>
-<span class="sd">               "&lt;namespace&gt;/&lt;submetric name&gt;/&lt;component name&gt;"</span>
+<span class="sd">               &quot;&lt;namespace&gt;/&lt;submetric name&gt;/&lt;component name&gt;&quot;</span>
 <span class="sd">            Submetric names should only contain alphanumeric characters,</span>
 <span class="sd">            hyphens, and underscores.</span>
-<span class="sd">        """</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="s2">":"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span> <span class="ow">or</span> <span class="s2">"/"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid namespace </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span> <span class="ow">or</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid namespace </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">sub_name</span><span class="p">,</span> <span class="n">submetric</span> <span class="ow">in</span> <span class="n">submetrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="s2">":"</span> <span class="ow">in</span> <span class="n">sub_name</span> <span class="ow">or</span> <span class="s2">"/"</span> <span class="ow">in</span> <span class="n">sub_name</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid submetric name </span><span class="si">{</span><span class="n">sub_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">sub_name</span> <span class="ow">or</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">sub_name</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid submetric name </span><span class="si">{</span><span class="n">sub_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span> <span class="o">=</span> <span class="n">submetrics</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
 <div class="viewcode-block" id="CompoundMetric.merge_submetrics"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.merge_submetrics">[docs]</a>    <span class="k">def</span> <span class="nf">merge_submetrics</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">COMPOUND_METRIC</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">COMPOUND_METRIC</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">namespace</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">namespace</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Attempt to merge CompoundMetrics </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">namespace</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempt to merge CompoundMetrics </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">namespace</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Attempt to merge incompatible CompoundMetrics"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Attempt to merge incompatible CompoundMetrics&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">submetrics</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span></div>
 
 <div class="viewcode-block" id="CompoundMetric.merge"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">COMPOUND_METRIC</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">COMPOUND_METRIC</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">COMPOUND_METRIC</span><span class="p">:</span>
@@ -396,14 +397,14 @@
         <span class="k">for</span> <span class="n">sub_name</span><span class="p">,</span> <span class="n">submetric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">sub_msg</span> <span class="o">=</span> <span class="n">submetric</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">comp_name</span><span class="p">,</span> <span class="n">comp_msg</span> <span class="ow">in</span> <span class="n">sub_msg</span><span class="o">.</span><span class="n">metric_components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">msg</span><span class="p">[</span><span class="n">sub_name</span> <span class="o">+</span> <span class="s2">":"</span> <span class="o">+</span> <span class="n">submetric</span><span class="o">.</span><span class="n">namespace</span> <span class="o">+</span> <span class="s2">"/"</span> <span class="o">+</span> <span class="n">comp_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp_msg</span>
+                <span class="n">msg</span><span class="p">[</span><span class="n">sub_name</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">submetric</span><span class="o">.</span><span class="n">namespace</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">comp_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp_msg</span>
         <span class="k">return</span> <span class="n">MetricMessage</span><span class="p">(</span><span class="n">metric_components</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CompoundMetric.get_component_paths"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.get_component_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_component_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">sub_name</span><span class="p">,</span> <span class="n">submetric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">comp_name</span> <span class="ow">in</span> <span class="n">submetric</span><span class="o">.</span><span class="n">get_component_paths</span><span class="p">():</span>
-                <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_name</span> <span class="o">+</span> <span class="s2">":"</span> <span class="o">+</span> <span class="n">submetric</span><span class="o">.</span><span class="n">namespace</span> <span class="o">+</span> <span class="s2">"/"</span> <span class="o">+</span> <span class="n">comp_name</span><span class="p">)</span>
+                <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_name</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">submetric</span><span class="o">.</span><span class="n">namespace</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">comp_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">res</span></div>
 
 <div class="viewcode-block" id="CompoundMetric.to_summary_dict"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.to_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SummaryConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -411,7 +412,7 @@
         <span class="k">for</span> <span class="n">sub_name</span><span class="p">,</span> <span class="n">submetric</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">submetrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">sub_summary</span> <span class="o">=</span> <span class="n">submetric</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">comp_name</span><span class="p">,</span> <span class="n">comp_msg</span> <span class="ow">in</span> <span class="n">sub_summary</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">summary</span><span class="p">[</span><span class="s2">"/"</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">sub_name</span><span class="p">,</span> <span class="n">comp_name</span><span class="p">])]</span> <span class="o">=</span> <span class="n">comp_msg</span>
+                <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">namespace</span><span class="p">,</span> <span class="n">sub_name</span><span class="p">,</span> <span class="n">comp_name</span><span class="p">])]</span> <span class="o">=</span> <span class="n">comp_msg</span>
         <span class="k">return</span> <span class="n">summary</span></div>
 
 <div class="viewcode-block" id="CompoundMetric.columnar_update"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.columnar_update">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationResult</span><span class="p">:</span>
@@ -425,23 +426,23 @@
         <span class="n">submetrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">submetric_msgs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricComponentMessage</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">comp_msg</span> <span class="ow">in</span> <span class="n">msg</span><span class="o">.</span><span class="n">metric_components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">submetric_name</span><span class="p">,</span> <span class="n">comp_name</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"/"</span><span class="p">)</span>
+            <span class="n">submetric_name</span><span class="p">,</span> <span class="n">comp_name</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">submetric_msgs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">submetric_name</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">submetric_msgs</span><span class="p">[</span><span class="n">submetric_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">submetric_msgs</span><span class="p">[</span><span class="n">submetric_name</span><span class="p">][</span><span class="n">comp_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">comp_msg</span>
 
         <span class="k">for</span> <span class="n">m_name_and_type</span><span class="p">,</span> <span class="n">metric_components</span> <span class="ow">in</span> <span class="n">submetric_msgs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">m_name</span><span class="p">,</span> <span class="n">m_type</span> <span class="o">=</span> <span class="n">m_name_and_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)</span>
+            <span class="n">m_name</span><span class="p">,</span> <span class="n">m_type</span> <span class="o">=</span> <span class="n">m_name_and_type</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">m_type</span> <span class="ow">in</span> <span class="n">_METRIC_DESERIALIZER_REGISTRY</span><span class="p">:</span>
                 <span class="n">metric_class</span> <span class="o">=</span> <span class="n">_METRIC_DESERIALIZER_REGISTRY</span><span class="p">[</span><span class="n">m_type</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">UnsupportedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported metric: </span><span class="si">{</span><span class="n">m_type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">UnsupportedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported metric: </span><span class="si">{</span><span class="n">m_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
             <span class="n">m_msg</span> <span class="o">=</span> <span class="n">MetricMessage</span><span class="p">(</span><span class="n">metric_components</span><span class="o">=</span><span class="n">metric_components</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">submetrics</span><span class="p">[</span><span class="n">m_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_class</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">m_msg</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
-                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to deserialize metric: </span><span class="si">{</span><span class="n">m_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to deserialize metric: </span><span class="si">{</span><span class="n">m_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">submetrics</span></div>
 
 <div class="viewcode-block" id="CompoundMetric.from_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.from_protobuf">[docs]</a>    <span class="nd">@classmethod</span>

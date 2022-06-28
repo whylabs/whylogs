@@ -13,10 +13,10 @@
 <meta property="og:description" content="Open in Colab WhyLogs enables logging different types of data that can then be used to monitor the data. We’ll go through examples on different types of data to log and go more in depth on differen..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Data Validation with Metric Constraints" href="Metric_Constraints.html" /><link rel="prev" title="Drift Analysis with Profile Visualizer" href="Notebook_Profile_Visualizer.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>(why)Logging - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,19 +577,22 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
 <section id="(why)Logging">
 <h1>(why)Logging<a class="headerlink" href="#(why)Logging" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Logging_Different_Data.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Logging_Different_Data.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p>WhyLogs enables logging different types of data that can then be used to monitor the data. We’ll go through examples on different types of data to log and go more in depth on different options. Before we get going though, let’s import whylogs.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -599,7 +608,7 @@ div.rendered_html tbody tr:hover {
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 <span class="ansi-yellow-fg">WARNING: You are using pip version 22.0.3; however, version 22.1 is available.
-You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.venv/bin/python -m pip install --upgrade pip' command.</span><span class="ansi-yellow-fg">
+You should consider upgrading via the &#39;/Users/melanie/Dev/whylogs-v1/python/.venv/bin/python -m pip install --upgrade pip&#39; command.</span><span class="ansi-yellow-fg">
 </span>
 </pre></div></div>
 </div>
@@ -620,7 +629,7 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="c1"># Read in a CSV, this one is from a public bucket on s3</span>
-<span class="n">retail_daily</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/retail-daily-features.csv'</span><span class="p">)</span>
+<span class="n">retail_daily</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/retail-daily-features.csv&#39;</span><span class="p">)</span>
 <span class="n">retail_daily</span>
 </pre></div>
 </div>
@@ -631,7 +640,7 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -644,264 +653,264 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>Transaction ID</th>
-<th>Customer ID</th>
-<th>Product Subcategory Code</th>
-<th>Product Category Code</th>
-<th>Item Price</th>
-<th>Total Tax</th>
-<th>Total Amount</th>
-<th>Store Type</th>
-<th>Product Category</th>
-<th>Product Subcategory</th>
-<th>Date of Birth</th>
-<th>Gender</th>
-<th>City Code</th>
-<th>Age at Transaction Date</th>
-<th>Purchase Canceled</th>
-<th>Transaction Day of Week</th>
-<th>Transaction Week</th>
-<th>Transaction Batch</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>0</th>
-<td>T25601292314</td>
-<td>C268458</td>
-<td>12</td>
-<td>6</td>
-<td>114.9</td>
-<td>24.1290</td>
-<td>253.9290</td>
-<td>TeleShop</td>
-<td>Home and kitchen</td>
-<td>Tools</td>
-<td>1976-10-08</td>
-<td>M</td>
-<td>1.0</td>
-<td>36.0</td>
-<td>0.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-<tr>
-<th>1</th>
-<td>T1465175267</td>
-<td>C271344</td>
-<td>3</td>
-<td>5</td>
-<td>107.7</td>
-<td>22.6170</td>
-<td>238.0170</td>
-<td>e-Shop</td>
-<td>Books</td>
-<td>Comics</td>
-<td>1970-01-29</td>
-<td>F</td>
-<td>5.0</td>
-<td>43.0</td>
-<td>0.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-<tr>
-<th>2</th>
-<td>T4968790114</td>
-<td>C272305</td>
-<td>4</td>
-<td>3</td>
-<td>14.6</td>
-<td>7.6650</td>
-<td>80.6650</td>
-<td>e-Shop</td>
-<td>Electronics</td>
-<td>Mobiles</td>
-<td>1975-08-25</td>
-<td>F</td>
-<td>10.0</td>
-<td>37.0</td>
-<td>0.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-<tr>
-<th>3</th>
-<td>T50504166310</td>
-<td>C275057</td>
-<td>4</td>
-<td>4</td>
-<td>15.7</td>
-<td>4.9455</td>
-<td>52.0455</td>
-<td>MBR</td>
-<td>Bags</td>
-<td>Women</td>
-<td>1980-09-17</td>
-<td>M</td>
-<td>7.0</td>
-<td>32.0</td>
-<td>0.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-<tr>
-<th>4</th>
-<td>T10877729712</td>
-<td>C270074</td>
-<td>10</td>
-<td>5</td>
-<td>144.1</td>
-<td>45.3915</td>
-<td>477.6915</td>
-<td>e-Shop</td>
-<td>Books</td>
-<td>Non-Fiction</td>
-<td>1983-02-20</td>
-<td>M</td>
-<td>10.0</td>
-<td>30.0</td>
-<td>0.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-<tr>
-<th>...</th>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-<td>...</td>
-</tr>
-<tr>
-<th>904</th>
-<td>T89167826318</td>
-<td>C274270</td>
-<td>10</td>
-<td>5</td>
-<td>68.2</td>
-<td>14.3220</td>
-<td>150.7220</td>
-<td>Flagship store</td>
-<td>Books</td>
-<td>Non-Fiction</td>
-<td>1972-06-06</td>
-<td>F</td>
-<td>1.0</td>
-<td>40.0</td>
-<td>0.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-<tr>
-<th>905</th>
-<td>T87193008634</td>
-<td>C271051</td>
-<td>11</td>
-<td>6</td>
-<td>124.2</td>
-<td>52.1640</td>
-<td>548.9640</td>
-<td>e-Shop</td>
-<td>Home and kitchen</td>
-<td>Bath</td>
-<td>1976-02-13</td>
-<td>F</td>
-<td>3.0</td>
-<td>36.0</td>
-<td>0.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-<tr>
-<th>906</th>
-<td>T84036395834</td>
-<td>C270763</td>
-<td>11</td>
-<td>5</td>
-<td>77.9</td>
-<td>16.3590</td>
-<td>172.1590</td>
-<td>TeleShop</td>
-<td>Books</td>
-<td>Children</td>
-<td>1991-02-10</td>
-<td>F</td>
-<td>8.0</td>
-<td>21.0</td>
-<td>0.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-<tr>
-<th>907</th>
-<td>T72150045625</td>
-<td>C270432</td>
-<td>11</td>
-<td>5</td>
-<td>11.8</td>
-<td>4.9560</td>
-<td>52.1560</td>
-<td>e-Shop</td>
-<td>Books</td>
-<td>Children</td>
-<td>1982-09-17</td>
-<td>M</td>
-<td>7.0</td>
-<td>30.0</td>
-<td>1.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-<tr>
-<th>908</th>
-<td>T97942600110</td>
-<td>C269559</td>
-<td>4</td>
-<td>3</td>
-<td>67.9</td>
-<td>35.6475</td>
-<td>375.1475</td>
-<td>e-Shop</td>
-<td>Electronics</td>
-<td>Mobiles</td>
-<td>1972-06-24</td>
-<td>M</td>
-<td>1.0</td>
-<td>40.0</td>
-<td>0.0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Transaction ID</th>
+      <th>Customer ID</th>
+      <th>Product Subcategory Code</th>
+      <th>Product Category Code</th>
+      <th>Item Price</th>
+      <th>Total Tax</th>
+      <th>Total Amount</th>
+      <th>Store Type</th>
+      <th>Product Category</th>
+      <th>Product Subcategory</th>
+      <th>Date of Birth</th>
+      <th>Gender</th>
+      <th>City Code</th>
+      <th>Age at Transaction Date</th>
+      <th>Purchase Canceled</th>
+      <th>Transaction Day of Week</th>
+      <th>Transaction Week</th>
+      <th>Transaction Batch</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>T25601292314</td>
+      <td>C268458</td>
+      <td>12</td>
+      <td>6</td>
+      <td>114.9</td>
+      <td>24.1290</td>
+      <td>253.9290</td>
+      <td>TeleShop</td>
+      <td>Home and kitchen</td>
+      <td>Tools</td>
+      <td>1976-10-08</td>
+      <td>M</td>
+      <td>1.0</td>
+      <td>36.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>T1465175267</td>
+      <td>C271344</td>
+      <td>3</td>
+      <td>5</td>
+      <td>107.7</td>
+      <td>22.6170</td>
+      <td>238.0170</td>
+      <td>e-Shop</td>
+      <td>Books</td>
+      <td>Comics</td>
+      <td>1970-01-29</td>
+      <td>F</td>
+      <td>5.0</td>
+      <td>43.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>T4968790114</td>
+      <td>C272305</td>
+      <td>4</td>
+      <td>3</td>
+      <td>14.6</td>
+      <td>7.6650</td>
+      <td>80.6650</td>
+      <td>e-Shop</td>
+      <td>Electronics</td>
+      <td>Mobiles</td>
+      <td>1975-08-25</td>
+      <td>F</td>
+      <td>10.0</td>
+      <td>37.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>T50504166310</td>
+      <td>C275057</td>
+      <td>4</td>
+      <td>4</td>
+      <td>15.7</td>
+      <td>4.9455</td>
+      <td>52.0455</td>
+      <td>MBR</td>
+      <td>Bags</td>
+      <td>Women</td>
+      <td>1980-09-17</td>
+      <td>M</td>
+      <td>7.0</td>
+      <td>32.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>T10877729712</td>
+      <td>C270074</td>
+      <td>10</td>
+      <td>5</td>
+      <td>144.1</td>
+      <td>45.3915</td>
+      <td>477.6915</td>
+      <td>e-Shop</td>
+      <td>Books</td>
+      <td>Non-Fiction</td>
+      <td>1983-02-20</td>
+      <td>M</td>
+      <td>10.0</td>
+      <td>30.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>904</th>
+      <td>T89167826318</td>
+      <td>C274270</td>
+      <td>10</td>
+      <td>5</td>
+      <td>68.2</td>
+      <td>14.3220</td>
+      <td>150.7220</td>
+      <td>Flagship store</td>
+      <td>Books</td>
+      <td>Non-Fiction</td>
+      <td>1972-06-06</td>
+      <td>F</td>
+      <td>1.0</td>
+      <td>40.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>905</th>
+      <td>T87193008634</td>
+      <td>C271051</td>
+      <td>11</td>
+      <td>6</td>
+      <td>124.2</td>
+      <td>52.1640</td>
+      <td>548.9640</td>
+      <td>e-Shop</td>
+      <td>Home and kitchen</td>
+      <td>Bath</td>
+      <td>1976-02-13</td>
+      <td>F</td>
+      <td>3.0</td>
+      <td>36.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>906</th>
+      <td>T84036395834</td>
+      <td>C270763</td>
+      <td>11</td>
+      <td>5</td>
+      <td>77.9</td>
+      <td>16.3590</td>
+      <td>172.1590</td>
+      <td>TeleShop</td>
+      <td>Books</td>
+      <td>Children</td>
+      <td>1991-02-10</td>
+      <td>F</td>
+      <td>8.0</td>
+      <td>21.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>907</th>
+      <td>T72150045625</td>
+      <td>C270432</td>
+      <td>11</td>
+      <td>5</td>
+      <td>11.8</td>
+      <td>4.9560</td>
+      <td>52.1560</td>
+      <td>e-Shop</td>
+      <td>Books</td>
+      <td>Children</td>
+      <td>1982-09-17</td>
+      <td>M</td>
+      <td>7.0</td>
+      <td>30.0</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>908</th>
+      <td>T97942600110</td>
+      <td>C269559</td>
+      <td>4</td>
+      <td>3</td>
+      <td>67.9</td>
+      <td>35.6475</td>
+      <td>375.1475</td>
+      <td>e-Shop</td>
+      <td>Electronics</td>
+      <td>Mobiles</td>
+      <td>1972-06-24</td>
+      <td>M</td>
+      <td>1.0</td>
+      <td>40.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
 <p>909 rows × 18 columns</p>
 </div></div>
 </div>
@@ -928,7 +937,7 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -941,492 +950,492 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/min</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>type</th>
-<th>ints/max</th>
-<th>ints/min</th>
-<th>frequent_items/frequent_strings</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>Purchase Canceled</th>
-<td>909</td>
-<td>72</td>
-<td>0</td>
-<td>837</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.000000</td>
-<td>...</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Age at Transaction Date</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>25.000001</td>
-<td>25.001250</td>
-<td>25.000000</td>
-<td>...</td>
-<td>19.000</td>
-<td>21.0000</td>
-<td>25.000</td>
-<td>31.0000</td>
-<td>37.0000</td>
-<td>40.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction Week</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.000000</td>
-<td>1.000050</td>
-<td>1.000000</td>
-<td>...</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>[FrequentItem(value='0.000000', est=909, upper...</td>
-</tr>
-<tr>
-<th>Store Type</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>4.000000</td>
-<td>4.000200</td>
-<td>4.000000</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='e-Shop', est=375, upper=3...</td>
-</tr>
-<tr>
-<th>Product Category</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>6.000000</td>
-<td>6.000300</td>
-<td>6.000000</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='Books', est=232, upper=23...</td>
-</tr>
-<tr>
-<th>Gender</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.000000</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='M', est=455, upper=455, l...</td>
-</tr>
-<tr>
-<th>Transaction ID</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>904.722898</td>
-<td>916.565225</td>
-<td>893.168643</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='T40336799311', est=3, upp...</td>
-</tr>
-<tr>
-<th>Item Price</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>672.542875</td>
-<td>681.346093</td>
-<td>663.953801</td>
-<td>...</td>
-<td>7.100</td>
-<td>18.2000</td>
-<td>43.200</td>
-<td>80.1000</td>
-<td>116.2000</td>
-<td>137.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Total Tax</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>800.975225</td>
-<td>811.459552</td>
-<td>790.745935</td>
-<td>...</td>
-<td>0.861</td>
-<td>4.8825</td>
-<td>10.017</td>
-<td>20.5170</td>
-<td>36.1725</td>
-<td>54.2640</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Product Category Code</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>6.000000</td>
-<td>6.000300</td>
-<td>6.000000</td>
-<td>...</td>
-<td>1.000</td>
-<td>1.0000</td>
-<td>2.000</td>
-<td>4.0000</td>
-<td>5.0000</td>
-<td>6.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>6.0</td>
-<td>1.0</td>
-<td>[FrequentItem(value='5.000000', est=232, upper...</td>
-</tr>
-<tr>
-<th>Transaction Day of Week</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.000000</td>
-<td>1.000050</td>
-<td>1.000000</td>
-<td>...</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>[FrequentItem(value='0.000000', est=909, upper...</td>
-</tr>
-<tr>
-<th>City Code</th>
-<td>909</td>
-<td>1</td>
-<td>0</td>
-<td>908</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>10.000000</td>
-<td>10.000500</td>
-<td>10.000000</td>
-<td>...</td>
-<td>1.000</td>
-<td>1.0000</td>
-<td>3.000</td>
-<td>5.0000</td>
-<td>8.0000</td>
-<td>10.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction Batch</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.000000</td>
-<td>1.000050</td>
-<td>1.000000</td>
-<td>...</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>[FrequentItem(value='0.000000', est=909, upper...</td>
-</tr>
-<tr>
-<th>Date of Birth</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>801.978113</td>
-<td>812.475567</td>
-<td>791.736016</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='1981-03-29', est=4, upper...</td>
-</tr>
-<tr>
-<th>Customer ID</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>847.420398</td>
-<td>858.512667</td>
-<td>836.597955</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='C274278', est=4, upper=3,...</td>
-</tr>
-<tr>
-<th>Total Amount</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>842.098548</td>
-<td>853.121157</td>
-<td>831.344071</td>
-<td>...</td>
-<td>-767.975</td>
-<td>25.3045</td>
-<td>82.433</td>
-<td>188.4025</td>
-<td>358.6830</td>
-<td>555.2625</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Product Subcategory</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>18.000001</td>
-<td>18.000899</td>
-<td>18.000000</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='Women', est=133, upper=13...</td>
-</tr>
-<tr>
-<th>Product Subcategory Code</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>12.000000</td>
-<td>12.000599</td>
-<td>12.000000</td>
-<td>...</td>
-<td>1.000</td>
-<td>1.0000</td>
-<td>3.000</td>
-<td>5.0000</td>
-<td>10.0000</td>
-<td>11.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>12.0</td>
-<td>1.0</td>
-<td>[FrequentItem(value='4.000000', est=148, upper...</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/min</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>type</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+      <th>frequent_items/frequent_strings</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Purchase Canceled</th>
+      <td>909</td>
+      <td>72</td>
+      <td>0</td>
+      <td>837</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.000000</td>
+      <td>...</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Age at Transaction Date</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>25.000001</td>
+      <td>25.001250</td>
+      <td>25.000000</td>
+      <td>...</td>
+      <td>19.000</td>
+      <td>21.0000</td>
+      <td>25.000</td>
+      <td>31.0000</td>
+      <td>37.0000</td>
+      <td>40.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction Week</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000050</td>
+      <td>1.000000</td>
+      <td>...</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>[FrequentItem(value='0.000000', est=909, upper...</td>
+    </tr>
+    <tr>
+      <th>Store Type</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>4.000000</td>
+      <td>4.000200</td>
+      <td>4.000000</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='e-Shop', est=375, upper=3...</td>
+    </tr>
+    <tr>
+      <th>Product Category</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>6.000000</td>
+      <td>6.000300</td>
+      <td>6.000000</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='Books', est=232, upper=23...</td>
+    </tr>
+    <tr>
+      <th>Gender</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.000000</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='M', est=455, upper=455, l...</td>
+    </tr>
+    <tr>
+      <th>Transaction ID</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>904.722898</td>
+      <td>916.565225</td>
+      <td>893.168643</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='T40336799311', est=3, upp...</td>
+    </tr>
+    <tr>
+      <th>Item Price</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>672.542875</td>
+      <td>681.346093</td>
+      <td>663.953801</td>
+      <td>...</td>
+      <td>7.100</td>
+      <td>18.2000</td>
+      <td>43.200</td>
+      <td>80.1000</td>
+      <td>116.2000</td>
+      <td>137.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Total Tax</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>800.975225</td>
+      <td>811.459552</td>
+      <td>790.745935</td>
+      <td>...</td>
+      <td>0.861</td>
+      <td>4.8825</td>
+      <td>10.017</td>
+      <td>20.5170</td>
+      <td>36.1725</td>
+      <td>54.2640</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Product Category Code</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>6.000000</td>
+      <td>6.000300</td>
+      <td>6.000000</td>
+      <td>...</td>
+      <td>1.000</td>
+      <td>1.0000</td>
+      <td>2.000</td>
+      <td>4.0000</td>
+      <td>5.0000</td>
+      <td>6.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>6.0</td>
+      <td>1.0</td>
+      <td>[FrequentItem(value='5.000000', est=232, upper...</td>
+    </tr>
+    <tr>
+      <th>Transaction Day of Week</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000050</td>
+      <td>1.000000</td>
+      <td>...</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>[FrequentItem(value='0.000000', est=909, upper...</td>
+    </tr>
+    <tr>
+      <th>City Code</th>
+      <td>909</td>
+      <td>1</td>
+      <td>0</td>
+      <td>908</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>10.000000</td>
+      <td>10.000500</td>
+      <td>10.000000</td>
+      <td>...</td>
+      <td>1.000</td>
+      <td>1.0000</td>
+      <td>3.000</td>
+      <td>5.0000</td>
+      <td>8.0000</td>
+      <td>10.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction Batch</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000050</td>
+      <td>1.000000</td>
+      <td>...</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>[FrequentItem(value='0.000000', est=909, upper...</td>
+    </tr>
+    <tr>
+      <th>Date of Birth</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>801.978113</td>
+      <td>812.475567</td>
+      <td>791.736016</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='1981-03-29', est=4, upper...</td>
+    </tr>
+    <tr>
+      <th>Customer ID</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>847.420398</td>
+      <td>858.512667</td>
+      <td>836.597955</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='C274278', est=4, upper=3,...</td>
+    </tr>
+    <tr>
+      <th>Total Amount</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>842.098548</td>
+      <td>853.121157</td>
+      <td>831.344071</td>
+      <td>...</td>
+      <td>-767.975</td>
+      <td>25.3045</td>
+      <td>82.433</td>
+      <td>188.4025</td>
+      <td>358.6830</td>
+      <td>555.2625</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Product Subcategory</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>18.000001</td>
+      <td>18.000899</td>
+      <td>18.000000</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='Women', est=133, upper=13...</td>
+    </tr>
+    <tr>
+      <th>Product Subcategory Code</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>12.000000</td>
+      <td>12.000599</td>
+      <td>12.000000</td>
+      <td>...</td>
+      <td>1.000</td>
+      <td>1.0000</td>
+      <td>3.000</td>
+      <td>5.0000</td>
+      <td>10.0000</td>
+      <td>11.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>12.0</td>
+      <td>1.0</td>
+      <td>[FrequentItem(value='4.000000', est=148, upper...</td>
+    </tr>
+  </tbody>
+</table>
 <p>18 rows × 24 columns</p>
 </div></div>
 </div>
@@ -1441,7 +1450,7 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 
-<span class="n">example_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"height"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">"length"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"sold"</span><span class="p">,</span> <span class="s2">"price"</span><span class="p">:</span> <span class="mf">58.00</span><span class="p">,</span> <span class="s2">"medium"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"watercolor"</span><span class="p">,</span> <span class="s2">"digital"</span><span class="p">]</span> <span class="p">}</span>
+<span class="n">example_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;sold&quot;</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">:</span> <span class="mf">58.00</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;watercolor&quot;</span><span class="p">,</span> <span class="s2">&quot;digital&quot;</span><span class="p">]</span> <span class="p">}</span>
 
 <span class="c1"># Log the dictionary this is equivalent to why.log(example_data)</span>
 <span class="n">dict_results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">example_data</span><span class="p">)</span>
@@ -1460,7 +1469,7 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -1473,180 +1482,180 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/n</th>
-<th>distribution/max</th>
-<th>distribution/min</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>ints/max</th>
-<th>ints/min</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>status</th>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>0</td>
-<td>1.0</td>
-<td>1.00005</td>
-<td>1.0</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>medium</th>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>price</th>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.0</td>
-<td>1.00005</td>
-<td>1.0</td>
-<td>...</td>
-<td>1.0</td>
-<td>58.0</td>
-<td>58.0</td>
-<td>58.0</td>
-<td>58.0</td>
-<td>58.0</td>
-<td>58.0</td>
-<td>58.0</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>height</th>
-<td>1</td>
-<td>0</td>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.0</td>
-<td>1.00005</td>
-<td>1.0</td>
-<td>...</td>
-<td>1.0</td>
-<td>100.0</td>
-<td>100.0</td>
-<td>100.0</td>
-<td>100.0</td>
-<td>100.0</td>
-<td>100.0</td>
-<td>100.0</td>
-<td>100.0</td>
-<td>100.0</td>
-</tr>
-<tr>
-<th>length</th>
-<td>1</td>
-<td>0</td>
-<td>1</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.0</td>
-<td>1.00005</td>
-<td>1.0</td>
-<td>...</td>
-<td>1.0</td>
-<td>1000.0</td>
-<td>1000.0</td>
-<td>1000.0</td>
-<td>1000.0</td>
-<td>1000.0</td>
-<td>1000.0</td>
-<td>1000.0</td>
-<td>1000.0</td>
-<td>1000.0</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/n</th>
+      <th>distribution/max</th>
+      <th>distribution/min</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>status</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1.0</td>
+      <td>1.00005</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>medium</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>price</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.0</td>
+      <td>1.00005</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>1.0</td>
+      <td>58.0</td>
+      <td>58.0</td>
+      <td>58.0</td>
+      <td>58.0</td>
+      <td>58.0</td>
+      <td>58.0</td>
+      <td>58.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>height</th>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.0</td>
+      <td>1.00005</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>1.0</td>
+      <td>100.0</td>
+      <td>100.0</td>
+      <td>100.0</td>
+      <td>100.0</td>
+      <td>100.0</td>
+      <td>100.0</td>
+      <td>100.0</td>
+      <td>100.0</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <th>length</th>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.0</td>
+      <td>1.00005</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>1.0</td>
+      <td>1000.0</td>
+      <td>1000.0</td>
+      <td>1000.0</td>
+      <td>1000.0</td>
+      <td>1000.0</td>
+      <td>1000.0</td>
+      <td>1000.0</td>
+      <td>1000.0</td>
+      <td>1000.0</td>
+    </tr>
+  </tbody>
+</table>
 <p>5 rows × 24 columns</p>
 </div></div>
 </div>
@@ -1664,7 +1673,7 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
 <span class="c1">#grab profile from result set</span>
 <span class="n">profile</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
 
-<span class="c1">#grab a 'view' of the profile for inspection</span>
+<span class="c1">#grab a &#39;view&#39; of the profile for inspection</span>
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
 
 <span class="c1">#inspect profile as a Pandas DataFrame</span>
@@ -1679,7 +1688,7 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -1692,492 +1701,492 @@ You should consider upgrading via the '/Users/melanie/Dev/whylogs-v1/python/.ven
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/min</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>type</th>
-<th>ints/max</th>
-<th>ints/min</th>
-<th>frequent_items/frequent_strings</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>Purchase Canceled</th>
-<td>909</td>
-<td>72</td>
-<td>0</td>
-<td>837</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.000000</td>
-<td>...</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Age at Transaction Date</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>25.000001</td>
-<td>25.001250</td>
-<td>25.000000</td>
-<td>...</td>
-<td>19.000</td>
-<td>21.0000</td>
-<td>25.000</td>
-<td>31.0000</td>
-<td>37.0000</td>
-<td>40.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction Week</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.000000</td>
-<td>1.000050</td>
-<td>1.000000</td>
-<td>...</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>[FrequentItem(value='0.000000', est=909, upper...</td>
-</tr>
-<tr>
-<th>Store Type</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>4.000000</td>
-<td>4.000200</td>
-<td>4.000000</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='e-Shop', est=375, upper=3...</td>
-</tr>
-<tr>
-<th>Product Category</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>6.000000</td>
-<td>6.000300</td>
-<td>6.000000</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='Books', est=232, upper=23...</td>
-</tr>
-<tr>
-<th>Gender</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>2.000000</td>
-<td>2.000100</td>
-<td>2.000000</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='M', est=455, upper=455, l...</td>
-</tr>
-<tr>
-<th>Transaction ID</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>904.722898</td>
-<td>916.565225</td>
-<td>893.168643</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='T40336799311', est=3, upp...</td>
-</tr>
-<tr>
-<th>Item Price</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>672.542875</td>
-<td>681.346093</td>
-<td>663.953801</td>
-<td>...</td>
-<td>7.100</td>
-<td>18.2000</td>
-<td>43.200</td>
-<td>80.1000</td>
-<td>116.2000</td>
-<td>137.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Total Tax</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>800.975225</td>
-<td>811.459552</td>
-<td>790.745935</td>
-<td>...</td>
-<td>0.861</td>
-<td>4.8825</td>
-<td>10.017</td>
-<td>20.5170</td>
-<td>36.1725</td>
-<td>54.2640</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Product Category Code</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>6.000000</td>
-<td>6.000300</td>
-<td>6.000000</td>
-<td>...</td>
-<td>1.000</td>
-<td>1.0000</td>
-<td>2.000</td>
-<td>4.0000</td>
-<td>5.0000</td>
-<td>6.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>6.0</td>
-<td>1.0</td>
-<td>[FrequentItem(value='5.000000', est=232, upper...</td>
-</tr>
-<tr>
-<th>Transaction Day of Week</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.000000</td>
-<td>1.000050</td>
-<td>1.000000</td>
-<td>...</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>[FrequentItem(value='0.000000', est=909, upper...</td>
-</tr>
-<tr>
-<th>City Code</th>
-<td>909</td>
-<td>1</td>
-<td>0</td>
-<td>908</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>10.000000</td>
-<td>10.000500</td>
-<td>10.000000</td>
-<td>...</td>
-<td>1.000</td>
-<td>1.0000</td>
-<td>3.000</td>
-<td>5.0000</td>
-<td>8.0000</td>
-<td>10.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Transaction Batch</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.000000</td>
-<td>1.000050</td>
-<td>1.000000</td>
-<td>...</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>0.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>0.0</td>
-<td>0.0</td>
-<td>[FrequentItem(value='0.000000', est=909, upper...</td>
-</tr>
-<tr>
-<th>Date of Birth</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>801.978113</td>
-<td>812.475567</td>
-<td>791.736016</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='1981-03-29', est=4, upper...</td>
-</tr>
-<tr>
-<th>Customer ID</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>847.420398</td>
-<td>858.512667</td>
-<td>836.597955</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='C274278', est=4, upper=3,...</td>
-</tr>
-<tr>
-<th>Total Amount</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>842.098548</td>
-<td>853.121157</td>
-<td>831.344071</td>
-<td>...</td>
-<td>-767.975</td>
-<td>25.3045</td>
-<td>82.433</td>
-<td>188.4025</td>
-<td>358.6830</td>
-<td>555.2625</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>Product Subcategory</th>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>18.000001</td>
-<td>18.000899</td>
-<td>18.000000</td>
-<td>...</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>[FrequentItem(value='Women', est=133, upper=13...</td>
-</tr>
-<tr>
-<th>Product Subcategory Code</th>
-<td>909</td>
-<td>0</td>
-<td>909</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>12.000000</td>
-<td>12.000599</td>
-<td>12.000000</td>
-<td>...</td>
-<td>1.000</td>
-<td>1.0000</td>
-<td>3.000</td>
-<td>5.0000</td>
-<td>10.0000</td>
-<td>11.0000</td>
-<td>SummaryType.COLUMN</td>
-<td>12.0</td>
-<td>1.0</td>
-<td>[FrequentItem(value='4.000000', est=148, upper...</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/min</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>type</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+      <th>frequent_items/frequent_strings</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Purchase Canceled</th>
+      <td>909</td>
+      <td>72</td>
+      <td>0</td>
+      <td>837</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.000000</td>
+      <td>...</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Age at Transaction Date</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>25.000001</td>
+      <td>25.001250</td>
+      <td>25.000000</td>
+      <td>...</td>
+      <td>19.000</td>
+      <td>21.0000</td>
+      <td>25.000</td>
+      <td>31.0000</td>
+      <td>37.0000</td>
+      <td>40.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction Week</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000050</td>
+      <td>1.000000</td>
+      <td>...</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>[FrequentItem(value='0.000000', est=909, upper...</td>
+    </tr>
+    <tr>
+      <th>Store Type</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>4.000000</td>
+      <td>4.000200</td>
+      <td>4.000000</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='e-Shop', est=375, upper=3...</td>
+    </tr>
+    <tr>
+      <th>Product Category</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>6.000000</td>
+      <td>6.000300</td>
+      <td>6.000000</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='Books', est=232, upper=23...</td>
+    </tr>
+    <tr>
+      <th>Gender</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>2.000000</td>
+      <td>2.000100</td>
+      <td>2.000000</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='M', est=455, upper=455, l...</td>
+    </tr>
+    <tr>
+      <th>Transaction ID</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>904.722898</td>
+      <td>916.565225</td>
+      <td>893.168643</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='T40336799311', est=3, upp...</td>
+    </tr>
+    <tr>
+      <th>Item Price</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>672.542875</td>
+      <td>681.346093</td>
+      <td>663.953801</td>
+      <td>...</td>
+      <td>7.100</td>
+      <td>18.2000</td>
+      <td>43.200</td>
+      <td>80.1000</td>
+      <td>116.2000</td>
+      <td>137.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Total Tax</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>800.975225</td>
+      <td>811.459552</td>
+      <td>790.745935</td>
+      <td>...</td>
+      <td>0.861</td>
+      <td>4.8825</td>
+      <td>10.017</td>
+      <td>20.5170</td>
+      <td>36.1725</td>
+      <td>54.2640</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Product Category Code</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>6.000000</td>
+      <td>6.000300</td>
+      <td>6.000000</td>
+      <td>...</td>
+      <td>1.000</td>
+      <td>1.0000</td>
+      <td>2.000</td>
+      <td>4.0000</td>
+      <td>5.0000</td>
+      <td>6.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>6.0</td>
+      <td>1.0</td>
+      <td>[FrequentItem(value='5.000000', est=232, upper...</td>
+    </tr>
+    <tr>
+      <th>Transaction Day of Week</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000050</td>
+      <td>1.000000</td>
+      <td>...</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>[FrequentItem(value='0.000000', est=909, upper...</td>
+    </tr>
+    <tr>
+      <th>City Code</th>
+      <td>909</td>
+      <td>1</td>
+      <td>0</td>
+      <td>908</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>10.000000</td>
+      <td>10.000500</td>
+      <td>10.000000</td>
+      <td>...</td>
+      <td>1.000</td>
+      <td>1.0000</td>
+      <td>3.000</td>
+      <td>5.0000</td>
+      <td>8.0000</td>
+      <td>10.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Transaction Batch</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000050</td>
+      <td>1.000000</td>
+      <td>...</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>0.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>[FrequentItem(value='0.000000', est=909, upper...</td>
+    </tr>
+    <tr>
+      <th>Date of Birth</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>801.978113</td>
+      <td>812.475567</td>
+      <td>791.736016</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='1981-03-29', est=4, upper...</td>
+    </tr>
+    <tr>
+      <th>Customer ID</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>847.420398</td>
+      <td>858.512667</td>
+      <td>836.597955</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='C274278', est=4, upper=3,...</td>
+    </tr>
+    <tr>
+      <th>Total Amount</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>842.098548</td>
+      <td>853.121157</td>
+      <td>831.344071</td>
+      <td>...</td>
+      <td>-767.975</td>
+      <td>25.3045</td>
+      <td>82.433</td>
+      <td>188.4025</td>
+      <td>358.6830</td>
+      <td>555.2625</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>Product Subcategory</th>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>18.000001</td>
+      <td>18.000899</td>
+      <td>18.000000</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>[FrequentItem(value='Women', est=133, upper=13...</td>
+    </tr>
+    <tr>
+      <th>Product Subcategory Code</th>
+      <td>909</td>
+      <td>0</td>
+      <td>909</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>12.000000</td>
+      <td>12.000599</td>
+      <td>12.000000</td>
+      <td>...</td>
+      <td>1.000</td>
+      <td>1.0000</td>
+      <td>3.000</td>
+      <td>5.0000</td>
+      <td>10.0000</td>
+      <td>11.0000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>12.0</td>
+      <td>1.0</td>
+      <td>[FrequentItem(value='4.000000', est=148, upper...</td>
+    </tr>
+  </tbody>
+</table>
 <p>18 rows × 24 columns</p>
 </div></div>
 </div>

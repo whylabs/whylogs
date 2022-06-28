@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.core.metrics.metrics - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -310,7 +310,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -355,11 +356,11 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricComponentMessage</span><span class="p">,</span> <span class="n">MetricMessage</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span> <span class="k">as</span> <span class="n">pd</span>
 
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">)</span>
-<span class="n">M</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"M"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">MetricComponent</span><span class="p">)</span>
-<span class="n">NUM</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"NUM"</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+<span class="n">M</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">MetricComponent</span><span class="p">)</span>
+<span class="n">NUM</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;NUM&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
 
-<span class="n">METRIC</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"METRIC"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">"Metric"</span><span class="p">)</span>
+<span class="n">METRIC</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;METRIC&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;Metric&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="MetricConfig"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.MetricConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -370,13 +371,13 @@
     <span class="n">fi_disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">track_unicode_ranges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">unicode_ranges</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"emoticon"</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x1F600</span><span class="p">,</span> <span class="mh">0x1F64F</span><span class="p">),</span>
-        <span class="s2">"control"</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x1F</span><span class="p">),</span>
-        <span class="s2">"digits"</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x30</span><span class="p">,</span> <span class="mh">0x39</span><span class="p">),</span>
-        <span class="s2">"latin-lower"</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x5A</span><span class="p">),</span>
-        <span class="s2">"latin-upper"</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x61</span><span class="p">,</span> <span class="mh">0x7A</span><span class="p">),</span>
-        <span class="s2">"basic-latin"</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x7F</span><span class="p">),</span>
-        <span class="s2">"extended-latin"</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x0080</span><span class="p">,</span> <span class="mh">0x02AF</span><span class="p">),</span>
+        <span class="s2">&quot;emoticon&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x1F600</span><span class="p">,</span> <span class="mh">0x1F64F</span><span class="p">),</span>
+        <span class="s2">&quot;control&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x1F</span><span class="p">),</span>
+        <span class="s2">&quot;digits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x30</span><span class="p">,</span> <span class="mh">0x39</span><span class="p">),</span>
+        <span class="s2">&quot;latin-lower&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x5A</span><span class="p">),</span>
+        <span class="s2">&quot;latin-upper&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x61</span><span class="p">,</span> <span class="mh">0x7A</span><span class="p">),</span>
+        <span class="s2">&quot;basic-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x7F</span><span class="p">),</span>
+        <span class="s2">&quot;extended-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x0080</span><span class="p">,</span> <span class="mh">0x02AF</span><span class="p">),</span>
     <span class="p">}</span></div>
 
 
@@ -395,14 +396,14 @@
     <span class="n">successes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="OperationResult.ok"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.OperationResult.ok">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">ok</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cnt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"OperationResult"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">ok</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cnt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OperationResult&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">OperationResult</span><span class="p">(</span><span class="n">successes</span><span class="o">=</span><span class="n">cnt</span><span class="p">,</span> <span class="n">failures</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OperationResult.failed"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.OperationResult.failed">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">failed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cnt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"OperationResult"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">failed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cnt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OperationResult&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">OperationResult</span><span class="p">(</span><span class="n">successes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">failures</span><span class="o">=</span><span class="n">cnt</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"OperationResult"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"OperationResult"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;OperationResult&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OperationResult&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">OperationResult</span><span class="p">(</span>
             <span class="n">successes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">successes</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">successes</span><span class="p">,</span>
             <span class="n">failures</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">failures</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">failures</span><span class="p">,</span>
@@ -436,7 +437,7 @@
 
 <div class="viewcode-block" id="Metric.to_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.Metric.to_protobuf">[docs]</a>    <span class="k">def</span> <span class="nf">to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricMessage</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Metric object is not a dataclass"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Metric object is not a dataclass&quot;</span><span class="p">)</span>
 
         <span class="n">res</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -469,7 +470,7 @@
 <div class="viewcode-block" id="Metric.from_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.Metric.from_protobuf">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">],</span> <span class="n">msg</span><span class="p">:</span> <span class="n">MetricMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">METRIC</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">is_dataclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Metric class: </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s2"> is not a dataclass"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Metric class: </span><span class="si">{</span><span class="bp">cls</span><span class="si">}</span><span class="s2"> is not a dataclass&quot;</span><span class="p">)</span>
 
         <span class="n">components</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricComponent</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">msg</span><span class="o">.</span><span class="n">metric_components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -485,7 +486,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">"ints"</span>
+        <span class="k">return</span> <span class="s2">&quot;ints&quot;</span>
 
 <div class="viewcode-block" id="IntsMetric.columnar_update"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.IntsMetric.columnar_update">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationResult</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">len</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -512,11 +513,11 @@
         <span class="k">return</span> <span class="n">OperationResult</span><span class="o">.</span><span class="n">ok</span><span class="p">(</span><span class="n">successes</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IntsMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.IntsMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"IntsMetric"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;IntsMetric&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">IntsMetric</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="n">MaxIntegralComponent</span><span class="p">(</span><span class="o">-</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">),</span> <span class="nb">min</span><span class="o">=</span><span class="n">MinIntegralComponent</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="IntsMetric.to_summary_dict"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.IntsMetric.to_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SummaryConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">"max"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">value</span><span class="p">}</span></div></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">value</span><span class="p">}</span></div></div>
 
 
 <div class="viewcode-block" id="DistributionMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -527,7 +528,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">"distribution"</span>
+        <span class="k">return</span> <span class="s2">&quot;distribution&quot;</span>
 
 <div class="viewcode-block" id="DistributionMetric.to_summary_dict"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric.to_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SummaryConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -535,24 +536,24 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">quantiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">"mean"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-            <span class="s2">"stddev"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stddev</span><span class="p">,</span>
-            <span class="s2">"n"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_n</span><span class="p">(),</span>
-            <span class="s2">"max"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_max_value</span><span class="p">(),</span>
-            <span class="s2">"min"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_min_value</span><span class="p">(),</span>
-            <span class="s2">"q_01"</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="s2">"q_05"</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-            <span class="s2">"q_10"</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-            <span class="s2">"q_25"</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
-            <span class="s2">"median"</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
-            <span class="s2">"q_75"</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span>
-            <span class="s2">"q_90"</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span>
-            <span class="s2">"q_95"</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
-            <span class="s2">"q_99"</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span>
+            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;stddev&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stddev</span><span class="p">,</span>
+            <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_n</span><span class="p">(),</span>
+            <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_max_value</span><span class="p">(),</span>
+            <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_min_value</span><span class="p">(),</span>
+            <span class="s2">&quot;q_01&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;q_05&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;q_10&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+            <span class="s2">&quot;q_25&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+            <span class="s2">&quot;median&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+            <span class="s2">&quot;q_75&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span>
+            <span class="s2">&quot;q_90&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span>
+            <span class="s2">&quot;q_95&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span>
+            <span class="s2">&quot;q_99&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span>
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="DistributionMetric.columnar_update"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric.columnar_update">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationResult</span><span class="p">:</span>
-        <span class="sd">"""</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the operation</span>
 
 <span class="sd">        Algorithm: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Parallel_algorithm</span>
@@ -562,7 +563,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            how many successful operations we had</span>
-<span class="sd">        """</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">successes</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">first</span> <span class="o">=</span> <span class="n">VarianceM2Result</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_n</span><span class="p">(),</span> <span class="n">mean</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">m2</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">m2</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
@@ -605,7 +606,7 @@
 
         <span class="k">return</span> <span class="n">OperationResult</span><span class="o">.</span><span class="n">ok</span><span class="p">(</span><span class="n">successes</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="DistributionMetric.merge"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"DistributionMetric"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DistributionMetric"</span><span class="p">:</span>
+<div class="viewcode-block" id="DistributionMetric.merge"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;DistributionMetric&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DistributionMetric&quot;</span><span class="p">:</span>
         <span class="c1"># calculate mean and m2</span>
         <span class="n">a_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_n</span><span class="p">()</span>
         <span class="n">b_n</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_n</span><span class="p">()</span>
@@ -631,10 +632,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">variance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="sd">"""Returns the population variance of the stream.</span>
+        <span class="sd">&quot;&quot;&quot;Returns the population variance of the stream.</span>
 
-<span class="sd">        https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm</span>
-<span class="sd">        """</span>
+<span class="sd">        https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford&#39;s_online_algorithm</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">m2</span><span class="o">.</span><span class="n">value</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_n</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
@@ -658,7 +659,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_min_value</span><span class="p">()</span>
 
 <div class="viewcode-block" id="DistributionMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"DistributionMetric"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DistributionMetric&quot;</span><span class="p">:</span>
         <span class="n">sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">kll_k</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">DistributionMetric</span><span class="p">(</span>
             <span class="n">kll</span><span class="o">=</span><span class="n">KllComponent</span><span class="p">(</span><span class="n">sk</span><span class="p">),</span>
@@ -681,7 +682,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">"frequent_items"</span>
+        <span class="k">return</span> <span class="s2">&quot;frequent_items&quot;</span>
 
 <div class="viewcode-block" id="FrequentItemsMetric.columnar_update"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.FrequentItemsMetric.columnar_update">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationResult</span><span class="p">:</span>
         <span class="n">successes</span> <span class="o">=</span> <span class="mi">0</span>
@@ -722,10 +723,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">limited_freq_items</span> <span class="o">=</span> <span class="n">all_freq_items</span>
         <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">FrequentItem</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">est</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">upper</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">lower</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">limited_freq_items</span><span class="p">]</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">"frequent_strings"</span><span class="p">:</span> <span class="n">items</span><span class="p">}</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;frequent_strings&quot;</span><span class="p">:</span> <span class="n">items</span><span class="p">}</span></div>
 
 <div class="viewcode-block" id="FrequentItemsMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.FrequentItemsMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"FrequentItemsMetric"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;FrequentItemsMetric&quot;</span><span class="p">:</span>
         <span class="n">sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span><span class="p">(</span><span class="n">lg_max_k</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">fi_lg_max_k</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">FrequentItemsMetric</span><span class="p">(</span><span class="n">frequent_strings</span><span class="o">=</span><span class="n">FrequentStringsComponent</span><span class="p">(</span><span class="n">sk</span><span class="p">))</span></div></div>
 
@@ -736,7 +737,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">"cardinality"</span>
+        <span class="k">return</span> <span class="s2">&quot;cardinality&quot;</span>
 
 <div class="viewcode-block" id="CardinalityMetric.columnar_update"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.CardinalityMetric.columnar_update">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">view</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationResult</span><span class="p">:</span>
         <span class="n">successes</span> <span class="o">=</span> <span class="mi">0</span>
@@ -769,35 +770,35 @@
 
 <div class="viewcode-block" id="CardinalityMetric.to_summary_dict"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.CardinalityMetric.to_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SummaryConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">"est"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_estimate</span><span class="p">(),</span>
-            <span class="sa">f</span><span class="s2">"upper_</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_upper_bound</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="p">),</span>
-            <span class="sa">f</span><span class="s2">"lower_</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_lower_bound</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="p">),</span>
+            <span class="s2">&quot;est&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_estimate</span><span class="p">(),</span>
+            <span class="sa">f</span><span class="s2">&quot;upper_</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_upper_bound</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="p">),</span>
+            <span class="sa">f</span><span class="s2">&quot;lower_</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_lower_bound</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="p">),</span>
         <span class="p">}</span></div>
 
 <div class="viewcode-block" id="CardinalityMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.CardinalityMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"CardinalityMetric"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;CardinalityMetric&quot;</span><span class="p">:</span>
         <span class="n">sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">hll_sketch</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">hll_lg_k</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">CardinalityMetric</span><span class="p">(</span><span class="n">hll</span><span class="o">=</span><span class="n">HllComponent</span><span class="p">(</span><span class="n">sk</span><span class="p">))</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_drop_private_fields</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)}</span>
 
 
-<span class="n">_STRUCT_NAME</span> <span class="o">=</span> <span class="s2">"dataclass_param"</span>
+<span class="n">_STRUCT_NAME</span> <span class="o">=</span> <span class="s2">&quot;dataclass_param&quot;</span>
 
 
 <div class="viewcode-block" id="CustomMetricBase"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.CustomMetricBase">[docs]</a><span class="k">class</span> <span class="nc">CustomMetricBase</span><span class="p">(</span><span class="n">Metric</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
-    <span class="sd">"""</span>
-<span class="sd">    You can use this as a base class for custom metrics that don't use</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    You can use this as a base class for custom metrics that don&#39;t use</span>
 <span class="sd">    the supplied or custom MetricComponents. Subclasses must be decorated with</span>
 <span class="sd">    @dataclass. All fields not prefixed with an underscore will be included</span>
 <span class="sd">    in the summary and will be [de]serialized. Such subclasses will need to</span>
 <span class="sd">    implement the namespace, merge, and zero methods.</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="CustomMetricBase.get_component_paths"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.CustomMetricBase.get_component_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_component_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">_STRUCT_NAME</span><span class="p">]</span>  <span class="c1"># Assumes everything to be serde'd will be in the Struct</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_STRUCT_NAME</span><span class="p">]</span>  <span class="c1"># Assumes everything to be serde&#39;d will be in the Struct</span></div>
 
 <div class="viewcode-block" id="CustomMetricBase.to_summary_dict"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.CustomMetricBase.to_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SummaryConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dict_factory</span><span class="o">=</span><span class="n">_drop_private_fields</span><span class="p">)</span></div>

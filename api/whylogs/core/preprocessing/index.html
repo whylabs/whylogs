@@ -13,10 +13,10 @@
 <meta property="og:description" content="Module Contents: Classes: Attributes:" />
   <link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" /><link rel="next" title="whylogs.core.projectors" href="../projectors/index.html" /><link rel="prev" title="whylogs.core.errors" href="../errors/index.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.core.preprocessing - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -339,10 +340,11 @@
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this headline">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">#</a></h3>
-<div class="table-wrapper"><table class="longtable docutils align-default">
+<div class="table-wrapper longtable docutils container">
+<table class="longtable docutils align-default">
 <colgroup>
-<col style="width: 10%"/>
-<col style="width: 90%"/>
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.preprocessing.ListView" title="whylogs.core.preprocessing.ListView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ListView</span></code></a></p></td>
@@ -358,25 +360,29 @@
 <td><p>View of a column with data of various underlying storage.</p></td>
 </tr>
 </tbody>
-</table></div>
+</table>
+</div>
 </section>
 <section id="attributes">
 <h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">#</a></h3>
-<div class="table-wrapper"><table class="longtable docutils align-default">
+<div class="table-wrapper longtable docutils container">
+<table class="longtable docutils align-default">
 <colgroup>
-<col style="width: 10%"/>
-<col style="width: 90%"/>
+<col style="width: 10%" />
+<col style="width: 90%" />
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.preprocessing.logger" title="whylogs.core.preprocessing.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
-</table></div>
+</table>
+</div>
 <dl class="py data">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.logger">
 <span class="sig-prename descclassname"><span class="pre">whylogs.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#whylogs.core.preprocessing.logger" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.ListView">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">ListView</span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#ListView"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.ListView" title="Permalink to this definition">#</a></dt>
@@ -384,28 +390,34 @@
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.ListView.ints">
 <span class="sig-name descname"><span class="pre">ints</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[List[int]]</span></em><a class="headerlink" href="#whylogs.core.preprocessing.ListView.ints" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.ListView.floats">
 <span class="sig-name descname"><span class="pre">floats</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[List[float]]</span></em><a class="headerlink" href="#whylogs.core.preprocessing.ListView.floats" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.ListView.strings">
 <span class="sig-name descname"><span class="pre">strings</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[List[str]]</span></em><a class="headerlink" href="#whylogs.core.preprocessing.ListView.strings" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.ListView.objs">
 <span class="sig-name descname"><span class="pre">objs</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[List[Any]]</span></em><a class="headerlink" href="#whylogs.core.preprocessing.ListView.objs" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.ListView.iterables">
-<span class="sig-name descname"><span class="pre">iterables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#ListView.iterables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.ListView.iterables" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">iterables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#ListView.iterables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.ListView.iterables" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[List[Any]]</p>
 </dd>
 </dl>
 </dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.NumpyView">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">NumpyView</span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#NumpyView"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.NumpyView" title="Permalink to this definition">#</a></dt>
@@ -413,29 +425,34 @@
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.NumpyView.ints">
 <span class="sig-name descname"><span class="pre">ints</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[whylogs.core.stubs.np.ndarray]</span></em><a class="headerlink" href="#whylogs.core.preprocessing.NumpyView.ints" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.NumpyView.floats">
 <span class="sig-name descname"><span class="pre">floats</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[whylogs.core.stubs.np.ndarray]</span></em><a class="headerlink" href="#whylogs.core.preprocessing.NumpyView.floats" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.NumpyView.iterables">
-<span class="sig-name descname"><span class="pre">iterables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">whylogs.core.stubs.np.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#NumpyView.iterables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.NumpyView.iterables" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">iterables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">whylogs.core.stubs.np.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#NumpyView.iterables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.NumpyView.iterables" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[whylogs.core.stubs.np.ndarray]</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.NumpyView.len">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#whylogs.core.preprocessing.NumpyView.len" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">len</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></span><a class="headerlink" href="#whylogs.core.preprocessing.NumpyView.len" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a></p>
 </dd>
 </dl>
 </dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PandasView">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">PandasView</span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#PandasView"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.PandasView" title="Permalink to this definition">#</a></dt>
@@ -443,20 +460,24 @@
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PandasView.strings">
 <span class="sig-name descname"><span class="pre">strings</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[whylogs.core.stubs.pd.Series]</span></em><a class="headerlink" href="#whylogs.core.preprocessing.PandasView.strings" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PandasView.objs">
 <span class="sig-name descname"><span class="pre">objs</span></span><em class="property"><span class="w"> </span><span class="pre">:Optional[whylogs.core.stubs.pd.Series]</span></em><a class="headerlink" href="#whylogs.core.preprocessing.PandasView.objs" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PandasView.iterables">
-<span class="sig-name descname"><span class="pre">iterables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">whylogs.core.stubs.pd.Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#PandasView.iterables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.PandasView.iterables" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">iterables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">whylogs.core.stubs.pd.Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#PandasView.iterables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.PandasView.iterables" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>List[whylogs.core.stubs.pd.Series]</p>
 </dd>
 </dl>
 </dd></dl>
+
 </dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PreprocessedColumn">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.preprocessing.</span></span><span class="sig-name descname"><span class="pre">PreprocessedColumn</span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#PreprocessedColumn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn" title="Permalink to this definition">#</a></dt>
@@ -469,38 +490,45 @@ We also track the null count and ensure that processed lists/Series don’t cont
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PreprocessedColumn.numpy">
 <span class="sig-name descname"><span class="pre">numpy</span></span><em class="property"><span class="w"> </span><span class="pre">:NumpyView</span></em><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.numpy" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PreprocessedColumn.pandas">
 <span class="sig-name descname"><span class="pre">pandas</span></span><em class="property"><span class="w"> </span><span class="pre">:PandasView</span></em><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.pandas" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PreprocessedColumn.list">
 <span class="sig-name descname"><span class="pre">list</span></span><em class="property"><span class="w"> </span><span class="pre">:ListView</span></em><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.list" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PreprocessedColumn.null_count">
 <span class="sig-name descname"><span class="pre">null_count</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.null_count" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PreprocessedColumn.len">
 <span class="sig-name descname"><span class="pre">len</span></span><em class="property"><span class="w"> </span><span class="pre">:int</span> <span class="pre">=</span> <span class="pre">0</span></em><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.len" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PreprocessedColumn.original">
 <span class="sig-name descname"><span class="pre">original</span></span><em class="property"><span class="w"> </span><span class="pre">:Any</span></em><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.original" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PreprocessedColumn.raw_iterator">
-<span class="sig-name descname"><span class="pre">raw_iterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#PreprocessedColumn.raw_iterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.raw_iterator" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">raw_iterator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#PreprocessedColumn.raw_iterator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.raw_iterator" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Iterator[Any]</p>
 </dd>
 </dl>
 </dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.preprocessing.PreprocessedColumn.apply">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">PreprocessedColumn</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#PreprocessedColumn.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.apply" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.core.preprocessing.PreprocessedColumn" title="whylogs.core.preprocessing.PreprocessedColumn"><span class="pre">PreprocessedColumn</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/preprocessing.html#PreprocessedColumn.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.preprocessing.PreprocessedColumn.apply" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>data</strong> (<em>Any</em>) – </p>
@@ -510,7 +538,9 @@ We also track the null count and ensure that processed lists/Series don’t cont
 </dd>
 </dl>
 </dd></dl>
+
 </dd></dl>
+
 </section>
 </section>
 </section>

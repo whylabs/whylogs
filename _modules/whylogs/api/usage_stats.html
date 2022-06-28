@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.api.usage_stats - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
@@ -310,7 +310,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -342,14 +343,14 @@
 
 <span class="kn">import</span> <span class="nn">whylogs</span>
 
-<span class="n">HEAP_APPID_PROD</span> <span class="o">=</span> <span class="s2">"2170415941"</span>
+<span class="n">HEAP_APPID_PROD</span> <span class="o">=</span> <span class="s2">&quot;2170415941&quot;</span>
 
-<span class="n">HEAP_ENDPOINT</span> <span class="o">=</span> <span class="s2">"https://heapanalytics.com/api/track"</span>
-<span class="n">HEAP_HEADERS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Content-Type"</span><span class="p">:</span> <span class="s2">"application/json"</span><span class="p">}</span>
-<span class="n">TIMESTAMP_FORMAT</span> <span class="o">=</span> <span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S.</span><span class="si">%f</span><span class="s2">Z"</span>
+<span class="n">HEAP_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;https://heapanalytics.com/api/track&quot;</span>
+<span class="n">HEAP_HEADERS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+<span class="n">TIMESTAMP_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S.</span><span class="si">%f</span><span class="s2">Z&quot;</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">ANALYTICS_OPT_OUT</span> <span class="o">=</span> <span class="s2">"WHYLOGS_NO_ANALYTICS"</span>
+<span class="n">ANALYTICS_OPT_OUT</span> <span class="o">=</span> <span class="s2">&quot;WHYLOGS_NO_ANALYTICS&quot;</span>
 
 <span class="c1"># Flag to disable it internally</span>
 <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">False</span>
@@ -374,10 +375,10 @@
 
 <span class="k">def</span> <span class="nf">_do_emit_usage</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ANALYTICS_OPT_OUT</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Opted out of usage statistics. Skipping."</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Opted out of usage statistics. Skipping.&quot;</span><span class="p">)</span>
         <span class="k">return</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Telemetry opted in. Emitting usage statistics"</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Telemetry opted in. Emitting usage statistics&quot;</span><span class="p">)</span>
 
     <span class="k">global</span> <span class="n">_identity</span>
     <span class="k">global</span> <span class="n">_metadata</span>
@@ -391,44 +392,44 @@
 
 <span class="k">def</span> <span class="nf">_calc_identity</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">hashed_computer_name</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">(),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf8"</span><span class="p">))</span>
+        <span class="n">hashed_computer_name</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">(),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">hashed_computer_name</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
     <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">timeout</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">"Socket timeout when trying to get the computer name. Exception: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">&quot;Socket timeout when trying to get the computer name. Exception: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">exc</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
 
 
 <span class="k">def</span> <span class="nf">_build_metadata</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="sd">"""Hash system and project data to send to Heap."""</span>
+    <span class="sd">&quot;&quot;&quot;Hash system and project data to send to Heap.&quot;&quot;&quot;</span>
 
     <span class="n">project_version</span> <span class="o">=</span> <span class="n">whylogs</span><span class="o">.</span><span class="n">__version__</span>
     <span class="p">(</span><span class="n">major</span><span class="p">,</span> <span class="n">minor</span><span class="p">,</span> <span class="n">macro</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span>
 
     <span class="n">metadata</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"project_version"</span><span class="p">:</span> <span class="n">project_version</span><span class="p">,</span>
-        <span class="s2">"python_version"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">major</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">minor</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">macro</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-        <span class="s2">"python_version_full"</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
-        <span class="s2">"terminal"</span><span class="p">:</span> <span class="n">_get_terminal_mode</span><span class="p">(),</span>
-        <span class="s2">"os"</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="p">,</span>
-        <span class="s2">"conda"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"CONDA_DEFAULT_ENV"</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">),</span>
-        <span class="s2">"venv"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"VIRTUAL_ENV"</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">),</span>
-        <span class="s2">"environment"</span><span class="p">:</span> <span class="n">_get_environment</span><span class="p">(),</span>
+        <span class="s2">&quot;project_version&quot;</span><span class="p">:</span> <span class="n">project_version</span><span class="p">,</span>
+        <span class="s2">&quot;python_version&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">major</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">minor</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">macro</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;python_version_full&quot;</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+        <span class="s2">&quot;terminal&quot;</span><span class="p">:</span> <span class="n">_get_terminal_mode</span><span class="p">(),</span>
+        <span class="s2">&quot;os&quot;</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="p">,</span>
+        <span class="s2">&quot;conda&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;CONDA_DEFAULT_ENV&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">),</span>
+        <span class="s2">&quot;venv&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;VIRTUAL_ENV&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">),</span>
+        <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="n">_get_environment</span><span class="p">(),</span>
     <span class="p">}</span>
 
     <span class="c1"># track various integrations</span>
     <span class="n">integrations</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"numpy"</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">"numpy"</span><span class="p">),</span>
-        <span class="s2">"pandas"</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">"pandas"</span><span class="p">),</span>
-        <span class="s2">"mlflow"</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">"mlflow"</span><span class="p">),</span>
-        <span class="s2">"dask"</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">"dask"</span><span class="p">),</span>
-        <span class="s2">"ray"</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">"ray"</span><span class="p">),</span>
-        <span class="s2">"airflow"</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">"airflow"</span><span class="p">),</span>
-        <span class="s2">"pyspark"</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">"pyspark"</span><span class="p">),</span>
-        <span class="s2">"flyte"</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">"flyte"</span><span class="p">),</span>
-        <span class="s2">"kafka"</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">"kafka"</span><span class="p">),</span>
+        <span class="s2">&quot;numpy&quot;</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">&quot;numpy&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;pandas&quot;</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">&quot;pandas&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;mlflow&quot;</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">&quot;mlflow&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;dask&quot;</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">&quot;dask&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;ray&quot;</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">&quot;ray&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;airflow&quot;</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">&quot;airflow&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;pyspark&quot;</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">&quot;pyspark&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;flyte&quot;</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">&quot;flyte&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;kafka&quot;</span><span class="p">:</span> <span class="n">_has_lib</span><span class="p">(</span><span class="s2">&quot;kafka&quot;</span><span class="p">),</span>
     <span class="p">}</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">integrations</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">integrations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
@@ -440,35 +441,35 @@
 
 
 <span class="k">def</span> <span class="nf">_get_heap_app_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">"""</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the Heap App ID to send the data to.</span>
-<span class="sd">    This will be the development ID if it's set as an</span>
+<span class="sd">    This will be the development ID if it&#39;s set as an</span>
 <span class="sd">    environment variable, otherwise it will be the production ID.</span>
-<span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"HEAP_APPID_DEV"</span><span class="p">,</span> <span class="n">HEAP_APPID_PROD</span><span class="p">)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HEAP_APPID_DEV&quot;</span><span class="p">,</span> <span class="n">HEAP_APPID_PROD</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_send_heap_event</span><span class="p">(</span><span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">identity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">properties</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"app_id"</span><span class="p">:</span> <span class="n">_get_heap_app_id</span><span class="p">(),</span>
-        <span class="s2">"identity"</span><span class="p">:</span> <span class="n">identity</span><span class="p">,</span>
-        <span class="s2">"event"</span><span class="p">:</span> <span class="n">event_name</span><span class="p">,</span>
-        <span class="s2">"timestamp"</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">TIMESTAMP_FORMAT</span><span class="p">),</span>
-        <span class="s2">"properties"</span><span class="p">:</span> <span class="n">properties</span> <span class="ow">or</span> <span class="p">{},</span>
+        <span class="s2">&quot;app_id&quot;</span><span class="p">:</span> <span class="n">_get_heap_app_id</span><span class="p">(),</span>
+        <span class="s2">&quot;identity&quot;</span><span class="p">:</span> <span class="n">identity</span><span class="p">,</span>
+        <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="n">event_name</span><span class="p">,</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">TIMESTAMP_FORMAT</span><span class="p">),</span>
+        <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="n">properties</span> <span class="ow">or</span> <span class="p">{},</span>
     <span class="p">}</span>
     <span class="k">global</span> <span class="n">_TELEMETRY_DISABLED</span>
     <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">req</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">HEAP_ENDPOINT</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">json_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"POST"</span><span class="p">)</span>
-    <span class="n">req</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s2">"Content-Type"</span><span class="p">,</span> <span class="s2">"application/json"</span><span class="p">)</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">HEAP_ENDPOINT</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">json_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">)</span>
+    <span class="n">req</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span> <span class="s2">&quot;application/json&quot;</span><span class="p">)</span>
     <span class="n">resp</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">HTTPResponse</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">resp</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Unable to send usage stats. Disabling stats collection."</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unable to send usage stats. Disabling stats collection.&quot;</span><span class="p">)</span>
             <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Response: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Response: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
     <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"Connection error. Skip stats collection."</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Connection error. Skip stats collection.&quot;</span><span class="p">)</span>
         <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">finally</span><span class="p">:</span>
@@ -486,29 +487,29 @@
     <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
         <span class="k">pass</span>
 
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">"ps1"</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">"shell"</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;ps1&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;shell&quot;</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">"headless"</span>
+        <span class="k">return</span> <span class="s2">&quot;headless&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">_get_environment</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="n">environments_dict</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">"GITHUB_ACTION"</span><span class="p">:</span> <span class="s2">"github_action"</span><span class="p">,</span>
-        <span class="s2">"GITLAB_CI"</span><span class="p">:</span> <span class="s2">"gitlab_ci"</span><span class="p">,</span>
-        <span class="s2">"BINDER_PORT"</span><span class="p">:</span> <span class="s2">"binder"</span><span class="p">,</span>
-        <span class="s2">"PYCHARM_HOSTED"</span><span class="p">:</span> <span class="s2">"pycharm"</span><span class="p">,</span>
-        <span class="s2">"SM_CURRENT_HOST"</span><span class="p">:</span> <span class="s2">"sagemaker"</span><span class="p">,</span>
-        <span class="s2">"DATABRICKS_RUNTIME_VERSION"</span><span class="p">:</span> <span class="s2">"databricks"</span><span class="p">,</span>
-        <span class="s2">"COLAB_GPU"</span><span class="p">:</span> <span class="s2">"colab"</span><span class="p">,</span>
-        <span class="s2">"KAGGLE_KERNEL_RUN_TYPE"</span><span class="p">:</span> <span class="s2">"kaggle"</span><span class="p">,</span>
-        <span class="s2">"DEEPNOTE_PROJECT_ID"</span><span class="p">:</span> <span class="s2">"deepnote"</span><span class="p">,</span>
+        <span class="s2">&quot;GITHUB_ACTION&quot;</span><span class="p">:</span> <span class="s2">&quot;github_action&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GITLAB_CI&quot;</span><span class="p">:</span> <span class="s2">&quot;gitlab_ci&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BINDER_PORT&quot;</span><span class="p">:</span> <span class="s2">&quot;binder&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;PYCHARM_HOSTED&quot;</span><span class="p">:</span> <span class="s2">&quot;pycharm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;SM_CURRENT_HOST&quot;</span><span class="p">:</span> <span class="s2">&quot;sagemaker&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DATABRICKS_RUNTIME_VERSION&quot;</span><span class="p">:</span> <span class="s2">&quot;databricks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;COLAB_GPU&quot;</span><span class="p">:</span> <span class="s2">&quot;colab&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KAGGLE_KERNEL_RUN_TYPE&quot;</span><span class="p">:</span> <span class="s2">&quot;kaggle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DEEPNOTE_PROJECT_ID&quot;</span><span class="p">:</span> <span class="s2">&quot;deepnote&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">environments_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
-    <span class="k">return</span> <span class="s2">"unknown"</span>
+    <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
 
 
 <span class="k">def</span> <span class="nf">_has_lib</span><span class="p">(</span><span class="n">lib_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

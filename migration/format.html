@@ -13,10 +13,10 @@
 <meta property="og:description" content="V1 format overview: Delimited, A single file can contain multiple messages. Image describing delimited whylogs v1 format Delimited format allows the new file format to pack multiple messages. A rea..." />
   <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>Storage Format - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -342,7 +343,7 @@
 <li><p>A single file can contain multiple messages</p></li>
 </ul>
 <figure class="align-center" id="id1">
-<img alt="Image describing delimited whylogs v1 format" src="../_images/v1_format_2.svg" width="500px"/><figcaption>
+<img alt="Image describing delimited whylogs v1 format" src="../_images/v1_format_2.svg" width="500px" /><figcaption>
 <p><span class="caption-text">Delimited format allows the new file format to pack multiple messages. A
 reader can also use the chunk offsets to jump around the file to target
 relevant metrics only.</span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
@@ -362,7 +363,7 @@ relevant metrics only.</span><a class="headerlink" href="#id1" title="Permalink 
 </ul>
 <p>Diagram for the format</p>
 <figure class="align-center" id="id2">
-<img alt="Image detailing the structure of v1 format" src="../_images/v1_format_1.svg" width="600px"/><figcaption>
+<img alt="Image detailing the structure of v1 format" src="../_images/v1_format_1.svg" width="600px" /><figcaption>
 <p><span class="caption-text">A column message might contain mulitple chunks. Using offsets, reader only needs to target
 specific chunks for a column. This allows us to unify both column and dataset level metrics.</span><a class="headerlink" href="#id2" title="Permalink to this image">#</a></p>
 </figcaption>

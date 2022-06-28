@@ -13,10 +13,10 @@
 <meta property="og:description" content="MLflow is an open-source model platform that can track, manage and help users deploy their models to production with a very consistent API and good software engineering practices. Whylogs users can..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Profiling with whylogs from a Kafka topic" href="kafka-example/Kafka_Example.html" /><link rel="prev" title="PySpark Integration" href="Pyspark_Profiling.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>MLflow Logging - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,12 +577,15 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
@@ -618,7 +627,7 @@ div.rendered_html tbody tr:hover {
 <span class="k">def</span> <span class="nf">get_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
     <span class="n">iris_data</span> <span class="o">=</span> <span class="n">load_iris</span><span class="p">()</span>
     <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris_data</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">iris_data</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
-    <span class="n">dataframe</span><span class="p">[</span><span class="s2">"target"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris_data</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+    <span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris_data</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dataframe</span>
 </pre></div>
 </div>
@@ -645,7 +654,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -658,60 +667,60 @@ div.rendered_html tbody tr:hover {
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>sepal length (cm)</th>
-<th>sepal width (cm)</th>
-<th>petal length (cm)</th>
-<th>petal width (cm)</th>
-<th>target</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>0</th>
-<td>5.1</td>
-<td>3.5</td>
-<td>1.4</td>
-<td>0.2</td>
-<td>0</td>
-</tr>
-<tr>
-<th>1</th>
-<td>4.9</td>
-<td>3.0</td>
-<td>1.4</td>
-<td>0.2</td>
-<td>0</td>
-</tr>
-<tr>
-<th>2</th>
-<td>4.7</td>
-<td>3.2</td>
-<td>1.3</td>
-<td>0.2</td>
-<td>0</td>
-</tr>
-<tr>
-<th>3</th>
-<td>4.6</td>
-<td>3.1</td>
-<td>1.5</td>
-<td>0.2</td>
-<td>0</td>
-</tr>
-<tr>
-<th>4</th>
-<td>5.0</td>
-<td>3.6</td>
-<td>1.4</td>
-<td>0.2</td>
-<td>0</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sepal length (cm)</th>
+      <th>sepal width (cm)</th>
+      <th>petal length (cm)</th>
+      <th>petal width (cm)</th>
+      <th>target</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>5.1</td>
+      <td>3.5</td>
+      <td>1.4</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.9</td>
+      <td>3.0</td>
+      <td>1.4</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4.7</td>
+      <td>3.2</td>
+      <td>1.3</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4.6</td>
+      <td>3.1</td>
+      <td>1.5</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5.0</td>
+      <td>3.6</td>
+      <td>1.4</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
 </div></div>
 </div>
 </section>
@@ -727,7 +736,7 @@ div.rendered_html tbody tr:hover {
 
 <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"target"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">"target"</span><span class="p">])</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -756,7 +765,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mlruns/0/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/artifacts/model"</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mlruns/0/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/artifacts/model&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -766,7 +775,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-['python_env.yaml', 'requirements.txt', 'MLmodel', 'model.pkl', 'conda.yaml']
+[&#39;python_env.yaml&#39;, &#39;requirements.txt&#39;, &#39;MLmodel&#39;, &#39;model.pkl&#39;, &#39;conda.yaml&#39;]
 </pre></div></div>
 </div>
 </section>
@@ -798,7 +807,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -811,180 +820,180 @@ div.rendered_html tbody tr:hover {
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>distribution/mean</th>
-<th>distribution/stddev</th>
-<th>distribution/n</th>
-<th>...</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>ints/max</th>
-<th>ints/min</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>frequent_items/frequent_strings</th>
-<th>type</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>target</th>
-<td>150</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.000000</td>
-<td>0.819232</td>
-<td>150</td>
-<td>...</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>0.0</td>
-<td>3.000000</td>
-<td>3.000150</td>
-<td>3.0</td>
-<td>[FrequentItem(value='0.000000', est=50, upper=...</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>petal width (cm)</th>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1.199333</td>
-<td>0.762238</td>
-<td>150</td>
-<td>...</td>
-<td>2.2</td>
-<td>2.3</td>
-<td>2.5</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>22.000001</td>
-<td>22.001100</td>
-<td>22.0</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>sepal width (cm)</th>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>3.057333</td>
-<td>0.435866</td>
-<td>150</td>
-<td>...</td>
-<td>3.7</td>
-<td>3.8</td>
-<td>4.2</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>23.000001</td>
-<td>23.001150</td>
-<td>23.0</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>petal length (cm)</th>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>3.758000</td>
-<td>1.765298</td>
-<td>150</td>
-<td>...</td>
-<td>5.8</td>
-<td>6.1</td>
-<td>6.7</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>43.000004</td>
-<td>43.002151</td>
-<td>43.0</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-<tr>
-<th>sepal length (cm)</th>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>5.843333</td>
-<td>0.828066</td>
-<td>150</td>
-<td>...</td>
-<td>6.9</td>
-<td>7.3</td>
-<td>7.7</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>35.000003</td>
-<td>35.001750</td>
-<td>35.0</td>
-<td>NaN</td>
-<td>SummaryType.COLUMN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>distribution/mean</th>
+      <th>distribution/stddev</th>
+      <th>distribution/n</th>
+      <th>...</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>type</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>target</th>
+      <td>150</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>0.819232</td>
+      <td>150</td>
+      <td>...</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>3.000000</td>
+      <td>3.000150</td>
+      <td>3.0</td>
+      <td>[FrequentItem(value='0.000000', est=50, upper=...</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>petal width (cm)</th>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.199333</td>
+      <td>0.762238</td>
+      <td>150</td>
+      <td>...</td>
+      <td>2.2</td>
+      <td>2.3</td>
+      <td>2.5</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>22.000001</td>
+      <td>22.001100</td>
+      <td>22.0</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>sepal width (cm)</th>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3.057333</td>
+      <td>0.435866</td>
+      <td>150</td>
+      <td>...</td>
+      <td>3.7</td>
+      <td>3.8</td>
+      <td>4.2</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>23.000001</td>
+      <td>23.001150</td>
+      <td>23.0</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>petal length (cm)</th>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3.758000</td>
+      <td>1.765298</td>
+      <td>150</td>
+      <td>...</td>
+      <td>5.8</td>
+      <td>6.1</td>
+      <td>6.7</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>43.000004</td>
+      <td>43.002151</td>
+      <td>43.0</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>sepal length (cm)</th>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.843333</td>
+      <td>0.828066</td>
+      <td>150</td>
+      <td>...</td>
+      <td>6.9</td>
+      <td>7.3</td>
+      <td>7.7</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>35.000003</td>
+      <td>35.001750</td>
+      <td>35.0</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+  </tbody>
+</table>
 <p>5 rows × 28 columns</p>
 </div></div>
 </div>
@@ -1003,7 +1012,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">log_profile</span><span class="p">(</span><span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">profile_result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
-    <span class="n">profile_result</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">"mlflow"</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+    <span class="n">profile_result</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;mlflow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1031,7 +1040,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mlruns/0/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/artifacts/whylogs"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mlruns/0/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/artifacts/whylogs&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1041,7 +1050,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-['whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin']
+[&#39;whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin&#39;]
 </pre></div></div>
 </div>
 <p>And we can even use <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>’s API to fetch and read back our profile, like:</p>
@@ -1053,10 +1062,10 @@ div.rendered_html tbody tr:hover {
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
 
-<span class="n">local_dir</span> <span class="o">=</span> <span class="s2">"/tmp/artifact_downloads"</span>
+<span class="n">local_dir</span> <span class="o">=</span> <span class="s2">&quot;/tmp/artifact_downloads&quot;</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">local_dir</span><span class="p">):</span>
     <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">local_dir</span><span class="p">)</span>
-<span class="n">local_path</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">"whylogs"</span><span class="p">,</span> <span class="n">local_dir</span><span class="p">)</span>
+<span class="n">local_path</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">&quot;whylogs&quot;</span><span class="p">,</span> <span class="n">local_dir</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1074,14 +1083,14 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-['whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin']
+[&#39;whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin&#39;]
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1099,7 +1108,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -1112,180 +1121,180 @@ div.rendered_html tbody tr:hover {
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>distribution/q_95</th>
-<th>distribution/q_99</th>
-<th>type</th>
-<th>ints/max</th>
-<th>ints/min</th>
-<th>frequent_items/frequent_strings</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>petal length (cm)</th>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>43.000004</td>
-<td>43.002151</td>
-<td>43.0</td>
-<td>...</td>
-<td>1.6</td>
-<td>4.4</td>
-<td>5.1</td>
-<td>5.8</td>
-<td>6.1</td>
-<td>6.7</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>petal width (cm)</th>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>22.000001</td>
-<td>22.001100</td>
-<td>22.0</td>
-<td>...</td>
-<td>0.3</td>
-<td>1.3</td>
-<td>1.8</td>
-<td>2.2</td>
-<td>2.3</td>
-<td>2.5</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>sepal length (cm)</th>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>35.000003</td>
-<td>35.001750</td>
-<td>35.0</td>
-<td>...</td>
-<td>5.1</td>
-<td>5.8</td>
-<td>6.4</td>
-<td>6.9</td>
-<td>7.3</td>
-<td>7.7</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>sepal width (cm)</th>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>23.000001</td>
-<td>23.001150</td>
-<td>23.0</td>
-<td>...</td>
-<td>2.8</td>
-<td>3.0</td>
-<td>3.3</td>
-<td>3.7</td>
-<td>3.8</td>
-<td>4.2</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>target</th>
-<td>150</td>
-<td>0</td>
-<td>150</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>3.000000</td>
-<td>3.000150</td>
-<td>3.0</td>
-<td>...</td>
-<td>0.0</td>
-<td>1.0</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>2.0</td>
-<td>SummaryType.COLUMN</td>
-<td>2.0</td>
-<td>0.0</td>
-<td>[FrequentItem(value='0.000000', est=50, upper=...</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>type</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+      <th>frequent_items/frequent_strings</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>petal length (cm)</th>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>43.000004</td>
+      <td>43.002151</td>
+      <td>43.0</td>
+      <td>...</td>
+      <td>1.6</td>
+      <td>4.4</td>
+      <td>5.1</td>
+      <td>5.8</td>
+      <td>6.1</td>
+      <td>6.7</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>petal width (cm)</th>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22.000001</td>
+      <td>22.001100</td>
+      <td>22.0</td>
+      <td>...</td>
+      <td>0.3</td>
+      <td>1.3</td>
+      <td>1.8</td>
+      <td>2.2</td>
+      <td>2.3</td>
+      <td>2.5</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>sepal length (cm)</th>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>35.000003</td>
+      <td>35.001750</td>
+      <td>35.0</td>
+      <td>...</td>
+      <td>5.1</td>
+      <td>5.8</td>
+      <td>6.4</td>
+      <td>6.9</td>
+      <td>7.3</td>
+      <td>7.7</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>sepal width (cm)</th>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>23.000001</td>
+      <td>23.001150</td>
+      <td>23.0</td>
+      <td>...</td>
+      <td>2.8</td>
+      <td>3.0</td>
+      <td>3.3</td>
+      <td>3.7</td>
+      <td>3.8</td>
+      <td>4.2</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>target</th>
+      <td>150</td>
+      <td>0</td>
+      <td>150</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3.000000</td>
+      <td>3.000150</td>
+      <td>3.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>[FrequentItem(value='0.000000', est=50, upper=...</td>
+    </tr>
+  </tbody>
+</table>
 <p>5 rows × 28 columns</p>
 </div></div>
 </div>

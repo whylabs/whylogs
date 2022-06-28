@@ -13,10 +13,10 @@
 <meta property="og:description" content="Open in Colab Hi! Perhaps you’re already feeling confident with our library, but you really wish there was an easy way to plug our profiling into your existing PySpark jobs. Well, glad you’ve made ..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="MLflow Logging" href="Mlflow_Logging.html" /><link rel="prev" title="Writing profiles" href="Writing_Profiles.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>PySpark Integration - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
@@ -319,7 +319,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -548,6 +549,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -556,10 +558,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -571,19 +577,22 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
 <section id="PySpark-Integration">
 <h1>PySpark Integration<a class="headerlink" href="#PySpark-Integration" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Pyspark_Profiling.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a></p>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Pyspark_Profiling.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p>Hi! Perhaps you’re already feeling confident with our library, but you really wish there was an easy way to plug our profiling into your existing PySpark jobs. Well, glad you’ve made it here, because this is what we are going to cover in this example notebook 😃</p>
 <p>If you wish to have other insights on how to use whylogs, feel free to check our <a class="reference external" href="https://github.com/whylabs/whylogs/tree/mainline/python/examples">other existing examples</a>, as they might be extremely useful!</p>
 <section id="Installing-the-extra-dependency">
@@ -593,7 +602,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install "whylogs[spark]"
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install &quot;whylogs[spark]&quot;
 </pre></div>
 </div>
 </div>
@@ -616,9 +625,9 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s1">'whylogs-testing'</span><span class="p">)</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
-<span class="n">arrow_config_key</span> <span class="o">=</span> <span class="s2">"spark.sql.execution.arrow.pyspark.enabled"</span>
-<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">arrow_config_key</span><span class="p">,</span> <span class="s2">"true"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s1">&#39;whylogs-testing&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+<span class="n">arrow_config_key</span> <span class="o">=</span> <span class="s2">&quot;spark.sql.execution.arrow.pyspark.enabled&quot;</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">arrow_config_key</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -632,7 +641,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkFiles</span>
 
-<span class="n">data_url</span> <span class="o">=</span> <span class="s2">"http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"</span>
+<span class="n">data_url</span> <span class="o">=</span> <span class="s2">&quot;http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv&quot;</span>
 <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span><span class="o">.</span><span class="n">addFile</span><span class="p">(</span><span class="n">data_url</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -641,7 +650,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">"delimiter"</span><span class="p">,</span> <span class="s2">";"</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">"inferSchema"</span><span class="p">,</span> <span class="s2">"true"</span><span class="p">)</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">SparkFiles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"winequality-red.csv"</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark_dataframe</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;delimiter&quot;</span><span class="p">,</span> <span class="s2">&quot;;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;inferSchema&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">SparkFiles</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;winequality-red.csv&quot;</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -749,7 +758,7 @@ root
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{'alcohol': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d240e20&gt;, 'chlorides': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d29ec70&gt;, 'citric acid': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a2d00&gt;, 'density': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a6d90&gt;, 'fixed acidity': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a3e20&gt;, 'free sulfur dioxide': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2aaeb0&gt;, 'pH': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2adf40&gt;, 'quality': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2b7100&gt;, 'residual sugar': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2b7d60&gt;, 'sulphates': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2bddf0&gt;, 'total sulfur dioxide': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2c0d90&gt;, 'volatile acidity': &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2c4e20&gt;}
+{&#39;alcohol&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d240e20&gt;, &#39;chlorides&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d29ec70&gt;, &#39;citric acid&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a2d00&gt;, &#39;density&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a6d90&gt;, &#39;fixed acidity&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2a3e20&gt;, &#39;free sulfur dioxide&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2aaeb0&gt;, &#39;pH&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2adf40&gt;, &#39;quality&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2b7100&gt;, &#39;residual sugar&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2b7d60&gt;, &#39;sulphates&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2bddf0&gt;, &#39;total sulfur dioxide&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2c0d90&gt;, &#39;volatile acidity&#39;: &lt;whylogs.core.view.column_profile_view.ColumnProfileView object at 0x11d2c4e20&gt;}
 </pre></div></div>
 </div>
 <p>It is a dictionary with one <code class="docutils literal notranslate"><span class="pre">ColumnProfileView</span></code> object per column in your dataset. And we can inspect some of the metrics on each one of them, such as the counts for a given column</p>
@@ -757,7 +766,7 @@ root
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">column_views_dict</span><span class="p">[</span><span class="s2">"density"</span><span class="p">]</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">"counts"</span><span class="p">)</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">spark_dataframe</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">column_views_dict</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">&quot;counts&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">spark_dataframe</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -775,7 +784,7 @@ root
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">column_views_dict</span><span class="p">[</span><span class="s2">"density"</span><span class="p">]</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">"distribution"</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">column_views_dict</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">&quot;distribution&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span>
 </pre></div>
 </div>
 </div>
@@ -794,7 +803,7 @@ root
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">mean</span>
-<span class="n">spark_dataframe</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">mean</span><span class="p">(</span><span class="s2">"density"</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">spark_dataframe</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;density&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -844,7 +853,7 @@ root
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-<style scoped="">
+<style scoped>
     .dataframe tbody tr th:only-of-type {
         vertical-align: middle;
     }
@@ -857,180 +866,180 @@ root
         text-align: right;
     }
 </style>
-<div class="table-wrapper"><table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>counts/n</th>
-<th>counts/null</th>
-<th>types/integral</th>
-<th>types/fractional</th>
-<th>types/boolean</th>
-<th>types/string</th>
-<th>types/object</th>
-<th>cardinality/est</th>
-<th>cardinality/upper_1</th>
-<th>cardinality/lower_1</th>
-<th>...</th>
-<th>distribution/min</th>
-<th>distribution/q_10</th>
-<th>distribution/q_25</th>
-<th>distribution/median</th>
-<th>distribution/q_75</th>
-<th>distribution/q_90</th>
-<th>type</th>
-<th>ints/max</th>
-<th>ints/min</th>
-<th>frequent_items/frequent_strings</th>
-</tr>
-<tr>
-<th>column</th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>alcohol</th>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>65.000010</td>
-<td>65.003256</td>
-<td>65.000000</td>
-<td>...</td>
-<td>8.40000</td>
-<td>9.30000</td>
-<td>9.5000</td>
-<td>10.20000</td>
-<td>11.10000</td>
-<td>12.00000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>chlorides</th>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>153.000058</td>
-<td>153.007697</td>
-<td>153.000000</td>
-<td>...</td>
-<td>0.01200</td>
-<td>0.06000</td>
-<td>0.0700</td>
-<td>0.07900</td>
-<td>0.09100</td>
-<td>0.10900</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>citric acid</th>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>80.000016</td>
-<td>80.004010</td>
-<td>80.000000</td>
-<td>...</td>
-<td>0.00000</td>
-<td>0.01000</td>
-<td>0.0900</td>
-<td>0.26000</td>
-<td>0.43000</td>
-<td>0.53000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>density</th>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>439.557368</td>
-<td>445.310933</td>
-<td>433.943761</td>
-<td>...</td>
-<td>0.99007</td>
-<td>0.99451</td>
-<td>0.9956</td>
-<td>0.99675</td>
-<td>0.99786</td>
-<td>0.99914</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-<tr>
-<th>fixed acidity</th>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>1599</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>96.000023</td>
-<td>96.004816</td>
-<td>96.000000</td>
-<td>...</td>
-<td>4.60000</td>
-<td>6.60000</td>
-<td>7.1000</td>
-<td>7.90000</td>
-<td>9.20000</td>
-<td>10.70000</td>
-<td>SummaryType.COLUMN</td>
-<td>NaN</td>
-<td>NaN</td>
-<td>NaN</td>
-</tr>
-</tbody>
-</table></div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>types/integral</th>
+      <th>types/fractional</th>
+      <th>types/boolean</th>
+      <th>types/string</th>
+      <th>types/object</th>
+      <th>cardinality/est</th>
+      <th>cardinality/upper_1</th>
+      <th>cardinality/lower_1</th>
+      <th>...</th>
+      <th>distribution/min</th>
+      <th>distribution/q_10</th>
+      <th>distribution/q_25</th>
+      <th>distribution/median</th>
+      <th>distribution/q_75</th>
+      <th>distribution/q_90</th>
+      <th>type</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+      <th>frequent_items/frequent_strings</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>alcohol</th>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>65.000010</td>
+      <td>65.003256</td>
+      <td>65.000000</td>
+      <td>...</td>
+      <td>8.40000</td>
+      <td>9.30000</td>
+      <td>9.5000</td>
+      <td>10.20000</td>
+      <td>11.10000</td>
+      <td>12.00000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>chlorides</th>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>153.000058</td>
+      <td>153.007697</td>
+      <td>153.000000</td>
+      <td>...</td>
+      <td>0.01200</td>
+      <td>0.06000</td>
+      <td>0.0700</td>
+      <td>0.07900</td>
+      <td>0.09100</td>
+      <td>0.10900</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>citric acid</th>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>80.000016</td>
+      <td>80.004010</td>
+      <td>80.000000</td>
+      <td>...</td>
+      <td>0.00000</td>
+      <td>0.01000</td>
+      <td>0.0900</td>
+      <td>0.26000</td>
+      <td>0.43000</td>
+      <td>0.53000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>density</th>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>439.557368</td>
+      <td>445.310933</td>
+      <td>433.943761</td>
+      <td>...</td>
+      <td>0.99007</td>
+      <td>0.99451</td>
+      <td>0.9956</td>
+      <td>0.99675</td>
+      <td>0.99786</td>
+      <td>0.99914</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>fixed acidity</th>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1599</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>96.000023</td>
+      <td>96.004816</td>
+      <td>96.000000</td>
+      <td>...</td>
+      <td>4.60000</td>
+      <td>6.60000</td>
+      <td>7.1000</td>
+      <td>7.90000</td>
+      <td>9.20000</td>
+      <td>10.70000</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
 <p>5 rows × 24 columns</p>
 </div></div>
 </div>
@@ -1042,7 +1051,7 @@ root
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"my_super_awesome_profile.bin"</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;my_super_awesome_profile.bin&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

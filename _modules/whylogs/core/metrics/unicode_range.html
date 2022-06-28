@@ -4,10 +4,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <meta name="generator" content="sphinx-4.3.2, furo 2022.04.07"/>
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs.core.metrics.unicode_range - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=68f4518137b9aefe99b631505a2064c3c42c9852" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/tabs.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css" />
@@ -310,7 +310,8 @@
           </svg>
           <span>Back to top</span>
         </a>
-        <div class="content-icon-container"><div class="theme-toggle-container theme-toggle-content">
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle">
               <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
               <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
@@ -340,15 +341,15 @@
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricMessage</span>
 
-<span class="n">ColumnSchema</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="s2">"ColumnSchema"</span>  <span class="c1"># type: ignore</span>
+<span class="n">ColumnSchema</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="s2">&quot;ColumnSchema&quot;</span>  <span class="c1"># type: ignore</span>
 
 
-<span class="n">_STRING_LENGTH</span> <span class="o">=</span> <span class="s2">"string_length"</span>
+<span class="n">_STRING_LENGTH</span> <span class="o">=</span> <span class="s2">&quot;string_length&quot;</span>
 
 
 <div class="viewcode-block" id="UnicodeRangeMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/unicode_range/index.html#whylogs.core.metrics.UnicodeRangeMetric">[docs]</a><span class="nd">@dataclass</span>
 <span class="k">class</span> <span class="nc">UnicodeRangeMetric</span><span class="p">(</span><span class="n">CompoundMetric</span><span class="p">):</span>
-    <span class="sd">"""</span>
+    <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For string values, maintains a DistributionMetric for the counts of</span>
 <span class="sd">    characters that fall within user-defined codepoint ranges.</span>
 
@@ -359,23 +360,23 @@
 <span class="sd">         the range name and should only contain alphanumeric, hyphen, and</span>
 <span class="sd">         underscore characters. The tuple defines the Unicode codepoint</span>
 <span class="sd">         range to be tracked. The string length is tracked under the key</span>
-<span class="sd">         "STRING_LENGTH" so don't use that as a range name.</span>
-<span class="sd">    """</span>
+<span class="sd">         &quot;STRING_LENGTH&quot; so don&#39;t use that as a range name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">range_definitions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="p">[</span><span class="s2">"UNKNOWN"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># catchall for characters not in a defined range</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="p">[</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># catchall for characters not in a defined range</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="nb">range</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid codepoint range </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid codepoint range </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="mh">0x10FFFF</span> <span class="o">&lt;</span> <span class="nb">range</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid codepoint range </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s2">":"</span> <span class="ow">in</span> <span class="n">key</span> <span class="ow">or</span> <span class="s2">"/"</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid range name </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid codepoint range </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">key</span> <span class="ow">or</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid range name </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">_STRING_LENGTH</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"STRING_LENGTH cannot be used as a range name"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;STRING_LENGTH cannot be used as a range name&quot;</span><span class="p">)</span>
 
         <span class="n">submetrics</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">DistributionMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">())</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
         <span class="n">submetrics</span><span class="p">[</span><span class="n">_STRING_LENGTH</span><span class="p">]</span> <span class="o">=</span> <span class="n">DistributionMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">())</span>
@@ -383,9 +384,9 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">"unicode_range"</span>
+        <span class="k">return</span> <span class="s2">&quot;unicode_range&quot;</span>
 
-<div class="viewcode-block" id="UnicodeRangeMetric.merge"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/unicode_range/index.html#whylogs.core.metrics.UnicodeRangeMetric.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"UnicodeRangeMetric"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"UnicodeRangeMetric"</span><span class="p">:</span>
+<div class="viewcode-block" id="UnicodeRangeMetric.merge"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/unicode_range/index.html#whylogs.core.metrics.UnicodeRangeMetric.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;UnicodeRangeMetric&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;UnicodeRangeMetric&quot;</span><span class="p">:</span>
         <span class="n">submetrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_submetrics</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">UnicodeRangeMetric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="p">)</span>
         <span class="n">result</span><span class="o">.</span><span class="n">submetrics</span> <span class="o">=</span> <span class="n">submetrics</span>
@@ -402,14 +403,14 @@
             <span class="n">lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
             <span class="n">range_counter</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">range_name</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">range_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
             <span class="c1"># TODO: need to transform to utf-32 or handle surrogates</span>
-            <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">"NFD"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFD&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">for</span> <span class="n">range_name</span><span class="p">,</span> <span class="n">range_limits</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_definitions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">range_limits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">range_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
                         <span class="n">range_counter</span><span class="p">[</span><span class="n">range_name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                         <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
-                    <span class="n">range_counter</span><span class="p">[</span><span class="s2">"UNKNOWN"</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">range_counter</span><span class="p">[</span><span class="s2">&quot;UNKNOWN&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="k">for</span> <span class="n">range_name</span><span class="p">,</span> <span class="n">range_count</span> <span class="ow">in</span> <span class="n">range_counter</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">range_data</span><span class="p">[</span><span class="n">range_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">range_count</span><span class="p">)</span>
@@ -423,13 +424,13 @@
         <span class="k">return</span> <span class="n">OperationResult</span><span class="o">.</span><span class="n">ok</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="UnicodeRangeMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/unicode_range/index.html#whylogs.core.metrics.UnicodeRangeMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"UnicodeRangeMetric"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;UnicodeRangeMetric&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">unicode_ranges</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="UnicodeRangeMetric.from_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/unicode_range/index.html#whylogs.core.metrics.UnicodeRangeMetric.from_protobuf">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">MetricMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"UnicodeRangeMetric"</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">MetricMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;UnicodeRangeMetric&quot;</span><span class="p">:</span>
         <span class="n">submetrics</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">submetrics_from_protobuf</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="c1"># The MetricMessage doesn't contain the range definitions, so we preserve</span>
+        <span class="c1"># The MetricMessage doesn&#39;t contain the range definitions, so we preserve</span>
         <span class="c1"># the range names with empty bounds</span>
         <span class="n">ranges</span> <span class="o">=</span> <span class="p">{</span><span class="n">sub_name</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_name</span> <span class="ow">in</span> <span class="n">submetrics</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
         <span class="k">del</span> <span class="n">ranges</span><span class="p">[</span><span class="n">_STRING_LENGTH</span><span class="p">]</span>
