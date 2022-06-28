@@ -125,7 +125,7 @@ class PreprocessedColumn:
         # if non_null_series is empty, then early exit.
         # this fixes a bug where empty columns produce masks of types other than bool
         # and DatetimeArrays do not support | operator for example.
-        if non_null_series.count() == 0:
+        if non_null_series.empty:
             return
 
         if issubclass(series.dtype.type, str):
