@@ -15,6 +15,7 @@ INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulong
 DATETIME_TYPES = [np.datetime64, pd.Timestamp]
 TIMEDELTA_TYPES = ["timedelta64[s]", "timedelta64[ms]"]
 
+
 def test_basic_log() -> None:
     d = {"col1": [1, 2], "col2": [3.0, 4.0], "col3": ["a", "b"]}
     df = pd.DataFrame(data=d)
@@ -215,8 +216,8 @@ def test_frequent_items_disabled() -> None:
 
 def test_key_error() -> None:
     data = {
-        "emptyDates": ["NaT","NaT"],
+        "emptyDates": ["NaT", "NaT"],
     }
-    df = pd.DataFrame(data, dtype='datetime64[ns]')
+    df = pd.DataFrame(data, dtype="datetime64[ns]")
     results = why.log(df)
     assert results is not None
