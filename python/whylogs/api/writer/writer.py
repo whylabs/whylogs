@@ -11,12 +11,19 @@ class Writable(ABC):
     @staticmethod
     def _safe_open_write(path):
         """Open `path` for writing, creating any parent directories as needed."""
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        return open(path, 'w')
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+        except FileExistsError:
+            pass
+        return open(path, "w")
 
     @abstractmethod
-    def write(self, path: Optional[str] = None, **kwargs: Any):
+    def write(self, **kwargs):
         pass
+
+    @abstractmethod
+    def option(self, **kwargs):
+        return self
 
 
 class Writer(Writable, ABC):
@@ -30,11 +37,12 @@ class Writer(Writable, ABC):
 
     @abstractmethod
     def write(
-        self, 
-        file: Optional[Writable] = None, 
-        profile: Optional[DatasetProfileView] = None, 
-        dest: Optional[str] = None
-        ) -> None:
+        self,
+        file: Optional[Writable] = None,
+        profile: Optional[DatasetProfileView] = None,
+        dest: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         pass
 
     @abstractmethod

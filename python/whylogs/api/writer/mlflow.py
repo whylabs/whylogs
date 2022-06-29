@@ -1,12 +1,12 @@
-import os
 import logging
+import os
 from tempfile import mkdtemp
 from typing import Optional
 
 import mlflow
 
-from whylogs.api.writer.writer import Writable
 from whylogs.api.writer import Writer
+from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,13 @@ class MlflowWriter(Writer):
         self._profile_name = "whylogs_profile"
         self._end_run = True
 
-    def write(self, file: Optional[Writable] = None, profile: Optional[DatasetProfileView] = None) -> None:
+    def write(
+        self,
+        file: Optional[Writable] = None,
+        profile: Optional[DatasetProfileView] = None,
+        dest: Optional[str] = None,
+        **kwargs,
+    ) -> None:
         if profile:
             logger.warn("You should use `file` instead", DeprecationWarning)
             file = profile
@@ -27,17 +33,14 @@ class MlflowWriter(Writer):
         self._run_id = run.info.run_id
 
         output = self._get_temp_directory(run_id=self._run_id)
-        file.write(path=output)
+        file.write(path=output)  # type: ignore
         mlflow.log_artifact(output, artifact_path=self._profile_dir)
 
         if self._end_run:
             mlflow.end_run()
 
     def option(
-        self, 
-        profile_name: Optional[str] = None, 
-        profile_dir: Optional[str] = None, 
-        end_run: Optional[bool] = None
+        self, profile_name: Optional[str] = None, profile_dir: Optional[str] = None, end_run: Optional[bool] = None
     ) -> None:
         if end_run:
             self._end_run = end_run

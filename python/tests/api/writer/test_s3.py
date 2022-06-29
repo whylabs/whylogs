@@ -29,3 +29,10 @@ class TestS3Writer(object):
         writer = S3Writer()
         objects = writer.s3_client.list_objects(Bucket=BUCKET_NAME)
         assert tmp_path.name in [obj["Key"] for obj in objects.get("Contents", [])]
+
+    def test_s3_writer_with_html_report(self, html_report, tmp_path):
+        html_report.writer("s3").option(bucket_name=BUCKET_NAME).write(dest=tmp_path.name)
+
+        writer = S3Writer()
+        objects = writer.s3_client.list_objects(Bucket=BUCKET_NAME)
+        assert tmp_path.name in [obj["Key"] for obj in objects.get("Contents", [])]

@@ -1,3 +1,5 @@
+import os
+import shutil
 from unittest.mock import Mock
 
 import pytest
@@ -6,6 +8,10 @@ from whylogs.api.writer.local import LocalWriter
 
 
 class TestLocalWriter(object):
+    @classmethod
+    def teardown_class(cls):
+        shutil.rmtree(os.path.join(os.getcwd(), "html_reports/"))
+
     @pytest.fixture
     def local_writer(self):
         writer = LocalWriter(base_dir="test_dir", base_name="test_name")
@@ -27,3 +33,7 @@ class TestLocalWriter(object):
     def test_should_write_to_defined_destination(self, local_writer, mocked_profile_view):
         local_writer.write(profile=mocked_profile_view, dest="some_dest.bin")
         mocked_profile_view.write.assert_called_once_with("test_dir/some_dest.bin")
+
+    def test_should_write_html_report_locally(self, html_report):
+        html_report.writer("local").write()
+        assert os.path.isfile(os.path.join(os.getcwd(), "html_reports/ProfileViz.html"))

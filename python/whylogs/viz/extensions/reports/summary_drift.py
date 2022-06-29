@@ -1,12 +1,11 @@
 import logging
 from typing import Optional
 
-
 from whylogs import DatasetProfileView
 from whylogs.viz.enums.enums import PageSpecEnum
+from whylogs.viz.extensions.reports.html_report import HTMLReport
 from whylogs.viz.utils.html_template_utils import get_compiled_template
 from whylogs.viz.utils.profile_viz_calculations import generate_summaries
-from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 logger = logging.getLogger(__name__)
 
@@ -23,4 +22,3 @@ class SummaryDriftReport(HTMLReport):
         rendered_template = template(profiles_summary)
         summary_drift_report = self.display(rendered_template, page_spec)
         return summary_drift_report.data
-
