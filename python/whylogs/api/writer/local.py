@@ -5,6 +5,7 @@ from typing import Optional
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
+from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 logger = logging.getLogger(__name__)
 
@@ -27,12 +28,12 @@ class LocalWriter(Writer):
         **kwargs,
     ) -> None:
         if profile:
-            logger.warning("You should use `file` instead", DeprecationWarning)
+            logger.warning("`profile will be deprecated, you should use `file` instead")
             file = profile
-        if isinstance(file, DatasetProfileView) and dest is None:
-            dest = f"{self._base_name}_{profile.creation_timestamp}.bin"
-        elif dest is None:
+        if isinstance(file, HTMLReport) and dest is None:
             dest = "html_reports/ProfileViz.html"
+        elif dest is None:
+            dest = f"{self._base_name}_{profile.creation_timestamp}.bin"
         full_path = os.path.join(self._base_dir, dest)
         file.write(full_path)  # type: ignore
 

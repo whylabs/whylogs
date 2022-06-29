@@ -1,9 +1,10 @@
 import os
 import shutil
-from unittest.mock import Mock
+from unittest.mock import MagicMock
 
 import pytest
 
+from whylogs import DatasetProfileView
 from whylogs.api.writer.local import LocalWriter
 
 
@@ -19,9 +20,9 @@ class TestLocalWriter(object):
 
     @pytest.fixture
     def mocked_profile_view(self):
-        profile_view = Mock()
-        profile_view.write = Mock()
-        profile_view.creation_timestamp = Mock()
+        profile_view = MagicMock(wraps=DatasetProfileView)
+        profile_view.write = MagicMock()
+        profile_view.creation_timestamp = MagicMock()
         return profile_view
 
     def test_should_write_to_default_dir_if_dest_is_none(self, local_writer, mocked_profile_view):

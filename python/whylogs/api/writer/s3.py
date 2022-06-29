@@ -10,6 +10,7 @@ from botocore.exceptions import ClientError
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
+from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 logger = logging.getLogger(__name__)
 
@@ -72,12 +73,13 @@ class S3Writer(Writer):
         **kwargs,
     ) -> None:
         if profile:
-            logger.warning("You should use `file` instead", DeprecationWarning)
+            logger.warning("`profile will be deprecated in future versions, use `file` instead")
             file = profile
-        if isinstance(file, DatasetProfileView) and dest is None:
-            dest = f"{self.base_prefix}_{profile.creation_timestamp}.bin"
-        elif dest is None:
+        if isinstance(file, HTMLReport) and dest is None:
             dest = "html_reports/ProfileReport.html"
+        elif dest is None:
+            dest = f"{self.base_prefix}_{profile.creation_timestamp}.bin"
+
         if self.object_name is None:
             self.object_name = os.path.basename(dest)
 

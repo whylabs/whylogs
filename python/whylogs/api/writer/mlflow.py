@@ -26,7 +26,7 @@ class MlflowWriter(Writer):
         **kwargs,
     ) -> None:
         if profile:
-            logger.warn("You should use `file` instead", DeprecationWarning)
+            logger.warning("`profile` will be deprecated in the future, use `file` instead")
             file = profile
 
         run = mlflow.active_run() or mlflow.start_run()
