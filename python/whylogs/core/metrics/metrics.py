@@ -3,7 +3,7 @@ import math
 import statistics
 import sys
 from abc import ABC, abstractmethod
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Tuple, Type, TypeVar, Union
 
 import whylogs_sketching as ds  # type: ignore
@@ -41,15 +41,17 @@ class MetricConfig:
     fi_lg_max_k: int = 10  # 128 entries
     fi_disabled: bool = False
     track_unicode_ranges: bool = False
-    unicode_ranges = {
-        "emoticon": (0x1F600, 0x1F64F),
-        "control": (0x00, 0x1F),
-        "digits": (0x30, 0x39),
-        "latin-lower": (0x41, 0x5A),
-        "latin-upper": (0x61, 0x7A),
-        "basic-latin": (0x00, 0x7F),
-        "extended-latin": (0x0080, 0x02AF),
-    }
+    unicode_ranges: Dict[str, Tuple[int, int]] = field(
+        default_factory=lambda: {
+            "emoticon": (0x1F600, 0x1F64F),
+            "control": (0x00, 0x1F),
+            "digits": (0x30, 0x39),
+            "latin-lower": (0x41, 0x5A),
+            "latin-upper": (0x61, 0x7A),
+            "basic-latin": (0x00, 0x7F),
+            "extended-latin": (0x0080, 0x02AF),
+        }
+    )
 
 
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
