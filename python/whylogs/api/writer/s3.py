@@ -1,7 +1,7 @@
 import logging
 import os
 import tempfile
-from typing import Optional
+from typing import Optional, Union
 
 import boto3
 from botocore.client import BaseClient
@@ -10,6 +10,7 @@ from botocore.exceptions import ClientError
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
+from whylogs.core.utils import deprecated_alias
 from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 logger = logging.getLogger(__name__)
@@ -65,21 +66,19 @@ class S3Writer(Writer):
         self.bucket_name = bucket_name or None
         self.object_name = object_name or None
 
+    @deprecated_alias(profile="file")
     def write(
         self,
-        file: Optional[Writable] = None,
-        profile: Optional[DatasetProfileView] = None,
+        file: Optional[Union[Writable, DatasetProfileView]] = None,
         dest: Optional[str] = None,
         **kwargs,
     ) -> None:
-        if profile:
-            logger.warning("`profile will be deprecated in future versions, use `file` instead")
-            file = profile
         if isinstance(file, HTMLReport) and dest is None:
-            dest = "html_reports/ProfileReport.html"
+            dest = "html_reports/ProfileViz.html"
+        elif isinstance(file, DatasetProfileView) and dest is None:
+            dest = f"{self.base_prefix}_{file.creation_timestamp}.bin"  # type: ignore
         elif dest is None:
-            dest = f"{self.base_prefix}_{profile.creation_timestamp}.bin"
-
+            dest = "writable_file"
         if self.object_name is None:
             self.object_name = os.path.basename(dest)
 

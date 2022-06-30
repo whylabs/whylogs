@@ -6,7 +6,7 @@ from IPython.core.display import HTML
 
 from whylogs import DatasetProfileView
 from whylogs.api.writer import Writers
-from whylogs.api.writer.writer import Writable
+from whylogs.api.writer.writer import Writable, Writer
 from whylogs.viz.enums.enums import PageSpec
 
 
@@ -37,12 +37,12 @@ class HTMLReport(Writable, ABC):
     def report(self) -> str:
         pass
 
-    def write(self, path: str) -> None:
+    def write(self, path: Optional[str] = None) -> None:
         """Create HTML file for a given report.
 
         Parameters
         ----------
-        path: str
+        path: str, optional
             The path where the HTML reports will be stored to.
 
         Examples
@@ -56,6 +56,8 @@ class HTMLReport(Writable, ABC):
             viz_profile = VizProfile(report=report)
             viz_profile.write(path="path/to/report/Report.html")
         """
+        if path is None:
+            path = "html_reports/ProfileReport.html"
         _rendered_html = self.report()
         with self._safe_open_write(path) as file:
             file.write(_rendered_html)
@@ -64,8 +66,8 @@ class HTMLReport(Writable, ABC):
         return self
 
 
-class HTMLReportWriter(Writable):
-    def __init__(self, report: HTMLReport, writer: Writable) -> None:
+class HTMLReportWriter(Writer):
+    def __init__(self, report: HTMLReport, writer: Writer) -> None:
         self._report = report
         self._writer = writer
 

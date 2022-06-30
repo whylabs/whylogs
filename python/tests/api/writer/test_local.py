@@ -20,7 +20,7 @@ class TestLocalWriter(object):
 
     @pytest.fixture
     def mocked_profile_view(self):
-        profile_view = MagicMock(wraps=DatasetProfileView)
+        profile_view = MagicMock(spec=DatasetProfileView)
         profile_view.write = MagicMock()
         profile_view.creation_timestamp = MagicMock()
         return profile_view

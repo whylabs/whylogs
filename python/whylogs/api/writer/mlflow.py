@@ -1,13 +1,15 @@
 import logging
 import os
 from tempfile import mkdtemp
-from typing import Optional
+from typing import Optional, Union
 
 import mlflow
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
+from whylogs.core.utils import deprecated_alias
+from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 logger = logging.getLogger(__name__)
 
@@ -18,21 +20,18 @@ class MlflowWriter(Writer):
         self._profile_name = "whylogs_profile"
         self._end_run = True
 
+    @deprecated_alias(profile="file")
     def write(
         self,
-        file: Optional[Writable] = None,
-        profile: Optional[DatasetProfileView] = None,
+        file: Optional[Union[Writable, DatasetProfileView]] = None,
         dest: Optional[str] = None,
         **kwargs,
     ) -> None:
-        if profile:
-            logger.warning("`profile` will be deprecated in the future, use `file` instead")
-            file = profile
-
         run = mlflow.active_run() or mlflow.start_run()
         self._run_id = run.info.run_id
-
-        output = self._get_temp_directory(run_id=self._run_id)
+        if isinstance(file, HTMLReport) and dest is None:
+            dest = "html_reports/ProfileViz.html"
+        output = self._get_temp_directory(run_id=self._run_id, dest=dest)
         file.write(path=output)  # type: ignore
         mlflow.log_artifact(output, artifact_path=self._profile_dir)
 
@@ -49,9 +48,12 @@ class MlflowWriter(Writer):
         if profile_name:
             self._profile_name = profile_name
 
-    def _get_temp_directory(self, run_id):
+    def _get_temp_directory(self, run_id: str, dest: Optional[str] = None):
         tmp_dir = mkdtemp()
         output_dir = os.path.join(tmp_dir, self._profile_dir)
         os.makedirs(output_dir, exist_ok=True)
-        output = os.path.join(output_dir, f"{self._profile_name}_{run_id}.bin")
+        if dest is None:
+            output = os.path.join(output_dir, f"{self._profile_name}_{run_id}.bin")
+        else:
+            output = os.path.join(output_dir, dest)
         return output

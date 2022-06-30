@@ -1,10 +1,11 @@
 import logging
 import os
-from typing import Optional
+from typing import Optional, Union
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
+from whylogs.core.utils import deprecated_alias
 from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 logger = logging.getLogger(__name__)
@@ -20,20 +21,19 @@ class LocalWriter(Writer):
         self._base_dir = base_dir
         self._base_name = base_name
 
+    @deprecated_alias(profile="file")
     def write(
         self,
-        file: Optional[Writable] = None,
-        profile: Optional[DatasetProfileView] = None,
+        file: Optional[Union[Writable, DatasetProfileView]] = None,
         dest: Optional[str] = None,
         **kwargs,
     ) -> None:
-        if profile:
-            logger.warning("`profile will be deprecated, you should use `file` instead")
-            file = profile
         if isinstance(file, HTMLReport) and dest is None:
             dest = "html_reports/ProfileViz.html"
+        elif isinstance(file, DatasetProfileView) and dest is None:
+            dest = f"{self._base_name}_{file.creation_timestamp}.bin"
         elif dest is None:
-            dest = f"{self._base_name}_{profile.creation_timestamp}.bin"
+            dest = "writable_file"
         full_path = os.path.join(self._base_dir, dest)
         file.write(full_path)  # type: ignore
 

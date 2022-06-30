@@ -13,6 +13,8 @@ from whylabs_client.rest import ForbiddenException
 from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfileView
 from whylogs.core.errors import BadConfigError
+from whylogs.core.utils import deprecated_alias
+from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
@@ -79,19 +81,23 @@ class WhyLabsWriter(Writer):
         if api_key is not None:
             self._api_key = api_key
 
-    def write(self, profile: DatasetProfileView, dataset_id: Optional[str] = None) -> Any:
+    @deprecated_alias(profile="file")
+    def write(self, file: DatasetProfileView, dataset_id: Optional[str] = None, **kwargs) -> Any:
         # check if the server supports ingesting whylogs 1.0.x profiles:
         if self._check_if_whylabs_disabled_v1_profiles():
             raise ValueError("The Whylabs writer is not yet supported on whylogs 1.0.x!")
+
+        if isinstance(file, HTMLReport):
+            raise BadConfigError("You must pass in a DatasetProfileView in order to use this writer!")
 
         if dataset_id is not None:
             self._dataset_id = dataset_id
 
         with tempfile.NamedTemporaryFile() as tmp_file:
-            profile.write(path=tmp_file.name)
+            file.write(path=tmp_file.name)
             tmp_file.flush()
 
-            dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
+            dataset_timestamp = file.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
             return self._upload_whylabs(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
 
@@ -170,7 +176,8 @@ class WhyLabsWriter(Writer):
             return result
         except ForbiddenException as e:
             logger.exception(
-                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to {self.whylabs_api_endpoint} with API token ID: {self._api_key[:10]}"
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to"
+                f"{self.whylabs_api_endpoint} with API token ID: {self._api_key[:10]} "
             )
             raise e
 

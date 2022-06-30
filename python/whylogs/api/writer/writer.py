@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Optional, TypeVar
+from typing import Any, Optional, TypeVar, Union
 
 from whylogs.core import DatasetProfileView
 
@@ -26,8 +26,7 @@ class Writable(ABC):
         return self
 
 
-class Writer(Writable, ABC):
-
+class Writer(ABC):
     # noinspection PyMethodMayBeStatic
     def check_interval(self, interval_seconds: int) -> None:
         """Validate an interval configuration for a given writer.
@@ -38,8 +37,7 @@ class Writer(Writable, ABC):
     @abstractmethod
     def write(
         self,
-        file: Optional[Writable] = None,
-        profile: Optional[DatasetProfileView] = None,
+        file: Union[Writable, DatasetProfileView],
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
