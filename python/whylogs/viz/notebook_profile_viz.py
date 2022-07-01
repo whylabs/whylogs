@@ -94,7 +94,7 @@ class NotebookProfileVisualizer:
     _target_view: DatasetProfileView
 
     @staticmethod
-    def _display(template: str, page_spec: PageSpec, height: Optional[str]) -> HTML:
+    def _display(template: str, page_spec: PageSpec, height: Optional[str]) -> "HTML":
         if not height:
             height = page_spec.height
         iframe = f"""<div></div><iframe srcdoc="{html.escape(template)}" width=100% height={height}
@@ -402,7 +402,6 @@ class NotebookProfileVisualizer:
     def write(
         rendered_html: HTML,
         preferred_path: Optional[str] = None,  # type: ignore
-        path: Optional[str] = None,
         html_file_name: Optional[str] = None,  # type: ignore
     ) -> None:
         """Create HTML file for a given report.
@@ -430,15 +429,10 @@ class NotebookProfileVisualizer:
 
 
         """
-        if preferred_path:
-            path = preferred_path
-            logger.warn(
-                "`preferred_path` will be deprecated in future versions. Use `path` instead", DeprecationWarning
-            )
         if not html_file_name:
             html_file_name = "ProfileVisualizer"
-        if path:
-            full_path = os.path.join(os.path.expanduser(path), str(html_file_name) + ".html")
+        if preferred_path:
+            full_path = os.path.join(os.path.expanduser(preferred_path), str(html_file_name) + ".html")
         else:
             full_path = os.path.join(os.pardir, "html_reports", str(html_file_name) + ".html")
 

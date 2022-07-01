@@ -5,5 +5,4 @@ from whylogs.viz.notebook_profile_viz import NotebookProfileVisualizer
 __ALL__ = [
     # column
     NotebookProfileVisualizer,
-    IPython,
 ]

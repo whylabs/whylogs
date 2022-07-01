@@ -14,7 +14,6 @@ from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfileView
 from whylogs.core.errors import BadConfigError
 from whylogs.core.utils import deprecated_alias
-from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
@@ -87,7 +86,7 @@ class WhyLabsWriter(Writer):
         if self._check_if_whylabs_disabled_v1_profiles():
             raise ValueError("The Whylabs writer is not yet supported on whylogs 1.0.x!")
 
-        if isinstance(file, HTMLReport):
+        if not isinstance(file, DatasetProfileView):
             raise BadConfigError("You must pass in a DatasetProfileView in order to use this writer!")
 
         if dataset_id is not None:

@@ -6,7 +6,6 @@ from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
 from whylogs.core.utils import deprecated_alias
-from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +14,6 @@ class LocalWriter(Writer):
     def __init__(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> None:
         if base_dir is None:
             base_dir = os.getcwd()
-        if base_name is None:
-            base_name = "profile"
-
         self._base_dir = base_dir
         self._base_name = base_name
 
@@ -28,12 +24,7 @@ class LocalWriter(Writer):
         dest: Optional[str] = None,
         **kwargs,
     ) -> None:
-        if isinstance(file, HTMLReport) and dest is None:
-            dest = "html_reports/ProfileViz.html"
-        elif isinstance(file, DatasetProfileView) and dest is None:
-            dest = f"{self._base_name}_{file.creation_timestamp}.bin"
-        elif dest is None:
-            dest = "writable_file"
+        dest = dest or self._base_name or file.get_default_path()  # type: ignore
         full_path = os.path.join(self._base_dir, dest)
         file.write(full_path)  # type: ignore
 
