@@ -7,7 +7,6 @@ import pytest
 import requests
 import responses
 from responses import HEAD, PUT
-from whylabs_client.rest import ForbiddenException
 
 import whylogs as why
 from whylogs.api.writer import Writers
