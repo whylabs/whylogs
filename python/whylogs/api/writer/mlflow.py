@@ -21,7 +21,7 @@ class MlflowWriter(Writer):
     @deprecated_alias(profile="file")
     def write(
         self,
-        file: Optional[Writable] = None,
+        file: Writable,
         dest: Optional[str] = None,
         **kwargs,
     ) -> None:
@@ -41,11 +41,10 @@ class MlflowWriter(Writer):
     ) -> None:
         if end_run is not None:
             self._end_run = end_run
-        if file_dir is not None:
+        if file_dir:
             self._file_dir = file_dir
-        if file_name is not None:
-            self._file_name = file_name
-
+        if file_name:
+            self._file_name = file_name  # type: ignore
 
     def _get_temp_directory(self, dest: Optional[str] = None):
         tmp_dir = mkdtemp()
@@ -53,6 +52,8 @@ class MlflowWriter(Writer):
         os.makedirs(output_dir, exist_ok=True)
         if dest:
             output = os.path.join(output_dir, dest)
-        else:
+        elif self._file_name:
             output = os.path.join(output_dir, self._file_name)
+        else:
+            output = output_dir
         return output

@@ -1,7 +1,6 @@
 import logging
-import os
 import tempfile
-from typing import Optional, Union
+from typing import Optional
 
 import boto3
 from botocore.client import BaseClient
@@ -9,9 +8,7 @@ from botocore.exceptions import ClientError
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
-from whylogs.core import DatasetProfileView
 from whylogs.core.utils import deprecated_alias
-from whylogs.viz.extensions.reports.html_report import HTMLReport
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +77,7 @@ class S3Writer(Writer):
         # elif dest is None:
         #     dest = "writable_file"
         if self.object_name is None:
-            self.object_name = os.path.basename(dest)
+            self.object_name = dest
 
         try:
             with tempfile.NamedTemporaryFile() as tmp_file:

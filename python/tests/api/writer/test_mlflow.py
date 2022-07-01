@@ -58,4 +58,3 @@ class TestMlflowWriter(object):
         read_profile = why.read(path=f"{local_path}/profile_{timestamp}.bin")
         assert isinstance(read_profile, ViewResultSet)
         assert os.path.isfile(f"{local_path}/ProfileReport.html")
-
