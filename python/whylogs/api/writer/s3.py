@@ -69,16 +69,16 @@ class S3Writer(Writer):
     @deprecated_alias(profile="file")
     def write(
         self,
-        file: Optional[Union[Writable, DatasetProfileView]] = None,
+        file: Optional[Writable] = None,
         dest: Optional[str] = None,
         **kwargs,
     ) -> None:
-        if isinstance(file, HTMLReport) and dest is None:
-            dest = "html_reports/ProfileViz.html"
-        elif isinstance(file, DatasetProfileView) and dest is None:
-            dest = f"{self.base_prefix}_{file.creation_timestamp}.bin"  # type: ignore
-        elif dest is None:
-            dest = "writable_file"
+        # if isinstance(file, HTMLReport) and dest is None:
+        #     dest = "html_reports/ProfileViz.html"
+        # elif isinstance(file, DatasetProfileView) and dest is None:
+        #     dest = f"{self.base_prefix}_{file.creation_timestamp}.bin"  # type: ignore
+        # elif dest is None:
+        #     dest = "writable_file"
         if self.object_name is None:
             self.object_name = os.path.basename(dest)
 

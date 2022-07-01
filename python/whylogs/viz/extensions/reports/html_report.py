@@ -1,6 +1,6 @@
 import html
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Optional
 
 from IPython.core.display import HTML
 
@@ -56,14 +56,17 @@ class HTMLReport(Writable, ABC):
             viz_profile = VizProfile(report=report)
             viz_profile.write(path="path/to/report/Report.html")
         """
-        if path is None:
-            path = "html_reports/ProfileReport.html"
+        path = path or self.get_default_path()
         _rendered_html = self.report()
         with self._safe_open_write(path) as file:
             file.write(_rendered_html)
 
-    def option(self, **kwargs: Any):
+    def option(self):
         return self
+
+    def get_default_path(self) -> str:
+        path = "html_reports/ProfileReport.html"
+        return path
 
 
 class HTMLReportWriter(Writer):

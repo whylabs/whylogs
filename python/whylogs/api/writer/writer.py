@@ -1,8 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Optional, TypeVar, Union
-
-from whylogs.core import DatasetProfileView
+from typing import Any, Optional, TypeVar
 
 T = TypeVar("T", bound="Writer")
 
@@ -18,12 +16,12 @@ class Writable(ABC):
         return open(path, "w")
 
     @abstractmethod
-    def write(self, **kwargs):
+    def get_default_path(self) -> str:
         pass
 
     @abstractmethod
-    def option(self, **kwargs):
-        return self
+    def write(self, **kwargs):
+        pass
 
 
 class Writer(ABC):
@@ -37,7 +35,7 @@ class Writer(ABC):
     @abstractmethod
     def write(
         self,
-        file: Union[Writable, DatasetProfileView],
+        file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> None:
