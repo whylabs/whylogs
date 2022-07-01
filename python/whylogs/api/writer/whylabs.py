@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional, Union
+from typing import Any, Optional, Tuple, Union
 
 import requests  # type: ignore
 import whylabs_client
@@ -112,10 +112,22 @@ class WhyLabsWriter(Writer):
         return False
 
     @staticmethod
-    def _check_api_key_format(input_key: str) -> bool:
-        if input_key is None or len(input_key) < 12 or input_key[11] != "." or len(input_key.split(".")) != 2:
-            return False
-        return True
+    def _check_api_key_format(input_key: str) -> Tuple[bool, Optional[str]]:
+        if input_key is None or len(input_key) < 12 or input_key[10] != "." or len(input_key.split(".")) != 2:
+            message = None
+            if input_key is None:
+                message = "api_key is None"
+            elif len(input_key) < 12:
+                message = "api_key length < 12"
+            elif input_key[11] != ".":
+                message = "api_key must have a period delimiter at index 11"
+            else:
+                delimiter_count = len(input_key.split(".")) - 1
+                message = (
+                    f"api_key must have a single period delimiter but {delimiter_count} delimiters found in string"
+                )
+            return (False, message)
+        return (True, None)
 
     def _upload_whylabs(
         self, dataset_timestamp: int, profile_path: str, upload_url: Optional[str] = None
@@ -175,10 +187,12 @@ class WhyLabsWriter(Writer):
         return request
 
     def _post_log_async(self, request, dataset_timestamp):
-        if not self._check_api_key_format(input_key=self._api_key):
+        api_key_valid, validation_message = self._check_api_key_format(input_key=self._api_key)
+        if not api_key_valid:
             api_key_id = self._api_key[:10] if self._api_key and len(self._api_key) > 11 else None
             raise ValueError(
-                f"WhyLabs API Key invalid! ID portion was: [{api_key_id}]. Upload failed for {self._org_id}/{self._dataset_id}/{dataset_timestamp}"
+                f"WhyLabs API Key invalid! Because: [{validation_message}]. ID portion was: [{api_key_id}]."
+                f" Upload failed for {self._org_id}/{self._dataset_id}/{dataset_timestamp}"
             )
 
         log_api = self._get_or_create_api_log_client()
