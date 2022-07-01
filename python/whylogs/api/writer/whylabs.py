@@ -119,8 +119,8 @@ class WhyLabsWriter(Writer):
                 message = "api_key is None"
             elif len(input_key) < 12:
                 message = "api_key length < 12"
-            elif input_key[11] != ".":
-                message = "api_key must have a period delimiter at index 11"
+            elif input_key[10] != ".":
+                message = "api_key must have a period delimiter at index 10"
             else:
                 delimiter_count = len(input_key.split(".")) - 1
                 message = (
@@ -191,7 +191,7 @@ class WhyLabsWriter(Writer):
         if not api_key_valid:
             api_key_id = self._api_key[:10] if self._api_key and len(self._api_key) > 11 else None
             raise ValueError(
-                f"WhyLabs API Key invalid! Because: [{validation_message}]. ID portion was: [{api_key_id}]."
+                f"WhyLabs API Key invalid! Because: {validation_message}. ID portion was: [{api_key_id}]."
                 f" Upload failed for {self._org_id}/{self._dataset_id}/{dataset_timestamp}"
             )
 

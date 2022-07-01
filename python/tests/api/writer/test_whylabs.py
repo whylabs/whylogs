@@ -79,9 +79,7 @@ class TestWhylabsWriter(object):
         assert writer._dataset_id == "new_dataset_id"
         assert writer._api_key == "other_api_key"
 
-    def test_api_key_prefers_env_var(self, results, caplog):
-        os.environ["WHYLABS_API_KEY"] = "01234567890.any"
-        with pytest.raises(ForbiddenException):
+    def test_api_key_prefers_parameter_over_env_var(self, results, caplog):
+        os.environ["WHYLABS_API_KEY"] = "0123456789.any"
+        with pytest.raises(ValueError):
             results.writer("whylabs").option(org_id="org_id", api_key="api_key_123.foo").write(dataset_id="dataset_id")
-        assert "Failed to upload" in caplog.text
-        assert "Updating API key ID" in caplog.text
