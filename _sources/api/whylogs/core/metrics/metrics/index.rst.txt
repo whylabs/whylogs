@@ -92,7 +92,7 @@ Attributes
       
 
    .. py:attribute:: unicode_ranges
-      
+      :annotation: :Dict[str, Tuple[int, int]]
 
       
 

@@ -4,17 +4,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="MLflow Logging" />
+<meta property="og:title" content="String Tracking - Unicode Range and String Length" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/Mlflow_Logging.html" />
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/advanced/String_Tracking.html" />
   
-<meta property="og:description" content="MLflow is an open-source model platform that can track, manage and help users deploy their models to production with a very consistent API and good software engineering practices. Whylogs users can..." />
-  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Profiling with whylogs from a Kafka topic" href="kafka-example/Kafka_Example.html" /><link rel="prev" title="PySpark Integration" href="Pyspark_Profiling.html" />
+<meta property="og:description" content="Open in Colab By default, columns of type str will have the following metrics, when logged with whylogs: - Counts - Types - Frequent Items/Frequent Strings - Cardinality In this example, we’ll see ..." />
+  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Writing profiles" href="../integrations/Writing_Profiles.html" /><link rel="prev" title="Merging Profiles" href="../basic/Merging_Profiles.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
-        <title>MLflow Logging - whylogs v1.0.2</title>
+        <title>String Tracking - Unicode Range and String Length - whylogs v1.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -193,12 +193,12 @@
 <li class="toctree-l2"><a class="reference internal" href="../basic/Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../basic/Merging_Profiles.html">Merging Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Writing_Profiles.html">Writing profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Pyspark_Profiling.html">PySpark Integration</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">MLflow Logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="kafka-example/Kafka_Example.html">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Feature_Stores_and_whylogs.html">Logging data from Feature Stores with Feast and whylogs</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">String Tracking - Unicode Range and String Length</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/Writing_Profiles.html">Writing profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/Pyspark_Profiling.html">PySpark Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/Mlflow_Logging.html">MLflow Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/kafka-example/Kafka_Example.html">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/Feature_Stores_and_whylogs.html">Logging data from Feature Stores with Feast and whylogs</a></li>
 </ul>
 </li>
 </ul>
@@ -591,61 +591,41 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="MLflow-Logging">
-<h1>MLflow Logging<a class="headerlink" href="#MLflow-Logging" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://www.mlflow.org/">MLflow</a> is an open-source model platform that can track, manage and help users deploy their models to production with a very consistent API and good software engineering practices. Whylogs users can benefit from our API to seamlessly log profiles to their Mlflow environment. Let’s see how.</p>
-<section id="Setup">
-<h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this headline">#</a></h2>
-<p>For this tutorial we will simplify the approach by using MLflow’s local client. One of MLflow’s advantages is that it uses the exact same API to work both locally and in the cloud. So with a minor setup, the code shown here can be easily extended if you’re working with MLflow in Kubernetes or in Databricks, for example. In order to get started, make sure you have both <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> and <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> installed in your environment by uncommenting the following cells:</p>
+<section id="String-Tracking---Unicode-Range-and-String-Length">
+<h1>String Tracking - Unicode Range and String Length<a class="headerlink" href="#String-Tracking---Unicode-Range-and-String-Length" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/advanced/String_Tracking.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p>By default, columns of type <code class="docutils literal notranslate"><span class="pre">str</span></code> will have the following metrics, when logged with whylogs: - Counts - Types - Frequent Items/Frequent Strings - Cardinality</p>
+<p>In this example, we’ll see how you can track further metrics for string columns. We will do that by counting, for each string record, the number of characters that fall in a given unicode range, and then generating distribution metrics, such as <code class="docutils literal notranslate"><span class="pre">mean</span></code>, <code class="docutils literal notranslate"><span class="pre">stddev</span></code> and quantile values based on these counts. In addition to specific unicode ranges, we’ll do the same approach, but for the overall string length.</p>
+<p>In this example, we’re interested in tracking two specific ranges of characters: - ASCII Digits (unicode range 48-57) - Latin alphabet (unicode range 97-122)</p>
+<p>For more info on the unicode list of characters, check this <a class="reference external" href="https://en.wikipedia.org/wiki/List_of_Unicode_characters">Wikipedia Article</a></p>
+<section id="Installing-whylogs">
+<h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
+<p>If you haven’t already, install whylogs:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install -q mlflow-skinny whylogs</span>
-</pre></div>
-</div>
-</div>
-<p>We are also installing <code class="docutils literal notranslate"><span class="pre">pandas</span></code>, <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> and <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> in order to have a very simple training example and show you how you can start profiling your training data with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>. So, if you still haven’t, also run the following cell:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install -q scikit-learn matplotlib pandas</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install whylogs</span>
 </pre></div>
 </div>
 </div>
 </section>
-<section id="Get-the-data">
-<h2>Get the data<a class="headerlink" href="#Get-the-data" title="Permalink to this headline">#</a></h2>
-<p>Now let us get an example dataset from the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> library and create a function that returns an aggregated dataframe with it. We will use this same function later on!</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_iris</span>
-
-<span class="k">def</span> <span class="nf">get_data</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-    <span class="n">iris_data</span> <span class="o">=</span> <span class="n">load_iris</span><span class="p">()</span>
-    <span class="n">dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris_data</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">iris_data</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
-    <span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">iris_data</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">dataframe</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
+<section id="Creating-the-Data">
+<h2>Creating the Data<a class="headerlink" href="#Creating-the-Data" title="Permalink to this headline">#</a></h2>
+<p>Let’s create a simple dataframe to demonstrate. To better visualize how the metrics work, we’ll create 3 columns: - <code class="docutils literal notranslate"><span class="pre">onlyDigits</span></code>: Column of strings that contain only digit characters - <code class="docutils literal notranslate"><span class="pre">onlyAlpha</span></code>: Column of strings that contain only latin letters (no digits) - <code class="docutils literal notranslate"><span class="pre">mixed</span></code>: Column of strings that contain, digits, letters and other types of charachters, like punctuation and symbols</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;onlyDigits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;12&quot;</span><span class="p">,</span> <span class="s2">&quot;83&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;992&quot;</span><span class="p">,</span> <span class="s2">&quot;7&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;onlyAlpha&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span> <span class="s2">&quot;Bob&quot;</span><span class="p">,</span> <span class="s2">&quot;Chelsea&quot;</span><span class="p">,</span> <span class="s2">&quot;Danny&quot;</span><span class="p">,</span> <span class="s2">&quot;Eddie&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;mixed&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;my_email_1989@gmail.com&quot;</span><span class="p">,</span><span class="s2">&quot;ADK-1171&quot;</span><span class="p">,</span><span class="s2">&quot;Copacabana 272 - Rio de Janeiro&quot;</span><span class="p">,</span><span class="s2">&quot;21º C Friday - Sao Paulo, Brasil&quot;</span><span class="p">,</span><span class="s2">&quot;18127819ASW&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -672,439 +652,110 @@ div.rendered_html tbody tr:hover {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>sepal length (cm)</th>
-      <th>sepal width (cm)</th>
-      <th>petal length (cm)</th>
-      <th>petal width (cm)</th>
-      <th>target</th>
+      <th>onlyDigits</th>
+      <th>onlyAlpha</th>
+      <th>mixed</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>5.1</td>
-      <td>3.5</td>
-      <td>1.4</td>
-      <td>0.2</td>
-      <td>0</td>
+      <td>12</td>
+      <td>Alice</td>
+      <td>my_email_1989@gmail.com</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>4.9</td>
-      <td>3.0</td>
-      <td>1.4</td>
-      <td>0.2</td>
-      <td>0</td>
+      <td>83</td>
+      <td>Bob</td>
+      <td>ADK-1171</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>4.7</td>
-      <td>3.2</td>
-      <td>1.3</td>
-      <td>0.2</td>
-      <td>0</td>
+      <td>1</td>
+      <td>Chelsea</td>
+      <td>Copacabana 272 - Rio de Janeiro</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>4.6</td>
-      <td>3.1</td>
-      <td>1.5</td>
-      <td>0.2</td>
-      <td>0</td>
+      <td>992</td>
+      <td>Danny</td>
+      <td>21º C Friday - Sao Paulo, Brasil</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>5.0</td>
-      <td>3.6</td>
-      <td>1.4</td>
-      <td>0.2</td>
-      <td>0</td>
+      <td>7</td>
+      <td>Eddie</td>
+      <td>18127819ASW</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
 </section>
-<section id="Train-a-model">
-<h2>Train a model<a class="headerlink" href="#Train-a-model" title="Permalink to this headline">#</a></h2>
-<p>Let’s define the simplest model to be trained with <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>. We aren’t interested in model performance nor deep ML concepts, but only in having some baseline model being trained and having the overall idea of how to use <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> with your existing training pipeline.</p>
+<section id="Configuring-the-Metrics-in-the-DatasetSchema">
+<h2>Configuring the Metrics in the DatasetSchema<a class="headerlink" href="#Configuring-the-Metrics-in-the-DatasetSchema" title="Permalink to this headline">#</a></h2>
+<p>whylogs uses <code class="docutils literal notranslate"><span class="pre">Resolvers</span></code> in order to define the set of metrics tracked for a column name or data type. In this case, we’ll create a custom Resolver to apply the UnicodeRangeMetric to all of the columns.</p>
+<blockquote>
+<div><p>If you’re interested in seeing how you can add or remove different metrics according to the column type or column name, please refer to this example on <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/basic/Schema_Configuration.html">Schema Configuration</a></p>
+</div></blockquote>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.tree</span> <span class="kn">import</span> <span class="n">DecisionTreeClassifier</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">ColumnSchema</span><span class="p">,</span> <span class="n">DatasetSchema</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.unicode_range</span> <span class="kn">import</span> <span class="n">UnicodeRangeMetric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">DataType</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span>
 
-
-<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">DecisionTreeClassifier</span><span class="p">(</span><span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataframe</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="n">dataframe</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">])</span>
+<span class="k">class</span> <span class="nc">UnicodeResolver</span><span class="p">(</span><span class="n">Resolver</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">why_type</span><span class="p">:</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">column_schema</span><span class="p">:</span> <span class="n">ColumnSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Metric</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">UnicodeRangeMetric</span><span class="o">.</span><span class="n">get_namespace</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">):</span> <span class="n">UnicodeRangeMetric</span><span class="o">.</span><span class="n">zero</span><span class="p">(</span><span class="n">column_schema</span><span class="o">.</span><span class="n">cfg</span><span class="p">)}</span>
 </pre></div>
 </div>
 </div>
-<p>We could serialize a model, but we will take a shortcut here taking advantage of <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>’s awesome <code class="docutils literal notranslate"><span class="pre">autolog</span></code> method.</p>
+<p>Resolvers are passed to whylogs through a <code class="docutils literal notranslate"><span class="pre">DatasetSchema</span></code>, so we’ll have to create a custom Schema as well.</p>
+<p>We will create a custom Schema that inherits from DatasetSchema. We’ll just have to: - Pass the UnicodeResolver created previously - Since we’re interested in changing the default character ranges, we’ll also pass a default Metric Configuration with the desired ranges</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mlflow</span>
-
-<span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">autolog</span><span class="p">()</span>
-
-    <span class="n">df</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
-    <span class="n">train</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
-
-    <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
-
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">end_run</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<p>And now we should see that a <code class="docutils literal notranslate"><span class="pre">mlruns/</span></code> directory was created and that we already have our trained model in there!</p>
-<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mlruns/0/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/artifacts/model&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">UnicodeSchema</span><span class="p">(</span><span class="n">DatasetSchema</span><span class="p">):</span>
+    <span class="n">resolvers</span> <span class="o">=</span> <span class="n">UnicodeResolver</span><span class="p">()</span>
+    <span class="n">default_configs</span> <span class="o">=</span> <span class="n">MetricConfig</span><span class="p">(</span><span class="n">unicode_ranges</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;digits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">57</span><span class="p">),</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="mi">122</span><span class="p">)})</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[&#39;python_env.yaml&#39;, &#39;requirements.txt&#39;, &#39;MLmodel&#39;, &#39;model.pkl&#39;, &#39;conda.yaml&#39;]
-</pre></div></div>
-</div>
-</section>
-<section id="Profile-the-training-data-with-whylogs">
-<h2>Profile the training data with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code><a class="headerlink" href="#Profile-the-training-data-with-whylogs" title="Permalink to this headline">#</a></h2>
-<p>Now in order to profile your training data with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>, you’ll basically need to use our <code class="docutils literal notranslate"><span class="pre">logger</span></code> API, which is as simple as:</p>
+<p>If a default MetricConfig is not passed, it would use the default unicode ranges, would additionaly track for ranges such as: emoticons, control characters and extended latin.</p>
+<p>We can now log the dataframe and pass our schema when calling <code class="docutils literal notranslate"><span class="pre">log</span></code>:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 
-<span class="n">profile_result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<span class="n">profile_view</span> <span class="o">=</span> <span class="n">profile_result</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+<span class="n">prof_results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">UnicodeSchema</span><span class="p">())</span>
+<span class="n">prof</span> <span class="o">=</span> <span class="n">prof_results</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
 </pre></div>
 </div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>counts/n</th>
-      <th>counts/null</th>
-      <th>types/integral</th>
-      <th>types/fractional</th>
-      <th>types/boolean</th>
-      <th>types/string</th>
-      <th>types/object</th>
-      <th>distribution/mean</th>
-      <th>distribution/stddev</th>
-      <th>distribution/n</th>
-      <th>...</th>
-      <th>distribution/q_90</th>
-      <th>distribution/q_95</th>
-      <th>distribution/q_99</th>
-      <th>ints/max</th>
-      <th>ints/min</th>
-      <th>cardinality/est</th>
-      <th>cardinality/upper_1</th>
-      <th>cardinality/lower_1</th>
-      <th>frequent_items/frequent_strings</th>
-      <th>type</th>
-    </tr>
-    <tr>
-      <th>column</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>target</th>
-      <td>150</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1.000000</td>
-      <td>0.819232</td>
-      <td>150</td>
-      <td>...</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>0.0</td>
-      <td>3.000000</td>
-      <td>3.000150</td>
-      <td>3.0</td>
-      <td>[FrequentItem(value='0.000000', est=50, upper=...</td>
-      <td>SummaryType.COLUMN</td>
-    </tr>
-    <tr>
-      <th>petal width (cm)</th>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>1.199333</td>
-      <td>0.762238</td>
-      <td>150</td>
-      <td>...</td>
-      <td>2.2</td>
-      <td>2.3</td>
-      <td>2.5</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>22.000001</td>
-      <td>22.001100</td>
-      <td>22.0</td>
-      <td>NaN</td>
-      <td>SummaryType.COLUMN</td>
-    </tr>
-    <tr>
-      <th>sepal width (cm)</th>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>3.057333</td>
-      <td>0.435866</td>
-      <td>150</td>
-      <td>...</td>
-      <td>3.7</td>
-      <td>3.8</td>
-      <td>4.2</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>23.000001</td>
-      <td>23.001150</td>
-      <td>23.0</td>
-      <td>NaN</td>
-      <td>SummaryType.COLUMN</td>
-    </tr>
-    <tr>
-      <th>petal length (cm)</th>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>3.758000</td>
-      <td>1.765298</td>
-      <td>150</td>
-      <td>...</td>
-      <td>5.8</td>
-      <td>6.1</td>
-      <td>6.7</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>43.000004</td>
-      <td>43.002151</td>
-      <td>43.0</td>
-      <td>NaN</td>
-      <td>SummaryType.COLUMN</td>
-    </tr>
-    <tr>
-      <th>sepal length (cm)</th>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>5.843333</td>
-      <td>0.828066</td>
-      <td>150</td>
-      <td>...</td>
-      <td>6.9</td>
-      <td>7.3</td>
-      <td>7.7</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>35.000003</td>
-      <td>35.001750</td>
-      <td>35.0</td>
-      <td>NaN</td>
-      <td>SummaryType.COLUMN</td>
-    </tr>
-  </tbody>
-</table>
-<p>5 rows × 28 columns</p>
-</div></div>
 </div>
 </section>
-<section id="Writing-your-profile-to-mlflow">
-<h2>Writing your profile to <code class="docutils literal notranslate"><span class="pre">mlflow</span></code><a class="headerlink" href="#Writing-your-profile-to-mlflow" title="Permalink to this headline">#</a></h2>
-<p>Now even more interesting than writing this profile locally is the ability to use <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>‘s API <strong>together</strong> with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>’, in order to store the training data profile and analyze the results of your experiments over time. For that, we basically need to define a function that will</p>
-<ol class="arabic simple">
-<li><p>Profile our training data</p></li>
-<li><p>Log the profile as an <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> artifact</p></li>
-</ol>
-<p>Let’s see how this function can be written:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">log_profile</span><span class="p">(</span><span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">profile_result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dataframe</span><span class="p">)</span>
-    <span class="n">profile_result</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;mlflow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<p>And we can call that function we defined in our <code class="docutils literal notranslate"><span class="pre">mlflow</span></code> run experiment, like this:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">mlflow</span><span class="o">.</span><span class="n">start_run</span><span class="p">()</span> <span class="k">as</span> <span class="n">run</span><span class="p">:</span>
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">sklearn</span><span class="o">.</span><span class="n">autolog</span><span class="p">()</span>
-
-    <span class="n">df</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">()</span>
-    <span class="n">train</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
-
-    <span class="n">log_profile</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
-
-    <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
-
-    <span class="n">mlflow</span><span class="o">.</span><span class="n">end_run</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<p>If we inspect the recently created experiment folder, we will see that a <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> directory was created there with our profile.</p>
+<section id="Unicode-Range-and-String-Length-Metrics">
+<h2>Unicode Range and String Length Metrics<a class="headerlink" href="#Unicode-Range-and-String-Length-Metrics" title="Permalink to this headline">#</a></h2>
+<p>Let’s take a look at the <strong>Profile View</strong>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mlruns/0/</span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2">/artifacts/whylogs&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">profile_view_df</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[&#39;whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin&#39;]
-</pre></div></div>
-</div>
-<p>And we can even use <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>’s API to fetch and read back our profile, like:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mlflow.tracking</span> <span class="kn">import</span> <span class="n">MlflowClient</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">()</span>
-
-<span class="n">local_dir</span> <span class="o">=</span> <span class="s2">&quot;/tmp/artifact_downloads&quot;</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">local_dir</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">local_dir</span><span class="p">)</span>
-<span class="n">local_path</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">run_id</span><span class="p">,</span> <span class="s2">&quot;whylogs&quot;</span><span class="p">,</span> <span class="n">local_dir</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-[&#39;whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin&#39;]
-</pre></div></div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1126,27 +777,27 @@ div.rendered_html tbody tr:hover {
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>counts/n</th>
-      <th>counts/null</th>
-      <th>types/integral</th>
-      <th>types/fractional</th>
-      <th>types/boolean</th>
-      <th>types/string</th>
-      <th>types/object</th>
-      <th>cardinality/est</th>
-      <th>cardinality/upper_1</th>
-      <th>cardinality/lower_1</th>
+      <th>unicode_range/unicode_range/digits/mean</th>
+      <th>unicode_range/unicode_range/digits/stddev</th>
+      <th>unicode_range/unicode_range/digits/n</th>
+      <th>unicode_range/unicode_range/digits/max</th>
+      <th>unicode_range/unicode_range/digits/min</th>
+      <th>unicode_range/unicode_range/digits/q_01</th>
+      <th>unicode_range/unicode_range/digits/q_05</th>
+      <th>unicode_range/unicode_range/digits/q_10</th>
+      <th>unicode_range/unicode_range/digits/q_25</th>
+      <th>unicode_range/unicode_range/digits/median</th>
       <th>...</th>
-      <th>distribution/q_25</th>
-      <th>distribution/median</th>
-      <th>distribution/q_75</th>
-      <th>distribution/q_90</th>
-      <th>distribution/q_95</th>
-      <th>distribution/q_99</th>
+      <th>unicode_range/unicode_range/string_length/q_01</th>
+      <th>unicode_range/unicode_range/string_length/q_05</th>
+      <th>unicode_range/unicode_range/string_length/q_10</th>
+      <th>unicode_range/unicode_range/string_length/q_25</th>
+      <th>unicode_range/unicode_range/string_length/median</th>
+      <th>unicode_range/unicode_range/string_length/q_75</th>
+      <th>unicode_range/unicode_range/string_length/q_90</th>
+      <th>unicode_range/unicode_range/string_length/q_95</th>
+      <th>unicode_range/unicode_range/string_length/q_99</th>
       <th>type</th>
-      <th>ints/max</th>
-      <th>ints/min</th>
-      <th>frequent_items/frequent_strings</th>
     </tr>
     <tr>
       <th>column</th>
@@ -1175,133 +826,177 @@ div.rendered_html tbody tr:hover {
   </thead>
   <tbody>
     <tr>
-      <th>petal length (cm)</th>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>43.000004</td>
-      <td>43.002151</td>
-      <td>43.0</td>
-      <td>...</td>
-      <td>1.6</td>
-      <td>4.4</td>
-      <td>5.1</td>
-      <td>5.8</td>
-      <td>6.1</td>
-      <td>6.7</td>
-      <td>SummaryType.COLUMN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>petal width (cm)</th>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>22.000001</td>
-      <td>22.001100</td>
-      <td>22.0</td>
-      <td>...</td>
-      <td>0.3</td>
-      <td>1.3</td>
+      <th>onlyDigits</th>
       <td>1.8</td>
-      <td>2.2</td>
-      <td>2.3</td>
-      <td>2.5</td>
-      <td>SummaryType.COLUMN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>sepal length (cm)</th>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>35.000003</td>
-      <td>35.001750</td>
-      <td>35.0</td>
-      <td>...</td>
-      <td>5.1</td>
-      <td>5.8</td>
-      <td>6.4</td>
-      <td>6.9</td>
-      <td>7.3</td>
-      <td>7.7</td>
-      <td>SummaryType.COLUMN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>sepal width (cm)</th>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>23.000001</td>
-      <td>23.001150</td>
-      <td>23.0</td>
-      <td>...</td>
-      <td>2.8</td>
+      <td>0.748331</td>
+      <td>5</td>
       <td>3.0</td>
-      <td>3.3</td>
-      <td>3.7</td>
-      <td>3.8</td>
-      <td>4.2</td>
-      <td>SummaryType.COLUMN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>target</th>
-      <td>150</td>
-      <td>0</td>
-      <td>150</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>3.000000</td>
-      <td>3.000150</td>
-      <td>3.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
       <td>...</td>
-      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
       <td>1.0</td>
       <td>2.0</td>
       <td>2.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
       <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>mixed</th>
+      <td>4.2</td>
+      <td>2.039608</td>
+      <td>5</td>
+      <td>8.0</td>
       <td>2.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>...</td>
+      <td>8.0</td>
+      <td>8.0</td>
+      <td>8.0</td>
+      <td>11.0</td>
+      <td>23.0</td>
+      <td>31.0</td>
+      <td>32.0</td>
+      <td>32.0</td>
+      <td>32.0</td>
+      <td>SummaryType.COLUMN</td>
+    </tr>
+    <tr>
+      <th>onlyAlpha</th>
       <td>0.0</td>
-      <td>[FrequentItem(value='0.000000', est=50, upper=...</td>
+      <td>0.000000</td>
+      <td>5</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>7.0</td>
+      <td>7.0</td>
+      <td>7.0</td>
+      <td>SummaryType.COLUMN</td>
     </tr>
   </tbody>
 </table>
-<p>5 rows × 28 columns</p>
+<p>3 rows × 57 columns</p>
 </div></div>
 </div>
-<p>And with those few lines we have successfully fetched the profile artifact from our experiment. Over time, we will be able to track down some very relevant information on how our data behaves, <strong>why</strong> is our model generating the results and walk towards a more Robust and Responsible AI field.</p>
-<p>Hope this tutorial will help you get started with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>. Stay tuned to our <a class="reference external" href="https://github.com/whylabs/whylogs">Github repo</a> and also our <a class="reference external" href="https://github.com/whylabs/whylogs#:~:text=us%2C%20please%20join-,our%20Slack%20Community,-.%20In%20addition%20to">community Slack</a> to get the latest from <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>.</p>
-<p>See you soon!</p>
+<p>You can see there’s a lot of different metrics for each of the original dataframe’s columns. In the <code class="docutils literal notranslate"><span class="pre">unicode_range</span></code> metric, we’ll have additional sub metrics. In this case, we have metrics for:</p>
+<ul class="simple">
+<li><p>digits: distribution metrics for characters inside the unicode’s digit range</p></li>
+<li><p>alpha: distribution metrics for characters inside the unicode’s lowercase letters range</p></li>
+<li><p>UNKNOWN: distribution metrics for character that fall anywhere outside the predefined range (digits and alpha)</p></li>
+<li><p>string_length: distribution metrics for overall string length</p></li>
+</ul>
+<p>For each of these submetrics, we have metric components such as:</p>
+<ul class="simple">
+<li><p>mean: the calculated mean for the column</p></li>
+<li><p>stddev: the calculated standard deviation for the column</p></li>
+<li><p>n: the total number of record for the column</p></li>
+<li><p>max, min: maximum and minimum values for the column</p></li>
+<li><p>q_xx: the xx-th quantile value of the data’s distribution</p></li>
+<li><p>median: the median for the column</p></li>
+</ul>
+<p>For instance, let’s check the mean for <code class="docutils literal notranslate"><span class="pre">alpha</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span><span class="p">[</span><span class="s1">&#39;unicode_range/unicode_range/alpha/mean&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+column
+onlyDigits     0.0
+mixed         12.8
+onlyAlpha      5.0
+Name: unicode_range/unicode_range/alpha/mean, dtype: float64
+</pre></div></div>
+</div>
+<p>The above values shows a mean of 0 for <code class="docutils literal notranslate"><span class="pre">onlyDigits</span></code> - which is expected, since we don’t have any letters in this column, only digits. We also have a mean of 5 for <code class="docutils literal notranslate"><span class="pre">onlyAlpha</span></code>, which will coincide of the string’s length mean for the same column, since we only have letters characters in this columns. For <code class="docutils literal notranslate"><span class="pre">mixed</span></code> the mean is 12.8, and we can indeed see that this column has a higher count of letter character than the previous columns.</p>
+<blockquote>
+<div><p>You might notice that, even though we defined the range for only lowercase letters, uppercase characters also are included when calculating the metrics. That happens because the strings are all lowercased during preprocessing before tracking the strings.</p>
+</div></blockquote>
+<p>Let’s now check the <code class="docutils literal notranslate"><span class="pre">UNKNOWN</span></code> namespace:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span><span class="p">[</span><span class="s1">&#39;unicode_range/unicode_range/UNKNOWN/mean&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+column
+onlyDigits     0.0
+mixed         24.8
+onlyAlpha      5.0
+Name: unicode_range/unicode_range/UNKNOWN/mean, dtype: float64
+</pre></div></div>
+</div>
+<p>Since we have only digits and letters in <code class="docutils literal notranslate"><span class="pre">onlyDigit</span></code> and <code class="docutils literal notranslate"><span class="pre">onlyAlpha</span></code>, there are no characters outside of the defined ranges, yielding means of 0. In the <code class="docutils literal notranslate"><span class="pre">mixed</span></code>, however, this value is non-zero, since there are characters such as <code class="docutils literal notranslate"><span class="pre">.,</span> <span class="pre">-,</span> <span class="pre">º</span></code>, and whitespaces, that are not in any of the predefined ranges.</p>
+<p>The last namespace <code class="docutils literal notranslate"><span class="pre">string_lenth</span></code>, contains metrics for the string’s length:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view_df</span><span class="p">[</span><span class="s1">&#39;unicode_range/unicode_range/string_length/min&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+column
+onlyDigits    1.0
+mixed         8.0
+onlyAlpha     3.0
+Name: unicode_range/unicode_range/string_length/min, dtype: float64
+</pre></div></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">string_length</span></code> doesn’t take into account any particular range. It containts aggregate metrics for the overall string length of each column. In this case, we’re seeing the minimum value for the 3 columns: 1 for <code class="docutils literal notranslate"><span class="pre">onlyDigits</span></code>, 3 for <code class="docutils literal notranslate"><span class="pre">onlyAlpha</span></code> and 8 for <code class="docutils literal notranslate"><span class="pre">mixed</span></code>. Since the dataframe used here is very small, we can easily check the original data and verify that these metrics are indeed correct.</p>
+</section>
+<section id="Conclusion">
+<h2>Conclusion<a class="headerlink" href="#Conclusion" title="Permalink to this headline">#</a></h2>
+<p>Feel free to define your own ranges of interest and combine the UnicodeRange metrics with other standard metrics as you see fit!</p>
+<p>The resulting profiles can be: - merged together - stored locally or in the cloud (AWS’ S3)</p>
+<p>or used for other purposes, such as: - Setting constraints for data quality validation - Visualizing and comparing profiles - Sent to monitoring and observability platforms</p>
+<p>Be sure to check the other examples at <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples.html">whylogs’ Documentation</a>!</p>
 </section>
 </section>
 
@@ -1310,23 +1005,23 @@ div.rendered_html tbody tr:hover {
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="kafka-example/Kafka_Example.html">
+          <a class="next-page" href="../integrations/Writing_Profiles.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</div>
+                <div class="title">Writing profiles</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="Pyspark_Profiling.html">
+          <a class="prev-page" href="../basic/Merging_Profiles.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">PySpark Integration</div>
+                <div class="title">Merging Profiles</div>
                 
               </div>
             </a>
@@ -1387,12 +1082,12 @@ div.rendered_html tbody tr:hover {
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">MLflow Logging</a><ul>
-<li><a class="reference internal" href="#Setup">Setup</a></li>
-<li><a class="reference internal" href="#Get-the-data">Get the data</a></li>
-<li><a class="reference internal" href="#Train-a-model">Train a model</a></li>
-<li><a class="reference internal" href="#Profile-the-training-data-with-whylogs">Profile the training data with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code></a></li>
-<li><a class="reference internal" href="#Writing-your-profile-to-mlflow">Writing your profile to <code class="docutils literal notranslate"><span class="pre">mlflow</span></code></a></li>
+<li><a class="reference internal" href="#">String Tracking - Unicode Range and String Length</a><ul>
+<li><a class="reference internal" href="#Installing-whylogs">Installing whylogs</a></li>
+<li><a class="reference internal" href="#Creating-the-Data">Creating the Data</a></li>
+<li><a class="reference internal" href="#Configuring-the-Metrics-in-the-DatasetSchema">Configuring the Metrics in the DatasetSchema</a></li>
+<li><a class="reference internal" href="#Unicode-Range-and-String-Length-Metrics">Unicode Range and String Length Metrics</a></li>
+<li><a class="reference internal" href="#Conclusion">Conclusion</a></li>
 </ul>
 </li>
 </ul>

@@ -184,6 +184,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/basic/Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/basic/Merging_Profiles.html">Merging Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../examples/advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/integrations/Writing_Profiles.html">Writing profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/integrations/Pyspark_Profiling.html">PySpark Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../examples/integrations/Mlflow_Logging.html">MLflow Logging</a></li>
@@ -331,7 +332,7 @@
 <span class="kn">import</span> <span class="nn">statistics</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">whylogs_sketching</span> <span class="k">as</span> <span class="nn">ds</span>  <span class="c1"># type: ignore</span>
@@ -370,15 +371,17 @@
     <span class="n">fi_lg_max_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># 128 entries</span>
     <span class="n">fi_disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">track_unicode_ranges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">unicode_ranges</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;emoticon&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x1F600</span><span class="p">,</span> <span class="mh">0x1F64F</span><span class="p">),</span>
-        <span class="s2">&quot;control&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x1F</span><span class="p">),</span>
-        <span class="s2">&quot;digits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x30</span><span class="p">,</span> <span class="mh">0x39</span><span class="p">),</span>
-        <span class="s2">&quot;latin-lower&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x5A</span><span class="p">),</span>
-        <span class="s2">&quot;latin-upper&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x61</span><span class="p">,</span> <span class="mh">0x7A</span><span class="p">),</span>
-        <span class="s2">&quot;basic-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x7F</span><span class="p">),</span>
-        <span class="s2">&quot;extended-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x0080</span><span class="p">,</span> <span class="mh">0x02AF</span><span class="p">),</span>
-    <span class="p">}</span></div>
+    <span class="n">unicode_ranges</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;emoticon&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x1F600</span><span class="p">,</span> <span class="mh">0x1F64F</span><span class="p">),</span>
+            <span class="s2">&quot;control&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x1F</span><span class="p">),</span>
+            <span class="s2">&quot;digits&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x30</span><span class="p">,</span> <span class="mh">0x39</span><span class="p">),</span>
+            <span class="s2">&quot;latin-lower&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x5A</span><span class="p">),</span>
+            <span class="s2">&quot;latin-upper&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x61</span><span class="p">,</span> <span class="mh">0x7A</span><span class="p">),</span>
+            <span class="s2">&quot;basic-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x7F</span><span class="p">),</span>
+            <span class="s2">&quot;extended-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x0080</span><span class="p">,</span> <span class="mh">0x02AF</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
 
 
 <span class="n">_METRIC_DESERIALIZER_REGISTRY</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: ignore</span>
