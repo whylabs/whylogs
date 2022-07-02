@@ -35,9 +35,6 @@ Advanced
     :maxdepth: 1
 
     examples/advanced/String_Tracking
-
-.. toctree::
-    :maxdepth: 1
     examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation
 
 Integrations
