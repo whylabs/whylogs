@@ -83,7 +83,7 @@ Attributes
    .. py:method:: option(self, org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None) -> None
 
 
-   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView, dataset_id: Optional[str] = None) -> Any
+   .. py:method:: write(self, profile: Union[whylogs.core.DatasetProfileView, whylogs.core.dataset_profile.DatasetProfile], dataset_id: Optional[str] = None) -> Any
 
 
 
