@@ -70,9 +70,10 @@ class S3Writer(Writer):
         dest: Optional[str] = None,
         **kwargs,
     ) -> None:
+
+        dest = dest or file.get_default_path()  # type: ignore
         if self.object_name is None:
             self.object_name = dest
-
         try:
             with tempfile.NamedTemporaryFile() as tmp_file:
                 file.write(path=tmp_file.name)  # type: ignore
