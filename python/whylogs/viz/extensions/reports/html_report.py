@@ -34,7 +34,7 @@ class HTMLReport(Writable, ABC):
         return display
 
     @abstractmethod
-    def report(self) -> str:
+    def report(self) -> HTML:
         pass
 
     def write(self, path: Optional[str] = None, **kwargs) -> None:
@@ -57,7 +57,8 @@ class HTMLReport(Writable, ABC):
             viz_profile.write(path="path/to/report/Report.html")
         """
         path = path or self.get_default_path()
-        _rendered_html = self.report()
+        _html = self.report()
+        _rendered_html = _html.data
         with self._safe_open_write(path) as file:
             file.write(_rendered_html)
 

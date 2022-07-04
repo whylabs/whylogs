@@ -21,4 +21,4 @@ class SummaryDriftReport(HTMLReport):
         profiles_summary = generate_summaries(self.target_view, self.ref_view, config=None)
         rendered_template = template(profiles_summary)
         summary_drift_report = self.display(rendered_template, page_spec)
-        return summary_drift_report.data
+        return summary_drift_report
