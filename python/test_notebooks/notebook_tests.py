@@ -6,7 +6,7 @@ from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir, os.pardir)
-skip_notebooks = ["Mlflow_Logging.ipynb", "Pyspark_Profiling.ipynb", "Kafka_Example.ipynb"]
+skip_notebooks = ["Pyspark_Profiling.ipynb", "Kafka_Example.ipynb"]
 
 
 # https://docs.pytest.org/en/6.2.x/example/parametrize.html#a-quick-port-of-testscenarios
