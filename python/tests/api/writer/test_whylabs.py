@@ -6,7 +6,7 @@ import tempfile
 import pytest
 import requests
 import responses
-from responses import HEAD, PUT
+from responses import PUT
 
 import whylogs as why
 from whylogs.api.writer import Writers
@@ -40,12 +40,6 @@ class TestWhylabsWriter(object):
         self.responses.start()
 
         self.responses.add(PUT, url="https://api.whylabsapp.com", body=results.view().to_pandas().to_json())
-        self.responses.add(
-            HEAD,
-            url="https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_config/whylabs_writer_disabled",
-            headers="",
-            status=200,
-        )
         profile = results.view()
 
         writer = WhyLabsWriter()
