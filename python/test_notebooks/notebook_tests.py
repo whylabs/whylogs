@@ -14,7 +14,6 @@ skip_notebooks = [
     "Writing_to_WhyLabs.ipynb",
 ]
 
-
 # https://docs.pytest.org/en/6.2.x/example/parametrize.html#a-quick-port-of-testscenarios
 def pytest_generate_tests(metafunc):
 

@@ -6,10 +6,10 @@ import tempfile
 import pytest
 import requests
 import responses
-from responses import HEAD, PUT
-from whylabs_client.rest import ForbiddenException
+from responses import PUT
 
 import whylogs as why
+from whylogs.api.writer import Writers
 from whylogs.api.writer.whylabs import WhyLabsWriter
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class TestWhylabsWriter(object):
     @classmethod
     def setup_class(cls):
-        os.environ["WHYLABS_API_KEY"] = "any"
+        os.environ["WHYLABS_API_KEY"] = "01234567890.any"
         os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-1"
         os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-5"
         os.environ["WHYLABS_API_ENDPOINT"] = "https://api.whylabsapp.com"
@@ -40,12 +40,6 @@ class TestWhylabsWriter(object):
         self.responses.start()
 
         self.responses.add(PUT, url="https://api.whylabsapp.com", body=results.view().to_pandas().to_json())
-        self.responses.add(
-            HEAD,
-            url="https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_config/whylabs_writer_disabled",
-            headers="",
-            status=200,
-        )
         profile = results.view()
 
         writer = WhyLabsWriter()
@@ -65,10 +59,11 @@ class TestWhylabsWriter(object):
 
     def test_api_key_null_raises_error(self, results, caplog):
         caplog.set_level(logging.ERROR)
-        with pytest.raises(ForbiddenException):
-            results.writer("whylabs").write()
-        assert "Failed to upload" in caplog.text
-        assert "with API token ID" in caplog.text
+        with pytest.raises(ValueError):
+            del os.environ["WHYLABS_API_KEY"]
+            writer: WhyLabsWriter = Writers.get("whylabs")
+            writer.write(profile=results.profile())
+        os.environ["WHYLABS_API_KEY"] = "01234567890.any"
 
     def test_option_will_overwrite_defaults(self) -> None:
         writer = WhyLabsWriter()
@@ -77,8 +72,7 @@ class TestWhylabsWriter(object):
         assert writer._dataset_id == "new_dataset_id"
         assert writer._api_key == "other_api_key"
 
-    def test_api_key_prefers_env_var(self, results, caplog):
-        with pytest.raises(ForbiddenException):
-            results.writer("whylabs").option(org_id="org_id", api_key="api_key").write(dataset_id="dataset_id")
-        assert "Failed to upload" in caplog.text
-        assert "Updating API key ID" in caplog.text
+    def test_api_key_prefers_parameter_over_env_var(self, results, caplog):
+        os.environ["WHYLABS_API_KEY"] = "0123456789.any"
+        with pytest.raises(ValueError):
+            results.writer("whylabs").option(org_id="org_id", api_key="api_key_123.foo").write(dataset_id="dataset_id")
