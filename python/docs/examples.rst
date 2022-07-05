@@ -28,9 +28,14 @@ Basic
 .. ------------
 
 
-.. Advanced
-.. --------
+Advanced
+--------
 
+.. toctree::
+    :maxdepth: 1
+
+    examples/advanced/String_Tracking
+    examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation
 
 Integrations
 ------------
