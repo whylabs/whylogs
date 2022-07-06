@@ -79,7 +79,12 @@ class WhyLabsWriter(Writer):
         if api_key is not None:
             self._api_key = api_key
 
-    def write(self, profile: Union[DatasetProfileView, DatasetProfile], dataset_id: Optional[str] = None) -> Any:
+    def write(
+        self,
+        profile: Union[DatasetProfileView, DatasetProfile],
+        dataset_id: Optional[str] = None,
+        dest: Optional[str] = None,
+    ) -> Any:
         if dataset_id is not None:
             self._dataset_id = dataset_id
 
