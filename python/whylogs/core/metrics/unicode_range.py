@@ -36,6 +36,8 @@ class UnicodeRangeMetric(CompoundMetric):
     """
 
     range_definitions: Dict[str, Tuple[int, int]]
+    lower_case: bool = True
+    normalize: bool = True
 
     def __post_init__(self):
         super(type(self), self).__post_init__()
@@ -75,7 +77,9 @@ class UnicodeRangeMetric(CompoundMetric):
             lengths.append(len(value))
             range_counter: Dict[str, int] = {range_name: 0 for range_name in self.range_definitions.keys()}
             # TODO: need to transform to utf-32 or handle surrogates
-            for char in unicodedata.normalize("NFD", value).lower():
+            s = unicodedata.normalize("NFD", value) if self.normalize else value
+            s = s.lower() if self.lower_case else s
+            for char in s:
                 found = False
                 for range_name, range_limits in self.range_definitions.items():
                     if range_limits[0] <= ord(char) <= range_limits[1]:
@@ -84,6 +88,7 @@ class UnicodeRangeMetric(CompoundMetric):
                 if not found:
                     range_counter["UNKNOWN"] += 1
 
+            print(range_counter)
             for range_name, range_count in range_counter.items():
                 range_data[range_name].append(range_count)
 

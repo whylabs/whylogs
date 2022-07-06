@@ -26,6 +26,18 @@ def test_unicode_range_metric() -> None:
     assert metric.submetrics[_STRING_LENGTH].mean.value == np.array([len(s) for s in strings]).mean()
 
 
+def test_unicode_range_metric_upper_case() -> None:
+    metric = UnicodeRangeMetric({"lower": (97, 122), "upper": (65, 90)}, lower_case=False)
+    strings = ["abc", "ABC", "123", "abcdABCD", "...", "wxYZ"]
+    col = PreprocessedColumn.apply(strings)
+    upper_counts = [0, 3, 0, 4, 0, 2]
+    lower_counts = [3, 0, 0, 4, 0, 2]
+    metric.columnar_update(col)
+
+    assert metric.submetrics["lower"].mean.value == np.array(lower_counts).mean()
+    assert metric.submetrics["upper"].mean.value == np.array(upper_counts).mean()
+
+
 def test_unicode_range_metric_unknown() -> None:
     metric = UnicodeRangeMetric({"digits": (48, 57), "alpha": (97, 122)})
     strings = ["1", "12", "123", "1234a", "abc", "abc123", "@@@", "%%%", "^^^"]
