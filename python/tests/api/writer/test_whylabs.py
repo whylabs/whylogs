@@ -78,8 +78,6 @@ class TestWhylabsWriter(object):
             results.writer("whylabs").option(org_id="org_id", api_key="api_key_123.foo").write(dataset_id="dataset_id")
 
     def test_writer_accepts_dest_param(self, results, caplog):
-        self.responses = responses.RequestsMock()
-        self.responses.start()
-        self.responses.add(PUT, url="https://api.whylabsapp.com", body=results.view().to_pandas().to_json())
+        # TODO: inspect error or mock better to avoid network call and keep test focused.
         with pytest.raises(ValueError):
             results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
