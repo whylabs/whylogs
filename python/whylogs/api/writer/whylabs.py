@@ -83,7 +83,7 @@ class WhyLabsWriter(Writer):
         self,
         profile: Union[DatasetProfileView, DatasetProfile],
         dataset_id: Optional[str] = None,
-        dest: Optional[str] = None,
+        **options,
     ) -> Any:
         if dataset_id is not None:
             self._dataset_id = dataset_id
