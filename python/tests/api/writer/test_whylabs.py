@@ -76,3 +76,10 @@ class TestWhylabsWriter(object):
         os.environ["WHYLABS_API_KEY"] = "0123456789.any"
         with pytest.raises(ValueError):
             results.writer("whylabs").option(org_id="org_id", api_key="api_key_123.foo").write(dataset_id="dataset_id")
+
+    def test_writer_accepts_dest_param(self, results, caplog):
+        self.responses = responses.RequestsMock()
+        self.responses.start()
+        self.responses.add(PUT, url="https://api.whylabsapp.com", body=results.view().to_pandas().to_json())
+        with pytest.raises(ValueError):
+            results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
