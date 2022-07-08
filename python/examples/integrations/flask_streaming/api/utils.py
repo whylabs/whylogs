@@ -17,8 +17,8 @@ def initialize_logger():
     while n_attempts > 0:
         # Initialize logger
         app.why_logger = why.logger(mode="rolling",
-                                    interval=os.environ.get("ROTATION_TIME"),
-                                    when=os.environ.get("ROTATION_UNITS"),
+                                    interval=15
+                                    when="M",
                                     base_name="whylogs-flask-example"
                                     )
 
