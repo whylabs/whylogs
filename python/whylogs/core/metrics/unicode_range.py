@@ -101,7 +101,7 @@ class UnicodeRangeMetric(CompoundMetric):
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "UnicodeRangeMetric":
-        return cls(config.unicode_ranges)
+        return cls(config.unicode_ranges, lower_case=config.lower_case, normalize=config.normalize)
 
     @classmethod
     def from_protobuf(cls, msg: MetricMessage) -> "UnicodeRangeMetric":

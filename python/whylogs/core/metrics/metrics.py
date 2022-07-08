@@ -53,6 +53,8 @@ class MetricConfig:
             "extended-latin": (0x0080, 0x02AF),
         }
     )
+    lower_case: bool = True
+    normalize: bool = True
 
 
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
