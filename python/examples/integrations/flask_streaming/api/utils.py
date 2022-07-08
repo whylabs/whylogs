@@ -5,28 +5,29 @@ from typing import List
 
 import app
 import numpy as np
+import whylogs as why
 
 # from flask.globals import current_app
 from utils import MessageException
 
 
 def initialize_logger():
-    pass
     # Initialize session
-    # n_attemps = 3
-    # while n_attemps > 0:
-    #     # Initialize logger
-    #     app.whylabs_logger = app.whylabs_session.logger(
-    #         dataset_name=os.environ["WHYLABS_DEFAULT_DATASET_ID"],
-    #         dataset_timestamp=datetime.datetime.now(datetime.timezone.utc),
-    #         with_rotation_time=os.environ["ROTATION_TIME"],
-    #     )
-    #     if app.whylabs_logger is not None:
-    #         break
-    #     else:
-    #         n_attemps -= 1
-    # if n_attemps <= 0:
-    #     raise MessageException("Logger could not be initialized.", 500)
+    n_attempts = 3
+    while n_attempts > 0:
+        # Initialize logger
+        app.why_logger = why.logger(mode="rolling",
+                                    interval=os.environ.get("ROTATION_TIME"),
+                                    when=os.environ.get("ROTATION_UNITS"),
+                                    base_name="whylogs-flask-example"
+                                    )
+
+        if app.why_logger is not None:
+            break
+        else:
+            n_attempts -= 1
+    if n_attempts <= 0:
+        raise MessageException("Logger could not be initialized.", 500)
 
 
 def get_prediction(data: List[float]) -> str:

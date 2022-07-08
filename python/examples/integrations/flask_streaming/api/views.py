@@ -26,9 +26,9 @@ def predict(body: FeatureVector):
         body.petal_width_cm,
     ]
     pred = get_prediction(vector)
-    # Log to whylabs platform
+    
     # Log input vector as dictionary
-    app.whylabs_logger.log(request.json)
+    app.logger.log(request.json)
     # Log predicted class
-    app.whylabs_logger.log({"class": pred})
+    app.logger.log({"class": pred})
     return object_response({"class": pred}, 200)

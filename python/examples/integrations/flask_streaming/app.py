@@ -2,8 +2,8 @@
 """The app module, containing the app factory function."""
 
 import atexit
-import logging
 import os
+import logging
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -23,8 +23,7 @@ df = pd.read_csv(os.environ["DATASET_URL"])
 
 # Load model with joblib
 model = load(os.environ["MODEL_PATH"])
-
-# TODO: maybe need to create the why
+why_logger = None
 
 # # blueprints
 # from api.views import blueprint
@@ -41,15 +40,15 @@ def create_app(config_object="settings"):
     # Adding CORS
     CORS(app)
 
-    # Adding Logging :TODO change to v1
-    # logging.basicConfig(level=logging.DEBUG)
-
+    # Adding Normal Logging
+    logging.basicConfig(level=logging.DEBUG)
+    
     app.config.from_object(config_object)
-
+    
     register_extensions(app)
     register_blueprints(app)
     register_error_handlers(app)
-    atexit.register(close_logger_at_exit)
+    atexit.register(close_logger_at_exit, app)
     return app
 
 
@@ -65,14 +64,13 @@ def register_blueprints(app):
     from api.views import blueprint
 
     app.register_blueprint(blueprint)
-
     return None
 
 
 def register_error_handlers(app):
     """Register error handlers."""
 
-    #app.register_error_handler(MessageException, message_exception_handler)
+    app.register_error_handler(MessageException, message_exception_handler)
 
     def render_error(error):
         response = jsonify(error.to_dict())
@@ -80,5 +78,5 @@ def register_error_handlers(app):
         return response
 
 
-def close_logger_at_exit():
-    whylabs_logger.close()
+def close_logger_at_exit(app):
+    app.why_logger.close()
