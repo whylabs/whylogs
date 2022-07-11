@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Mapping, Optional, TypeVar
-
+from collections.abc import KeysView
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import Resolver, StandardResolver
@@ -135,8 +135,8 @@ class DatasetSchema:
 
         return dirty
 
-    def get_col_names(self) -> tuple:
-        return tuple(self._columns.keys())
+    def get_col_names(self) -> KeysView:
+        return self._columns.keys()
 
     def get(self, name: str) -> Optional["ColumnSchema"]:
         return self._columns.get(name)

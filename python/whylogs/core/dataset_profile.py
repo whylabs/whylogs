@@ -109,8 +109,8 @@ class DatasetProfile(object):
         dirty = self._schema.resolve(pandas=pandas, row=row)
         if dirty:
             schema_col_keys = self._schema.get_col_names()
-            col_keys = tuple(self._columns.keys())
-            new_cols = (col for col in schema_col_keys if col not in col_keys)
+            col_keys = self._columns.keys()
+            new_cols = {col: None for col in schema_col_keys if col not in col_keys}
             for col in new_cols:
                 col_schema = self._schema.get(col)
                 if col_schema:
