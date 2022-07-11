@@ -12,28 +12,28 @@ info:
 host: null
 basePath: null
 tags:
-- name: "health"
-  description: "Common Health operations"
-  externalDocs:
-    description: "Find out more"
-    url: "http://swagger.io"
-- name: "data"
-  description: "Predictions and operations over a dataset"
+  - name: "health"
+    description: "Common Health operations"
+    externalDocs:
+      description: "Find out more"
+      url: "http://swagger.io"
+  - name: "data"
+    description: "Predictions and operations over a dataset"
 schemes:
-- "https"
-- "http"
+  - "https"
+  - "http"
 paths:
   /health:
     get:
       tags:
-      - "health"
+        - "health"
       summary: "Check if Flask App is up"
       description: ""
       operationId: "checkHealth"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
