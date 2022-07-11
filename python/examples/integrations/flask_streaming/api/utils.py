@@ -17,10 +17,14 @@ def initialize_logger():
     while n_attempts > 0:
         # Initialize logger
         app.why_logger = why.logger(mode="rolling",
-                                    interval=15
+                                    interval=5,
                                     when="M",
                                     base_name="whylogs-flask-example"
                                     )
+        if os.environ["WHYLABS_DEFAULT_DATASET_ID"]:
+            app.why_logger.append_writer("whylabs")
+        else:
+            app.why_logger.append_writer("local", base_dir="logs")
 
         if app.why_logger is not None:
             break

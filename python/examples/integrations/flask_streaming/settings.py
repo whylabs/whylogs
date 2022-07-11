@@ -9,4 +9,7 @@ DATASET_URL = os.environ.get("DATASET_URL", None)
 ROTATION_TIME = os.environ.get("ROTATION_TIME", 15)
 ROTATION_UNITS = os.environ.get("ROTATION_UNITS", "M")
 
+WHYLABS_CONFIG = os.environ.get("WHYLABS_CONFIG", None)
+WHYLABS_DEFAULT_DATASET_ID = os.environ.get("WHYLABS_DEFAULT_DATASET_ID", None)
+
 df = None

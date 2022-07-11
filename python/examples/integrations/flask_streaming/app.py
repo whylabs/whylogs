@@ -13,8 +13,6 @@ from flask_cors import CORS
 from joblib import load
 from utils import MessageException, message_exception_handler
 
-import whylogs as why
-
 # Load environment variables
 load_dotenv()
 

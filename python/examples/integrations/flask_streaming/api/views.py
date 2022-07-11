@@ -28,7 +28,7 @@ def predict(body: FeatureVector):
     pred = get_prediction(vector)
     
     # Log input vector as dictionary
-    app.logger.log(request.json)
+    app.why_logger.log(request.json)
     # Log predicted class
-    app.logger.log({"class": pred})
+    app.why_logger.log({"class": pred})
     return object_response({"class": pred}, 200)
