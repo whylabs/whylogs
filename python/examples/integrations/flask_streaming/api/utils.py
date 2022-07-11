@@ -1,5 +1,3 @@
-# import atexit
-import datetime
 import os
 from typing import List
 
