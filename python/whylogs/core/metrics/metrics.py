@@ -38,7 +38,7 @@ METRIC = TypeVar("METRIC", bound="Metric")
 @dataclass(frozen=True)
 class MetricConfig:
     hll_lg_k: int = 12
-    kll_k: int = 256
+    kll_k: int = 1024
     fi_lg_max_k: int = 10  # 128 entries
     fi_disabled: bool = False
     track_unicode_ranges: bool = False
