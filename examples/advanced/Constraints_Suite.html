@@ -4,17 +4,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Data Validation with Metric Constraints" />
+<meta property="og:title" content="Simple Constraints - Examples and Usage" />
   
 <meta property="og:type" content="website" />
   
-<meta property="og:url" content="https://whylogs.readthedocs.io/examples/basic/Metric_Constraints.html" />
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/advanced/Constraints_Suite.html" />
   
-<meta property="og:description" content="Open in Colab This is an example for whylogs versions 1.0.0 and above. If you’re interested in constraints for versions <1.0.0, please see these examples: Constraints Suite, Constraints-Distributio..." />
-  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Schema Configuration for Tracking Metrics" href="Schema_Configuration.html" /><link rel="prev" title="(why)Logging" href="Logging_Different_Data.html" />
+<meta property="og:description" content="Open in Colab This is a whylogs v1 example. For the analog feature in v0, please refer to this example In this example, we’ll show how to define a number of simple constraints and examples on how t..." />
+  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="String Tracking - Unicode Range and String Length" href="String_Tracking.html" /><link rel="prev" title="Merging Profiles" href="../basic/Merging_Profiles.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
-        <title>Data Validation with Metric Constraints - whylogs v1.0.5</title>
+        <title>Simple Constraints - Examples and Usage - whylogs v1.0.5</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -152,7 +152,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -186,16 +186,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../features/profiling.html">Profiling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../features/writing.html">Writers</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../../examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="Getting_Started.html">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Inspecting_Profiles.html">Inspecting Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Logging_Different_Data.html">(why)Logging</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Data Validation with Metric Constraints</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Merging_Profiles.html">Merging Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../advanced/Constraints_Suite.html">Simple Constraints - Examples and Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">Rolling Logs with Streaming Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html">Inspecting Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Merging_Profiles.html">Merging Profiles</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Simple Constraints - Examples and Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">Rolling Logs with Streaming Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../integrations/Writing_Profiles.html">Writing profiles - Local/S3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../integrations/Pyspark_Profiling.html">PySpark Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../integrations/Mlflow_Logging.html">MLflow Logging</a></li>
@@ -331,7 +331,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -593,31 +593,198 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Data-Validation-with-Metric-Constraints">
-<h1>Data Validation with Metric Constraints<a class="headerlink" href="#Data-Validation-with-Metric-Constraints" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/basic/Metric_Constraints.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<section id="Simple-Constraints---Examples-and-Usage">
+<h1>Simple Constraints - Examples and Usage<a class="headerlink" href="#Simple-Constraints---Examples-and-Usage" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Constraints_Suite.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <blockquote>
-<div><p>This is an example for whylogs versions 1.0.0 and above. If you’re interested in constraints for versions &lt;1.0.0, please see these examples: <a class="reference external" href="https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/Constraints_Suite.ipynb">Constraints Suite</a>, <a class="reference external" href="https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/Constraints_Distributional_Measures.ipynb">Constraints-Distributional Measures</a>, and <a class="reference external" href="https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/Creating_Customized_Constraints.ipynb">Creating Customized
-Constraints</a></p>
+<div><p>This is a <code class="docutils literal notranslate"><span class="pre">whylogs</span> <span class="pre">v1</span></code> example. For the analog feature in <code class="docutils literal notranslate"><span class="pre">v0</span></code>, please refer to <a class="reference external" href="https://github.com/whylabs/whylogs/blob/maintenance/0.7.x/examples/Constraints_Suite.ipynb">this example</a></p>
 </div></blockquote>
+<p>In this example, we’ll show how to define a number of simple constraints and examples on how to use them. For the basics on how to build your own set of constraints, see the example - <a class="reference external" href="https://whylogs.readthedocs.io/en/stable/examples/basic/Metric_Constraints.html">Data Validation with Metric Constraints</a>.</p>
+<p>The constraints are listed according to the metric namespace used when defining them. For each category, we will create helper functions for simple and popular constraints. Each helper function has a brief explanation in its docstring. After defining the helper functions, we’ll show a simple example on how to build the constraints out of the functions and visualize them as a report with the visualization module.</p>
+<blockquote>
+<div><p>Note: The constraints shown here are still experimental and subject to further changes. Stay tuned for upgrades!</p>
+</div></blockquote>
+<section id="Table-of-Contents">
+<h2>Table of Contents<a class="headerlink" href="#Table-of-Contents" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="#pre">Installing and Importing Modules</a></p></li>
+<li><p><a class="reference external" href="#distribution">Distribution Metrics Constraints</a></p>
+<ul>
+<li><p>greater_than_number</p></li>
+<li><p>lower_than_number</p></li>
+<li><p>mean_between_range</p></li>
+<li><p>stddev_between_range</p></li>
+<li><p>quantile_between_range</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#frequent">Frequent Items/Frequent Strings Metrics Constraints</a></p>
+<ul>
+<li><p>frequent_strings_in_reference_set</p></li>
+<li><p>n_most_common_items_in_set</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#counts">Counters Constraints</a></p>
+<ul>
+<li><p>total_value_below_number</p></li>
+<li><p>null_values_below_number</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="#card">Cardinality Constraints</a></p>
+<ul>
+<li><p>distinct_number_in_range</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="Installing-whylogs-and-importing-modules">
+<h2>Installing whylogs and importing modules<a class="headerlink" href="#Installing-whylogs-and-importing-modules" title="Permalink to this headline">#</a></h2>
+<p>If you haven’t already, install whylogs:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install &#39;whylogs[viz]&#39;
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install whylogs[viz]</span>
 </pre></div>
 </div>
 </div>
-<p>Starting with the basic pandas dataframe logging, consider the following input. We will generate whylogs profile view from this</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<p>Then, let’s import the modules needed to create the constraints:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">ConstraintsBuilder</span><span class="p">,</span> <span class="n">MetricConstraint</span><span class="p">,</span> <span class="n">MetricsSelector</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Distribution-Metrics-Constraints">
+<h2>Distribution Metrics Constraints<a class="headerlink" href="#Distribution-Metrics-Constraints" title="Permalink to this headline">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">greater_than_number</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Minimum value of given column must be above defined number.</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">why</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    number : float</span>
+<span class="sd">        reference value for applying the constraint</span>
 
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> greater than number </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span><span class="n">number</span><span class="p">),</span>
+        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span> <span class="o">&lt;=</span> <span class="n">number</span><span class="p">,</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+
+<span class="k">def</span> <span class="nf">mean_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Estimated mean must be between range defined by lower and upper bounds.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    lower : int</span>
+<span class="sd">        Lower bound of defined range</span>
+<span class="sd">    upper : int</span>
+<span class="sd">        Upper bound of the value range</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> mean between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> (inclusive)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span>
+        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">lower</span> <span class="o">&gt;</span> <span class="n">x</span><span class="o">.</span><span class="n">avg</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">avg</span> <span class="o">&gt;</span> <span class="n">upper</span><span class="p">,</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+
+
+<span class="k">def</span> <span class="nf">lower_than_number</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Maximum value of given column must be below defined number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    number : float</span>
+<span class="sd">        reference value for applying the constraint</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> lower than number </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span><span class="n">number</span><span class="p">),</span>
+        <span class="c1"># check for nans, Nones</span>
+        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span> <span class="o">&gt;=</span> <span class="n">number</span><span class="p">,</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+
+<span class="k">def</span> <span class="nf">stddev_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span><span class="n">lower</span><span class="p">,</span><span class="n">upper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Estimated standard deviation must be between range defined by lower and upper bounds.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    lower : int</span>
+<span class="sd">        Lower bound of defined range</span>
+<span class="sd">    upper : int</span>
+<span class="sd">        Upper bound of the value range</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> standard deviation between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> (inclusive)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span>
+        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">lower</span> <span class="o">&gt;</span> <span class="n">x</span><span class="o">.</span><span class="n">stddev</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">stddev</span> <span class="o">&gt;</span> <span class="n">upper</span><span class="p">,</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+
+<span class="k">def</span> <span class="nf">quantile_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span><span class="n">upper</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">skip_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Q-th quantile value must be withing the range defined by lower and upper boundaries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    quantile_value : float</span>
+<span class="sd">        Quantile value. E.g. median is equal to quantile_value=0.5</span>
+<span class="sd">    lower : float</span>
+<span class="sd">        Lower bound of defined range</span>
+<span class="sd">    upper : float</span>
+<span class="sd">        Upper bound of the value range</span>
+<span class="sd">    skip_missing : bool</span>
+<span class="sd">        If skip_missing is True, missing distribution metrics will make the check pass.</span>
+<span class="sd">        If False, the check will fail on missing metrics</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">quantile_in_range</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="n">quantile_value</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantile</span><span class="p">(</span><span class="n">quantile</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">lower</span> <span class="o">&gt;</span> <span class="n">quantile_value</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">quantile_value</span> <span class="o">&gt;</span> <span class="n">upper</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">skip_missing</span> <span class="k">else</span> <span class="kc">False</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">-th quantile value  between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> (inclusive)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">quantile</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span>
+    <span class="n">condition</span> <span class="o">=</span> <span class="n">quantile_in_range</span><span class="p">,</span>
+    <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;distribution&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+<br/><br/></pre></div>
+</div>
+</div>
+<section id="Examples---Distribution-Metrics-Constraints">
+<h3>Examples - Distribution Metrics Constraints<a class="headerlink" href="#Examples---Distribution-Metrics-Constraints" title="Permalink to this headline">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;hawk&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;mosquito&quot;</span><span class="p">],</span>
     <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
@@ -629,357 +796,31 @@ Constraints</a></p>
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-1.0.0rc3
-</pre></div></div>
-</div>
-<p>The profile view can be display as a pandas dataframe where the columns are metric/component paths</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">greater_than_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mf">0.14</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">mean_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">lower_than_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mf">20.5</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">stddev_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">quantile_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">2.0</span><span class="p">))</span>
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
+<span class="c1"># animal has missing distribution metrics. this will pass if skip_missing = True and fail otherwise.</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">quantile_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;animal&quot;</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">skip_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>counts/n</th>
-      <th>counts/null</th>
-      <th>types/integral</th>
-      <th>types/fractional</th>
-      <th>types/boolean</th>
-      <th>types/string</th>
-      <th>types/object</th>
-      <th>cardinality/est</th>
-      <th>cardinality/upper_1</th>
-      <th>cardinality/lower_1</th>
-      <th>...</th>
-      <th>distribution/q_25</th>
-      <th>distribution/median</th>
-      <th>distribution/q_75</th>
-      <th>distribution/q_90</th>
-      <th>distribution/q_95</th>
-      <th>distribution/q_99</th>
-      <th>type</th>
-      <th>ints/max</th>
-      <th>ints/min</th>
-      <th>frequent_items/frequent_strings</th>
-    </tr>
-    <tr>
-      <th>column</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>weight</th>
-      <td>5</td>
-      <td>0</td>
-      <td>0</td>
-      <td>5</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>5.0</td>
-      <td>5.00025</td>
-      <td>5.0</td>
-      <td>...</td>
-      <td>1.3</td>
-      <td>1.8</td>
-      <td>4.1</td>
-      <td>4.3</td>
-      <td>4.3</td>
-      <td>4.3</td>
-      <td>SummaryType.COLUMN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>legs</th>
-      <td>5</td>
-      <td>0</td>
-      <td>5</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>4.0</td>
-      <td>4.00020</td>
-      <td>4.0</td>
-      <td>...</td>
-      <td>2.0</td>
-      <td>4.0</td>
-      <td>4.0</td>
-      <td>6.0</td>
-      <td>6.0</td>
-      <td>6.0</td>
-      <td>SummaryType.COLUMN</td>
-      <td>6.0</td>
-      <td>0.0</td>
-      <td>[FrequentItem(value='4.000000', est=2, upper=2...</td>
-    </tr>
-    <tr>
-      <th>animal</th>
-      <td>5</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>5</td>
-      <td>0</td>
-      <td>4.0</td>
-      <td>4.00020</td>
-      <td>4.0</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>SummaryType.COLUMN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>[FrequentItem(value='cat', est=2, upper=2, low...</td>
-    </tr>
-  </tbody>
-</table>
-<p>3 rows × 28 columns</p>
-</div></div>
-</div>
-<p>In the above output notice that we have a metrics on the number of legs these animals have in the “legs” column. Let’s say we want to define some constraints on the number of “legs” we expect for animals.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">Constraints</span><span class="p">,</span> <span class="n">ConstraintsBuilder</span><span class="p">,</span> <span class="n">MetricsSelector</span><span class="p">,</span> <span class="n">MetricConstraint</span>
-<span class="n">column_view</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;legs&quot;</span><span class="p">)</span>
+<span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 
-<span class="c1"># constraint session bound to profile_view</span>
-<span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">profile_view</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
 
-<span class="c1"># A constraint builder lets you generate a set of contraints using the passed in profile_view&#39;s list of columns and metrics.</span>
-<span class="c1"># lets explore what kind of column profiles and metrics we have avalaible in the profile view</span>
-
-<span class="c1"># We can specify a metric by selecting a (column_name, metric_name)</span>
-<span class="c1"># lets look at the column names again:</span>
-<span class="n">column_names</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">get_columns</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;columns: </span><span class="si">{</span><span class="n">column_names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># And here are the metric names on the &quot;legs&quot; column</span>
-<span class="n">metric_names</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;legs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_metric_names</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;metric names: </span><span class="si">{</span><span class="n">metric_names</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># If you want to the full set of possibilities you can ask the builder for all MetricSelectors</span>
-<span class="c1"># which covers the unique combinations of (column_name, metric_name)</span>
-<span class="n">selectors</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">get_metric_selectors</span><span class="p">()</span>
-<span class="n">i</span> <span class="o">=</span> <span class="mi">6</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;here is selector at index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">selectors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2"> there are a total of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">selectors</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<br/><br/></pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-columns: dict_keys([&#39;weight&#39;, &#39;legs&#39;, &#39;animal&#39;])
-metric names: [&#39;counts&#39;, &#39;types&#39;, &#39;distribution&#39;, &#39;ints&#39;, &#39;cardinality&#39;, &#39;frequent_items&#39;]
-here is selector at index 6: MetricsSelector(metric_name=&#39;distribution&#39;, column_name=&#39;legs&#39;, metrics_resolver=None) there are a total of 14
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Lets say we&#39;re interested in defining a constraint on the number of &quot;legs&quot;. From output above we see</span>
-<span class="c1"># that there are the following metrics on column &quot;legs&quot;: [counts, types, distribution, ints, cardinality, frequent_items]</span>
-<span class="c1"># lets look at what the distribution metric contains:</span>
-<span class="n">distribution_values</span> <span class="o">=</span> <span class="n">profile_view</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;legs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">&quot;distribution&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">()</span>
-<span class="n">distribution_values</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-{&#39;mean&#39;: 3.2,
- &#39;stddev&#39;: 2.280350850198276,
- &#39;n&#39;: 5,
- &#39;max&#39;: 6.0,
- &#39;min&#39;: 0.0,
- &#39;q_01&#39;: 0.0,
- &#39;q_05&#39;: 0.0,
- &#39;q_10&#39;: 0.0,
- &#39;q_25&#39;: 2.0,
- &#39;median&#39;: 4.0,
- &#39;q_75&#39;: 4.0,
- &#39;q_90&#39;: 6.0,
- &#39;q_95&#39;: 6.0,
- &#39;q_99&#39;: 6.0}
-</pre></div></div>
-</div>
-<p>Ok, let’s come back to how to use the ConstraintsBuilder to add a couple constraints</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># the constraints builder add_constraint() takes in a MetricConstraint, which requires three things to define it:</span>
-<span class="c1"># 1. A metric selector, this is a way of selecting which metric and on which column you want to apply a constraint.</span>
-<span class="c1">#   let&#39;s choose MetricsSelector(metric_name=&#39;distribution&#39;, column_name=&#39;legs&#39;, metrics_resolver=None)</span>
-<span class="c1"># 2. an expression on the selected metric, for distribution, we have numeric properties such as max, min, stddev</span>
-<span class="c1">#   and others we can reference. For this we&#39;ll require animal legs &lt; 12 (sorry centipedes)!</span>
-<span class="c1"># 3. a name for this constraint, let&#39;s go with &quot;legs &lt; 12&quot;</span>
-
-<span class="n">distribution_legs</span> <span class="o">=</span> <span class="n">MetricsSelector</span><span class="p">(</span><span class="n">metric_name</span><span class="o">=</span><span class="s1">&#39;distribution&#39;</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="s1">&#39;legs&#39;</span><span class="p">)</span>
-
-<span class="c1"># this lambda takes in a distribution metric, which has convenience properties on this metric for max/min,</span>
-<span class="c1"># but we could also call to_summary_dict() and use any of the keys we saw in &#39;distribution_values&#39; above</span>
-<span class="n">legs_under_12</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">max</span> <span class="o">&lt;</span> <span class="mi">12</span>
-
-<span class="n">constraint_name</span> <span class="o">=</span> <span class="s2">&quot;legs &lt; 12&quot;</span>
-
-<span class="n">legs_constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
-        <span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span>
-        <span class="n">condition</span><span class="o">=</span><span class="n">legs_under_12</span><span class="p">,</span>
-        <span class="n">metric_selector</span><span class="o">=</span><span class="n">distribution_legs</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># now that we have a legs_constraint defined we can add it to the builder:</span>
-<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">legs_constraint</span><span class="p">)</span>
-
-<span class="c1"># we could add more constraints using this pattern to the builder, maybe we realize negative values are invalid</span>
-<span class="n">not_negative</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span> <span class="o">&gt;=</span> <span class="mi">0</span>
-<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">MetricConstraint</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;legs &gt;= 0&quot;</span><span class="p">,</span>
-    <span class="n">condition</span><span class="o">=</span><span class="n">not_negative</span><span class="p">,</span>
-    <span class="n">metric_selector</span><span class="o">=</span><span class="n">distribution_legs</span>
-<span class="p">))</span>
-
-<span class="c1"># ok lets build these constraints</span>
-<span class="n">constraints</span><span class="p">:</span> <span class="n">Constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
-
-<span class="c1"># A Constraints object contains a collection of contraints and can call validate to get a pass/fail</span>
-<span class="c1"># or report for display</span>
-<span class="n">constraints_valid</span> <span class="o">=</span> <span class="n">constraints</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Constraints valid: </span><span class="si">{</span><span class="n">constraints_valid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># And a simple report of the [constraint name, pass, fail] can be generated like this:</span>
-<span class="n">constraints_report</span> <span class="o">=</span> <span class="n">constraints</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Constraints report [constraint name, pass, fail]: </span><span class="si">{</span><span class="n">constraints_report</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<br/></pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Constraints valid: True
-Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0), (&#39;legs &gt;= 0&#39;, 1, 0)]
-</pre></div></div>
-</div>
-<p>Ok lets add a few more! and rebuild the constraints</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stddev_below_3</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">stddev</span> <span class="o">&lt;</span> <span class="mf">3.0</span>
-<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">MetricConstraint</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;legs stddev &lt; 3.0&quot;</span><span class="p">,</span>
-    <span class="n">condition</span><span class="o">=</span><span class="n">stddev_below_3</span><span class="p">,</span>
-    <span class="n">metric_selector</span><span class="o">=</span><span class="n">distribution_legs</span>
-<span class="p">))</span>
-
-<span class="n">distribution_weight</span> <span class="o">=</span> <span class="n">MetricsSelector</span><span class="p">(</span><span class="n">metric_name</span><span class="o">=</span><span class="s1">&#39;distribution&#39;</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="s1">&#39;weight&#39;</span><span class="p">)</span>
-<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">MetricConstraint</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;weight &gt;= 0&quot;</span><span class="p">,</span>
-    <span class="n">condition</span><span class="o">=</span><span class="n">not_negative</span><span class="p">,</span>
-    <span class="n">metric_selector</span><span class="o">=</span><span class="n">distribution_weight</span>
-<span class="p">))</span>
-
-<span class="n">reasonable_constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
-
-
-<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">MetricConstraint</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;count &gt;= 1000&quot;</span><span class="p">,</span>
-    <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">,</span>
-    <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">metric_name</span><span class="o">=</span><span class="s1">&#39;counts&#39;</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="s1">&#39;animal&#39;</span><span class="p">)</span>
-<span class="p">))</span>
-
-<span class="n">reasonable_constraints_over_1000_rows</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
-
-<span class="c1"># You can also pass the constraints to the NotebookProfileVisualizer and generate a report</span>
 <span class="n">visualization</span> <span class="o">=</span> <span class="n">NotebookProfileVisualizer</span><span class="p">()</span>
 <span class="n">visualization</span><span class="o">.</span><span class="n">constraints_report</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">cell_height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
-<br/><br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1572,7 +1413,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;legs &lt; 12&quot;, 1, 0], [&quot;legs &gt;= 0&quot;, 1, 0]];
+      const context = [[&quot;weight greater than number 0.14&quot;, 0, 1], [&quot;weight mean between 2 and 3 (inclusive)&quot;, 1, 0], [&quot;weight lower than number 20.5&quot;, 1, 0], [&quot;weight standard deviation between 1 and 3 (inclusive)&quot;, 1, 0], [&quot;weight 0.5-th quantile value  between 1.5 and 2.0 (inclusive)&quot;, 1, 0], [&quot;animal 0.5-th quantile value  between 1.5 and 2.0 (inclusive)&quot;, 0, 1]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -1732,17 +1573,107 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 " width=100% height=300
         frameBorder=0></iframe></div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</section>
+</section>
+<section id="Frequent-Items/Frequent-Strings-Constraints">
+<h2>Frequent Items/Frequent Strings Constraints<a class="headerlink" href="#Frequent-Items/Frequent-Strings-Constraints" title="Permalink to this headline">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># a slightly more interesting report</span>
-<span class="n">visualization</span><span class="o">.</span><span class="n">constraints_report</span><span class="p">(</span><span class="n">reasonable_constraints</span><span class="p">,</span> <span class="n">cell_height</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">frequent_strings_in_reference_set</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span><span class="n">reference_set</span><span class="p">:</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Every item in frequent strings must be in defined reference set</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Columns the constraint is applied to.</span>
+<span class="sd">    reference_set : dict</span>
+<span class="sd">        Reference set for applying the constraint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">whylogs.core.configs</span> <span class="kn">import</span> <span class="n">SummaryConfig</span>
+    <span class="n">frequent_strings</span> <span class="o">=</span> <span class="n">MetricsSelector</span><span class="p">(</span><span class="n">metric_name</span><span class="o">=</span><span class="s1">&#39;frequent_items&#39;</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">labels_in_set</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
+        <span class="n">frequent_strings</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">(</span><span class="n">SummaryConfig</span><span class="p">())[</span><span class="s1">&#39;frequent_strings&#39;</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">reference_set</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">frequent_strings</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="n">constraint_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> values in set </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span><span class="n">reference_set</span><span class="p">)</span>
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span>
+            <span class="n">condition</span><span class="o">=</span><span class="n">labels_in_set</span><span class="p">,</span>
+            <span class="n">metric_selector</span><span class="o">=</span><span class="n">frequent_strings</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+
+<span class="k">def</span> <span class="nf">n_most_common_items_in_set</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">reference_set</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; n most common items must be in defined reference_set</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Columns the constraint is applied to.</span>
+<span class="sd">    n : int</span>
+<span class="sd">        n most common items or strings.</span>
+<span class="sd">    reference_set : dict</span>
+<span class="sd">        Reference set for applying the constraint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">whylogs.core.configs</span> <span class="kn">import</span> <span class="n">SummaryConfig</span>
+    <span class="n">frequent_strings</span> <span class="o">=</span> <span class="n">MetricsSelector</span><span class="p">(</span><span class="n">metric_name</span><span class="o">=</span><span class="s1">&#39;frequent_items&#39;</span><span class="p">,</span> <span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">)</span>
+    <span class="n">constraint_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">-most common items in set </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">reference_set</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">most_common_in_set</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
+        <span class="n">frequent_strings</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">(</span><span class="n">SummaryConfig</span><span class="p">())[</span><span class="s1">&#39;frequent_strings&#39;</span><span class="p">]</span>
+        <span class="n">most_common_items</span> <span class="o">=</span> <span class="n">frequent_strings</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="ow">in</span> <span class="n">reference_set</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">most_common_items</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">constraint_name</span><span class="p">,</span>
+            <span class="n">condition</span><span class="o">=</span><span class="n">most_common_in_set</span><span class="p">,</span>
+            <span class="n">metric_selector</span><span class="o">=</span><span class="n">frequent_strings</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+<br/><br/></pre></div>
+</div>
+</div>
+<section id="Examples---Frequent-Items/Frequent-Strings-Constraints">
+<h3>Examples - Frequent Items/Frequent Strings Constraints<a class="headerlink" href="#Examples---Frequent-Items/Frequent-Strings-Constraints" title="Permalink to this headline">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;mosquito&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+    <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.3</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">4.1</span><span class="p">,</span> <span class="mf">5.5e-6</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="n">profile_view</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
+<span class="n">reference_set</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span><span class="s2">&quot;snake&quot;</span><span class="p">}</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">frequent_strings_in_reference_set</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;animal&quot;</span><span class="p">,</span> <span class="n">reference_set</span><span class="o">=</span><span class="n">reference_set</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">n_most_common_items_in_set</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;animal&quot;</span><span class="p">,</span><span class="n">n</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span><span class="n">reference_set</span><span class="o">=</span><span class="n">reference_set</span><span class="p">))</span>
+<span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
+
+<span class="n">visualization</span> <span class="o">=</span> <span class="n">NotebookProfileVisualizer</span><span class="p">()</span>
+<span class="n">visualization</span><span class="o">.</span><span class="n">constraints_report</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">cell_height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2335,7 +2266,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;legs &lt; 12&quot;, 1, 0], [&quot;legs &gt;= 0&quot;, 1, 0], [&quot;legs stddev &lt; 3.0&quot;, 1, 0], [&quot;weight &gt;= 0&quot;, 1, 0]];
+      const context = [[&quot;animal values in set {&#x27;cat&#x27;, &#x27;snake&#x27;}&quot;, 0, 1], [&quot;animal 2-most common items in set {&#x27;cat&#x27;, &#x27;snake&#x27;}&quot;, 1, 0]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -2492,20 +2423,121 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-" width=100% height=400
+" width=100% height=300
         frameBorder=0></iframe></div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</section>
+</section>
+<section id="Counters-Constraints">
+<h2>Counters Constraints<a class="headerlink" href="#Counters-Constraints" title="Permalink to this headline">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># a failing report (because we don&#39;t have enough animals!)</span>
-<span class="n">visualization</span><span class="o">.</span><span class="n">constraints_report</span><span class="p">(</span><span class="n">reasonable_constraints_over_1000_rows</span><span class="p">,</span> <span class="n">cell_height</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">total_value_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Number of total value must be below given number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    number : float</span>
+<span class="sd">        reference value for applying the constraint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;total values of </span><span class="si">{}</span><span class="s2"> lower than number </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span><span class="n">number</span><span class="p">),</span>
+        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">number</span><span class="p">,</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+<br/></pre></div>
+</div>
+</div>
+<section id="Null-values">
+<h3>Null values<a class="headerlink" href="#Null-values" title="Permalink to this headline">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[68]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="k">def</span> <span class="nf">null_values_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Number of null values must be below given number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    number : float</span>
+<span class="sd">        reference value for applying the constraint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;null values of </span><span class="si">{}</span><span class="s2"> lower than number </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span><span class="n">number</span><span class="p">),</span>
+        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">null</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">number</span><span class="p">,</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+
+
+<span class="k">def</span> <span class="nf">null_pct_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">number</span><span class="p">:</span><span class="nb">float</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Percentage of null values must be below given number.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    number : float</span>
+<span class="sd">        reference value for applying the constraint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;null percentage of </span><span class="si">{}</span><span class="s2"> lower than number </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span><span class="n">number</span><span class="p">),</span>
+        <span class="n">condition</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">null</span><span class="o">.</span><span class="n">value</span><span class="o">/</span><span class="n">x</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">number</span><span class="p">,</span>
+        <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;counts&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Examples---Counters-Constraints">
+<h3>Examples - Counters Constraints<a class="headerlink" href="#Examples---Counters-Constraints" title="Permalink to this headline">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[69]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;mosquito&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+    <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.3</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">4.1</span><span class="p">,</span> <span class="mf">5.5e-6</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="n">profile_view</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[73]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">total_value_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">null_pct_below_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;legs&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mf">0.05</span><span class="p">))</span>
+
+<span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
+
+<span class="n">visualization</span> <span class="o">=</span> <span class="n">NotebookProfileVisualizer</span><span class="p">()</span>
+<span class="n">visualization</span><span class="o">.</span><span class="n">constraints_report</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">cell_height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[73]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -3098,7 +3130,7 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = [[&quot;legs &lt; 12&quot;, 1, 0], [&quot;legs &gt;= 0&quot;, 1, 0], [&quot;legs stddev &lt; 3.0&quot;, 1, 0], [&quot;weight &gt;= 0&quot;, 1, 0], [&quot;count &gt;= 1000&quot;, 0, 1]];
+      const context = [[&quot;total values of legs lower than number 10&quot;, 1, 0], [&quot;null percentage of legs lower than number 0.05&quot;, 0, 1]];
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -3255,9 +3287,836 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
     initWebsiteScripts();
   &lt;/script&gt;
 &lt;/html&gt;
-" width=100% height=400
+" width=100% height=300
         frameBorder=0></iframe></div>
 </div>
+</section>
+</section>
+<section id="Cardinality-Constraints">
+<h2>Cardinality Constraints<a class="headerlink" href="#Cardinality-Constraints" title="Permalink to this headline">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[89]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><br/><span></span><span class="k">def</span> <span class="nf">distinct_number_in_range</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">lower</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">upper</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Number of distinct categories must be between lower and upper values (inclusive).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    column_name : str</span>
+<span class="sd">        Column the constraint is applied to</span>
+<span class="sd">    lower : int</span>
+<span class="sd">        Lower bound of defined range</span>
+<span class="sd">    upper : int</span>
+<span class="sd">        Upper bound of the value range</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">distinct_in_range</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
+        <span class="n">distinct_estimate</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_estimate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lower</span> <span class="o">&gt;</span> <span class="n">distinct_estimate</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">distinct_estimate</span> <span class="o">&gt;</span> <span class="n">upper</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">MetricConstraint</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> distinct values estimate between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2"> (inclusive)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">),</span>
+    <span class="n">condition</span><span class="o">=</span><span class="n">distinct_in_range</span><span class="p">,</span>
+    <span class="n">metric_selector</span><span class="o">=</span><span class="n">MetricsSelector</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;cardinality&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">constraint</span>
+</pre></div>
+</div>
+</div>
+<section id="Examples---Cardinality-Constraints">
+<h3>Examples - Cardinality Constraints<a class="headerlink" href="#Examples---Cardinality-Constraints" title="Permalink to this headline">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[86]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;animal&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;snake&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;mosquito&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+    <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">4.3</span><span class="p">,</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mf">4.1</span><span class="p">,</span> <span class="mf">5.5e-6</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+<span class="n">profile_view</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[90]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">distinct_number_in_range</span><span class="p">(</span><span class="n">column_name</span> <span class="o">=</span> <span class="s2">&quot;animal&quot;</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+<span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
+
+<span class="n">visualization</span> <span class="o">=</span> <span class="n">NotebookProfileVisualizer</span><span class="p">()</span>
+<span class="n">visualization</span><span class="o">.</span><span class="n">constraints_report</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="n">cell_height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[90]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
+
+    &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
+
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
+
+    &lt;script
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
+    &gt;&lt;/script&gt;
+
+    &lt;style type=&quot;text/css&quot;&gt;
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media screen and (min-width: 1000px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .wl-compare-profile {
+        position: relative;
+        left: 0;
+        padding: 30px;
+        margin-bottom: 20px;
+        background: var(--white);;
+        border-bottom: 1px solid #CED4DA;
+      }
+
+      .alert-list {
+        padding: 30px;
+        padding-top: 0;
+      }
+
+    .drift-detection {
+       justify-content: space-between;
+       align-items: center;
+     }
+
+     .drift-detection-info-circle {
+       width: 15px;
+       height: 15px;
+       border-radius: 50px;
+       display: inline-block;
+       margin-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item {
+         padding-right: 20px;
+     }
+
+     .drift-detection-info-title {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 22px;
+       line-height: 130%;
+       color: #313B3D;
+     }
+
+     .drift-detection-info-drifts-item-count {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 14px;
+       line-height: 16px;
+       color: #000000;
+       padding-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item-name {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 12px;
+       line-height: 14px;
+       color: #000000;
+     }
+
+     .drift-detection-search-input {
+       display: flex;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 170px;
+       padding-left: 10px;
+     }
+
+     .drift-detection-search-input img{
+       margin-right: 5px;
+     }
+
+     .drift-detection-search-input input::placeholder {
+       font-family: Arial;
+       font-weight: normal;
+       font-size: 13px;
+       line-height: 16px;
+       color: #313B3D;
+     }
+
+     .dropdown-container {
+       position: absolute;
+       right: 30px;
+       top: 80px;
+       z-index: 999;
+       background: #FFFFFF;
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+       border-radius: 4px;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .filter-options-title {
+       width: 240px;
+     }
+
+     .filter-options-title p {
+       margin: 0;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 2px;
+     }
+
+     .search-input{
+       padding-top: 0 !important;
+       padding-bottom: 0 !important;
+     }
+
+     .search-input input{
+       border: none;
+       background: none;
+       outline: none;
+       height: 40px;
+       width: 100%;
+       font-size: 14px;
+     }
+
+     .search-input img{
+       height: 19px;
+       pointer-events: none;
+     }
+
+     input::placeholder {
+       color: var(--secondaryLight1000);
+     }
+
+      .statistics {
+        width: 100%;
+      }
+
+     .close-filter-button {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #369BAC;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 40px;
+       height: 40px;
+       cursor: pointer;
+       margin-left: 10px;
+     }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #4F595B;
+      }
+
+      .full-summary-statistics-wrap {
+        padding: 20px;
+      }
+
+      .statistics {
+        width: 100%;
+      }
+
+      .statistics-list {
+        width: 100% ;
+      }
+
+      mark {
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 140%;
+      }
+
+      .blue-mark {
+        background-color:  #369BAC1A;
+        color: #369BAC;
+      }
+
+      .red-mark {
+        background-color: #FFEFEE;
+        color: #F5473C;
+      }
+
+      .alert-tag {
+        height: 27px;
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 140%;
+        color: #FFFFFF;
+      }
+
+      .turquoise-background-color {
+        background-color: #1DBB42;
+      }
+
+      .bordeaux-background-color {
+        background-color: #C6462A;
+      }
+
+      .border-solid-gray {
+        border: 1px solid #CED4DA;
+        border-radius: 4px;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .align-items-flex-start {
+        align-items: flex-start;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+      .alert-list-text {
+        width: 70%
+      }
+
+     @media screen and (min-width: 500px) {
+       .desktop-content {
+         display: block;
+       }
+       .no-responsive {
+         display: none;
+       }
+     }
+    &lt;/style&gt;
+  &lt;/head&gt;
+
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
+
+      &lt;div class=&quot;desktop-content&quot;&gt;
+        &lt;div class=&quot;full-summary-statistics-wrap&quot;&gt;
+          &lt;div class=&quot;full-summary-statistics&quot;&gt;
+            &lt;div&gt;
+              &lt;div class=&quot;display-flex justify-content-center&quot;&gt;
+                &lt;div class=&quot;statistics-list border-solid-gray&quot;&gt;
+                  &lt;div&gt;
+                    &lt;div class=&quot;wl-compare-profile&quot; id=&quot;compare-profile&quot;&gt;
+                        &lt;div class=&quot;drift-detection-wrap&quot;&gt;
+                          &lt;div class=&quot;drift-detection display-flex align-items-flex-start&quot;&gt;
+                            &lt;div class=&quot;drift-detection-info flex-direction-colum&quot;&gt;
+                              &lt;div class=&quot;drift-detection-info-title-wrap display-flex&quot;&gt;
+                                &lt;p class=&quot;drift-detection-info-title&quot;&gt;
+                                  Constraints Report
+                                &lt;/p&gt;
+                              &lt;/div&gt;
+
+                              &lt;!-- &lt;/div&gt; --&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;drift-detection-search-input-wrap display-flex&quot;&gt;
+                              &lt;div class=&quot;drift-detection-search-input search-input&quot;&gt;
+                                &lt;input type=&quot;text&quot; id=&quot;wl__feature-search&quot; placeholder=&quot;Quick search...&quot;/&gt;
+                                &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg==&quot;/&gt;
+                              &lt;/div&gt;
+                              &lt;div class=&quot;wl__dropdown_arrow-icon&quot;&gt;
+                                &lt;div onclick=&quot;openFilter()&quot; class=&quot;close-filter-button&quot;&gt;
+                                &lt;div class=&quot;display-flex close-filter-icon d-none&quot;&gt;
+                                  &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg==&quot;/&gt;
+                                &lt;/div&gt;
+                                &lt;div class=&quot;display-flex filter-icon&quot;&gt;
+                                  &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg==&quot;/&gt;
+                                &lt;/div&gt;
+                                &lt;/div&gt;
+                              &lt;span class=&quot;notif-circle-container&quot;&gt;
+                                &lt;span class=&quot;notif-circle&quot;&gt;&lt;/span&gt;
+                              &lt;/span&gt;
+                            &lt;/div&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;dropdown-container flex-direction-colum mb-2 d-none&quot; id=&quot;dropdown-container&quot;&gt;
+                          &lt;div class=&quot;filter-options&quot;&gt;
+                            &lt;div class=&quot;filter-options-title space-between dropdown&quot;&gt;
+                              &lt;p&gt;Select a view:&lt;/p&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1 mt-2&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Discrete&quot;
+                                id=&quot;inferredDiscrete&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredDiscrete&quot;&gt;
+                                Failed constraints (&lt;span class=&quot;wl__feature-count--discrete&quot;&gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Non-discrete&quot;
+                                id=&quot;inferredNonDiscrete&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredNonDiscrete&quot;&gt;
+                                Passed constraints (&lt;span
+                                  class=&quot;wl__feature-count--non-discrete&quot;
+                                &gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Unknown&quot;
+                                id=&quot;inferredUnknown&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredUnknown&quot;&gt;
+                                All constraints (&lt;span class=&quot;wl__feature-count--unknown&quot;&gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;div class=&quot;alert-list&quot; id=&quot;alert-list&quot;&gt;
+                      {{{alertLIst this}}}
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+  &lt;/script&gt;
+
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
+
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
+
+  &lt;script&gt;
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat(&quot;%Y-%m-%d %I:%M:%S %p %Z&quot;);
+        return format(date);
+      }
+
+      function fixNumberTo(number, decimals = 3) {
+        return parseFloat(number).toFixed(decimals);
+      }
+
+      const randomNumbers = (range) =&gt; Math.floor(Math.random() * range)
+
+      const findFetureWithNumberSummary = (column) =&gt; {
+        const fetureIndex = Object.values(column.columns)
+              .findIndex((feture) =&gt; feture.numberSummary)
+
+        return Object.keys(column.columns)[fetureIndex]
+      }
+
+      const alertListItemStatus = (status, passedItem, failedItem) =&gt; {
+        if (status) {
+          return passedItem
+        } else {
+          return failedItem
+        }
+      }
+
+      const alertListElement = (name, text, status) =&gt; {
+
+        return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `&lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;`,
+                  `&lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;`
+                )
+              }
+          &lt;/div&gt;`
+        )
+      }
+
+      let failedConstraints = 0;
+
+      Handlebars.registerHelper(&quot;getProfileTimeStamp&quot;, function (column) {
+        return formatLabelDate(+column.properties.dataTimestamp)
+      });
+
+      Handlebars.registerHelper(&quot;getProfileName&quot;, function (column) {
+        return column.properties.tags.name
+      });
+
+
+      Handlebars.registerHelper(&quot;alertLIst&quot;, function (column) {
+        let alertListItem = column.map((value) =&gt; {
+          if (value[1][0]) {
+            let alertListValue = value[1].map((cstr)=&gt;{
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+            })
+            return alertListValue.join(&#x27; &#x27;)
+          } else {
+            return alertListElement(&#x27;&#x27;, value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+          }
+        })
+         $(document).ready(() =&gt; {
+           $(&quot;.wl__feature-count--discrete&quot;).append(failedConstraints)
+           $(&quot;.wl__feature-count--non-discrete&quot;).append(column.length - failedConstraints)
+           $(&quot;.wl__feature-count--unknown&quot;).append(column.length)
+         })
+        return alertListItem.join(&#x27; &#x27;)
+      });
+
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = [[&quot;animal distinct values estimate between 3 and 6 (inclusive)&quot;, 1, 0]];
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById(&quot;generated-html&quot;);
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      const $featureSearch = document.getElementById(&quot;wl__feature-search&quot;);
+      const $alertList = document.getElementById(&quot;alert-list&quot;);
+      const $discrete = document.getElementById(&quot;inferredDiscrete&quot;);
+      const $nonDiscrete = document.getElementById(&quot;inferredNonDiscrete&quot;);
+      const $unknown = document.getElementById(&quot;inferredUnknown&quot;);
+
+      const activeTypes = {
+        passed: true,
+        failed: true
+      };
+
+      let searchString = &quot;&quot;;
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate &amp;&amp; !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function filterNotification() {
+        const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+        const $boxes = $(&#x27;.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked&#x27;);
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass(&quot;d-none&quot;)
+        } else {
+          $notifCircleContainer.addClass(&quot;d-none&quot;)
+        }
+      }
+
+      function handleSearch() {
+        const tableBodyChildren = $alertList.children;
+
+        for (let i = 0; i &lt; tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = $(tableBodyChildren[i].children[0]).find(&quot;mark&quot;).text().toLowerCase();
+
+          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+            tableBodyChildren[i].style.display = &quot;&quot;;
+          } else {
+            tableBodyChildren[i].style.display = &quot;none&quot;;
+          }
+        }
+      }
+
+      const checkedBoxes = () =&gt; {
+        if ($(&#x27;.form-check-input:checked&#x27;).length === $(&quot;.form-check-input&quot;).length - 1) {
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, true );
+        }
+      }
+
+      $featureSearch.addEventListener(
+        &quot;keyup&quot;,
+        debounce((event) =&gt; {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
+
+      $discrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;failed&quot;] = true;
+          checkedBoxes();
+        } else {
+          activeTypes[&quot;failed&quot;] = false;
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, false );
+        }
+        handleSearch();
+      });
+
+      $nonDiscrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;passed&quot;] = true;
+          checkedBoxes();
+        } else {
+          activeTypes[&quot;passed&quot;] = false;
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, false );
+        }
+        handleSearch();
+      });
+
+      $unknown.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          $(&quot;.form-check-input&quot;).prop( &quot;checked&quot;, true );
+          activeTypes[&quot;passed&quot;] = true;
+          activeTypes[&quot;failed&quot;] = true;
+          checkedBoxes();
+        } else {
+          $(&quot;.form-check-input&quot;).prop( &quot;checked&quot;, false );
+          activeTypes[&quot;passed&quot;] = false;
+          activeTypes[&quot;failed&quot;] = false;
+        }
+        handleSearch();
+      });
+    }
+
+    function checkedBoxes() {
+      const $boxes = $(&#x27;input[name=checkbox]:checked&#x27;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $notifCircleContainer.addClass(&quot;d-none&quot;)
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+        checkedBoxes()
+      }
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  &lt;/script&gt;
+&lt;/html&gt;
+" width=100% height=300
+        frameBorder=0></iframe></div>
+</div>
+</section>
+</section>
 </section>
 
         </article>
@@ -3265,23 +4124,23 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="Schema_Configuration.html">
+          <a class="next-page" href="String_Tracking.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Schema Configuration for Tracking Metrics</div>
+                <div class="title">String Tracking - Unicode Range and String Length</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="Logging_Different_Data.html">
+          <a class="prev-page" href="../basic/Merging_Profiles.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">(why)Logging</div>
+                <div class="title">Merging Profiles</div>
                 
               </div>
             </a>
@@ -3330,8 +4189,45 @@ Constraints report [constraint name, pass, fail]: [(&#39;legs &lt; 12&#39;, 1, 0
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Simple Constraints - Examples and Usage</a><ul>
+<li><a class="reference internal" href="#Table-of-Contents">Table of Contents</a></li>
+<li><a class="reference internal" href="#Installing-whylogs-and-importing-modules">Installing whylogs and importing modules</a></li>
+<li><a class="reference internal" href="#Distribution-Metrics-Constraints">Distribution Metrics Constraints</a><ul>
+<li><a class="reference internal" href="#Examples---Distribution-Metrics-Constraints">Examples - Distribution Metrics Constraints</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Frequent-Items/Frequent-Strings-Constraints">Frequent Items/Frequent Strings Constraints</a><ul>
+<li><a class="reference internal" href="#Examples---Frequent-Items/Frequent-Strings-Constraints">Examples - Frequent Items/Frequent Strings Constraints</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Counters-Constraints">Counters Constraints</a><ul>
+<li><a class="reference internal" href="#Null-values">Null values</a></li>
+<li><a class="reference internal" href="#Examples---Counters-Constraints">Examples - Counters Constraints</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Cardinality-Constraints">Cardinality Constraints</a><ul>
+<li><a class="reference internal" href="#Examples---Cardinality-Constraints">Examples - Cardinality Constraints</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
