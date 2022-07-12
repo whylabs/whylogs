@@ -280,7 +280,7 @@ Functions
    .. py:method:: resolve(self, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool
 
 
-   .. py:method:: get_col_names(self) -> frozenset
+   .. py:method:: get_col_names(self) -> tuple
 
 
    .. py:method:: get(self, name: str) -> Optional[ColumnSchema]
