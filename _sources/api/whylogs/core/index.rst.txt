@@ -181,6 +181,16 @@ Attributes
 
       
 
+   .. py:attribute:: lower_case
+      :annotation: :bool = True
+
+      
+
+   .. py:attribute:: normalize
+      :annotation: :bool = True
+
+      
+
 
 .. py:class:: Resolver
 

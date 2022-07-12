@@ -1425,6 +1425,16 @@ inheritance.</p>
 <span class="sig-name descname"><span class="pre">unicode_ranges</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">Tuple[int,</span> <span class="pre">int]]</span></em><a class="headerlink" href="#whylogs.core.metrics.MetricConfig.unicode_ranges" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.MetricConfig.lower_case">
+<span class="sig-name descname"><span class="pre">lower_case</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#whylogs.core.metrics.MetricConfig.lower_case" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.MetricConfig.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#whylogs.core.metrics.MetricConfig.normalize" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -1452,6 +1462,16 @@ range to be tracked. The string length is tracked under the key
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.metrics.UnicodeRangeMetric.range_definitions">
 <span class="sig-name descname"><span class="pre">range_definitions</span></span><em class="property"><span class="w"> </span><span class="pre">:Dict[str,</span> <span class="pre">Tuple[int,</span> <span class="pre">int]]</span></em><a class="headerlink" href="#whylogs.core.metrics.UnicodeRangeMetric.range_definitions" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.UnicodeRangeMetric.lower_case">
+<span class="sig-name descname"><span class="pre">lower_case</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#whylogs.core.metrics.UnicodeRangeMetric.lower_case" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="whylogs.core.metrics.UnicodeRangeMetric.normalize">
+<span class="sig-name descname"><span class="pre">normalize</span></span><em class="property"><span class="w"> </span><span class="pre">:bool</span> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#whylogs.core.metrics.UnicodeRangeMetric.normalize" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1875,10 +1895,14 @@ range to be tracked. The string length is tracked under the key
 <li><a class="reference internal" href="#whylogs.core.metrics.MetricConfig.fi_disabled">fi_disabled</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.MetricConfig.track_unicode_ranges">track_unicode_ranges</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.MetricConfig.unicode_ranges">unicode_ranges</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.MetricConfig.lower_case">lower_case</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.MetricConfig.normalize">normalize</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric">UnicodeRangeMetric</a><ul>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.range_definitions">range_definitions</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.lower_case">lower_case</a></li>
+<li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.normalize">normalize</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.submetrics">submetrics</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.namespace">namespace</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.UnicodeRangeMetric.merge">merge</a></li>

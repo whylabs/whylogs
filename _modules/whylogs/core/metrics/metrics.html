@@ -383,7 +383,9 @@
             <span class="s2">&quot;basic-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x7F</span><span class="p">),</span>
             <span class="s2">&quot;extended-latin&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x0080</span><span class="p">,</span> <span class="mh">0x02AF</span><span class="p">),</span>
         <span class="p">}</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+    <span class="n">lower_case</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Convert Unicode characters to lower-case before counting Unicode ranges</span>
+    <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Unicode normalize strings before counting Unicode ranges</span></div>
 
 
 <span class="n">_METRIC_DESERIALIZER_REGISTRY</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">METRIC</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># type: ignore</span>
