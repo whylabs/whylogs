@@ -76,3 +76,8 @@ class TestWhylabsWriter(object):
         os.environ["WHYLABS_API_KEY"] = "0123456789.any"
         with pytest.raises(ValueError):
             results.writer("whylabs").option(org_id="org_id", api_key="api_key_123.foo").write(dataset_id="dataset_id")
+
+    def test_writer_accepts_dest_param(self, results, caplog):
+        # TODO: inspect error or mock better to avoid network call and keep test focused.
+        with pytest.raises(ValueError):
+            results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
