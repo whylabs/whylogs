@@ -20,7 +20,7 @@ class Writable(ABC):
         pass
 
     @abstractmethod
-    def write(self, path: Optional[str] = None, **kwargs):
+    def write(self, path: Optional[str] = None, **kwargs: Any):
         pass
 
 

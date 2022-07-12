@@ -2,7 +2,7 @@ import logging
 import tempfile
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from google.protobuf.message import DecodeError
 
@@ -88,7 +88,7 @@ class DatasetProfileView(Writable):
     def get_default_path(self) -> str:
         return f"profile_{self.creation_timestamp}.bin"
 
-    def write(self, path: Optional[str] = None) -> None:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
         all_metric_component_names = set()
         path = path or self.get_default_path()
 

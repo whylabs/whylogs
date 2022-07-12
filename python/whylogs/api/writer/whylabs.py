@@ -91,7 +91,7 @@ class WhyLabsWriter(Writer):
         profile_view = file.view() if isinstance(file, DatasetProfile) else file
 
         if not isinstance(profile_view, DatasetProfileView):
-            raise BadConfigError(
+            raise ValueError(
                 "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
             )
 

@@ -1,6 +1,6 @@
 import html
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 from IPython.core.display import HTML
 
@@ -79,5 +79,5 @@ class HTMLReportWriter(object):
         self._writer.option(**kwargs)
         return self
 
-    def write(self, **kwargs) -> None:
+    def write(self, **kwargs: Any) -> None:
         self._writer.write(file=self._report, **kwargs)
