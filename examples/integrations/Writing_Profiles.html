@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Writing profiles" />
+<meta property="og:title" content="Writing profiles - Local/S3" />
   
 <meta property="og:type" content="website" />
   
@@ -14,7 +14,7 @@
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="PySpark Integration" href="Pyspark_Profiling.html" /><link rel="prev" title="Rolling Logs with Streaming Data" href="../advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
-        <title>Writing profiles - whylogs v1.0.5</title>
+        <title>Writing profiles - Local/S3 - whylogs v1.0.5</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -195,7 +195,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../basic/Merging_Profiles.html">Merging Profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">Rolling Logs with Streaming Data</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Writing profiles</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Writing profiles - Local/S3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Pyspark_Profiling.html">PySpark Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Mlflow_Logging.html">MLflow Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kafka-example/Kafka_Example.html">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
@@ -592,8 +592,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Writing-profiles">
-<h1>Writing profiles<a class="headerlink" href="#Writing-profiles" title="Permalink to this headline">#</a></h1>
+<section id="Writing-profiles---Local/S3">
+<h1>Writing profiles - Local/S3<a class="headerlink" href="#Writing-profiles---Local/S3" title="Permalink to this headline">#</a></h1>
 <p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Writing_Profiles.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p>Hello there! If you’ve come to this tutorial, perhaps you are wondering what can you do after you generated your first (or maybe not the first) profile. Well, a good practice is to store these profiles as <em>lightweight</em> files, which is one of the cool features <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> brings to the table.</p>
 <p>Here we will check different flavors of writing, and you can check which one of these will meet your current needs. Shall we?</p>
@@ -764,16 +764,16 @@ whylogs.api.logger.result_set.ProfileResultSet
       <th>cardinality/upper_1</th>
       <th>cardinality/lower_1</th>
       <th>...</th>
-      <th>distribution/n</th>
-      <th>distribution/max</th>
-      <th>distribution/min</th>
-      <th>distribution/q_10</th>
       <th>distribution/q_25</th>
       <th>distribution/median</th>
       <th>distribution/q_75</th>
       <th>distribution/q_90</th>
+      <th>distribution/q_95</th>
+      <th>distribution/q_99</th>
+      <th>type</th>
       <th>ints/max</th>
       <th>ints/min</th>
+      <th>frequent_items/frequent_strings</th>
     </tr>
     <tr>
       <th>column</th>
@@ -802,6 +802,54 @@ whylogs.api.logger.result_set.ProfileResultSet
   </thead>
   <tbody>
     <tr>
+      <th>col_1</th>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>4.0002</td>
+      <td>4.0</td>
+      <td>...</td>
+      <td>1.0</td>
+      <td>1.2</td>
+      <td>2.2</td>
+      <td>2.2</td>
+      <td>2.2</td>
+      <td>2.2</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col_3</th>
+      <td>4</td>
+      <td>0</td>
+      <td>4</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>4.0002</td>
+      <td>4.0</td>
+      <td>...</td>
+      <td>3.0</td>
+      <td>4.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>5.0</td>
+      <td>2.0</td>
+      <td>[FrequentItem(value='5.000000', est=1, upper=1...</td>
+    </tr>
+    <tr>
       <th>col_2</th>
       <td>4</td>
       <td>0</td>
@@ -820,62 +868,14 @@ whylogs.api.logger.result_set.ProfileResultSet
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
       <td>NaN</td>
       <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>col_1</th>
-      <td>4</td>
-      <td>0</td>
-      <td>0</td>
-      <td>4</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>4.0</td>
-      <td>4.0002</td>
-      <td>4.0</td>
-      <td>...</td>
-      <td>4.0</td>
-      <td>2.2</td>
-      <td>0.1</td>
-      <td>0.1</td>
-      <td>1.0</td>
-      <td>1.2</td>
-      <td>2.2</td>
-      <td>2.2</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>col_3</th>
-      <td>4</td>
-      <td>0</td>
-      <td>4</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>4.0</td>
-      <td>4.0002</td>
-      <td>4.0</td>
-      <td>...</td>
-      <td>4.0</td>
-      <td>5.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>3.0</td>
-      <td>4.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>2.0</td>
+      <td>[FrequentItem(value='some', est=1, upper=1, lo...</td>
     </tr>
   </tbody>
 </table>
-<p>3 rows × 24 columns</p>
+<p>3 rows × 28 columns</p>
 </div></div>
 </div>
 <p>Cool! So now that we have a proper profile created, let’s see how we can persist is as a file.</p>
@@ -893,7 +893,16 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 <p>If you want, you can also not specify a <code class="docutils literal notranslate"><span class="pre">dest</span></code>, but an optional <code class="docutils literal notranslate"><span class="pre">base_dir</span></code>, which will write your profile with its timestamp to this base directory you want. Let’s see how:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;my_directory&quot;</span><span class="p">,</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="s2">&quot;my_directory&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
@@ -902,7 +911,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 <p>Or from the <code class="docutils literal notranslate"><span class="pre">DatasetProfileView</span></code> directly, with a <code class="docutils literal notranslate"><span class="pre">path</span></code></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_view</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;my_profile.bin&quot;</span><span class="p">)</span>
@@ -911,7 +920,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 <p>And if it couldn’t get any more convenient, you can also use the <strong>same logic for logging</strong> to also write your profile, like:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">why</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">profile</span><span class="o">=</span><span class="n">profile_view</span><span class="p">,</span> <span class="n">base_dir</span><span class="o">=</span><span class="s2">&quot;my_directory/my_profile.bin&quot;</span><span class="p">)</span>
@@ -919,7 +928,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -928,12 +937,12 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;profile_2022-05-26 20:04:07.484778.bin&#39;, &#39;my_profile.bin&#39;]
+[&#39;my_profile.bin&#39;, &#39;profile_2022-07-04 17:46:34.182446.bin&#39;]
 </pre></div></div>
 </div>
 <p>And that’s it! Now you can go ahead and decide where and how to store these profiles, for further inspection and guaranteeing your data and ML model pipelines are generating useful and quality data for your end users.</p>
@@ -953,7 +962,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">boto3</span>
@@ -971,7 +980,7 @@ whylogs.api.logger.result_set.ProfileResultSet
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -981,7 +990,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </div>
 <p>Now that we have created our <code class="docutils literal notranslate"><span class="pre">s3</span></code> bucket we will already be able to communicate with the mocked storage object. A good practice here is to declare your access credentials as environment variables. For a production setting, this won’t be persisted into code, but this will give you a sense of how to safely use our <code class="docutils literal notranslate"><span class="pre">s3</span></code> writer.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
@@ -992,7 +1001,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
@@ -1001,7 +1010,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </div>
 <p>And you’ve done it! Seems too good to be true. How would I know if the profiles are there? 🤔 Well, let’s investigate them.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">s3_client</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span>
@@ -1010,7 +1019,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="p">[])</span>
@@ -1018,7 +1027,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1027,7 +1036,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Contents&quot;</span><span class="p">,</span> <span class="p">[])</span>
@@ -1035,15 +1044,15 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[{&#39;Key&#39;: &#39;profile_2022-05-26 20:04:07.484778.bin&#39;,
-  &#39;LastModified&#39;: datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
-  &#39;ETag&#39;: &#39;&#34;ae976af8f52532e3ab58bfe089d2bc44&#34;&#39;,
-  &#39;Size&#39;: 1115,
+[{&#39;Key&#39;: &#39;profile_2022-07-04 17:46:34.182446.bin&#39;,
+  &#39;LastModified&#39;: datetime.datetime(2022, 7, 4, 17, 47, 22, tzinfo=tzutc()),
+  &#39;ETag&#39;: &#39;&#34;ec68026cdbc765bc903b56b0142ce69c&#34;&#39;,
+  &#39;Size&#39;: 1171,
   &#39;StorageClass&#39;: &#39;STANDARD&#39;,
   &#39;Owner&#39;: {&#39;DisplayName&#39;: &#39;webfile&#39;,
    &#39;ID&#39;: &#39;75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a&#39;}}]
@@ -1051,7 +1060,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </div>
 <p>And there we have it, our local <code class="docutils literal notranslate"><span class="pre">s3</span></code> bucket has our profile written! If we want to put our profile into a special “directory” - often referred to as prefix - we can do the following instead:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;s3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">option</span><span class="p">(</span>
@@ -1062,7 +1071,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects</span> <span class="o">=</span> <span class="n">s3_client</span><span class="o">.</span><span class="n">list_objects</span><span class="p">(</span><span class="n">Bucket</span><span class="o">=</span><span class="n">BUCKET_NAME</span><span class="p">)</span>
@@ -1071,22 +1080,22 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[{&#39;Key&#39;: &#39;my_prefix/somewhere/profile_2022-05-26 20:04:07.484778.bin&#39;,
-  &#39;LastModified&#39;: datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
-  &#39;ETag&#39;: &#39;&#34;ae976af8f52532e3ab58bfe089d2bc44&#34;&#39;,
-  &#39;Size&#39;: 1115,
+[{&#39;Key&#39;: &#39;my_prefix/somewhere/profile_2022-07-04 17:46:34.182446.bin&#39;,
+  &#39;LastModified&#39;: datetime.datetime(2022, 7, 4, 17, 47, 32, tzinfo=tzutc()),
+  &#39;ETag&#39;: &#39;&#34;eafb0cf9b46db6076a8091af625e42a2&#34;&#39;,
+  &#39;Size&#39;: 1171,
   &#39;StorageClass&#39;: &#39;STANDARD&#39;,
   &#39;Owner&#39;: {&#39;DisplayName&#39;: &#39;webfile&#39;,
    &#39;ID&#39;: &#39;75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a&#39;}},
- {&#39;Key&#39;: &#39;profile_2022-05-26 20:04:07.484778.bin&#39;,
-  &#39;LastModified&#39;: datetime.datetime(2022, 5, 26, 20, 4, 8, tzinfo=tzutc()),
-  &#39;ETag&#39;: &#39;&#34;ae976af8f52532e3ab58bfe089d2bc44&#34;&#39;,
-  &#39;Size&#39;: 1115,
+ {&#39;Key&#39;: &#39;profile_2022-07-04 17:46:34.182446.bin&#39;,
+  &#39;LastModified&#39;: datetime.datetime(2022, 7, 4, 17, 47, 22, tzinfo=tzutc()),
+  &#39;ETag&#39;: &#39;&#34;ec68026cdbc765bc903b56b0142ce69c&#34;&#39;,
+  &#39;Size&#39;: 1171,
   &#39;StorageClass&#39;: &#39;STANDARD&#39;,
   &#39;Owner&#39;: {&#39;DisplayName&#39;: &#39;webfile&#39;,
    &#39;ID&#39;: &#39;75aa57f09aa0c8caeab4f8c24e99d10f8e7faeebf76c078efc7c6caea54ba06a&#39;}}]
@@ -1096,7 +1105,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
 <h3>Wrapping up the s3 objects<a class="headerlink" href="#Wrapping-up-the-s3-objects" title="Permalink to this headline">#</a></h3>
 <p>Now let’s close our connection to our mocked <code class="docutils literal notranslate"><span class="pre">s3</span></code> object.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mocks3</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
@@ -1191,7 +1200,7 @@ s3.Bucket(name=&#39;my_great_bucket&#39;)
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Writing profiles</a><ul>
+<li><a class="reference internal" href="#">Writing profiles - Local/S3</a><ul>
 <li><a class="reference internal" href="#Installing-whylogs">Installing whylogs</a></li>
 <li><a class="reference internal" href="#Creating-simple-profiles">Creating simple profiles</a></li>
 <li><a class="reference internal" href="#Local-writer">Local writer</a></li>

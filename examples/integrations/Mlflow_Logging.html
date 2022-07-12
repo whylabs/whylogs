@@ -10,7 +10,7 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/Mlflow_Logging.html" />
   
-<meta property="og:description" content="MLflow is an open-source model platform that can track, manage and help users deploy their models to production with a very consistent API and good software engineering practices. Whylogs users can..." />
+<meta property="og:description" content="Open in Colab MLflow is an open-source model platform that can track, manage and help users deploy their models to production with a very consistent API and good software engineering practices. Why..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Profiling with whylogs from a Kafka topic" href="kafka-example/Kafka_Example.html" /><link rel="prev" title="PySpark Integration" href="Pyspark_Profiling.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
@@ -195,7 +195,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../basic/Merging_Profiles.html">Merging Profiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">Rolling Logs with Streaming Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Writing_Profiles.html">Writing profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Writing_Profiles.html">Writing profiles - Local/S3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Pyspark_Profiling.html">PySpark Integration</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">MLflow Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="kafka-example/Kafka_Example.html">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
@@ -594,6 +594,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="MLflow-Logging">
 <h1>MLflow Logging<a class="headerlink" href="#MLflow-Logging" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Mlflow_Logging.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
 <p><a class="reference external" href="https://www.mlflow.org/">MLflow</a> is an open-source model platform that can track, manage and help users deploy their models to production with a very consistent API and good software engineering practices. Whylogs users can benefit from our API to seamlessly log profiles to their Mlflow environment. Let’s see how.</p>
 <section id="Setup">
 <h2>Setup<a class="headerlink" href="#Setup" title="Permalink to this headline">#</a></h2>
@@ -611,7 +612,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install -q scikit-learn matplotlib pandas</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install -q scikit-learn matplotlib pandas mlflow-skinny
 </pre></div>
 </div>
 </div>
@@ -1089,10 +1090,11 @@ div.rendered_html tbody tr:hover {
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/whylogs_profile_4724587f9aa146b6a19be2f4268c5005.bin&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">local_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">profile_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

@@ -469,12 +469,12 @@
     "\n",
     "# This driver mimics data coming in from a source. \n",
     "def test_driver(running_app, live_feed=False):\n",
-    "    for i in range(50):\n",
+    "    for i in range(30):\n",
     "        data_df = data_feeder(live_feed)\n",
     "        running_app.consume(data_df)\n",
     "        # This is only random to simulate how data \n",
     "        # would be coming in at unknown times. \n",
-    "        time.sleep(random.randrange(0, 10))"
+    "        time.sleep(random.randrange(0, 5))"
    ]
   },
   {
