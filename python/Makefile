@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.0.2
+version := 1.0.5
 
 dist.dir := dist
 egg.dir := .eggs
@@ -129,6 +129,11 @@ test-system-python: dist ## Run tests using the system `python` instead of the l
 	@$(call i, Running tests using the globally installed python)
 	python -m poetry run python --version
 	python -m poetry run pytest -vv --cov='whylogs_v1/.' tests/
+
+test-notebooks: ## Run tests for the notebooks
+	@$(call i, Running notebook tests)
+	poetry run pytest --no-cov test_notebooks/notebook_tests.py
+
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
