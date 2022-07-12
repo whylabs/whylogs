@@ -1,10 +1,9 @@
 import os
 from typing import List
 
-import app  # type: ignore
+import app
 import numpy as np
-
-from utils import MessageException # type: ignore
+from utils import MessageException  # type: ignore
 
 import whylogs as why
 
@@ -14,11 +13,13 @@ def initialize_logger() -> None:
     n_attempts = 3
     while n_attempts > 0:
         # Initialize logger
-        app.why_logger = why.logger(mode="rolling", interval=5, when="M", base_name="whylogs-flask-example") # type: ignore
+        app.why_logger = why.logger(
+            mode="rolling", interval=5, when="M", base_name="whylogs-flask-example"
+        )  # type: ignore
         if os.environ["WHYLABS_DEFAULT_DATASET_ID"]:
-            app.why_logger.append_writer("whylabs")
+            app.why_logger.append_writer("whylabs")  # type: ignore
         else:
-            app.why_logger.append_writer("local", base_dir="logs")
+            app.why_logger.append_writer("local", base_dir="logs")  # type: ignore
 
         if app.why_logger is not None:
             break
@@ -31,7 +32,7 @@ def initialize_logger() -> None:
 def get_prediction(data: List[float]) -> str:
     # Convert into nd-array
     try:
-        data = np.array(data).reshape(1, -1) # type: ignore
+        data = np.array(data).reshape(1, -1)  # type: ignore
         pred = app.model.predict(data)[0]
     except Exception as e:
         raise MessageException("Model could not be loaded.", 500, str(e))

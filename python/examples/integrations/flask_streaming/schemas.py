@@ -1,4 +1,4 @@
-from pydantic import BaseModel # type: ignore
+from pydantic import BaseModel  # type: ignore
 
 
 class FeatureVector(BaseModel):

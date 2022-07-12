@@ -1,13 +1,16 @@
-from typing import Optional, Tuple, Dict
+from typing import Collection, Dict, Optional, Tuple
 
 
-def message_response(message: str, status_code: int = 200, reason: Optional[str] = None) -> tuple[
-    dict[str, Optional[str]], int]:
+def message_response(
+    message: str, status_code: int = 200, reason: Optional[str] = None
+) -> tuple[dict[str, Optional[str]], int]:
     standard_response = {"data": None, "message": message, "reason": reason}
     return standard_response, status_code
 
 
-def object_response(object: str, status_code: int = 200) -> tuple[dict[str, str], int]:
+def object_response(
+    object: Dict[str, Collection[str]], status_code: int = 200
+) -> Tuple[Dict[str, Collection[str]], int]:
     standard_response = {"data": object, "message": "Success"}
     return standard_response, status_code
 

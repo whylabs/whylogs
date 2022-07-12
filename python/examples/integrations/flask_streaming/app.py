@@ -2,16 +2,17 @@
 """The app module, containing the app factory function."""
 
 import atexit
-import os
 import logging
+import os
 
 import pandas as pd
-from dotenv import load_dotenv # type: ignore
-from extensions import init_swagger #type: ignore
-from flask import Flask, jsonify, Response
-from flask_cors import CORS # type: ignore
-from joblib import load # type: ignore
-from utils import MessageException, message_exception_handler # type: ignore
+from dotenv import load_dotenv  # type: ignore
+from extensions import init_swagger  # type: ignore
+from flask import Flask, Response, jsonify
+from flask_cors import CORS  # type: ignore
+from joblib import load  # type: ignore
+from utils import MessageException, message_exception_handler  # type: ignore
+
 from api.views import blueprint  # type: ignore
 
 # Load environment variables
@@ -74,4 +75,4 @@ def register_error_handlers(app: Flask) -> None:
 
 
 def close_logger_at_exit(app: Flask) -> None:
-    app.why_logger.close() # type: ignore
+    app.why_logger.close()  # type: ignore
