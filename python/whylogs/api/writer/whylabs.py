@@ -64,7 +64,6 @@ class WhyLabsWriter(Writer):
         self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
         self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
-        self._whylabs_v1_enabled = os.environ.get("WHYLABS_V1_ENABLED")
 
     def check_interval(self, interval_seconds: int):
         if interval_seconds < FIVE_MINUTES_IN_SECONDS:
@@ -80,11 +79,12 @@ class WhyLabsWriter(Writer):
         if api_key is not None:
             self._api_key = api_key
 
-    def write(self, profile: Union[DatasetProfileView, DatasetProfile], dataset_id: Optional[str] = None) -> Any:
-        # check if the server supports ingesting whylogs 1.0.x profiles:
-        if self._check_if_whylabs_disabled_v1_profiles():
-            raise ValueError("The Whylabs writer is not yet supported on whylogs 1.0.x!")
-
+    def write(
+        self,
+        profile: Union[DatasetProfileView, DatasetProfile],
+        dataset_id: Optional[str] = None,
+        **kwargs,
+    ) -> Any:
         if dataset_id is not None:
             self._dataset_id = dataset_id
 
@@ -97,19 +97,6 @@ class WhyLabsWriter(Writer):
             dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
             return self._upload_whylabs(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
-
-    # TODO: remove once this is supported, decoupling support from release for now
-    def _check_if_whylabs_disabled_v1_profiles(self) -> bool:
-        whylabs_config_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_config/whylabs_writer_disabled"
-        logger.info(f"checking: {whylabs_config_url}")
-        response = requests.head(whylabs_config_url)
-        logger.info(f"checking: {whylabs_config_url}")
-        logger.info(f"headers are: {response.headers} code: {response.status_code}")
-        if response.status_code == 200:
-            logger.info(f"found the disabled config, falling back to env var: {self._whylabs_v1_enabled}")
-            return not self._whylabs_v1_enabled
-        logger.info("no whylabs disabled config found, so allowing upload to whylabs!")
-        return False
 
     @staticmethod
     def _check_api_key_format(input_key: str) -> Tuple[bool, Optional[str]]:
