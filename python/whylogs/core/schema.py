@@ -135,8 +135,8 @@ class DatasetSchema:
 
         return dirty
 
-    def get_col_names(self) -> frozenset:
-        return frozenset(self._columns.keys())
+    def get_col_names(self) -> tuple:
+        return tuple(self._columns.keys())
 
     def get(self, name: str) -> Optional["ColumnSchema"]:
         return self._columns.get(name)

@@ -108,7 +108,8 @@ class DatasetProfile(object):
         # TODO: do this less frequently when operating at row level
         dirty = self._schema.resolve(pandas=pandas, row=row)
         if dirty:
-            new_cols = self._schema.get_col_names().difference(self._columns.keys())
+            schema_col_keys = self._schema.get_col_names()
+            new_cols = (col for col in schema_col_keys if col not in self._columns)
             for col in new_cols:
                 col_schema = self._schema.get(col)
                 if col_schema:
