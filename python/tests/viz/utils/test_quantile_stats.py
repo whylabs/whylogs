@@ -1,7 +1,9 @@
 import math
 
 import numpy as np
+import pandas as pd
 
+import whylogs as why
 from whylogs.viz.utils import _calculate_quantile_statistics  # type: ignore
 from whylogs.viz.utils.quantile_stats import (
     _calculate_bins,
@@ -27,6 +29,17 @@ def test_calculate_quantile_stats_should_return_dict(profile_view):
     actual_iqr = actual_stats["iqr"]
 
     assert expected_iqr == actual_iqr
+
+
+def test_calculate_quantile_stats_should_not_throw_on_empty_distribution():
+    df = pd.DataFrame(columns=["numbers_column"], dtype=float)
+    profile = why.log(df).view()
+    column_view = profile.get_column("numbers_column")
+    assert column_view is not None
+    # pass a column view with an empty distribution
+    _calculate_quantile_statistics(column_view=column_view)
+    distribution_metric = column_view.get_metric("distribution")
+    assert distribution_metric is not None
 
 
 def test_resize_bins():

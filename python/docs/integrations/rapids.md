@@ -1,3 +1,0 @@
-# Sagemaker integration
-
-TBD

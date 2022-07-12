@@ -32,7 +32,6 @@
 
     Basics<migration/basics>
     migration/configuration
-    migration/format
     migration/log_rotation
 ```
 

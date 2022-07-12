@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.0.0rc4"
+version = "1.0.5"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -11,8 +11,8 @@ include = ["whylogs/core/proto/v0/*.py*", "whylogs/core/proto/*.py*"]
 
 [tool.poetry.dependencies]
 # core dependencies. Be REALLY mindful when touching this list
-python = ">=3.7.1, <4.0"
-whylogs-sketching = "3.4.0.dev9"
+python = ">=3.7.1, <3.10"
+whylogs-sketching = ">=3.4.1.dev1"
 protobuf = ">=3.15.5"
 importlib-metadata = { version = ">=0.23", python = "<3.8" }
 typing-extensions = ">=typing-extensions"
@@ -33,8 +33,12 @@ sphinxext-opengraph = { version = "^0.6.3", optional = true }
 sphinx-inline-tabs = { version = "*", optional = true }
 flake8 = { version = "4.0.1", optional = true }
 nbsphinx = { version = "^0.8.8", optional = true }
+
+# Integrations dependencies
 boto3 = {version = "^1.22.13", optional = true }
 whylabs-client = {version = "^0.3.0", optional = true}
+mlflow-skinny = {version = "^1.26.1", optional = true}
+
 
 # Pyspark related dependencies
 pyarrow = {version = "^8.0.0", optional = true}
@@ -50,6 +54,7 @@ pre-commit = "^2.8"
 pytest = "^6.2"
 pytest-cov = "^3"
 pytest-mock = "^3.3"
+nbconvert = "^6.0.7"
 autoflake = "^1.4"
 mypy-protobuf = ">=3.2.0"
 types-protobuf = ">=0.1.14"
@@ -88,6 +93,9 @@ s3 = [
 ]
 whylabs = [
   "whylabs-client"
+]
+mlflow = [
+  "mlflow-skinny"
 ]
 
 [build-system]

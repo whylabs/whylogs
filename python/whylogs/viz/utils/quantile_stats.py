@@ -30,7 +30,7 @@ def _calculate_quantile_statistics(column_view: Union[ColumnProfileView, None]) 
     distribution_metric: Optional[DistributionMetric] = column_view.get_metric("distribution")
     desired_quantiles = [0.05, 0.25, 0.5, 0.75, 0.95]
 
-    if distribution_metric is None:
+    if distribution_metric is None or distribution_metric.kll.value.is_empty():
         return None
 
     quantiles = distribution_metric.kll.value.get_quantiles(desired_quantiles)

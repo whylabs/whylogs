@@ -1,9 +1,9 @@
-name: whylogs-ci
+name: notebook test
 
 on:
   pull_request:
   push:
-    branches: [mainline, 1.0.x]
+    branches: [mainline]
     tags:
       - "[0-9]+.[0-9]+.[0-9]+*"
 
@@ -19,12 +19,12 @@ env:
   HEAP_APPID_DEV: "3422045963"
 
 jobs:
-  python-ci:
+  notebook-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-        python-version: ["3.7", "3.8", "3.9"]
+        os: [ubuntu-latest]
+        python-version: ["3.9"]
 
     steps:
       - uses: actions/checkout@v2
@@ -82,78 +82,11 @@ jobs:
           *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
           esac
 
-      - name: Run pre-commit hooks
-        run: make pre-commit
+      - name: Build proto
+        run: make proto
 
-      - name: Run build, style, and lint checks
-        run: make release
+      - name: make jupyter-kernel
+        run: make jupyter-kernel
 
-      - name: Smoke test wheel in client environment
-        run: |
-          python -m venv verify
-          source verify/bin/activate
-          pip install --upgrade pip
-          pip install dist/whylogs*.whl
-          python tests/smoketest.py
-          deactivate
-          rm -rf verify
-
-      - name: Upload test coverage report to Codecov
-        uses: codecov/codecov-action@v2
-        if: env.CODECOV_UPLOAD == 'true'
-        with:
-          fail_ci_if_error: true
-          flags: unit
-
-  docs-ci:
-    needs: python-ci
-
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: ["3.9"]
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - uses: nikeee/setup-pandoc@v1
-      - name: Install Protoc
-        uses: arduino/setup-protoc@v1
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ env.PROTOC_VERSION }}
-
-      - name: Set up Poetry cache for Python dependencies
-        uses: actions/cache@v2
-        if: startsWith(runner.os, 'Linux')
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: ${{ runner.os }}-poetry-
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
-
-      - name: Install dependencies for generating docs
-        run: poetry install --extras docs
-
-      - name: Building docs with sphinx
-        run: |
-          make proto -B
-          make docs
-
-      - name: Set outputs
-        id: vars
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-        if: ${{ github.ref != 'refs/heads/mainline' }}
-
-      - name: Publish docs
-        uses: JamesIves/github-pages-deploy-action@4.0.0
-        with:
-          branch: gh-pages
-          folder: python/docs/_build/html
-        if: ${{ github.ref == 'refs/heads/mainline' }}
+      - name: Test-notebooks
+        run: make test-notebooks
