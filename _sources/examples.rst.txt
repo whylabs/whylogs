@@ -46,7 +46,8 @@ Integrations
 .. toctree::
     :maxdepth: 1
 
-    examples/integrations/Writing_Profiles
+    examples/integrations/writers/Writing_to_WhyLabs
+    examples/integrations/writers/Writing_Profiles
     examples/integrations/Pyspark_Profiling
     examples/integrations/Mlflow_Logging
     examples/integrations/kafka-example/Kafka_Example

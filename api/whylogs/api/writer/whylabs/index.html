@@ -196,7 +196,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../../../examples/advanced/Constraints_Suite.html">Simple Constraints - Examples and Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../examples/advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">Rolling Logs with Streaming Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/integrations/Writing_Profiles.html">Writing profiles - Local/S3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/integrations/writers/Writing_to_WhyLabs.html">Writing Profiles to WhyLabs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../examples/integrations/writers/Writing_Profiles.html">Writing profiles - Local/S3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../examples/integrations/Pyspark_Profiling.html">PySpark Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../examples/integrations/Mlflow_Logging.html">MLflow Logging</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../examples/integrations/kafka-example/Kafka_Example.html">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
@@ -391,7 +392,7 @@
 <dd><p>Bases: <a class="reference internal" href="../index.html#whylogs.api.writer.Writer" title="whylogs.api.writer.Writer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.api.writer.Writer</span></code></a></p>
 <p>A WhyLogs writer to upload DatasetProfileView’s onto the WhyLabs platform.</p>
 <p>&gt;**IMPORTANT**: In order to correctly send your profiles over, make sure you have
-the following environment variables set: <cite>[WHYLABS_ORG_ID, WHYLABS_API_KEY]</cite>. You
+the following environment variables set: <cite>[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABS_DEFAULT_DATASET_ID]</cite>. You
 can also set them with the option method or within the constructor, although it
 is highly recommended you don’t persist credentials in code!</p>
 <dl class="field-list simple">

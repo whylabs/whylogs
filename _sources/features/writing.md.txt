@@ -6,5 +6,6 @@ Currently, the supported writer are:
 
 - **Local Writer** - Writes profiles to the local filesystem
 - **S3 Writer** - Uploads profiles to AWS S3
+- **WhyLabs Writer** - Uploads profiles to WhyLabs Platform
 
-For more information on how to write and upload profiles, check our example on [Writing Profiles](../examples/integrations/Writing_Profiles)!
+For more information on how to write and upload profiles, check our example on [Writing Profiles](../examples/integrations/writers/Writing_Profiles)!
