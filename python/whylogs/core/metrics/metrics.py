@@ -53,6 +53,8 @@ class MetricConfig:
             "extended-latin": (0x0080, 0x02AF),
         }
     )
+    lower_case: bool = True  # Convert Unicode characters to lower-case before counting Unicode ranges
+    normalize: bool = True  # Unicode normalize strings before counting Unicode ranges
 
 
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
