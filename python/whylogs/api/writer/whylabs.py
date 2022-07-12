@@ -83,10 +83,6 @@ class WhyLabsWriter(Writer):
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> requests.Response:
-        # check if the server supports ingesting whylogs 1.0.x profiles:
-        if self._check_if_whylabs_disabled_v1_profiles():
-            raise ValueError("The Whylabs writer is not yet supported on whylogs 1.0.x!")
-
         profile_view = file.view() if isinstance(file, DatasetProfile) else file
 
         if not isinstance(profile_view, DatasetProfileView):
