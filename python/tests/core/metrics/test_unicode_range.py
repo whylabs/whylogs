@@ -27,7 +27,13 @@ def test_unicode_range_metric() -> None:
 
 
 def test_unicode_range_metric_upper_case() -> None:
-    config = MetricConfig(unicode_ranges={"lower": (97, 122), "upper": (65, 90)}, lower_case=False)
+    # fmt: off
+    ranges = {
+        "lower": (97, 122),  # a -- z
+        "upper": (65, 90)    # A -- Z
+    }
+    config = MetricConfig(unicode_ranges=ranges, lower_case=False)  # Distinguish between upper/lower case
+    # fmt: on
     metric = UnicodeRangeMetric.zero(config)
     strings = ["abc", "ABC", "123", "abcdABCD", "...", "wxYZ"]
     col = PreprocessedColumn.apply(strings)
