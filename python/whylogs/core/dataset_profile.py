@@ -150,7 +150,7 @@ class DatasetProfile(Writable):
         return path
 
     @deprecated_alias(path_or_base_dir="path")
-    def write(self, path: str) -> None:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
         output_path = self.get_default_path(path=path)
         self.view().write(output_path)
         logger.debug("Wrote profile to path: %s", output_path)

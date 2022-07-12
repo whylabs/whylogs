@@ -82,7 +82,7 @@ class WhyLabsWriter(Writer):
             self._api_key = api_key
 
     @deprecated_alias(profile="file")
-    def write(self, file: Writable, **kwargs: Any) -> requests.Response:
+    def write(self, file: Writable, **kwargs: Any) -> None:
         profile_view = file.view() if isinstance(file, DatasetProfile) else file
 
         if not isinstance(profile_view, DatasetProfileView):
@@ -99,7 +99,7 @@ class WhyLabsWriter(Writer):
 
             dataset_timestamp = profile_view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
-            return self._upload_whylabs(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
+            self._upload_whylabs(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
 
     @staticmethod
     def _check_api_key_format(input_key: str) -> Tuple[bool, Optional[str]]:

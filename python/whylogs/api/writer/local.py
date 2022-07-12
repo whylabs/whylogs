@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
@@ -19,9 +19,9 @@ class LocalWriter(Writer):
     @deprecated_alias(profile="file")
     def write(
         self,
-        file: Optional[Writable] = None,
+        file: Writable,
         dest: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         dest = dest or self._base_name or file.get_default_path()  # type: ignore
         full_path = os.path.join(self._base_dir, dest)
