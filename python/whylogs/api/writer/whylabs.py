@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Tuple
 
 import requests  # type: ignore
 import whylabs_client
@@ -11,6 +11,7 @@ from whylabs_client.model.log_async_request import LogAsyncRequest
 from whylabs_client.rest import ForbiddenException
 
 from whylogs.api.writer import Writer
+from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
@@ -82,7 +83,7 @@ class WhyLabsWriter(Writer):
             self._api_key = api_key
 
     @deprecated_alias(profile="file")
-    def write(self, file: Union[DatasetProfileView, DatasetProfile], dataset_id: Optional[str] = None, **kwargs) -> Any:
+    def write(self, file: Writable, **kwargs: Any) -> requests.Response:
         # check if the server supports ingesting whylogs 1.0.x profiles:
         if self._check_if_whylabs_disabled_v1_profiles():
             raise ValueError("The Whylabs writer is not yet supported on whylogs 1.0.x!")
@@ -91,11 +92,11 @@ class WhyLabsWriter(Writer):
 
         if not isinstance(profile_view, DatasetProfileView):
             raise BadConfigError(
-                "You must pass either a DatasetProfile or a DatasetProfileView" "in order to use this writer!"
+                "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
             )
 
-        if dataset_id is not None:
-            self._dataset_id = dataset_id
+        if kwargs.get("dataset_id") is not None:
+            self._dataset_id = kwargs.get("dataset_id")
 
         with tempfile.NamedTemporaryFile() as tmp_file:
             profile_view.write(path=tmp_file.name)

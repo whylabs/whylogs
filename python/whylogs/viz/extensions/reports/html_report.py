@@ -70,7 +70,7 @@ class HTMLReport(Writable, ABC):
         return path
 
 
-class HTMLReportWriter(Writer):
+class HTMLReportWriter(object):
     def __init__(self, report: HTMLReport, writer: Writer) -> None:
         self._report = report
         self._writer = writer

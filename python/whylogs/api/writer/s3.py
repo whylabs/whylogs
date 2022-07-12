@@ -1,6 +1,6 @@
 import logging
 import tempfile
-from typing import Optional
+from typing import Any, Optional
 
 import boto3
 from botocore.client import BaseClient
@@ -66,9 +66,9 @@ class S3Writer(Writer):
     @deprecated_alias(profile="file")
     def write(
         self,
-        file: Optional[Writable] = None,
+        file: Writable,
         dest: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
 
         dest = dest or file.get_default_path()  # type: ignore

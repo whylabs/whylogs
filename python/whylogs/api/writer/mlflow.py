@@ -1,7 +1,7 @@
 import logging
 import os
 from tempfile import mkdtemp
-from typing import Optional
+from typing import Any, Optional
 
 import mlflow
 
@@ -23,7 +23,7 @@ class MlflowWriter(Writer):
         self,
         file: Writable,
         dest: Optional[str] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         run = mlflow.active_run() or mlflow.start_run()
         self._run_id = run.info.run_id

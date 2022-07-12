@@ -1,10 +1,9 @@
 import logging
 import os
-from typing import Optional, Union
+from typing import Optional
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
-from whylogs.core import DatasetProfileView
 from whylogs.core.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
@@ -20,7 +19,7 @@ class LocalWriter(Writer):
     @deprecated_alias(profile="file")
     def write(
         self,
-        file: Optional[Union[Writable, DatasetProfileView]] = None,
+        file: Optional[Writable] = None,
         dest: Optional[str] = None,
         **kwargs,
     ) -> None:
