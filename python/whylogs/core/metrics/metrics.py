@@ -336,7 +336,7 @@ class DistributionMetric(Metric):
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "DistributionMetric":
-        if config.track_unicode_ranges or config.customize_kll:
+        if config.customize_kll:
             sk = ds.kll_doubles_sketch(k=config.kll_k_custom)
         else:
             sk = ds.kll_doubles_sketch(k=config.kll_k)
