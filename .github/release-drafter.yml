@@ -1,41 +1,41 @@
 name-template: "v$NEXT_PATCH_VERSION"
 tag-template: "v$NEXT_PATCH_VERSION"
-change-template: '- $TITLE #$NUMBER [@$AUTHOR]'
+change-template: "- $TITLE #$NUMBER [@$AUTHOR]"
 
 categories:
   - title: "✨ Features"
-    labels: 
+    labels:
       - "feature"
       - "enhancement"
       - "✨"
       - "⚡️"
-  - title: '🐛 Bug Fixes'
+  - title: "🐛 Bug Fixes"
     labels:
-      - 'fix'
-      - 'bugfix'
-      - 'bug'
-      - '🐛'
+      - "fix"
+      - "bugfix"
+      - "bug"
+      - "🐛"
   - title: "📚 Documentation"
     labels:
       - "documentation"
       - "docs"
       - "📚"
   - title: " 🚨 Continous Integration"
-    labels: 
+    labels:
       - "testing"
       - "test"
   - title: " 🔨 Maintance"
-    labels: 
+    labels:
       - "Maintenance"
- 
+
 exclude-labels:
   - "changelog: skip"
 
 template: |
-  
+
   ## whylogs release v$NEXT_PATCH_VERSION
   Hi everyone! We’ve now released whylogs $NEXT_PATCH_VERSION 🚀.
   whylogs is the open standard for data and ML logging created by WhyLabs. 👩🏽‍🔬
-  This version includes: 
-  
+  This version includes:
+
   $CHANGES
