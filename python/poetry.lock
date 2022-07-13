@@ -175,6 +175,14 @@ urllib3 = ">=1.25.4,<1.27"
 crt = ["awscrt (==0.13.8)"]
 
 [[package]]
+name = "bump2version"
+version = "1.0.1"
+description = "Version-bump your software with a single command!"
+category = "dev"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
 name = "certifi"
 version = "2022.6.15"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -1685,6 +1693,22 @@ python-versions = ">=3.6"
 sphinx = ">=2.0"
 
 [[package]]
+name = "sphinx-rtd-theme"
+version = "0.5.2"
+description = "Read the Docs theme for Sphinx"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+docutils = "<0.17"
+sphinx = "*"
+
+[package.extras]
+dev = ["transifex-client", "sphinxcontrib-httpdomain", "bump2version"]
+
+
+[[package]]
 name = "tabulate"
 version = "0.8.10"
 description = "Pretty-print tabular data"
@@ -1981,6 +2005,10 @@ boto3 = [
 botocore = [
     {file = "botocore-1.27.19-py3-none-any.whl", hash = "sha256:e52c77fb349ae5d2a36ba0c2d1dc1416d963f987139dc2e036d2d8d697e4b4c7"},
     {file = "botocore-1.27.19.tar.gz", hash = "sha256:850bec9363e10c56b2678c3742a48150f6201d7184695326a380fe7341075484"},
+]
+bump2version = [
+    {file = "bump2version-1.0.1-py2.py3-none-any.whl", hash = "sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410"},
+    {file = "bump2version-1.0.1.tar.gz", hash = "sha256:762cb2bfad61f4ec8e2bdf452c7c267416f8c70dd9ecb1653fd0bbb01fa936e6"},
 ]
 certifi = [
     {file = "certifi-2022.6.15-py3-none-any.whl", hash = "sha256:fe86415d55e84719d75f8b69414f6438ac3547d2078ab91b67e779ef69378412"},
