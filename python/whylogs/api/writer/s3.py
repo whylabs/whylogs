@@ -60,7 +60,7 @@ class S3Writer(Writer):
     ):
         self.s3_client = s3_client or boto3.client("s3")
         self.base_prefix = base_prefix or "profile"
-        self.bucket_name = bucket_name or None
+        self.bucket_name = bucket_name or ""
         self.object_name = object_name or None
 
     @deprecated_alias(profile="file")

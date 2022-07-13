@@ -37,7 +37,7 @@ class HTMLReport(Writable, ABC):
     def report(self) -> HTML:
         pass
 
-    def write(self, path: Optional[str] = None, **kwargs) -> None:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
         """Create HTML file for a given report.
 
         Parameters

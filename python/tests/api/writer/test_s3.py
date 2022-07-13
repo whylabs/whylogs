@@ -1,4 +1,6 @@
 import boto3
+import pytest
+from botocore.handlers import ParamValidationError
 from moto import mock_s3
 from moto.s3.responses import DEFAULT_REGION_NAME
 
@@ -36,3 +38,16 @@ class TestS3Writer(object):
         writer = S3Writer()
         objects = writer.s3_client.list_objects(Bucket=BUCKET_NAME)
         assert tmp_path.name in [obj["Key"] for obj in objects.get("Contents", [])]
+
+    def test_empty_string_bucket_name_raises_exception(self, result_set):
+        with pytest.raises(ParamValidationError):
+            result_set.writer("s3").option(bucket_name="").write()
+
+    def test_empty_string_object_name_writes_to_default_path(self, result_set):
+        result_set.writer("s3").option(object_name="", bucket_name=BUCKET_NAME).write(dest=None)
+
+        writer = S3Writer()
+        objects = writer.s3_client.list_objects(Bucket=BUCKET_NAME)
+        expected_path = result_set.view().get_default_path()
+
+        assert expected_path in [obj["Key"] for obj in objects.get("Contents", [])]
