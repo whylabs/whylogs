@@ -42,6 +42,8 @@ class MetricConfig:
     fi_lg_max_k: int = 10  # 128 entries
     fi_disabled: bool = False
     track_unicode_ranges: bool = False
+    customize_kll: bool = False
+    kll_k_custom = 256
     unicode_ranges: Dict[str, Tuple[int, int]] = field(
         default_factory=lambda: {
             "emoticon": (0x1F600, 0x1F64F),
@@ -334,7 +336,10 @@ class DistributionMetric(Metric):
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "DistributionMetric":
-        sk = ds.kll_doubles_sketch(k=config.kll_k)
+        if config.track_unicode_ranges or config.customize_kll:
+            sk = ds.kll_doubles_sketch(k=config.kll_k_custom)
+        else:
+            sk = ds.kll_doubles_sketch(k=config.kll_k)
         return DistributionMetric(
             kll=KllComponent(sk),
             mean=FractionalComponent(0.0),
