@@ -51,9 +51,9 @@ class UnicodeRangeMetric(CompoundMetric):
             raise ValueError("STRING_LENGTH cannot be used as a range name")
 
         submetrics = {
-            key: DistributionMetric.zero(MetricConfig(kll_k_large=False)) for key in self.range_definitions.keys()
+            key: DistributionMetric.zero(MetricConfig(large_kll_k=False)) for key in self.range_definitions.keys()
         }
-        submetrics[_STRING_LENGTH] = DistributionMetric.zero(MetricConfig(kll_k_large=False))
+        submetrics[_STRING_LENGTH] = DistributionMetric.zero(MetricConfig(large_kll_k=False))
         super(type(self), self).__init__(submetrics)  # type: ignore
 
     @property
