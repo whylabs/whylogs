@@ -38,12 +38,12 @@ METRIC = TypeVar("METRIC", bound="Metric")
 @dataclass(frozen=True)
 class MetricConfig:
     hll_lg_k: int = 12
-    kll_k: int = 1024
+    kll_k: int = 256
     fi_lg_max_k: int = 10  # 128 entries
     fi_disabled: bool = False
     track_unicode_ranges: bool = False
-    customize_kll: bool = False
-    kll_k_custom = 256
+    large_kll_k: bool = True
+    kll_k_large: int = 1024
     unicode_ranges: Dict[str, Tuple[int, int]] = field(
         default_factory=lambda: {
             "emoticon": (0x1F600, 0x1F64F),
@@ -336,10 +336,8 @@ class DistributionMetric(Metric):
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "DistributionMetric":
-        if config.customize_kll:
-            sk = ds.kll_doubles_sketch(k=config.kll_k_custom)
-        else:
-            sk = ds.kll_doubles_sketch(k=config.kll_k)
+        configured_kll_k = config.kll_k_large if config.large_kll_k else config.kll_k
+        sk = ds.kll_doubles_sketch(k=configured_kll_k)
         return DistributionMetric(
             kll=KllComponent(sk),
             mean=FractionalComponent(0.0),
