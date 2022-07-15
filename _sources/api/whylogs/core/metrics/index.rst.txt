@@ -454,6 +454,16 @@ Classes
 
       
 
+   .. py:attribute:: large_kll_k
+      :annotation: :bool = True
+
+      
+
+   .. py:attribute:: kll_k_large
+      :annotation: :int = 1024
+
+      
+
    .. py:attribute:: unicode_ranges
       :annotation: :Dict[str, Tuple[int, int]]
 

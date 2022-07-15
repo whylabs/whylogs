@@ -374,6 +374,8 @@
     <span class="n">fi_lg_max_k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># 128 entries</span>
     <span class="n">fi_disabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">track_unicode_ranges</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">large_kll_k</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">kll_k_large</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
     <span class="n">unicode_ranges</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;emoticon&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mh">0x1F600</span><span class="p">,</span> <span class="mh">0x1F64F</span><span class="p">),</span>
@@ -668,7 +670,8 @@
 
 <div class="viewcode-block" id="DistributionMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DistributionMetric&quot;</span><span class="p">:</span>
-        <span class="n">sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">kll_k</span><span class="p">)</span>
+        <span class="n">configured_kll_k</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">kll_k_large</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">large_kll_k</span> <span class="k">else</span> <span class="n">config</span><span class="o">.</span><span class="n">kll_k</span>
+        <span class="n">sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">configured_kll_k</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">DistributionMetric</span><span class="p">(</span>
             <span class="n">kll</span><span class="o">=</span><span class="n">KllComponent</span><span class="p">(</span><span class="n">sk</span><span class="p">),</span>
             <span class="n">mean</span><span class="o">=</span><span class="n">FractionalComponent</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span>
