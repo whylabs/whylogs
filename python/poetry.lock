@@ -1692,15 +1692,6 @@ python-versions = ">=3.6"
 [package.dependencies]
 sphinx = ">=2.0"
 
-
-[package.dependencies]
-docutils = "<0.17"
-sphinx = "*"
-
-[package.extras]
-dev = ["transifex-client", "sphinxcontrib-httpdomain", "bump2version"]
-
-
 [[package]]
 name = "tabulate"
 version = "0.8.10"
