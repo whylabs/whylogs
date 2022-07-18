@@ -241,7 +241,7 @@ class NotebookProfileVisualizer:
             visualization.summary_drift_report()
 
         """
-        if not self._target_view and not self._ref_view:
+        if not self._target_view or not self._ref_view:
             logger.error("This method has to get both target and reference profiles")
             raise ValueError
 
