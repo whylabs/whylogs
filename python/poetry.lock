@@ -1692,13 +1692,6 @@ python-versions = ">=3.6"
 [package.dependencies]
 sphinx = ">=2.0"
 
-[[package]]
-name = "sphinx-rtd-theme"
-version = "0.5.2"
-description = "Read the Docs theme for Sphinx"
-category = "dev"
-optional = false
-python-versions = "*"
 
 [package.dependencies]
 docutils = "<0.17"
