@@ -34,3 +34,12 @@ def test_merge_nan_column(lending_club_df) -> None:
     assert mean == 0
     assert stddev == 0
     assert null_count == n_count
+
+
+def test_order_columns() -> None:
+    d = {"c0": [0], "c1": [1], "c2": [2], "c3": [3], "c4": [4], "c5": [5], "c6": [6], "c7": [7], "c8": [8], "c9": [9]}
+    df = pd.DataFrame(d)
+    profile_view = why.log(df).profile().view()
+    data_keys = d.keys()
+    profile_keys = profile_view.get_columns().keys()
+    assert data_keys == profile_keys
