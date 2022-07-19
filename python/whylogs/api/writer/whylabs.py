@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional
+from typing import Any, Optional, Tuple, Union
 
 import requests  # type: ignore
 import whylabs_client
@@ -12,6 +12,7 @@ from whylabs_client.rest import ForbiddenException
 
 from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfileView
+from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
@@ -23,7 +24,7 @@ class WhyLabsWriter(Writer):
     A WhyLogs writer to upload DatasetProfileView's onto the WhyLabs platform.
 
     >**IMPORTANT**: In order to correctly send your profiles over, make sure you have
-    the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY]`. You
+    the following environment variables set: `[WHYLABS_ORG_ID, WHYLABS_API_KEY, WHYLABS_DEFAULT_DATASET_ID]`. You
     can also set them with the option method or within the constructor, although it
     is highly recommended you don't persist credentials in code!
 
@@ -63,7 +64,6 @@ class WhyLabsWriter(Writer):
         self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
         self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
-        self._whylabs_v1_enabled = os.environ.get("WHYLABS_V1_ENABLED")
 
     def check_interval(self, interval_seconds: int):
         if interval_seconds < FIVE_MINUTES_IN_SECONDS:
@@ -79,34 +79,42 @@ class WhyLabsWriter(Writer):
         if api_key is not None:
             self._api_key = api_key
 
-    def write(self, profile: DatasetProfileView, dataset_id: Optional[str] = None) -> Any:
-        # check if the server supports ingesting whylogs 1.0.x profiles:
-        if self._check_if_whylabs_disabled_v1_profiles():
-            raise ValueError("The Whylabs writer is not yet supported on whylogs 1.0.x!")
-
+    def write(
+        self,
+        profile: Union[DatasetProfileView, DatasetProfile],
+        dataset_id: Optional[str] = None,
+        **kwargs,
+    ) -> Any:
         if dataset_id is not None:
             self._dataset_id = dataset_id
 
+        profile_view = profile.view() if isinstance(profile, DatasetProfile) else profile
+
         with tempfile.NamedTemporaryFile() as tmp_file:
-            profile.write(path=tmp_file.name)
+            profile_view.write(path=tmp_file.name)
             tmp_file.flush()
 
             dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
             return self._upload_whylabs(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
 
-    # TODO: remove once this is supported, decoupling support from release for now
-    def _check_if_whylabs_disabled_v1_profiles(self) -> bool:
-        whylabs_config_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_config/whylabs_writer_disabled"
-        logger.info(f"checking: {whylabs_config_url}")
-        response = requests.head(whylabs_config_url)
-        logger.info(f"checking: {whylabs_config_url}")
-        logger.info(f"headers are: {response.headers} code: {response.status_code}")
-        if response.status_code == 200:
-            logger.info(f"found the disabled config, falling back to env var: {self._whylabs_v1_enabled}")
-            return not self._whylabs_v1_enabled
-        logger.info("no whylabs disabled config found, so allowing upload to whylabs!")
-        return False
+    @staticmethod
+    def _check_api_key_format(input_key: str) -> Tuple[bool, Optional[str]]:
+        if input_key is None or len(input_key) < 12 or input_key[10] != "." or len(input_key.split(".")) != 2:
+            message = None
+            if input_key is None:
+                message = "api_key is None"
+            elif len(input_key) < 12:
+                message = "api_key length < 12"
+            elif input_key[10] != ".":
+                message = "api_key must have a period delimiter at index 10"
+            else:
+                delimiter_count = len(input_key.split(".")) - 1
+                message = (
+                    f"api_key must have a single period delimiter but {delimiter_count} delimiters found in string"
+                )
+            return (False, message)
+        return (True, None)
 
     def _upload_whylabs(
         self, dataset_timestamp: int, profile_path: str, upload_url: Optional[str] = None
@@ -122,20 +130,20 @@ class WhyLabsWriter(Writer):
             )
 
         upload_url = upload_url or self._get_upload_url(dataset_timestamp=dataset_timestamp)
-
+        api_key_id = self._api_key[:10] if self._api_key else None
         try:
             with open(profile_path, "rb") as f:
                 http_response = requests.put(upload_url, data=f.read())
                 if http_response.status_code == 200:
                     logger.info(
                         f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                        f"{self.whylabs_api_endpoint} with API token ID: {self._api_key}"
+                        f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
                     )
                 return http_response
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                + f"{self.whylabs_api_endpoint}. Error occurred: {e}"
+                + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
             )
 
     def _get_or_create_api_log_client(self) -> LogApi:
@@ -144,7 +152,9 @@ class WhyLabsWriter(Writer):
 
         if environment_api_key is not None and self._api_key != environment_api_key:
             updated_key = os.environ.get("WHYLABS_API_KEY")
-            logger.warning(f"Updating API key ID from: {self._api_key} to: {updated_key}")
+            old_id = self._api_key[:10] if self._api_key else None
+            new_id = updated_key[:10] if updated_key else None
+            logger.warning(f"Updating API key ID from: {old_id} to: {new_id}")
             self._api_key = updated_key
             config = whylabs_client.Configuration(
                 host=self.whylabs_api_endpoint, api_key={"ApiKeyAuth": self._api_key}, discard_unknown_keys=True
@@ -164,13 +174,23 @@ class WhyLabsWriter(Writer):
         return request
 
     def _post_log_async(self, request, dataset_timestamp):
+        api_key_valid, validation_message = self._check_api_key_format(input_key=self._api_key)
+        if not api_key_valid:
+            api_key_id = self._api_key[:10] if self._api_key and len(self._api_key) > 11 else None
+            raise ValueError(
+                f"WhyLabs API Key invalid! Because: {validation_message}. ID portion was: [{api_key_id}]."
+                f" Upload failed for {self._org_id}/{self._dataset_id}/{dataset_timestamp}"
+            )
+
         log_api = self._get_or_create_api_log_client()
         try:
             result = log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
             return result
         except ForbiddenException as e:
+            api_key_id = self._api_key[:10] if self._api_key else None
             logger.exception(
-                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to {self.whylabs_api_endpoint} with API token ID: {self._api_key[:10]}"
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to {self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
             )
             raise e
 

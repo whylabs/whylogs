@@ -12,6 +12,7 @@ from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.viz.utils.frequent_items_calculations import zero_padding_frequent_items
 from whylogs.viz.utils.profile_viz_calculations import (
     add_feature_statistics,
     frequent_items_from_view,
@@ -165,6 +166,14 @@ class NotebookProfileVisualizer:
 
                 reference_profile_features[feature_name]["frequentItems"] = frequent_items_from_view(
                     ref_col_view, feature_name, config
+                )
+
+                (
+                    target_profile_features[feature_name]["frequentItems"],
+                    reference_profile_features[feature_name]["frequentItems"],
+                ) = zero_padding_frequent_items(
+                    target_feature_items=target_profile_features[feature_name]["frequentItems"],
+                    reference_feature_items=reference_profile_features[feature_name]["frequentItems"],
                 )
             else:
                 logger.warning("Reference profile not detected. Plotting only for target feature.")

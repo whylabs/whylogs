@@ -73,7 +73,7 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
 
     legs_less_than_12_constraint = MetricConstraint(
         name="legs less than 12",
-        condition=lambda x: x.max < 12,
+        condition=lambda x: not x.max >= 12,
         metric_selector=MetricsSelector(metric_name="distribution", column_name="legs"),
     )
 
@@ -83,7 +83,7 @@ def test_constraints_builder(pandas_constraint_dataframe) -> None:
     )
     no_negative_numbers = MetricConstraint(
         name="no negative numbers",
-        condition=lambda x: x.min >= 0,
+        condition=lambda x: not x.min < 0,
         metric_selector=distribution_selector,
         require_column_existence=False,
     )

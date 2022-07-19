@@ -61,8 +61,11 @@ class DatasetSchema:
     cache_size: int = 1024
     schema_based_automerge: bool = False
 
-    def __init__(self) -> None:
+    def __init__(self, config: Optional[MetricConfig] = None) -> None:
         self._columns = {}
+
+        if config is not None:
+            self.default_configs = config
 
         if self.cache_size < 0:
             logger.warning("Negative cache size value. Disabling caching")
@@ -83,7 +86,7 @@ class DatasetSchema:
 
     def copy(self) -> "DatasetSchema":
         """Returns a new instance of the same underlying schema"""
-        copy = DatasetSchema()
+        copy = DatasetSchema(self.default_configs)
         copy._columns = self._columns.copy()
         copy.cache_size = self.cache_size
         copy.type_mapper = self.type_mapper
@@ -102,6 +105,7 @@ class DatasetSchema:
 
                 self._columns[k] = ColumnSchema(
                     dtype=type(v),
+                    cfg=self.default_configs,
                     resolver=self.resolvers,
                     type_mapper=self.type_mapper,
                 )
@@ -123,6 +127,7 @@ class DatasetSchema:
             col_dtype = df.dtypes[col_name]
             self._columns[col_name] = ColumnSchema(
                 dtype=col_dtype,
+                cfg=self.default_configs,
                 resolver=self.resolvers,
                 type_mapper=self.type_mapper,
             )
@@ -130,8 +135,8 @@ class DatasetSchema:
 
         return dirty
 
-    def get_col_names(self) -> frozenset:
-        return frozenset(self._columns.keys())
+    def get_col_names(self) -> tuple:
+        return tuple(self._columns.keys())
 
     def get(self, name: str) -> Optional["ColumnSchema"]:
         return self._columns.get(name)

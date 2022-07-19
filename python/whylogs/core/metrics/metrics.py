@@ -3,7 +3,7 @@ import math
 import statistics
 import sys
 from abc import ABC, abstractmethod
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Tuple, Type, TypeVar, Union
 
 import whylogs_sketching as ds  # type: ignore
@@ -26,6 +26,7 @@ from whylogs.core.metrics.metric_components import (
 )
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricComponentMessage, MetricMessage
+from whylogs.core.stubs import pd as pd
 
 T = TypeVar("T")
 M = TypeVar("M", bound=MetricComponent)
@@ -40,15 +41,22 @@ class MetricConfig:
     kll_k: int = 256
     fi_lg_max_k: int = 10  # 128 entries
     fi_disabled: bool = False
-    unicode_ranges = {
-        "emoji": (0x1F600, 0x1F64F),
-        "control": (0x00, 0x1F),
-        "digits": (0x30, 0x39),
-        "latin-lower": (0x41, 0x5A),
-        "latin-upper": (0x61, 0x7A),
-        "basic-latin": (0x00, 0x7F),
-        "extended-latin": (0x0080, 0x02AF),
-    }
+    track_unicode_ranges: bool = False
+    large_kll_k: bool = True
+    kll_k_large: int = 1024
+    unicode_ranges: Dict[str, Tuple[int, int]] = field(
+        default_factory=lambda: {
+            "emoticon": (0x1F600, 0x1F64F),
+            "control": (0x00, 0x1F),
+            "digits": (0x30, 0x39),
+            "latin-lower": (0x41, 0x5A),
+            "latin-upper": (0x61, 0x7A),
+            "basic-latin": (0x00, 0x7F),
+            "extended-latin": (0x0080, 0x02AF),
+        }
+    )
+    lower_case: bool = True  # Convert Unicode characters to lower-case before counting Unicode ranges
+    normalize: bool = True  # Unicode normalize strings before counting Unicode ranges
 
 
 _METRIC_DESERIALIZER_REGISTRY: Dict[str, Type[METRIC]] = {}  # type: ignore
@@ -253,7 +261,10 @@ class DistributionMetric(Metric):
                     elif n_b == 1:
                         # fall back to https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
                         # #Weighted_incremental_algorithm
-                        first = welford_online_variance_m2(existing=first, new_value=arr[0])
+                        if isinstance(arr, pd.Series):
+                            first = welford_online_variance_m2(existing=first, new_value=arr.iloc[0])
+                        else:
+                            first = welford_online_variance_m2(existing=first, new_value=arr[0])
 
         for lst in [view.list.ints, view.list.floats]:
             if lst is not None and len(lst) > 0:
@@ -327,7 +338,8 @@ class DistributionMetric(Metric):
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "DistributionMetric":
-        sk = ds.kll_doubles_sketch(k=config.kll_k)
+        configured_kll_k = config.kll_k_large if config.large_kll_k else config.kll_k
+        sk = ds.kll_doubles_sketch(k=configured_kll_k)
         return DistributionMetric(
             kll=KllComponent(sk),
             mean=FractionalComponent(0.0),

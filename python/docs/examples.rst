@@ -28,8 +28,16 @@ Basic
 .. ------------
 
 
-.. Advanced
-.. --------
+Advanced
+--------
+
+.. toctree::
+    :maxdepth: 1
+
+    examples/advanced/Constraints_Suite
+    examples/advanced/String_Tracking
+    examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation
+
 
 
 Integrations
@@ -38,6 +46,9 @@ Integrations
 .. toctree::
     :maxdepth: 1
 
-    examples/integrations/Writing_Profiles
+    examples/integrations/writers/Writing_to_WhyLabs
+    examples/integrations/writers/Writing_Profiles
     examples/integrations/Pyspark_Profiling
     examples/integrations/Mlflow_Logging
+    examples/integrations/kafka-example/Kafka_Example
+    examples/integrations/Feature_Stores_and_whylogs

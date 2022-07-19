@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from typing_extensions import TypedDict
 
@@ -56,3 +56,33 @@ def frequent_items_from_view(
     target_frequent_items = column_frequent_items_metric.to_summary_dict(config)["frequent_strings"]
     frequent_items = get_frequent_items_estimate(target_frequent_items)
     return frequent_items
+
+
+def zero_padding_frequent_items(
+    target_feature_items: List[FrequentItemEstimate], reference_feature_items: List[FrequentItemEstimate]
+) -> Tuple[List[FrequentItemEstimate], List[FrequentItemEstimate]]:
+    """Fills estimate value of item with 0 when such item is present in the other profile but absent in the current profile.
+    This is done for both profiles passed.
+
+    Parameters
+    ----------
+    target_feature_items : List[FrequentItemEstimate]
+        A list of frequent items of a given column for target profile
+    reference_feature_items : List[FrequentItemEstimate]
+        A list of frequent items of a given column for reference profile
+
+    Returns
+    -------
+    Tuple[List[FrequentItemEstimate], List[FrequentItemEstimate]]
+        The same list of items given in the input, but with zero padding for absent items.
+    """
+    for reference_item in reference_feature_items:
+        item_value = reference_item["value"]
+        if item_value not in [x["value"] for x in target_feature_items]:
+            target_feature_items.append({"value": item_value, "estimate": 0})
+    for target_item in target_feature_items:
+        item_value = target_item["value"]
+        if item_value not in [x["value"] for x in reference_feature_items]:
+            reference_feature_items.append({"value": item_value, "estimate": 0})
+
+    return target_feature_items, reference_feature_items
