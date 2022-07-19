@@ -17,6 +17,19 @@ Classes
 
 
 
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.writer.local.logger
+
+
+.. py:data:: logger
+   
+
+   
+
 .. py:class:: LocalWriter(base_dir: Optional[str] = None, base_name: Optional[str] = None)
 
    Bases: :py:obj:`whylogs.api.writer.Writer`
@@ -24,7 +37,7 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView, dest: Optional[str] = None) -> None
+   .. py:method:: write(self, file: whylogs.api.writer.writer.Writable, dest: Optional[str] = None, **kwargs: Any) -> None
 
 
    .. py:method:: option(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> LocalWriter

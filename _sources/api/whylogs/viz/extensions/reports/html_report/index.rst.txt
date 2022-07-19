@@ -1,0 +1,74 @@
+:py:mod:`whylogs.viz.extensions.reports.html_report`
+====================================================
+
+.. py:module:: whylogs.viz.extensions.reports.html_report
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.viz.extensions.reports.html_report.HTMLReport
+   whylogs.viz.extensions.reports.html_report.HTMLReportWriter
+
+
+
+
+.. py:class:: HTMLReport(ref_view: Optional[whylogs.DatasetProfileView] = None, target_view: Optional[whylogs.DatasetProfileView] = None, height: Optional[str] = None)
+
+   Bases: :py:obj:`whylogs.api.writer.writer.Writable`, :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: writer(self, name: str = 'local') -> HTMLReportWriter
+
+
+   .. py:method:: display(self, template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
+
+
+   .. py:method:: report(self) -> IPython.core.display.HTML
+      :abstractmethod:
+
+
+   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+
+      Create HTML file for a given report.
+
+      :param path: The path where the HTML reports will be stored to.
+      :type path: str, optional
+
+      .. rubric:: Examples
+
+      .. code-block:: python
+
+          from whylogs.viz import VizProfile, SummaryDriftReport
+
+          report = SummaryDriftReport.report()
+
+          viz_profile = VizProfile(report=report)
+          viz_profile.write(path="path/to/report/Report.html")
+
+
+   .. py:method:: option(self)
+
+
+   .. py:method:: get_default_path(self) -> str
+
+
+
+.. py:class:: HTMLReportWriter(report: HTMLReport, writer: whylogs.api.writer.writer.Writer)
+
+   Bases: :py:obj:`object`
+
+   .. py:method:: option(self, **kwargs) -> HTMLReportWriter
+
+
+   .. py:method:: write(self, **kwargs: Any) -> None
+
+
+

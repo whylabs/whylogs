@@ -144,7 +144,7 @@ Functions
 
 .. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None)
 
-   Bases: :py:obj:`object`
+   Bases: :py:obj:`whylogs.api.writer.writer.Writable`
 
    Dataset profile represents a collection of in-memory profiling stats for a dataset.
 
@@ -190,7 +190,11 @@ Functions
    .. py:method:: flush(self) -> None
 
 
-   .. py:method:: write(self, path_or_base_dir: str) -> None
+   .. py:method:: get_default_path(path) -> str
+      :staticmethod:
+
+
+   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
 
 
    .. py:method:: read(cls, input_path: str) -> whylogs.core.view.DatasetProfileView

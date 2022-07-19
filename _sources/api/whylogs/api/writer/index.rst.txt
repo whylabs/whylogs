@@ -46,7 +46,7 @@ Classes
       non-negative interval.
 
 
-   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView, dest: Optional[str] = None) -> None
+   .. py:method:: write(self, file: Writable, dest: Optional[str] = None, **kwargs: Any) -> None
       :abstractmethod:
 
 

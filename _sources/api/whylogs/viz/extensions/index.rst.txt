@@ -1,0 +1,6 @@
+:py:mod:`whylogs.viz.extensions`
+================================
+
+.. py:module:: whylogs.viz.extensions
+
+

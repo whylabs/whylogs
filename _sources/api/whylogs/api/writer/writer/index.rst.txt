@@ -12,6 +12,7 @@ Classes
 
 .. autoapisummary::
 
+   whylogs.api.writer.writer.Writable
    whylogs.api.writer.writer.Writer
 
 
@@ -30,6 +31,22 @@ Attributes
 
    
 
+.. py:class:: Writable
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: get_default_path(self) -> str
+      :abstractmethod:
+
+
+   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+      :abstractmethod:
+
+
+
 .. py:class:: Writer
 
    Bases: :py:obj:`abc.ABC`
@@ -45,7 +62,7 @@ Attributes
       non-negative interval.
 
 
-   .. py:method:: write(self, profile: whylogs.core.DatasetProfileView, dest: Optional[str] = None) -> None
+   .. py:method:: write(self, file: Writable, dest: Optional[str] = None, **kwargs: Any) -> None
       :abstractmethod:
 
 

@@ -1,0 +1,15 @@
+:py:mod:`whylogs.viz.enums`
+===========================
+
+.. py:module:: whylogs.viz.enums
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   enums/index.rst
+
+

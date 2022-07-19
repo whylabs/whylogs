@@ -1,7 +1,7 @@
-:py:mod:`whylogs.viz.jupyter_notebook_viz`
+:py:mod:`whylogs.viz.notebook_profile_viz`
 ==========================================
 
-.. py:module:: whylogs.viz.jupyter_notebook_viz
+.. py:module:: whylogs.viz.notebook_profile_viz
 
 
 Module Contents
@@ -12,9 +12,7 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.viz.jupyter_notebook_viz.PageSpec
-   whylogs.viz.jupyter_notebook_viz.PageSpecEnum
-   whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer
+   whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer
 
 
 
@@ -24,75 +22,13 @@ Attributes
 
 .. autoapisummary::
 
-   whylogs.viz.jupyter_notebook_viz.logger
+   whylogs.viz.notebook_profile_viz.logger
 
 
 .. py:data:: logger
    
 
    
-
-.. py:class:: PageSpec
-
-   .. py:attribute:: html
-      :annotation: :str
-
-      
-
-   .. py:attribute:: height
-      :annotation: :str
-
-      
-
-
-.. py:class:: PageSpecEnum
-
-   Bases: :py:obj:`enum.Enum`
-
-   Generic enumeration.
-
-   Derive from this class to define new enumerations.
-
-   .. py:attribute:: SUMMARY_REPORT
-      
-
-      
-
-   .. py:attribute:: DOUBLE_HISTOGRAM
-      
-
-      
-
-   .. py:attribute:: DISTRIBUTION_CHART
-      
-
-      
-
-   .. py:attribute:: DIFFERENCED_CHART
-      
-
-      
-
-   .. py:attribute:: FEATURE_STATISTICS
-      
-
-      
-
-   .. py:attribute:: CONSTRAINTS_REPORT
-      
-
-      
-
-   .. py:method:: name(self)
-
-      The name of the Enum member.
-
-
-   .. py:method:: value(self)
-
-      The value of the Enum member.
-
-
 
 .. py:class:: NotebookProfileVisualizer
 
@@ -170,7 +106,7 @@ Attributes
       :type reference_profile_view: DatasetProfileView, optional
 
 
-   .. py:method:: summary_drift_report(self, cell_height: str = None) -> IPython.core.display.HTML
+   .. py:method:: summary_drift_report(self, height: Optional[str] = None) -> IPython.core.display.HTML
 
       Generate drift report between target and reference profiles.
 
@@ -178,9 +114,9 @@ Attributes
       If feature is missing from any profile, it will not be included in the report.
       Both target_profile_view and reference_profile_view must be set previously with `set_profiles`.
 
-      :param cell_height: Preferred cell height, in pixels, for in-notebook visualization. Example:
-                          `"1000px"`. (Default is None)
-      :type cell_height: str, optional
+      :param height: Preferred height, in pixels, for in-notebook visualization. Example:
+                     `"1000px"`. (Default is None)
+      :type height: str, optional
 
       :returns: HTML Page of the given plot.
       :rtype: HTML
@@ -194,7 +130,7 @@ Attributes
           visualization.summary_drift_report()
 
 
-   .. py:method:: double_histogram(self, feature_name: str, cell_height: str = None) -> IPython.core.display.HTML
+   .. py:method:: double_histogram(self, feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Plot overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
 
@@ -216,7 +152,7 @@ Attributes
           visualization.double_histogram(feature_name="weight")
 
 
-   .. py:method:: distribution_chart(self, feature_name: str, cell_height: str = None) -> IPython.core.display.HTML
+   .. py:method:: distribution_chart(self, feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Plot overlayed distribution charts for specified feature between two profiles.
 
@@ -242,7 +178,7 @@ Attributes
           visualization.distribution_chart(feature_name="animal")
 
 
-   .. py:method:: difference_distribution_chart(self, feature_name: str, cell_height: str = None) -> IPython.core.display.HTML
+   .. py:method:: difference_distribution_chart(self, feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Plot overlayed distribution charts of differences between the categories of both profiles.
 
@@ -266,10 +202,10 @@ Attributes
           visualization.difference_distribution_chart(feature_name="animal")
 
 
-   .. py:method:: constraints_report(self, constraints: whylogs.core.constraints.Constraints, cell_height: str = None) -> IPython.core.display.HTML
+   .. py:method:: constraints_report(self, constraints: whylogs.core.constraints.Constraints, cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
 
-   .. py:method:: feature_statistics(self, feature_name: str, profile: str = 'reference', cell_height: str = None) -> IPython.core.display.HTML
+   .. py:method:: feature_statistics(self, feature_name: str, profile: str = 'reference', cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Generate a report for the main statistics of specified feature, for a given profile (target or reference).
 
@@ -294,12 +230,13 @@ Attributes
           visualization.feature_statistics(feature_name="weight", profile="target")
 
 
-   .. py:method:: write(self, rendered_html: IPython.core.display.HTML, preferred_path: str = None, html_file_name: str = None) -> None
+   .. py:method:: write(rendered_html: IPython.core.display.HTML, preferred_path: Optional[str] = None, html_file_name: Optional[str] = None) -> None
+      :staticmethod:
 
-      Create HTML file for the given report.
+      Create HTML file for a given report.
 
       :param rendered_html: Rendered HTML returned by a given report.
-      :type rendered_html: HTML
+      :type rendered_html: HTML, optional
       :param preferred_path: Preferred path to write the HTML file.
       :type preferred_path: str, optional
       :param html_file_name: Name for the created HTML file. If none is passed, created HTML will be named `ProfileVisualizer.html`

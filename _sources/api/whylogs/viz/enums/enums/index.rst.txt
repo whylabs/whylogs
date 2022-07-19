@@ -1,0 +1,82 @@
+:py:mod:`whylogs.viz.enums.enums`
+=================================
+
+.. py:module:: whylogs.viz.enums.enums
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.viz.enums.enums.PageSpec
+   whylogs.viz.enums.enums.PageSpecEnum
+
+
+
+
+.. py:class:: PageSpec
+
+   .. py:attribute:: html
+      :annotation: :str
+
+      
+
+   .. py:attribute:: height
+      :annotation: :str
+
+      
+
+
+.. py:class:: PageSpecEnum
+
+   Bases: :py:obj:`enum.Enum`
+
+   Generic enumeration.
+
+   Derive from this class to define new enumerations.
+
+   .. py:attribute:: SUMMARY_REPORT
+      
+
+      
+
+   .. py:attribute:: DOUBLE_HISTOGRAM
+      
+
+      
+
+   .. py:attribute:: DISTRIBUTION_CHART
+      
+
+      
+
+   .. py:attribute:: DIFFERENCED_CHART
+      
+
+      
+
+   .. py:attribute:: FEATURE_STATISTICS
+      
+
+      
+
+   .. py:attribute:: CONSTRAINTS_REPORT
+      
+
+      
+
+   .. py:method:: name(self)
+
+      The name of the Enum member.
+
+
+   .. py:method:: value(self)
+
+      The value of the Enum member.
+
+
+

@@ -104,7 +104,10 @@ Functions
 
 .. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: datetime.datetime, creation_timestamp: datetime.datetime)
 
-   Bases: :py:obj:`object`
+   Bases: :py:obj:`whylogs.api.writer.writer.Writable`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
 
    .. py:method:: dataset_timestamp(self) -> datetime.datetime
       :property:
@@ -123,7 +126,10 @@ Functions
    .. py:method:: get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
-   .. py:method:: write(self, path: str) -> None
+   .. py:method:: get_default_path(self) -> str
+
+
+   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
 
 
    .. py:method:: read(cls, path: str) -> DatasetProfileView

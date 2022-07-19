@@ -288,7 +288,12 @@
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="api/whylogs/viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/whylogs/viz/jupyter_notebook_viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.jupyter_notebook_viz</span></code></a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="api/whylogs/viz/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/viz/enums/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums.enums</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/viz/extensions/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.extensions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/viz/notebook_profile_viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.notebook_profile_viz</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -717,9 +722,9 @@
           <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.Constraints">(class in whylogs.core.constraints.metric_constraints)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpecEnum.CONSTRAINTS_REPORT">CONSTRAINTS_REPORT (whylogs.viz.jupyter_notebook_viz.PageSpecEnum attribute)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum.CONSTRAINTS_REPORT">CONSTRAINTS_REPORT (whylogs.viz.enums.enums.PageSpecEnum attribute)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer.constraints_report">constraints_report() (whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer method)</a>
+        <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.constraints_report">constraints_report() (whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer method)</a>
 
         <ul>
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.constraints_report">(whylogs.viz.NotebookProfileVisualizer method)</a>
@@ -731,6 +736,8 @@
           <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.ConstraintsBuilder">(class in whylogs.core.constraints.metric_constraints)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#whylogs.viz.extensions.reports.constraints.ConstraintsReport">ConstraintsReport (class in whylogs.viz.extensions.reports.constraints)</a>
+</li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.CONTAIN">CONTAIN (in module whylogs.core.proto.v0)</a>
 
         <ul>
@@ -907,8 +914,6 @@
           <li><a href="api/whylogs/core/proto/v0/v0_summaries_pb2/index.html#whylogs.core.proto.v0.v0_summaries_pb2.DatasetSummary">(in module whylogs.core.proto.v0.v0_summaries_pb2)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.DataType">DataType (class in whylogs.core.datatypes)</a>
 
         <ul>
@@ -919,6 +924,8 @@
         </ul></li>
         <li><a href="api/whylogs/core/metrics/decorators/index.html#whylogs.core.metrics.decorators.DecoratedFunction">DecoratedFunction (class in whylogs.core.metrics.decorators)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/api/logger/index.html#id1">default_configs (whylogs.api.logger.DatasetSchema attribute)</a>, <a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetSchema.default_configs">[1]</a>
 
         <ul>
@@ -961,40 +968,62 @@
 </li>
         <li><a href="api/whylogs/core/metrics/decorators/index.html#whylogs.core.metrics.decorators.DF">DF (in module whylogs.core.metrics.decorators)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer.difference_distribution_chart">difference_distribution_chart() (whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer method)</a>
+        <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.difference_distribution_chart">difference_distribution_chart() (whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer method)</a>
 
         <ul>
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.difference_distribution_chart">(whylogs.viz.NotebookProfileVisualizer method)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpecEnum.DIFFERENCED_CHART">DIFFERENCED_CHART (whylogs.viz.jupyter_notebook_viz.PageSpecEnum attribute)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum.DIFFERENCED_CHART">DIFFERENCED_CHART (whylogs.viz.enums.enums.PageSpecEnum attribute)</a>
+</li>
+        <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart">DifferenceDistributionChart (class in whylogs.viz.extensions.reports.histograms)</a>
 </li>
         <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.SummaryConfig.disabled_metrics">disabled_metrics (whylogs.core.configs.SummaryConfig attribute)</a>
 </li>
+        <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#whylogs.viz.extensions.reports.constraints.ConstraintsReport.display">display() (whylogs.viz.extensions.reports.constraints.ConstraintsReport method)</a>
+
+        <ul>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart.display">(whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DistributionChart.display">(whylogs.viz.extensions.reports.histograms.DistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DoubleHistogram.display">(whylogs.viz.extensions.reports.histograms.DoubleHistogram method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport.display">(whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReport.display">(whylogs.viz.extensions.reports.html_report.HTMLReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.display">(whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport method)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric.distribution">distribution (whylogs.core.metrics.StandardMetric attribute)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpecEnum.DISTRIBUTION_CHART">DISTRIBUTION_CHART (whylogs.viz.jupyter_notebook_viz.PageSpecEnum attribute)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum.DISTRIBUTION_CHART">DISTRIBUTION_CHART (whylogs.viz.enums.enums.PageSpecEnum attribute)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer.distribution_chart">distribution_chart() (whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer method)</a>
+        <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.distribution_chart">distribution_chart() (whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer method)</a>
 
         <ul>
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.distribution_chart">(whylogs.viz.NotebookProfileVisualizer method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DistributionChart">DistributionChart (class in whylogs.viz.extensions.reports.histograms)</a>
+</li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric">DistributionMetric (class in whylogs.core.metrics)</a>
 
         <ul>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.DistributionMetric">(class in whylogs.core.metrics.metrics)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpecEnum.DOUBLE_HISTOGRAM">DOUBLE_HISTOGRAM (whylogs.viz.jupyter_notebook_viz.PageSpecEnum attribute)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum.DOUBLE_HISTOGRAM">DOUBLE_HISTOGRAM (whylogs.viz.enums.enums.PageSpecEnum attribute)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer.double_histogram">double_histogram() (whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer method)</a>
+        <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.double_histogram">double_histogram() (whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer method)</a>
 
         <ul>
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.double_histogram">(whylogs.viz.NotebookProfileVisualizer method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DoubleHistogram">DoubleHistogram (class in whylogs.viz.extensions.reports.histograms)</a>
+</li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.DoublesMessage">DoublesMessage (in module whylogs.core.proto.v0)</a>
 
         <ul>
@@ -1061,14 +1090,16 @@
 </li>
         <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.OperationResult.failures">failures (whylogs.core.metrics.metrics.OperationResult attribute)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpecEnum.FEATURE_STATISTICS">FEATURE_STATISTICS (whylogs.viz.jupyter_notebook_viz.PageSpecEnum attribute)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum.FEATURE_STATISTICS">FEATURE_STATISTICS (whylogs.viz.enums.enums.PageSpecEnum attribute)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer.feature_statistics">feature_statistics() (whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer method)</a>
+        <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.feature_statistics">feature_statistics() (whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer method)</a>
 
         <ul>
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.feature_statistics">(whylogs.viz.NotebookProfileVisualizer method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport">FeatureStatisticsReport (class in whylogs.viz.extensions.reports.histograms)</a>
+</li>
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.fi_disabled">fi_disabled (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
@@ -1365,6 +1396,38 @@
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.UnicodeRangeMetric.get_component_paths">(whylogs.core.metrics.UnicodeRangeMetric method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetProfile.get_default_path">get_default_path() (whylogs.api.logger.DatasetProfile static method)</a>
+
+        <ul>
+          <li><a href="api/whylogs/api/writer/writer/index.html#whylogs.api.writer.writer.Writable.get_default_path">(whylogs.api.writer.writer.Writable method)</a>
+</li>
+          <li><a href="api/whylogs/core/dataset_profile/index.html#whylogs.core.dataset_profile.DatasetProfile.get_default_path">(whylogs.core.dataset_profile.DatasetProfile static method)</a>
+</li>
+          <li><a href="api/whylogs/core/index.html#whylogs.core.DatasetProfile.get_default_path">(whylogs.core.DatasetProfile static method)</a>
+</li>
+          <li><a href="api/whylogs/core/index.html#whylogs.core.DatasetProfileView.get_default_path">(whylogs.core.DatasetProfileView method)</a>
+</li>
+          <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView.get_default_path">(whylogs.core.view.dataset_profile_view.DatasetProfileView method)</a>
+</li>
+          <li><a href="api/whylogs/core/view/index.html#whylogs.core.view.DatasetProfileView.get_default_path">(whylogs.core.view.DatasetProfileView method)</a>
+</li>
+          <li><a href="api/whylogs/index.html#whylogs.DatasetProfileView.get_default_path">(whylogs.DatasetProfileView method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#whylogs.viz.extensions.reports.constraints.ConstraintsReport.get_default_path">(whylogs.viz.extensions.reports.constraints.ConstraintsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart.get_default_path">(whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DistributionChart.get_default_path">(whylogs.viz.extensions.reports.histograms.DistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DoubleHistogram.get_default_path">(whylogs.viz.extensions.reports.histograms.DoubleHistogram method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport.get_default_path">(whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReport.get_default_path">(whylogs.viz.extensions.reports.html_report.HTMLReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.get_default_path">(whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport method)</a>
+</li>
+        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/metrics/deserializers/index.html#whylogs.core.metrics.deserializers.get_deserializer">get_deserializer() (in module whylogs.core.metrics.deserializers)</a>
@@ -1465,7 +1528,7 @@
 </li>
         <li><a href="api/whylogs/api/usage_stats/index.html#whylogs.api.usage_stats.HEAP_HEADERS">HEAP_HEADERS (in module whylogs.api.usage_stats)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpec.height">height (whylogs.viz.jupyter_notebook_viz.PageSpec attribute)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpec.height">height (whylogs.viz.enums.enums.PageSpec attribute)</a>
 </li>
         <li><a href="api/whylogs/core/resolvers/index.html#whylogs.core.resolvers.HistogramCountingTrackingResolver">HistogramCountingTrackingResolver (class in whylogs.core.resolvers)</a>
 </li>
@@ -1481,8 +1544,6 @@
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.CardinalityMetric.hll">(whylogs.core.metrics.metrics.CardinalityMetric attribute)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.hll_lg_k">hll_lg_k (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
@@ -1491,6 +1552,8 @@
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.hll_lg_k">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.SummaryConfig.hll_stddev">hll_stddev (whylogs.core.configs.SummaryConfig attribute)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.HllComponent">HllComponent (class in whylogs.core.metrics.metric_components)</a>
@@ -1507,7 +1570,11 @@
           <li><a href="api/whylogs/core/proto/v0/v0_messages_pb2/index.html#whylogs.core.proto.v0.v0_messages_pb2.HllSketchMessageV0">(in module whylogs.core.proto.v0.v0_messages_pb2)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpec.html">html (whylogs.viz.jupyter_notebook_viz.PageSpec attribute)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpec.html">html (whylogs.viz.enums.enums.PageSpec attribute)</a>
+</li>
+        <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReport">HTMLReport (class in whylogs.viz.extensions.reports.html_report)</a>
+</li>
+        <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReportWriter">HTMLReportWriter (class in whylogs.viz.extensions.reports.html_report)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -1746,6 +1813,10 @@
 </li>
           <li><a href="api/whylogs/api/usage_stats/index.html#whylogs.api.usage_stats.logger">(in module whylogs.api.usage_stats)</a>
 </li>
+          <li><a href="api/whylogs/api/writer/local/index.html#whylogs.api.writer.local.logger">(in module whylogs.api.writer.local)</a>
+</li>
+          <li><a href="api/whylogs/api/writer/mlflow/index.html#whylogs.api.writer.mlflow.logger">(in module whylogs.api.writer.mlflow)</a>
+</li>
           <li><a href="api/whylogs/api/writer/s3/index.html#whylogs.api.writer.s3.logger">(in module whylogs.api.writer.s3)</a>
 </li>
           <li><a href="api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.logger">(in module whylogs.api.writer.whylabs)</a>
@@ -1764,7 +1835,9 @@
 </li>
           <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.logger">(in module whylogs.core.view.dataset_profile_view)</a>
 </li>
-          <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.logger">(in module whylogs.viz.jupyter_notebook_viz)</a>
+          <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#whylogs.viz.extensions.reports.summary_drift.logger">(in module whylogs.viz.extensions.reports.summary_drift)</a>
+</li>
+          <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.logger">(in module whylogs.viz.notebook_profile_viz)</a>
 </li>
         </ul></li>
     </ul></td>
@@ -2017,12 +2090,12 @@
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.IntsMetric.min">(whylogs.core.metrics.metrics.IntsMetric attribute)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.MinIntegralComponent.min">min() (whylogs.core.metrics.metric_components.MinIntegralComponent static method)</a>
 </li>
         <li><a href="api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.MinIntegralComponent">MinIntegralComponent (class in whylogs.core.metrics.metric_components)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/api/writer/mlflow/index.html#whylogs.api.writer.mlflow.MlflowWriter">MlflowWriter (class in whylogs.api.writer.mlflow)</a>
 </li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.ModelMetricsMessage">ModelMetricsMessage (in module whylogs.core.proto.v0)</a>
@@ -2161,7 +2234,21 @@
 </li>
           <li><a href="api/whylogs/viz/index.html#module-whylogs.viz">whylogs.viz</a>
 </li>
-          <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#module-whylogs.viz.jupyter_notebook_viz">whylogs.viz.jupyter_notebook_viz</a>
+          <li><a href="api/whylogs/viz/enums/index.html#module-whylogs.viz.enums">whylogs.viz.enums</a>
+</li>
+          <li><a href="api/whylogs/viz/enums/enums/index.html#module-whylogs.viz.enums.enums">whylogs.viz.enums.enums</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/index.html#module-whylogs.viz.extensions">whylogs.viz.extensions</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#module-whylogs.viz.extensions.reports.constraints">whylogs.viz.extensions.reports.constraints</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#module-whylogs.viz.extensions.reports.histograms">whylogs.viz.extensions.reports.histograms</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#module-whylogs.viz.extensions.reports.html_report">whylogs.viz.extensions.reports.html_report</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#module-whylogs.viz.extensions.reports.summary_drift">whylogs.viz.extensions.reports.summary_drift</a>
+</li>
+          <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#module-whylogs.viz.notebook_profile_viz">whylogs.viz.notebook_profile_viz</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.CustomComponent.mtype">mtype (whylogs.core.metrics.metric_components.CustomComponent attribute)</a>
@@ -2223,7 +2310,7 @@
 </li>
           <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.name">(whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
-          <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpecEnum.name">(whylogs.viz.jupyter_notebook_viz.PageSpecEnum method)</a>
+          <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum.name">(whylogs.viz.enums.enums.PageSpecEnum method)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.CardinalityMetric.namespace">namespace (whylogs.core.metrics.CardinalityMetric property)</a>
@@ -2315,7 +2402,7 @@
         <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer">NotebookProfileVisualizer (class in whylogs.viz)</a>
 
         <ul>
-          <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer">(class in whylogs.viz.jupyter_notebook_viz)</a>
+          <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer">(class in whylogs.viz.notebook_profile_viz)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.NT">NT (in module whylogs.core.datatypes)</a>
@@ -2388,8 +2475,6 @@
         </ul></li>
         <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.OperationResult">OperationResult (class in whylogs.core.metrics.metrics)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/api/logger/result_set/index.html#whylogs.api.logger.result_set.ResultSetWriter.option">option() (whylogs.api.logger.result_set.ResultSetWriter method)</a>
 
         <ul>
@@ -2405,7 +2490,25 @@
 </li>
           <li><a href="api/whylogs/api/writer/writer/index.html#whylogs.api.writer.writer.Writer.option">(whylogs.api.writer.writer.Writer method)</a>
 </li>
+          <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#whylogs.viz.extensions.reports.constraints.ConstraintsReport.option">(whylogs.viz.extensions.reports.constraints.ConstraintsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart.option">(whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DistributionChart.option">(whylogs.viz.extensions.reports.histograms.DistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DoubleHistogram.option">(whylogs.viz.extensions.reports.histograms.DoubleHistogram method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport.option">(whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReport.option">(whylogs.viz.extensions.reports.html_report.HTMLReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReportWriter.option">(whylogs.viz.extensions.reports.html_report.HTMLReportWriter method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.option">(whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport method)</a>
+</li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn.original">original (whylogs.core.preprocessing.PreprocessedColumn attribute)</a>
 </li>
     </ul></td>
@@ -2418,9 +2521,9 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/index.html#whylogs.package_version">package_version() (in module whylogs)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpec">PageSpec (class in whylogs.viz.jupyter_notebook_viz)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpec">PageSpec (class in whylogs.viz.enums.enums)</a>
 </li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpecEnum">PageSpecEnum (class in whylogs.viz.jupyter_notebook_viz)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum">PageSpecEnum (class in whylogs.viz.enums.enums)</a>
 </li>
         <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn.pandas">pandas (whylogs.core.preprocessing.PreprocessedColumn attribute)</a>
 </li>
@@ -2572,8 +2675,6 @@
         </ul></li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.removeprefix">removeprefix() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.removesuffix">removesuffix() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.replace">replace() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
@@ -2583,7 +2684,23 @@
         <ul>
           <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.Constraints.report">(whylogs.core.constraints.metric_constraints.Constraints method)</a>
 </li>
+          <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#whylogs.viz.extensions.reports.constraints.ConstraintsReport.report">(whylogs.viz.extensions.reports.constraints.ConstraintsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart.report">(whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DistributionChart.report">(whylogs.viz.extensions.reports.histograms.DistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DoubleHistogram.report">(whylogs.viz.extensions.reports.histograms.DoubleHistogram method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport.report">(whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReport.report">(whylogs.viz.extensions.reports.html_report.HTMLReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.report">(whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport method)</a>
+</li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint.require_column_existence">require_column_existence (whylogs.core.constraints.metric_constraints.MetricConstraint attribute)</a>
 
         <ul>
@@ -2762,7 +2879,7 @@
           <li><a href="api/whylogs/core/index.html#whylogs.core.DatasetProfile.set_dataset_timestamp">(whylogs.core.DatasetProfile method)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer.set_profiles">set_profiles() (whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer method)</a>
+        <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.set_profiles">set_profiles() (whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer method)</a>
 
         <ul>
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.set_profiles">(whylogs.viz.NotebookProfileVisualizer method)</a>
@@ -2848,13 +2965,13 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#whylogs.core.proto.v0.v0_constraints_pb2.SUM">(in module whylogs.core.proto.v0.v0_constraints_pb2)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer.summary_drift_report">summary_drift_report() (whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer method)</a>
+        <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.summary_drift_report">summary_drift_report() (whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer method)</a>
 
         <ul>
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.summary_drift_report">(whylogs.viz.NotebookProfileVisualizer method)</a>
 </li>
         </ul></li>
-        <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpecEnum.SUMMARY_REPORT">SUMMARY_REPORT (whylogs.viz.jupyter_notebook_viz.PageSpecEnum attribute)</a>
+        <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum.SUMMARY_REPORT">SUMMARY_REPORT (whylogs.viz.enums.enums.PageSpecEnum attribute)</a>
 </li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.SummaryBetweenConstraintMsg">SummaryBetweenConstraintMsg (in module whylogs.core.proto.v0)</a>
 
@@ -2876,6 +2993,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#whylogs.core.proto.v0.v0_constraints_pb2.SummaryConstraintMsgs">(in module whylogs.core.proto.v0.v0_constraints_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport">SummaryDriftReport (class in whylogs.viz.extensions.reports.summary_drift)</a>
+</li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType">SummaryType (class in whylogs.core.view.dataset_profile_view)</a>
 </li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.swapcase">swapcase() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
@@ -3209,7 +3328,7 @@
 </li>
           <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.value">(whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
-          <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.PageSpecEnum.value">(whylogs.viz.jupyter_notebook_viz.PageSpecEnum method)</a>
+          <li><a href="api/whylogs/viz/enums/enums/index.html#whylogs.viz.enums.enums.PageSpecEnum.value">(whylogs.viz.enums.enums.PageSpecEnum method)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.ValueConstraintMsg">ValueConstraintMsg (in module whylogs.core.proto.v0)</a>
@@ -3537,8 +3656,6 @@
           <li><a href="api/whylogs/core/metrics/serializers/index.html#module-whylogs.core.metrics.serializers">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     whylogs.core.metrics.unicode_range
 
@@ -3595,6 +3712,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_summaries_pb2/index.html#module-whylogs.core.proto.v0.v0_summaries_pb2">module</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     whylogs.core.proto.whylogs_messages_pb2
 
@@ -3659,10 +3778,59 @@
 </li>
         </ul></li>
         <li>
-    whylogs.viz.jupyter_notebook_viz
+    whylogs.viz.enums
 
         <ul>
-          <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#module-whylogs.viz.jupyter_notebook_viz">module</a>
+          <li><a href="api/whylogs/viz/enums/index.html#module-whylogs.viz.enums">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.viz.enums.enums
+
+        <ul>
+          <li><a href="api/whylogs/viz/enums/enums/index.html#module-whylogs.viz.enums.enums">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.viz.extensions
+
+        <ul>
+          <li><a href="api/whylogs/viz/extensions/index.html#module-whylogs.viz.extensions">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.viz.extensions.reports.constraints
+
+        <ul>
+          <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#module-whylogs.viz.extensions.reports.constraints">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.viz.extensions.reports.histograms
+
+        <ul>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#module-whylogs.viz.extensions.reports.histograms">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.viz.extensions.reports.html_report
+
+        <ul>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#module-whylogs.viz.extensions.reports.html_report">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.viz.extensions.reports.summary_drift
+
+        <ul>
+          <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#module-whylogs.viz.extensions.reports.summary_drift">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.viz.notebook_profile_viz
+
+        <ul>
+          <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#module-whylogs.viz.notebook_profile_viz">module</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/index.html#whylogs.core.WHYLOGS_MAGIC_HEADER">WHYLOGS_MAGIC_HEADER (in module whylogs.core)</a>
@@ -3697,6 +3865,8 @@
           <li><a href="api/whylogs/core/errors/index.html#whylogs.core.errors.UnsupportedError.with_traceback">(whylogs.core.errors.UnsupportedError method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/writer/writer/index.html#whylogs.api.writer.writer.Writable">Writable (class in whylogs.api.writer.writer)</a>
+</li>
         <li><a href="api/whylogs/index.html#whylogs.write">write() (in module whylogs)</a>
 
         <ul>
@@ -3718,6 +3888,8 @@
 </li>
           <li><a href="api/whylogs/api/writer/index.html#whylogs.api.writer.Writer.write">(whylogs.api.writer.Writer method)</a>
 </li>
+          <li><a href="api/whylogs/api/writer/writer/index.html#whylogs.api.writer.writer.Writable.write">(whylogs.api.writer.writer.Writable method)</a>
+</li>
           <li><a href="api/whylogs/api/writer/writer/index.html#whylogs.api.writer.writer.Writer.write">(whylogs.api.writer.writer.Writer method)</a>
 </li>
           <li><a href="api/whylogs/core/dataset_profile/index.html#whylogs.core.dataset_profile.DatasetProfile.write">(whylogs.core.dataset_profile.DatasetProfile method)</a>
@@ -3732,9 +3904,25 @@
 </li>
           <li><a href="api/whylogs/index.html#whylogs.DatasetProfileView.write">(whylogs.DatasetProfileView method)</a>
 </li>
-          <li><a href="api/whylogs/viz/jupyter_notebook_viz/index.html#whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer.write">(whylogs.viz.jupyter_notebook_viz.NotebookProfileVisualizer method)</a>
+          <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#whylogs.viz.extensions.reports.constraints.ConstraintsReport.write">(whylogs.viz.extensions.reports.constraints.ConstraintsReport method)</a>
 </li>
-          <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.write">(whylogs.viz.NotebookProfileVisualizer method)</a>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart.write">(whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DistributionChart.write">(whylogs.viz.extensions.reports.histograms.DistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DoubleHistogram.write">(whylogs.viz.extensions.reports.histograms.DoubleHistogram method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport.write">(whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReport.write">(whylogs.viz.extensions.reports.html_report.HTMLReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReportWriter.write">(whylogs.viz.extensions.reports.html_report.HTMLReportWriter method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.write">(whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/notebook_profile_viz/index.html#whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer.write">(whylogs.viz.notebook_profile_viz.NotebookProfileVisualizer static method)</a>
+</li>
+          <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer.write">(whylogs.viz.NotebookProfileVisualizer static method)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/api/writer/index.html#whylogs.api.writer.Writer">Writer (class in whylogs.api.writer)</a>
@@ -3755,6 +3943,20 @@
           <li><a href="api/whylogs/api/index.html#whylogs.api.ResultSet.writer">(whylogs.api.ResultSet method)</a>
 </li>
           <li><a href="api/whylogs/index.html#whylogs.ResultSet.writer">(whylogs.ResultSet method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#whylogs.viz.extensions.reports.constraints.ConstraintsReport.writer">(whylogs.viz.extensions.reports.constraints.ConstraintsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart.writer">(whylogs.viz.extensions.reports.histograms.DifferenceDistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DistributionChart.writer">(whylogs.viz.extensions.reports.histograms.DistributionChart method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.DoubleHistogram.writer">(whylogs.viz.extensions.reports.histograms.DoubleHistogram method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport.writer">(whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReport.writer">(whylogs.viz.extensions.reports.html_report.HTMLReport method)</a>
+</li>
+          <li><a href="api/whylogs/viz/extensions/reports/summary_drift/index.html#whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport.writer">(whylogs.viz.extensions.reports.summary_drift.SummaryDriftReport method)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/api/writer/index.html#whylogs.api.writer.Writers">Writers (class in whylogs.api.writer)</a>
