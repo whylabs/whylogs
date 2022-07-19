@@ -4,6 +4,10 @@ on:
   release:
     types: [released, prereleased]
   workflow_dispatch:
+    
+defaults:
+  run:
+    working-directory: python  
 
 jobs:
   deploy:
