@@ -166,7 +166,6 @@ exclude = '''
     | buck-out
     | build
     | dist
-    | examples
     | tests
     | whylogs/core/proto
     | docs
