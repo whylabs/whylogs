@@ -132,6 +132,7 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | examples
     | tests
     | whylogs/core/proto
     | whylogs/viz/html
