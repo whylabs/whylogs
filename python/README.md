@@ -6,7 +6,7 @@
 
  </h1>
   <h3 align="center">
-   <a href="https://docs.whylabs.ai/docs/"><b>Documentation</b></a> &bull;
+   <a href="https://whylogs.readthedocs.io/"><b>Documentation</b></a> &bull;
    <a href="https://bit.ly/whylogsslack"><b>Slack Community</b></a> &bull;
    <a href="https://github.com/whylabs/whylogs#python-quickstart"><b>Python Quickstart</b></a>
  </h3>
@@ -250,7 +250,7 @@ If you have any questions, comments, or just want to hang out with us, please jo
 
 ### How to Contribute
 
-We welcome contributions to whylogs. Please see our [contribution guide](https://github.com/whylabs/whylogs/blob/mainline/CONTRIBUTING.md) and our [development guide](https://github.com/whylabs/whylogs/blob/mainline/DEVELOPMENT.md) for details.
+We welcome contributions to whylogs. Please see our [contribution guide](https://github.com/whylabs/whylogs/blob/mainline/.github/CONTRIBUTING.md) for details.
 
 ### Contributors
 
