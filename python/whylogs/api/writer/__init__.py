@@ -22,5 +22,4 @@ class Writers:
             from whylogs.api.writer.mlflow import MlflowWriter
 
             return MlflowWriter(**kwargs)  # type: ignore
-
         raise ValueError(f"Unrecognized writer: {name}")

@@ -1,14 +1,14 @@
 import logging
-import os
 import tempfile
-from typing import Optional
+from typing import Any, Optional
 
 import boto3
 from botocore.client import BaseClient
 from botocore.exceptions import ClientError
 
 from whylogs.api.writer import Writer
-from whylogs.core import DatasetProfileView
+from whylogs.api.writer.writer import Writable
+from whylogs.core.utils import deprecated_alias
 
 logger = logging.getLogger(__name__)
 
@@ -60,18 +60,23 @@ class S3Writer(Writer):
     ):
         self.s3_client = s3_client or boto3.client("s3")
         self.base_prefix = base_prefix or "profile"
-        self.bucket_name = bucket_name or None
+        self.bucket_name = bucket_name or ""
         self.object_name = object_name or None
 
-    def write(self, profile: DatasetProfileView, dest: Optional[str] = None) -> None:
-        if dest is None:
-            dest = f"{self.base_prefix}_{profile.creation_timestamp}.bin"
-        if self.object_name is None:
-            self.object_name = os.path.basename(dest)
+    @deprecated_alias(profile="file")
+    def write(
+        self,
+        file: Writable,
+        dest: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
 
+        dest = dest or file.get_default_path()  # type: ignore
+        if self.object_name is None:
+            self.object_name = dest
         try:
             with tempfile.NamedTemporaryFile() as tmp_file:
-                profile.write(path=tmp_file.name)
+                file.write(path=tmp_file.name)  # type: ignore
                 tmp_file.flush()
                 self.s3_client.upload_file(tmp_file.name, self.bucket_name, self.object_name)
         except ClientError as e:

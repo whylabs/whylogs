@@ -2,10 +2,11 @@ import logging
 import tempfile
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from google.protobuf.message import DecodeError
 
+from whylogs.api.writer.writer import Writable
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.errors import DeserializationError
 from whylogs.core.proto import (
@@ -37,7 +38,7 @@ class SummaryType(str, Enum):
     DATASET = "DATASET"
 
 
-class DatasetProfileView(object):
+class DatasetProfileView(Writable):
     _columns: Dict[str, ColumnProfileView]
 
     def __init__(
@@ -84,8 +85,12 @@ class DatasetProfileView(object):
         else:
             return {k: self._columns.get(k) for k in self._columns}
 
-    def write(self, path: str) -> None:
+    def get_default_path(self) -> str:
+        return f"profile_{self.creation_timestamp}.bin"
+
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
         all_metric_component_names = set()
+        path = path or self.get_default_path()
 
         # capture the list of all metric component paths
         for col in self._columns.values():

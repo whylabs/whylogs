@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Tuple
 
 import requests  # type: ignore
 import whylabs_client
@@ -11,9 +11,11 @@ from whylabs_client.model.log_async_request import LogAsyncRequest
 from whylabs_client.rest import ForbiddenException
 
 from whylogs.api.writer import Writer
+from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
+from whylogs.core.utils import deprecated_alias
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
@@ -79,24 +81,25 @@ class WhyLabsWriter(Writer):
         if api_key is not None:
             self._api_key = api_key
 
-    def write(
-        self,
-        profile: Union[DatasetProfileView, DatasetProfile],
-        dataset_id: Optional[str] = None,
-        **kwargs,
-    ) -> Any:
-        if dataset_id is not None:
-            self._dataset_id = dataset_id
+    @deprecated_alias(profile="file")
+    def write(self, file: Writable, **kwargs: Any) -> None:
+        profile_view = file.view() if isinstance(file, DatasetProfile) else file
 
-        profile_view = profile.view() if isinstance(profile, DatasetProfile) else profile
+        if not isinstance(profile_view, DatasetProfileView):
+            raise ValueError(
+                "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
+            )
+
+        if kwargs.get("dataset_id") is not None:
+            self._dataset_id = kwargs.get("dataset_id")
 
         with tempfile.NamedTemporaryFile() as tmp_file:
             profile_view.write(path=tmp_file.name)
             tmp_file.flush()
 
-            dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
+            dataset_timestamp = profile_view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
-            return self._upload_whylabs(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
+            self._upload_whylabs(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
 
     @staticmethod
     def _check_api_key_format(input_key: str) -> Tuple[bool, Optional[str]]:
