@@ -223,7 +223,7 @@ class NotebookProfileVisualizer:
             rendered_template = template(profile_summary)
             return self._display(rendered_template, page_spec, cell_height)
         except ValueError as e:
-            logger.error("This method has to get both target and reference profiles")
+            logger.error("This method has to get target Dataset Profile View")
             raise e
 
     def summary_drift_report(self, height: Optional[str] = None) -> HTML:
