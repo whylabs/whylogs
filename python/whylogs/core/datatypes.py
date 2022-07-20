@@ -86,7 +86,7 @@ class String(DataType[str]):
     @classmethod
     def _do_match(cls, dtype_or_type: Any, maybe_type: Optional[Any]) -> bool:
         # Pandas Categorical is Strings
-        if isinstance(dtype_or_type, CategoricalDtype):
+        if CategoricalDtype is not None and isinstance(dtype_or_type, CategoricalDtype):
             return True
 
         # handle pandas series. Anything 'object' is treated as a Series of strings
