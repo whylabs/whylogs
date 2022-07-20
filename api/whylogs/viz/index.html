@@ -376,12 +376,112 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.viz.NotebookProfileVisualizer" title="whylogs.viz.NotebookProfileVisualizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotebookProfileVisualizer</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.viz.SummaryDriftReport" title="whylogs.viz.SummaryDriftReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SummaryDriftReport</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.viz.NotebookProfileVisualizer" title="whylogs.viz.NotebookProfileVisualizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotebookProfileVisualizer</span></code></a></p></td>
 <td><p>Visualize and compare profiles for drift detection, data quality, distribution comparison and feature statistics.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<dl class="py class">
+<dt class="sig sig-object py" id="whylogs.viz.SummaryDriftReport">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.viz.</span></span><span class="sig-name descname"><span class="pre">SummaryDriftReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../index.html#whylogs.DatasetProfileView" title="whylogs.DatasetProfileView"><span class="pre">whylogs.DatasetProfileView</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_view</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../index.html#whylogs.DatasetProfileView" title="whylogs.DatasetProfileView"><span class="pre">whylogs.DatasetProfileView</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#whylogs.viz.SummaryDriftReport" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReport" title="whylogs.viz.extensions.reports.html_report.HTMLReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">whylogs.viz.extensions.reports.html_report.HTMLReport</span></code></a></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ref_view</strong> (<a class="reference internal" href="../index.html#whylogs.DatasetProfileView" title="whylogs.DatasetProfileView"><em>whylogs.DatasetProfileView</em></a>) – </p></li>
+<li><p><strong>target_view</strong> (<a class="reference internal" href="../index.html#whylogs.DatasetProfileView" title="whylogs.DatasetProfileView"><em>whylogs.DatasetProfileView</em></a>) – </p></li>
+<li><p><strong>height</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.viz.SummaryDriftReport.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.viz.SummaryDriftReport.report" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.viz.SummaryDriftReport.writer">
+<span class="sig-name descname"><span class="pre">writer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'local'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">HTMLReportWriter</span></span></span><a class="headerlink" href="#whylogs.viz.SummaryDriftReport.writer" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="extensions/reports/html_report/index.html#whylogs.viz.extensions.reports.html_report.HTMLReportWriter" title="whylogs.viz.extensions.reports.html_report.HTMLReportWriter">HTMLReportWriter</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.viz.SummaryDriftReport.display">
+<span class="sig-name descname"><span class="pre">display</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="enums/enums/index.html#whylogs.viz.enums.enums.PageSpec" title="whylogs.viz.enums.enums.PageSpec"><span class="pre">whylogs.viz.enums.enums.PageSpec</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">IPython.core.display.HTML</span></span></span><a class="headerlink" href="#whylogs.viz.SummaryDriftReport.display" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>template</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p></li>
+<li><p><strong>page_spec</strong> (<a class="reference internal" href="enums/enums/index.html#whylogs.viz.enums.enums.PageSpec" title="whylogs.viz.enums.enums.PageSpec"><em>whylogs.viz.enums.enums.PageSpec</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>IPython.core.display.HTML</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.viz.SummaryDriftReport.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.viz.SummaryDriftReport.write" title="Permalink to this definition">#</a></dt>
+<dd><p>Create HTML file for a given report.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>optional</em>) – The path where the HTML reports will be stored to.</p></li>
+<li><p><strong>kwargs</strong> (<em>Any</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">VizProfile</span><span class="p">,</span> <span class="n">SummaryDriftReport</span>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">SummaryDriftReport</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+
+<span class="n">viz_profile</span> <span class="o">=</span> <span class="n">VizProfile</span><span class="p">(</span><span class="n">report</span><span class="o">=</span><span class="n">report</span><span class="p">)</span>
+<span class="n">viz_profile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;path/to/report/Report.html&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.viz.SummaryDriftReport.option">
+<span class="sig-name descname"><span class="pre">option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#whylogs.viz.SummaryDriftReport.option" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.viz.SummaryDriftReport.get_default_path">
+<span class="sig-name descname"><span class="pre">get_default_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></span><a class="headerlink" href="#whylogs.viz.SummaryDriftReport.get_default_path" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.viz.NotebookProfileVisualizer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.viz.</span></span><span class="sig-name descname"><span class="pre">NotebookProfileVisualizer</span></span><a class="headerlink" href="#whylogs.viz.NotebookProfileVisualizer" title="Permalink to this definition">#</a></dt>
@@ -723,6 +823,15 @@ If <cite>profile</cite> is not passed, the default is the reference profile.</p>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#package-contents">Package Contents</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#whylogs.viz.SummaryDriftReport">SummaryDriftReport</a><ul>
+<li><a class="reference internal" href="#whylogs.viz.SummaryDriftReport.report">report</a></li>
+<li><a class="reference internal" href="#whylogs.viz.SummaryDriftReport.writer">writer</a></li>
+<li><a class="reference internal" href="#whylogs.viz.SummaryDriftReport.display">display</a></li>
+<li><a class="reference internal" href="#whylogs.viz.SummaryDriftReport.write">write</a></li>
+<li><a class="reference internal" href="#whylogs.viz.SummaryDriftReport.option">option</a></li>
+<li><a class="reference internal" href="#whylogs.viz.SummaryDriftReport.get_default_path">get_default_path</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#whylogs.viz.NotebookProfileVisualizer">NotebookProfileVisualizer</a><ul>
 <li><a class="reference internal" href="#whylogs.viz.NotebookProfileVisualizer.set_profiles">set_profiles</a></li>
 <li><a class="reference internal" href="#whylogs.viz.NotebookProfileVisualizer.summary_drift_report">summary_drift_report</a></li>
