@@ -936,7 +936,6 @@
         const columnKey = key.data.key
         let chartValue = false
         let chartColor = undefined
-        console.log(!!referenceColumn)
         if(!!referenceColumn){
           column = referenceColumn.columns[columnKey]
           chartValue = true
@@ -970,7 +969,7 @@
         const format = d3.timeFormat("%Y-%m-%d %I:%M:%S %p %Z");
         return format(date);
       }
-      
+
     abbreviate_number = function(value, fixed = 0) {
       value = +value
       if (value === null) { return null; } // terminate early
@@ -1100,6 +1099,7 @@
 
       Handlebars.registerHelper("minimumValue", function (column) {
         if (column.featureStats) {
+          if (isNaN(column.featureStats.min)){return "-"}
           return fixNumberTo(column.featureStats.min);
         }
 
@@ -1108,6 +1108,7 @@
 
       Handlebars.registerHelper("maximumValue", function (column) {
         if (column.featureStats) {
+          if (isNaN(column.featureStats.max)){return "-"}
           return fixNumberTo(column.featureStats.max);
         }
 
@@ -1117,6 +1118,7 @@
 
       Handlebars.registerHelper("mean", function (column) {
         if (column.featureStats?.descriptive_statistics) {
+          if (isNaN(column.featureStats.descriptive_statistics.mean)){return "-"}
           return fixNumberTo(column.featureStats.descriptive_statistics.mean);
         }
         return "-";
