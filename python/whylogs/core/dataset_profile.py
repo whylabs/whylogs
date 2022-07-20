@@ -4,6 +4,9 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Dict, Mapping, Optional
 
+from whylogs.api.writer.writer import Writable
+from whylogs.core.utils.utils import deprecated_alias
+
 from .column_profile import ColumnProfile
 from .schema import DatasetSchema
 from .stubs import pd
@@ -14,7 +17,7 @@ logger = logging.getLogger(__name__)
 _LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 
 
-class DatasetProfile(object):
+class DatasetProfile(Writable):
     """
     Dataset profile represents a collection of in-memory profiling stats for a dataset.
 
@@ -141,12 +144,15 @@ class DatasetProfile(object):
         for col in self._columns.values():
             col.flush()
 
-    def write(self, path_or_base_dir: str) -> None:
-        if not path_or_base_dir.endswith(".bin"):
-            output_path = os.path.join(path_or_base_dir, f"profile.{int(round(time.time() * 1000))}.bin")
-        else:
-            output_path = path_or_base_dir
+    @staticmethod
+    def get_default_path(path) -> str:
+        if not path.endswith("bin"):
+            path = os.path.join(path, f"profile.{int(round(time.time() * 1000))}.bin")
+        return path
 
+    @deprecated_alias(path_or_base_dir="path")
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
+        output_path = self.get_default_path(path=path)
         self.view().write(output_path)
         logger.debug("Wrote profile to path: %s", output_path)
 
