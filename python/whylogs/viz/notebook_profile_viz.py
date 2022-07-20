@@ -4,6 +4,8 @@ import logging
 import os
 from typing import Any, Dict, Optional
 
+from IPython.core.display import HTML  # type: ignore
+
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.constraints import Constraints
@@ -17,8 +19,6 @@ from whylogs.viz.utils.profile_viz_calculations import (
     generate_summaries,
     histogram_from_view,
 )
-
-from IPython.core.display import HTML  # type: ignore
 
 logger = logging.getLogger(__name__)
 emit_usage("visualizer")
