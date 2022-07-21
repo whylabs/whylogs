@@ -34,7 +34,11 @@ repos:
     hooks:
       - id: mypy
         language: system
+<<<<<<< HEAD
         exclude: ^(python/tests/|python/examples/|python/whylogs/core/proto/|python/docs/|python/whylogs/viz/html/)
+=======
+        exclude: ^(python/tests/|python/whylogs/core/proto/|python/docs/|python/whylogs/viz/html/|python/examples)
+>>>>>>> origin/dev/melly/examples/flask_pytorch
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.5.1
     hooks:
