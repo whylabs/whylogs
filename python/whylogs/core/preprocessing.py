@@ -170,7 +170,7 @@ class PreprocessedColumn:
     def apply(data: Any) -> "PreprocessedColumn":
         result = PreprocessedColumn()
         result.original = data
-        if isinstance(data, pd.Series):
+        if pd.Series is not None and isinstance(data, pd.Series):
             result._pandas_split(data)
             result.len = len(data)
             return result

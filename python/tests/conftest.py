@@ -12,7 +12,7 @@ from python.whylogs.core.constraints.metric_constraints import (
 import whylogs as why
 from whylogs import ResultSet
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
-from whylogs.viz.extensions.reports.summary_drift import SummaryDriftReport
+from whylogs.viz import SummaryDriftReport
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 _DATA_DIR = os.path.join(_MY_DIR, "testdata")
