@@ -112,9 +112,11 @@ def generate_profile_summary(
 
     if not target_view:
         raise ValueError("This method has to get target Dataset Profile View")
+
     overall_stats: OverallStats = add_overall_statistics(target_view)
     target_col_views = target_view.get_columns()
     target_summary: DatasetSummary = {"columns": {}, "properties": overall_stats}
+
     for target_col_name in target_col_views:
         target_column_summary: ColumnSummary = {
             "histogram": None,
@@ -128,15 +130,16 @@ def generate_profile_summary(
         target_stats = add_feature_statistics(target_col_name, target_col_view)
         target_column_summary["featureStats"] = target_stats[target_col_name]
         target_dist = target_col_view.get_metric("distribution")
+
         if target_dist and not target_dist.kll.value.is_empty():
             target_column_summary["isDiscrete"] = False
             target_histogram = histogram_from_view(target_col_view, target_col_name)
             target_column_summary["histogram"] = target_histogram
         elif target_col_view.get_metric("frequent_items"):
             target_column_summary["isDiscrete"] = True
-
             target_frequent_items = frequent_items_from_view(target_col_view, target_col_name, config)
             target_column_summary["frequentItems"] = target_frequent_items
+
         target_summary["columns"][target_col_name] = target_column_summary
 
     summaries = {
