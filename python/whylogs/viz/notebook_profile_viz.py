@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 try:
     from IPython.display import HTML  # type: ignore
 except:  # noqa
-    HTML = lambda _: None
+    HTML = lambda _: None  # noqa
     pass
 
 from whylogs.api.usage_stats import emit_usage

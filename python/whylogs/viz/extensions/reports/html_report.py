@@ -5,7 +5,7 @@ from typing import Any, Optional
 try:
     from IPython.display import HTML  # type: ignore
 except:  # noqa
-    HTML = lambda _: None
+    HTML = lambda _: None  # noqa
     pass
 
 from whylogs import DatasetProfileView
