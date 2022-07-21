@@ -616,7 +616,7 @@ div.rendered_html tbody tr:hover {
 <h2>Installing Dependencies<a class="headerlink" href="#Installing-Dependencies" title="Permalink to this headline">#</a></h2>
 <p>To use the Profile Visualizer, we’ll install whylogs with the extra package <code class="docutils literal notranslate"><span class="pre">viz</span></code>:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install -q &#39;whylogs[viz]&#39;</span>
@@ -862,13 +862,1338 @@ memory usage: 150.0 KB
 </div>
 <p>Now, we’re able to generate all sorts of plots and reports. Let’s take a look at some of them.</p>
 </section>
+<section id="Profile-Summary">
+<h2>Profile Summary<a class="headerlink" href="#Profile-Summary" title="Permalink to this headline">#</a></h2>
+<p><strong>Profile Summary</strong> brings you a summary for a single profile. It requires only the existence of <code class="docutils literal notranslate"><span class="pre">target_profile_view</span></code>. The report shows simple histograms for each feature, along with key statistics, such as number of missing values, mean, minimum and maximum values.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">profile_summary</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
+
+    &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
+
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
+
+    &lt;script
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
+    &gt;&lt;/script&gt;
+
+    &lt;style type=&quot;text/css&quot;&gt;
+      :root {
+        /* CONSTANTS */
+        --SIDE-PANEL-WIDTH: 320px;
+        --PROPERTY-PANEL-WIDTH: 420px;
+
+        /* COLOR VARIABLES */
+        /** Standard colors */
+        --red: #d11010;
+        --orange: #f07028;
+        --yellow: #faaf40;
+        --olive: #b5cc18;
+        --green: #1dbb42;
+        --teal: #00b5ad;
+        --blue: #2683c9;
+        --violet: #6435c9;
+        --purple: #a333c8;
+        --pink: #ed45a4;
+        --brown: #ac724d;
+        --grey: #778183;
+        --black: #1b1c1d;
+        --white: #ffffff;
+
+        /** Branded colors */
+        --brandPrimary900: #0e7384;
+        --brandPrimary800: #228798;
+        --brandPrimary700: #369bac;
+        --brandPrimary600: #4aafc0;
+        --brandPrimary500: #5ec3d4;
+        --brandPrimary400: #72d7e8;
+        --brandPrimary300: #86ebfc;
+        --brandPrimary200: #a6f2ff;
+        --brandPrimary100: #cdf8ff;
+        --brandSecondary900: #4f595b;
+        --brandSecondary800: #636d6f;
+        --brandSecondary700: #778183;
+        --brandSecondary600: #8b9597;
+        --brandSecondary500: #9fa9ab;
+        --brandSecondary400: #b3bdbf;
+        --brandSecondary300: #c7d1d3;
+        --brandSecondary200: #dbe5e7;
+        --brandSecondary100: #ebf2f3;
+        --secondaryLight1000: #313b3d;
+        --brandRed4: #b30000;
+        --brandRed3: #d72424;
+        --brandRed2: #eb5656;
+        --brandRed1: #ff8282;
+        --night1: #021826;
+        /** Purpose colors */
+        --textColor: #4f595b;
+        --linkColor: #369bac;
+        --infoColor: #2683c9;
+        --warningColor: #faaf40;
+        --tealBackground: #eaf2f3;
+        --pageBackground: #e5e5e5;
+        --contrastTableRow: #fafafa;
+        --whiteBackground: #ffffff;
+        --primaryBackground: #e5e5e5;
+      }
+
+      /* RESET STYLE */
+      *,
+      *::after,
+      *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: &quot;Asap&quot;, Arial, Helvetica, sans-serif;
+      }
+
+      /*
+      * Main content
+      */
+      .main {
+        position: relative;
+        background: #FFFFFF;
+        border: 1px solid #DBE5E7;
+        box-sizing: border-box;
+        border-radius: 4px;
+      }
+      .main .page-header {
+        margin-top: 0;
+      }
+
+      /* CSS DIV TABLE BASIC STYLE */
+
+      .wl-table-row .wl-table-head:first-child {
+        min-width: 360px;
+        z-index: 2;
+      }
+
+      .wl-table-wrap {
+        position: relative;
+        overflow: auto;
+      }
+
+      .wl-table {
+        display: table;
+        width: 100%;
+      }
+
+      .row&gt;* {
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+      }
+
+      .wl-table-row {
+        display: table-row;
+      }
+
+      .wl-table-row:hover,
+      .wl-table-row:hover .wl-table-cell:first-child {
+        background-color: var(--brandSecondary100);
+      }
+      .wl-table-row--clickable:hover .wl-table-cell__title-button {
+        visibility: visible;
+      }
+
+      .wl-table-heading {
+        position: relative;
+        z-index: 1;
+        display: table-header-group;
+        font-weight: 700;
+      }
+
+      .wl-table-cell,
+      .wl-table-head {
+        border-bottom: 1px solid var(--brandSecondary200);
+        display: table-cell;
+        padding: 12px 18px;
+      }
+
+      .wl-table-cell {
+        font-size: 14px;
+      }
+
+      .wl-table-cell--top-spacing {
+        padding-top: 35px; /* cell-top-padding + cell-title-height */
+      }
+
+      .wl-table-head-wraper {
+        background-color: var(--white);
+      }
+
+      .wl-table-head {
+        position: sticky;
+        left: 0;
+        min-width: 100px;
+        border-bottom: 2px solid var(--brandSecondary100);
+        font-size: 12px;
+        line-height: 1.67;
+        white-space: nowrap;
+      }
+
+      .wl-sub-table-head {
+        position: relative;
+      }
+
+      .wl-table-body {
+        display: table-row-group;
+      }
+
+      .wl-table-row .wl-table-cell:first-child{
+        position: sticky;
+        left: 0;
+        background-color: var(--white);
+        border-right-width: 2px;
+      }
+
+      /* Table custom style */
+
+      .wl-table-cell__title-wrap {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .wl-table-cell__title {
+        height: 25px;
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .wl-table-cell__bedge-wrap {
+        padding: 2px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        font-style: italic;
+        text-align: center;
+        color: var(--brandSecondary400);
+      }
+      .wl-table-cell__bedge {
+        height: 24px;
+        margin: 1px;
+        padding: 2px 8px;
+        border: 1px solid var(--brandSecondary400);
+        font-style: normal;
+        color: var(--brandSecondary900);
+        border-radius: 20px;
+        white-space: nowrap;
+      }
+
+      /* Property side panel */
+
+      .wl-compare-profile {
+        position: fixed;
+        right: 0;
+        background: var(--white);;
+        border-bottom: 1px solid var(--brandSecondary200);
+      }
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .space-between {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .align-items {
+        display: flex;
+        align-items: center;
+      }
+
+      .display-flex{
+        display: flex;
+      }
+
+      .table-border-none {
+        padding: 0;
+        border: none;
+      }
+
+      .flex-direction-colum {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .align-items {
+        align-items: center;
+      }
+
+      .search-input{
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+      }
+
+      .search-input input{
+        border: none;
+        background: none;
+        outline: none;
+        height: 40px;
+        width: 100%;
+        font-size: 14px;
+      }
+
+      .search-input img{
+        height: 19px;
+        pointer-events: none;
+      }
+
+      input::placeholder {
+        color: var(--secondaryLight1000);
+      }
+
+      .text-align-center {
+        text-align: center;
+      }
+
+      .text-align-end {
+        text-align: end;
+      }
+
+      .drift-detection {
+        justify-content: space-between;
+        align-items: center;
+      }
+
+     .drift-detection-info-circle {
+       width: 15px;
+       height: 15px;
+       border-radius: 50px;
+       display: inline-block;
+       margin-right: 8px;
+     }
+
+     .severe-drift-circle-color {
+         background: #D40D00;
+     }
+
+     .moderate-drift-circle-color {
+         background: #F5843C;
+     }
+
+     .mild-drift-circle-color {
+         background: #F2C142;
+     }
+
+     .minimal-drift-circle-color {
+         background: #ABCA52;
+     }
+
+     .drift-detection-info-drifts-item {
+         padding-right: 20px;
+     }
+
+     .drift-detection-info-title {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 16px;
+       line-height: 130%;
+       color: #313B3D;
+     }
+
+     .drift-detection-info-drifts-item-count {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 14px;
+       line-height: 16px;
+       color: #000000;
+       padding-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item-name {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 12px;
+       line-height: 14px;
+       color: #000000;
+     }
+
+     .drift-detection-info-drifts-item-range {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 11px;
+       line-height: 13px;
+       color: #6C757D;
+     }
+
+     .drift-detection-search-input {
+       display: flex;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 170px;
+       padding-left: 10px;
+     }
+
+     .drift-detection-search-input img{
+       margin-right: 5px;
+     }
+
+     .drift-detection-search-input input::placeholder {
+       font-family: Arial;
+       font-weight: normal;
+       font-size: 13px;
+       line-height: 16px;
+       color: #313B3D;
+     }
+
+     .close-filter-button {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #369BAC;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 40px;
+       height: 40px;
+       cursor: pointer;
+       margin-left: 10px;
+     }
+
+     .filter-options-title {
+       width: 240px;
+     }
+
+     .filter-options-title p {
+       margin: 0;
+     }
+
+     .dropdown-container {
+       position: absolute;
+       right: 18px;
+       z-index: 999;
+       background: #FFFFFF;
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+       border-radius: 4px;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 2px;
+     }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .wl-table-cell__graph-wrap {
+        width: 0;
+      }
+
+      .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 85%;
+        padding-bottom: 17%;
+        vertical-align: top;
+        overflow: hidden;
+      }
+
+      .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+      }
+
+      .reference-table-head {
+        min-width: 250px;
+      }
+
+      .wl__dropdown_arrow-icon {
+        position: relative;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #0E7384;
+      }
+
+      .statistic-measurement {
+        font-size: 15px !important;
+        margin-left: 3px;
+      }
+
+      .statistic-measurement-percent {
+        font-size: 15px !important;
+      }
+
+      .question-mark {
+        font-size: 10px;
+        font-weight: 900;
+        color: #0E7384;
+        border-radius: 50px;
+        border: 2px solid #0E7384;
+        padding: 0px 4px;
+        transition: 0.5s;
+        cursor: pointer;
+      }
+
+      .question-mark:hover {
+        color: white;
+        background: #0E7384;
+        border: 2px solid none;
+        transition: 0.5s;
+      }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .flex-direction-column {
+        flex-direction: column;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+      .padding-5 {
+        padding: 5px;
+      }
+
+      .text-color {
+        color: var(--secondaryLight1000);
+      }
+
+      .error-message {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: rgb(255, 114, 71);
+        font-size: 30px;
+        font-weight: 900;
+      }
+
+      @media screen and (min-width: 500px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
+    &lt;/style&gt;
+  &lt;/head&gt;
+
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
+
+      &lt;div class=&quot;desktop-content&quot;&gt;
+        &lt;div class=&quot;container-fluid&quot;&gt;
+          &lt;div class=&quot;feature-summary-statistics-wrap&quot;&gt;
+            &lt;div class=&quot;feature-summary-statistics&quot;&gt;
+              &lt;div class=&quot;mb-4&quot;&gt;
+                  &lt;strong class=&quot;header-title&quot;&gt;Profile Summary&lt;/strong&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;display-flex statistics&quot;&gt;
+                  &lt;div class=&quot;padding-right-30&quot;&gt;
+                    &lt;div class=&quot;statistic-number-title&quot;&gt;Observations&lt;/div&gt;
+                    &lt;div class=&quot;statistic-number&quot;&gt;{{{observations this}}}&lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;padding-right-30&quot;&gt;
+                    &lt;div class=&quot;statistic-number-title&quot;&gt;Missing Cells&lt;/div&gt;
+                    &lt;div class=&quot;statistic-number&quot;&gt;
+                      {{{missingCells this}}}
+                      &lt;div&gt;{{{missingCellsPercentage this}}}&lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;wl-compare-profile&quot; id=&quot;compare-profile&quot; style=&quot;display: flex; justify-content: space-around&quot;&gt;
+                    &lt;div class=&quot;drift-detection-wrap&quot;&gt;
+                      &lt;div class=&quot;drift-detection display-flex&quot;&gt;
+                        &lt;div class=&quot;drift-detection-search-input-wrap display-flex&quot;&gt;
+                          &lt;div class=&quot;drift-detection-search-input search-input &quot;&gt;
+                            &lt;input type=&quot;text&quot; id=&quot;wl__feature-search&quot; placeholder=&quot;Quick search...&quot;/&gt;
+                            &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg==&quot;/&gt;
+                          &lt;/div&gt;
+                          &lt;div class=&quot;wl__dropdown_arrow-icon&quot; &gt;
+                            &lt;div onclick=&quot;openFilter()&quot; class=&quot;close-filter-button&quot;&gt;
+                              &lt;div class=&quot;display-flex close-filter-icon d-none&quot;&gt;
+                                &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg==&quot;/&gt;
+                              &lt;/div&gt;
+                              &lt;div class=&quot;display-flex filter-icon&quot;&gt;
+                                &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg==&quot;/&gt;
+                              &lt;/div&gt;
+                            &lt;/div&gt;
+                            &lt;span class=&quot;notif-circle-container&quot;&gt;
+                              &lt;span class=&quot;notif-circle&quot;&gt;&lt;/span&gt;
+                            &lt;/span&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class=&quot;dropdown-container flex-direction-colum mb-2 d-none&quot; id=&quot;dropdown-container&quot;&gt;
+                      &lt;div class=&quot;filter-options&quot;&gt;
+                        &lt;div class=&quot;filter-options-title space-between dropdown&quot;&gt;
+                          &lt;p&gt;Filter by type&lt;/p&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;form-check mb-1 mt-2&quot;&gt;
+                          &lt;input
+                            class=&quot;form-check-input wl__feature-filter-input&quot;
+                            type=&quot;checkbox&quot;
+                            name=&quot;checkbox&quot;
+                            value=&quot;Discrete&quot;
+                            id=&quot;inferredDiscrete&quot;
+                            onclick=&quot;changeDiscreteValue()&quot;
+                            checked
+                          /&gt;
+                          &lt;label class=&quot;form-check-label&quot; for=&quot;inferredDiscrete&quot;&gt;
+                            Inferred discrete (&lt;span class=&quot;wl__feature-count--discrete&quot;&gt;{{getDiscreteTypeCount}}&lt;/span&gt;)
+                          &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;form-check mb-1&quot;&gt;
+                          &lt;input
+                            class=&quot;form-check-input wl__feature-filter-input&quot;
+                            type=&quot;checkbox&quot;
+                            name=&quot;checkbox&quot;
+                            value=&quot;Non-discrete&quot;
+                            id=&quot;inferredNonDiscrete&quot;
+                            onclick=&quot;changeNonDiscreteValue()&quot;
+                            checked
+                          /&gt;
+                          &lt;label class=&quot;form-check-label&quot; for=&quot;inferredNonDiscrete&quot;&gt;
+                            Inferred non-discrete (&lt;span
+                              class=&quot;wl__feature-count--non-discrete&quot;
+                            &gt;{{getNonDiscreteTypeCount}}&lt;/span&gt;)
+                          &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;form-check mb-1&quot;&gt;
+                          &lt;input
+                            class=&quot;form-check-input wl__feature-filter-input&quot;
+                            type=&quot;checkbox&quot;
+                            name=&quot;checkbox&quot;
+                            value=&quot;Unknown&quot;
+                            id=&quot;inferredUnknown&quot;
+                            onclick=&quot;changeUnknwonValue()&quot;
+                            checked
+                          /&gt;
+                          &lt;label class=&quot;form-check-label&quot; for=&quot;inferredUnknown&quot;&gt;
+                            Unknown (&lt;span class=&quot;wl__feature-count--unknown&quot;&gt;{{getUnknownTypeCount}}&lt;/span&gt;)
+                          &lt;/label&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                   &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;row&quot;&gt;
+            &lt;div class=&quot;main&quot;&gt;
+              &lt;div class=&quot;wl-table-wrap&quot; id=&quot;table-content&quot;&gt;
+                &lt;div class=&quot;wl-table&quot;&gt;
+                  &lt;div class=&quot;wl-table-heading&quot;&gt;
+                    &lt;div class=&quot;wl-table-row wl-table-row--bottom-shadow&quot;&gt;
+                      &lt;div class=&quot;wl-table-head wl-table-head-wraper&quot;&gt;
+                        &lt;div class=&quot;wl-table-head table-border-none graph-table-head&quot;&gt;Target&lt;/div&gt;
+                      &lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Total count&lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Missing&lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Mean&lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Min&lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Max&lt;/div&gt;
+
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;ul class=&quot;wl-table-body wl__table-body&quot; id=&quot;table-body&quot;&gt;
+{{#each this.columns}}                    &lt;li
+                    {{#if this.numberSummary}} class=&quot;wl-table-row wl-table-row--clickable&quot; {{else}} class=&quot;wl-table-row&quot; {{/if}}
+                    data-feature-name={{@key}}
+                    data-inferred-type={{inferredType this}}
+                    data-scroll-to-feature-name={{@key}}
+                  &gt;
+                      &lt;div class=&quot;wl-table-cell wl-table-cell__graph-wrap&quot;&gt;
+                        &lt;div class=&quot;wl-table-cell__title-wrap&quot;&gt;
+                          &lt;h4 class=&quot;wl-table-cell__title&quot;&gt;{{@key}}&lt;/h4&gt;
+                          &lt;div&gt;&lt;/div&gt;
+                        &lt;/div&gt;
+                          &lt;div class=&quot;display-flex&quot;&gt;
+                              {{{getGraphHtml this}}}
+                          &lt;/div&gt;
+                      &lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{totalCount this}}&lt;/div&gt;&lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{missing this}}&lt;/div&gt;&lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{mean this}}&lt;/div&gt;&lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{minimumValue this}}&lt;/div&gt;&lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{maximumValue this}}&lt;/div&gt;&lt;/div&gt;
+
+                    &lt;/li&gt;
+{{/each}}                  &lt;/ul&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+  &lt;/script&gt;
+
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
+
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
+
+  &lt;script&gt;
+    const getTargetProfile = () =&gt; { return {&quot;columns&quot;: {&quot;fixed acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 4.6, &quot;end&quot;: 15.90000159, &quot;width&quot;: 0, &quot;counts&quot;: [3, 17, 16, 17, 28, 39, 39, 30, 22, 30, 24, 35, 12, 13, 22, 23, 9, 6, 3, 4, 2, 3, 3, 2, 1, 0, 0, 0, 2, 3], &quot;max&quot;: 15.9, &quot;min&quot;: 4.6, &quot;bins&quot;: [4.6, 4.9766667196666665, 5.353333439333333, 5.730000158999999, 6.106666878666666, 6.483333598333333, 6.860000318, 7.236667037666667, 7.613333757333333, 7.990000477000001, 8.366667196666667, 8.743333916333334, 9.120000636, 9.496667355666666, 9.873334075333332, 10.250000795, 10.626667514666668, 11.003334234333334, 11.380000954, 11.756667673666666, 12.133334393333334, 12.510001113000001, 12.886667832666667, 13.263334552333333, 13.640001272000001, 14.016667991666667, 14.393334711333335, 14.770001431, 15.146668150666667, 15.523334870333334, 15.90000159], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 20.588239538027807, &quot;min&quot;: 4.6, &quot;max&quot;: 15.9, &quot;range&quot;: 11.3, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 5.4, &quot;iqr&quot;: 2.7, &quot;q1&quot;: 6.7, &quot;median&quot;: 7.9, &quot;q3&quot;: 9.4, &quot;ninety_fifth_percentile&quot;: 11.6}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 2.013014441140909, &quot;coefficient_of_variation&quot;: 0.24676558362692394, &quot;sum&quot;: 3328.3, &quot;variance&quot;: 4.052227140241847, &quot;mean&quot;: 8.157598039215687}}}, &quot;volatile acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.12, &quot;end&quot;: 1.1150001115, &quot;width&quot;: 0, &quot;counts&quot;: [3, 8, 5, 8, 21, 32, 38, 37, 30, 35, 23, 24, 25, 23, 15, 15, 15, 14, 11, 4, 3, 3, 6, 2, 1, 2, 1, 2, 0, 2], &quot;max&quot;: 1.115, &quot;min&quot;: 0.12, &quot;bins&quot;: [0.12, 0.15316667038333331, 0.18633334076666666, 0.21950001115, 0.2526666815333333, 0.28583335191666664, 0.3190000223, 0.35216669268333334, 0.38533336306666666, 0.41850003345, 0.4516667038333333, 0.48483337421666667, 0.5180000445999999, 0.5511667149833333, 0.5843333853666667, 0.61750005575, 0.6506667261333333, 0.6838333965166666, 0.7170000669, 0.7501667372833333, 0.7833334076666666, 0.81650007805, 0.8496667484333333, 0.8828334188166667, 0.9160000892, 0.9491667595833333, 0.9823334299666666, 1.01550010035, 1.0486667707333335, 1.0818334411166668, 1.1150001115000001], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 22.05882840516061, &quot;min&quot;: 0.12, &quot;max&quot;: 1.115, &quot;range&quot;: 0.995, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.24, &quot;iqr&quot;: 0.23999999999999994, &quot;q1&quot;: 0.34, &quot;median&quot;: 0.44, &quot;q3&quot;: 0.58, &quot;ninety_fifth_percentile&quot;: 0.8}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.17791965320497752, &quot;coefficient_of_variation&quot;: 0.3771756131540623, &quot;sum&quot;: 192.45999999999998, &quot;variance&quot;: 0.03165540299657947, &quot;mean&quot;: 0.47171568627450977}}}, &quot;citric acid&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 0.790000079, &quot;width&quot;: 0, &quot;counts&quot;: [57, 13, 7, 23, 10, 9, 4, 6, 7, 10, 12, 14, 28, 9, 24, 35, 11, 23, 31, 8, 10, 9, 5, 3, 8, 12, 2, 3, 4, 1], &quot;max&quot;: 0.79, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 0.026333335966666666, 0.05266667193333333, 0.0790000079, 0.10533334386666666, 0.13166667983333333, 0.1580000158, 0.18433335176666665, 0.21066668773333333, 0.2370000237, 0.26333335966666666, 0.2896666956333333, 0.3160000316, 0.34233336756666666, 0.3686667035333333, 0.3950000395, 0.42133337546666666, 0.4476667114333333, 0.4740000474, 0.5003333833666667, 0.5266667193333333, 0.5530000553, 0.5793333912666666, 0.6056667272333334, 0.6320000632, 0.6583333991666667, 0.6846667351333333, 0.7110000711, 0.7373334070666666, 0.7636667430333334, 0.790000079], &quot;n&quot;: 398}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 398, &quot;missing&quot;: 10, &quot;distinct&quot;: 18.090455451204008, &quot;min&quot;: 0.0, &quot;max&quot;: 0.79, &quot;range&quot;: 0.79, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.0, &quot;iqr&quot;: 0.36, &quot;q1&quot;: 0.1, &quot;median&quot;: 0.34, &quot;q3&quot;: 0.46, &quot;ninety_fifth_percentile&quot;: 0.66}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.20859943016152155, &quot;coefficient_of_variation&quot;: 0.6620619872750046, &quot;sum&quot;: 125.4, &quot;variance&quot;: 0.04351372226371151, &quot;mean&quot;: 0.3150753768844221}}}, &quot;residual sugar&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.9, &quot;end&quot;: 12.90000129, &quot;width&quot;: 0, &quot;counts&quot;: [8, 39, 118, 124, 40, 16, 11, 8, 13, 8, 4, 2, 2, 5, 3, 0, 1, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 12.9, &quot;min&quot;: 0.9, &quot;bins&quot;: [0.9, 1.300000043, 1.7000000860000002, 2.100000129, 2.500000172, 2.900000215, 3.3000002580000003, 3.700000301, 4.100000344000001, 4.500000387, 4.90000043, 5.300000473000001, 5.700000516000001, 6.100000559000001, 6.500000602000001, 6.900000645, 7.300000688000001, 7.700000731000001, 8.100000774, 8.500000817, 8.90000086, 9.300000903, 9.700000946000001, 10.100000989000002, 10.500001032000002, 10.900001075, 11.300001118, 11.700001161000001, 12.100001204000002, 12.500001247000002, 12.90000129], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 15.931375081243552, &quot;min&quot;: 0.9, &quot;max&quot;: 12.9, &quot;range&quot;: 12.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 1.6, &quot;iqr&quot;: 0.7000000000000002, &quot;q1&quot;: 2.0, &quot;median&quot;: 2.3, &quot;q3&quot;: 2.7, &quot;ninety_fifth_percentile&quot;: 5.15}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 1.2990000858665753, &quot;coefficient_of_variation&quot;: 0.49437249664993493, &quot;sum&quot;: 1072.05, &quot;variance&quot;: 1.6874012230813702, &quot;mean&quot;: 2.6275735294117646}}}, &quot;chlorides&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.012, &quot;end&quot;: 0.230000023, &quot;width&quot;: 0, &quot;counts&quot;: [2, 0, 0, 9, 21, 40, 45, 76, 64, 43, 33, 21, 20, 8, 9, 9, 3, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1], &quot;max&quot;: 0.23, &quot;min&quot;: 0.012, &quot;bins&quot;: [0.012, 0.019266667433333332, 0.026533334866666668, 0.0338000023, 0.04106666973333333, 0.04833333716666667, 0.0556000046, 0.06286667203333333, 0.07013333946666667, 0.0774000069, 0.08466667433333333, 0.09193334176666666, 0.0992000092, 0.10646667663333333, 0.11373334406666666, 0.12100001149999999, 0.12826667893333332, 0.13553334636666667, 0.14280001380000001, 0.15006668123333333, 0.15733334866666668, 0.1646000161, 0.17186668353333334, 0.17913335096666666, 0.1864000184, 0.19366668583333332, 0.20093335326666667, 0.2082000207, 0.21546668813333333, 0.22273335556666665, 0.230000023], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 21.813730257594944, &quot;min&quot;: 0.012, &quot;max&quot;: 0.23, &quot;range&quot;: 0.218, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.046, &quot;iqr&quot;: 0.025999999999999995, &quot;q1&quot;: 0.06, &quot;median&quot;: 0.071, &quot;q3&quot;: 0.086, &quot;ninety_fifth_percentile&quot;: 0.12}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.024213181268290383, &quot;coefficient_of_variation&quot;: 0.3226526212509791, &quot;sum&quot;: 30.618, &quot;variance&quot;: 0.0005862781471310883, &quot;mean&quot;: 0.07504411764705882}}}, &quot;free sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 3.0, &quot;end&quot;: 51.0000051, &quot;width&quot;: 0, &quot;counts&quot;: [31, 79, 21, 21, 36, 16, 27, 26, 29, 22, 3, 13, 12, 11, 10, 5, 6, 4, 8, 6, 4, 8, 2, 1, 3, 0, 1, 0, 1, 2], &quot;max&quot;: 51.0, &quot;min&quot;: 3.0, &quot;bins&quot;: [3.0, 4.60000017, 6.200000340000001, 7.80000051, 9.400000680000002, 11.000000850000001, 12.60000102, 14.200001190000002, 15.800001360000001, 17.40000153, 19.000001700000002, 20.600001870000003, 22.20000204, 23.800002210000002, 25.400002380000004, 27.00000255, 28.600002720000003, 30.200002890000004, 31.80000306, 33.40000323, 35.000003400000004, 36.600003570000005, 38.20000374000001, 39.80000391, 41.40000408, 43.00000425, 44.600004420000005, 46.200004590000006, 47.80000476000001, 49.40000493, 51.0000051], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 11.029412969947018, &quot;min&quot;: 3.0, &quot;max&quot;: 51.0, &quot;range&quot;: 48.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 3.0, &quot;iqr&quot;: 13.0, &quot;q1&quot;: 6.0, &quot;median&quot;: 13.0, &quot;q3&quot;: 19.0, &quot;ninety_fifth_percentile&quot;: 36.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 9.994223698460777, &quot;coefficient_of_variation&quot;: 0.6774056431550788, &quot;sum&quot;: 6019.5, &quot;variance&quot;: 99.884507334875, &quot;mean&quot;: 14.753676470588236}}}, &quot;total sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 6.0, &quot;end&quot;: 289.0000289, &quot;width&quot;: 0, &quot;counts&quot;: [85, 92, 70, 47, 40, 14, 16, 10, 10, 10, 6, 2, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1], &quot;max&quot;: 289.0, &quot;min&quot;: 6.0, &quot;bins&quot;: [6.0, 15.433334296666667, 24.866668593333333, 34.30000289, 43.73333718666667, 53.16667148333333, 62.600005780000004, 72.03334007666666, 81.46667437333333, 90.90000867, 100.33334296666666, 109.76667726333334, 119.20001156000001, 128.63334585666666, 138.06668015333332, 147.50001445, 156.93334874666667, 166.36668304333332, 175.80001734, 185.23335163666667, 194.66668593333333, 204.10002023, 213.53335452666667, 222.96668882333333, 232.40002312000001, 241.83335741666667, 251.26669171333333, 260.70002601, 270.13336030666665, 279.56669460333336, 289.0000289], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 22.303926553943704, &quot;min&quot;: 6.0, &quot;max&quot;: 289.0, &quot;range&quot;: 283.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 10.0, &quot;iqr&quot;: 29.0, &quot;q1&quot;: 17.0, &quot;median&quot;: 27.0, &quot;q3&quot;: 46.0, &quot;ninety_fifth_percentile&quot;: 93.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 31.68721099598923, &quot;coefficient_of_variation&quot;: 0.8554477659209692, &quot;sum&quot;: 15112.999999999998, &quot;variance&quot;: 1004.0793407043408, &quot;mean&quot;: 37.041666666666664}}}, &quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99007, &quot;end&quot;: 1.0032001003200002, &quot;width&quot;: 0, &quot;counts&quot;: [3, 4, 1, 9, 4, 12, 8, 32, 32, 36, 39, 49, 45, 25, 25, 19, 15, 8, 4, 8, 5, 6, 2, 5, 4, 1, 1, 2, 0, 4], &quot;max&quot;: 1.0032, &quot;min&quot;: 0.99007, &quot;bins&quot;: [0.99007, 0.9905076700106666, 0.9909453400213334, 0.991383010032, 0.9918206800426667, 0.9922583500533334, 0.992696020064, 0.9931336900746667, 0.9935713600853334, 0.9940090300960001, 0.9944467001066667, 0.9948843701173334, 0.9953220401280001, 0.9957597101386667, 0.9961973801493335, 0.9966350501600001, 0.9970727201706667, 0.9975103901813335, 0.9979480601920001, 0.9983857302026667, 0.9988234002133335, 0.9992610702240001, 0.9996987402346668, 1.0001364102453334, 1.0005740802560001, 1.0010117502666669, 1.0014494202773334, 1.0018870902880002, 1.002324760298667, 1.0027624303093334, 1.0032001003200002], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 55.88238444546564, &quot;min&quot;: 0.99007, &quot;max&quot;: 1.0032, &quot;range&quot;: 0.013130000000000086, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.9922, &quot;iqr&quot;: 0.0023400000000000087, &quot;q1&quot;: 0.99396, &quot;median&quot;: 0.99516, &quot;q3&quot;: 0.9963, &quot;ninety_fifth_percentile&quot;: 0.9994}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.0021784570136347352, &quot;coefficient_of_variation&quot;: 0.002188682344428877, &quot;sum&quot;: 406.09385999999995, &quot;variance&quot;: 4.745674960254368e-06, &quot;mean&quot;: 0.995328088235294}}}, &quot;pH&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 2.89, &quot;end&quot;: 4.010000401, &quot;width&quot;: 0, &quot;counts&quot;: [5, 1, 3, 4, 7, 5, 17, 20, 38, 36, 44, 29, 35, 41, 30, 11, 19, 17, 14, 10, 2, 9, 4, 2, 0, 1, 0, 2, 0, 2], &quot;max&quot;: 4.01, &quot;min&quot;: 2.89, &quot;bins&quot;: [2.89, 2.9273333467000002, 2.9646666934000003, 3.0020000401, 3.0393333868, 3.0766667335, 3.1140000802000003, 3.1513334269, 3.1886667736, 3.2260001203, 3.2633334670000003, 3.3006668137, 3.3380001604, 3.3753335071, 3.4126668538000002, 3.4500002005, 3.4873335472, 3.5246668939, 3.5620002406, 3.5993335873000003, 3.636666934, 3.6740002807, 3.7113336274, 3.7486669741, 3.7860003208000004, 3.8233336675, 3.8606670142, 3.8980003609000002, 3.9353337076, 3.9726670543, 4.010000401], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 18.8725525817653, &quot;min&quot;: 2.89, &quot;max&quot;: 4.01, &quot;range&quot;: 1.1199999999999997, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 3.09, &quot;iqr&quot;: 0.2200000000000002, &quot;q1&quot;: 3.23, &quot;median&quot;: 3.33, &quot;q3&quot;: 3.45, &quot;ninety_fifth_percentile&quot;: 3.67}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.17649177660211463, &quot;coefficient_of_variation&quot;: 0.05273349702213279, &quot;sum&quot;: 1365.52, &quot;variance&quot;: 0.031149347208170735, &quot;mean&quot;: 3.346862745098039}}}, &quot;sulphates&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.37, &quot;end&quot;: 1.130000113, &quot;width&quot;: 0, &quot;counts&quot;: [3, 2, 4, 4, 6, 18, 19, 45, 22, 37, 22, 32, 21, 29, 28, 27, 22, 12, 24, 7, 10, 1, 5, 1, 3, 1, 1, 0, 0, 2], &quot;max&quot;: 1.13, &quot;min&quot;: 0.37, &quot;bins&quot;: [0.37, 0.3953333371, 0.4206666742, 0.4460000113, 0.47133334839999996, 0.4966666855, 0.5220000226, 0.5473333597, 0.5726666968, 0.5980000339, 0.623333371, 0.6486667080999999, 0.6740000452, 0.6993333823, 0.7246667194, 0.7500000565, 0.7753333936, 0.8006667306999999, 0.8260000677999999, 0.8513334049, 0.8766667419999999, 0.9020000791, 0.9273334162, 0.9526667533, 0.9780000904, 1.0033334274999999, 1.0286667646, 1.0540001016999998, 1.0793334388, 1.1046667759, 1.130000113], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 14.215688286897349, &quot;min&quot;: 0.37, &quot;max&quot;: 1.13, &quot;range&quot;: 0.7599999999999999, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.5, &quot;iqr&quot;: 0.19000000000000006, &quot;q1&quot;: 0.58, &quot;median&quot;: 0.66, &quot;q3&quot;: 0.77, &quot;ninety_fifth_percentile&quot;: 0.88}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.12701037402923776, &quot;coefficient_of_variation&quot;: 0.18776807233831805, &quot;sum&quot;: 275.97999999999996, &quot;variance&quot;: 0.016131635111046875, &quot;mean&quot;: 0.6764215686274508}}}, &quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 11.0666666666667, &quot;end&quot;: 14.900001490000001, &quot;width&quot;: 0, &quot;counts&quot;: [28, 68, 32, 30, 38, 29, 21, 21, 25, 12, 13, 27, 9, 17, 9, 8, 1, 3, 3, 6, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 14.9, &quot;min&quot;: 11.0666666666667, &quot;bins&quot;: [11.0666666666667, 11.194444494111144, 11.322222321555587, 11.45000014900003, 11.577777976444473, 11.705555803888917, 11.83333363133336, 11.961111458777804, 12.088889286222248, 12.216667113666691, 12.344444941111133, 12.472222768555577, 12.60000059600002, 12.727778423444464, 12.855556250888908, 12.98333407833335, 13.111111905777793, 13.238889733222237, 13.36666756066668, 13.494445388111124, 13.622223215555568, 13.750001043000012, 13.877778870444454, 14.005556697888897, 14.133334525333341, 14.261112352777785, 14.388890180222226, 14.51666800766667, 14.644445835111114, 14.772223662555557, 14.900001490000001], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 7.59803978178436, &quot;min&quot;: 11.0666666666667, &quot;max&quot;: 14.9, &quot;range&quot;: 3.8333333333333, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 11.1, &quot;iqr&quot;: 1.0, &quot;q1&quot;: 11.4, &quot;median&quot;: 11.8, &quot;q3&quot;: 12.4, &quot;ninety_fifth_percentile&quot;: 13.2}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.6824986635512768, &quot;coefficient_of_variation&quot;: 0.05725985668809312, &quot;sum&quot;: 4863.083333333334, &quot;variance&quot;: 0.4658044257492789, &quot;mean&quot;: 11.919321895424838}}}, &quot;quality&quot;: {&quot;histogram&quot;: null, &quot;frequentItems&quot;: [{&quot;value&quot;: &quot;bad&quot;, &quot;estimate&quot;: 267}, {&quot;value&quot;: &quot;good&quot;, &quot;estimate&quot;: 141}], &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: true, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 0.4901960796487877, &quot;min&quot;: NaN, &quot;max&quot;: NaN, &quot;range&quot;: NaN, &quot;quantile_statistics&quot;: null, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.0, &quot;coefficient_of_variation&quot;: null, &quot;sum&quot;: 0.0, &quot;variance&quot;: 0.0, &quot;mean&quot;: 0.0}}}}, &quot;properties&quot;: {&quot;observations&quot;: 4896, &quot;missing_cells&quot;: 10, &quot;missing_percentage&quot;: 0.20424836601307192}} }
+    const targetProfile = getTargetProfile()
+
+    function fixNumberTo(number, decimals = 3) {
+      const fractionalDigits = String(number % 1).split(&#x27;&#x27;).slice(2, 2 + decimals).join(&#x27;&#x27;)
+      return `${Math.trunc(number)}.${fractionalDigits}`
+    }
+
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+
+      class GenerateChartParams {
+        constructor(height, width, data, bottomMargin=20, topMargin=5) {
+          this.MARGIN = {
+            TOP: topMargin,
+            RIGHT: 5,
+            BOTTOM: bottomMargin,
+            LEFT: 55,
+          };
+          this.SVG_WIDTH = width;
+          this.SVG_HEIGHT = height;
+          this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
+          this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
+          this.svgEl = d3.create(&quot;svg&quot;)
+             .attr(&quot;preserveAspectRatio&quot;, &quot;xMinYMin meet&quot;)
+             .attr(&quot;viewBox&quot;, &quot;30 0 240 400&quot;)
+             .classed(&quot;svg-content-responsive&quot;, true)
+          this.maxYValue = d3.max(data, (d) =&gt; Math.abs(d.axisY));
+          this.xScale = d3
+            .scaleBand()
+            .domain(data.map((d) =&gt; d.axisX))
+            .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
+          this.yScale = d3
+            .scaleLinear()
+            .domain([0, this.maxYValue * 1.02])
+            .range([this.CHART_HEIGHT, 0]);
+        }
+      }
+
+      function generateChart(data, height = 70, width = 250, index = 0, referenceProfileExist = false) {
+        const sizes = new GenerateChartParams(height, width, data, 5)
+        const {
+          MARGIN,
+          SVG_WIDTH,
+          SVG_HEIGHT,
+          CHART_WIDTH,
+          CHART_HEIGHT,
+          svgEl,
+          maxYValue,
+          xScale,
+          yScale
+        } = sizes
+        const rectColors = [&quot;#44C0E7&quot;, &quot;#F5843C&quot;]
+
+        // Add the y Axis
+        if (!referenceProfileExist) {
+          svgEl
+            .append(&quot;g&quot;)
+            .attr(&quot;transform&quot;, &quot;translate(&quot; + MARGIN.LEFT + &quot;, &quot; + MARGIN.TOP + &quot;)&quot;)
+            .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]))
+            .selectAll(&quot;text&quot;)
+            .style(&quot;font-size&quot;, &quot;8&quot;)
+        }
+
+        const gChart = svgEl.append(&quot;g&quot;);
+        gChart
+          .attr(&quot;transform&quot;, &quot;translate(&quot; + 20 + &quot;, &quot; + 0 + &quot;)&quot;)
+          .selectAll(&quot;.bar&quot;)
+          .data(data)
+          .enter()
+          .append(&quot;rect&quot;)
+          .classed(&quot;bar&quot;, true)
+          .attr(&quot;width&quot;, xScale.bandwidth() - 1)
+          .attr(&quot;height&quot;, (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
+          .attr(&quot;x&quot;, (d) =&gt; xScale(d.axisX))
+          .attr(&quot;y&quot;, (d) =&gt; yScale(d.axisY) + MARGIN.TOP)
+          .attr(&quot;fill&quot;, rectColors[index]);
+
+        return svgEl._groups[0][0].outerHTML;
+      }
+
+      function chartData(column) {
+        const data = [];
+        if (column.histogram) {
+          column.histogram.counts.slice(0, 30).forEach((count, index) =&gt; {
+            data.push({
+              axisY: count,
+              axisX: index,
+            });
+          });
+        } else if (column.frequentItems) {
+          Object.entries(column.frequentItems).forEach(([key, {value, estimate}], index) =&gt; {
+              data.push({
+                axisY: estimate,
+                axisX: value,
+              });
+            });
+        }
+
+        return data
+      }
+
+      function graph(column, key, referenceColumn) {
+        let data = [];
+        const columnKey = key.data.key
+        let chartValue = false
+        let chartColor = undefined
+        if(!!referenceColumn){
+          column = referenceColumn.columns[columnKey]
+          chartValue = true
+          chartColor = 1
+        } else if (referenceColumn === undefined) {
+          column = &quot;&quot;
+        }
+
+        if (column.histogram || column.frequentItems) {
+          data = chartData(column)
+        } else if (referenceColumn === null ) {
+            $(&quot;.svg-container&quot;).css(&quot;padding-bottom&quot;, &quot;0&quot;)
+            return &#x27;&lt;span class=&quot;wl-table-cell__bedge-wrap&quot;&gt;No data to show the chart&lt;/span&gt;&#x27;;
+        } else if (referenceColumn === undefined) {
+            $(document).ready(function() {
+              $(&quot;.reference-table-head&quot;).addClass(&quot;d-none&quot;)
+            });
+            return &#x27;&#x27;
+        } else if (referenceColumn.frequentItems === undefined){
+            return &#x27;&#x27;;
+        }
+        return `
+          &lt;div class=&quot;svg-container&quot;&gt;
+            ${generateChart(data, ...[,,], chartColor, chartValue)}
+          &lt;/div&gt;
+        `;
+      }
+
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat(&quot;%Y-%m-%d %I:%M:%S %p %Z&quot;);
+        return format(date);
+      }
+
+    abbreviate_number = function(value, fixed = 0) {
+      value = +value
+      if (value === null) { return null; } // terminate early
+      if (value === 0) { return &#x27;0&#x27;; } // terminate early
+      fixed = (!fixed || fixed &lt; 0) ? 0 : fixed; // number of decimal places to show
+      var b = (value).toPrecision(2).split(&quot;e&quot;), // get power
+          k = b.length === 1 ? 0 : Math.floor(Math.min(b[1].slice(1), 14) / 3), // floor at decimals, ceiling at trillions
+          c = k &lt; 1 ? value.toFixed(0 + fixed) : (value / Math.pow(10, k * 3) ).toFixed(1 + fixed), // divide by power
+          d = c &lt; 0 ? c : Math.abs(c), // enforce -0 is 0
+          newValue = d,
+          suffixe = [&#x27;&#x27;, &#x27;K&#x27;, &#x27;M&#x27;, &#x27;B&#x27;, &#x27;T&#x27;][k]; // append power
+      return {value, newValue, suffixe};
+    }
+
+     function formatBytes(bytes, decimals = 2) {
+       let newValue,
+       suffixe = &quot;&quot;
+       if (bytes === 0) return &#x27;0 Bytes&#x27;;
+
+       const k = 1024;
+       const dm = decimals &lt; 0 ? 0 : decimals;
+       const sizes = [&#x27;Bytes&#x27;, &#x27;KiB&#x27;, &#x27;MB&#x27;, &#x27;GB&#x27;, &#x27;TB&#x27;, &#x27;PB&#x27;, &#x27;EB&#x27;, &#x27;ZB&#x27;, &#x27;YB&#x27;];
+
+       const i = Math.floor(Math.log(bytes) / Math.log(k));
+       newValue = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+       suffixe = sizes[i]
+       return {bytes, newValue, suffixe};
+     }
+
+     const valueSuffixe = (newNumber) =&gt; `
+       &lt;div class=&quot;statistic-measurement&quot;&gt;
+        ${newNumber}
+       &lt;/div&gt;`
+     const valueNumber = (newNumber) =&gt; `
+       &lt;div class=&quot;statistic-number&quot;&gt;
+        ${newNumber}
+       &lt;/div&gt;`
+
+     const numberWithSuffixe = (number, newNumber, suffixe) =&gt;
+       `&lt;div class=&quot;tooltip-full-number&quot;&gt;
+          &lt;div class=&quot;statistic-number&quot;&gt;
+             ${newNumber}
+            &lt;div class=&quot;statistic-measurement&quot;&gt;${suffixe}&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;span class=&quot;tooltiptext&quot;&gt;${number}&lt;/span&gt;
+        &lt;/div&gt;`
+
+     Handlebars.registerHelper(&quot;observations&quot;, function (properties) {
+       const {value, newValue, suffixe} = abbreviate_number(targetProfile.properties.observations)
+       return numberWithSuffixe(value, valueNumber(newValue), valueNumber(suffixe));
+     });
+
+     Handlebars.registerHelper(&quot;missingCells&quot;, function (properties) {
+       const {value, newValue, suffixe} = abbreviate_number(targetProfile.properties.missing_cells)
+       if (typeof value !== &#x27;undefined&#x27; &amp;&amp; typeof newValue !== &#x27;undefined&#x27;  &amp;&amp; typeof suffixe !== &#x27;undefined&#x27; ) {
+        return numberWithSuffixe(value, valueSuffixe(`${newValue}`), suffixe);
+       }
+       return numberWithSuffixe(0, valueNumber(0), valueNumber(&#x27;&#x27;));
+     });
+
+     Handlebars.registerHelper(&quot;missingCellsPercentage&quot;, function (properties) {
+       const {value, newValue, suffixe} = abbreviate_number(targetProfile.properties.missing_percentage)
+       if (typeof value !== &#x27;undefined&#x27; &amp;&amp; typeof newValue !== &#x27;undefined&#x27;  &amp;&amp; typeof suffixe !== &#x27;undefined&#x27; ) {
+        return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
+       }
+       return numberWithSuffixe(0, valueSuffixe(`(${0}%)`), &#x27;&#x27;);
+     });
+
+     Handlebars.registerHelper(&quot;getProfileTimeStamp&quot;, function (properties) {
+       return formatLabelDate(+properties.properties.dataTimestamp)
+     });
+
+     Handlebars.registerHelper(&quot;getProfileName&quot;, function (properties) {
+       return properties.properties.tags.name
+     });
+
+       const cheqValueTypeNumber = (profile, profileValue) =&gt; {
+         let validValue;
+         if (profile &amp;&amp; profileValue !== undefined &amp;&amp; typeof profileValue === &quot;number&quot;) {
+           return true
+         } else if (profileValue !== undefined &amp;&amp; typeof profileValue !== &quot;number&quot;) {
+           return false
+         }
+       }
+
+
+      Handlebars.registerHelper(&quot;inferredType&quot;, function (column) {
+        let infferedType = &quot;&quot;;
+
+        if (column.isDiscrete) {
+          infferedType = &quot;Discrete&quot;;
+        } else {
+          infferedType = &quot;Non-discrete&quot;;
+        }
+        return infferedType;
+      });
+
+      Handlebars.registerHelper(&quot;frequentItems&quot;, function (column) {
+        frequentItemsElemString = &quot;&quot;;
+        if (column.isDiscrete) {
+          const slicedFrequentItems = column.frequentItems.items.slice(0, 5);
+          for (let fi = 0; fi &lt; slicedFrequentItems.length; fi++) {
+            frequentItemsElemString +=
+              &#x27;&lt;span class=&quot;wl-table-cell__bedge&quot;&gt;&#x27; + slicedFrequentItems[fi].jsonValue + &quot;&lt;/span&gt;&quot;;
+          }
+        } else {
+          frequentItemsElemString += &quot;No data to show&quot;;
+        }
+        return frequentItemsElemString;
+      });
+
+      Handlebars.registerHelper(&quot;totalCount&quot;, function (column) {
+        if (column.featureStats) {
+          return column.featureStats.total_count;
+        }
+
+        return &quot;-&quot;;
+      });
+
+      Handlebars.registerHelper(&quot;missing&quot;, function (column) {
+        if (column.featureStats) {
+          return column.featureStats.missing;
+        }
+
+        return &quot;-&quot;;
+      });
+
+      Handlebars.registerHelper(&quot;minimumValue&quot;, function (column) {
+        if (column.featureStats) {
+          if (isNaN(column.featureStats.min)){return &quot;-&quot;}
+          return fixNumberTo(column.featureStats.min);
+        }
+
+        return &quot;-&quot;;
+      });
+
+      Handlebars.registerHelper(&quot;maximumValue&quot;, function (column) {
+        if (column.featureStats) {
+          if (isNaN(column.featureStats.max)){return &quot;-&quot;}
+          return fixNumberTo(column.featureStats.max);
+        }
+
+        return &quot;-&quot;;
+      });
+
+
+      Handlebars.registerHelper(&quot;mean&quot;, function (column) {
+        if (column.featureStats?.descriptive_statistics) {
+          if (isNaN(column.featureStats.descriptive_statistics.mean)){return &quot;-&quot;}
+          return fixNumberTo(column.featureStats.descriptive_statistics.mean);
+        }
+        return &quot;-&quot;;
+      });
+
+      Handlebars.registerHelper(&quot;getGraphHtml&quot;,(column,key) =&gt; graph(column, key, null));
+
+      Handlebars.registerHelper(&quot;getDiscreteTypeCount&quot;, function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) =&gt; {
+          if (feature[1].isDiscrete === true) {
+            count++;
+          }
+        });
+        return count.toString();
+      });
+
+      Handlebars.registerHelper(&quot;getNonDiscreteTypeCount&quot;, function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) =&gt; {
+          if (feature[1].isDiscrete === false) {
+            count++;
+          }
+        });
+        return count;
+      });
+
+      Handlebars.registerHelper(&quot;getUnknownTypeCount&quot;, function () {
+        let count = 0;
+        return count;
+        Object.entries(this.columns).forEach((feature) =&gt; {
+          if (!feature[1].isDiscrete) {
+            count++;
+          }
+        });
+        return count;
+      });
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = {&quot;columns&quot;: {&quot;fixed acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 4.6, &quot;end&quot;: 15.90000159, &quot;width&quot;: 0, &quot;counts&quot;: [3, 17, 16, 17, 28, 39, 39, 30, 22, 30, 24, 35, 12, 13, 22, 23, 9, 6, 3, 4, 2, 3, 3, 2, 1, 0, 0, 0, 2, 3], &quot;max&quot;: 15.9, &quot;min&quot;: 4.6, &quot;bins&quot;: [4.6, 4.9766667196666665, 5.353333439333333, 5.730000158999999, 6.106666878666666, 6.483333598333333, 6.860000318, 7.236667037666667, 7.613333757333333, 7.990000477000001, 8.366667196666667, 8.743333916333334, 9.120000636, 9.496667355666666, 9.873334075333332, 10.250000795, 10.626667514666668, 11.003334234333334, 11.380000954, 11.756667673666666, 12.133334393333334, 12.510001113000001, 12.886667832666667, 13.263334552333333, 13.640001272000001, 14.016667991666667, 14.393334711333335, 14.770001431, 15.146668150666667, 15.523334870333334, 15.90000159], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 20.588239538027807, &quot;min&quot;: 4.6, &quot;max&quot;: 15.9, &quot;range&quot;: 11.3, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 5.4, &quot;iqr&quot;: 2.7, &quot;q1&quot;: 6.7, &quot;median&quot;: 7.9, &quot;q3&quot;: 9.4, &quot;ninety_fifth_percentile&quot;: 11.6}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 2.013014441140909, &quot;coefficient_of_variation&quot;: 0.24676558362692394, &quot;sum&quot;: 3328.3, &quot;variance&quot;: 4.052227140241847, &quot;mean&quot;: 8.157598039215687}}}, &quot;volatile acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.12, &quot;end&quot;: 1.1150001115, &quot;width&quot;: 0, &quot;counts&quot;: [3, 8, 5, 8, 21, 32, 38, 37, 30, 35, 23, 24, 25, 23, 15, 15, 15, 14, 11, 4, 3, 3, 6, 2, 1, 2, 1, 2, 0, 2], &quot;max&quot;: 1.115, &quot;min&quot;: 0.12, &quot;bins&quot;: [0.12, 0.15316667038333331, 0.18633334076666666, 0.21950001115, 0.2526666815333333, 0.28583335191666664, 0.3190000223, 0.35216669268333334, 0.38533336306666666, 0.41850003345, 0.4516667038333333, 0.48483337421666667, 0.5180000445999999, 0.5511667149833333, 0.5843333853666667, 0.61750005575, 0.6506667261333333, 0.6838333965166666, 0.7170000669, 0.7501667372833333, 0.7833334076666666, 0.81650007805, 0.8496667484333333, 0.8828334188166667, 0.9160000892, 0.9491667595833333, 0.9823334299666666, 1.01550010035, 1.0486667707333335, 1.0818334411166668, 1.1150001115000001], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 22.05882840516061, &quot;min&quot;: 0.12, &quot;max&quot;: 1.115, &quot;range&quot;: 0.995, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.24, &quot;iqr&quot;: 0.23999999999999994, &quot;q1&quot;: 0.34, &quot;median&quot;: 0.44, &quot;q3&quot;: 0.58, &quot;ninety_fifth_percentile&quot;: 0.8}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.17791965320497752, &quot;coefficient_of_variation&quot;: 0.3771756131540623, &quot;sum&quot;: 192.45999999999998, &quot;variance&quot;: 0.03165540299657947, &quot;mean&quot;: 0.47171568627450977}}}, &quot;citric acid&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 0.790000079, &quot;width&quot;: 0, &quot;counts&quot;: [57, 13, 7, 23, 10, 9, 4, 6, 7, 10, 12, 14, 28, 9, 24, 35, 11, 23, 31, 8, 10, 9, 5, 3, 8, 12, 2, 3, 4, 1], &quot;max&quot;: 0.79, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 0.026333335966666666, 0.05266667193333333, 0.0790000079, 0.10533334386666666, 0.13166667983333333, 0.1580000158, 0.18433335176666665, 0.21066668773333333, 0.2370000237, 0.26333335966666666, 0.2896666956333333, 0.3160000316, 0.34233336756666666, 0.3686667035333333, 0.3950000395, 0.42133337546666666, 0.4476667114333333, 0.4740000474, 0.5003333833666667, 0.5266667193333333, 0.5530000553, 0.5793333912666666, 0.6056667272333334, 0.6320000632, 0.6583333991666667, 0.6846667351333333, 0.7110000711, 0.7373334070666666, 0.7636667430333334, 0.790000079], &quot;n&quot;: 398}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 398, &quot;missing&quot;: 10, &quot;distinct&quot;: 18.090455451204008, &quot;min&quot;: 0.0, &quot;max&quot;: 0.79, &quot;range&quot;: 0.79, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.0, &quot;iqr&quot;: 0.36, &quot;q1&quot;: 0.1, &quot;median&quot;: 0.34, &quot;q3&quot;: 0.46, &quot;ninety_fifth_percentile&quot;: 0.66}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.20859943016152155, &quot;coefficient_of_variation&quot;: 0.6620619872750046, &quot;sum&quot;: 125.4, &quot;variance&quot;: 0.04351372226371151, &quot;mean&quot;: 0.3150753768844221}}}, &quot;residual sugar&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.9, &quot;end&quot;: 12.90000129, &quot;width&quot;: 0, &quot;counts&quot;: [8, 39, 118, 124, 40, 16, 11, 8, 13, 8, 4, 2, 2, 5, 3, 0, 1, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 12.9, &quot;min&quot;: 0.9, &quot;bins&quot;: [0.9, 1.300000043, 1.7000000860000002, 2.100000129, 2.500000172, 2.900000215, 3.3000002580000003, 3.700000301, 4.100000344000001, 4.500000387, 4.90000043, 5.300000473000001, 5.700000516000001, 6.100000559000001, 6.500000602000001, 6.900000645, 7.300000688000001, 7.700000731000001, 8.100000774, 8.500000817, 8.90000086, 9.300000903, 9.700000946000001, 10.100000989000002, 10.500001032000002, 10.900001075, 11.300001118, 11.700001161000001, 12.100001204000002, 12.500001247000002, 12.90000129], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 15.931375081243552, &quot;min&quot;: 0.9, &quot;max&quot;: 12.9, &quot;range&quot;: 12.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 1.6, &quot;iqr&quot;: 0.7000000000000002, &quot;q1&quot;: 2.0, &quot;median&quot;: 2.3, &quot;q3&quot;: 2.7, &quot;ninety_fifth_percentile&quot;: 5.15}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 1.2990000858665753, &quot;coefficient_of_variation&quot;: 0.49437249664993493, &quot;sum&quot;: 1072.05, &quot;variance&quot;: 1.6874012230813702, &quot;mean&quot;: 2.6275735294117646}}}, &quot;chlorides&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.012, &quot;end&quot;: 0.230000023, &quot;width&quot;: 0, &quot;counts&quot;: [2, 0, 0, 9, 21, 40, 45, 76, 64, 43, 33, 21, 20, 8, 9, 9, 3, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1], &quot;max&quot;: 0.23, &quot;min&quot;: 0.012, &quot;bins&quot;: [0.012, 0.019266667433333332, 0.026533334866666668, 0.0338000023, 0.04106666973333333, 0.04833333716666667, 0.0556000046, 0.06286667203333333, 0.07013333946666667, 0.0774000069, 0.08466667433333333, 0.09193334176666666, 0.0992000092, 0.10646667663333333, 0.11373334406666666, 0.12100001149999999, 0.12826667893333332, 0.13553334636666667, 0.14280001380000001, 0.15006668123333333, 0.15733334866666668, 0.1646000161, 0.17186668353333334, 0.17913335096666666, 0.1864000184, 0.19366668583333332, 0.20093335326666667, 0.2082000207, 0.21546668813333333, 0.22273335556666665, 0.230000023], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 21.813730257594944, &quot;min&quot;: 0.012, &quot;max&quot;: 0.23, &quot;range&quot;: 0.218, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.046, &quot;iqr&quot;: 0.025999999999999995, &quot;q1&quot;: 0.06, &quot;median&quot;: 0.071, &quot;q3&quot;: 0.086, &quot;ninety_fifth_percentile&quot;: 0.12}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.024213181268290383, &quot;coefficient_of_variation&quot;: 0.3226526212509791, &quot;sum&quot;: 30.618, &quot;variance&quot;: 0.0005862781471310883, &quot;mean&quot;: 0.07504411764705882}}}, &quot;free sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 3.0, &quot;end&quot;: 51.0000051, &quot;width&quot;: 0, &quot;counts&quot;: [31, 79, 21, 21, 36, 16, 27, 26, 29, 22, 3, 13, 12, 11, 10, 5, 6, 4, 8, 6, 4, 8, 2, 1, 3, 0, 1, 0, 1, 2], &quot;max&quot;: 51.0, &quot;min&quot;: 3.0, &quot;bins&quot;: [3.0, 4.60000017, 6.200000340000001, 7.80000051, 9.400000680000002, 11.000000850000001, 12.60000102, 14.200001190000002, 15.800001360000001, 17.40000153, 19.000001700000002, 20.600001870000003, 22.20000204, 23.800002210000002, 25.400002380000004, 27.00000255, 28.600002720000003, 30.200002890000004, 31.80000306, 33.40000323, 35.000003400000004, 36.600003570000005, 38.20000374000001, 39.80000391, 41.40000408, 43.00000425, 44.600004420000005, 46.200004590000006, 47.80000476000001, 49.40000493, 51.0000051], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 11.029412969947018, &quot;min&quot;: 3.0, &quot;max&quot;: 51.0, &quot;range&quot;: 48.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 3.0, &quot;iqr&quot;: 13.0, &quot;q1&quot;: 6.0, &quot;median&quot;: 13.0, &quot;q3&quot;: 19.0, &quot;ninety_fifth_percentile&quot;: 36.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 9.994223698460777, &quot;coefficient_of_variation&quot;: 0.6774056431550788, &quot;sum&quot;: 6019.5, &quot;variance&quot;: 99.884507334875, &quot;mean&quot;: 14.753676470588236}}}, &quot;total sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 6.0, &quot;end&quot;: 289.0000289, &quot;width&quot;: 0, &quot;counts&quot;: [85, 92, 70, 47, 40, 14, 16, 10, 10, 10, 6, 2, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1], &quot;max&quot;: 289.0, &quot;min&quot;: 6.0, &quot;bins&quot;: [6.0, 15.433334296666667, 24.866668593333333, 34.30000289, 43.73333718666667, 53.16667148333333, 62.600005780000004, 72.03334007666666, 81.46667437333333, 90.90000867, 100.33334296666666, 109.76667726333334, 119.20001156000001, 128.63334585666666, 138.06668015333332, 147.50001445, 156.93334874666667, 166.36668304333332, 175.80001734, 185.23335163666667, 194.66668593333333, 204.10002023, 213.53335452666667, 222.96668882333333, 232.40002312000001, 241.83335741666667, 251.26669171333333, 260.70002601, 270.13336030666665, 279.56669460333336, 289.0000289], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 22.303926553943704, &quot;min&quot;: 6.0, &quot;max&quot;: 289.0, &quot;range&quot;: 283.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 10.0, &quot;iqr&quot;: 29.0, &quot;q1&quot;: 17.0, &quot;median&quot;: 27.0, &quot;q3&quot;: 46.0, &quot;ninety_fifth_percentile&quot;: 93.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 31.68721099598923, &quot;coefficient_of_variation&quot;: 0.8554477659209692, &quot;sum&quot;: 15112.999999999998, &quot;variance&quot;: 1004.0793407043408, &quot;mean&quot;: 37.041666666666664}}}, &quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99007, &quot;end&quot;: 1.0032001003200002, &quot;width&quot;: 0, &quot;counts&quot;: [3, 4, 1, 9, 4, 12, 8, 32, 32, 36, 39, 49, 45, 25, 25, 19, 15, 8, 4, 8, 5, 6, 2, 5, 4, 1, 1, 2, 0, 4], &quot;max&quot;: 1.0032, &quot;min&quot;: 0.99007, &quot;bins&quot;: [0.99007, 0.9905076700106666, 0.9909453400213334, 0.991383010032, 0.9918206800426667, 0.9922583500533334, 0.992696020064, 0.9931336900746667, 0.9935713600853334, 0.9940090300960001, 0.9944467001066667, 0.9948843701173334, 0.9953220401280001, 0.9957597101386667, 0.9961973801493335, 0.9966350501600001, 0.9970727201706667, 0.9975103901813335, 0.9979480601920001, 0.9983857302026667, 0.9988234002133335, 0.9992610702240001, 0.9996987402346668, 1.0001364102453334, 1.0005740802560001, 1.0010117502666669, 1.0014494202773334, 1.0018870902880002, 1.002324760298667, 1.0027624303093334, 1.0032001003200002], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 55.88238444546564, &quot;min&quot;: 0.99007, &quot;max&quot;: 1.0032, &quot;range&quot;: 0.013130000000000086, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.9922, &quot;iqr&quot;: 0.0023400000000000087, &quot;q1&quot;: 0.99396, &quot;median&quot;: 0.99516, &quot;q3&quot;: 0.9963, &quot;ninety_fifth_percentile&quot;: 0.9994}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.0021784570136347352, &quot;coefficient_of_variation&quot;: 0.002188682344428877, &quot;sum&quot;: 406.09385999999995, &quot;variance&quot;: 4.745674960254368e-06, &quot;mean&quot;: 0.995328088235294}}}, &quot;pH&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 2.89, &quot;end&quot;: 4.010000401, &quot;width&quot;: 0, &quot;counts&quot;: [5, 1, 3, 4, 7, 5, 17, 20, 38, 36, 44, 29, 35, 41, 30, 11, 19, 17, 14, 10, 2, 9, 4, 2, 0, 1, 0, 2, 0, 2], &quot;max&quot;: 4.01, &quot;min&quot;: 2.89, &quot;bins&quot;: [2.89, 2.9273333467000002, 2.9646666934000003, 3.0020000401, 3.0393333868, 3.0766667335, 3.1140000802000003, 3.1513334269, 3.1886667736, 3.2260001203, 3.2633334670000003, 3.3006668137, 3.3380001604, 3.3753335071, 3.4126668538000002, 3.4500002005, 3.4873335472, 3.5246668939, 3.5620002406, 3.5993335873000003, 3.636666934, 3.6740002807, 3.7113336274, 3.7486669741, 3.7860003208000004, 3.8233336675, 3.8606670142, 3.8980003609000002, 3.9353337076, 3.9726670543, 4.010000401], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 18.8725525817653, &quot;min&quot;: 2.89, &quot;max&quot;: 4.01, &quot;range&quot;: 1.1199999999999997, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 3.09, &quot;iqr&quot;: 0.2200000000000002, &quot;q1&quot;: 3.23, &quot;median&quot;: 3.33, &quot;q3&quot;: 3.45, &quot;ninety_fifth_percentile&quot;: 3.67}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.17649177660211463, &quot;coefficient_of_variation&quot;: 0.05273349702213279, &quot;sum&quot;: 1365.52, &quot;variance&quot;: 0.031149347208170735, &quot;mean&quot;: 3.346862745098039}}}, &quot;sulphates&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.37, &quot;end&quot;: 1.130000113, &quot;width&quot;: 0, &quot;counts&quot;: [3, 2, 4, 4, 6, 18, 19, 45, 22, 37, 22, 32, 21, 29, 28, 27, 22, 12, 24, 7, 10, 1, 5, 1, 3, 1, 1, 0, 0, 2], &quot;max&quot;: 1.13, &quot;min&quot;: 0.37, &quot;bins&quot;: [0.37, 0.3953333371, 0.4206666742, 0.4460000113, 0.47133334839999996, 0.4966666855, 0.5220000226, 0.5473333597, 0.5726666968, 0.5980000339, 0.623333371, 0.6486667080999999, 0.6740000452, 0.6993333823, 0.7246667194, 0.7500000565, 0.7753333936, 0.8006667306999999, 0.8260000677999999, 0.8513334049, 0.8766667419999999, 0.9020000791, 0.9273334162, 0.9526667533, 0.9780000904, 1.0033334274999999, 1.0286667646, 1.0540001016999998, 1.0793334388, 1.1046667759, 1.130000113], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 14.215688286897349, &quot;min&quot;: 0.37, &quot;max&quot;: 1.13, &quot;range&quot;: 0.7599999999999999, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.5, &quot;iqr&quot;: 0.19000000000000006, &quot;q1&quot;: 0.58, &quot;median&quot;: 0.66, &quot;q3&quot;: 0.77, &quot;ninety_fifth_percentile&quot;: 0.88}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.12701037402923776, &quot;coefficient_of_variation&quot;: 0.18776807233831805, &quot;sum&quot;: 275.97999999999996, &quot;variance&quot;: 0.016131635111046875, &quot;mean&quot;: 0.6764215686274508}}}, &quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 11.0666666666667, &quot;end&quot;: 14.900001490000001, &quot;width&quot;: 0, &quot;counts&quot;: [28, 68, 32, 30, 38, 29, 21, 21, 25, 12, 13, 27, 9, 17, 9, 8, 1, 3, 3, 6, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 14.9, &quot;min&quot;: 11.0666666666667, &quot;bins&quot;: [11.0666666666667, 11.194444494111144, 11.322222321555587, 11.45000014900003, 11.577777976444473, 11.705555803888917, 11.83333363133336, 11.961111458777804, 12.088889286222248, 12.216667113666691, 12.344444941111133, 12.472222768555577, 12.60000059600002, 12.727778423444464, 12.855556250888908, 12.98333407833335, 13.111111905777793, 13.238889733222237, 13.36666756066668, 13.494445388111124, 13.622223215555568, 13.750001043000012, 13.877778870444454, 14.005556697888897, 14.133334525333341, 14.261112352777785, 14.388890180222226, 14.51666800766667, 14.644445835111114, 14.772223662555557, 14.900001490000001], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 7.59803978178436, &quot;min&quot;: 11.0666666666667, &quot;max&quot;: 14.9, &quot;range&quot;: 3.8333333333333, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 11.1, &quot;iqr&quot;: 1.0, &quot;q1&quot;: 11.4, &quot;median&quot;: 11.8, &quot;q3&quot;: 12.4, &quot;ninety_fifth_percentile&quot;: 13.2}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.6824986635512768, &quot;coefficient_of_variation&quot;: 0.05725985668809312, &quot;sum&quot;: 4863.083333333334, &quot;variance&quot;: 0.4658044257492789, &quot;mean&quot;: 11.919321895424838}}}, &quot;quality&quot;: {&quot;histogram&quot;: null, &quot;frequentItems&quot;: [{&quot;value&quot;: &quot;bad&quot;, &quot;estimate&quot;: 267}, {&quot;value&quot;: &quot;good&quot;, &quot;estimate&quot;: 141}], &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: true, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 0.4901960796487877, &quot;min&quot;: NaN, &quot;max&quot;: NaN, &quot;range&quot;: NaN, &quot;quantile_statistics&quot;: null, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.0, &quot;coefficient_of_variation&quot;: null, &quot;sum&quot;: 0.0, &quot;variance&quot;: 0.0, &quot;mean&quot;: 0.0}}}}, &quot;properties&quot;: {&quot;observations&quot;: 4896, &quot;missing_cells&quot;: 10, &quot;missing_percentage&quot;: 0.20424836601307192}};
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById(&quot;generated-html&quot;);
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      const $featureSearch = document.getElementById(&quot;wl__feature-search&quot;);
+      const $tableBody = document.getElementById(&quot;table-body&quot;);
+      const $discrete = document.getElementById(&quot;inferredDiscrete&quot;);
+      const $nonDiscrete = document.getElementById(&quot;inferredNonDiscrete&quot;);
+      const $unknown = document.getElementById(&quot;inferredUnknown&quot;);
+
+      const activeTypes = {
+        discrete: true,
+        &quot;non-discrete&quot;: true,
+        unknown: true,
+      };
+
+      let searchString = &quot;&quot;;
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate &amp;&amp; !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function filterNotification() {
+        const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+        const $boxes = $(&#x27;.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked&#x27;);
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass(&quot;d-none&quot;)
+        } else {
+          $notifCircleContainer.addClass(&quot;d-none&quot;)
+        }
+      }
+
+      function handleSearch() {
+        const tableBodyChildren = $tableBody.children;
+
+        for (let i = 0; i &lt; tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = tableBodyChildren[i].dataset.featureName.toLowerCase();
+
+          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+            tableBodyChildren[i].style.display = &quot;&quot;;
+          } else {
+            tableBodyChildren[i].style.display = &quot;none&quot;;
+          }
+        }
+      }
+
+      $featureSearch.addEventListener(
+        &quot;keyup&quot;,
+        debounce((event) =&gt; {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
+
+      $discrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;discrete&quot;] = true;
+        } else {
+          activeTypes[&quot;discrete&quot;] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $nonDiscrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;non-discrete&quot;] = true;
+        } else {
+          activeTypes[&quot;non-discrete&quot;] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $unknown.addEventListener(&quot;change&quot;, (event) =&gt; {
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;unknown&quot;] = true;
+        } else {
+          activeTypes[&quot;unknown&quot;] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+
+      $(&quot;.svg-container&quot;).css(&quot;padding-bottom&quot;, &quot;27%&quot;)
+    }
+
+    function checkedBoxes() {
+      const $boxes = $(&#x27;input[name=checkbox]:checked&#x27;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $notifCircleContainer.addClass(&quot;d-none&quot;)
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+        checkedBoxes()
+      }
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  &lt;/script&gt;
+&lt;/html&gt;
+" width=100% height=1000px
+        frameBorder=0></iframe></div>
+</div>
+</section>
 <section id="Drift-Summary">
 <h2>Drift Summary<a class="headerlink" href="#Drift-Summary" title="Permalink to this headline">#</a></h2>
-<p>With <code class="docutils literal notranslate"><span class="pre">summary_drift_report</span></code>, we have overview statistics, such as number of observations and missing cells, as well as a comparison between both profile’s features, with regards to each feature’s distribution, and drift calculations for numerical or categorical features.</p>
+<p>We can also compare two different profiles. With <code class="docutils literal notranslate"><span class="pre">summary_drift_report</span></code>, we have overview statistics, such as number of observations and missing cells, as well as a comparison between both profile’s features, with regards to each feature’s distribution, and drift calculations for numerical or categorical features.</p>
 <p>The report also displays alerts related to each of the feature’s drift severity.</p>
 <p>You can also search for a specific feature, or filter by inferred type.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">summary_drift_report</span><span class="p">()</span>
@@ -876,7 +2201,7 @@ memory usage: 150.0 KB
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1658,12 +2983,15 @@ memory usage: 150.0 KB
                         &lt;div class=&quot;wl-table-head table-border-none graph-table-head&quot;&gt;Target&lt;/div&gt;
                         &lt;div class=&quot;wl-table-head table-border-none reference-table-head&quot;&gt;Reference&lt;/div&gt;
                       &lt;/div&gt;
-                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-center&quot; id=&quot;diff-from-ref&quot;&gt;
-                        Diff from ref.
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-center&quot; style=&quot;cursor: pointer;&quot; id=&quot;diff-from-ref&quot;&gt;
+                        &lt;p id=&quot;pvalue&quot; &gt; p-value &lt;/p&gt;
+                        &lt;p id=&quot;pvalue-asc&quot; style=&quot;display: none;&quot;&gt; p-value &amp;#9650 &lt;/p&gt;
+                        &lt;p id=&quot;pvalue-desc&quot; style=&quot;display: none;&quot;&gt; p-value &amp;#9660 &lt;/p&gt;
+
                         &lt;div class=&quot;tooltip-full-number&quot;&gt;
                             &lt;span class=&quot;question-mark&quot;&gt;?&lt;/span&gt;
                           &lt;span class=&quot;tooltiptext&quot;&gt;
-                           &lt;div class=&quot;mb-1&quot;&gt;Distance between the reference and target profiles&lt;/div&gt;
+                           &lt;div class=&quot;mb-1&quot;&gt;p-values are calculated with K-S test for numerical features and Chi-squared for categorical features.&lt;/div&gt;
                           &lt;/span&gt;
                         &lt;/div&gt;
                       &lt;/div&gt;
@@ -1677,6 +3005,7 @@ memory usage: 150.0 KB
                     data-feature-name={{@key}}
                     data-inferred-type={{inferredType this}}
                     data-scroll-to-feature-name={{@key}}
+                    data-p-value={{getpvalue this}}
                   &gt;
                       &lt;div class=&quot;wl-table-cell wl-table-cell__graph-wrap&quot;&gt;
                         &lt;div class=&quot;wl-table-cell__title-wrap&quot;&gt;
@@ -1724,7 +3053,7 @@ memory usage: 150.0 KB
   &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
 
   &lt;script&gt;
-    const getReferenceProfile = () =&gt; { return {&quot;columns&quot;: {&quot;pH&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 2.74, &quot;end&quot;: 3.750000375, &quot;width&quot;: 0, &quot;counts&quot;: [0, 0, 0, 2, 6, 8, 0, 8, 22, 26, 43, 44, 78, 99, 65, 89, 147, 91, 104, 127, 59, 60, 26, 39, 20, 12, 2, 8, 2, 4], &quot;max&quot;: 3.75, &quot;min&quot;: 2.74, &quot;bins&quot;: [2.74, 2.773666679166667, 2.8073333583333335, 2.8410000375, 2.874666716666667, 2.9083333958333335, 2.942000075, 2.975666754166667, 3.0093334333333335, 3.0430001125, 3.076666791666667, 3.1103334708333334, 3.14400015, 3.1776668291666668, 3.2113335083333334, 3.2450001875, 3.2786668666666667, 3.3123335458333334, 3.346000225, 3.3796669041666667, 3.4133335833333334, 3.4470002625, 3.4806669416666667, 3.5143336208333333, 3.5480003, 3.5816669791666667, 3.6153336583333333, 3.6490003375, 3.6826670166666666, 3.7163336958333333, 3.750000375], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 0.002336986159788625, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;fixed acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 5.0, &quot;end&quot;: 15.0000015, &quot;width&quot;: 0, &quot;counts&quot;: [2, 3, 19, 22, 49, 123, 140, 123, 152, 92, 54, 82, 56, 34, 54, 26, 28, 24, 12, 28, 22, 10, 14, 8, 6, 0, 4, 0, 0, 4], &quot;max&quot;: 15.0, &quot;min&quot;: 5.0, &quot;bins&quot;: [5.0, 5.333333383333334, 5.666666766666666, 6.00000015, 6.333333533333334, 6.666666916666667, 7.0000003, 7.333333683333334, 7.666667066666667, 8.00000045, 8.333333833333334, 8.666667216666667, 9.0000006, 9.333333983333333, 9.666667366666667, 10.00000075, 10.333334133333334, 10.666667516666667, 11.0000009, 11.333334283333333, 11.666667666666667, 12.00000105, 12.333334433333334, 12.666667816666667, 13.0000012, 13.333334583333334, 13.666667966666667, 14.00000135, 14.333334733333334, 14.666668116666667, 15.0000015], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 5.982876715256767e-08, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;quality&quot;: {&quot;histogram&quot;: null, &quot;frequentItems&quot;: [{&quot;value&quot;: &quot;bad&quot;, &quot;estimate&quot;: 1115}, {&quot;value&quot;: &quot;good&quot;, &quot;estimate&quot;: 76}], &quot;drift_from_ref&quot;: 4.72188097163335e-120, &quot;isDiscrete&quot;: true, &quot;featureStats&quot;: null}, &quot;free sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 1.0, &quot;end&quot;: 72.0000072, &quot;width&quot;: 0, &quot;counts&quot;: [32, 108, 184, 108, 103, 130, 96, 62, 78, 49, 70, 35, 33, 35, 21, 4, 18, 2, 2, 6, 0, 6, 6, 2, 0, 0, 0, 1, 0, 0], &quot;max&quot;: 72.0, &quot;min&quot;: 1.0, &quot;bins&quot;: [1.0, 3.3666669066666666, 5.733333813333333, 8.10000072, 10.466667626666666, 12.833334533333332, 15.20000144, 17.566668346666667, 19.933335253333333, 22.30000216, 24.666669066666664, 27.033335973333333, 29.40000288, 31.766669786666665, 34.133336693333334, 36.5000036, 38.866670506666665, 41.23333741333333, 43.60000432, 45.96667122666666, 48.33333813333333, 50.70000504, 53.066671946666666, 55.43333885333333, 57.80000576, 60.16667266666666, 62.53333957333333, 64.90000648, 67.26667338666667, 69.63334029333333, 72.0000072], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 0.017559592137222853, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;sulphates&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.33, &quot;end&quot;: 2.0000002, &quot;width&quot;: 0, &quot;counts&quot;: [4, 30, 101, 217, 232, 219, 106, 85, 69, 32, 30, 14, 10, 10, 6, 12, 0, 4, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4], &quot;max&quot;: 2.0, &quot;min&quot;: 0.33, &quot;bins&quot;: [0.33, 0.3856666733333334, 0.4413333466666667, 0.49700002, 0.5526666933333333, 0.6083333666666666, 0.66400004, 0.7196667133333334, 0.7753333866666667, 0.83100006, 0.8866667333333333, 0.9423334066666667, 0.99800008, 1.0536667533333333, 1.1093334266666668, 1.1650001, 1.2206667733333334, 1.2763334466666667, 1.33200012, 1.3876667933333333, 1.4433334666666666, 1.4990001400000001, 1.5546668133333335, 1.6103334866666668, 1.66600016, 1.7216668333333334, 1.7773335066666667, 1.83300018, 1.8886668533333335, 1.9443335266666668, 2.0000002], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 1.3923726824145813e-09, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;residual sugar&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 1.2, &quot;end&quot;: 15.50000155, &quot;width&quot;: 0, &quot;counts&quot;: [110, 476, 361, 106, 36, 25, 10, 4, 10, 16, 14, 3, 4, 1, 2, 2, 2, 0, 0, 0, 4, 0, 0, 0, 0, 0, 3, 0, 0, 2], &quot;max&quot;: 15.5, &quot;min&quot;: 1.2, &quot;bins&quot;: [1.2, 1.6766667183333333, 2.1533334366666668, 2.6300001550000003, 3.1066668733333334, 3.5833335916666664, 4.06000031, 4.5366670283333335, 5.0133337466666665, 5.4900004650000005, 5.966667183333334, 6.443333901666667, 6.920000620000001, 7.396667338333334, 7.873334056666667, 8.350000775, 8.826667493333334, 9.303334211666666, 9.78000093, 10.256667648333332, 10.733334366666666, 11.210001085, 11.686667803333332, 12.163334521666666, 12.64000124, 13.116667958333332, 13.593334676666666, 14.070001395, 14.546668113333332, 15.023334831666666, 15.50000155], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 0.015982727884831006, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;citric acid&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 1.0000001, &quot;width&quot;: 0, &quot;counts&quot;: [178, 63, 92, 49, 36, 78, 76, 103, 70, 63, 40, 52, 33, 38, 94, 32, 28, 20, 11, 16, 10, 4, 0, 1, 0, 0, 0, 0, 0, 4], &quot;max&quot;: 1.0, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 0.03333333666666667, 0.06666667333333334, 0.10000001000000001, 0.13333334666666669, 0.16666668333333334, 0.20000002000000003, 0.2333333566666667, 0.26666669333333337, 0.30000003000000003, 0.3333333666666667, 0.3666667033333334, 0.40000004000000006, 0.4333333766666667, 0.4666667133333334, 0.50000005, 0.5333333866666667, 0.5666667233333335, 0.6000000600000001, 0.6333333966666668, 0.6666667333333334, 0.7000000700000001, 0.7333334066666668, 0.7666667433333334, 0.8000000800000001, 0.8333334166666668, 0.8666667533333334, 0.9000000900000001, 0.9333334266666669, 0.9666667633333335, 1.0000001], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 1.16039715637948e-09, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 8.4, &quot;end&quot;: 11.0000011, &quot;width&quot;: 0, &quot;counts&quot;: [2, 0, 0, 4, 2, 0, 30, 0, 26, 74, 58, 104, 138, 62, 52, 0, 79, 50, 70, 47, 44, 32, 0, 46, 65, 28, 26, 46, 47, 59], &quot;max&quot;: 11.0, &quot;min&quot;: 8.4, &quot;bins&quot;: [8.4, 8.486666703333334, 8.573333406666666, 8.66000011, 8.746666813333334, 8.833333516666666, 8.92000022, 9.006666923333334, 9.093333626666666, 9.18000033, 9.266667033333334, 9.353333736666666, 9.44000044, 9.526667143333334, 9.613333846666666, 9.70000055, 9.786667253333334, 9.873333956666666, 9.96000066, 10.046667363333334, 10.133334066666666, 10.22000077, 10.306667473333334, 10.393334176666666, 10.48000088, 10.566667583333334, 10.653334286666666, 10.74000099, 10.826667693333334, 10.913334396666666, 11.0000011], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 0.0, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;chlorides&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.038, &quot;end&quot;: 0.6110000610999999, &quot;width&quot;: 0, &quot;counts&quot;: [39, 377, 549, 127, 32, 10, 14, 6, 2, 6, 3, 6, 0, 0, 0, 4, 4, 2, 0, 6, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0], &quot;max&quot;: 0.611, &quot;min&quot;: 0.038, &quot;bins&quot;: [0.038, 0.05710000203666667, 0.07620000407333333, 0.09530000611, 0.11440000814666665, 0.13350001018333332, 0.15260001222, 0.17170001425666664, 0.19080001629333332, 0.20990001833, 0.22900002036666664, 0.24810002240333331, 0.26720002443999996, 0.28630002647666664, 0.30540002851333325, 0.32450003054999993, 0.3436000325866666, 0.3627000346233333, 0.38180003665999995, 0.40090003869666657, 0.42000004073333325, 0.4391000427699999, 0.4582000448066666, 0.47730004684333327, 0.49640004887999994, 0.5155000509166666, 0.5346000529533332, 0.55370005499, 0.5728000570266666, 0.5919000590633333, 0.6110000610999999], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 1.6569428823583533e-26, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;volatile acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.18, &quot;end&quot;: 1.580000158, &quot;width&quot;: 0, &quot;counts&quot;: [14, 37, 65, 64, 113, 114, 94, 110, 161, 121, 98, 66, 44, 18, 24, 14, 8, 10, 8, 0, 0, 0, 2, 0, 4, 0, 0, 0, 0, 2], &quot;max&quot;: 1.58, &quot;min&quot;: 0.18, &quot;bins&quot;: [0.18, 0.22666667193333334, 0.27333334386666663, 0.3200000158, 0.36666668773333333, 0.4133333596666667, 0.46000003159999997, 0.5066667035333333, 0.5533333754666667, 0.6000000474, 0.6466667193333333, 0.6933333912666666, 0.7400000631999999, 0.7866667351333334, 0.8333334070666667, 0.880000079, 0.9266667509333333, 0.9733334228666666, 1.0200000948, 1.0666667667333334, 1.1133334386666667, 1.1600001106, 1.2066667825333333, 1.2533334544666666, 1.3000001263999998, 1.3466667983333334, 1.3933334702666667, 1.4400001422, 1.4866668141333332, 1.5333334860666665, 1.580000158], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 5.179724002894165e-12, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99236, &quot;end&quot;: 1.003690100369, &quot;width&quot;: 0, &quot;counts&quot;: [0, 2, 0, 4, 4, 12, 36, 38, 75, 98, 129, 138, 130, 125, 102, 80, 46, 38, 40, 34, 26, 12, 8, 4, 0, 0, 6, 2, 0, 2], &quot;max&quot;: 1.00369, &quot;min&quot;: 0.99236, &quot;bins&quot;: [0.99236, 0.9927376700123001, 0.9931153400246, 0.9934930100369, 0.9938706800492, 0.9942483500615, 0.9946260200738, 0.9950036900861, 0.9953813600984001, 0.9957590301107, 0.996136700123, 0.9965143701353, 0.9968920401476, 0.9972697101599, 0.9976473801722, 0.9980250501845, 0.9984027201968, 0.9987803902091, 0.9991580602214, 0.9995357302337, 0.999913400246, 1.0002910702582999, 1.0006687402706, 1.0010464102829, 1.0014240802952, 1.0018017503075, 1.0021794203198, 1.0025570903321, 1.0029347603443999, 1.0033124303567, 1.003690100369], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 4.1817176800313405e-70, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;total sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 6.0, &quot;end&quot;: 160.000016, &quot;width&quot;: 0, &quot;counts&quot;: [46, 96, 100, 101, 103, 68, 78, 99, 60, 54, 50, 52, 36, 26, 23, 34, 29, 21, 12, 21, 14, 5, 18, 10, 9, 6, 8, 10, 2, 0], &quot;max&quot;: 160.0, &quot;min&quot;: 6.0, &quot;bins&quot;: [6.0, 11.133333866666666, 16.266667733333332, 21.400001599999996, 26.533335466666664, 31.66666933333333, 36.80000319999999, 41.93333706666666, 47.06667093333333, 52.200004799999995, 57.33333866666666, 62.46667253333332, 67.60000639999998, 72.73334026666666, 77.86667413333332, 83.000008, 88.13334186666665, 93.26667573333332, 98.40000959999999, 103.53334346666665, 108.66667733333333, 113.80001119999999, 118.93334506666665, 124.06667893333332, 129.20001279999997, 134.33334666666664, 139.46668053333332, 144.6000144, 149.73334826666664, 154.8666821333333, 160.000016], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 1.6479837784132587e-10, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}}, &quot;properties&quot;: {&quot;observations&quot;: 4896, &quot;missing_cells&quot;: 10, &quot;missing_percentage&quot;: 0.20424836601307192}} }
+    const getReferenceProfile = () =&gt; { return {&quot;columns&quot;: {&quot;fixed acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 5.0, &quot;end&quot;: 15.0000015, &quot;width&quot;: 0, &quot;counts&quot;: [2, 5, 16, 24, 52, 124, 140, 120, 155, 90, 54, 85, 52, 36, 55, 24, 28, 22, 16, 26, 21, 10, 12, 10, 4, 2, 2, 2, 0, 2], &quot;max&quot;: 15.0, &quot;min&quot;: 5.0, &quot;bins&quot;: [5.0, 5.333333383333334, 5.666666766666666, 6.00000015, 6.333333533333334, 6.666666916666667, 7.0000003, 7.333333683333334, 7.666667066666667, 8.00000045, 8.333333833333334, 8.666667216666667, 9.0000006, 9.333333983333333, 9.666667366666667, 10.00000075, 10.333334133333334, 10.666667516666667, 11.0000009, 11.333334283333333, 11.666667666666667, 12.00000105, 12.333334433333334, 12.666667816666667, 13.0000012, 13.333334583333334, 13.666667966666667, 14.00000135, 14.333334733333334, 14.666668116666667, 15.0000015], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 1.1912164443861519e-07, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;volatile acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.18, &quot;end&quot;: 1.580000158, &quot;width&quot;: 0, &quot;counts&quot;: [14, 38, 63, 65, 115, 115, 92, 109, 161, 123, 100, 61, 46, 20, 23, 16, 8, 9, 5, 0, 2, 2, 0, 0, 2, 0, 0, 0, 0, 2], &quot;max&quot;: 1.58, &quot;min&quot;: 0.18, &quot;bins&quot;: [0.18, 0.22666667193333334, 0.27333334386666663, 0.3200000158, 0.36666668773333333, 0.4133333596666667, 0.46000003159999997, 0.5066667035333333, 0.5533333754666667, 0.6000000474, 0.6466667193333333, 0.6933333912666666, 0.7400000631999999, 0.7866667351333334, 0.8333334070666667, 0.880000079, 0.9266667509333333, 0.9733334228666666, 1.0200000948, 1.0666667667333334, 1.1133334386666667, 1.1600001106, 1.2066667825333333, 1.2533334544666666, 1.3000001263999998, 1.3466667983333334, 1.3933334702666667, 1.4400001422, 1.4866668141333332, 1.5333334860666665, 1.580000158], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 1.2039662164220332e-11, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;citric acid&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 1.0000001, &quot;width&quot;: 0, &quot;counts&quot;: [179, 66, 89, 49, 40, 77, 74, 104, 67, 63, 42, 51, 35, 37, 95, 30, 25, 25, 10, 14, 12, 2, 4, 1, 0, 0, 0, 0, 0, 0], &quot;max&quot;: 1.0, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 0.03333333666666667, 0.06666667333333334, 0.10000001000000001, 0.13333334666666669, 0.16666668333333334, 0.20000002000000003, 0.2333333566666667, 0.26666669333333337, 0.30000003000000003, 0.3333333666666667, 0.3666667033333334, 0.40000004000000006, 0.4333333766666667, 0.4666667133333334, 0.50000005, 0.5333333866666667, 0.5666667233333335, 0.6000000600000001, 0.6333333966666668, 0.6666667333333334, 0.7000000700000001, 0.7333334066666668, 0.7666667433333334, 0.8000000800000001, 0.8333334166666668, 0.8666667533333334, 0.9000000900000001, 0.9333334266666669, 0.9666667633333335, 1.0000001], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 3.0077720596103775e-10, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;residual sugar&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 1.2, &quot;end&quot;: 15.50000155, &quot;width&quot;: 0, &quot;counts&quot;: [109, 477, 358, 110, 33, 26, 13, 4, 6, 19, 11, 3, 2, 1, 6, 2, 2, 0, 0, 0, 2, 0, 0, 0, 0, 2, 3, 0, 0, 2], &quot;max&quot;: 15.5, &quot;min&quot;: 1.2, &quot;bins&quot;: [1.2, 1.6766667183333333, 2.1533334366666668, 2.6300001550000003, 3.1066668733333334, 3.5833335916666664, 4.06000031, 4.5366670283333335, 5.0133337466666665, 5.4900004650000005, 5.966667183333334, 6.443333901666667, 6.920000620000001, 7.396667338333334, 7.873334056666667, 8.350000775, 8.826667493333334, 9.303334211666666, 9.78000093, 10.256667648333332, 10.733334366666666, 11.210001085, 11.686667803333332, 12.163334521666666, 12.64000124, 13.116667958333332, 13.593334676666666, 14.070001395, 14.546668113333332, 15.023334831666666, 15.50000155], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 0.017501379164555485, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;chlorides&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.038, &quot;end&quot;: 0.6110000610999999, &quot;width&quot;: 0, &quot;counts&quot;: [36, 379, 545, 131, 31, 10, 13, 6, 4, 6, 5, 3, 0, 0, 0, 4, 2, 2, 2, 8, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2], &quot;max&quot;: 0.611, &quot;min&quot;: 0.038, &quot;bins&quot;: [0.038, 0.05710000203666667, 0.07620000407333333, 0.09530000611, 0.11440000814666665, 0.13350001018333332, 0.15260001222, 0.17170001425666664, 0.19080001629333332, 0.20990001833, 0.22900002036666664, 0.24810002240333331, 0.26720002443999996, 0.28630002647666664, 0.30540002851333325, 0.32450003054999993, 0.3436000325866666, 0.3627000346233333, 0.38180003665999995, 0.40090003869666657, 0.42000004073333325, 0.4391000427699999, 0.4582000448066666, 0.47730004684333327, 0.49640004887999994, 0.5155000509166666, 0.5346000529533332, 0.55370005499, 0.5728000570266666, 0.5919000590633333, 0.6110000610999999], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 4.357596441367056e-27, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;free sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 1.0, &quot;end&quot;: 72.0000072, &quot;width&quot;: 0, &quot;counts&quot;: [31, 107, 186, 105, 105, 132, 92, 63, 77, 47, 72, 36, 31, 39, 20, 5, 17, 3, 2, 4, 2, 6, 4, 0, 0, 0, 0, 1, 2, 2], &quot;max&quot;: 72.0, &quot;min&quot;: 1.0, &quot;bins&quot;: [1.0, 3.3666669066666666, 5.733333813333333, 8.10000072, 10.466667626666666, 12.833334533333332, 15.20000144, 17.566668346666667, 19.933335253333333, 22.30000216, 24.666669066666664, 27.033335973333333, 29.40000288, 31.766669786666665, 34.133336693333334, 36.5000036, 38.866670506666665, 41.23333741333333, 43.60000432, 45.96667122666666, 48.33333813333333, 50.70000504, 53.066671946666666, 55.43333885333333, 57.80000576, 60.16667266666666, 62.53333957333333, 64.90000648, 67.26667338666667, 69.63334029333333, 72.0000072], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 0.016036399887931697, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;total sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 6.0, &quot;end&quot;: 160.000016, &quot;width&quot;: 0, &quot;counts&quot;: [44, 98, 98, 101, 101, 68, 81, 98, 60, 54, 50, 51, 38, 26, 21, 37, 25, 23, 15, 16, 17, 5, 18, 10, 10, 4, 10, 8, 4, 0], &quot;max&quot;: 160.0, &quot;min&quot;: 6.0, &quot;bins&quot;: [6.0, 11.133333866666666, 16.266667733333332, 21.400001599999996, 26.533335466666664, 31.66666933333333, 36.80000319999999, 41.93333706666666, 47.06667093333333, 52.200004799999995, 57.33333866666666, 62.46667253333332, 67.60000639999998, 72.73334026666666, 77.86667413333332, 83.000008, 88.13334186666665, 93.26667573333332, 98.40000959999999, 103.53334346666665, 108.66667733333333, 113.80001119999999, 118.93334506666665, 124.06667893333332, 129.20001279999997, 134.33334666666664, 139.46668053333332, 144.6000144, 149.73334826666664, 154.8666821333333, 160.000016], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 1.3458971347940796e-10, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99236, &quot;end&quot;: 1.003690100369, &quot;width&quot;: 0, &quot;counts&quot;: [1, 1, 3, 2, 4, 11, 34, 42, 74, 95, 132, 136, 127, 128, 100, 84, 43, 43, 36, 31, 28, 16, 4, 6, 2, 0, 4, 2, 0, 2], &quot;max&quot;: 1.00369, &quot;min&quot;: 0.99236, &quot;bins&quot;: [0.99236, 0.9927376700123001, 0.9931153400246, 0.9934930100369, 0.9938706800492, 0.9942483500615, 0.9946260200738, 0.9950036900861, 0.9953813600984001, 0.9957590301107, 0.996136700123, 0.9965143701353, 0.9968920401476, 0.9972697101599, 0.9976473801722, 0.9980250501845, 0.9984027201968, 0.9987803902091, 0.9991580602214, 0.9995357302337, 0.999913400246, 1.0002910702582999, 1.0006687402706, 1.0010464102829, 1.0014240802952, 1.0018017503075, 1.0021794203198, 1.0025570903321, 1.0029347603443999, 1.0033124303567, 1.003690100369], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 2.2353674471569298e-70, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;pH&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 2.74, &quot;end&quot;: 3.750000375, &quot;width&quot;: 0, &quot;counts&quot;: [0, 0, 0, 2, 5, 8, 0, 10, 25, 22, 45, 42, 79, 101, 65, 85, 147, 94, 104, 126, 58, 62, 27, 37, 19, 13, 4, 5, 4, 2], &quot;max&quot;: 3.75, &quot;min&quot;: 2.74, &quot;bins&quot;: [2.74, 2.773666679166667, 2.8073333583333335, 2.8410000375, 2.874666716666667, 2.9083333958333335, 2.942000075, 2.975666754166667, 3.0093334333333335, 3.0430001125, 3.076666791666667, 3.1103334708333334, 3.14400015, 3.1776668291666668, 3.2113335083333334, 3.2450001875, 3.2786668666666667, 3.3123335458333334, 3.346000225, 3.3796669041666667, 3.4133335833333334, 3.4470002625, 3.4806669416666667, 3.5143336208333333, 3.5480003, 3.5816669791666667, 3.6153336583333333, 3.6490003375, 3.6826670166666666, 3.7163336958333333, 3.750000375], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 0.002336986159788625, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;sulphates&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.33, &quot;end&quot;: 2.0000002, &quot;width&quot;: 0, &quot;counts&quot;: [3, 30, 100, 219, 231, 215, 110, 84, 72, 31, 29, 14, 8, 13, 6, 10, 0, 4, 4, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 4], &quot;max&quot;: 2.0, &quot;min&quot;: 0.33, &quot;bins&quot;: [0.33, 0.3856666733333334, 0.4413333466666667, 0.49700002, 0.5526666933333333, 0.6083333666666666, 0.66400004, 0.7196667133333334, 0.7753333866666667, 0.83100006, 0.8866667333333333, 0.9423334066666667, 0.99800008, 1.0536667533333333, 1.1093334266666668, 1.1650001, 1.2206667733333334, 1.2763334466666667, 1.33200012, 1.3876667933333333, 1.4433334666666666, 1.4990001400000001, 1.5546668133333335, 1.6103334866666668, 1.66600016, 1.7216668333333334, 1.7773335066666667, 1.83300018, 1.8886668533333335, 1.9443335266666668, 2.0000002], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 1.3923726824145813e-09, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 8.4, &quot;end&quot;: 11.0000011, &quot;width&quot;: 0, &quot;counts&quot;: [2, 1, 0, 2, 2, 0, 29, 1, 24, 74, 59, 103, 139, 61, 55, 0, 77, 50, 69, 47, 47, 33, 0, 40, 69, 28, 28, 43, 48, 60], &quot;max&quot;: 11.0, &quot;min&quot;: 8.4, &quot;bins&quot;: [8.4, 8.486666703333334, 8.573333406666666, 8.66000011, 8.746666813333334, 8.833333516666666, 8.92000022, 9.006666923333334, 9.093333626666666, 9.18000033, 9.266667033333334, 9.353333736666666, 9.44000044, 9.526667143333334, 9.613333846666666, 9.70000055, 9.786667253333334, 9.873333956666666, 9.96000066, 10.046667363333334, 10.133334066666666, 10.22000077, 10.306667473333334, 10.393334176666666, 10.48000088, 10.566667583333334, 10.653334286666666, 10.74000099, 10.826667693333334, 10.913334396666666, 11.0000011], &quot;n&quot;: 1191}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: 0.0, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: null}, &quot;quality&quot;: {&quot;histogram&quot;: null, &quot;frequentItems&quot;: [{&quot;value&quot;: &quot;bad&quot;, &quot;estimate&quot;: 1115}, {&quot;value&quot;: &quot;good&quot;, &quot;estimate&quot;: 76}], &quot;drift_from_ref&quot;: 4.72188097163335e-120, &quot;isDiscrete&quot;: true, &quot;featureStats&quot;: null}}, &quot;properties&quot;: {&quot;observations&quot;: 4896, &quot;missing_cells&quot;: 10, &quot;missing_percentage&quot;: 0.20424836601307192}} }
     const referenceProfile = getReferenceProfile()
 
     function fixNumberTo(number, decimals = 3) {
@@ -1879,34 +3208,30 @@ memory usage: 150.0 KB
       const drifts = {
         severe: {
           count: 0,
-          range: &quot;with severe drift (0.00 - 0.05)&quot;,
+          range: &quot;with detected drift (0.00 - 0.05)&quot;,
         },
         moderate: {
           count: 0,
-          range: &quot;with moderate drift (0.05 - 0.3)&quot;,
+          range: &quot;with possible drift (0.05 - 0.15)&quot;,
         },
         mild: {
           count: 0,
-          range: &quot;with mild drift (0.3 - 0.6)&quot;,
-        },
-        minimal: {
-          count: 0,
-          range: &quot;with minimal drift (0.6 - 1.0)&quot;,
+          range: &quot;with no evidence of drift (0.15 - 1.0)&quot;,
         }
       };
 
-      const countOfDrifts = (driftNumber, dividedNumber) =&gt; {
-        const divide = 1 / dividedNumber;
-        for(let i = 1; i &lt;= dividedNumber; i++){
-          if(driftNumber &gt;= 0 &amp;&amp; driftNumber &lt;= 0.05) {
-            Object.values(drifts)[0].count++
-            return 0
-          } else if(driftNumber &lt;= divide*i) {
-            const {severe, ...otherValues} = drifts
-            Object.values(otherValues)[i-1].count++
-            return i
-          }
+      const countOfDrifts = (driftNumber) =&gt; {
+        if(driftNumber &gt;= 0 &amp;&amp; driftNumber &lt;= 0.05) {
+          Object.values(drifts)[0].count++
+          return 0
+        } else if(driftNumber &gt; 0.05 &amp;&amp; driftNumber &lt;= 0.15) {
+          Object.values(drifts)[1].count++
+          return 1
+        } else if(driftNumber &gt; 0.15) {
+          Object.values(drifts)[2].count++
+          return 2
         }
+
       }
 
     abbreviate_number = function(value, fixed = 0) {
@@ -2001,15 +3326,29 @@ memory usage: 150.0 KB
          }
        }
 
+
+       Handlebars.registerHelper(&quot;getpvalue&quot;, function (column, key) {
+        const columnKey = key.data.key
+        const {drift_from_ref} = referenceProfile.columns[columnKey]
+
+        if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
+          const driftFromRefNumber = drift_from_ref.toPrecision(2)
+          return Number(driftFromRefNumber)
+
+        }
+      });
+
       Handlebars.registerHelper(&quot;getDiffFromRef&quot;, function (column, key) {
         const columnKey = key.data.key
         const {drift_from_ref} = referenceProfile.columns[columnKey]
 
         if (cheqValueTypeNumber(referenceProfile, drift_from_ref)) {
-          driftCount++
           const driftFromRefNumber = drift_from_ref.toPrecision(2)
-          const circleColor = Object.values(drifts)[countOfDrifts(driftFromRefNumber, 3)].colorClass
-
+          const driftCategory = countOfDrifts(driftFromRefNumber)
+          const circleColor = Object.values(drifts)[driftCategory].colorClass
+          if (driftCategory==0 || driftCategory == 1){
+            driftCount++
+          }
           $(document).ready(() =&gt; {
              $(&quot;.drift-count&quot;).html(driftCount)
              $(&quot;.all-features&quot;).html(Object.keys(referenceProfile.columns).length)
@@ -2018,7 +3357,6 @@ memory usage: 150.0 KB
           return diffFromRefTableElement(driftFromRefNumber, circleColor)
 
         } else if (cheqValueTypeNumber(referenceProfile, drift_from_ref) !== undefined) {
-          driftCount++
           Object.values(drifts)[0].count++
           return diffFromRefTableElement(&quot;undefined&quot;, &quot;severe-drift-circle-color&quot;)
         }
@@ -2112,7 +3450,7 @@ memory usage: 150.0 KB
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {&quot;columns&quot;: {&quot;pH&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 2.89, &quot;end&quot;: 4.010000401, &quot;width&quot;: 0, &quot;counts&quot;: [6, 0, 4, 4, 6, 5, 17, 21, 37, 37, 44, 28, 35, 42, 30, 11, 18, 18, 14, 9, 3, 8, 4, 3, 0, 0, 0, 2, 0, 2], &quot;max&quot;: 4.01, &quot;min&quot;: 2.89, &quot;bins&quot;: [2.89, 2.9273333467000002, 2.9646666934000003, 3.0020000401, 3.0393333868, 3.0766667335, 3.1140000802000003, 3.1513334269, 3.1886667736, 3.2260001203, 3.2633334670000003, 3.3006668137, 3.3380001604, 3.3753335071, 3.4126668538000002, 3.4500002005, 3.4873335472, 3.5246668939, 3.5620002406, 3.5993335873000003, 3.636666934, 3.6740002807, 3.7113336274, 3.7486669741, 3.7860003208000004, 3.8233336675, 3.8606670142, 3.8980003609000002, 3.9353337076, 3.9726670543, 4.010000401], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 18.8725525817653, &quot;min&quot;: 2.89, &quot;max&quot;: 4.01, &quot;range&quot;: 1.1199999999999997, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 3.09, &quot;iqr&quot;: 0.2200000000000002, &quot;q1&quot;: 3.23, &quot;median&quot;: 3.33, &quot;q3&quot;: 3.45, &quot;ninety_fifth_percentile&quot;: 3.67}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.17649177660211463, &quot;coefficient_of_variation&quot;: 0.05273349702213279, &quot;sum&quot;: 1365.52, &quot;variance&quot;: 0.031149347208170735, &quot;mean&quot;: 3.346862745098039}}}, &quot;fixed acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 4.6, &quot;end&quot;: 15.90000159, &quot;width&quot;: 0, &quot;counts&quot;: [4, 16, 16, 17, 28, 39, 40, 29, 22, 31, 23, 36, 12, 12, 23, 23, 9, 6, 2, 4, 2, 4, 2, 2, 2, 0, 0, 0, 2, 2], &quot;max&quot;: 15.9, &quot;min&quot;: 4.6, &quot;bins&quot;: [4.6, 4.9766667196666665, 5.353333439333333, 5.730000158999999, 6.106666878666666, 6.483333598333333, 6.860000318, 7.236667037666667, 7.613333757333333, 7.990000477000001, 8.366667196666667, 8.743333916333334, 9.120000636, 9.496667355666666, 9.873334075333332, 10.250000795, 10.626667514666668, 11.003334234333334, 11.380000954, 11.756667673666666, 12.133334393333334, 12.510001113000001, 12.886667832666667, 13.263334552333333, 13.640001272000001, 14.016667991666667, 14.393334711333335, 14.770001431, 15.146668150666667, 15.523334870333334, 15.90000159], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 20.588239538027807, &quot;min&quot;: 4.6, &quot;max&quot;: 15.9, &quot;range&quot;: 11.3, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 5.4, &quot;iqr&quot;: 2.7, &quot;q1&quot;: 6.7, &quot;median&quot;: 7.9, &quot;q3&quot;: 9.4, &quot;ninety_fifth_percentile&quot;: 11.9}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 2.013014441140909, &quot;coefficient_of_variation&quot;: 0.24676558362692394, &quot;sum&quot;: 3328.3, &quot;variance&quot;: 4.052227140241847, &quot;mean&quot;: 8.157598039215687}}}, &quot;quality&quot;: {&quot;histogram&quot;: null, &quot;frequentItems&quot;: [{&quot;value&quot;: &quot;bad&quot;, &quot;estimate&quot;: 267}, {&quot;value&quot;: &quot;good&quot;, &quot;estimate&quot;: 141}], &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: true, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 0.4901960796487877, &quot;min&quot;: null, &quot;max&quot;: null, &quot;range&quot;: null, &quot;quantile_statistics&quot;: null, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: null, &quot;coefficient_of_variation&quot;: null, &quot;sum&quot;: null, &quot;variance&quot;: null, &quot;mean&quot;: null}}}, &quot;free sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 3.0, &quot;end&quot;: 51.0000051, &quot;width&quot;: 0, &quot;counts&quot;: [30, 80, 21, 21, 36, 15, 28, 26, 28, 23, 2, 13, 12, 12, 10, 4, 7, 4, 7, 7, 4, 8, 2, 0, 3, 0, 1, 0, 1, 3], &quot;max&quot;: 51.0, &quot;min&quot;: 3.0, &quot;bins&quot;: [3.0, 4.60000017, 6.200000340000001, 7.80000051, 9.400000680000002, 11.000000850000001, 12.60000102, 14.200001190000002, 15.800001360000001, 17.40000153, 19.000001700000002, 20.600001870000003, 22.20000204, 23.800002210000002, 25.400002380000004, 27.00000255, 28.600002720000003, 30.200002890000004, 31.80000306, 33.40000323, 35.000003400000004, 36.600003570000005, 38.20000374000001, 39.80000391, 41.40000408, 43.00000425, 44.600004420000005, 46.200004590000006, 47.80000476000001, 49.40000493, 51.0000051], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 11.029412969947018, &quot;min&quot;: 3.0, &quot;max&quot;: 51.0, &quot;range&quot;: 48.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 4.0, &quot;iqr&quot;: 13.0, &quot;q1&quot;: 6.0, &quot;median&quot;: 13.0, &quot;q3&quot;: 19.0, &quot;ninety_fifth_percentile&quot;: 36.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 9.994223698460777, &quot;coefficient_of_variation&quot;: 0.6774056431550788, &quot;sum&quot;: 6019.5, &quot;variance&quot;: 99.884507334875, &quot;mean&quot;: 14.753676470588236}}}, &quot;sulphates&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.37, &quot;end&quot;: 1.130000113, &quot;width&quot;: 0, &quot;counts&quot;: [3, 2, 3, 5, 5, 18, 20, 44, 22, 37, 23, 31, 21, 30, 27, 27, 23, 11, 24, 7, 11, 0, 6, 0, 4, 1, 1, 0, 0, 2], &quot;max&quot;: 1.13, &quot;min&quot;: 0.37, &quot;bins&quot;: [0.37, 0.3953333371, 0.4206666742, 0.4460000113, 0.47133334839999996, 0.4966666855, 0.5220000226, 0.5473333597, 0.5726666968, 0.5980000339, 0.623333371, 0.6486667080999999, 0.6740000452, 0.6993333823, 0.7246667194, 0.7500000565, 0.7753333936, 0.8006667306999999, 0.8260000677999999, 0.8513334049, 0.8766667419999999, 0.9020000791, 0.9273334162, 0.9526667533, 0.9780000904, 1.0033334274999999, 1.0286667646, 1.0540001016999998, 1.0793334388, 1.1046667759, 1.130000113], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 14.215688286897349, &quot;min&quot;: 0.37, &quot;max&quot;: 1.13, &quot;range&quot;: 0.7599999999999999, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.5, &quot;iqr&quot;: 0.19000000000000006, &quot;q1&quot;: 0.58, &quot;median&quot;: 0.66, &quot;q3&quot;: 0.77, &quot;ninety_fifth_percentile&quot;: 0.89}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.12701037402923776, &quot;coefficient_of_variation&quot;: 0.18776807233831805, &quot;sum&quot;: 275.97999999999996, &quot;variance&quot;: 0.016131635111046875, &quot;mean&quot;: 0.6764215686274508}}}, &quot;residual sugar&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.9, &quot;end&quot;: 12.90000129, &quot;width&quot;: 0, &quot;counts&quot;: [8, 39, 118, 125, 40, 16, 11, 8, 12, 8, 5, 2, 2, 4, 4, 0, 0, 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 12.9, &quot;min&quot;: 0.9, &quot;bins&quot;: [0.9, 1.300000043, 1.7000000860000002, 2.100000129, 2.500000172, 2.900000215, 3.3000002580000003, 3.700000301, 4.100000344000001, 4.500000387, 4.90000043, 5.300000473000001, 5.700000516000001, 6.100000559000001, 6.500000602000001, 6.900000645, 7.300000688000001, 7.700000731000001, 8.100000774, 8.500000817, 8.90000086, 9.300000903, 9.700000946000001, 10.100000989000002, 10.500001032000002, 10.900001075, 11.300001118, 11.700001161000001, 12.100001204000002, 12.500001247000002, 12.90000129], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 15.931375081243552, &quot;min&quot;: 0.9, &quot;max&quot;: 12.9, &quot;range&quot;: 12.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 1.6, &quot;iqr&quot;: 0.7000000000000002, &quot;q1&quot;: 2.0, &quot;median&quot;: 2.3, &quot;q3&quot;: 2.7, &quot;ninety_fifth_percentile&quot;: 5.1}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 1.2990000858665753, &quot;coefficient_of_variation&quot;: 0.49437249664993493, &quot;sum&quot;: 1072.05, &quot;variance&quot;: 1.6874012230813702, &quot;mean&quot;: 2.6275735294117646}}}, &quot;citric acid&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 0.790000079, &quot;width&quot;: 0, &quot;counts&quot;: [56, 13, 7, 24, 9, 10, 3, 7, 7, 10, 11, 15, 28, 9, 24, 34, 12, 22, 32, 7, 11, 9, 5, 2, 9, 12, 2, 2, 4, 2], &quot;max&quot;: 0.79, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 0.026333335966666666, 0.05266667193333333, 0.0790000079, 0.10533334386666666, 0.13166667983333333, 0.1580000158, 0.18433335176666665, 0.21066668773333333, 0.2370000237, 0.26333335966666666, 0.2896666956333333, 0.3160000316, 0.34233336756666666, 0.3686667035333333, 0.3950000395, 0.42133337546666666, 0.4476667114333333, 0.4740000474, 0.5003333833666667, 0.5266667193333333, 0.5530000553, 0.5793333912666666, 0.6056667272333334, 0.6320000632, 0.6583333991666667, 0.6846667351333333, 0.7110000711, 0.7373334070666666, 0.7636667430333334, 0.790000079], &quot;n&quot;: 398}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 398, &quot;missing&quot;: 10, &quot;distinct&quot;: 18.090455451204008, &quot;min&quot;: 0.0, &quot;max&quot;: 0.79, &quot;range&quot;: 0.79, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.0, &quot;iqr&quot;: 0.37, &quot;q1&quot;: 0.1, &quot;median&quot;: 0.35, &quot;q3&quot;: 0.47, &quot;ninety_fifth_percentile&quot;: 0.66}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.20859943016152155, &quot;coefficient_of_variation&quot;: 0.6620619872750046, &quot;sum&quot;: 125.4, &quot;variance&quot;: 0.04351372226371151, &quot;mean&quot;: 0.3150753768844221}}}, &quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 11.0666666666667, &quot;end&quot;: 14.900001490000001, &quot;width&quot;: 0, &quot;counts&quot;: [28, 68, 32, 30, 39, 28, 21, 22, 24, 13, 13, 27, 9, 17, 8, 8, 2, 2, 4, 5, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0], &quot;max&quot;: 14.9, &quot;min&quot;: 11.0666666666667, &quot;bins&quot;: [11.0666666666667, 11.194444494111144, 11.322222321555587, 11.45000014900003, 11.577777976444473, 11.705555803888917, 11.83333363133336, 11.961111458777804, 12.088889286222248, 12.216667113666691, 12.344444941111133, 12.472222768555577, 12.60000059600002, 12.727778423444464, 12.855556250888908, 12.98333407833335, 13.111111905777793, 13.238889733222237, 13.36666756066668, 13.494445388111124, 13.622223215555568, 13.750001043000012, 13.877778870444454, 14.005556697888897, 14.133334525333341, 14.261112352777785, 14.388890180222226, 14.51666800766667, 14.644445835111114, 14.772223662555557, 14.900001490000001], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 7.59803978178436, &quot;min&quot;: 11.0666666666667, &quot;max&quot;: 14.9, &quot;range&quot;: 3.8333333333333, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 11.1, &quot;iqr&quot;: 1.0, &quot;q1&quot;: 11.4, &quot;median&quot;: 11.8, &quot;q3&quot;: 12.4, &quot;ninety_fifth_percentile&quot;: 13.2}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.6824986635512768, &quot;coefficient_of_variation&quot;: 0.05725985668809312, &quot;sum&quot;: 4863.083333333334, &quot;variance&quot;: 0.4658044257492789, &quot;mean&quot;: 11.919321895424838}}}, &quot;chlorides&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.012, &quot;end&quot;: 0.230000023, &quot;width&quot;: 0, &quot;counts&quot;: [2, 0, 0, 9, 22, 39, 45, 76, 65, 42, 33, 22, 20, 8, 9, 8, 4, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 1], &quot;max&quot;: 0.23, &quot;min&quot;: 0.012, &quot;bins&quot;: [0.012, 0.019266667433333332, 0.026533334866666668, 0.0338000023, 0.04106666973333333, 0.04833333716666667, 0.0556000046, 0.06286667203333333, 0.07013333946666667, 0.0774000069, 0.08466667433333333, 0.09193334176666666, 0.0992000092, 0.10646667663333333, 0.11373334406666666, 0.12100001149999999, 0.12826667893333332, 0.13553334636666667, 0.14280001380000001, 0.15006668123333333, 0.15733334866666668, 0.1646000161, 0.17186668353333334, 0.17913335096666666, 0.1864000184, 0.19366668583333332, 0.20093335326666667, 0.2082000207, 0.21546668813333333, 0.22273335556666665, 0.230000023], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 21.813730257594944, &quot;min&quot;: 0.012, &quot;max&quot;: 0.23, &quot;range&quot;: 0.218, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.046, &quot;iqr&quot;: 0.025999999999999995, &quot;q1&quot;: 0.06, &quot;median&quot;: 0.071, &quot;q3&quot;: 0.086, &quot;ninety_fifth_percentile&quot;: 0.12}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.024213181268290383, &quot;coefficient_of_variation&quot;: 0.3226526212509791, &quot;sum&quot;: 30.618, &quot;variance&quot;: 0.0005862781471310883, &quot;mean&quot;: 0.07504411764705882}}}, &quot;volatile acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.12, &quot;end&quot;: 1.1150001115, &quot;width&quot;: 0, &quot;counts&quot;: [4, 8, 5, 7, 22, 31, 39, 37, 30, 35, 23, 24, 25, 22, 16, 14, 16, 13, 11, 5, 3, 2, 6, 2, 2, 1, 2, 1, 0, 2], &quot;max&quot;: 1.115, &quot;min&quot;: 0.12, &quot;bins&quot;: [0.12, 0.15316667038333331, 0.18633334076666666, 0.21950001115, 0.2526666815333333, 0.28583335191666664, 0.3190000223, 0.35216669268333334, 0.38533336306666666, 0.41850003345, 0.4516667038333333, 0.48483337421666667, 0.5180000445999999, 0.5511667149833333, 0.5843333853666667, 0.61750005575, 0.6506667261333333, 0.6838333965166666, 0.7170000669, 0.7501667372833333, 0.7833334076666666, 0.81650007805, 0.8496667484333333, 0.8828334188166667, 0.9160000892, 0.9491667595833333, 0.9823334299666666, 1.01550010035, 1.0486667707333335, 1.0818334411166668, 1.1150001115000001], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 22.05882840516061, &quot;min&quot;: 0.12, &quot;max&quot;: 1.115, &quot;range&quot;: 0.995, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.24, &quot;iqr&quot;: 0.23999999999999994, &quot;q1&quot;: 0.34, &quot;median&quot;: 0.44, &quot;q3&quot;: 0.58, &quot;ninety_fifth_percentile&quot;: 0.8}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.17791965320497752, &quot;coefficient_of_variation&quot;: 0.3771756131540623, &quot;sum&quot;: 192.45999999999998, &quot;variance&quot;: 0.03165540299657947, &quot;mean&quot;: 0.47171568627450977}}}, &quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99007, &quot;end&quot;: 1.0032001003200002, &quot;width&quot;: 0, &quot;counts&quot;: [4, 4, 0, 10, 4, 11, 8, 32, 32, 37, 38, 49, 46, 25, 25, 18, 15, 8, 4, 8, 6, 6, 2, 4, 4, 2, 0, 2, 0, 4], &quot;max&quot;: 1.0032, &quot;min&quot;: 0.99007, &quot;bins&quot;: [0.99007, 0.9905076700106666, 0.9909453400213334, 0.991383010032, 0.9918206800426667, 0.9922583500533334, 0.992696020064, 0.9931336900746667, 0.9935713600853334, 0.9940090300960001, 0.9944467001066667, 0.9948843701173334, 0.9953220401280001, 0.9957597101386667, 0.9961973801493335, 0.9966350501600001, 0.9970727201706667, 0.9975103901813335, 0.9979480601920001, 0.9983857302026667, 0.9988234002133335, 0.9992610702240001, 0.9996987402346668, 1.0001364102453334, 1.0005740802560001, 1.0010117502666669, 1.0014494202773334, 1.0018870902880002, 1.002324760298667, 1.0027624303093334, 1.0032001003200002], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 55.88238444546564, &quot;min&quot;: 0.99007, &quot;max&quot;: 1.0032, &quot;range&quot;: 0.013130000000000086, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.9922, &quot;iqr&quot;: 0.0023599999999999177, &quot;q1&quot;: 0.99394, &quot;median&quot;: 0.99516, &quot;q3&quot;: 0.9963, &quot;ninety_fifth_percentile&quot;: 0.9996}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.0021784570136347352, &quot;coefficient_of_variation&quot;: 0.002188682344428877, &quot;sum&quot;: 406.09385999999995, &quot;variance&quot;: 4.745674960254368e-06, &quot;mean&quot;: 0.995328088235294}}}, &quot;total sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 6.0, &quot;end&quot;: 289.0000289, &quot;width&quot;: 0, &quot;counts&quot;: [86, 92, 70, 46, 41, 14, 16, 9, 11, 10, 6, 1, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0], &quot;max&quot;: 289.0, &quot;min&quot;: 6.0, &quot;bins&quot;: [6.0, 15.433334296666667, 24.866668593333333, 34.30000289, 43.73333718666667, 53.16667148333333, 62.600005780000004, 72.03334007666666, 81.46667437333333, 90.90000867, 100.33334296666666, 109.76667726333334, 119.20001156000001, 128.63334585666666, 138.06668015333332, 147.50001445, 156.93334874666667, 166.36668304333332, 175.80001734, 185.23335163666667, 194.66668593333333, 204.10002023, 213.53335452666667, 222.96668882333333, 232.40002312000001, 241.83335741666667, 251.26669171333333, 260.70002601, 270.13336030666665, 279.56669460333336, 289.0000289], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 22.303926553943704, &quot;min&quot;: 6.0, &quot;max&quot;: 289.0, &quot;range&quot;: 283.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 10.0, &quot;iqr&quot;: 29.0, &quot;q1&quot;: 17.0, &quot;median&quot;: 27.0, &quot;q3&quot;: 46.0, &quot;ninety_fifth_percentile&quot;: 93.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 31.68721099598923, &quot;coefficient_of_variation&quot;: 0.8554477659209692, &quot;sum&quot;: 15112.999999999998, &quot;variance&quot;: 1004.0793407043408, &quot;mean&quot;: 37.041666666666664}}}}, &quot;properties&quot;: null};
+      const context = {&quot;columns&quot;: {&quot;fixed acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 4.6, &quot;end&quot;: 15.90000159, &quot;width&quot;: 0, &quot;counts&quot;: [3, 17, 16, 17, 28, 39, 39, 30, 22, 30, 24, 35, 12, 13, 22, 23, 9, 6, 3, 4, 2, 3, 3, 2, 1, 0, 0, 0, 2, 3], &quot;max&quot;: 15.9, &quot;min&quot;: 4.6, &quot;bins&quot;: [4.6, 4.9766667196666665, 5.353333439333333, 5.730000158999999, 6.106666878666666, 6.483333598333333, 6.860000318, 7.236667037666667, 7.613333757333333, 7.990000477000001, 8.366667196666667, 8.743333916333334, 9.120000636, 9.496667355666666, 9.873334075333332, 10.250000795, 10.626667514666668, 11.003334234333334, 11.380000954, 11.756667673666666, 12.133334393333334, 12.510001113000001, 12.886667832666667, 13.263334552333333, 13.640001272000001, 14.016667991666667, 14.393334711333335, 14.770001431, 15.146668150666667, 15.523334870333334, 15.90000159], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 20.588239538027807, &quot;min&quot;: 4.6, &quot;max&quot;: 15.9, &quot;range&quot;: 11.3, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 5.4, &quot;iqr&quot;: 2.7, &quot;q1&quot;: 6.7, &quot;median&quot;: 7.9, &quot;q3&quot;: 9.4, &quot;ninety_fifth_percentile&quot;: 11.6}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 2.013014441140909, &quot;coefficient_of_variation&quot;: 0.24676558362692394, &quot;sum&quot;: 3328.3, &quot;variance&quot;: 4.052227140241847, &quot;mean&quot;: 8.157598039215687}}}, &quot;volatile acidity&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.12, &quot;end&quot;: 1.1150001115, &quot;width&quot;: 0, &quot;counts&quot;: [3, 8, 5, 8, 21, 32, 38, 37, 30, 35, 23, 24, 25, 23, 15, 15, 15, 14, 11, 4, 3, 3, 6, 2, 1, 2, 1, 2, 0, 2], &quot;max&quot;: 1.115, &quot;min&quot;: 0.12, &quot;bins&quot;: [0.12, 0.15316667038333331, 0.18633334076666666, 0.21950001115, 0.2526666815333333, 0.28583335191666664, 0.3190000223, 0.35216669268333334, 0.38533336306666666, 0.41850003345, 0.4516667038333333, 0.48483337421666667, 0.5180000445999999, 0.5511667149833333, 0.5843333853666667, 0.61750005575, 0.6506667261333333, 0.6838333965166666, 0.7170000669, 0.7501667372833333, 0.7833334076666666, 0.81650007805, 0.8496667484333333, 0.8828334188166667, 0.9160000892, 0.9491667595833333, 0.9823334299666666, 1.01550010035, 1.0486667707333335, 1.0818334411166668, 1.1150001115000001], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 22.05882840516061, &quot;min&quot;: 0.12, &quot;max&quot;: 1.115, &quot;range&quot;: 0.995, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.24, &quot;iqr&quot;: 0.23999999999999994, &quot;q1&quot;: 0.34, &quot;median&quot;: 0.44, &quot;q3&quot;: 0.58, &quot;ninety_fifth_percentile&quot;: 0.8}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.17791965320497752, &quot;coefficient_of_variation&quot;: 0.3771756131540623, &quot;sum&quot;: 192.45999999999998, &quot;variance&quot;: 0.03165540299657947, &quot;mean&quot;: 0.47171568627450977}}}, &quot;citric acid&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 0.790000079, &quot;width&quot;: 0, &quot;counts&quot;: [57, 13, 7, 23, 10, 9, 4, 6, 7, 10, 12, 14, 28, 9, 24, 35, 11, 23, 31, 8, 10, 9, 5, 3, 8, 12, 2, 3, 4, 1], &quot;max&quot;: 0.79, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 0.026333335966666666, 0.05266667193333333, 0.0790000079, 0.10533334386666666, 0.13166667983333333, 0.1580000158, 0.18433335176666665, 0.21066668773333333, 0.2370000237, 0.26333335966666666, 0.2896666956333333, 0.3160000316, 0.34233336756666666, 0.3686667035333333, 0.3950000395, 0.42133337546666666, 0.4476667114333333, 0.4740000474, 0.5003333833666667, 0.5266667193333333, 0.5530000553, 0.5793333912666666, 0.6056667272333334, 0.6320000632, 0.6583333991666667, 0.6846667351333333, 0.7110000711, 0.7373334070666666, 0.7636667430333334, 0.790000079], &quot;n&quot;: 398}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 398, &quot;missing&quot;: 10, &quot;distinct&quot;: 18.090455451204008, &quot;min&quot;: 0.0, &quot;max&quot;: 0.79, &quot;range&quot;: 0.79, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.0, &quot;iqr&quot;: 0.36, &quot;q1&quot;: 0.1, &quot;median&quot;: 0.34, &quot;q3&quot;: 0.46, &quot;ninety_fifth_percentile&quot;: 0.66}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.20859943016152155, &quot;coefficient_of_variation&quot;: 0.6620619872750046, &quot;sum&quot;: 125.4, &quot;variance&quot;: 0.04351372226371151, &quot;mean&quot;: 0.3150753768844221}}}, &quot;residual sugar&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.9, &quot;end&quot;: 12.90000129, &quot;width&quot;: 0, &quot;counts&quot;: [8, 39, 118, 124, 40, 16, 11, 8, 13, 8, 4, 2, 2, 5, 3, 0, 1, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 12.9, &quot;min&quot;: 0.9, &quot;bins&quot;: [0.9, 1.300000043, 1.7000000860000002, 2.100000129, 2.500000172, 2.900000215, 3.3000002580000003, 3.700000301, 4.100000344000001, 4.500000387, 4.90000043, 5.300000473000001, 5.700000516000001, 6.100000559000001, 6.500000602000001, 6.900000645, 7.300000688000001, 7.700000731000001, 8.100000774, 8.500000817, 8.90000086, 9.300000903, 9.700000946000001, 10.100000989000002, 10.500001032000002, 10.900001075, 11.300001118, 11.700001161000001, 12.100001204000002, 12.500001247000002, 12.90000129], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 15.931375081243552, &quot;min&quot;: 0.9, &quot;max&quot;: 12.9, &quot;range&quot;: 12.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 1.6, &quot;iqr&quot;: 0.7000000000000002, &quot;q1&quot;: 2.0, &quot;median&quot;: 2.3, &quot;q3&quot;: 2.7, &quot;ninety_fifth_percentile&quot;: 5.15}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 1.2990000858665753, &quot;coefficient_of_variation&quot;: 0.49437249664993493, &quot;sum&quot;: 1072.05, &quot;variance&quot;: 1.6874012230813702, &quot;mean&quot;: 2.6275735294117646}}}, &quot;chlorides&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.012, &quot;end&quot;: 0.230000023, &quot;width&quot;: 0, &quot;counts&quot;: [2, 0, 0, 9, 21, 40, 45, 76, 64, 43, 33, 21, 20, 8, 9, 9, 3, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1], &quot;max&quot;: 0.23, &quot;min&quot;: 0.012, &quot;bins&quot;: [0.012, 0.019266667433333332, 0.026533334866666668, 0.0338000023, 0.04106666973333333, 0.04833333716666667, 0.0556000046, 0.06286667203333333, 0.07013333946666667, 0.0774000069, 0.08466667433333333, 0.09193334176666666, 0.0992000092, 0.10646667663333333, 0.11373334406666666, 0.12100001149999999, 0.12826667893333332, 0.13553334636666667, 0.14280001380000001, 0.15006668123333333, 0.15733334866666668, 0.1646000161, 0.17186668353333334, 0.17913335096666666, 0.1864000184, 0.19366668583333332, 0.20093335326666667, 0.2082000207, 0.21546668813333333, 0.22273335556666665, 0.230000023], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 21.813730257594944, &quot;min&quot;: 0.012, &quot;max&quot;: 0.23, &quot;range&quot;: 0.218, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.046, &quot;iqr&quot;: 0.025999999999999995, &quot;q1&quot;: 0.06, &quot;median&quot;: 0.071, &quot;q3&quot;: 0.086, &quot;ninety_fifth_percentile&quot;: 0.12}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.024213181268290383, &quot;coefficient_of_variation&quot;: 0.3226526212509791, &quot;sum&quot;: 30.618, &quot;variance&quot;: 0.0005862781471310883, &quot;mean&quot;: 0.07504411764705882}}}, &quot;free sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 3.0, &quot;end&quot;: 51.0000051, &quot;width&quot;: 0, &quot;counts&quot;: [31, 79, 21, 21, 36, 16, 27, 26, 29, 22, 3, 13, 12, 11, 10, 5, 6, 4, 8, 6, 4, 8, 2, 1, 3, 0, 1, 0, 1, 2], &quot;max&quot;: 51.0, &quot;min&quot;: 3.0, &quot;bins&quot;: [3.0, 4.60000017, 6.200000340000001, 7.80000051, 9.400000680000002, 11.000000850000001, 12.60000102, 14.200001190000002, 15.800001360000001, 17.40000153, 19.000001700000002, 20.600001870000003, 22.20000204, 23.800002210000002, 25.400002380000004, 27.00000255, 28.600002720000003, 30.200002890000004, 31.80000306, 33.40000323, 35.000003400000004, 36.600003570000005, 38.20000374000001, 39.80000391, 41.40000408, 43.00000425, 44.600004420000005, 46.200004590000006, 47.80000476000001, 49.40000493, 51.0000051], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 11.029412969947018, &quot;min&quot;: 3.0, &quot;max&quot;: 51.0, &quot;range&quot;: 48.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 3.0, &quot;iqr&quot;: 13.0, &quot;q1&quot;: 6.0, &quot;median&quot;: 13.0, &quot;q3&quot;: 19.0, &quot;ninety_fifth_percentile&quot;: 36.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 9.994223698460777, &quot;coefficient_of_variation&quot;: 0.6774056431550788, &quot;sum&quot;: 6019.5, &quot;variance&quot;: 99.884507334875, &quot;mean&quot;: 14.753676470588236}}}, &quot;total sulfur dioxide&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 6.0, &quot;end&quot;: 289.0000289, &quot;width&quot;: 0, &quot;counts&quot;: [85, 92, 70, 47, 40, 14, 16, 10, 10, 10, 6, 2, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1], &quot;max&quot;: 289.0, &quot;min&quot;: 6.0, &quot;bins&quot;: [6.0, 15.433334296666667, 24.866668593333333, 34.30000289, 43.73333718666667, 53.16667148333333, 62.600005780000004, 72.03334007666666, 81.46667437333333, 90.90000867, 100.33334296666666, 109.76667726333334, 119.20001156000001, 128.63334585666666, 138.06668015333332, 147.50001445, 156.93334874666667, 166.36668304333332, 175.80001734, 185.23335163666667, 194.66668593333333, 204.10002023, 213.53335452666667, 222.96668882333333, 232.40002312000001, 241.83335741666667, 251.26669171333333, 260.70002601, 270.13336030666665, 279.56669460333336, 289.0000289], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 22.303926553943704, &quot;min&quot;: 6.0, &quot;max&quot;: 289.0, &quot;range&quot;: 283.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 10.0, &quot;iqr&quot;: 29.0, &quot;q1&quot;: 17.0, &quot;median&quot;: 27.0, &quot;q3&quot;: 46.0, &quot;ninety_fifth_percentile&quot;: 93.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 31.68721099598923, &quot;coefficient_of_variation&quot;: 0.8554477659209692, &quot;sum&quot;: 15112.999999999998, &quot;variance&quot;: 1004.0793407043408, &quot;mean&quot;: 37.041666666666664}}}, &quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99007, &quot;end&quot;: 1.0032001003200002, &quot;width&quot;: 0, &quot;counts&quot;: [3, 4, 1, 9, 4, 12, 8, 32, 32, 36, 39, 49, 45, 25, 25, 19, 15, 8, 4, 8, 5, 6, 2, 5, 4, 1, 1, 2, 0, 4], &quot;max&quot;: 1.0032, &quot;min&quot;: 0.99007, &quot;bins&quot;: [0.99007, 0.9905076700106666, 0.9909453400213334, 0.991383010032, 0.9918206800426667, 0.9922583500533334, 0.992696020064, 0.9931336900746667, 0.9935713600853334, 0.9940090300960001, 0.9944467001066667, 0.9948843701173334, 0.9953220401280001, 0.9957597101386667, 0.9961973801493335, 0.9966350501600001, 0.9970727201706667, 0.9975103901813335, 0.9979480601920001, 0.9983857302026667, 0.9988234002133335, 0.9992610702240001, 0.9996987402346668, 1.0001364102453334, 1.0005740802560001, 1.0010117502666669, 1.0014494202773334, 1.0018870902880002, 1.002324760298667, 1.0027624303093334, 1.0032001003200002], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 55.88238444546564, &quot;min&quot;: 0.99007, &quot;max&quot;: 1.0032, &quot;range&quot;: 0.013130000000000086, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.9922, &quot;iqr&quot;: 0.0023400000000000087, &quot;q1&quot;: 0.99396, &quot;median&quot;: 0.99516, &quot;q3&quot;: 0.9963, &quot;ninety_fifth_percentile&quot;: 0.9994}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.0021784570136347352, &quot;coefficient_of_variation&quot;: 0.002188682344428877, &quot;sum&quot;: 406.09385999999995, &quot;variance&quot;: 4.745674960254368e-06, &quot;mean&quot;: 0.995328088235294}}}, &quot;pH&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 2.89, &quot;end&quot;: 4.010000401, &quot;width&quot;: 0, &quot;counts&quot;: [5, 1, 3, 4, 7, 5, 17, 20, 38, 36, 44, 29, 35, 41, 30, 11, 19, 17, 14, 10, 2, 9, 4, 2, 0, 1, 0, 2, 0, 2], &quot;max&quot;: 4.01, &quot;min&quot;: 2.89, &quot;bins&quot;: [2.89, 2.9273333467000002, 2.9646666934000003, 3.0020000401, 3.0393333868, 3.0766667335, 3.1140000802000003, 3.1513334269, 3.1886667736, 3.2260001203, 3.2633334670000003, 3.3006668137, 3.3380001604, 3.3753335071, 3.4126668538000002, 3.4500002005, 3.4873335472, 3.5246668939, 3.5620002406, 3.5993335873000003, 3.636666934, 3.6740002807, 3.7113336274, 3.7486669741, 3.7860003208000004, 3.8233336675, 3.8606670142, 3.8980003609000002, 3.9353337076, 3.9726670543, 4.010000401], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 18.8725525817653, &quot;min&quot;: 2.89, &quot;max&quot;: 4.01, &quot;range&quot;: 1.1199999999999997, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 3.09, &quot;iqr&quot;: 0.2200000000000002, &quot;q1&quot;: 3.23, &quot;median&quot;: 3.33, &quot;q3&quot;: 3.45, &quot;ninety_fifth_percentile&quot;: 3.67}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.17649177660211463, &quot;coefficient_of_variation&quot;: 0.05273349702213279, &quot;sum&quot;: 1365.52, &quot;variance&quot;: 0.031149347208170735, &quot;mean&quot;: 3.346862745098039}}}, &quot;sulphates&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.37, &quot;end&quot;: 1.130000113, &quot;width&quot;: 0, &quot;counts&quot;: [3, 2, 4, 4, 6, 18, 19, 45, 22, 37, 22, 32, 21, 29, 28, 27, 22, 12, 24, 7, 10, 1, 5, 1, 3, 1, 1, 0, 0, 2], &quot;max&quot;: 1.13, &quot;min&quot;: 0.37, &quot;bins&quot;: [0.37, 0.3953333371, 0.4206666742, 0.4460000113, 0.47133334839999996, 0.4966666855, 0.5220000226, 0.5473333597, 0.5726666968, 0.5980000339, 0.623333371, 0.6486667080999999, 0.6740000452, 0.6993333823, 0.7246667194, 0.7500000565, 0.7753333936, 0.8006667306999999, 0.8260000677999999, 0.8513334049, 0.8766667419999999, 0.9020000791, 0.9273334162, 0.9526667533, 0.9780000904, 1.0033334274999999, 1.0286667646, 1.0540001016999998, 1.0793334388, 1.1046667759, 1.130000113], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 14.215688286897349, &quot;min&quot;: 0.37, &quot;max&quot;: 1.13, &quot;range&quot;: 0.7599999999999999, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.5, &quot;iqr&quot;: 0.19000000000000006, &quot;q1&quot;: 0.58, &quot;median&quot;: 0.66, &quot;q3&quot;: 0.77, &quot;ninety_fifth_percentile&quot;: 0.88}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.12701037402923776, &quot;coefficient_of_variation&quot;: 0.18776807233831805, &quot;sum&quot;: 275.97999999999996, &quot;variance&quot;: 0.016131635111046875, &quot;mean&quot;: 0.6764215686274508}}}, &quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 11.0666666666667, &quot;end&quot;: 14.900001490000001, &quot;width&quot;: 0, &quot;counts&quot;: [28, 68, 32, 30, 38, 29, 21, 21, 25, 12, 13, 27, 9, 17, 9, 8, 1, 3, 3, 6, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 14.9, &quot;min&quot;: 11.0666666666667, &quot;bins&quot;: [11.0666666666667, 11.194444494111144, 11.322222321555587, 11.45000014900003, 11.577777976444473, 11.705555803888917, 11.83333363133336, 11.961111458777804, 12.088889286222248, 12.216667113666691, 12.344444941111133, 12.472222768555577, 12.60000059600002, 12.727778423444464, 12.855556250888908, 12.98333407833335, 13.111111905777793, 13.238889733222237, 13.36666756066668, 13.494445388111124, 13.622223215555568, 13.750001043000012, 13.877778870444454, 14.005556697888897, 14.133334525333341, 14.261112352777785, 14.388890180222226, 14.51666800766667, 14.644445835111114, 14.772223662555557, 14.900001490000001], &quot;n&quot;: 408}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 7.59803978178436, &quot;min&quot;: 11.0666666666667, &quot;max&quot;: 14.9, &quot;range&quot;: 3.8333333333333, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 11.1, &quot;iqr&quot;: 1.0, &quot;q1&quot;: 11.4, &quot;median&quot;: 11.8, &quot;q3&quot;: 12.4, &quot;ninety_fifth_percentile&quot;: 13.2}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.6824986635512768, &quot;coefficient_of_variation&quot;: 0.05725985668809312, &quot;sum&quot;: 4863.083333333334, &quot;variance&quot;: 0.4658044257492789, &quot;mean&quot;: 11.919321895424838}}}, &quot;quality&quot;: {&quot;histogram&quot;: null, &quot;frequentItems&quot;: [{&quot;value&quot;: &quot;bad&quot;, &quot;estimate&quot;: 267}, {&quot;value&quot;: &quot;good&quot;, &quot;estimate&quot;: 141}], &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: true, &quot;featureStats&quot;: {&quot;total_count&quot;: 408, &quot;missing&quot;: 0, &quot;distinct&quot;: 0.4901960796487877, &quot;min&quot;: NaN, &quot;max&quot;: NaN, &quot;range&quot;: NaN, &quot;quantile_statistics&quot;: null, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.0, &quot;coefficient_of_variation&quot;: null, &quot;sum&quot;: 0.0, &quot;variance&quot;: 0.0, &quot;mean&quot;: 0.0}}}}, &quot;properties&quot;: null};
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -2127,12 +3465,20 @@ memory usage: 150.0 KB
       const $discrete = document.getElementById(&quot;inferredDiscrete&quot;);
       const $nonDiscrete = document.getElementById(&quot;inferredNonDiscrete&quot;);
       const $unknown = document.getElementById(&quot;inferredUnknown&quot;);
+      const $diffFromRef = document.getElementById(&quot;diff-from-ref&quot;);
 
       const activeTypes = {
         discrete: true,
         &quot;non-discrete&quot;: true,
         unknown: true,
       };
+
+      var driftOrder = {
+        original: true,
+        descending: false,
+        ascending: false,
+      };
+      var originalColumnOrder;
 
       let searchString = &quot;&quot;;
 
@@ -2165,13 +3511,49 @@ memory usage: 150.0 KB
         }
       }
 
+
+      function orderByDrift(direction) {
+        var tableBodyChildren = $tableBody.children;
+        if (driftOrder[&#x27;original&#x27;]) {
+          driftOrder[&#x27;original&#x27;] = false
+          driftOrder[&#x27;descending&#x27;] = true
+
+          originalColumnOrder = [...tableBodyChildren];
+          tableBodyChildren = [...tableBodyChildren].sort((a,b) =&gt; (b.dataset.pValue - a.dataset.pValue))
+          document.getElementById(&quot;pvalue&quot;).style.display = &quot;none&quot;;
+          document.getElementById(&quot;pvalue-desc&quot;).style.display = &quot;&quot;;
+
+        } else if (driftOrder[&#x27;descending&#x27;]) {
+          driftOrder[&#x27;descending&#x27;] = false
+          driftOrder[&#x27;ascending&#x27;] = true
+          tableBodyChildren = [...tableBodyChildren].sort((a,b) =&gt; (a.dataset.pValue - b.dataset.pValue))
+          document.getElementById(&quot;pvalue-desc&quot;).style.display = &quot;none&quot;;
+          document.getElementById(&quot;pvalue-asc&quot;).style.display = &quot;&quot;;
+
+
+        } else if (driftOrder[&#x27;ascending&#x27;]) {
+          driftOrder[&#x27;ascending&#x27;] = false
+          driftOrder[&#x27;original&#x27;] = true
+
+          tableBodyChildren = originalColumnOrder;
+          document.getElementById(&quot;pvalue-asc&quot;).style.display = &quot;none&quot;;
+          document.getElementById(&quot;pvalue&quot;).style.display = &quot;&quot;;
+
+        }
+
+        for (let i = 0; i &lt; tableBodyChildren.length; i++) {
+          console.log(tableBodyChildren[i].dataset.pValue)
+        }
+        for (var i = 0; i &lt; tableBodyChildren.length; i++){$tableBody.append(tableBodyChildren[i])}
+      }
+
+
       function handleSearch() {
         const tableBodyChildren = $tableBody.children;
 
         for (let i = 0; i &lt; tableBodyChildren.length; i++) {
           const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
           const name = tableBodyChildren[i].dataset.featureName.toLowerCase();
-
           if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
             tableBodyChildren[i].style.display = &quot;&quot;;
           } else {
@@ -2185,6 +3567,13 @@ memory usage: 150.0 KB
         debounce((event) =&gt; {
           searchString = event.target.value.toLowerCase();
           handleSearch();
+        }, 100),
+      );
+
+      $diffFromRef.addEventListener(
+        &quot;click&quot;,
+        debounce((event) =&gt; {
+          orderByDrift();
         }, 100),
       );
 
@@ -2282,7 +3671,7 @@ memory usage: 150.0 KB
 <p>Now that we have a general idea of both profiles, let’s take a look at some of the individual features.</p>
 <p>First, let’s use the <code class="docutils literal notranslate"><span class="pre">double_histogram</span></code> to check on the <code class="docutils literal notranslate"><span class="pre">density</span></code> feature.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">double_histogram</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">)</span>
@@ -2290,7 +3679,7 @@ memory usage: 150.0 KB
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2537,7 +3926,7 @@ memory usage: 150.0 KB
 
           this.xScale = d3
               .scaleLinear()
-         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth &gt;= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])     // I was too lazy to do basic math of max(bin_start + width for each distribution)
+         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth &gt;= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])
          .range([0, this.CHART_WIDTH ]);
 
          this.svgEl.append(&quot;g&quot;)
@@ -2545,7 +3934,8 @@ memory usage: 150.0 KB
              .call(d3.axisBottom(this.xScale));
           this.yScale = d3.scaleLinear()
               .range([this.CHART_HEIGHT , 0])
-              this.yScale.domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisY); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisY); })]);
+              .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisY); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisY); })*1.2])
+              .nice();
         }
       }
 
@@ -2594,8 +3984,7 @@ memory usage: 150.0 KB
         } = sizes
 
         const rectColors = [&quot;#44C0E7&quot;, &quot;#F5843C&quot;]
-        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
-        yFormat = yScale.tickFormat(100, yFormat);
+        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40);
 
         svgEl.append(&quot;g&quot;)
           .attr(&quot;transform&quot;, `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
@@ -2666,7 +4055,7 @@ memory usage: 150.0 KB
         return svgEl._groups[0][0].outerHTML;
       }
 
-      const profileFromCSVfile = {&quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99236, &quot;end&quot;: 1.003690100369, &quot;width&quot;: 0, &quot;counts&quot;: [0, 2, 0, 4, 4, 12, 36, 38, 75, 98, 129, 138, 130, 125, 102, 80, 46, 38, 40, 34, 26, 12, 8, 4, 0, 0, 6, 2, 0, 2], &quot;max&quot;: 1.00369, &quot;min&quot;: 0.99236, &quot;bins&quot;: [0.99236, 0.9927376700123001, 0.9931153400246, 0.9934930100369, 0.9938706800492, 0.9942483500615, 0.9946260200738, 0.9950036900861, 0.9953813600984001, 0.9957590301107, 0.996136700123, 0.9965143701353, 0.9968920401476, 0.9972697101599, 0.9976473801722, 0.9980250501845, 0.9984027201968, 0.9987803902091, 0.9991580602214, 0.9995357302337, 0.999913400246, 1.0002910702582999, 1.0006687402706, 1.0010464102829, 1.0014240802952, 1.0018017503075, 1.0021794203198, 1.0025570903321, 1.0029347603443999, 1.0033124303567, 1.003690100369], &quot;n&quot;: 1191}}}
+      const profileFromCSVfile = {&quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99236, &quot;end&quot;: 1.003690100369, &quot;width&quot;: 0, &quot;counts&quot;: [1, 1, 3, 2, 4, 11, 34, 42, 74, 95, 132, 136, 127, 128, 100, 84, 43, 43, 36, 31, 28, 16, 4, 6, 2, 0, 4, 2, 0, 2], &quot;max&quot;: 1.00369, &quot;min&quot;: 0.99236, &quot;bins&quot;: [0.99236, 0.9927376700123001, 0.9931153400246, 0.9934930100369, 0.9938706800492, 0.9942483500615, 0.9946260200738, 0.9950036900861, 0.9953813600984001, 0.9957590301107, 0.996136700123, 0.9965143701353, 0.9968920401476, 0.9972697101599, 0.9976473801722, 0.9980250501845, 0.9984027201968, 0.9987803902091, 0.9991580602214, 0.9995357302337, 0.999913400246, 1.0002910702582999, 1.0006687402706, 1.0010464102829, 1.0014240802952, 1.0018017503075, 1.0021794203198, 1.0025570903321, 1.0029347603443999, 1.0033124303567, 1.003690100369], &quot;n&quot;: 1191}}}
 
       Handlebars.registerHelper(&quot;getDoubleHistogramChart&quot;,(column,key) =&gt; {
           const columnKey = key.data.key
@@ -2695,7 +4084,7 @@ memory usage: 150.0 KB
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {&quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99007, &quot;end&quot;: 1.0032001003200002, &quot;width&quot;: 0, &quot;counts&quot;: [4, 4, 0, 10, 4, 11, 8, 32, 32, 37, 38, 49, 46, 25, 25, 18, 15, 8, 4, 8, 6, 6, 2, 4, 4, 2, 0, 2, 0, 4], &quot;max&quot;: 1.0032, &quot;min&quot;: 0.99007, &quot;bins&quot;: [0.99007, 0.9905076700106666, 0.9909453400213334, 0.991383010032, 0.9918206800426667, 0.9922583500533334, 0.992696020064, 0.9931336900746667, 0.9935713600853334, 0.9940090300960001, 0.9944467001066667, 0.9948843701173334, 0.9953220401280001, 0.9957597101386667, 0.9961973801493335, 0.9966350501600001, 0.9970727201706667, 0.9975103901813335, 0.9979480601920001, 0.9983857302026667, 0.9988234002133335, 0.9992610702240001, 0.9996987402346668, 1.0001364102453334, 1.0005740802560001, 1.0010117502666669, 1.0014494202773334, 1.0018870902880002, 1.002324760298667, 1.0027624303093334, 1.0032001003200002], &quot;n&quot;: 408}}};
+      const context = {&quot;density&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.99007, &quot;end&quot;: 1.0032001003200002, &quot;width&quot;: 0, &quot;counts&quot;: [3, 4, 1, 9, 4, 12, 8, 32, 32, 36, 39, 49, 45, 25, 25, 19, 15, 8, 4, 8, 5, 6, 2, 5, 4, 1, 1, 2, 0, 4], &quot;max&quot;: 1.0032, &quot;min&quot;: 0.99007, &quot;bins&quot;: [0.99007, 0.9905076700106666, 0.9909453400213334, 0.991383010032, 0.9918206800426667, 0.9922583500533334, 0.992696020064, 0.9931336900746667, 0.9935713600853334, 0.9940090300960001, 0.9944467001066667, 0.9948843701173334, 0.9953220401280001, 0.9957597101386667, 0.9961973801493335, 0.9966350501600001, 0.9970727201706667, 0.9975103901813335, 0.9979480601920001, 0.9983857302026667, 0.9988234002133335, 0.9992610702240001, 0.9996987402346668, 1.0001364102453334, 1.0005740802560001, 1.0010117502666669, 1.0014494202773334, 1.0018870902880002, 1.002324760298667, 1.0027624303093334, 1.0032001003200002], &quot;n&quot;: 408}}};
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -2717,7 +4106,7 @@ memory usage: 150.0 KB
 <p>As is the case with the alcohol content, our potential model would see density values in production never before seen in the training test. We can certainly expect performance degradation during production.</p>
 <p>Let’s check the <code class="docutils literal notranslate"><span class="pre">alcohol</span></code> feature. Obviously there’s a clear separation between the distributions at the value of <code class="docutils literal notranslate"><span class="pre">11</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">double_histogram</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;alcohol&quot;</span><span class="p">)</span>
@@ -2725,7 +4114,7 @@ memory usage: 150.0 KB
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2972,7 +4361,7 @@ memory usage: 150.0 KB
 
           this.xScale = d3
               .scaleLinear()
-         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth &gt;= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])     // I was too lazy to do basic math of max(bin_start + width for each distribution)
+         .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisX); }),(this.maxTargetXValue+this.targetBinWidth &gt;= this.maxReferenceXValue+this.referenceBinWidth) ? this.maxTargetXValue+this.targetBinWidth:this.maxReferenceXValue+this.referenceBinWidth])
          .range([0, this.CHART_WIDTH ]);
 
          this.svgEl.append(&quot;g&quot;)
@@ -2980,7 +4369,8 @@ memory usage: 150.0 KB
              .call(d3.axisBottom(this.xScale));
           this.yScale = d3.scaleLinear()
               .range([this.CHART_HEIGHT , 0])
-              this.yScale.domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisY); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisY); })]);
+              .domain([d3.min(this.charts2, function(d) { return parseFloat(d.axisY); }), d3.max(this.charts2, function(d) { return parseFloat(d.axisY); })*1.2])
+              .nice();
         }
       }
 
@@ -3029,8 +4419,7 @@ memory usage: 150.0 KB
         } = sizes
 
         const rectColors = [&quot;#44C0E7&quot;, &quot;#F5843C&quot;]
-        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40, yFormat);
-        yFormat = yScale.tickFormat(100, yFormat);
+        const yAxis = d3.axisLeft(yScale).ticks(SVG_HEIGHT / 40);
 
         svgEl.append(&quot;g&quot;)
           .attr(&quot;transform&quot;, `translate(${MARGIN.LEFT}, ${MARGIN.BOTTOM})`)
@@ -3101,7 +4490,7 @@ memory usage: 150.0 KB
         return svgEl._groups[0][0].outerHTML;
       }
 
-      const profileFromCSVfile = {&quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 8.4, &quot;end&quot;: 11.0000011, &quot;width&quot;: 0, &quot;counts&quot;: [2, 0, 0, 4, 2, 0, 30, 0, 26, 74, 58, 104, 138, 62, 52, 0, 79, 50, 70, 47, 44, 32, 0, 46, 65, 28, 26, 46, 47, 59], &quot;max&quot;: 11.0, &quot;min&quot;: 8.4, &quot;bins&quot;: [8.4, 8.486666703333334, 8.573333406666666, 8.66000011, 8.746666813333334, 8.833333516666666, 8.92000022, 9.006666923333334, 9.093333626666666, 9.18000033, 9.266667033333334, 9.353333736666666, 9.44000044, 9.526667143333334, 9.613333846666666, 9.70000055, 9.786667253333334, 9.873333956666666, 9.96000066, 10.046667363333334, 10.133334066666666, 10.22000077, 10.306667473333334, 10.393334176666666, 10.48000088, 10.566667583333334, 10.653334286666666, 10.74000099, 10.826667693333334, 10.913334396666666, 11.0000011], &quot;n&quot;: 1191}}}
+      const profileFromCSVfile = {&quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 8.4, &quot;end&quot;: 11.0000011, &quot;width&quot;: 0, &quot;counts&quot;: [2, 1, 0, 2, 2, 0, 29, 1, 24, 74, 59, 103, 139, 61, 55, 0, 77, 50, 69, 47, 47, 33, 0, 40, 69, 28, 28, 43, 48, 60], &quot;max&quot;: 11.0, &quot;min&quot;: 8.4, &quot;bins&quot;: [8.4, 8.486666703333334, 8.573333406666666, 8.66000011, 8.746666813333334, 8.833333516666666, 8.92000022, 9.006666923333334, 9.093333626666666, 9.18000033, 9.266667033333334, 9.353333736666666, 9.44000044, 9.526667143333334, 9.613333846666666, 9.70000055, 9.786667253333334, 9.873333956666666, 9.96000066, 10.046667363333334, 10.133334066666666, 10.22000077, 10.306667473333334, 10.393334176666666, 10.48000088, 10.566667583333334, 10.653334286666666, 10.74000099, 10.826667693333334, 10.913334396666666, 11.0000011], &quot;n&quot;: 1191}}}
 
       Handlebars.registerHelper(&quot;getDoubleHistogramChart&quot;,(column,key) =&gt; {
           const columnKey = key.data.key
@@ -3130,7 +4519,7 @@ memory usage: 150.0 KB
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {&quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 11.0666666666667, &quot;end&quot;: 14.900001490000001, &quot;width&quot;: 0, &quot;counts&quot;: [28, 68, 32, 30, 39, 28, 21, 22, 24, 13, 13, 27, 9, 17, 8, 8, 2, 2, 4, 5, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0], &quot;max&quot;: 14.9, &quot;min&quot;: 11.0666666666667, &quot;bins&quot;: [11.0666666666667, 11.194444494111144, 11.322222321555587, 11.45000014900003, 11.577777976444473, 11.705555803888917, 11.83333363133336, 11.961111458777804, 12.088889286222248, 12.216667113666691, 12.344444941111133, 12.472222768555577, 12.60000059600002, 12.727778423444464, 12.855556250888908, 12.98333407833335, 13.111111905777793, 13.238889733222237, 13.36666756066668, 13.494445388111124, 13.622223215555568, 13.750001043000012, 13.877778870444454, 14.005556697888897, 14.133334525333341, 14.261112352777785, 14.388890180222226, 14.51666800766667, 14.644445835111114, 14.772223662555557, 14.900001490000001], &quot;n&quot;: 408}}};
+      const context = {&quot;alcohol&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 11.0666666666667, &quot;end&quot;: 14.900001490000001, &quot;width&quot;: 0, &quot;counts&quot;: [28, 68, 32, 30, 38, 29, 21, 21, 25, 12, 13, 27, 9, 17, 9, 8, 1, 3, 3, 6, 0, 0, 7, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 14.9, &quot;min&quot;: 11.0666666666667, &quot;bins&quot;: [11.0666666666667, 11.194444494111144, 11.322222321555587, 11.45000014900003, 11.577777976444473, 11.705555803888917, 11.83333363133336, 11.961111458777804, 12.088889286222248, 12.216667113666691, 12.344444941111133, 12.472222768555577, 12.60000059600002, 12.727778423444464, 12.855556250888908, 12.98333407833335, 13.111111905777793, 13.238889733222237, 13.36666756066668, 13.494445388111124, 13.622223215555568, 13.750001043000012, 13.877778870444454, 14.005556697888897, 14.133334525333341, 14.261112352777785, 14.388890180222226, 14.51666800766667, 14.644445835111114, 14.772223662555557, 14.900001490000001], &quot;n&quot;: 408}}};
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -3150,7 +4539,7 @@ memory usage: 150.0 KB
 </div>
 <p>In addition to the histograms, we can also plot distribution charts for categorical variables, like the <code class="docutils literal notranslate"><span class="pre">quality</span></code> feature.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">distribution_chart</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;quality&quot;</span><span class="p">)</span>
@@ -3158,7 +4547,7 @@ memory usage: 150.0 KB
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -3604,7 +4993,7 @@ memory usage: 150.0 KB
 </div>
 <p>We can also look at the difference between distributions:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">difference_distribution_chart</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;quality&quot;</span><span class="p">)</span>
@@ -3612,7 +5001,7 @@ memory usage: 150.0 KB
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -3936,8 +5325,9 @@ memory usage: 150.0 KB
             negativeY = Math.ceil(minY) % 1 ? minY + 2*(minY/(minY*10)) : minY + 2*(minY/(minY/10));
 
         const yScale = d3.scaleLinear()
-            .domain([-negativeY, positiveY || 0])
             .range([CHART_HEIGHT,0])
+            .domain([-negativeY*1.2, positiveY*1.2 || 0])
+            .nice()
 
         const xAxis = d3.axisBottom(xScale).ticks(SVG_WIDTH / 80, xFormat).tickSizeOuter(0);
         const yAxis = d3.axisLeft(yScale).ticks(CHART_HEIGHT / 30, yFormat);
@@ -4055,7 +5445,7 @@ memory usage: 150.0 KB
 <h2>Feature Statistics<a class="headerlink" href="#Feature-Statistics" title="Permalink to this headline">#</a></h2>
 <p>With <code class="docutils literal notranslate"><span class="pre">feature_statistics</span></code>, we have access to very useful statistics by passing the feature and profile name:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualization</span><span class="o">.</span><span class="n">feature_statistics</span><span class="p">(</span><span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;citric acid&quot;</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
@@ -4063,7 +5453,7 @@ memory usage: 150.0 KB
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -4531,7 +5921,7 @@ memory usage: 150.0 KB
 
     function initHandlebarsTemplate() {
       // Replace this context with JSON from .py file
-      const context = {&quot;citric acid&quot;: {&quot;total_count&quot;: 398, &quot;missing&quot;: 10, &quot;distinct&quot;: 18.090455451204008, &quot;min&quot;: 0.0, &quot;max&quot;: 0.79, &quot;range&quot;: 0.79, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.0, &quot;iqr&quot;: 0.37, &quot;q1&quot;: 0.1, &quot;median&quot;: 0.35, &quot;q3&quot;: 0.47, &quot;ninety_fifth_percentile&quot;: 0.66}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.20859943016152155, &quot;coefficient_of_variation&quot;: 0.6620619872750046, &quot;sum&quot;: 125.4, &quot;variance&quot;: 0.04351372226371151, &quot;mean&quot;: 0.3150753768844221}}};
+      const context = {&quot;citric acid&quot;: {&quot;total_count&quot;: 398, &quot;missing&quot;: 10, &quot;distinct&quot;: 18.090455451204008, &quot;min&quot;: 0.0, &quot;max&quot;: 0.79, &quot;range&quot;: 0.79, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 0.0, &quot;iqr&quot;: 0.36, &quot;q1&quot;: 0.1, &quot;median&quot;: 0.34, &quot;q3&quot;: 0.46, &quot;ninety_fifth_percentile&quot;: 0.66}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.20859943016152155, &quot;coefficient_of_variation&quot;: 0.6620619872750046, &quot;sum&quot;: 125.4, &quot;variance&quot;: 0.04351372226371151, &quot;mean&quot;: 0.3150753768844221}}};
       // Config handlebars and pass data to HBS template
       const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
       const template = Handlebars.compile(source);
@@ -4554,15 +5944,13 @@ memory usage: 150.0 KB
 <h2>Downloading the Visualization Output<a class="headerlink" href="#Downloading-the-Visualization-Output" title="Permalink to this headline">#</a></h2>
 <p>All of the previous visualizations can be downloaded in <code class="docutils literal notranslate"><span class="pre">HTML</span></code> format for further inspection. Just run:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
 <span class="n">visualization</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-    <span class="n">rendered_html</span><span class="o">=</span><span class="n">visualization</span><span class="o">.</span><span class="n">feature_statistics</span><span class="p">(</span>
-        <span class="n">feature_name</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="s2">&quot;target&quot;</span>
-    <span class="p">),</span>
+    <span class="n">rendered_html</span><span class="o">=</span><span class="n">visualization</span><span class="o">.</span><span class="n">profile_summary</span><span class="p">(),</span>
     <span class="n">html_file_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;/example&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -4666,6 +6054,7 @@ memory usage: 150.0 KB
 <li><a class="reference internal" href="#Data-Drift-on-Wine-Quality">Data Drift on Wine Quality</a></li>
 <li><a class="reference internal" href="#Installing-Dependencies">Installing Dependencies</a></li>
 <li><a class="reference internal" href="#Loading-the-data">Loading the data</a></li>
+<li><a class="reference internal" href="#Profile-Summary">Profile Summary</a></li>
 <li><a class="reference internal" href="#Drift-Summary">Drift Summary</a></li>
 <li><a class="reference internal" href="#Histograms-and-Bar-charts">Histograms and Bar charts</a></li>
 <li><a class="reference internal" href="#Feature-Statistics">Feature Statistics</a></li>

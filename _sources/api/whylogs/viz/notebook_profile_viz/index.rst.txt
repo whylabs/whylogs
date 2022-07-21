@@ -106,6 +106,9 @@ Attributes
       :type reference_profile_view: DatasetProfileView, optional
 
 
+   .. py:method:: profile_summary(self, cell_height: str = None) -> IPython.core.display.HTML
+
+
    .. py:method:: summary_drift_report(self, height: Optional[str] = None) -> IPython.core.display.HTML
 
       Generate drift report between target and reference profiles.

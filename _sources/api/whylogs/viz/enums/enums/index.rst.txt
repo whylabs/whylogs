@@ -39,6 +39,11 @@ Classes
 
    Derive from this class to define new enumerations.
 
+   .. py:attribute:: PROFILE_SUMMARY
+      
+
+      
+
    .. py:attribute:: SUMMARY_REPORT
       
 
