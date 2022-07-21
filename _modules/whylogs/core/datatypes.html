@@ -423,7 +423,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_do_match</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">maybe_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># Pandas Categorical is Strings</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="n">CategoricalDtype</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">CategoricalDtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="n">CategoricalDtype</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
 
         <span class="c1"># handle pandas series. Anything &#39;object&#39; is treated as a Series of strings</span>
