@@ -2,11 +2,7 @@ import html
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-try:
-    from IPython.display import HTML  # type: ignore
-except:  # noqa
-    HTML = lambda _: None  # noqa
-    pass
+from IPython.display import HTML  # type: ignore
 
 from whylogs import DatasetProfileView
 from whylogs.api.writer import Writers

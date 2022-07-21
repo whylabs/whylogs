@@ -4,13 +4,7 @@ import logging
 import os
 from typing import Any, Dict, Optional
 
-# from IPython.display import HTML  # type: ignore
-
-try:
-    from IPython.display import HTML  # type: ignore
-except:  # noqa
-    HTML = lambda _: None  # noqa
-    pass
+from IPython.display import HTML  # type: ignore
 
 from whylogs.api.usage_stats import emit_usage
 from whylogs.core.configs import SummaryConfig
