@@ -16,6 +16,7 @@ from whylogs.viz.utils.html_template_utils import _get_compiled_template
 from whylogs.viz.utils.profile_viz_calculations import (
     add_feature_statistics,
     frequent_items_from_view,
+    generate_profile_summary,
     generate_summaries,
     histogram_from_view,
 )
@@ -212,6 +213,18 @@ class NotebookProfileVisualizer:
         """
         self._target_view = target_profile_view
         self._ref_view = reference_profile_view
+
+    def profile_summary(self, cell_height: str = None) -> HTML:
+        page_spec = PageSpecEnum.PROFILE_SUMMARY.value
+        template = _get_compiled_template(page_spec.html)
+
+        try:
+            profile_summary = generate_profile_summary(self._target_view, config=None)
+            rendered_template = template(profile_summary)
+            return self._display(rendered_template, page_spec, cell_height)
+        except ValueError as e:
+            logger.error("This method has to get target Dataset Profile View")
+            raise e
 
     def summary_drift_report(self, height: Optional[str] = None) -> HTML:
         """Generate drift report between target and reference profiles.

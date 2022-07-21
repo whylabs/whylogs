@@ -2,7 +2,7 @@ import html
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from IPython.core.display import HTML
+from IPython.core.display import HTML  # type: ignore
 
 from whylogs import DatasetProfileView
 from whylogs.api.writer import Writers
