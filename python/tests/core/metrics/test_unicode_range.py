@@ -22,7 +22,38 @@ def test_unicode_range_metric() -> None:
 
     assert metric.submetrics["digits"].mean.value == np.array(digit_counts).mean()
     assert metric.submetrics["alpha"].mean.value == np.array(alpha_counts).mean()
+    assert metric.submetrics["UNKNOWN"].mean.value == 0
     assert metric.submetrics[_STRING_LENGTH].mean.value == np.array([len(s) for s in strings]).mean()
+
+
+def test_unicode_range_metric_upper_case() -> None:
+    # fmt: off
+    ranges = {
+        "lower": (97, 122),  # a -- z
+        "upper": (65, 90)    # A -- Z
+    }
+    config = MetricConfig(unicode_ranges=ranges, lower_case=False)  # Distinguish between upper/lower case
+    # fmt: on
+    metric = UnicodeRangeMetric.zero(config)
+    strings = ["abc", "ABC", "123", "abcdABCD", "...", "wxYZ"]
+    col = PreprocessedColumn.apply(strings)
+    upper_counts = [0, 3, 0, 4, 0, 2]
+    lower_counts = [3, 0, 0, 4, 0, 2]
+    metric.columnar_update(col)
+
+    assert metric.submetrics["lower"].mean.value == np.array(lower_counts).mean()
+    assert metric.submetrics["upper"].mean.value == np.array(upper_counts).mean()
+
+
+def test_unicode_range_metric_unknown() -> None:
+    metric = UnicodeRangeMetric({"digits": (48, 57), "alpha": (97, 122)})
+    strings = ["1", "12", "123", "1234a", "abc", "abc123", "@@@", "%%%", "^^^"]
+    col = PreprocessedColumn.apply(strings)
+    metric.columnar_update(col)
+
+    assert metric.submetrics["digits"].mean.value > 0
+    assert metric.submetrics["alpha"].mean.value > 0
+    assert metric.submetrics["UNKNOWN"].mean.value == np.array([0, 0, 0, 0, 0, 0, 3, 3, 3]).mean()
 
 
 def test_unicode_range_metric_zero() -> None:

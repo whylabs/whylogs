@@ -12,6 +12,7 @@ from python.whylogs.core.constraints.metric_constraints import (
 import whylogs as why
 from whylogs import ResultSet
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.viz import SummaryDriftReport
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 _DATA_DIR = os.path.join(_MY_DIR, "testdata")
@@ -110,3 +111,9 @@ def profile_view_zero_mean() -> DatasetProfileView:
     profile_view = results.view()
 
     return profile_view
+
+
+@pytest.fixture(scope="session")
+def html_report(profile_view):
+    report = SummaryDriftReport(target_view=profile_view, ref_view=profile_view)
+    return report

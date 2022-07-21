@@ -92,6 +92,27 @@ def test_viz_difference_distribution_chart_two_profiles(
     webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
 
 
+def test_profile_summary(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer, tmp_path: str
+) -> None:
+    visualization.set_profiles(target_profile_view=profile_view)
+
+    test_output = os.path.join(tmp_path, "b18")
+    visualization.write(
+        rendered_html=visualization.profile_summary(),
+        html_file_name=test_output,
+    )
+    webbrowser.open(f"file://{os.path.realpath(test_output)}.html", new=2)
+
+
+def test_profile_summary_if_target_view_is_none(
+    profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer
+) -> None:
+    visualization.set_profiles(target_profile_view=None, reference_profile_view=profile_view)
+    with pytest.raises(ValueError):
+        visualization.profile_summary()
+
+
 def test_viz_summary_drift(
     profile_view: DatasetProfileView, visualization: NotebookProfileVisualizer, tmp_path: str
 ) -> None:
