@@ -34,7 +34,7 @@ repos:
     hooks:
       - id: mypy
         language: system
-        exclude: ^(python/tests/|python/whylogs/core/proto/|python/docs/|python/whylogs/viz/html/|python/examples/)
+        exclude: ^(python/tests/|python/whylogs/core/proto/|python/docs/|python/whylogs/viz/html/|python/examples)
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.5.1
     hooks:
