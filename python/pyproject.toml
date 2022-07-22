@@ -132,6 +132,8 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | examples
+    | examples/integration
     | tests
     | whylogs/core/proto
     | whylogs/viz/html
