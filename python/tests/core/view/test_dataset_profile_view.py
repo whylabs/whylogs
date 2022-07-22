@@ -43,3 +43,43 @@ def test_order_columns() -> None:
     data_keys = d.keys()
     profile_keys = profile_view.get_columns().keys()
     assert data_keys == profile_keys
+
+
+def test_sort_columns_sending_to_pandas() -> None:
+    data = {
+        "animal": ["cat", "hawk", "snake", "cat"],
+        "legs": [4, 2, 0, 4],
+        "weight": [4.3, 1.8, 1.3, 4.1],
+    }
+
+    df = pd.DataFrame(data)
+    profile_view = why.log(df).profile().view()
+    view1 = profile_view.to_pandas().columns
+
+    merged_view = profile_view.merge(profile_view)
+    view2 = merged_view.to_pandas().columns
+    assert (view1 == view2).all()
+
+
+def test_different_ordered() -> None:
+    data1 = {
+        "animal": ["cat", "hawk", "snake", "cat"],
+        "legs": [4, 2, 0, 4],
+        "weight": [4.3, 1.8, 1.3, 4.1],
+    }
+    data2 = {
+        "legs": [4, 2, 0, 4],
+        "animal": ["cat", "hawk", "snake", "cat"],
+        "weight": [4.3, 1.8, 1.3, 4.1],
+    }
+
+    df1 = pd.DataFrame(data1)
+    profile_view1 = why.log(df1).profile().view()
+    view1 = profile_view1.to_pandas().columns
+
+    df2 = pd.DataFrame(data2)
+    profile_view2 = why.log(df2).profile().view()
+
+    merged_view = profile_view1.merge(profile_view2)
+    view2 = merged_view.to_pandas().columns
+    assert (view1 == view2).all()

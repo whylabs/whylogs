@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.0.6
+version := 1.0.7
 
 dist.dir := dist
 egg.dir := .eggs
@@ -38,6 +38,31 @@ install-poetry:
 
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+
+bump-patch: ## Bump the patch version (_._.X) everywhere it appears in the project
+	@$(call i, Bumping the patch number)
+	poetry run bumpversion patch --allow-dirty
+
+bump-minor: ## Bump the minor version (_.X._) everywhere it appears in the project
+	@$(call i, Bumping the minor number)
+	poetry run bumpversion minor --allow-dirty
+
+bump-major: ## Bump the major version (X._._) everywhere it appears in the project
+	@$(call i, Bumping the major number)
+	poetry run bumpversion major --allow-dirty
+
+bump-release: ## Convert the version into a release variant (_._._) everywhere it appears in the project
+	@$(call i, Bumping the major number)
+	poetry run bumpversion release --allow-dirty
+
+bump-dev: ## Convert the version into a dev variant (_._._-dev__) everywhere it appears in the project
+	@$(call i, Bumping the major number)
+	poetry run bumpversion dev --allow-dirty
+
+bump-build: ## Bump the build number (_._._-____XX) everywhere it appears in the project
+	@$(call i, Bumping the major number)
+	poetry run bumpversion build --allow-dirty
+
 
 publish: clean dist ## Clean the project, generate new distribution files and publish them to pypi
 	@$(call i, Publishing the currently built dist to pypi)

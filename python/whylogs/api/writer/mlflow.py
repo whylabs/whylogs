@@ -1,43 +1,59 @@
+import logging
 import os
 from tempfile import mkdtemp
-from typing import Optional
+from typing import Any, Optional
 
 import mlflow
 
 from whylogs.api.writer import Writer
-from whylogs.core import DatasetProfileView
+from whylogs.api.writer.writer import Writable
+from whylogs.core.utils import deprecated_alias
+
+logger = logging.getLogger(__name__)
 
 
 class MlflowWriter(Writer):
     def __init__(self) -> None:
-        self._profile_dir = "whylogs"
-        self._profile_name = "whylogs_profile"
+        self._file_dir = "whylogs"
+        self._file_name = None
         self._end_run = True
 
-    def write(self, profile: DatasetProfileView) -> None:
+    @deprecated_alias(profile="file")
+    def write(
+        self,
+        file: Writable,
+        dest: Optional[str] = None,
+        **kwargs: Any,
+    ) -> None:
         run = mlflow.active_run() or mlflow.start_run()
         self._run_id = run.info.run_id
+        dest = dest or self._file_name or file.get_default_path()  # dest has a higher priority than file_name
+        output = self._get_temp_directory(dest=dest)
+        file.write(path=output)  # type: ignore
+        mlflow.log_artifact(output, artifact_path=self._file_dir)
 
-        output = self._get_temp_directory(run_id=self._run_id)
-        profile.write(path=output)
-        mlflow.log_artifact(output, artifact_path=self._profile_dir)
-
-        if self._end_run:
+        if self._end_run is True:
             mlflow.end_run()
 
+    @deprecated_alias(profile_dir="file_dir", profile_name="file_name")
     def option(
-        self, profile_name: Optional[str] = None, profile_dir: Optional[str] = None, end_run: Optional[bool] = None
+        self, file_name: Optional[str] = None, file_dir: Optional[str] = None, end_run: Optional[bool] = None
     ) -> None:
-        if end_run:
+        if end_run is not None:
             self._end_run = end_run
-        if profile_dir:
-            self._profile_dir = profile_dir
-        if profile_name:
-            self._profile_name = profile_name
+        if file_dir:
+            self._file_dir = file_dir
+        if file_name:
+            self._file_name = file_name  # type: ignore
 
-    def _get_temp_directory(self, run_id):
+    def _get_temp_directory(self, dest: Optional[str] = None):
         tmp_dir = mkdtemp()
-        output_dir = os.path.join(tmp_dir, self._profile_dir)
+        output_dir = os.path.join(tmp_dir, self._file_dir)
         os.makedirs(output_dir, exist_ok=True)
-        output = os.path.join(output_dir, f"{self._profile_name}_{run_id}.bin")
+        if dest:
+            output = os.path.join(output_dir, dest)
+        elif self._file_name:
+            output = os.path.join(output_dir, self._file_name)
+        else:
+            output = output_dir
         return output
