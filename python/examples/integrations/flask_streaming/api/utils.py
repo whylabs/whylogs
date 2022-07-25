@@ -16,9 +16,10 @@ def initialize_logger() -> None:
         app.why_logger = why.logger(
             mode="rolling", interval=5, when="M", base_name="whylogs-flask-example"
         )  # type: ignore
-        if os.environ["WHYLABS_DEFAULT_DATASET_ID"]:
+        try:
+            os.environ["WHYLABS_DEFAULT_DATASET_ID"]
             app.why_logger.append_writer("whylabs")  # type: ignore
-        else:
+        except KeyError:
             app.why_logger.append_writer("local", base_dir="logs")  # type: ignore
 
         if app.why_logger is not None:

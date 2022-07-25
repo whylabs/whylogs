@@ -16,10 +16,7 @@ from utils import MessageException, message_exception_handler  # type: ignore
 from api.views import blueprint  # type: ignore
 
 # Load environment variables
-load_dotenv()
-
-# Initialize Dataset
-df = pd.read_csv(os.environ["DATASET_URL"])
+load_dotenv(override=True)
 
 # Load model with joblib
 model = load(os.environ["MODEL_PATH"])
