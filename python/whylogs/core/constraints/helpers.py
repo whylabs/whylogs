@@ -1,8 +1,9 @@
 from typing import Union
 
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.constraints import MetricConstraint, MetricsSelector
 from whylogs.core.metrics.metrics import Metric
+
+from .metric_constraints import MetricConstraint, MetricsSelector
 
 
 def greater_than_number(column_name: str, number: Union[float, int]) -> MetricConstraint:
