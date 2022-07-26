@@ -1,11 +1,12 @@
-from cgi import test
-from whylogs.api.writer.writer import T
 from whylogs.datasets import Weather
 from datetime import date, datetime
 import pytest
 
 import pytest
 from whylogs.datasets import Weather
+import os
+
+print(os.environ["WHYLOGS_NO_ANALYTICS"])
 
 
 class TestWeatherDataset(object):
@@ -49,15 +50,25 @@ class TestWeatherDataset(object):
             dataset.set_parameters("1d", production_start_timestamp="22-04-12")
 
 
-TestWeatherDataset().test_non_existing_version()
-TestWeatherDataset().test_existing_version()
-TestWeatherDataset().test_non_supported_interval()
-TestWeatherDataset().test_supported_interval()
-TestWeatherDataset().test_date_baseline_ts()
-TestWeatherDataset().test_datetime_baseline_ts()
-TestWeatherDataset().test_unsupported_timestamp()
+# TestWeatherDataset().test_non_existing_version()
+# TestWeatherDataset().test_existing_version()
+# TestWeatherDataset().test_non_supported_interval()
+# TestWeatherDataset().test_supported_interval()
+# TestWeatherDataset().test_date_baseline_ts()
+# TestWeatherDataset().test_datetime_baseline_ts()
+# TestWeatherDataset().test_unsupported_timestamp()
 
-# dataset = Weather(version="in_domain")
-# dataset.set_parameters("1d", baseline_timestamp="22-03-12")
+
+dataset = Weather(version="in_domain")
+dataset.set_parameters("1d", production_start_timestamp=date.today())
+# batch = dataset.get_production_data(date=date.today())
+# print(batch.frame)
+dataset.set_parameters("1d", baseline_timestamp=datetime.now())
+baseline = dataset.get_baseline()
+print(type(baseline.frame["date"][0]))
+# print(baseline.timestamp)
+
+# print(Weather.describe())
+
 # print(dataset.baseline_timestamp)
 # print(dataset.interval)
