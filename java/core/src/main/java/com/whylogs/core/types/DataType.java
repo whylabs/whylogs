@@ -13,4 +13,3 @@ public abstract class DataType<T> {
         return tpe;
     }
 }
-
