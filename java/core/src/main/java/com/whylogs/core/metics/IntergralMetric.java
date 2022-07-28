@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 
 // TODO: lots of things to implement from supporting classes
 
@@ -42,5 +43,12 @@ public class IntergralMetric extends Metric{
     @Override
     public IntergralMetric zero(MetricConfig config){
         return IntergralMetric(MaxIntegralComponent(Integer.MIN_VALUE), MinIntegralComponent(Integer.MAX_VALUE));
+    }
+
+    public HashMap<String, T> toSummaryDict(SummaryConfig config){
+        HashMap<String, T> summary = new HashMap<String, T>();
+        summary.put("max", this.max.getValue());
+        summary.put("min", this.min.getValue());
+        return summary;
     }
 }
