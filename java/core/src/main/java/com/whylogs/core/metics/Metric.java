@@ -10,7 +10,7 @@ public abstract class Metric{
 
     // TODO: needs a __post_init__ for the registry
 
-    public static String getNameSpace(Class<T extends Metric> metric, MetricConfig config){
+    public static String getNameSpace(Metric metric, MetricConfig config){
         return metric.zero(config).namespace;
     }
 
