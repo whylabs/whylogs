@@ -1,9 +1,11 @@
-from whylogs.core.metrics.metrics import Metric
+from typing import Union
+
+from whylogs.core.metrics.metrics import CardinalityMetric
 
 from ..metric_constraints import MetricConstraint, MetricsSelector
 
 
-def distinct_number_in_range(column_name: str, lower: int, upper: int) -> MetricConstraint:
+def distinct_number_in_range(column_name: str, lower: Union[int, float], upper: Union[int, float]) -> MetricConstraint:
     """Number of distinct categories must be between lower and upper values (inclusive).
 
     Parameters
@@ -16,7 +18,7 @@ def distinct_number_in_range(column_name: str, lower: int, upper: int) -> Metric
         Upper bound of the value range
     """
 
-    def distinct_in_range(metric: Metric):
+    def distinct_in_range(metric: CardinalityMetric):
         distinct_estimate = metric.hll.value.get_estimate()
         if not lower > distinct_estimate and not distinct_estimate > upper:
             return True

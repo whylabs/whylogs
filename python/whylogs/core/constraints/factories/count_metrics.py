@@ -1,5 +1,7 @@
 from ..metric_constraints import MetricConstraint, MetricsSelector
 
+# TODO implement skip_missing for all methods
+
 
 def count_below_number(column_name: str, number: int) -> MetricConstraint:
     """Number of elements in a column must be below given number.
