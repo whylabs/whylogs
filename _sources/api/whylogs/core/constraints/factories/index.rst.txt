@@ -1,0 +1,192 @@
+:py:mod:`whylogs.core.constraints.factories`
+============================================
+
+.. py:module:: whylogs.core.constraints.factories
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   cardinality_metrics/index.rst
+   count_metrics/index.rst
+   distribution_metrics/index.rst
+   frequent_items/index.rst
+
+
+Package Contents
+----------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.factories.distinct_number_in_range
+   whylogs.core.constraints.factories.count_below_number
+   whylogs.core.constraints.factories.null_percentage_below_number
+   whylogs.core.constraints.factories.null_values_below_number
+   whylogs.core.constraints.factories.greater_than_number
+   whylogs.core.constraints.factories.mean_between_range
+   whylogs.core.constraints.factories.quantile_between_range
+   whylogs.core.constraints.factories.smaller_than_number
+   whylogs.core.constraints.factories.stddev_between_range
+   whylogs.core.constraints.factories.frequent_strings_in_reference_set
+   whylogs.core.constraints.factories.n_most_common_items_in_set
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.factories.ALL
+
+
+.. py:function:: distinct_number_in_range(column_name: str, lower: Union[int, float], upper: Union[int, float]) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Number of distinct categories must be between lower and upper values (inclusive).
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param lower: Lower bound of defined range
+   :type lower: int
+   :param upper: Upper bound of the value range
+   :type upper: int
+
+
+.. py:function:: count_below_number(column_name: str, number: int) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Number of elements in a column must be below given number.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param number: reference value for applying the constraint
+   :type number: float
+
+
+.. py:function:: null_percentage_below_number(column_name: str, number: float) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Percentage of null values must be below given number.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param number: reference value for applying the constraint
+   :type number: float
+
+
+.. py:function:: null_values_below_number(column_name: str, number: int) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Number of null values must be below given number.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param number: reference value for applying the constraint
+   :type number: float
+
+
+.. py:function:: greater_than_number(column_name: str, number: Union[float, int], skip_missing: bool = True) -> whylogs.core.constraints.MetricConstraint
+
+   Minimum value of given column must be above defined number.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param number: reference value for applying the constraint
+   :type number: float
+   :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
+                        If False, the check will fail on missing metrics
+   :type skip_missing: bool
+
+
+.. py:function:: mean_between_range(column_name: str, lower: float, upper: float, skip_missing: bool = True) -> whylogs.core.constraints.MetricConstraint
+
+   Estimated mean must be between range defined by lower and upper bounds.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param lower: Lower bound of defined range
+   :type lower: int
+   :param upper: Upper bound of the value range
+   :type upper: int
+   :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
+                        If False, the check will fail on missing metrics
+   :type skip_missing: bool
+
+
+.. py:function:: quantile_between_range(column_name: str, quantile: float, lower: float, upper: float, skip_missing: bool = True)
+
+   Q-th quantile value must be withing the range defined by lower and upper boundaries.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param quantile: Quantile value. E.g. median is equal to quantile_value=0.5
+   :type quantile: float
+   :param lower: Lower bound of defined range
+   :type lower: float
+   :param upper: Upper bound of the value range
+   :type upper: float
+   :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
+                        If False, the check will fail on missing metrics
+   :type skip_missing: bool
+
+
+.. py:function:: smaller_than_number(column_name: str, number: float, skip_missing: bool = True) -> whylogs.core.constraints.MetricConstraint
+
+   Maximum value of given column must be below defined number.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param number: reference value for applying the constraint
+   :type number: float
+   :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
+                        If False, the check will fail on missing metrics
+   :type skip_missing: bool
+
+
+.. py:function:: stddev_between_range(column_name: str, lower: float, upper: float, skip_missing: bool = True)
+
+   Estimated standard deviation must be between range defined by lower and upper bounds.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param lower: Lower bound of defined range
+   :type lower: float
+   :param upper: Upper bound of the value range
+   :type upper: float
+   :param skip_missing: If skip_missing is True, missing distribution metrics will make the check pass.
+                        If False, the check will fail on missing metrics
+   :type skip_missing: bool
+
+
+.. py:function:: frequent_strings_in_reference_set(column_name: str, reference_set: dict) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Determine whether a set of variables appear in the frequent strings for a string column.
+   Every item in frequent strings must be in defined reference set
+
+   :param column_name: Columns the constraint is applied to.
+   :type column_name: str
+   :param reference_set: Reference set for applying the constraint
+   :type reference_set: dict
+
+
+.. py:function:: n_most_common_items_in_set(column_name: str, n: int, reference_set: dict) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Validate if the top n most common items appear in the dataset.
+
+   :param column_name: Columns the constraint is applied to.
+   :type column_name: str
+   :param n: n most common items or strings.
+   :type n: int
+   :param reference_set: Reference set for applying the constraint
+   :type reference_set: dict
+
+
+.. py:data:: ALL
+   
+
+   
+

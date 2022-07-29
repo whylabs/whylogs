@@ -1,0 +1,31 @@
+:py:mod:`whylogs.core.constraints.factories.cardinality_metrics`
+================================================================
+
+.. py:module:: whylogs.core.constraints.factories.cardinality_metrics
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.factories.cardinality_metrics.distinct_number_in_range
+
+
+
+.. py:function:: distinct_number_in_range(column_name: str, lower: Union[int, float], upper: Union[int, float]) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Number of distinct categories must be between lower and upper values (inclusive).
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param lower: Lower bound of defined range
+   :type lower: int
+   :param upper: Upper bound of the value range
+   :type upper: int
+
+

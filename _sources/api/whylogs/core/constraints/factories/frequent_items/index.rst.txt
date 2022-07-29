@@ -1,0 +1,43 @@
+:py:mod:`whylogs.core.constraints.factories.frequent_items`
+===========================================================
+
+.. py:module:: whylogs.core.constraints.factories.frequent_items
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.factories.frequent_items.frequent_strings_in_reference_set
+   whylogs.core.constraints.factories.frequent_items.n_most_common_items_in_set
+
+
+
+.. py:function:: frequent_strings_in_reference_set(column_name: str, reference_set: dict) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Determine whether a set of variables appear in the frequent strings for a string column.
+   Every item in frequent strings must be in defined reference set
+
+   :param column_name: Columns the constraint is applied to.
+   :type column_name: str
+   :param reference_set: Reference set for applying the constraint
+   :type reference_set: dict
+
+
+.. py:function:: n_most_common_items_in_set(column_name: str, n: int, reference_set: dict) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Validate if the top n most common items appear in the dataset.
+
+   :param column_name: Columns the constraint is applied to.
+   :type column_name: str
+   :param n: n most common items or strings.
+   :type n: int
+   :param reference_set: Reference set for applying the constraint
+   :type reference_set: dict
+
+

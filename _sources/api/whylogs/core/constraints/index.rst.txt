@@ -4,6 +4,15 @@
 .. py:module:: whylogs.core.constraints
 
 
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   factories/index.rst
+
+
 Submodules
 ----------
 .. toctree::

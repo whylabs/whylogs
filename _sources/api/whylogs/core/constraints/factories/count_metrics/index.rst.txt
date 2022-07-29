@@ -1,0 +1,51 @@
+:py:mod:`whylogs.core.constraints.factories.count_metrics`
+==========================================================
+
+.. py:module:: whylogs.core.constraints.factories.count_metrics
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.constraints.factories.count_metrics.count_below_number
+   whylogs.core.constraints.factories.count_metrics.null_values_below_number
+   whylogs.core.constraints.factories.count_metrics.null_percentage_below_number
+
+
+
+.. py:function:: count_below_number(column_name: str, number: int) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Number of elements in a column must be below given number.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param number: reference value for applying the constraint
+   :type number: float
+
+
+.. py:function:: null_values_below_number(column_name: str, number: int) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Number of null values must be below given number.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param number: reference value for applying the constraint
+   :type number: float
+
+
+.. py:function:: null_percentage_below_number(column_name: str, number: float) -> whylogs.core.constraints.metric_constraints.MetricConstraint
+
+   Percentage of null values must be below given number.
+
+   :param column_name: Column the constraint is applied to
+   :type column_name: str
+   :param number: reference value for applying the constraint
+   :type number: float
+
+
