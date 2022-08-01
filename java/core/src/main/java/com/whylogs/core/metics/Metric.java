@@ -1,5 +1,6 @@
 package com.whylogs.core.metics;
 
+import com.whylogs.core.PreProcessedColumn;
 import com.whylogs.core.metics.components.MetricComponent;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -30,7 +31,7 @@ public abstract class Metric{
     // TODO: get_component_paths needs MetricComponents
 
     public abstract HashMap<String, ?> toSummaryDict(SummaryConfig config);
-    public abstract OperationResult columnarUpdate(PreprocessedColumn data);
+    public abstract OperationResult columnarUpdate(PreProcessedColumn data);
 
     public static <T extends Metric> T from_protobuf(MetricMessage message){
         // Todo: check that it's a Metric dataclass
