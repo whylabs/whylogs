@@ -16,8 +16,8 @@ class ResultSet(ABC):
     kinds of profiles such as segmented profiles here.
     """
 
-    @classmethod
-    def read(cls, multi_profile_file: str) -> "ResultSet":
+    @staticmethod
+    def read(multi_profile_file: str) -> "ResultSet":
         # TODO: parse multiple profile
         view = DatasetProfileView.read(multi_profile_file)
         return ViewResultSet(view=view)
