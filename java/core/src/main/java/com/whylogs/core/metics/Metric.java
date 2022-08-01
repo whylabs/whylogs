@@ -34,15 +34,16 @@ public abstract class Metric{
     public abstract HashMap<String, ?> toSummaryDict(SummaryConfig config);
     public abstract OperationResult columnarUpdate(PreProcessedColumn data);
 
+    /* TODO: Not ready for this yet
     public static <T extends Metric> T from_protobuf(MetricMessage message){
         // Todo: check that it's a Metric dataclass
-        /*
+
         HashMap<String, Class<M extends MetricComponent<?>> M> components = new HashMap<>();
         for k, m in message.components.items():
             components[k] = MetricComponent.from_protobuf(m);
-        */
+
         // TODO: We will have to figure out how to do this to make sure it's not just a Metric
         // but the sublcass
         return null;
-    }
+    }*/
 }
