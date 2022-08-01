@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-// TODO: lots of things to implement from supporting classes
 
 @Data
 @EqualsAndHashCode(callSuper=false)
@@ -21,7 +20,7 @@ public class IntegralMetric extends Metric{
     private final String namespace = "ints";
 
     public IntegralMetric() {
-        // TODO: Should we initialize these to the same as zero?
+        // zeros the metrics out
         this.maxComponent = new MaxIntegralComponent(Integer.MIN_VALUE);
         this.minComponent = new MinIntegralComponent(Integer.MAX_VALUE);
     }
@@ -40,8 +39,6 @@ public class IntegralMetric extends Metric{
         int max_ = this.maxComponent.getValue();
         int min_ = this.minComponent.getValue();
 
-        // TODO: Double check we don't have anything similar to numpy here
-
         if(data.hasListInts()){
             ArrayList<Integer> data_list = data.getLists().getInts();
             int l_max = Collections.max(data_list);
@@ -58,13 +55,12 @@ public class IntegralMetric extends Metric{
 
     @Override
     public IntegralMetric zero(MetricConfig config){
-        return new IntegralMetric(new MaxIntegralComponent(Integer.MIN_VALUE), new MinIntegralComponent(Integer.MAX_VALUE));
+        return new IntegralMetric();
     }
 
-
     @Override
-    //TODO: why would the config be passed in if we don't use it. Come back t
     public HashMap<String, Integer> toSummaryDict(SummaryConfig config){
+        // This component does not need the config, but others do
         HashMap<String, Integer> summary = new HashMap<String, Integer>();
         summary.put("max", this.maxComponent.getValue());
         summary.put("min", this.minComponent.getValue());
@@ -74,7 +70,6 @@ public class IntegralMetric extends Metric{
     private void setMax(int max){
         this.maxComponent = new MaxIntegralComponent(max);
     }
-
     private void setMin(int min){
         this.minComponent = new MinIntegralComponent(min);
     }
