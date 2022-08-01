@@ -3,8 +3,6 @@ from logging import getLogger
 from typing import Dict
 
 import pytest
-
-# from pyspark import SparkConf
 from pyspark.sql import SparkSession
 
 from whylogs.api.pyspark.experimental import (
@@ -19,33 +17,10 @@ from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 TEST_LOGGER = getLogger(__name__)
 
-from typing import Iterable  # noqa: E402
-
-import whylogs as why  # noqa: E402
-
-COL_NAME_FIELD = "col_name"
-COL_PROFILE_FIELD = "col_profile"
-
-
-def profiler_local(pdf_iterator: Iterable[pd.DataFrame]) -> Iterable[pd.DataFrame]:
-    for input_df in pdf_iterator:
-        res = why.log(input_df)
-        res_df = pd.DataFrame(columns=[COL_NAME_FIELD, COL_PROFILE_FIELD])
-        for col_name, col_profile in res.view().get_columns().items():
-            d = {
-                COL_NAME_FIELD: [col_name],
-                COL_PROFILE_FIELD: [col_profile.to_protobuf().SerializeToString()],
-            }
-            df_temp = pd.DataFrame(data=d)
-            res_df = res_df.append(df_temp)
-        yield res_df
-
 
 class TestPySpark(object):
     @classmethod
     def setup_class(cls):
-        # conf=SparkConf()
-        # conf.set("spark.driver.memory", "8g")
         cls.spark = SparkSession.builder.master("local[1]").getOrCreate()
 
     @classmethod
@@ -67,46 +42,6 @@ class TestPySpark(object):
             schema=test_columns,
         )
         return input_df
-
-    def test_puzzle(self, input_df):
-        # TODO: consider a constant for this, or better encapsulation.
-        cp = "col_name string, col_profile binary"
-
-        input_df.show()
-
-        def profiler_nested(pdf_iterator: Iterable[pd.DataFrame]) -> Iterable[pd.DataFrame]:
-            for input_df in pdf_iterator:
-                res = why.log(input_df)
-                res_df = pd.DataFrame(columns=[COL_NAME_FIELD, COL_PROFILE_FIELD])
-                for col_name, col_profile in res.view().get_columns().items():
-                    d = {
-                        COL_NAME_FIELD: [col_name],
-                        COL_PROFILE_FIELD: [col_profile.to_protobuf().SerializeToString()],
-                    }
-                    df_temp = pd.DataFrame(data=d)
-                    res_df = res_df.append(df_temp)
-                yield res_df
-
-        def profiler_wrapped(pdf_iterator: Iterable[pd.DataFrame]) -> Iterable[pd.DataFrame]:
-            return whylogs_pandas_map_profiler(pdf_iterator)
-
-        # profile_bytes_df = input_df.mapInPandas(whylogs_pandas_map_profiler, schema=cp)  # crashes?
-        # profile_bytes_df = input_df.mapInPandas(profiler_local, schema=cp)  # crashes?
-        # profile_bytes_df = input_df.mapInPandas(profiler_nested, schema=cp)  # works?
-        profile_bytes_df = input_df.mapInPandas(profiler_wrapped, schema=cp)  # works?
-
-        profile_bytes_df.show()
-        column_profiles = profile_bytes_df.groupby("col_name").applyInPandas(column_profile_bytes_aggregator, schema=cp)
-        column_profiles.show()
-        collected_profiles = map(
-            lambda row: (row.col_name, ColumnProfileView.from_bytes(row.col_profile).to_summary_dict()),
-            column_profiles.collect(),
-        )
-        assert profile_bytes_df.rdd.getNumPartitions() > 0
-        assert profile_bytes_df.count() == 4
-        local_column_profiles = list(collected_profiles)
-        TEST_LOGGER.info(local_column_profiles)
-        assert local_column_profiles is not None
 
     def test_profile_mapper_function(self, input_df):
         # TODO: consider a constant for this, or better encapsulation.
