@@ -25,6 +25,9 @@ class ColumnProfile(object):
         self._cache: List[Any] = []
 
     def add_metric(self, metric: Metric) -> None:
+        if metric.namespace in self._metrics:
+            logger.warning(f"Replacing metric {metric.namespace} in column {self._name}")
+
         self._metrics[metric.namespace] = metric
 
     def track(self, row: Dict[str, Any]) -> None:
