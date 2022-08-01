@@ -394,6 +394,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnProfile</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_active</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_track_count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">new_cols</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">get_col_names</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_new_columns</span><span class="p">(</span><span class="n">new_cols</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">creation_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
@@ -459,12 +461,7 @@
         <span class="k">if</span> <span class="n">dirty</span><span class="p">:</span>
             <span class="n">schema_col_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">get_col_names</span><span class="p">()</span>
             <span class="n">new_cols</span> <span class="o">=</span> <span class="p">(</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">schema_col_keys</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">new_cols</span><span class="p">:</span>
-                <span class="n">col_schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">col_schema</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">col_schema</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">cache_size</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Encountered a column without schema: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_new_columns</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">new_cols</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="n">pandas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">pandas</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -477,6 +474,14 @@
             <span class="k">return</span>
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_initialize_new_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_cols</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">new_cols</span><span class="p">:</span>
+            <span class="n">col_schema</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">col_schema</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">col_schema</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">cache_size</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Encountered a column without schema: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DatasetProfile.view"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.api.logger.DatasetProfile.view">[docs]</a>    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfileView</span><span class="p">:</span>
         <span class="n">columns</span> <span class="o">=</span> <span class="p">{}</span>
