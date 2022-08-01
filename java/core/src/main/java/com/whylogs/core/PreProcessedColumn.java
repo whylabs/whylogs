@@ -52,4 +52,8 @@ public class PreProcessedColumn {
         }
         return result;
     }
+
+    public boolean hasListInts(){
+        return this.lists.getInts() != null;
+    }
 }

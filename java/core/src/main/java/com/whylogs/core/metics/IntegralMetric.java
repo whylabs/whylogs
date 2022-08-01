@@ -1,5 +1,7 @@
 package com.whylogs.core.metics;
 
+import com.whylogs.core.PreProcessedColumn;
+import com.whylogs.core.SummaryConfig;
 import com.whylogs.core.metics.components.MaxIntegralComponent;
 import com.whylogs.core.metics.components.MinIntegralComponent;
 import lombok.Data;
@@ -27,8 +29,8 @@ public class IntegralMetric extends Metric{
         this.minComponent = minComponent;
     }
 
-    public OperationResult columnarUpdate(PreprocessedColumn data){
-        if(data.length() == 0){
+    public OperationResult columnarUpdate(PreProcessedColumn data){
+        if(data.getLength() == 0){
             return OperationResult.ok();
         }
 
@@ -39,7 +41,7 @@ public class IntegralMetric extends Metric{
         // TODO: Double check we don't have anything similar to numpy here
 
         if(data.hasListInts()){
-            ArrayList<Integer> data_list = data.getListInts();
+            ArrayList<Integer> data_list = data.getLists().getInts();
             int l_max = Collections.max(data_list);
             int l_min = Collections.min(data_list);
             max_ = Integer.max(max_, l_max);

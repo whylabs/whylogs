@@ -1,6 +1,7 @@
 package com.whylogs.core.metics;
 
 import com.whylogs.core.PreProcessedColumn;
+import com.whylogs.core.SummaryConfig;
 import com.whylogs.core.metics.components.MetricComponent;
 import org.apache.commons.lang3.NotImplementedException;
 
