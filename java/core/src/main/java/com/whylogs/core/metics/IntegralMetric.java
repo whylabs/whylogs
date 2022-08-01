@@ -1,6 +1,5 @@
 package com.whylogs.core.metics;
 
-import com.whylogs.core.metics.OperationResult;
 import com.whylogs.core.metics.components.MaxIntegralComponent;
 import com.whylogs.core.metics.components.MinIntegralComponent;
 import lombok.Data;
@@ -12,18 +11,18 @@ import java.util.HashMap;
 // TODO: lots of things to implement from supporting classes
 
 @Data
-public class IntergralMetric extends Metric{
+public class IntegralMetric extends Metric{
     private MaxIntegralComponent maxComponent;
     private MinIntegralComponent minComponent;
     private final String namespace = "ints";
 
-    public IntergralMetric() {
+    public IntegralMetric() {
         // TODO: Should we initialize these to the same as zero?
         this.maxComponent = new MaxIntegralComponent(Integer.MIN_VALUE);
         this.minComponent = new MinIntegralComponent(Integer.MAX_VALUE);
     }
 
-    public IntergralMetric(MaxIntegralComponent maxComponent, MinIntegralComponent minComponent) {
+    public IntegralMetric(MaxIntegralComponent maxComponent, MinIntegralComponent minComponent) {
         this.maxComponent = maxComponent;
         this.minComponent = minComponent;
     }
@@ -54,8 +53,8 @@ public class IntergralMetric extends Metric{
     }
 
     @Override
-    public IntergralMetric zero(MetricConfig config){
-        return new IntergralMetric(new MaxIntegralComponent(Integer.MIN_VALUE), new MinIntegralComponent(Integer.MAX_VALUE));
+    public IntegralMetric zero(MetricConfig config){
+        return new IntegralMetric(new MaxIntegralComponent(Integer.MIN_VALUE), new MinIntegralComponent(Integer.MAX_VALUE));
     }
 
 
