@@ -1,8 +1,10 @@
 package com.whylogs.core.metics.components;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class MinIntegralComponent extends IntegralComponent {
     private final int type_id = 1;
 

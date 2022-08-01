@@ -5,6 +5,7 @@ import com.whylogs.core.SummaryConfig;
 import com.whylogs.core.metics.components.MaxIntegralComponent;
 import com.whylogs.core.metics.components.MinIntegralComponent;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 // TODO: lots of things to implement from supporting classes
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class IntegralMetric extends Metric{
     private MaxIntegralComponent maxComponent;
     private MinIntegralComponent minComponent;

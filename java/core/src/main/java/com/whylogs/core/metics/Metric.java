@@ -19,19 +19,20 @@ public abstract class Metric{
 
     public abstract <T extends Metric> T zero(MetricConfig config);
 
-    public <T extends Metric> T add(Class<T extends Metric> otherMetric){
+    public <T extends Metric> T add(Class<T> otherMetric){
         return this.merge(otherMetric);
     }
 
-    public <T extends Metric> T merge(Class<T extends Metric> otherMetric){
+    public <T extends Metric> T merge(Class<T> otherMetric){
         // TODO: Metric Components
+        return null;
     }
 
     // TODO: protobuf needs MetricMessage
 
     // TODO: get_component_paths needs MetricComponents
 
-    public abstract HashMap<String, ?> toSummaryDict(SummaryConfig config);
+    public abstract <O> HashMap<String, O> toSummaryDict(SummaryConfig config); // TODO: this doesn't make a good api so ...
     public abstract OperationResult columnarUpdate(PreProcessedColumn data);
 
     /* TODO: Not ready for this yet

@@ -2,6 +2,7 @@ package com.whylogs.core.metics.components;
 
 import com.whylogs.core.message.MetricComponentMessage;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /***
 A metric component is the smallest unit for a metric.
@@ -11,6 +12,7 @@ histogram, mean and m2. The calculation of components could be independent or co
 components.
 ***/
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class MetricComponent<T> {
     private static final int type_id = 0;
     private final T value;
