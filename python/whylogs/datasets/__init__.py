@@ -1,4 +1,4 @@
-from whylogs.datasets.datasets import Weather
+from whylogs.datasets.weather import Weather
 
 __ALL__ = [
     # column
