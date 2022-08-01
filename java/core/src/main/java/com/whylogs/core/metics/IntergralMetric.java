@@ -1,6 +1,8 @@
 package com.whylogs.core.metics;
 
 import com.whylogs.core.metics.OperationResult;
+import com.whylogs.core.metics.components.MaxIntegralComponent;
+import com.whylogs.core.metics.components.MinIntegralComponent;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -11,9 +13,20 @@ import java.util.HashMap;
 
 @Data
 public class IntergralMetric extends Metric{
-    private MaxIntegralComponent;
-    private MinIntegralComponent;
+    private MaxIntegralComponent maxComponent;
+    private MinIntegralComponent minComponent;
     private final String namespace = "ints";
+
+    public IntergralMetric() {
+        // TODO: Should we initialize these to the same as zero?
+        this.maxComponent = new MaxIntegralComponent(Integer.MIN_VALUE);
+        this.minComponent = new MinIntegralComponent(Integer.MAX_VALUE);
+    }
+
+    public IntergralMetric(MaxIntegralComponent maxComponent, MinIntegralComponent minComponent) {
+        this.maxComponent = maxComponent;
+        this.minComponent = minComponent;
+    }
 
     public OperationResult columnarUpdate(PreprocessedColumn data){
         if(data.length() == 0){
@@ -21,13 +34,13 @@ public class IntergralMetric extends Metric{
         }
 
         int successes = 0;
-        int max_ = this.max.getValue();
-        int min_ = this.min.getValue();
+        int max_ = this.maxComponent.getValue();
+        int min_ = this.minComponent.getValue();
 
         // TODO: Double check we don't have anything similar to numpy here
 
         if(data.hasListInts()){
-            ArrayList<Integer> data_list = data.getListInts()
+            ArrayList<Integer> data_list = data.getListInts();
             int l_max = Collections.max(data_list);
             int l_min = Collections.min(data_list);
             max_ = Integer.max(max_, l_max);
@@ -42,13 +55,24 @@ public class IntergralMetric extends Metric{
 
     @Override
     public IntergralMetric zero(MetricConfig config){
-        return IntergralMetric(MaxIntegralComponent(Integer.MIN_VALUE), MinIntegralComponent(Integer.MAX_VALUE));
+        return new IntergralMetric(new MaxIntegralComponent(Integer.MIN_VALUE), new MinIntegralComponent(Integer.MAX_VALUE));
     }
 
-    public HashMap<String, T> toSummaryDict(SummaryConfig config){
-        HashMap<String, T> summary = new HashMap<String, T>();
-        summary.put("max", this.max.getValue());
-        summary.put("min", this.min.getValue());
+
+    @Override
+    //TODO: why would the config be passed in if we don't use it. Come back t
+    public HashMap<String, Integer> toSummaryDict(SummaryConfig config){
+        HashMap<String, Integer> summary = new HashMap<String, Integer>();
+        summary.put("max", this.maxComponent.getValue());
+        summary.put("min", this.minComponent.getValue());
         return summary;
+    }
+
+    private void setMax(int max){
+        this.maxComponent = new MaxIntegralComponent(max);
+    }
+
+    private void setMin(int min){
+        this.minComponent = new MinIntegralComponent(min);
     }
 }
