@@ -1,4 +1,4 @@
-package com.whylogs.core.metics;
+package com.whylogs.core.metrics;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

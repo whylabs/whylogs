@@ -1,9 +1,9 @@
-package com.whylogs.core.metics;
+package com.whylogs.core.metrics;
 
 import com.whylogs.core.PreProcessedColumn;
 import com.whylogs.core.SummaryConfig;
-import com.whylogs.core.metics.components.MaxIntegralComponent;
-import com.whylogs.core.metics.components.MinIntegralComponent;
+import com.whylogs.core.metrics.components.MaxIntegralComponent;
+import com.whylogs.core.metrics.components.MinIntegralComponent;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

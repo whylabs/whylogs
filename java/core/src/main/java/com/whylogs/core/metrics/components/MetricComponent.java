@@ -1,4 +1,4 @@
-package com.whylogs.core.metics.components;
+package com.whylogs.core.metrics.components;
 
 import com.whylogs.core.message.MetricComponentMessage;
 import lombok.Data;
