@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class ListView {
     private ArrayList<Integer> ints;
     private ArrayList<String> strings;
-    private ArrayList<Float> floats;
+    private ArrayList<Double> doubles;
     private ArrayList<Object> objects;
 
     // TODO: iterable in python is easy , but here the typing is a bit more complicated
@@ -16,7 +16,7 @@ public class ListView {
     public ListView(){
         this.ints = new ArrayList<>();
         this.strings = new ArrayList<>();
-        this.floats = new ArrayList<>();
+        this.doubles = new ArrayList<>();
         this.objects = new ArrayList<>();
     }
 
@@ -28,8 +28,8 @@ public class ListView {
         this.strings.add(s);
     }
 
-    public void add(float f){
-        this.floats.add(f);
+    public void add(double d){
+        this.doubles.add(d);
     }
 
     public void add(Object o){

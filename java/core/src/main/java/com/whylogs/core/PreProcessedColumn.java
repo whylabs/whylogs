@@ -46,8 +46,8 @@ public class PreProcessedColumn {
                 result.lists.add((int)o);
             } else if(o instanceof String){
                 result.lists.add((String)o);
-            } else if(o instanceof Float){
-                result.lists.add((float)o);
+            } else if(o instanceof Double){
+                result.lists.add((double) o);
             } else {
                 result.lists.add(o);
             }
