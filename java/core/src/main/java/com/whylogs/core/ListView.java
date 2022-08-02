@@ -13,6 +13,13 @@ public class ListView {
 
     // TODO: iterable in python is easy , but here the typing is a bit more complicated
 
+    public ListView(){
+        this.ints = new ArrayList<>();
+        this.strings = new ArrayList<>();
+        this.floats = new ArrayList<>();
+        this.objects = new ArrayList<>();
+    }
+
     public void add(int i){
         this.ints.add(i);
     }

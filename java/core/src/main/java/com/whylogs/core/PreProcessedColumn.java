@@ -7,7 +7,6 @@ import java.util.List;
 
 // TODO: can we make this not have an init?
 @Data
-@NoArgsConstructor
 public class PreProcessedColumn {
     /**
     * View of a column with data of various underlying storage.
@@ -22,6 +21,9 @@ public class PreProcessedColumn {
     private int length = -1;
     private Object originalColumn = null;
 
+    public PreProcessedColumn(){
+        this.lists = new ListView();
+    }
 
     // TODO: apply Scalars
     // TODO: apply Iterables and Iterators
@@ -54,6 +56,6 @@ public class PreProcessedColumn {
     }
 
     public boolean hasListInts(){
-        return this.lists.getInts() != null;
+        return this.lists.getInts().isEmpty() == false;
     }
 }
