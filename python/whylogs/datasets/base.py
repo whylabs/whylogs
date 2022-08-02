@@ -4,25 +4,52 @@ from typing import Optional, Union, Iterable, Tuple
 
 from datetime import date, datetime
 import logging
-from xml.sax.handler import feature_namespaces
+from typing_extensions import Self
 import pandas as pd
+from whylogs.datasets.configs import DatasetConfig
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(init=False)
 class Batch:
     """Batch object.
     data = features + target + prediction + meta
     """
 
-    timestamp: date
-    data: pd.DataFrame
-    features: Optional[pd.DataFrame] = None
-    target: Optional[pd.DataFrame] = None
-    prediction: Optional[pd.DataFrame] = None
-    meta: Optional[pd.DataFrame] = None  # maybe change name
-    DESCR: Optional[str] = None
+    def __init__(self, timestamp: date, data: pd.DataFrame, dataset_config: DatasetConfig, version: str):
+        self._timestamp = timestamp
+        self._data = data
+        self.dataset_config = dataset_config
+        self.version = version
+
+    @property
+    def data(self) -> pd.DataFrame:
+        return self._data
+
+    @property
+    def timestamp(self) -> date:
+        return self._timestamp
+
+    @property
+    def target(self) -> pd.DataFrame:
+        return self._data[list(self.dataset_config.target_columns[self.version])]
+
+    @property
+    def prediction(self) -> pd.DataFrame:
+        return self._data[list(self.dataset_config.prediction_columns[self.version])]
+
+    @property
+    def meta(self) -> pd.DataFrame:
+        return self._data[list(self.dataset_config.metadata_columns[self.version])]
+
+    @property
+    def features(self) -> pd.DataFrame:
+        data_cols = list(self._data.columns)
+        target_cols = list(self.dataset_config.target_columns[self.version])
+        prediction_cols = list(self.dataset_config.prediction_columns[self.version])
+        meta_cols = list(self.dataset_config.metadata_columns[self.version])
+        return self._data[[col for col in data_cols if col not in target_cols + prediction_cols + meta_cols]]
 
 
 class Dataset(ABC):

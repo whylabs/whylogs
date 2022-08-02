@@ -1,19 +1,11 @@
-from curses import meta
 from dataclasses import dataclass
-from tkinter.tix import Meter
 from typing import Optional, Union, Iterable
 
-from importlib_metadata import metadata
 from whylogs.datasets.configs import DatasetConfig, WeatherConfig
 from datetime import date, datetime, timedelta
 from whylogs.datasets.base import Batch, Dataset
 import pandas as pd
-from whylogs.datasets.utils import (
-    _change_df_date_by_offset,
-    _validate_timestamp,
-    _parse_interval,
-    assemble_batch_from_df,
-)
+from whylogs.datasets.utils import _change_df_date_by_offset, _validate_timestamp, _parse_interval
 from logging import getLogger
 
 logger = getLogger(__name__)
@@ -53,7 +45,9 @@ class Weather(Dataset):
 
     def get_baseline(self) -> Batch:
         data = self.baseline_df
-        baseline = assemble_batch_from_df(data, self.version, self.dataset_config, self.baseline_timestamp)
+        baseline = Batch(
+            timestamp=self.baseline_timestamp, data=data, dataset_config=self.dataset_config, version=self.version
+        )
         return baseline
 
     def _validate_interval(self, interval):
@@ -75,7 +69,9 @@ class Weather(Dataset):
             target_date = _validate_timestamp(target_date)
             mask = self.inference_df["date"] == target_date
             data = self.inference_df.loc[mask]
-            inference = assemble_batch_from_df(data, self.version, self.dataset_config, target_date)
+            inference = Batch(
+                timestamp=target_date, data=data, dataset_config=self.dataset_config, version=self.version
+            )
             return inference
         if number_batches:
             batches = WeatherDatasetIterator(
@@ -147,7 +143,7 @@ class WeatherDatasetIterator:
         if self._index <= self._df.iloc[-1].name:
             day = self._index
             data = self._df[day : day + timedelta(days=(self._number_days - 1))]
-            inference = assemble_batch_from_df(data, self.version, self.config, day)
+            inference = Batch(timestamp=day, data=data, dataset_config=self.config, version=self.version)
             self._index = data.index[-1] + timedelta(days=1)
             self._batch_counter += 1
 

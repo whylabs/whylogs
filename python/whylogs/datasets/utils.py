@@ -44,21 +44,3 @@ def _validate_timestamp(timestamp):
         return timestamp
     else:
         raise ValueError("You must pass either a Datetime or Date object to timestamp!")
-
-
-def assemble_batch_from_df(
-    data: pd.DataFrame, version: str, dataset_config: DatasetConfig, timestamp: Union[date, datetime]
-):
-    target_df = data[list(dataset_config.target_columns[version])]
-    predictions_df = data[list(dataset_config.prediction_columns[version])]
-    metadata_df = data[list(dataset_config.metadata_columns[version])]
-    features_df = data.drop(columns=list(target_df.columns) + list(predictions_df.columns) + list(metadata_df.columns))
-    batch = Batch(
-        timestamp=timestamp,
-        data=data,
-        features=features_df,
-        target=target_df,
-        prediction=predictions_df,
-        meta=metadata_df,
-    )
-    return batch
