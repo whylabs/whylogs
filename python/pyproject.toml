@@ -47,6 +47,7 @@ pyspark = {version = "^3.0.0", optional = true}
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
 black = { version = "*", allow-prereleases = true }
+bump2version = "^1.0.1"
 flake8 = "*"
 isort = "^5.6"
 mypy = ">=0.942,<1"
