@@ -42,11 +42,17 @@ public class PreProcessedColumn {
                 if((boolean)o){
                     result.boolCountWhereTrue++;
                 }
-            } else if(o instanceof Integer){
-                result.lists.add((int)o);
-            } else if(o instanceof String){
-                result.lists.add((String)o);
-            } else if(o instanceof Double){
+            } else if(o instanceof Integer ){
+                result.lists.add((int) o);
+            } else if(o instanceof Short) {
+                result.lists.add(((Short) o).intValue());
+            } else if(o instanceof Byte){
+                result.lists.add(((Byte) o).intValue());
+            } else if(o instanceof String) {
+                result.lists.add((String) o);
+            } else if(o instanceof Character){
+                result.lists.add(((Character) o).toString());
+            } else if(o instanceof Double || o instanceof Float){
                 result.lists.add((double) o);
             } else {
                 result.lists.add(o);
@@ -56,6 +62,6 @@ public class PreProcessedColumn {
     }
 
     public boolean hasListInts(){
-        return this.lists.getInts().isEmpty() == false;
+        return !this.lists.getInts().isEmpty();
     }
 }
