@@ -2,6 +2,7 @@ package com.whylogs.core;
 
 import lombok.*;
 
+import java.util.Collection;
 import java.util.List;
 
 @Getter @Setter @EqualsAndHashCode
@@ -26,7 +27,7 @@ public class PreProcessedColumn {
     // TODO: apply Scalars
     // TODO: apply Iterables and Iterators
 
-    public static PreProcessedColumn apply(List data){
+    public static PreProcessedColumn apply(Collection<?> data){
         PreProcessedColumn result = new PreProcessedColumn();
         result.setOriginalColumn(data);
 
@@ -50,8 +51,10 @@ public class PreProcessedColumn {
                 result.lists.add((String) o);
             } else if(o instanceof Character){
                 result.lists.add(((Character) o).toString());
-            } else if(o instanceof Double || o instanceof Float){
+            } else if(o instanceof Double){
                 result.lists.add((double) o);
+            } else if(o instanceof Float){
+                result.lists.add(((Float) o).doubleValue());
             } else {
                 result.lists.add(o);
             }

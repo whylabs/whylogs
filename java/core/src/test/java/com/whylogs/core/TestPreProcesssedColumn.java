@@ -30,7 +30,11 @@ public class TestPreProcesssedColumn {
 
         results = PreProcessedColumn.apply(mixed);
 
-        Assert.assertEquals(results.getLists().getDoubles(), mixed.subList(0, 2));
+        ArrayList<Double> double_answer = new ArrayList<>();
+        double_answer.add(1.0);
+        double_answer.add(2.0);
+
+        Assert.assertEquals(results.getLists().getDoubles(), double_answer);
         Assert.assertEquals(results.getLists().getInts(), mixed.subList(2, 4));
         Assert.assertEquals(results.getLists().getStrings(), mixed.subList(4, 5));
         assert_zero_len(results.getLists().getObjects());
