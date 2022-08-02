@@ -1,12 +1,10 @@
 package com.whylogs.core;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-// TODO: can we make this not have an init?
-@Data
+@Getter @Setter @EqualsAndHashCode
 public class PreProcessedColumn {
     /**
     * View of a column with data of various underlying storage.
