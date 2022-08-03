@@ -1,7 +1,9 @@
+from datetime import date, datetime
+
 import pytest
+
 from whylogs.datasets import Weather
 from whylogs.datasets.configs import WeatherConfig
-from datetime import date, datetime
 
 
 class TestWeatherDataset(object):

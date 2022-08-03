@@ -1,12 +1,21 @@
+import os
 from dataclasses import dataclass
-from typing import Optional, Union, Iterable
-
-from whylogs.datasets.configs import DatasetConfig, WeatherConfig
 from datetime import date, datetime, timedelta
-from whylogs.datasets.base import Batch, Dataset
-import pandas as pd
-from whylogs.datasets.utils import _change_df_date_by_offset, _validate_timestamp, _parse_interval
+from email.mime import base
 from logging import getLogger
+from typing import Iterable, Optional, Union
+
+import pandas as pd
+
+from whylogs.datasets.base import Batch, Dataset
+from whylogs.datasets.configs import DatasetConfig, WeatherConfig
+from whylogs.datasets.utils import (
+    _change_df_date_by_offset,
+    _get_data_home,
+    _get_dataset_path,
+    _parse_interval,
+    _validate_timestamp,
+)
 
 logger = getLogger(__name__)
 
@@ -36,12 +45,26 @@ class Weather(Dataset):
         if version not in self.dataset_config.available_versions:
             raise ValueError("Version not found in list of available versions.")
         self.version = version
-        self.baseline_df = pd.read_csv("{}/baseline_dataset.csv".format(self.url))
-        self.inference_df = pd.read_csv("{}/inference_dataset_{}.csv".format(self.url, self.version))
+
+        baseline_file = os.path.join(
+            _get_dataset_path(self.dataset_config.folder_name), "baseline_dataset_{}.csv".format(self.version)
+        )
+        inference_file = os.path.join(
+            _get_dataset_path(self.dataset_config.folder_name), "inference_dataset_{}.csv".format(self.version)
+        )
+
+        try:
+            self.baseline_df = pd.read_csv(baseline_file)
+            self.inference_df = pd.read_csv(inference_file)
+        except FileNotFoundError:
+            self.baseline_df = pd.read_csv("{}/baseline_dataset_{}.csv".format(self.url, self.version))
+            self.baseline_df.to_csv(baseline_file, index=False)
+
+            self.inference_df = pd.read_csv("{}/inference_dataset_{}.csv".format(self.url, self.version))
+            self.inference_df.to_csv(inference_file, index=False)
+
         self.inference_df = self.inference_df.set_index(["date"], drop=False)
-        self.inference_df = _change_df_date_by_offset(
-            self.inference_df, new_start_date=self.inference_start_timestamp
-        )  # To cast date column from string to date
+        self.inference_df = _change_df_date_by_offset(self.inference_df, new_start_date=self.inference_start_timestamp)
 
     def get_baseline(self) -> Batch:
         data = self.baseline_df

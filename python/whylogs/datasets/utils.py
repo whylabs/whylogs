@@ -1,9 +1,14 @@
-from datetime import date, datetime
+import os
 import re
+from datetime import date, datetime
 from typing import Tuple, Union
+
 import pandas as pd
-from whylogs.datasets.configs import DatasetConfig
+
 from whylogs.datasets.base import Batch
+from whylogs.datasets.configs import BaseConfig, DatasetConfig
+
+base_config = BaseConfig()
 
 
 def _adjust_date(current_date, date_offset):
@@ -44,3 +49,18 @@ def _validate_timestamp(timestamp):
         return timestamp
     else:
         raise ValueError("You must pass either a Datetime or Date object to timestamp!")
+
+
+def _get_data_home():
+    home_path = os.path.join(".", base_config.data_folder)
+    if not os.path.exists(home_path):
+        os.makedirs(home_path)
+    return home_path
+
+
+def _get_dataset_path(folder_name):
+    home_path = _get_data_home()
+    dataset_path = os.path.join(home_path, folder_name)
+    if not os.path.exists(dataset_path):
+        os.makedirs(dataset_path)
+    return dataset_path

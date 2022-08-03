@@ -1,11 +1,12 @@
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional, Union, Iterable, Tuple
-
 from datetime import date, datetime
-import logging
-from typing_extensions import Self
+from typing import Iterable, Optional, Tuple, Union
+
 import pandas as pd
+from typing_extensions import Self
+
 from whylogs.datasets.configs import DatasetConfig
 
 logger = logging.getLogger(__name__)

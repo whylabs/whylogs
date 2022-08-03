@@ -1,10 +1,16 @@
 from dataclasses import dataclass, field
-from typing import List, Dict
 from datetime import date
+from typing import Dict, List
+
+
+@dataclass
+class BaseConfig:
+    data_folder: str = "whylogs_data"
 
 
 @dataclass
 class DatasetConfig:
+    folder_name: str
     url: str
     baseline_start_timestamp: date
     inference_start_timestamp: date
@@ -18,6 +24,7 @@ class DatasetConfig:
 
 @dataclass
 class WeatherConfig(DatasetConfig):
+    folder_name: str = "weather_forecast"
     url: str = "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/WeatherForecast"
     baseline_start_timestamp: date = date(2018, 9, 1)
     inference_start_timestamp: date = date(2019, 2, 1)
@@ -35,7 +42,7 @@ class WeatherConfig(DatasetConfig):
     )
     metadata_columns: Dict[str, tuple] = field(
         default_factory=lambda: {
-            "in_domain": ["meta_latitude", "meta_longitue", "meta_climate", "date"],
-            "out_domain": ["meta_latitude", "meta_longitue", "meta_climate", "date"],
+            "in_domain": ["meta_latitude", "meta_longitude", "meta_climate", "date"],
+            "out_domain": ["meta_latitude", "meta_longitude", "meta_climate", "date"],
         }
     )
