@@ -5,6 +5,8 @@ import pytest
 from whylogs.datasets import Weather
 from whylogs.datasets.configs import WeatherConfig
 
+dataset_config = WeatherConfig()
+
 
 class TestWeatherDataset(object):
     @pytest.fixture
@@ -23,8 +25,12 @@ class TestWeatherDataset(object):
         dataset.set_parameters("1d")
 
     def test_non_supported_interval(self, dataset):
-        with pytest.raises(ValueError, match="Input interval not supported!"):
-            dataset.set_parameters("12d")
+        with pytest.raises(
+            ValueError, match="Maximum allowed interval for this dataset is {}".format(dataset_config.max_interval)
+        ):
+            dataset.set_parameters("50d")
+        with pytest.raises(ValueError, match="Could not parse interval!"):
+            dataset.set_parameters("5z")
 
     def test_date_baseline_ts(self, dataset):
         dataset.set_parameters("1d", baseline_timestamp=date.today())
@@ -98,4 +104,10 @@ class TestWeatherDataset(object):
             dataset.set_parameters("5M")
 
     def test_inference_df_date_matches_config_timestamp(self, dataset):
+        dataset.set_parameters(original=True)
         assert dataset.inference_df.iloc[0].name == WeatherConfig.inference_start_timestamp
+
+    def test_original_parameter_overrides_timestamps(self, dataset):
+        dataset.set_parameters(baseline_timestamp=date.today(), inference_start_timestamp=date.today(), original=True)
+        assert dataset.inference_df.iloc[0].name == WeatherConfig.inference_start_timestamp
+        assert dataset.baseline_df.iloc[0].name == WeatherConfig.baseline_start_timestamp

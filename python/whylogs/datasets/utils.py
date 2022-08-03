@@ -24,6 +24,12 @@ def _parse_interval(interval: str) -> Tuple[int, str]:
         raise ValueError("Could not parse interval!")
 
 
+def _adjust_df_date(df: pd.DataFrame, new_start_date: date) -> pd.DataFrame:
+    df = _change_df_date_by_offset(df, new_start_date=new_start_date)
+    df = df.set_index(["date"], drop=False)
+    return df
+
+
 def _change_df_date_by_offset(df: pd.DataFrame, new_start_date: date) -> pd.DataFrame:
     original_start_date = df["date"][0]
 

@@ -2,6 +2,7 @@ import os
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from logging import getLogger
+from tkinter import N
 from typing import Iterable, Optional, Tuple, Union
 
 import pandas as pd
@@ -9,7 +10,7 @@ import pandas as pd
 from whylogs.datasets.base import Batch, Dataset
 from whylogs.datasets.configs import DatasetConfig, WeatherConfig
 from whylogs.datasets.utils import (
-    _change_df_date_by_offset,
+    _adjust_df_date,
     _get_dataset_path,
     _parse_interval,
     _validate_timestamp,
@@ -61,8 +62,8 @@ class Weather(Dataset):
             self.inference_df = pd.read_csv("{}/inference_dataset_{}.csv".format(self.url, self.version))
             self.inference_df.to_csv(inference_file, index=False)
 
-        self.inference_df = self.inference_df.set_index(["date"], drop=False)
-        self.inference_df = _change_df_date_by_offset(self.inference_df, new_start_date=self.inference_start_timestamp)
+        self.baseline_df = _adjust_df_date(self.baseline_df, new_start_date=self.baseline_timestamp)
+        self.inference_df = _adjust_df_date(self.inference_df, new_start_date=self.inference_start_timestamp)
 
     def get_baseline(self) -> Batch:
         data = self.baseline_df
@@ -118,9 +119,14 @@ class Weather(Dataset):
         if original:
             self.baseline_timestamp = self.dataset_config.baseline_start_timestamp
             self.inference_start_timestamp = self.dataset_config.inference_start_timestamp
+            self.inference_df = _adjust_df_date(self.inference_df, self.inference_start_timestamp)
+            self.baseline_df = _adjust_df_date(self.baseline_df, new_start_date=self.baseline_timestamp)
+
         if baseline_timestamp:
             if not original:
                 self.baseline_timestamp = _validate_timestamp(baseline_timestamp)
+                self.baseline_df = _adjust_df_date(self.baseline_df, self.baseline_timestamp)
+
             else:
                 logger.warning(
                     "baseline_timestamp and inference_start_timestamp overriden by original timestamps due to original = True"
@@ -128,12 +134,11 @@ class Weather(Dataset):
         if inference_start_timestamp:
             if not original:
                 self.inference_start_timestamp = _validate_timestamp(inference_start_timestamp)
+                self.inference_df = _adjust_df_date(self.inference_df, self.inference_start_timestamp)
             else:
                 logger.warning(
                     "baseline_timestamp and inference_start_timestamp overriden by original timestamps due to original = True"
                 )
-            self.inference_df = _change_df_date_by_offset(self.inference_df, self.inference_start_timestamp)
-            self.inference_df = self.inference_df.set_index(["date"], drop=False)
 
     @classmethod
     def describe_versions(cls) -> Tuple[str]:
