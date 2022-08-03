@@ -11,7 +11,7 @@ from typing_extensions import Literal
 
 from whylogs.api.logger.logger import Logger
 from whylogs.api.writer import Writer
-from whylogs.core import DatasetProfile, DatasetSchema
+from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
@@ -71,6 +71,7 @@ class TimedRollingLogger(Logger):
         aligned: bool = True,
         fork: bool = False,
         skip_empty: bool = False,
+        callback: Optional[Callable[[Writer, DatasetProfileView, str], None]] = None,
     ):
         super().__init__(schema)
         if base_name is None:
@@ -115,6 +116,7 @@ class TimedRollingLogger(Logger):
                 "Negative initial run after. This shouldn't happen so something went wrong with the clock here"
             )
             initial_run_after = self.interval
+        self._callback = callback
         self._scheduler = Scheduler(initial_run_after, interval=self.interval, function=self._do_rollover)
 
         self._scheduler.start()
@@ -191,6 +193,8 @@ class TimedRollingLogger(Logger):
 
             for w in self._writers:
                 w.write(profile=profile.view(), dest=timed_filename)
+                if self._callback and callable(self._callback):
+                    self._callback(w, profile.view(), timed_filename)
 
     def close(self) -> None:
         logging.debug("Closing the writer")
