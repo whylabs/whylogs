@@ -6,8 +6,9 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Test
-public class TestPreProcesssedColumn {
+public class TestPreProcesssedColumnAndListView {
 
     private void assert_zero_len(List<?> values){
         if(values == null){
