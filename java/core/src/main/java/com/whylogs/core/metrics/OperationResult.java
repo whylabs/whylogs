@@ -24,6 +24,8 @@ public class OperationResult {
     }
 
     public OperationResult add(OperationResult other) {
-        return new OperationResult(this.successes + other.successes, this.failures + other.failures);
+        int new_successes = this.successes + other.getSuccesses();
+        int new_failures = this.failures + other.getFailures() ;
+        return new OperationResult(new_successes, new_failures);
     }
 }
