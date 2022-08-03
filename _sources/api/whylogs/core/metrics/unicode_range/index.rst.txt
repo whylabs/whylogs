@@ -17,19 +17,6 @@ Classes
 
 
 
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   whylogs.core.metrics.unicode_range.ColumnSchema
-
-
-.. py:data:: ColumnSchema
-   :annotation: :typing_extensions.TypeAlias = ColumnSchema
-
-   
-
 .. py:class:: UnicodeRangeMetric(submetrics: Dict[str, whylogs.core.metrics.Metric])
 
    Bases: :py:obj:`whylogs.core.metrics.compound_metric.CompoundMetric`

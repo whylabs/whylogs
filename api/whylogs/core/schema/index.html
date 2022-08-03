@@ -265,6 +265,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../metrics/condition_count_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.condition_count_metric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
@@ -413,16 +414,11 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.schema.DatasetSchema">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.schema.</span></span><span class="sig-name descname"><span class="pre">DatasetSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.MetricConfig" title="whylogs.core.metrics.MetricConfig"><span class="pre">whylogs.core.metrics.MetricConfig</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/whylogs/core/schema.html#DatasetSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.schema.DatasetSchema" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.schema.</span></span><span class="sig-name descname"><span class="pre">DatasetSchema</span></span><a class="reference internal" href="../../../../_modules/whylogs/core/schema.html#DatasetSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.schema.DatasetSchema" title="Permalink to this definition">#</a></dt>
 <dd><p>Defines the schema for tracking metrics in whylogs.</p>
 <p>In order to customize your tracking, you can extend this class to specify your own column schema
 or your own type resolution. Otherwise, you can just use the default DatasetSchema object.</p>
 <p>Schema objects are also used to group datasets together.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>config</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.MetricConfig" title="whylogs.core.metrics.MetricConfig"><em>whylogs.core.metrics.MetricConfig</em></a><em>]</em>) – </p>
-</dd>
-</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.schema.DatasetSchema.types">
 <span class="sig-name descname"><span class="pre">types</span></span><a class="headerlink" href="#whylogs.core.schema.DatasetSchema.types" title="Permalink to this definition">#</a></dt>
@@ -473,7 +469,7 @@ schema to metrics.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="id1">
-<span class="sig-name descname"><span class="pre">default_configs</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.MetricConfig</span></em><a class="headerlink" href="#id1" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">default_configs</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metrics.MetricConfig</span></em><a class="headerlink" href="#id1" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -562,7 +558,7 @@ factories) and any additional trackers here.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="whylogs.core.schema.ColumnSchema.cfg">
-<span class="sig-name descname"><span class="pre">cfg</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.MetricConfig</span></em><a class="headerlink" href="#whylogs.core.schema.ColumnSchema.cfg" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cfg</span></span><em class="property"><span class="w"> </span><span class="pre">:whylogs.core.metrics.metrics.MetricConfig</span></em><a class="headerlink" href="#whylogs.core.schema.ColumnSchema.cfg" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -577,13 +573,13 @@ factories) and any additional trackers here.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.schema.ColumnSchema.get_metrics">
-<span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><span class="pre">whylogs.core.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/schema.html#ColumnSchema.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.schema.ColumnSchema.get_metrics" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric"><span class="pre">whylogs.core.metrics.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/schema.html#ColumnSchema.get_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.schema.ColumnSchema.get_metrics" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric">whylogs.core.metrics.Metric</a>]</p>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a>, <a class="reference internal" href="../metrics/metrics/index.html#whylogs.core.metrics.metrics.Metric" title="whylogs.core.metrics.metrics.Metric">whylogs.core.metrics.metrics.Metric</a>]</p>
 </dd>
 </dl>
 </dd></dl>

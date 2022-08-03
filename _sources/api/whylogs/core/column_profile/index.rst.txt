@@ -34,6 +34,9 @@ Attributes
 
    Bases: :py:obj:`object`
 
+   .. py:method:: add_metric(self, metric: whylogs.core.metrics.Metric) -> None
+
+
    .. py:method:: track(self, row: Dict[str, Any]) -> None
 
 

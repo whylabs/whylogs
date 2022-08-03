@@ -256,6 +256,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/condition_count_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.condition_count_metric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
@@ -345,11 +346,11 @@
         <article role="main">
           <h1>Source code for whylogs.core.schema</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">StandardTypeMapper</span><span class="p">,</span> <span class="n">TypeMapper</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span><span class="p">,</span> <span class="n">StandardResolver</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
 
@@ -360,7 +361,8 @@
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s2">&quot;DatasetSchema&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="DatasetSchema"><a class="viewcode-back" href="../../../api/whylogs/core/schema/index.html#whylogs.api.logger.DatasetSchema">[docs]</a><span class="k">class</span> <span class="nc">DatasetSchema</span><span class="p">:</span>
+<div class="viewcode-block" id="DatasetSchema"><a class="viewcode-back" href="../../../api/whylogs/core/schema/index.html#whylogs.api.logger.DatasetSchema">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">DatasetSchema</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines the schema for tracking metrics in whylogs.</span>
 
@@ -400,18 +402,15 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">types</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">types</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">default_configs</span><span class="p">:</span> <span class="n">MetricConfig</span> <span class="o">=</span> <span class="n">MetricConfig</span><span class="p">()</span>
     <span class="n">type_mapper</span><span class="p">:</span> <span class="n">TypeMapper</span> <span class="o">=</span> <span class="n">StandardTypeMapper</span><span class="p">()</span>
     <span class="n">resolvers</span><span class="p">:</span> <span class="n">Resolver</span> <span class="o">=</span> <span class="n">StandardResolver</span><span class="p">()</span>
     <span class="n">cache_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span>
     <span class="n">schema_based_automerge</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MetricConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">default_configs</span> <span class="o">=</span> <span class="n">config</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_size</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Negative cache size value. Disabling caching&quot;</span><span class="p">)</span>
@@ -432,12 +431,8 @@
 
 <div class="viewcode-block" id="DatasetSchema.copy"><a class="viewcode-back" href="../../../api/whylogs/core/schema/index.html#whylogs.api.logger.DatasetSchema.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetSchema&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Returns a new instance of the same underlying schema&quot;&quot;&quot;</span>
-        <span class="n">copy</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_configs</span><span class="p">)</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
         <span class="n">copy</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">copy</span><span class="o">.</span><span class="n">cache_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache_size</span>
-        <span class="n">copy</span><span class="o">.</span><span class="n">type_mapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_mapper</span>
-        <span class="n">copy</span><span class="o">.</span><span class="n">resolvers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolvers</span>
-
         <span class="k">return</span> <span class="n">copy</span></div>
 
 <div class="viewcode-block" id="DatasetSchema.resolve"><a class="viewcode-back" href="../../../api/whylogs/core/schema/index.html#whylogs.api.logger.DatasetSchema.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>

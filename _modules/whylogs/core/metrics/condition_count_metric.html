@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
-        <title>whylogs.api.logger.logger - whylogs v1.0.9</title>
+        <title>whylogs.core.metrics.condition_count_metric - whylogs v1.0.9</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
@@ -344,91 +344,189 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for whylogs.api.logger.logger</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">atexit</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+          <h1>Source code for whylogs.core.metrics.condition_count_metric</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">ProfileResultSet</span><span class="p">,</span> <span class="n">ResultSet</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.writer</span> <span class="kn">import</span> <span class="n">Writer</span><span class="p">,</span> <span class="n">Writers</span>
-<span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetProfile</span><span class="p">,</span> <span class="n">DatasetSchema</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.errors</span> <span class="kn">import</span> <span class="n">LoggingError</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.configs</span> <span class="kn">import</span> <span class="n">SummaryConfig</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metric_components</span> <span class="kn">import</span> <span class="n">IntegralComponent</span><span class="p">,</span> <span class="n">MetricComponent</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">MetricConfig</span><span class="p">,</span> <span class="n">OperationResult</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricMessage</span>
 
-
-<div class="viewcode-block" id="BasicCache"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.BasicCache">[docs]</a><span class="k">class</span> <span class="nc">BasicCache</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="n">_cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">,</span> <span class="n">DatasetProfile</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-
-<div class="viewcode-block" id="BasicCache.get"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.BasicCache.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">DatasetSchema</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DatasetProfile</span><span class="p">:</span>
-        <span class="n">candidate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">candidate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">candidate</span> <span class="o">=</span> <span class="n">DatasetProfile</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">candidate</span>
-        <span class="k">return</span> <span class="n">candidate</span></div></div>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Logger"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.Logger">[docs]</a><span class="k">class</span> <span class="nc">Logger</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">schema</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Writer</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">)</span>
+<div class="viewcode-block" id="Relation"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation">[docs]</a><span class="k">class</span> <span class="nc">Relation</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">fullmatch</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">equal</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">less</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">leq</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">greater</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">geq</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">neq</span> <span class="o">=</span> <span class="mi">8</span></div>
 
-<div class="viewcode-block" id="Logger.check_writer"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.Logger.check_writer">[docs]</a>    <span class="k">def</span> <span class="nf">check_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_</span><span class="p">:</span> <span class="n">Writer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Checks if a writer is configured correctly for this class&quot;&quot;&quot;</span></div>
 
-<div class="viewcode-block" id="Logger.append_writer"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.Logger.append_writer">[docs]</a>    <span class="k">def</span> <span class="nf">append_writer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">writer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Writer</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify either the writer name or a Writer object&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">writer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot specify name and writer at the same time&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">writer</span> <span class="o">=</span> <span class="n">Writers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<div class="viewcode-block" id="relation"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.relation">[docs]</a><span class="k">def</span> <span class="nf">relation</span><span class="p">(</span><span class="n">op</span><span class="p">:</span> <span class="n">Relation</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">match</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">equal</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">==</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">less</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">leq</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">greater</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">geq</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
+    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="n">Relation</span><span class="o">.</span><span class="n">neq</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">value</span>  <span class="c1"># type: ignore</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown ConditionCountMetric predicate&quot;</span><span class="p">)</span></div>
 
-        <span class="k">assert</span> <span class="n">writer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">check_writer</span><span class="p">(</span><span class="n">writer</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_writers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">writer</span><span class="p">)</span></div>
 
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_get_matching_profiles</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DatasetProfile</span><span class="p">]:</span>
-        <span class="k">pass</span>
+<div class="viewcode-block" id="and_relations"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.and_relations">[docs]</a><span class="k">def</span> <span class="nf">and_relations</span><span class="p">(</span><span class="n">left</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">right</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">and</span> <span class="n">right</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Logger.log"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.Logger.log">[docs]</a>    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">pandas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">row</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">LoggingError</span><span class="p">(</span><span class="s2">&quot;Cannot log to a closed logger&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pandas</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">row</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># TODO: check for shell environment and emit more verbose error string to let user know how to correct.</span>
-            <span class="k">raise</span> <span class="n">LoggingError</span><span class="p">(</span><span class="s2">&quot;log() was called without passing in any input!&quot;</span><span class="p">)</span>
 
-        <span class="n">profiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_matching_profiles</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">)</span>
+<div class="viewcode-block" id="or_relations"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.or_relations">[docs]</a><span class="k">def</span> <span class="nf">or_relations</span><span class="p">(</span><span class="n">left</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">right</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">left</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">or</span> <span class="n">right</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-        <span class="k">for</span> <span class="n">prof</span> <span class="ow">in</span> <span class="n">profiles</span><span class="p">:</span>
-            <span class="n">prof</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pandas</span><span class="o">=</span><span class="n">pandas</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="n">profiles</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+<div class="viewcode-block" id="not_relation"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.not_relation">[docs]</a><span class="k">def</span> <span class="nf">not_relation</span><span class="p">(</span><span class="n">relation</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="n">relation</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Logger.close"><a class="viewcode-back" href="../../../../api/whylogs/api/logger/logger/index.html#whylogs.api.logger.Logger.close">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Logger&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span>
+<div class="viewcode-block" id="Condition"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Condition">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Condition</span><span class="p">:</span>
+    <span class="n">relation</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]</span>
+    <span class="n">throw_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">log_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">exception_value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">traceback</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_closed</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ConditionCountConfig"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ConditionCountConfig</span><span class="p">(</span><span class="n">MetricConfig</span><span class="p">):</span>
+    <span class="n">conditions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Condition</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConditionCountMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">ConditionCountMetric</span><span class="p">(</span><span class="n">Metric</span><span class="p">):</span>
+    <span class="n">conditions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Condition</span><span class="p">]</span>
+    <span class="n">total</span><span class="p">:</span> <span class="n">IntegralComponent</span>
+    <span class="n">matches</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">IntegralComponent</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">namespace</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;condition_count&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__post_init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;total&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Condition cannot be named &#39;total&#39;&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">cond_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">cond_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConditionCountMetric.merge"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;ConditionCountMetric&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ConditionCountMetric&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="c1"># log warning?</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="p">{</span><span class="n">cond_name</span><span class="p">:</span> <span class="n">IntegralComponent</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">cond_name</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">matches</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">cond_name</span><span class="p">:</span> <span class="n">IntegralComponent</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">cond_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">}</span>
+            <span class="n">total</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">ConditionCountMetric</span><span class="p">(</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="p">),</span> <span class="n">IntegralComponent</span><span class="p">(</span><span class="n">total</span><span class="p">),</span> <span class="n">matches</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConditionCountMetric.add_conditions"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.add_conditions">[docs]</a>    <span class="k">def</span> <span class="nf">add_conditions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Condition</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;total&quot;</span> <span class="ow">in</span> <span class="n">conditions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Condition cannot be named &#39;total&#39;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">cond_name</span><span class="p">,</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">conditions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cond</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConditionCountMetric.get_component_paths"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.get_component_paths">[docs]</a>    <span class="k">def</span> <span class="nf">get_component_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">paths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;total&quot;</span><span class="p">,</span>
+        <span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">paths</span></div>
+
+<div class="viewcode-block" id="ConditionCountMetric.columnar_update"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.columnar_update">[docs]</a>    <span class="k">def</span> <span class="nf">columnar_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">PreprocessedColumn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationResult</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">len</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">OperationResult</span><span class="o">.</span><span class="n">ok</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">failed_conditions</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">raw_iterator</span><span class="p">())):</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">cond_name</span><span class="p">,</span> <span class="n">condition</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">condition</span><span class="o">.</span><span class="n">relation</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">failed_conditions</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cond_name</span><span class="p">)</span>
+
+                <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
+                    <span class="k">pass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">count</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">condition</span><span class="o">.</span><span class="n">log_on_failure</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Condition(s) </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed_conditions</span><span class="p">)</span><span class="si">}</span><span class="s2"> failed&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">condition</span><span class="o">.</span><span class="n">throw_on_failure</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Condition(s) </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">failed_conditions</span><span class="p">)</span><span class="si">}</span><span class="s2"> failed&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">OperationResult</span><span class="o">.</span><span class="n">ok</span><span class="p">(</span><span class="n">count</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConditionCountMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ConditionCountMetric&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ConditionCountConfig</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ConditionCountMetric.zero() requires ConditionCountConfig argument&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ConditionCountMetric</span><span class="p">(</span>
+            <span class="n">conditions</span><span class="o">=</span><span class="n">copy</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">conditions</span><span class="p">),</span>
+            <span class="n">total</span><span class="o">=</span><span class="n">IntegralComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConditionCountMetric.to_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.to_protobuf">[docs]</a>    <span class="k">def</span> <span class="nf">to_protobuf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MetricMessage</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">()}</span>
+        <span class="k">for</span> <span class="n">cond_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">conditions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">msg</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span><span class="o">.</span><span class="n">to_protobuf</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">MetricMessage</span><span class="p">(</span><span class="n">metric_components</span><span class="o">=</span><span class="n">msg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ConditionCountMetric.to_summary_dict"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.to_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SummaryConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">value</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">cond_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">summary</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matches</span><span class="p">[</span><span class="n">cond_name</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="k">return</span> <span class="n">summary</span></div>
+
+<div class="viewcode-block" id="ConditionCountMetric.from_protobuf"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.from_protobuf">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_protobuf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">MetricMessage</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ConditionCountMetric&quot;</span><span class="p">:</span>
+        <span class="n">cond_names</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">metric_components</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">cond_names</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;total&quot;</span><span class="p">)</span>
+
+        <span class="n">conditions</span> <span class="o">=</span> <span class="p">{</span><span class="n">cond_name</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">cond_name</span> <span class="ow">in</span> <span class="n">cond_names</span><span class="p">}</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">MetricComponent</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">metric_components</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">])</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">cond_name</span><span class="p">:</span> <span class="n">MetricComponent</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">metric_components</span><span class="p">[</span><span class="n">cond_name</span><span class="p">])</span> <span class="k">for</span> <span class="n">cond_name</span> <span class="ow">in</span> <span class="n">cond_names</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">ConditionCountMetric</span><span class="p">(</span>
+            <span class="n">conditions</span><span class="p">,</span>
+            <span class="n">total</span><span class="p">,</span>
+            <span class="n">matches</span><span class="p">,</span>
+        <span class="p">)</span></div></div>
 </pre></div>
         </article>
       </div>

@@ -69,6 +69,9 @@ Attributes
    .. py:method:: set_dataset_timestamp(self, dataset_timestamp: datetime.datetime) -> None
 
 
+   .. py:method:: add_metric(self, col_name: str, metric: whylogs.core.metrics.Metric) -> None
+
+
    .. py:method:: track(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
 
 

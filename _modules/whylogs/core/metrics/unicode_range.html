@@ -256,6 +256,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/condition_count_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.condition_count_metric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
@@ -348,8 +349,6 @@
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span> <span class="nn">typing_extensions</span> <span class="kn">import</span> <span class="n">TypeAlias</span>
-
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.compound_metric</span> <span class="kn">import</span> <span class="n">CompoundMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">DistributionMetric</span><span class="p">,</span>
@@ -358,9 +357,6 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.preprocessing</span> <span class="kn">import</span> <span class="n">PreprocessedColumn</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.proto</span> <span class="kn">import</span> <span class="n">MetricMessage</span>
-
-<span class="n">ColumnSchema</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="s2">&quot;ColumnSchema&quot;</span>  <span class="c1"># type: ignore</span>
-
 
 <span class="n">_STRING_LENGTH</span> <span class="o">=</span> <span class="s2">&quot;string_length&quot;</span>
 

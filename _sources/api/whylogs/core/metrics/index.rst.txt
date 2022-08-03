@@ -13,6 +13,7 @@ Submodules
    aggregators/index.rst
    column_metrics/index.rst
    compound_metric/index.rst
+   condition_count_metric/index.rst
    decorators/index.rst
    deserializers/index.rst
    maths/index.rst
@@ -33,6 +34,7 @@ Classes
 
    whylogs.core.metrics.ColumnCountsMetric
    whylogs.core.metrics.TypeCountersMetric
+   whylogs.core.metrics.ConditionCountMetric
    whylogs.core.metrics.CardinalityMetric
    whylogs.core.metrics.DistributionMetric
    whylogs.core.metrics.FrequentItemsMetric
@@ -154,6 +156,63 @@ Classes
 
 
    .. py:method:: from_protobuf(cls: Type[METRIC], msg: whylogs.core.proto.MetricMessage) -> METRIC
+      :classmethod:
+
+
+
+.. py:class:: ConditionCountMetric
+
+   Bases: :py:obj:`whylogs.core.metrics.metrics.Metric`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:attribute:: conditions
+      :annotation: :Dict[str, Condition]
+
+      
+
+   .. py:attribute:: total
+      :annotation: :whylogs.core.metrics.metric_components.IntegralComponent
+
+      
+
+   .. py:attribute:: matches
+      :annotation: :Dict[str, whylogs.core.metrics.metric_components.IntegralComponent]
+
+      
+
+   .. py:method:: namespace(self) -> str
+      :property:
+
+
+   .. py:method:: merge(self, other: ConditionCountMetric) -> ConditionCountMetric
+
+
+   .. py:method:: add_conditions(self, conditions: Dict[str, Condition]) -> None
+
+
+   .. py:method:: get_component_paths(self) -> List[str]
+
+
+   .. py:method:: columnar_update(self, data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+
+
+   .. py:method:: zero(cls, config: whylogs.core.metrics.metrics.MetricConfig) -> ConditionCountMetric
+      :classmethod:
+
+
+   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricMessage
+
+
+   .. py:method:: to_summary_dict(self, cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+
+
+   .. py:method:: from_protobuf(cls, msg: whylogs.core.proto.MetricMessage) -> ConditionCountMetric
+      :classmethod:
+
+
+   .. py:method:: get_namespace(cls, config: MetricConfig) -> str
       :classmethod:
 
 
@@ -594,6 +653,11 @@ Classes
       
 
    .. py:attribute:: unicode_range
+      
+
+      
+
+   .. py:attribute:: condition_count
       
 
       

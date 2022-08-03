@@ -256,6 +256,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/condition_count_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.condition_count_metric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
@@ -347,6 +348,7 @@
 <span></span><span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.column_metrics</span> <span class="kn">import</span> <span class="n">ColumnCountsMetric</span><span class="p">,</span> <span class="n">TypeCountersMetric</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.metrics.condition_count_metric</span> <span class="kn">import</span> <span class="n">ConditionCountMetric</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">CardinalityMetric</span><span class="p">,</span>
     <span class="n">DistributionMetric</span><span class="p">,</span>
@@ -366,6 +368,7 @@
     <span class="n">cardinality</span> <span class="o">=</span> <span class="n">CardinalityMetric</span>
     <span class="n">frequent_items</span> <span class="o">=</span> <span class="n">FrequentItemsMetric</span>
     <span class="n">unicode_range</span> <span class="o">=</span> <span class="n">UnicodeRangeMetric</span>
+    <span class="n">condition_count</span> <span class="o">=</span> <span class="n">ConditionCountMetric</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clz</span><span class="p">:</span> <span class="n">Metric</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_clz</span> <span class="o">=</span> <span class="n">clz</span>

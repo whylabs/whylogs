@@ -265,6 +265,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../metrics/condition_count_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.condition_count_metric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
@@ -405,6 +406,19 @@
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="whylogs.core.column_profile.ColumnProfile.add_metric">
+<span class="sig-name descname"><span class="pre">add_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><span class="pre">whylogs.core.metrics.Metric</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/column_profile.html#ColumnProfile.add_metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.column_profile.ColumnProfile.add_metric" title="Permalink to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>metric</strong> (<a class="reference internal" href="../metrics/index.html#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><em>whylogs.core.metrics.Metric</em></a>) – </p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.core.column_profile.ColumnProfile.track">
 <span class="sig-name descname"><span class="pre">track</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../../../_modules/whylogs/core/column_profile.html#ColumnProfile.track"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.column_profile.ColumnProfile.track" title="Permalink to this definition">#</a></dt>
@@ -556,6 +570,7 @@
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.core.column_profile.logger">logger</a></li>
 <li><a class="reference internal" href="#whylogs.core.column_profile.ColumnProfile">ColumnProfile</a><ul>
+<li><a class="reference internal" href="#whylogs.core.column_profile.ColumnProfile.add_metric">add_metric</a></li>
 <li><a class="reference internal" href="#whylogs.core.column_profile.ColumnProfile.track">track</a></li>
 <li><a class="reference internal" href="#whylogs.core.column_profile.ColumnProfile.flush">flush</a></li>
 <li><a class="reference internal" href="#whylogs.core.column_profile.ColumnProfile.track_column">track_column</a></li>

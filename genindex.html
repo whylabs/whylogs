@@ -255,6 +255,7 @@
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/condition_count_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.condition_count_metric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
@@ -351,10 +352,28 @@
   <h2>A</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.add_conditions">add_conditions() (whylogs.core.metrics.condition_count_metric.ConditionCountMetric method)</a>
+
+        <ul>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.add_conditions">(whylogs.core.metrics.ConditionCountMetric method)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/core/constraints/index.html#whylogs.core.constraints.ConstraintsBuilder.add_constraint">add_constraint() (whylogs.core.constraints.ConstraintsBuilder method)</a>
 
         <ul>
           <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.ConstraintsBuilder.add_constraint">(whylogs.core.constraints.metric_constraints.ConstraintsBuilder method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetProfile.add_metric">add_metric() (whylogs.api.logger.DatasetProfile method)</a>
+
+        <ul>
+          <li><a href="api/whylogs/core/column_profile/index.html#whylogs.core.column_profile.ColumnProfile.add_metric">(whylogs.core.column_profile.ColumnProfile method)</a>
+</li>
+          <li><a href="api/whylogs/core/index.html#whylogs.core.ColumnProfile.add_metric">(whylogs.core.ColumnProfile method)</a>
+</li>
+          <li><a href="api/whylogs/core/dataset_profile/index.html#whylogs.core.dataset_profile.DatasetProfile.add_metric">(whylogs.core.dataset_profile.DatasetProfile method)</a>
+</li>
+          <li><a href="api/whylogs/core/index.html#whylogs.core.DatasetProfile.add_metric">(whylogs.core.DatasetProfile method)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/metrics/aggregators/index.html#whylogs.core.metrics.aggregators.aggregator">aggregator() (in module whylogs.core.metrics.aggregators)</a>
@@ -367,8 +386,12 @@
 </li>
         <li><a href="api/whylogs/api/usage_stats/index.html#whylogs.api.usage_stats.ANALYTICS_OPT_OUT">ANALYTICS_OPT_OUT (in module whylogs.api.usage_stats)</a>
 </li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.and_relations">and_relations() (in module whylogs.core.metrics.condition_count_metric)</a>
+</li>
         <li><a href="api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.AnyType">AnyType (class in whylogs.core.datatypes)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.Logger.append_writer">append_writer() (whylogs.api.logger.Logger method)</a>
 
         <ul>
@@ -383,8 +406,6 @@
           <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.TransientLogger.append_writer">(whylogs.api.logger.TransientLogger method)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricsSelector.apply">apply() (whylogs.core.constraints.metric_constraints.MetricsSelector method)</a>
 
         <ul>
@@ -624,6 +645,10 @@
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.columnar_update">(whylogs.core.metrics.compound_metric.CompoundMetric method)</a>
 </li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.columnar_update">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.columnar_update">(whylogs.core.metrics.ConditionCountMetric method)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.columnar_update">(whylogs.core.metrics.DistributionMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.FrequentItemsMetric.columnar_update">(whylogs.core.metrics.FrequentItemsMetric method)</a>
@@ -690,8 +715,6 @@
         <ul>
           <li><a href="api/whylogs/core/schema/index.html#whylogs.core.schema.ColumnSchema">(class in whylogs.core.schema)</a>
 </li>
-          <li><a href="api/whylogs/core/metrics/unicode_range/index.html#whylogs.core.metrics.unicode_range.ColumnSchema">(in module whylogs.core.metrics.unicode_range)</a>
-</li>
           <li><a href="api/whylogs/core/resolvers/index.html#whylogs.core.resolvers.ColumnSchema">(in module whylogs.core.resolvers)</a>
 </li>
         </ul></li>
@@ -713,10 +736,30 @@
 </li>
         <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric">CompoundMetric (class in whylogs.core.metrics.compound_metric)</a>
 </li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Condition">Condition (class in whylogs.core.metrics.condition_count_metric)</a>
+</li>
         <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.MetricConstraint.condition">condition (whylogs.core.constraints.metric_constraints.MetricConstraint attribute)</a>
 
         <ul>
           <li><a href="api/whylogs/core/constraints/index.html#whylogs.core.constraints.MetricConstraint.condition">(whylogs.core.constraints.MetricConstraint attribute)</a>
+</li>
+        </ul></li>
+        <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric.condition_count">condition_count (whylogs.core.metrics.StandardMetric attribute)</a>
+</li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig">ConditionCountConfig (class in whylogs.core.metrics.condition_count_metric)</a>
+</li>
+        <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric">ConditionCountMetric (class in whylogs.core.metrics)</a>
+
+        <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric">(class in whylogs.core.metrics.condition_count_metric)</a>
+</li>
+        </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.conditions">conditions (whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+
+        <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.conditions">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric attribute)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.conditions">(whylogs.core.metrics.ConditionCountMetric attribute)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.ConfusionMatrix">ConfusionMatrix (in module whylogs.core.proto.v0)</a>
@@ -1097,6 +1140,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#whylogs.core.proto.v0.v0_constraints_pb2.EQ_SET">(in module whylogs.core.proto.v0.v0_constraints_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.equal">equal (whylogs.core.metrics.condition_count_metric.Relation attribute)</a>
+</li>
         <li><a href="api/whylogs/core/errors/index.html#whylogs.core.errors.Error">Error</a>
 </li>
         <li><a href="api/whylogs/core/errors/index.html#whylogs.core.errors.Error.args">Error.args (class in whylogs.core.errors)</a>
@@ -1130,6 +1175,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.fi_disabled">fi_disabled (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.fi_disabled">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.fi_disabled">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.fi_disabled">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -1138,6 +1185,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.fi_lg_max_k">fi_lg_max_k (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.fi_lg_max_k">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.fi_lg_max_k">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.fi_lg_max_k">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -1219,14 +1268,14 @@
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.FrequentItemsMetric">(class in whylogs.core.metrics.metrics)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/proto/index.html#whylogs.core.proto.FrequentItemsSketchMessage">FrequentItemsSketchMessage (in module whylogs.core.proto)</a>
 
         <ul>
           <li><a href="api/whylogs/core/proto/whylogs_messages_pb2/index.html#whylogs.core.proto.whylogs_messages_pb2.FrequentItemsSketchMessage">(in module whylogs.core.proto.whylogs_messages_pb2)</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.FrequentItemsSketchMessageV0">FrequentItemsSketchMessageV0 (in module whylogs.core.proto.v0)</a>
 
         <ul>
@@ -1280,6 +1329,10 @@
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.from_protobuf">(whylogs.core.metrics.compound_metric.CompoundMetric class method)</a>
 </li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.from_protobuf">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric class method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.from_protobuf">(whylogs.core.metrics.ConditionCountMetric class method)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.from_protobuf">(whylogs.core.metrics.DistributionMetric class method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.FrequentItemsMetric.from_protobuf">(whylogs.core.metrics.FrequentItemsMetric class method)</a>
@@ -1323,6 +1376,8 @@
           <li><a href="api/whylogs/core/view/index.html#whylogs.core.view.ColumnProfileView.from_protobuf">(whylogs.core.view.ColumnProfileView class method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.fullmatch">fullmatch (whylogs.core.metrics.condition_count_metric.Relation attribute)</a>
+</li>
         <li><a href="api/whylogs/api/annotations/index.html#whylogs.api.annotations.FuncType">FuncType (in module whylogs.api.annotations)</a>
 
         <ul>
@@ -1343,6 +1398,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#whylogs.core.proto.v0.v0_constraints_pb2.GE">(in module whylogs.core.proto.v0.v0_constraints_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.geq">geq (whylogs.core.metrics.condition_count_metric.Relation attribute)</a>
+</li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetSchema.get">get() (whylogs.api.logger.DatasetSchema method)</a>
 
         <ul>
@@ -1401,6 +1458,10 @@
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ColumnCountsMetric.get_component_paths">(whylogs.core.metrics.ColumnCountsMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.get_component_paths">(whylogs.core.metrics.compound_metric.CompoundMetric method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.get_component_paths">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.get_component_paths">(whylogs.core.metrics.ConditionCountMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.get_component_paths">(whylogs.core.metrics.DistributionMetric method)</a>
 </li>
@@ -1516,6 +1577,10 @@
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.get_namespace">(whylogs.core.metrics.compound_metric.CompoundMetric class method)</a>
 </li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.get_namespace">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric class method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.get_namespace">(whylogs.core.metrics.ConditionCountMetric class method)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.get_namespace">(whylogs.core.metrics.DistributionMetric class method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.FrequentItemsMetric.get_namespace">(whylogs.core.metrics.FrequentItemsMetric class method)</a>
@@ -1544,6 +1609,8 @@
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/metrics/serializers/index.html#whylogs.core.metrics.serializers.get_serializer">get_serializer() (in module whylogs.core.metrics.serializers)</a>
+</li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.greater">greater (whylogs.core.metrics.condition_count_metric.Relation attribute)</a>
 </li>
         <li><a href="api/whylogs/core/constraints/factories/index.html#whylogs.core.constraints.factories.greater_than_number">greater_than_number() (in module whylogs.core.constraints.factories)</a>
 
@@ -1590,6 +1657,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.hll_lg_k">hll_lg_k (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.hll_lg_k">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.hll_lg_k">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.hll_lg_k">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -1750,6 +1819,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.kll_k">kll_k (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.kll_k">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.kll_k">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.kll_k">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -1758,6 +1829,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.kll_k_large">kll_k_large (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.kll_k_large">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.kll_k_large">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.kll_k_large">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -1796,6 +1869,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.large_kll_k">large_kll_k (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.large_kll_k">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.large_kll_k">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.large_kll_k">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -1813,6 +1888,10 @@
           <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn.len">(whylogs.core.preprocessing.PreprocessedColumn attribute)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.leq">leq (whylogs.core.metrics.condition_count_metric.Relation attribute)</a>
+</li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.less">less (whylogs.core.metrics.condition_count_metric.Relation attribute)</a>
+</li>
         <li><a href="api/whylogs/core/resolvers/index.html#whylogs.core.resolvers.LimitedTrackingResolver">LimitedTrackingResolver (class in whylogs.core.resolvers)</a>
 </li>
         <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn.list">list (whylogs.core.preprocessing.PreprocessedColumn attribute)</a>
@@ -1843,6 +1922,8 @@
           <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.TransientLogger.log">(whylogs.api.logger.TransientLogger method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Condition.log_on_failure">log_on_failure (whylogs.core.metrics.condition_count_metric.Condition attribute)</a>
+</li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.Logger">Logger (class in whylogs.api.logger)</a>
 
         <ul>
@@ -1869,6 +1950,8 @@
           <li><a href="api/whylogs/core/constraints/metric_constraints/index.html#whylogs.core.constraints.metric_constraints.logger">(in module whylogs.core.constraints.metric_constraints)</a>
 </li>
           <li><a href="api/whylogs/core/dataset_profile/index.html#whylogs.core.dataset_profile.logger">(in module whylogs.core.dataset_profile)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.logger">(in module whylogs.core.metrics.condition_count_metric)</a>
 </li>
           <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.logger">(in module whylogs.core.preprocessing)</a>
 </li>
@@ -1906,6 +1989,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.lower_case">lower_case (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.lower_case">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.lower_case">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.lower_case">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -1957,6 +2042,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#whylogs.core.proto.v0.v0_constraints_pb2.MATCH">(in module whylogs.core.proto.v0.v0_constraints_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.match">match (whylogs.core.metrics.condition_count_metric.Relation attribute)</a>
+</li>
         <li><a href="api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.AnyType.match">match() (whylogs.core.datatypes.AnyType class method)</a>
 
         <ul>
@@ -1967,6 +2054,12 @@
           <li><a href="api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.Integral.match">(whylogs.core.datatypes.Integral class method)</a>
 </li>
           <li><a href="api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.String.match">(whylogs.core.datatypes.String class method)</a>
+</li>
+        </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.matches">matches (whylogs.core.metrics.condition_count_metric.ConditionCountMetric attribute)</a>
+
+        <ul>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.matches">(whylogs.core.metrics.ConditionCountMetric attribute)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.max">max (whylogs.core.metrics.DistributionMetric property)</a>
@@ -2009,6 +2102,10 @@
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ColumnCountsMetric.merge">(whylogs.core.metrics.ColumnCountsMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.merge">(whylogs.core.metrics.compound_metric.CompoundMetric method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.merge">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.merge">(whylogs.core.metrics.ConditionCountMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.merge">(whylogs.core.metrics.DistributionMetric method)</a>
 </li>
@@ -2145,6 +2242,8 @@
 </li>
         <li><a href="api/whylogs/core/metrics/metric_components/index.html#whylogs.core.metrics.metric_components.MinIntegralComponent">MinIntegralComponent (class in whylogs.core.metrics.metric_components)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/api/writer/mlflow/index.html#whylogs.api.writer.mlflow.MlflowWriter">MlflowWriter (class in whylogs.api.writer.mlflow)</a>
 </li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.ModelMetricsMessage">ModelMetricsMessage (in module whylogs.core.proto.v0)</a>
@@ -2153,8 +2252,6 @@
           <li><a href="api/whylogs/core/proto/v0/v0_messages_pb2/index.html#whylogs.core.proto.v0.v0_messages_pb2.ModelMetricsMessage">(in module whylogs.core.proto.v0.v0_messages_pb2)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.ModelProfileMessage">ModelProfileMessage (in module whylogs.core.proto.v0)</a>
 
         <ul>
@@ -2246,6 +2343,8 @@
           <li><a href="api/whylogs/core/metrics/column_metrics/index.html#module-whylogs.core.metrics.column_metrics">whylogs.core.metrics.column_metrics</a>
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#module-whylogs.core.metrics.compound_metric">whylogs.core.metrics.compound_metric</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#module-whylogs.core.metrics.condition_count_metric">whylogs.core.metrics.condition_count_metric</a>
 </li>
           <li><a href="api/whylogs/core/metrics/decorators/index.html#module-whylogs.core.metrics.decorators">whylogs.core.metrics.decorators</a>
 </li>
@@ -2375,6 +2474,8 @@
         <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType.name">name() (whylogs.core.configs.FrequentItemsErrorType method)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.name">(whylogs.core.metrics.condition_count_metric.Relation method)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric.name">(whylogs.core.metrics.StandardMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.name">(whylogs.core.view.dataset_profile_view.SummaryType method)</a>
@@ -2392,6 +2493,10 @@
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ColumnCountsMetric.namespace">(whylogs.core.metrics.ColumnCountsMetric property)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.namespace">(whylogs.core.metrics.compound_metric.CompoundMetric property)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.namespace">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric property)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.namespace">(whylogs.core.metrics.ConditionCountMetric property)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.namespace">(whylogs.core.metrics.DistributionMetric property)</a>
 </li>
@@ -2426,6 +2531,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#whylogs.core.proto.v0.v0_constraints_pb2.NE">(in module whylogs.core.proto.v0.v0_constraints_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.neq">neq (whylogs.core.metrics.condition_count_metric.Relation attribute)</a>
+</li>
         <li><a href="api/whylogs/core/proto/v0/index.html#whylogs.core.proto.v0.NLP">NLP (in module whylogs.core.proto.v0)</a>
 
         <ul>
@@ -2453,6 +2560,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.normalize">normalize (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.normalize">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.normalize">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.normalize">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -2468,6 +2577,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#whylogs.core.proto.v0.v0_constraints_pb2.NOT_IN">(in module whylogs.core.proto.v0.v0_constraints_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.not_relation">not_relation() (in module whylogs.core.metrics.condition_count_metric)</a>
+</li>
         <li><a href="api/whylogs/viz/index.html#whylogs.viz.NotebookProfileVisualizer">NotebookProfileVisualizer (class in whylogs.viz)</a>
 
         <ul>
@@ -2594,6 +2705,8 @@
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.or_relations">or_relations() (in module whylogs.core.metrics.condition_count_metric)</a>
+</li>
         <li><a href="api/whylogs/core/preprocessing/index.html#whylogs.core.preprocessing.PreprocessedColumn.original">original (whylogs.core.preprocessing.PreprocessedColumn attribute)</a>
 </li>
     </ul></td>
@@ -2776,6 +2889,12 @@
           <li><a href="api/whylogs/core/proto/v0/v0_messages_pb2/index.html#whylogs.core.proto.v0.v0_messages_pb2.RegressionMetricsMessage">(in module whylogs.core.proto.v0.v0_messages_pb2)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation">Relation (class in whylogs.core.metrics.condition_count_metric)</a>
+</li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Condition.relation">relation (whylogs.core.metrics.condition_count_metric.Condition attribute)</a>
+</li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.relation">relation() (in module whylogs.core.metrics.condition_count_metric)</a>
+</li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.removeprefix">removeprefix() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
 </li>
         <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.removesuffix">removesuffix() (whylogs.core.view.dataset_profile_view.SummaryType method)</a>
@@ -3140,6 +3259,8 @@
           <li><a href="api/whylogs/core/schema/index.html#whylogs.core.schema.T">(in module whylogs.core.schema)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Condition.throw_on_failure">throw_on_failure (whylogs.core.metrics.condition_count_metric.Condition attribute)</a>
+</li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.TimedRollingLogger">TimedRollingLogger (class in whylogs.api.logger)</a>
 
         <ul>
@@ -3180,6 +3301,10 @@
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ColumnCountsMetric.to_protobuf">(whylogs.core.metrics.ColumnCountsMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.to_protobuf">(whylogs.core.metrics.compound_metric.CompoundMetric method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.to_protobuf">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.to_protobuf">(whylogs.core.metrics.ConditionCountMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.to_protobuf">(whylogs.core.metrics.DistributionMetric method)</a>
 </li>
@@ -3237,6 +3362,10 @@
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.to_summary_dict">(whylogs.core.metrics.compound_metric.CompoundMetric method)</a>
 </li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.to_summary_dict">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.to_summary_dict">(whylogs.core.metrics.ConditionCountMetric method)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.to_summary_dict">(whylogs.core.metrics.DistributionMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.FrequentItemsMetric.to_summary_dict">(whylogs.core.metrics.FrequentItemsMetric method)</a>
@@ -3270,6 +3399,12 @@
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.total">total (whylogs.core.metrics.condition_count_metric.ConditionCountMetric attribute)</a>
+
+        <ul>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.total">(whylogs.core.metrics.ConditionCountMetric attribute)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.DatasetProfile.track">track() (whylogs.api.logger.DatasetProfile method)</a>
 
         <ul>
@@ -3291,6 +3426,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.track_unicode_ranges">track_unicode_ranges (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.track_unicode_ranges">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.track_unicode_ranges">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.track_unicode_ranges">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -3365,6 +3502,8 @@
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.unicode_ranges">unicode_ranges (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountConfig.unicode_ranges">(whylogs.core.metrics.condition_count_metric.ConditionCountConfig attribute)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.MetricConfig.unicode_ranges">(whylogs.core.metrics.MetricConfig attribute)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.MetricConfig.unicode_ranges">(whylogs.core.metrics.metrics.MetricConfig attribute)</a>
@@ -3447,6 +3586,8 @@
         <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType.value">value() (whylogs.core.configs.FrequentItemsErrorType method)</a>
 
         <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.Relation.value">(whylogs.core.metrics.condition_count_metric.Relation method)</a>
+</li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.StandardMetric.value">(whylogs.core.metrics.StandardMetric method)</a>
 </li>
           <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.SummaryType.value">(whylogs.core.view.dataset_profile_view.SummaryType method)</a>
@@ -3763,6 +3904,13 @@
 
         <ul>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#module-whylogs.core.metrics.compound_metric">module</a>
+</li>
+        </ul></li>
+        <li>
+    whylogs.core.metrics.condition_count_metric
+
+        <ul>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#module-whylogs.core.metrics.condition_count_metric">module</a>
 </li>
         </ul></li>
         <li>
@@ -4154,6 +4302,10 @@
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ColumnCountsMetric.zero">(whylogs.core.metrics.ColumnCountsMetric class method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/compound_metric/index.html#whylogs.core.metrics.compound_metric.CompoundMetric.zero">(whylogs.core.metrics.compound_metric.CompoundMetric class method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/condition_count_metric/index.html#whylogs.core.metrics.condition_count_metric.ConditionCountMetric.zero">(whylogs.core.metrics.condition_count_metric.ConditionCountMetric class method)</a>
+</li>
+          <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.ConditionCountMetric.zero">(whylogs.core.metrics.ConditionCountMetric class method)</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.DistributionMetric.zero">(whylogs.core.metrics.DistributionMetric class method)</a>
 </li>

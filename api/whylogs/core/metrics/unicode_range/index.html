@@ -10,7 +10,7 @@
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/api/whylogs/core/metrics/unicode_range/index.html" />
   
-<meta property="og:description" content="Module Contents: Classes: Attributes:" />
+<meta property="og:description" content="Module Contents: Classes:" />
   <link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" /><link rel="next" title="whylogs.core.proto" href="../../proto/index.html" /><link rel="prev" title="whylogs.core.metrics.serializers" href="../serializers/index.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
@@ -265,6 +265,7 @@
 <li class="toctree-l5"><a class="reference internal" href="../aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../condition_count_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.condition_count_metric</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
 <li class="toctree-l5"><a class="reference internal" href="../maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
@@ -371,27 +372,6 @@
 </tbody>
 </table>
 </div>
-</section>
-<section id="attributes">
-<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">#</a></h3>
-<div class="table-wrapper longtable docutils container">
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.metrics.unicode_range.ColumnSchema" title="whylogs.core.metrics.unicode_range.ColumnSchema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnSchema</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<dl class="py data">
-<dt class="sig sig-object py" id="whylogs.core.metrics.unicode_range.ColumnSchema">
-<span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.unicode_range.</span></span><span class="sig-name descname"><span class="pre">ColumnSchema</span></span><em class="property"><span class="w"> </span><span class="pre">:typing_extensions.TypeAlias</span> <span class="pre">=</span> <span class="pre">ColumnSchema</span></em><a class="headerlink" href="#whylogs.core.metrics.unicode_range.ColumnSchema" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="whylogs.core.metrics.unicode_range.UnicodeRangeMetric">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">whylogs.core.metrics.unicode_range.</span></span><span class="sig-name descname"><span class="pre">UnicodeRangeMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">submetrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../index.html#whylogs.core.metrics.Metric" title="whylogs.core.metrics.Metric"><span class="pre">whylogs.core.metrics.Metric</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../../_modules/whylogs/core/metrics/unicode_range.html#UnicodeRangeMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#whylogs.core.metrics.unicode_range.UnicodeRangeMetric" title="Permalink to this definition">#</a></dt>
@@ -664,9 +644,7 @@ range to be tracked. The string length is tracked under the key
             <ul>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
-<li><a class="reference internal" href="#classes">Classes</a></li>
-<li><a class="reference internal" href="#attributes">Attributes</a><ul>
-<li><a class="reference internal" href="#whylogs.core.metrics.unicode_range.ColumnSchema">ColumnSchema</a></li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
 <li><a class="reference internal" href="#whylogs.core.metrics.unicode_range.UnicodeRangeMetric">UnicodeRangeMetric</a><ul>
 <li><a class="reference internal" href="#whylogs.core.metrics.unicode_range.UnicodeRangeMetric.range_definitions">range_definitions</a></li>
 <li><a class="reference internal" href="#whylogs.core.metrics.unicode_range.UnicodeRangeMetric.lower_case">lower_case</a></li>

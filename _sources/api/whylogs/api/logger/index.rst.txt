@@ -181,6 +181,9 @@ Functions
    .. py:method:: set_dataset_timestamp(self, dataset_timestamp: datetime.datetime) -> None
 
 
+   .. py:method:: add_metric(self, col_name: str, metric: whylogs.core.metrics.Metric) -> None
+
+
    .. py:method:: track(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
 
 
@@ -202,7 +205,7 @@ Functions
 
 
 
-.. py:class:: DatasetSchema(config: Optional[whylogs.core.metrics.MetricConfig] = None)
+.. py:class:: DatasetSchema
 
    Defines the schema for tracking metrics in whylogs.
 
@@ -252,7 +255,7 @@ Functions
       
 
    .. py:attribute:: default_configs
-      :annotation: :whylogs.core.metrics.MetricConfig
+      :annotation: :whylogs.core.metrics.metrics.MetricConfig
 
       
 
