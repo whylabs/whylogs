@@ -13,10 +13,11 @@ class TestWeatherDataset(object):
 
     def test_existing_version(self):
         dataset = Weather(version="in_domain")
+        assert dataset
 
     def test_non_existing_version(self):
         with pytest.raises(ValueError, match="Version not found in list of available versions."):
-            dataset = Weather(version="nonexisting-version")
+            Weather(version="nonexisting-version")
 
     def test_supported_interval(self, dataset):
         dataset.set_parameters("1d")
@@ -63,24 +64,26 @@ class TestWeatherDataset(object):
     def test_get_inference_pass_both_arguments(self, dataset):
         dataset.set_parameters("1d", inference_start_timestamp=date.today())
         with pytest.raises(ValueError, match="Either date or number_batches should be passed, not both."):
-            batch = dataset.get_inference_data(target_date=date.today(), number_batches=30)
+            dataset.get_inference_data(target_date=date.today(), number_batches=30)
 
     def test_get_inference_pass_no_arguments(self, dataset):
         dataset.set_parameters("1d", inference_start_timestamp=date.today())
         with pytest.raises(ValueError, match="date or number_batches must be passed to get_inference_data."):
-            batch = dataset.get_inference_data()
+            dataset.get_inference_data()
 
     def test_get_inference_wrong_date_type(self, dataset):
         dataset.set_parameters("1d", inference_start_timestamp=date.today())
         with pytest.raises(ValueError, match="Target date should be either of date or datetime type."):
-            batch = dataset.get_inference_data(target_date="2022-02-12")
+            dataset.get_inference_data(target_date="2022-02-12")
 
     def test_get_inference_without_set_parameters(self, dataset):
         batches = dataset.get_inference_data(number_batches=3)
+        assert len(list(batches)) == 3
 
     def test_get_inference_valid_interval(self, dataset):
         dataset.set_parameters("3d")
         batches = dataset.get_inference_data(number_batches=3)
+        assert len(list(batches)) == 3
 
     def test_get_inference_invalid_interval(self, dataset):
         with pytest.raises(ValueError, match="Could not parse interval!"):

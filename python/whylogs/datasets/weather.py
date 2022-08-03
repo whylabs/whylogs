@@ -1,9 +1,8 @@
 import os
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from email.mime import base
 from logging import getLogger
-from typing import Iterable, Optional, Union
+from typing import Iterable, Optional, Tuple, Union
 
 import pandas as pd
 
@@ -11,7 +10,6 @@ from whylogs.datasets.base import Batch, Dataset
 from whylogs.datasets.configs import DatasetConfig, WeatherConfig
 from whylogs.datasets.utils import (
     _change_df_date_by_offset,
-    _get_data_home,
     _get_dataset_path,
     _parse_interval,
     _validate_timestamp,
@@ -30,18 +28,18 @@ class Weather(Dataset):
     This dataset is based on data available at https://github.com/Shifts-Project/shifts
     """
 
+    baseline_df: pd.DataFrame
+    inference_df: pd.DataFrame
     inference_interval: str = "1d"
     number_days: int = 1
     unit: str = "D"
     url: str = WeatherConfig.url
     baseline_timestamp: Union[date, datetime] = date.today()
     inference_start_timestamp: Union[date, datetime] = date.today() + timedelta(1)
-    baseline_df: Optional[pd.DataFrame] = None
-    inference_df: Optional[pd.DataFrame] = None
     original: bool = False
     dataset_config: DatasetConfig = WeatherConfig()
 
-    def __init__(self, version: Optional[str] = "in_domain") -> None:
+    def __init__(self, version: str = "in_domain") -> None:
         if version not in self.dataset_config.available_versions:
             raise ValueError("Version not found in list of available versions.")
         self.version = version
@@ -73,7 +71,7 @@ class Weather(Dataset):
         )
         return baseline
 
-    def _validate_interval(self, interval):
+    def _validate_interval(self, interval: str) -> Tuple[int, str]:
         number_days, unit = _parse_interval(interval)
         if number_days > self.dataset_config.max_interval:
             raise ValueError("Maximum allowed interval for this dataset is {}".format(self.dataset_config.max_interval))
@@ -138,17 +136,19 @@ class Weather(Dataset):
             self.inference_df = self.inference_df.set_index(["date"], drop=False)
 
     @classmethod
-    def describe_versions(cls):
+    def describe_versions(cls) -> Tuple[str]:
         available_versions = cls.dataset_config.available_versions
         return available_versions
 
     @classmethod
-    def describe(cls):
+    def describe(cls) -> Optional[str]:
         return cls.__doc__
 
 
 class WeatherDatasetIterator:
-    def __init__(self, df: pd.DataFrame, number_days: int, number_batches: int, version: str, config=DatasetConfig):
+    def __init__(
+        self, df: pd.DataFrame, number_days: int, number_batches: int, version: str, config=DatasetConfig
+    ) -> None:
         self._df = df
         self._number_days = number_days
         self._number_batches = number_batches
@@ -160,12 +160,12 @@ class WeatherDatasetIterator:
         self._batch_counter: int = 0
         return self
 
-    def __next__(self):
+    def __next__(self) -> Batch:
         if self._batch_counter >= self._number_batches:
             raise StopIteration
         if self._index <= self._df.iloc[-1].name:
             day = self._index
-            data = self._df[day : day + timedelta(days=(self._number_days - 1))]
+            data = self._df[day : day + timedelta(days=(self._number_days - 1))]  # type: ignore
             inference = Batch(timestamp=day, data=data, dataset_config=self.config, version=self.version)
             self._index = data.index[-1] + timedelta(days=1)
             self._batch_counter += 1

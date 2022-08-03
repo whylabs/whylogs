@@ -31,16 +31,16 @@ class WeatherConfig(DatasetConfig):
     max_interval: int = 30
     base_unit: str = "D"
     available_versions: tuple = ("in_domain", "out_domain")
-    target_columns: Dict[str, tuple] = field(
+    target_columns: Dict[str, List[str]] = field(
         default_factory=lambda: {"in_domain": ["temperature"], "out_domain": ["temperature"]}
     )
-    prediction_columns: Dict[str, tuple] = field(
+    prediction_columns: Dict[str, List[str]] = field(
         default_factory=lambda: {
             "in_domain": ["prediction_temperature", "uncertainty"],
             "out_domain": ["prediction_temperature", "uncertainty"],
         }
     )
-    metadata_columns: Dict[str, tuple] = field(
+    metadata_columns: Dict[str, List[str]] = field(
         default_factory=lambda: {
             "in_domain": ["meta_latitude", "meta_longitude", "meta_climate", "date"],
             "out_domain": ["meta_latitude", "meta_longitude", "meta_climate", "date"],

@@ -1,17 +1,16 @@
 import os
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Tuple, Union
 
 import pandas as pd
 
-from whylogs.datasets.base import Batch
-from whylogs.datasets.configs import BaseConfig, DatasetConfig
+from whylogs.datasets.configs import BaseConfig
 
 base_config = BaseConfig()
 
 
-def _adjust_date(current_date, date_offset):
+def _adjust_date(current_date: str, date_offset: timedelta) -> date:
     adjusted_date = datetime.strptime(current_date, "%Y-%m-%d").date() + date_offset
 
     return adjusted_date
@@ -21,11 +20,11 @@ def _parse_interval(interval: str) -> Tuple[int, str]:
     try:
         result = re.findall(r"^(\d+)([DdMmHhSs])", interval)[0]
         return (int(result[0]), result[1].upper())
-    except:
+    except IndexError:
         raise ValueError("Could not parse interval!")
 
 
-def _change_df_date_by_offset(df, new_start_date):
+def _change_df_date_by_offset(df: pd.DataFrame, new_start_date: date) -> pd.DataFrame:
     original_start_date = df["date"][0]
 
     if isinstance(original_start_date, str):
@@ -42,7 +41,7 @@ def _change_df_date_by_offset(df, new_start_date):
     return df
 
 
-def _validate_timestamp(timestamp):
+def _validate_timestamp(timestamp: Union[date, datetime]) -> date:
     if isinstance(timestamp, datetime):
         return timestamp.date()
     elif isinstance(timestamp, date):
@@ -51,14 +50,14 @@ def _validate_timestamp(timestamp):
         raise ValueError("You must pass either a Datetime or Date object to timestamp!")
 
 
-def _get_data_home():
+def _get_data_home() -> str:
     home_path = os.path.join(".", base_config.data_folder)
     if not os.path.exists(home_path):
         os.makedirs(home_path)
     return home_path
 
 
-def _get_dataset_path(folder_name):
+def _get_dataset_path(folder_name: str) -> str:
     home_path = _get_data_home()
     dataset_path = os.path.join(home_path, folder_name)
     if not os.path.exists(dataset_path):

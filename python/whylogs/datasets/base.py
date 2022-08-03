@@ -2,10 +2,9 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Iterable, Optional, Tuple, Union
+from typing import Iterable, List, Optional, Union
 
 import pandas as pd
-from typing_extensions import Self
 
 from whylogs.datasets.configs import DatasetConfig
 
@@ -54,9 +53,9 @@ class Batch:
 
 
 class Dataset(ABC):
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def describe_versions() -> "list[str]":
+    def describe_versions(cls) -> List[str]:
         raise NotImplementedError
 
     @classmethod
