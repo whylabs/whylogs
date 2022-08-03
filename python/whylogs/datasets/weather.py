@@ -2,7 +2,6 @@ import os
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from logging import getLogger
-from tkinter import N
 from typing import Iterable, Optional, Tuple, Union
 
 import pandas as pd
