@@ -1,11 +1,14 @@
 package com.whylogs.core.metrics;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-@UtilityClass
+@Data
+@NoArgsConstructor
 public class MetricConfig {
     private final int hll_lg_k = 12;
     private final int kll_k = 256;
