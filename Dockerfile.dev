@@ -1,0 +1,39 @@
+FROM python:3.7
+
+RUN mkdir /workspace && \
+    apt update && \
+    apt install git -y && \
+    apt install sudo -y && \
+    adduser --quiet --disabled-password whyuser && \
+    adduser whyuser sudo && \
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+RUN curl -LJO https://github.com/protocolbuffers/protobuf/releases/download/v3.19.2/protoc-3.19.2-linux-x86_64.zip && \
+    unzip protoc-*-linux-x86_64.zip -d /usr && \
+    chmod -R a+rx /usr/bin/ /usr/include/google && \
+    apt install cmake -y && \
+    pip install pytest && \
+    pip install pytest-cov && \
+    pip install jupyterlab && \
+    pip install numpy && \
+    pip install pandas && \
+    pip install sphinx && \
+    apt install openjdk-11-jre-headless -y && \
+    curl -fsSL https://deb.nodesource.com/setup_17.x | bash - && \
+    apt install nodejs -y && \
+    npm install --global yarn && \
+    curl -LJO "https://gitlab-runner-downloads.s3.amazonaws.com/latest/deb/gitlab-runner_amd64.deb" && \
+    dpkg -i gitlab-runner_amd64.deb
+
+RUN apt install less -y && \
+    apt install emacs -y && \
+    apt install vim -y
+
+USER whyuser
+
+WORKDIR /home/whyuser
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - && \
+    echo source /home/whyuser/.poetry/env >> .bashrc
+
+WORKDIR /workspace
+CMD [ "bash" ]

@@ -1,9 +1,9 @@
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
-from whylogs.core.metrics import Metric, MetricConfig
+from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import Resolver, StandardResolver
 from whylogs.core.stubs import pd
 
@@ -14,6 +14,7 @@ LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 T = TypeVar("T", bound="DatasetSchema")
 
 
+@dataclass
 class DatasetSchema:
     """
     Defines the schema for tracking metrics in whylogs.
@@ -54,18 +55,15 @@ class DatasetSchema:
 
     """
 
-    types: Dict[str, Any] = {}
+    types: Dict[str, Any] = field(default_factory=dict)
     default_configs: MetricConfig = MetricConfig()
     type_mapper: TypeMapper = StandardTypeMapper()
     resolvers: Resolver = StandardResolver()
     cache_size: int = 1024
     schema_based_automerge: bool = False
 
-    def __init__(self, config: Optional[MetricConfig] = None) -> None:
+    def __post_init__(self) -> None:
         self._columns = {}
-
-        if config is not None:
-            self.default_configs = config
 
         if self.cache_size < 0:
             logger.warning("Negative cache size value. Disabling caching")
@@ -86,12 +84,8 @@ class DatasetSchema:
 
     def copy(self) -> "DatasetSchema":
         """Returns a new instance of the same underlying schema"""
-        copy = DatasetSchema(self.default_configs)
+        copy = DatasetSchema(**self.__dict__)
         copy._columns = self._columns.copy()
-        copy.cache_size = self.cache_size
-        copy.type_mapper = self.type_mapper
-        copy.resolvers = self.resolvers
-
         return copy
 
     def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool:
