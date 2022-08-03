@@ -12,7 +12,6 @@ public class MaxIntegralComponent extends IntegralComponent {
         super(value);
     }
 
-    // TODO: python has the @_id_aggregator decorator, how do we update?
     public static Integer max(Integer a, Integer b) {
         return Integer.max(a, b);
     }

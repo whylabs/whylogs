@@ -20,7 +20,7 @@ public class MetricComponent<T> {
     // Add registry to this class
     // add serializer
     // add deserialier
-    /// add aggregator
+    /// add aggregator: https://github.com/whylabs/whylogs/pull/719#discussion_r936202557
     // TODO do we need the optional mtype? (we shouldn't in java?)
 
     public MetricComponent(T value) {

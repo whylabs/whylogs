@@ -12,7 +12,6 @@ public class MinIntegralComponent extends IntegralComponent {
         super(value);
     }
 
-    // TODO: python has the @_id_aggregator decorator, how do we update?
     public static Integer min(Integer a, Integer b) {
         return Integer.min(a, b);
     }

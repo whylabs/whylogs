@@ -2,17 +2,19 @@ package com.whylogs.core.metrics;
 
 import com.whylogs.core.PreProcessedColumn;
 import com.whylogs.core.SummaryConfig;
+import lombok.Data;
 
 import java.util.HashMap;
 
+@Data
 public abstract class Metric{
 
     private String namespace;
 
-    // TODO: needs a __post_init__ for the registry
+    // TODO: set the class to have a registry when initialized
 
     public static String getNameSpace(Metric metric, MetricConfig config){
-        return metric.zero(config).namespace;
+        return metric.namespace;
     }
 
     public abstract <T extends Metric> T zero(MetricConfig config);
@@ -43,6 +45,7 @@ public abstract class Metric{
 
         // TODO: We will have to figure out how to do this to make sure it's not just a Metric
         // but the sublcass
+        //MethodHandles.lookup().lookupClass()
         return null;
     }*/
 }
