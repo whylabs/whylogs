@@ -1,8 +1,7 @@
 package com.whylogs.core.metrics.components;
 
 import com.whylogs.core.message.MetricComponentMessage;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 /***
 A metric component is the smallest unit for a metric.
@@ -11,24 +10,33 @@ A metric might consist of multiple components. An example is distribution metric
 histogram, mean and m2. The calculation of components could be independent or could be coupled with other
 components.
 ***/
-@Data
+@Getter
 @EqualsAndHashCode(callSuper=false)
 public class MetricComponent<T> {
-    private static final int type_id = 0;
+    private static final int TYPE_ID = 0; // Maybe don't look at this as final if serializer, double check
+
+    @NonNull
     private final T value;
     // TODO: add fields
     // Add registry to this class
     // add serializer
     // add deserialier
     /// add aggregator: https://github.com/whylabs/whylogs/pull/719#discussion_r936202557
-    // TODO do we need the optional mtype? (we shouldn't in java?)
 
-    public MetricComponent(T value) {
+    public MetricComponent(@NonNull T value) {
         this.value = value;
 
         // init the registries
         // TODO: lots of aggregators, deserializers, serializers, etc.
 
+    }
+
+    public @NonNull T getValue() {
+        return value;
+    }
+
+    public int getTypeId() {
+        return TYPE_ID;
     }
 
     public MetricComponent<T> add(MetricComponent<T> other) {
@@ -37,15 +45,13 @@ public class MetricComponent<T> {
     }
 
 
+
     // TODO to_protobuf
     // TODO from_protobuf
+    // TODO: add a from_protobuf iwht registries passed in
     public static <T extends MetricComponent> T from_protobuf(MetricComponentMessage message) {
         // TODO: check that it's a MetricComponent dataclass
         return null;
     }
-
-    // TODO: add a from_protobuf iwht registries passed in
-
-
 
 }
