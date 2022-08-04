@@ -13,7 +13,8 @@ AUTOAPI       = _autoapi/
 pre-build:
 	rm -f ./examples
 	ln -s ../examples ./
-
+	rm -f ./datasets
+	ln -s ../whylogs/datasets/descr ./datasets
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 

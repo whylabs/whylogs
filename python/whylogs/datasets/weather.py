@@ -3,11 +3,12 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from logging import getLogger
 from typing import Iterable, Optional, Tuple, Union
+from importlib import resources
 
 import pandas as pd
 
 from whylogs.datasets.base import Batch, Dataset
-from whylogs.datasets.configs import DatasetConfig, WeatherConfig
+from whylogs.datasets.configs import DatasetConfig, WeatherConfig, BaseConfig
 from whylogs.datasets.utils import (
     _adjust_df_date,
     _get_dataset_path,
@@ -18,14 +19,20 @@ from whylogs.datasets.utils import (
 logger = getLogger(__name__)
 
 
+base_config = BaseConfig()
+
+
 @dataclass(init=False)
 class Weather(Dataset):
     """Weather Forecast Dataset
 
-    Number of instances:
-    Number of attributes:
+    The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time. This dataset can present data distribution shifts over both time and space.
 
-    This dataset is based on data available at https://github.com/Shifts-Project/shifts
+    The original data was sourced from the `Weather Prediction Dataset <https://github.com/Shifts-Project/shifts>`_.
+    From the source data additional transformations were made, such as: feature renaming, feature selection and subsampling.
+    The original dataset is described in `Shifts: A Dataset of Real Distributional Shift Across Multiple Large-Scale Tasks <https://arxiv.org/pdf/2107.07455.pdf>`_, by **Malinin, Andrey, et al.**
+
+    For a detailed description, please use the dataset's describe() method or visit whylog's documentation website.
     """
 
     baseline_df: pd.DataFrame
@@ -40,6 +47,16 @@ class Weather(Dataset):
     dataset_config: DatasetConfig = WeatherConfig()
 
     def __init__(self, version: str = "in_domain") -> None:
+        """Initializes internal dataframes.
+
+        If the files are already present locally, won't try to download from S3.
+
+        Parameters
+        ----------
+        version : str, optional
+            The desired dataset's version, by default "in_domain"
+
+        """
         if version not in self.dataset_config.available_versions:
             raise ValueError("Version not found in list of available versions.")
         self.version = version
@@ -72,6 +89,7 @@ class Weather(Dataset):
         return baseline
 
     def _validate_interval(self, interval: str) -> Tuple[int, str]:
+        """Checks if desired interval are of acceptable units and inside maximum duration limits."""
         number_days, unit = _parse_interval(interval)
         if number_days > self.dataset_config.max_interval:
             raise ValueError("Maximum allowed interval for this dataset is {}".format(self.dataset_config.max_interval))
@@ -82,6 +100,20 @@ class Weather(Dataset):
     def get_inference_data(
         self, target_date: Optional[Union[date, datetime]] = None, number_batches: Optional[int] = None
     ) -> Union[Batch, Iterable[Batch]]:
+        """Get batch(es) from inference dataset.
+
+        Parameters
+        ----------
+        target_date : Optional[Union[date, datetime]], optional
+            Target date for single batch. If datetime is passed, only date will be considered, by default None
+        number_batches : Optional[int], optional
+            Number of batches to be retrieved. Each batch will have a time interval as defined by `inference_interval` from `set_parameters`. By default None
+
+        Returns
+        -------
+        Union[Batch, Iterable[Batch]]
+            Can return a single batch or an interator of batches, depending on input parameters
+        """
         if not target_date and not number_batches:
             raise ValueError("date or number_batches must be passed to get_inference_data.")
         if target_date and number_batches:
@@ -112,12 +144,25 @@ class Weather(Dataset):
         inference_start_timestamp: Optional[Union[date, datetime]] = None,
         original: Optional[bool] = None,
     ) -> None:
+        """Set timestamp and interval parameters for the dataset object.
+
+        Parameters
+        ----------
+        inference_interval : Optional[str], optional
+            Interval for the inference batches. If none is passed, daily inference batches will be returned, by default None
+        baseline_timestamp : Optional[Union[date, datetime]], optional
+            Timestamp for the baseline dataset. If none is passed, timestamp will be equal to the current day, by default None
+        inference_start_timestamp : Optional[Union[date, datetime]], optional
+            Timestamp for the start of the inference dataset. If none is passed, timestamp will be equal to tomorrow's date, by default None
+        original : Optional[bool], optional
+            _If true, sets both baseline and inference timestamps to the dataset's original timestamp, by default None
+        """
         if inference_interval:
             self.inference_interval = inference_interval
             self.number_days, self.unit = self._validate_interval(self.inference_interval)
         if original:
-            self.baseline_timestamp = self.dataset_config.baseline_start_timestamp
-            self.inference_start_timestamp = self.dataset_config.inference_start_timestamp
+            self.baseline_timestamp = self.dataset_config.baseline_start_timestamp[self.version]
+            self.inference_start_timestamp = self.dataset_config.inference_start_timestamp[self.version]
             self.inference_df = _adjust_df_date(self.inference_df, self.inference_start_timestamp)
             self.baseline_df = _adjust_df_date(self.baseline_df, new_start_date=self.baseline_timestamp)
 
@@ -146,10 +191,13 @@ class Weather(Dataset):
 
     @classmethod
     def describe(cls) -> Optional[str]:
-        return cls.__doc__
+        descr = resources.read_text(base_config.description_folder, cls.dataset_config.description_file)
+        return descr
 
 
 class WeatherDatasetIterator:
+    """Iterator to retrieve inference batches, when multiple batches are required."""
+
     def __init__(
         self, df: pd.DataFrame, number_days: int, number_batches: int, version: str, config=DatasetConfig
     ) -> None:
