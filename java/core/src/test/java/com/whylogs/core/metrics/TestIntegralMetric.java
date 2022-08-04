@@ -1,16 +1,48 @@
 package com.whylogs.core.metrics;
 
 import com.whylogs.core.PreProcessedColumn;
+import com.whylogs.core.SummaryConfig;
+import com.whylogs.core.metrics.components.MaxIntegralComponent;
+import com.whylogs.core.metrics.components.MinIntegralComponent;
+import org.apache.commons.math3.stat.descriptive.summary.Sum;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.HashMap;
 
 @Test
 public class TestIntegralMetric {
+
+
+    @Test(expectedExceptions = IllegalArgumentException.class)
+    public void test_merge_exception(){
+        IntegralMetric metric = new IntegralMetric("foo");
+        metric.merge(new IntegralMetric("bar"));
+    }
+
+    @Test
+    public void test_zeroAndSummaryDict(){
+        IntegralMetric metric = new IntegralMetric(new MaxIntegralComponent(20), new MinIntegralComponent(-10));
+        metric = metric.zero(new MetricConfig());
+
+        Assert.assertEquals((int) metric.getMaxComponent().getValue(), Integer.MIN_VALUE);
+        Assert.assertEquals((int) metric.getMinComponent().getValue(), Integer.MAX_VALUE);
+
+        HashMap<String, Object> summary = metric.toSummaryDict(new SummaryConfig());
+        Assert.assertEquals(summary.get("max"), Integer.MIN_VALUE);
+        Assert.assertEquals(summary.get("min"), Integer.MAX_VALUE);
+    }
+
+    @Test
+    public void test_namespace(){
+        IntegralMetric metric = new IntegralMetric();
+        Assert.assertEquals(metric.getNamespace(), IntegralMetric.DEFAULT_NAMESPACE);
+
+        metric = new IntegralMetric("test");
+        Assert.assertEquals(metric.getNamespace(), "test");
+    }
 
     @Test
     public void test_columnarUpdate_emptyData() {
@@ -57,6 +89,51 @@ public class TestIntegralMetric {
         // make sure these are zeroed out
         Assert.assertEquals((int) metrics.getMaxComponent().getValue(), 3);
         Assert.assertEquals((int) metrics.getMinComponent().getValue(), 1);
+    }
+
+    @DataProvider(name="merge_data")
+    public Object[][] merge_data(){
+        ArrayList<Integer> testList = new ArrayList<>();
+        OperationResult result;
+
+        testList.add(1);
+        testList.add(2);
+        testList.add(3);
+
+        // Second list
+        ArrayList<Integer> testList2 = new ArrayList<>();
+        testList2.add(4);
+        testList2.add(5);
+        testList2.add(6);
+
+        // Second list
+        ArrayList<Integer> with_negative = new ArrayList<>();
+        with_negative.add(-2);
+        with_negative.add(5);
+        with_negative.add(6);
+
+        return new Object[][]{
+                {testList, testList2, 6, 1},
+                {testList2, testList, 6, 1},
+                {testList, with_negative, 6, -2},
+                {with_negative, testList2, 6, -2},
+                {with_negative, with_negative, 6, -2}
+        };
+    }
+
+    @Test(dataProvider = "merge_data")
+    public void test_merge(ArrayList<Integer> a, ArrayList<Integer> b, int expectedMax, int expectedMin){
+        IntegralMetric metrics = new IntegralMetric();
+        metrics.columnarUpdate(PreProcessedColumn.apply(a));
+
+        IntegralMetric metrics2 = new IntegralMetric();
+        metrics2.columnarUpdate(PreProcessedColumn.apply(b));
+
+        IntegralMetric merged = metrics.merge(metrics2);
+
+        // make sure these are zeroed out
+        Assert.assertEquals((int) merged.getMaxComponent().getValue(), expectedMax);
+        Assert.assertEquals((int) merged.getMinComponent().getValue(), expectedMin);
     }
 
 }
