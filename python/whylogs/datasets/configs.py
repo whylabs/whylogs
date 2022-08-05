@@ -13,8 +13,8 @@ class BaseConfig:
 class DatasetConfig:
     folder_name: str
     url: str
-    baseline_start_timestamp: date
-    inference_start_timestamp: date
+    baseline_start_timestamp: Dict[str, date]
+    inference_start_timestamp: Dict[str, date]
     max_interval: int
     base_unit: str
     available_versions: tuple

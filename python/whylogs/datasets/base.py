@@ -125,9 +125,11 @@ class Dataset(ABC):
         Parameters
         ----------
         target_date : Optional[Union[date, datetime]], optional
-            If target_date is set, a single batch will be returned for the given date(or datetime). If both target_date and number_batches are defined, an error will be raised.
+            If target_date is set, a single batch will be returned for the given date(or datetime).
+            If both target_date and number_batches are defined, an error will be raised.
         number_batches : Optional[int], optional
-            If number_batches is set to `n`, an iterator of `n` inference batches will be returned, starting from `inference_start_timestamp`. If both target_date and number_batches are defined, an error will be raised.
+            If number_batches is set to `n`, an iterator of `n` inference batches will be returned, starting from `inference_start_timestamp`.
+            If both target_date and number_batches are defined, an error will be raised.
 
         Returns
         -------

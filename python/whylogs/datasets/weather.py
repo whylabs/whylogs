@@ -1,14 +1,14 @@
 import os
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
+from importlib import resources
 from logging import getLogger
 from typing import Iterable, Optional, Tuple, Union
-from importlib import resources
 
 import pandas as pd
 
 from whylogs.datasets.base import Batch, Dataset
-from whylogs.datasets.configs import DatasetConfig, WeatherConfig, BaseConfig
+from whylogs.datasets.configs import BaseConfig, DatasetConfig, WeatherConfig
 from whylogs.datasets.utils import (
     _adjust_df_date,
     _get_dataset_path,
@@ -26,11 +26,13 @@ base_config = BaseConfig()
 class Weather(Dataset):
     """Weather Forecast Dataset
 
-    The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time. This dataset can present data distribution shifts over both time and space.
+    The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time.
+    This dataset can present data distribution shifts over both time and space.
 
     The original data was sourced from the `Weather Prediction Dataset <https://github.com/Shifts-Project/shifts>`_.
     From the source data additional transformations were made, such as: feature renaming, feature selection and subsampling.
-    The original dataset is described in `Shifts: A Dataset of Real Distributional Shift Across Multiple Large-Scale Tasks <https://arxiv.org/pdf/2107.07455.pdf>`_, by **Malinin, Andrey, et al.**
+    The original dataset is described in
+    `Shifts: A Dataset of Real Distributional Shift Across Multiple Large-Scale Tasks <https://arxiv.org/pdf/2107.07455.pdf>`_, by **Malinin, Andrey, et al.**
 
     For a detailed description, please use the dataset's describe() method or visit whylog's documentation website.
     """

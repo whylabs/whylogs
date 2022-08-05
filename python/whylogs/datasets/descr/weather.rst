@@ -1,7 +1,7 @@
 Weather Forecast Dataset
 ========================
 
-The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time. This dataset can present data distribution shifts over both time and space. 
+The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time. This dataset can present data distribution shifts over both time and space.
 
 The original data was sourced from the `Weather Prediction Dataset <https://github.com/Shifts-Project/shifts>`_. From the source data additional transformations were made, such as: feature renaming, feature selection and subsampling.
 The original dataset is described in `Shifts: A Dataset of Real Distributional Shift Across Multiple Large-Scale Tasks <https://arxiv.org/pdf/2107.07455.pdf>`_, by **Malinin, Andrey, et al.**
@@ -111,7 +111,7 @@ These features are outputs from a given ML model. Can be directly the prediction
         - uncertainty measure of the given `prediction_temperature` prediction
         - Prediction
         - all
-  
+
 The ``prediction_temperature`` feature was obtained by training an ensemble of three GBDT models with the CatBoost library.
 The model was trained with data from the same period given by the baseline dataset (2019-02-01 to 2019-03-29). However, all of the data partitions were taken from separate partitions of the `original dataset <https://github.com/Shifts-Project/shifts>`_:
 
@@ -119,7 +119,7 @@ The model was trained with data from the same period given by the baseline datas
     :widths: 20 20 20 20 20
     :header-rows: 1
 
-    *   - 
+    *   -
         - Training
         - Baseline
         - Inference (in_domain)
