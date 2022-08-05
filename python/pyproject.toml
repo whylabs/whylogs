@@ -22,6 +22,9 @@ pybars3 = { version = "^0.9", optional = true }
 ipython = { version = "*", optional = true }
 scipy = { version = ">=1.5, <1.8", optional = true }
 
+# datasets module.
+pandas = { version = "*", optional = true}
+
 # Doc dependencies
 sphinx = { version = "*", optional = true }
 sphinx-autoapi = { version = "*", optional = true }
@@ -87,7 +90,9 @@ spark = [
     "pyarrow",
     "pyspark",
 ]
-
+datasets = [
+  "pandas",
+]
 s3 = [
   "boto3"
 ]
