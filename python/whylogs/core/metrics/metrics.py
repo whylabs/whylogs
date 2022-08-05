@@ -4,7 +4,7 @@ import statistics
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import whylogs_sketching as ds  # type: ignore
 from google.protobuf.struct_pb2 import Struct
@@ -195,7 +195,15 @@ class IntsMetric(Metric):
         return IntsMetric(max=MaxIntegralComponent(-sys.maxsize), min=MinIntegralComponent(sys.maxsize))
 
     def to_summary_dict(self, cfg: SummaryConfig) -> Dict[str, Union[int, float, str, None]]:
-        return {"max": self.max.value, "min": self.min.value}
+        return {"max": self.maximum, "min": self.minimum}
+
+    @property
+    def maximum(self) -> float:
+        return self.max.value
+
+    @property
+    def minimum(self) -> float:
+        return self.min.value
 
 
 @dataclass(frozen=True)
@@ -214,7 +222,7 @@ class DistributionMetric(Metric):
         else:
             quantiles = self.kll.value.get_quantiles([0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99])
         return {
-            "mean": self.mean.value,
+            "mean": self.avg,
             "stddev": self.stddev,
             "n": self.kll.value.get_n(),
             "max": self.kll.value.get_max_value(),
@@ -289,12 +297,12 @@ class DistributionMetric(Metric):
         a_n = self.kll.value.get_n()
         b_n = other.kll.value.get_n()
 
-        delta = other.mean.value - self.mean.value
+        delta = other.avg - self.avg
         new_n = a_n + b_n
         if a_n != 0 or b_n != 0:
             m2 = self.m2.value + other.m2.value + delta**2 * a_n * b_n / new_n
 
-            mean = (a_n / new_n) * (self.mean.value) + (b_n / new_n) * (other.mean.value)
+            mean = (a_n / new_n) * (self.avg) + (b_n / new_n) * (other.avg)
         else:
             m2 = 0
             mean = 0
@@ -329,11 +337,78 @@ class DistributionMetric(Metric):
         return self.mean.value
 
     @property
+    def median(self) -> Optional[float]:
+        result = None
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([0.5])[0]
+        return result
+
+    @property
+    def q_01(self) -> Optional[float]:
+        result = None
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([0.01])[0]
+        return result
+
+    @property
+    def q_05(self) -> Optional[float]:
+        result = None
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([0.05])[0]
+        return result
+
+    @property
+    def q_10(self) -> Optional[float]:
+        result = None
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([0.1])[0]
+        return result
+
+    @property
+    def q_25(self) -> Optional[float]:
+        result = None
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([0.25])[0]
+        return result
+
+    @property
+    def q_75(self) -> Optional[float]:
+        result = None
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([0.75])[0]
+        return result
+
+    @property
+    def q_90(self) -> Optional[float]:
+        result = None
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([0.90])[0]
+        return result
+
+    @property
+    def q_95(self) -> Optional[float]:
+        result = None
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([0.95])[0]
+        return result
+
+    @property
+    def q_99(self) -> Optional[float]:
+        result = None
+        if self.n > 0:
+            result = self.kll.value.get_quantiles([0.99])[0]
+        return result
+
+    @property
     def max(self) -> float:
+        if self.kll.value.is_empty():
+            return -sys.float_info.max
         return self.kll.value.get_max_value()
 
     @property
     def min(self) -> float:
+        if self.kll.value.is_empty():
+            return sys.float_info.max
         return self.kll.value.get_min_value()
 
     @classmethod
@@ -404,6 +479,13 @@ class FrequentItemsMetric(Metric):
         items = [FrequentItem(value=x[0], est=x[1], upper=x[2], lower=x[3]) for x in limited_freq_items]
         return {"frequent_strings": items}
 
+    @property
+    def strings(self) -> List[FrequentItem]:
+        if self.frequent_strings.value.is_empty():
+            return []
+        summary = self.to_summary_dict(cfg=SummaryConfig())
+        return summary["frequent_strings"]
+
     @classmethod
     def zero(cls, config: MetricConfig) -> "FrequentItemsMetric":
         sk = ds.frequent_strings_sketch(lg_max_k=config.fi_lg_max_k)
@@ -453,6 +535,30 @@ class CardinalityMetric(Metric):
             f"upper_{cfg.hll_stddev}": self.hll.value.get_upper_bound(cfg.hll_stddev),
             f"lower_{cfg.hll_stddev}": self.hll.value.get_lower_bound(cfg.hll_stddev),
         }
+
+    @property
+    def estimate(self) -> Optional[float]:
+        result = None
+        if not self.hll.value.is_empty():
+            result = self.hll.value.get_estimate()
+
+        return result
+
+    @property
+    def upper_1(self) -> Optional[float]:
+        result = None
+        if not self.hll.value.is_empty():
+            result = self.hll.value.get_upper_bound(1)
+
+        return result
+
+    @property
+    def lower_1(self) -> Optional[float]:
+        result = None
+        if not self.hll.value.is_empty():
+            result = self.hll.value.get_lower_bound(1)
+
+        return result
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "CardinalityMetric":
