@@ -2,9 +2,6 @@ package com.whylogs.core.metrics;
 
 import com.whylogs.core.PreProcessedColumn;
 import com.whylogs.core.SummaryConfig;
-import com.whylogs.core.metrics.components.MaxIntegralComponent;
-import com.whylogs.core.metrics.components.MinIntegralComponent;
-import org.apache.commons.math3.stat.descriptive.summary.Sum;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -24,8 +21,7 @@ public class TestIntegralMetric {
 
     @Test
     public void test_zeroAndSummaryDict(){
-        IntegralMetric metric = new IntegralMetric(new MaxIntegralComponent(20), new MinIntegralComponent(-10));
-        metric = metric.zero(new MetricConfig());
+        IntegralMetric metric = IntegralMetric.zero(new MetricConfig());
 
         Assert.assertEquals((int) metric.getMaxComponent().getValue(), Integer.MIN_VALUE);
         Assert.assertEquals((int) metric.getMinComponent().getValue(), Integer.MAX_VALUE);

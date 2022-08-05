@@ -68,8 +68,8 @@ public class IntegralMetric extends BaseMetric<IntegralMetric> {
         return OperationResult.ok(successes);
     }
 
-    @Override
-    public IntegralMetric zero(MetricConfig config){
+    // @Override // TODO: move this to a factory so it can be accessed for building
+    public static IntegralMetric zero(MetricConfig config){
         return new IntegralMetric();
     }
 
