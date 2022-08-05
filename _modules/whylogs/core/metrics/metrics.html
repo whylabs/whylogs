@@ -351,7 +351,7 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">whylogs_sketching</span> <span class="k">as</span> <span class="nn">ds</span>  <span class="c1"># type: ignore</span>
 <span class="kn">from</span> <span class="nn">google.protobuf.struct_pb2</span> <span class="kn">import</span> <span class="n">Struct</span>
@@ -542,7 +542,15 @@
         <span class="k">return</span> <span class="n">IntsMetric</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="n">MaxIntegralComponent</span><span class="p">(</span><span class="o">-</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">),</span> <span class="nb">min</span><span class="o">=</span><span class="n">MinIntegralComponent</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="IntsMetric.to_summary_dict"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.IntsMetric.to_summary_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">SummaryConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">value</span><span class="p">}</span></div></div>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">maximum</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum</span><span class="p">}</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">maximum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">minimum</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">value</span></div>
 
 
 <div class="viewcode-block" id="DistributionMetric"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric">[docs]</a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -561,7 +569,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">quantiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">])</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg</span><span class="p">,</span>
             <span class="s2">&quot;stddev&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stddev</span><span class="p">,</span>
             <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_n</span><span class="p">(),</span>
             <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_max_value</span><span class="p">(),</span>
@@ -636,12 +644,12 @@
         <span class="n">a_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_n</span><span class="p">()</span>
         <span class="n">b_n</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_n</span><span class="p">()</span>
 
-        <span class="n">delta</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">avg</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg</span>
         <span class="n">new_n</span> <span class="o">=</span> <span class="n">a_n</span> <span class="o">+</span> <span class="n">b_n</span>
         <span class="k">if</span> <span class="n">a_n</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">b_n</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">m2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">m2</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">m2</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">delta</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a_n</span> <span class="o">*</span> <span class="n">b_n</span> <span class="o">/</span> <span class="n">new_n</span>
 
-            <span class="n">mean</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_n</span> <span class="o">/</span> <span class="n">new_n</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">b_n</span> <span class="o">/</span> <span class="n">new_n</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">mean</span> <span class="o">=</span> <span class="p">(</span><span class="n">a_n</span> <span class="o">/</span> <span class="n">new_n</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">avg</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">b_n</span> <span class="o">/</span> <span class="n">new_n</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">avg</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">m2</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="n">mean</span> <span class="o">=</span> <span class="mi">0</span>
@@ -676,11 +684,78 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">value</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">median</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.5</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q_01</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.01</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q_05</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.05</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q_10</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q_25</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.25</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q_75</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.75</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q_90</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.90</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q_95</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.95</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">q_99</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_quantiles</span><span class="p">([</span><span class="mf">0.99</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_max_value</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">max</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_min_value</span><span class="p">()</span>
 
 <div class="viewcode-block" id="DistributionMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.DistributionMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
@@ -751,6 +826,13 @@
         <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="n">FrequentItem</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">est</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">upper</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">lower</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">limited_freq_items</span><span class="p">]</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;frequent_strings&quot;</span><span class="p">:</span> <span class="n">items</span><span class="p">}</span></div>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">strings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">FrequentItem</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequent_strings</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_summary_dict</span><span class="p">(</span><span class="n">cfg</span><span class="o">=</span><span class="n">SummaryConfig</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;frequent_strings&quot;</span><span class="p">]</span>
+
 <div class="viewcode-block" id="FrequentItemsMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.FrequentItemsMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;FrequentItemsMetric&quot;</span><span class="p">:</span>
         <span class="n">sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">frequent_strings_sketch</span><span class="p">(</span><span class="n">lg_max_k</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">fi_lg_max_k</span><span class="p">)</span>
@@ -800,6 +882,30 @@
             <span class="sa">f</span><span class="s2">&quot;upper_</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_upper_bound</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="p">),</span>
             <span class="sa">f</span><span class="s2">&quot;lower_</span><span class="si">{</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_lower_bound</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">hll_stddev</span><span class="p">),</span>
         <span class="p">}</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_estimate</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">upper_1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_upper_bound</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lower_1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hll</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">get_lower_bound</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
 
 <div class="viewcode-block" id="CardinalityMetric.zero"><a class="viewcode-back" href="../../../../api/whylogs/core/metrics/metrics/index.html#whylogs.core.CardinalityMetric.zero">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">MetricConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;CardinalityMetric&quot;</span><span class="p">:</span>

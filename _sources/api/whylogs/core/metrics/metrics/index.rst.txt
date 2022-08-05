@@ -214,6 +214,14 @@ Attributes
    .. py:method:: to_summary_dict(self, cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Union[int, float, str, None]]
 
 
+   .. py:method:: maximum(self) -> float
+      :property:
+
+
+   .. py:method:: minimum(self) -> float
+      :property:
+
+
    .. py:method:: get_namespace(cls, config: MetricConfig) -> str
       :classmethod:
 
@@ -295,6 +303,42 @@ Attributes
       :property:
 
 
+   .. py:method:: median(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: q_01(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: q_05(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: q_10(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: q_25(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: q_75(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: q_90(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: q_95(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: q_99(self) -> Optional[float]
+      :property:
+
+
    .. py:method:: max(self) -> float
       :property:
 
@@ -367,6 +411,10 @@ Attributes
    .. py:method:: to_summary_dict(self, cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
 
 
+   .. py:method:: strings(self) -> List[FrequentItem]
+      :property:
+
+
    .. py:method:: zero(cls, config: MetricConfig) -> FrequentItemsMetric
       :classmethod:
 
@@ -409,6 +457,18 @@ Attributes
 
 
    .. py:method:: to_summary_dict(self, cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+
+
+   .. py:method:: estimate(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: upper_1(self) -> Optional[float]
+      :property:
+
+
+   .. py:method:: lower_1(self) -> Optional[float]
+      :property:
 
 
    .. py:method:: zero(cls, config: MetricConfig) -> CardinalityMetric
