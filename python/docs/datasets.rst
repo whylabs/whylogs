@@ -18,5 +18,5 @@ Datasets
 
 .. toctree::
     :maxdepth: 1
-    
+
     datasets/weather
