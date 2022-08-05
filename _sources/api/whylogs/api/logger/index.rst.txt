@@ -96,7 +96,7 @@ Functions
 
 
 
-.. py:class:: TimedRollingLogger(schema: Optional[whylogs.core.DatasetSchema] = None, *, base_name: Optional[str] = None, file_extension: Optional[str] = None, interval: int = 1, when: typing_extensions.Literal[S, M, H, D] = 'H', utc: bool = False, aligned: bool = True, fork: bool = False, skip_empty: bool = False)
+.. py:class:: TimedRollingLogger(schema: Optional[whylogs.core.DatasetSchema] = None, *, base_name: Optional[str] = None, file_extension: Optional[str] = None, interval: int = 1, when: typing_extensions.Literal[S, M, H, D] = 'H', utc: bool = False, aligned: bool = True, fork: bool = False, skip_empty: bool = False, callback: Optional[Callable[[whylogs.api.writer.Writer, whylogs.core.DatasetProfileView, str], None]] = None)
 
    Bases: :py:obj:`whylogs.api.logger.logger.Logger`
 
