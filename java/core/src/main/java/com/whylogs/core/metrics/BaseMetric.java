@@ -9,5 +9,5 @@ public abstract class BaseMetric<TSubclass extends BaseMetric> extends Metric {
     }
 
     public abstract TSubclass merge(TSubclass other);
-    public abstract TSubclass zero(MetricConfig config);
+    // public abstract TSubclass fromProtobuf(MetricMessage message); TODO: this will need to be moved to a factory
 }

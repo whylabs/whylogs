@@ -14,24 +14,17 @@ import java.util.HashMap;
 @Getter
 @EqualsAndHashCode(callSuper=false)
 public class IntegralMetric extends BaseMetric<IntegralMetric> {
-    public static final String DEFAULT_NAMESPACE = "ints";
+    public static final String NAMESPACE = "ints";
     private MaxIntegralComponent maxComponent;
     private MinIntegralComponent minComponent;
 
     public IntegralMetric(){
-        this(IntegralMetric.DEFAULT_NAMESPACE);
+        super(IntegralMetric.NAMESPACE);
     }
 
-    public IntegralMetric(String namespace) {
-        this(new MaxIntegralComponent(Integer.MIN_VALUE), new MinIntegralComponent(Integer.MAX_VALUE), namespace);
-    }
 
     public IntegralMetric(MaxIntegralComponent maxComponent, MinIntegralComponent minComponent) {
-        this(maxComponent, minComponent, IntegralMetric.DEFAULT_NAMESPACE);
-    }
-
-    public IntegralMetric(MaxIntegralComponent maxComponent, MinIntegralComponent minComponent, String namespace) {
-        super(namespace);
+        this();
 
         this.maxComponent = maxComponent;
         this.minComponent = minComponent;
@@ -68,8 +61,8 @@ public class IntegralMetric extends BaseMetric<IntegralMetric> {
         return OperationResult.ok(successes);
     }
 
-    @Override
-    public IntegralMetric zero(MetricConfig config){
+    // @Override // TODO: move this to a factory so it can be accessed for building
+    public static IntegralMetric zero(MetricConfig config){
         return new IntegralMetric();
     }
 
@@ -94,6 +87,6 @@ public class IntegralMetric extends BaseMetric<IntegralMetric> {
         int max = Integer.max(this.maxComponent.getValue(), other.maxComponent.getValue());
         int min = Integer.min(this.minComponent.getValue(), other.minComponent.getValue());
 
-        return new IntegralMetric(new MaxIntegralComponent(max), new MinIntegralComponent(min), this.getNamespace());
+        return new IntegralMetric(new MaxIntegralComponent(max), new MinIntegralComponent(min));
     }
 }
