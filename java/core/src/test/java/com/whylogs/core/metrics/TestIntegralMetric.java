@@ -12,13 +12,6 @@ import java.util.HashMap;
 @Test
 public class TestIntegralMetric {
 
-
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void test_merge_exception(){
-        IntegralMetric metric = new IntegralMetric("foo");
-        metric.merge(new IntegralMetric("bar"));
-    }
-
     @Test
     public void test_zeroAndSummaryDict(){
         IntegralMetric metric = IntegralMetric.zero(new MetricConfig());
@@ -34,10 +27,7 @@ public class TestIntegralMetric {
     @Test
     public void test_namespace(){
         IntegralMetric metric = new IntegralMetric();
-        Assert.assertEquals(metric.getNamespace(), IntegralMetric.DEFAULT_NAMESPACE);
-
-        metric = new IntegralMetric("test");
-        Assert.assertEquals(metric.getNamespace(), "test");
+        Assert.assertEquals(metric.getNamespace(), IntegralMetric.NAMESPACE);
     }
 
     @Test
