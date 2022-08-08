@@ -1,6 +1,5 @@
 package com.whylogs.core.metrics.components;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -9,7 +8,7 @@ import java.util.Collection;
 @Getter
 @EqualsAndHashCode(callSuper=false)
 public class MaxIntegralComponent extends IntegralComponent {
-    private static final int TYPE_ID = 2;
+    private static final ComponentTypeID TYPE_ID = ComponentTypeID.MAX_COMPONENT;
 
     public MaxIntegralComponent() {
         super(Integer.MIN_VALUE);
@@ -20,7 +19,7 @@ public class MaxIntegralComponent extends IntegralComponent {
     }
 
     @Override
-    public int getTypeId() {
+    public ComponentTypeID getTypeId() {
         return TYPE_ID;
     }
 

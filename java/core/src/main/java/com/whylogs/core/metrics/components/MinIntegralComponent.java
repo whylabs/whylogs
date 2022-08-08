@@ -1,16 +1,14 @@
 package com.whylogs.core.metrics.components;
 
-import com.whylogs.core.metrics.IntegralMetric;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @EqualsAndHashCode(callSuper=false)
 public class MinIntegralComponent extends IntegralComponent {
-    private static final int TYPE_ID = 1;
+    private static final ComponentTypeID TYPE_ID = ComponentTypeID.MIN_COMPONENT;
 
     public MinIntegralComponent() {
         super(Integer.MAX_VALUE);
@@ -20,7 +18,7 @@ public class MinIntegralComponent extends IntegralComponent {
     }
 
     @Override
-    public int getTypeId() {
+    public ComponentTypeID getTypeId() {
         return TYPE_ID;
     }
 

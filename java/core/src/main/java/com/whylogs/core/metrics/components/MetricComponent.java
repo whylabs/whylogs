@@ -13,7 +13,7 @@ components.
 @Getter
 @EqualsAndHashCode(callSuper=false)
 public class MetricComponent<T> {
-    private static final int TYPE_ID = 0; // Maybe don't look at this as final if serializer, double check
+    private static final ComponentTypeID TYPE_ID = ComponentTypeID.METRIC; // Maybe don't look at this as final if serializer, double check
 
     @NonNull
     private final T value;
@@ -35,7 +35,7 @@ public class MetricComponent<T> {
         return value;
     }
 
-    public int getTypeId() {
+    public ComponentTypeID getTypeId() {
         return TYPE_ID;
     }
 
