@@ -11,6 +11,7 @@ skip_notebooks = [
     "Kafka_Example.ipynb",
     "Writing_to_WhyLabs.ipynb",
     "flask_with_whylogs.ipynb",
+    "BigQuery_Example.ipynb",
 ]
 
 
