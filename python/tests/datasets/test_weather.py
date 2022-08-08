@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 import pytest
 
@@ -45,26 +45,33 @@ class TestWeatherDataset(object):
         assert isinstance(dataset.inference_start_timestamp, date)
 
     def test_unsupported_timestamp(self, dataset):
-        with pytest.raises(ValueError, match="You must pass either a Datetime or Date object to timestamp!"):
+        with pytest.raises(ValueError, match="Could not parse string as datetime."):
             dataset.set_parameters("1d", baseline_timestamp="22-04-12")
-        with pytest.raises(ValueError, match="You must pass either a Datetime or Date object to timestamp!"):
+        with pytest.raises(ValueError, match="Could not parse string as datetime."):
             dataset.set_parameters("1d", inference_start_timestamp="22-04-12")
 
     def test_get_baseline(self, dataset):
         dataset.set_parameters("1d", baseline_timestamp=date.today())
         baseline = dataset.get_baseline()
-        assert baseline.timestamp == date.today()
+        assert isinstance(baseline.timestamp, datetime)
+        assert baseline.timestamp.tzinfo
+        assert baseline.timestamp.day == datetime.now(timezone.utc).day
+        assert baseline.timestamp.month == datetime.now(timezone.utc).month
+        assert baseline.timestamp.year == datetime.now(timezone.utc).year
         assert len(baseline.data) > 0
 
     def test_get_inference_by_date(self, dataset):
         dataset.set_parameters("1d", inference_start_timestamp=date.today())
-
         batch = dataset.get_inference_data(target_date=date.today())
-        assert batch.timestamp == date.today()
+        assert batch.timestamp.day == datetime.now(timezone.utc).day
+        assert batch.timestamp.month == datetime.now(timezone.utc).month
+        assert batch.timestamp.year == datetime.now(timezone.utc).year
         assert len(batch.data) > 0
 
         batch = dataset.get_inference_data(target_date=datetime.now())
-        assert batch.timestamp == date.today()
+        assert batch.timestamp.day == datetime.now(timezone.utc).day
+        assert batch.timestamp.month == datetime.now(timezone.utc).month
+        assert batch.timestamp.year == datetime.now(timezone.utc).year
         assert len(batch.data) > 0
 
     def test_get_inference_pass_both_arguments(self, dataset):

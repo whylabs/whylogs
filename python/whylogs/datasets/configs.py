@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import datetime, timezone
 from typing import Dict, List
 
 
@@ -13,8 +13,8 @@ class BaseConfig:
 class DatasetConfig:
     folder_name: str
     url: str
-    baseline_start_timestamp: Dict[str, date]
-    inference_start_timestamp: Dict[str, date]
+    baseline_start_timestamp: Dict[str, datetime]
+    inference_start_timestamp: Dict[str, datetime]
     max_interval: int
     base_unit: str
     available_versions: tuple
@@ -28,16 +28,16 @@ class WeatherConfig(DatasetConfig):
     folder_name: str = "weather_forecast"
     description_file: str = "weather.rst"
     url: str = "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/WeatherForecast"
-    baseline_start_timestamp: Dict[str, date] = field(
+    baseline_start_timestamp: Dict[str, datetime] = field(
         default_factory=lambda: {
-            "in_domain": date(2018, 9, 1),
-            "out_domain": date(2018, 9, 1),
+            "in_domain": datetime(year=2018, month=9, day=1, tzinfo=timezone.utc),
+            "out_domain": datetime(year=2018, month=9, day=1, tzinfo=timezone.utc),
         }
     )
-    inference_start_timestamp: Dict[str, date] = field(
+    inference_start_timestamp: Dict[str, datetime] = field(
         default_factory=lambda: {
-            "in_domain": date(2019, 2, 1),
-            "out_domain": date(2019, 5, 14),
+            "in_domain": datetime(year=2019, month=2, day=1, tzinfo=timezone.utc),
+            "out_domain": datetime(year=2019, month=5, day=14, tzinfo=timezone.utc),
         }
     )
 

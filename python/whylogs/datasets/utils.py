@@ -10,9 +10,8 @@ from whylogs.datasets.configs import BaseConfig
 base_config = BaseConfig()
 
 
-def _adjust_date(current_date: str, date_offset: timedelta) -> date:
-    adjusted_date = datetime.strptime(current_date, "%Y-%m-%d").date() + date_offset
-
+def _adjust_date(current_date: str, date_offset: timedelta) -> datetime:
+    adjusted_date = _validate_timestamp(current_date) + date_offset
     return adjusted_date
 
 
@@ -24,36 +23,37 @@ def _parse_interval(interval: str) -> Tuple[int, str]:
         raise ValueError("Could not parse interval!")
 
 
-def _adjust_df_date(df: pd.DataFrame, new_start_date: date) -> pd.DataFrame:
+def _adjust_df_date(df: pd.DataFrame, new_start_date: datetime) -> pd.DataFrame:
     df = _change_df_date_by_offset(df, new_start_date=new_start_date)
     df = df.set_index(["date"], drop=False)
     return df
 
 
-def _change_df_date_by_offset(df: pd.DataFrame, new_start_date: date) -> pd.DataFrame:
-    original_start_date = df["date"][0]
-
-    if isinstance(original_start_date, str):
-        original_start_date = datetime.strptime(original_start_date, "%Y-%m-%d").date()
-        date_offset = new_start_date - original_start_date
-        df["date"] = df["date"].apply(lambda x: _adjust_date(x, date_offset))
-        return df
-
-    elif not isinstance(original_start_date, (date, datetime)):
-        raise ValueError("Date column must be either valid string format, date or datetime types.")
-
+def _change_df_date_by_offset(df: pd.DataFrame, new_start_date: datetime) -> pd.DataFrame:
+    original_start_date = _validate_timestamp(df["date"][0])
     date_offset = new_start_date - original_start_date
-    df["date"] = df["date"].apply(lambda x: x + date_offset)
+    df["date"] = df["date"].apply(lambda x: _adjust_date(x, date_offset))
     return df
 
 
-def _validate_timestamp(timestamp: Union[date, datetime]) -> date:
+def _validate_timestamp(timestamp: Union[date, datetime, pd.Timestamp, str]) -> datetime:
+    if isinstance(timestamp, pd.Timestamp):
+        return timestamp.to_pydatetime()
+    if isinstance(timestamp, str):
+        try:
+            return datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S%z")
+        except ValueError:
+            raise ValueError("Could not parse string as datetime.")
     if isinstance(timestamp, datetime):
-        return timestamp.date()
-    elif isinstance(timestamp, date):
         return timestamp
-    else:
-        raise ValueError("You must pass either a Datetime or Date object to timestamp!")
+    if isinstance(timestamp, date):
+        timestamp = datetime(
+            year=timestamp.year,
+            month=timestamp.month,
+            day=timestamp.day,
+        )
+        return timestamp
+    raise ValueError("You must pass either a Datetime or Date object to timestamp!")
 
 
 def _get_data_home() -> str:

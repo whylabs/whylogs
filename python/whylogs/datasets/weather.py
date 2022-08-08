@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from importlib import resources
 from logging import getLogger
 from typing import Iterable, Optional, Tuple, Union
@@ -43,8 +43,12 @@ class Weather(Dataset):
     number_days: int = 1
     unit: str = "D"
     url: str = WeatherConfig.url
-    baseline_timestamp: Union[date, datetime] = date.today()
-    inference_start_timestamp: Union[date, datetime] = date.today() + timedelta(1)
+    baseline_timestamp: Union[date, datetime] = datetime.now(timezone.utc).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    inference_start_timestamp: Union[date, datetime] = datetime.now(timezone.utc).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    ) + timedelta(days=1)
     original: bool = False
     dataset_config: DatasetConfig = WeatherConfig()
 
@@ -90,6 +94,13 @@ class Weather(Dataset):
         )
         return baseline
 
+    def _truncate_and_check_timezone(self, timestamp: datetime) -> datetime:
+        if timestamp.tzinfo is None:
+            logger.warning("No timezone set in the datetime_timestamp object. Default to local timezone")
+            timestamp = timestamp.astimezone(tz=timezone.utc)
+        timestamp = timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
+        return timestamp
+
     def _validate_interval(self, interval: str) -> Tuple[int, str]:
         """Checks if desired interval are of acceptable units and inside maximum duration limits."""
         number_days, unit = _parse_interval(interval)
@@ -121,12 +132,11 @@ class Weather(Dataset):
         if target_date and number_batches:
             raise ValueError("Either date or number_batches should be passed, not both.")
         if target_date and isinstance(target_date, (date, datetime)):
-            target_date = _validate_timestamp(target_date)
-            mask = self.inference_df["date"] == target_date
+            _date: datetime = _validate_timestamp(target_date)
+            _date = self._truncate_and_check_timezone(_date)
+            mask = self.inference_df["date"] == _date
             data = self.inference_df.loc[mask]
-            inference = Batch(
-                timestamp=target_date, data=data, dataset_config=self.dataset_config, version=self.version
-            )
+            inference = Batch(timestamp=_date, data=data, dataset_config=self.dataset_config, version=self.version)
             return inference
         if number_batches:
             batches = WeatherDatasetIterator(
@@ -170,7 +180,9 @@ class Weather(Dataset):
 
         if baseline_timestamp:
             if not original:
-                self.baseline_timestamp = _validate_timestamp(baseline_timestamp)
+                _baseline_date: datetime = _validate_timestamp(baseline_timestamp)
+                _baseline_date = self._truncate_and_check_timezone(_baseline_date)
+                self.baseline_timestamp = _baseline_date
                 self.baseline_df = _adjust_df_date(self.baseline_df, self.baseline_timestamp)
 
             else:
@@ -179,7 +191,9 @@ class Weather(Dataset):
                 )
         if inference_start_timestamp:
             if not original:
-                self.inference_start_timestamp = _validate_timestamp(inference_start_timestamp)
+                _inference_date: datetime = _validate_timestamp(inference_start_timestamp)
+                _inference_date = self._truncate_and_check_timezone(_inference_date)
+                self.inference_start_timestamp = _inference_date
                 self.inference_df = _adjust_df_date(self.inference_df, self.inference_start_timestamp)
             else:
                 logger.warning(
