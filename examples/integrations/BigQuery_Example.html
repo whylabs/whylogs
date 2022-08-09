@@ -1,0 +1,3179 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+<meta property="og:title" content="whylogs with BigQuery" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/BigQuery_Example.html" />
+  
+<meta property="og:description" content="Hi there! 😀 In this example notebook, we will show you how to use whylogs with an existing BigQuery table. We will query the table with pandas_gbq and then profile the data with the read pandas.Dat..." />
+  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
+        <title>whylogs with BigQuery - whylogs v1.0.9</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f0f0f0;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>whylogs v1</em> has been launched! Make sure you checkout the
+    <a href="/migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
+    transition 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.9</div></div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../_static/images/logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../_static/images/logo.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.9</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../features/profiling.html">Profiling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/writing.html">Writers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html">Inspecting Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Merging_Profiles.html">Merging Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/Constraints_Suite.html">Simple Constraints - Examples and Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/Custom_Metrics.html">Custom Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/Custom_Metrics.html#Using-Your-Metric">Using Your Metric</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">Rolling Logs with Streaming Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writers/Writing_to_WhyLabs.html">Writing Profiles to WhyLabs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writers/Writing_Profiles.html">Writing profiles - Local/S3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Pyspark_Profiling.html">PySpark Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Mlflow_Logging.html">MLflow Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kafka-example/Kafka_Example.html">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Feature_Stores_and_whylogs.html">Logging data from Feature Stores with Feast and whylogs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flask_streaming/flask_with_whylogs.html">Integrating Whylogs into your Flask Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flask_streaming/flask_with_whylogs.html#Viewing-the-Data">Viewing the Data</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Migration Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../migration/basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migration/log_rotation.html">Log Rotation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Support</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../support/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support/faqs.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support/usage_statistics.html">Usage Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bit.ly/whylogs-slack">Slack</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API References</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/whylogs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/api/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/api/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/logger/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/logger/result_set/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/logger/rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/logger/transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.writer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/api/annotations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.annotations</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/core/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/core/constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/cardinality_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.cardinality_metrics</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/constraints/metric_constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.metric_constraints</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/core/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/condition_count_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.condition_count_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/core/proto/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../api/whylogs/core/proto/v0/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/proto/v0/v0_constraints_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_constraints_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/proto/v0/v0_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_messages_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/proto/v0/v0_summaries_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_summaries_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/proto/whylogs_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.whylogs_messages_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/core/view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/view/column_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.column_profile_view</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/view/dataset_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.dataset_profile_view</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/column_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.column_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/common/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/dataset_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.dataset_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/datatypes/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.datatypes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/migration/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/migration/converters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.converters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/viz/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/viz/enums/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums.enums</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/viz/extensions/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.extensions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/viz/notebook_profile_viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.notebook_profile_viz</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="whylogs-with-BigQuery">
+<h1>whylogs with BigQuery<a class="headerlink" href="#whylogs-with-BigQuery" title="Permalink to this headline">#</a></h1>
+<p>Hi there! 😀 In this example notebook, we will show you how to use <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> with an existing BigQuery table. We will query the table with <code class="docutils literal notranslate"><span class="pre">pandas_gbq</span></code> and then profile the data with the read <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code>. We will try to demonstrate some investigation scenarios you can do and also how to store this snapshot for further analysis and mergeability, to make sure you will keep track and make your ML and data pipelines more responsible.</p>
+<section id="Querying-the-data">
+<h2>Querying the data<a class="headerlink" href="#Querying-the-data" title="Permalink to this headline">#</a></h2>
+<p>To start off with this example notebook, you will need to open up a BigQuery sandbox environment on <a class="reference external" href="https://console.cloud.google.com/bigquery">this page</a>. This will allow us to query example datasets and also upload our own data, with their environment limitations. If you want to follow along, simply replace the <code class="docutils literal notranslate"><span class="pre">project_id</span></code> variable to your set project and you should be good to go.</p>
+<p>Then let’s make the needed imports and also install the libraries we will use for this example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install -q &quot;whylogs[viz]&quot;
+<span class="o">%</span><span class="k">pip</span> install -q &quot;whylogs[whylabs]&quot;
+<span class="o">%</span><span class="k">pip</span> install -q pandas-gbq
+<span class="o">%</span><span class="k">pip</span> install -q tqdm
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas_gbq</span>
+<span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+</pre></div>
+</div>
+</div>
+<p>Inform your GCP project id and it will prompt a one-time login access on the UI and create an environment config file for you.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">project_id</span> <span class="o">=</span> <span class="s2">&quot;my-project-id&quot;</span> <span class="c1"># Update here with your project</span>
+</pre></div>
+</div>
+</div>
+<p>Let’s query a public dataset and keep the data small for this demo purpose. With <code class="docutils literal notranslate"><span class="pre">pandas_gbq</span></code> we will end up with a pandas.DataFrame object</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">SELECT pack, bottle_volume_ml, state_bottle_cost, sale_dollars, city</span>
+<span class="s2">FROM `bigquery-public-data.iowa_liquor_sales.sales`</span>
+<span class="s2">LIMIT 1000</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pandas_gbq</span><span class="o">.</span><span class="n">read_gbq</span><span class="p">(</span><span class="n">sql</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="n">project_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Profiling-with-whylogs">
+<h2>Profiling with whylogs<a class="headerlink" href="#Profiling-with-whylogs" title="Permalink to this headline">#</a></h2>
+<p>Now let’s profile this dataset with whylogs and see what we can do with profiles. The first thing will be to turn it into a pandas DataFrame and inspect what metrics we can get out of the box</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">profile_view</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
+
+<span class="n">profile_view</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cardinality/est</th>
+      <th>cardinality/lower_1</th>
+      <th>cardinality/upper_1</th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>distribution/max</th>
+      <th>distribution/mean</th>
+      <th>distribution/median</th>
+      <th>distribution/min</th>
+      <th>distribution/n</th>
+      <th>...</th>
+      <th>distribution/stddev</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+      <th>type</th>
+      <th>types/boolean</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>types/object</th>
+      <th>types/string</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>bottle_volume_ml</th>
+      <td>21.000001</td>
+      <td>21.000000</td>
+      <td>21.001050</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>4800.00</td>
+      <td>893.20700</td>
+      <td>1000.00</td>
+      <td>20.0</td>
+      <td>1000</td>
+      <td>...</td>
+      <td>449.242697</td>
+      <td>[FrequentItem(value='1000.000000', est=461, up...</td>
+      <td>4800.0</td>
+      <td>20.0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>city</th>
+      <td>238.000140</td>
+      <td>238.000000</td>
+      <td>238.012023</td>
+      <td>1000</td>
+      <td>5</td>
+      <td>NaN</td>
+      <td>0.00000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='Des Moines', est=67, uppe...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>995</td>
+    </tr>
+    <tr>
+      <th>pack</th>
+      <td>11.000000</td>
+      <td>11.000000</td>
+      <td>11.000549</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>48.00</td>
+      <td>11.02300</td>
+      <td>12.00</td>
+      <td>1.0</td>
+      <td>1000</td>
+      <td>...</td>
+      <td>4.664786</td>
+      <td>[FrequentItem(value='12.000000', est=587, uppe...</td>
+      <td>48.0</td>
+      <td>1.0</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>sale_dollars</th>
+      <td>531.304754</td>
+      <td>524.519438</td>
+      <td>538.259242</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>37514.88</td>
+      <td>599.49446</td>
+      <td>119.96</td>
+      <td>0.0</td>
+      <td>1000</td>
+      <td>...</td>
+      <td>1677.743947</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>state_bottle_cost</th>
+      <td>259.000166</td>
+      <td>259.000000</td>
+      <td>259.013098</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>137.13</td>
+      <td>10.52482</td>
+      <td>7.62</td>
+      <td>0.0</td>
+      <td>1000</td>
+      <td>...</td>
+      <td>8.750237</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>1000</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 28 columns</p>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.viz.extensions.reports.profile_summary</span> <span class="kn">import</span> <span class="n">ProfileSummaryReport</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ProfileSummaryReport</span><span class="p">(</span><span class="n">target_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
+
+    &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
+
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
+
+    &lt;script
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
+    &gt;&lt;/script&gt;
+
+    &lt;style type=&quot;text/css&quot;&gt;
+      :root {
+        /* CONSTANTS */
+        --SIDE-PANEL-WIDTH: 320px;
+        --PROPERTY-PANEL-WIDTH: 420px;
+
+        /* COLOR VARIABLES */
+        /** Standard colors */
+        --red: #d11010;
+        --orange: #f07028;
+        --yellow: #faaf40;
+        --olive: #b5cc18;
+        --green: #1dbb42;
+        --teal: #00b5ad;
+        --blue: #2683c9;
+        --violet: #6435c9;
+        --purple: #a333c8;
+        --pink: #ed45a4;
+        --brown: #ac724d;
+        --grey: #778183;
+        --black: #1b1c1d;
+        --white: #ffffff;
+
+        /** Branded colors */
+        --brandPrimary900: #0e7384;
+        --brandPrimary800: #228798;
+        --brandPrimary700: #369bac;
+        --brandPrimary600: #4aafc0;
+        --brandPrimary500: #5ec3d4;
+        --brandPrimary400: #72d7e8;
+        --brandPrimary300: #86ebfc;
+        --brandPrimary200: #a6f2ff;
+        --brandPrimary100: #cdf8ff;
+        --brandSecondary900: #4f595b;
+        --brandSecondary800: #636d6f;
+        --brandSecondary700: #778183;
+        --brandSecondary600: #8b9597;
+        --brandSecondary500: #9fa9ab;
+        --brandSecondary400: #b3bdbf;
+        --brandSecondary300: #c7d1d3;
+        --brandSecondary200: #dbe5e7;
+        --brandSecondary100: #ebf2f3;
+        --secondaryLight1000: #313b3d;
+        --brandRed4: #b30000;
+        --brandRed3: #d72424;
+        --brandRed2: #eb5656;
+        --brandRed1: #ff8282;
+        --night1: #021826;
+        /** Purpose colors */
+        --textColor: #4f595b;
+        --linkColor: #369bac;
+        --infoColor: #2683c9;
+        --warningColor: #faaf40;
+        --tealBackground: #eaf2f3;
+        --pageBackground: #e5e5e5;
+        --contrastTableRow: #fafafa;
+        --whiteBackground: #ffffff;
+        --primaryBackground: #e5e5e5;
+      }
+
+      /* RESET STYLE */
+      *,
+      *::after,
+      *::before {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: &quot;Asap&quot;, Arial, Helvetica, sans-serif;
+      }
+
+      /*
+      * Main content
+      */
+      .main {
+        position: relative;
+        background: #FFFFFF;
+        border: 1px solid #DBE5E7;
+        box-sizing: border-box;
+        border-radius: 4px;
+      }
+      .main .page-header {
+        margin-top: 0;
+      }
+
+      /* CSS DIV TABLE BASIC STYLE */
+
+      .wl-table-row .wl-table-head:first-child {
+        min-width: 360px;
+        z-index: 2;
+      }
+
+      .wl-table-wrap {
+        position: relative;
+        overflow: auto;
+      }
+
+      .wl-table {
+        display: table;
+        width: 100%;
+      }
+
+      .row&gt;* {
+        padding-right: 0 !important;
+        padding-left: 0 !important;
+      }
+
+      .wl-table-row {
+        display: table-row;
+      }
+
+      .wl-table-row:hover,
+      .wl-table-row:hover .wl-table-cell:first-child {
+        background-color: var(--brandSecondary100);
+      }
+      .wl-table-row--clickable:hover .wl-table-cell__title-button {
+        visibility: visible;
+      }
+
+      .wl-table-heading {
+        position: relative;
+        z-index: 1;
+        display: table-header-group;
+        font-weight: 700;
+      }
+
+      .wl-table-cell,
+      .wl-table-head {
+        border-bottom: 1px solid var(--brandSecondary200);
+        display: table-cell;
+        padding: 12px 18px;
+      }
+
+      .wl-table-cell {
+        font-size: 14px;
+      }
+
+      .wl-table-cell--top-spacing {
+        padding-top: 35px; /* cell-top-padding + cell-title-height */
+      }
+
+      .wl-table-head-wraper {
+        background-color: var(--white);
+      }
+
+      .wl-table-head {
+        position: sticky;
+        left: 0;
+        min-width: 100px;
+        border-bottom: 2px solid var(--brandSecondary100);
+        font-size: 12px;
+        line-height: 1.67;
+        white-space: nowrap;
+      }
+
+      .wl-sub-table-head {
+        position: relative;
+      }
+
+      .wl-table-body {
+        display: table-row-group;
+      }
+
+      .wl-table-row .wl-table-cell:first-child{
+        position: sticky;
+        left: 0;
+        background-color: var(--white);
+        border-right-width: 2px;
+      }
+
+      /* Table custom style */
+
+      .wl-table-cell__title-wrap {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .wl-table-cell__title {
+        height: 25px;
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .wl-table-cell__bedge-wrap {
+        padding: 2px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        font-style: italic;
+        text-align: center;
+        color: var(--brandSecondary400);
+      }
+      .wl-table-cell__bedge {
+        height: 24px;
+        margin: 1px;
+        padding: 2px 8px;
+        border: 1px solid var(--brandSecondary400);
+        font-style: normal;
+        color: var(--brandSecondary900);
+        border-radius: 20px;
+        white-space: nowrap;
+      }
+
+      /* Property side panel */
+
+      .wl-compare-profile {
+        position: fixed;
+        right: 0;
+        background: var(--white);;
+        border-bottom: 1px solid var(--brandSecondary200);
+      }
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .space-between {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .align-items {
+        display: flex;
+        align-items: center;
+      }
+
+      .display-flex{
+        display: flex;
+      }
+
+      .table-border-none {
+        padding: 0;
+        border: none;
+      }
+
+      .flex-direction-colum {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .align-items {
+        align-items: center;
+      }
+
+      .search-input{
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+      }
+
+      .search-input input{
+        border: none;
+        background: none;
+        outline: none;
+        height: 40px;
+        width: 100%;
+        font-size: 14px;
+      }
+
+      .search-input img{
+        height: 19px;
+        pointer-events: none;
+      }
+
+      input::placeholder {
+        color: var(--secondaryLight1000);
+      }
+
+      .text-align-center {
+        text-align: center;
+      }
+
+      .text-align-end {
+        text-align: end;
+      }
+
+      .drift-detection {
+        justify-content: space-between;
+        align-items: center;
+      }
+
+     .drift-detection-info-circle {
+       width: 15px;
+       height: 15px;
+       border-radius: 50px;
+       display: inline-block;
+       margin-right: 8px;
+     }
+
+     .severe-drift-circle-color {
+         background: #D40D00;
+     }
+
+     .moderate-drift-circle-color {
+         background: #F5843C;
+     }
+
+     .mild-drift-circle-color {
+         background: #F2C142;
+     }
+
+     .minimal-drift-circle-color {
+         background: #ABCA52;
+     }
+
+     .drift-detection-info-drifts-item {
+         padding-right: 20px;
+     }
+
+     .drift-detection-info-title {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 16px;
+       line-height: 130%;
+       color: #313B3D;
+     }
+
+     .drift-detection-info-drifts-item-count {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 14px;
+       line-height: 16px;
+       color: #000000;
+       padding-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item-name {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 12px;
+       line-height: 14px;
+       color: #000000;
+     }
+
+     .drift-detection-info-drifts-item-range {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 11px;
+       line-height: 13px;
+       color: #6C757D;
+     }
+
+     .drift-detection-search-input {
+       display: flex;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 170px;
+       padding-left: 10px;
+     }
+
+     .drift-detection-search-input img{
+       margin-right: 5px;
+     }
+
+     .drift-detection-search-input input::placeholder {
+       font-family: Arial;
+       font-weight: normal;
+       font-size: 13px;
+       line-height: 16px;
+       color: #313B3D;
+     }
+
+     .close-filter-button {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #369BAC;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 40px;
+       height: 40px;
+       cursor: pointer;
+       margin-left: 10px;
+     }
+
+     .filter-options-title {
+       width: 240px;
+     }
+
+     .filter-options-title p {
+       margin: 0;
+     }
+
+     .dropdown-container {
+       position: absolute;
+       right: 18px;
+       z-index: 999;
+       background: #FFFFFF;
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+       border-radius: 4px;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 2px;
+     }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .wl-table-cell__graph-wrap {
+        width: 0;
+      }
+
+      .svg-container {
+        display: inline-block;
+        position: relative;
+        width: 85%;
+        padding-bottom: 17%;
+        vertical-align: top;
+        overflow: hidden;
+      }
+
+      .svg-content-responsive {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+      }
+
+      .reference-table-head {
+        min-width: 250px;
+      }
+
+      .wl__dropdown_arrow-icon {
+        position: relative;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #0E7384;
+      }
+
+      .statistic-measurement {
+        font-size: 15px !important;
+        margin-left: 3px;
+      }
+
+      .statistic-measurement-percent {
+        font-size: 15px !important;
+      }
+
+      .question-mark {
+        font-size: 10px;
+        font-weight: 900;
+        color: #0E7384;
+        border-radius: 50px;
+        border: 2px solid #0E7384;
+        padding: 0px 4px;
+        transition: 0.5s;
+        cursor: pointer;
+      }
+
+      .question-mark:hover {
+        color: white;
+        background: #0E7384;
+        border: 2px solid none;
+        transition: 0.5s;
+      }
+
+      .tooltip-full-number {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip-full-number .tooltiptext {
+        visibility: hidden;
+        background: black;
+        color: white;
+        border: 1px solid black;
+        text-align: start;
+        padding: 3px;
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 100%;
+        margin-left: 5px;
+        opacity: 0;
+        transition: opacity 0.5s;
+        font-size: 13px;
+        font-weight: normal;
+        line-height: 100%;
+      }
+
+      .tooltip-full-number:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .flex-direction-column {
+        flex-direction: column;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+      .padding-5 {
+        padding: 5px;
+      }
+
+      .text-color {
+        color: var(--secondaryLight1000);
+      }
+
+      .error-message {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: rgb(255, 114, 71);
+        font-size: 30px;
+        font-weight: 900;
+      }
+
+      @media screen and (min-width: 500px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
+    &lt;/style&gt;
+  &lt;/head&gt;
+
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
+
+      &lt;div class=&quot;desktop-content&quot;&gt;
+        &lt;div class=&quot;container-fluid&quot;&gt;
+          &lt;div class=&quot;feature-summary-statistics-wrap&quot;&gt;
+            &lt;div class=&quot;feature-summary-statistics&quot;&gt;
+              &lt;div class=&quot;mb-4&quot;&gt;
+                  &lt;strong class=&quot;header-title&quot;&gt;Profile Summary&lt;/strong&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;display-flex statistics&quot;&gt;
+                  &lt;div class=&quot;padding-right-30&quot;&gt;
+                    &lt;div class=&quot;statistic-number-title&quot;&gt;Observations&lt;/div&gt;
+                    &lt;div class=&quot;statistic-number&quot;&gt;{{{observations this}}}&lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;padding-right-30&quot;&gt;
+                    &lt;div class=&quot;statistic-number-title&quot;&gt;Missing Cells&lt;/div&gt;
+                    &lt;div class=&quot;statistic-number&quot;&gt;
+                      {{{missingCells this}}}
+                      &lt;div&gt;{{{missingCellsPercentage this}}}&lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;wl-compare-profile&quot; id=&quot;compare-profile&quot; style=&quot;display: flex; justify-content: space-around&quot;&gt;
+                    &lt;div class=&quot;drift-detection-wrap&quot;&gt;
+                      &lt;div class=&quot;drift-detection display-flex&quot;&gt;
+                        &lt;div class=&quot;drift-detection-search-input-wrap display-flex&quot;&gt;
+                          &lt;div class=&quot;drift-detection-search-input search-input &quot;&gt;
+                            &lt;input type=&quot;text&quot; id=&quot;wl__feature-search&quot; placeholder=&quot;Quick search...&quot;/&gt;
+                            &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg==&quot;/&gt;
+                          &lt;/div&gt;
+                          &lt;div class=&quot;wl__dropdown_arrow-icon&quot; &gt;
+                            &lt;div onclick=&quot;openFilter()&quot; class=&quot;close-filter-button&quot;&gt;
+                              &lt;div class=&quot;display-flex close-filter-icon d-none&quot;&gt;
+                                &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg==&quot;/&gt;
+                              &lt;/div&gt;
+                              &lt;div class=&quot;display-flex filter-icon&quot;&gt;
+                                &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg==&quot;/&gt;
+                              &lt;/div&gt;
+                            &lt;/div&gt;
+                            &lt;span class=&quot;notif-circle-container&quot;&gt;
+                              &lt;span class=&quot;notif-circle&quot;&gt;&lt;/span&gt;
+                            &lt;/span&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class=&quot;dropdown-container flex-direction-colum mb-2 d-none&quot; id=&quot;dropdown-container&quot;&gt;
+                      &lt;div class=&quot;filter-options&quot;&gt;
+                        &lt;div class=&quot;filter-options-title space-between dropdown&quot;&gt;
+                          &lt;p&gt;Filter by type&lt;/p&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;form-check mb-1 mt-2&quot;&gt;
+                          &lt;input
+                            class=&quot;form-check-input wl__feature-filter-input&quot;
+                            type=&quot;checkbox&quot;
+                            name=&quot;checkbox&quot;
+                            value=&quot;Discrete&quot;
+                            id=&quot;inferredDiscrete&quot;
+                            onclick=&quot;changeDiscreteValue()&quot;
+                            checked
+                          /&gt;
+                          &lt;label class=&quot;form-check-label&quot; for=&quot;inferredDiscrete&quot;&gt;
+                            Inferred discrete (&lt;span class=&quot;wl__feature-count--discrete&quot;&gt;{{getDiscreteTypeCount}}&lt;/span&gt;)
+                          &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;form-check mb-1&quot;&gt;
+                          &lt;input
+                            class=&quot;form-check-input wl__feature-filter-input&quot;
+                            type=&quot;checkbox&quot;
+                            name=&quot;checkbox&quot;
+                            value=&quot;Non-discrete&quot;
+                            id=&quot;inferredNonDiscrete&quot;
+                            onclick=&quot;changeNonDiscreteValue()&quot;
+                            checked
+                          /&gt;
+                          &lt;label class=&quot;form-check-label&quot; for=&quot;inferredNonDiscrete&quot;&gt;
+                            Inferred non-discrete (&lt;span
+                              class=&quot;wl__feature-count--non-discrete&quot;
+                            &gt;{{getNonDiscreteTypeCount}}&lt;/span&gt;)
+                          &lt;/label&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;form-check mb-1&quot;&gt;
+                          &lt;input
+                            class=&quot;form-check-input wl__feature-filter-input&quot;
+                            type=&quot;checkbox&quot;
+                            name=&quot;checkbox&quot;
+                            value=&quot;Unknown&quot;
+                            id=&quot;inferredUnknown&quot;
+                            onclick=&quot;changeUnknwonValue()&quot;
+                            checked
+                          /&gt;
+                          &lt;label class=&quot;form-check-label&quot; for=&quot;inferredUnknown&quot;&gt;
+                            Unknown (&lt;span class=&quot;wl__feature-count--unknown&quot;&gt;{{getUnknownTypeCount}}&lt;/span&gt;)
+                          &lt;/label&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                   &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;row&quot;&gt;
+            &lt;div class=&quot;main&quot;&gt;
+              &lt;div class=&quot;wl-table-wrap&quot; id=&quot;table-content&quot;&gt;
+                &lt;div class=&quot;wl-table&quot;&gt;
+                  &lt;div class=&quot;wl-table-heading&quot;&gt;
+                    &lt;div class=&quot;wl-table-row wl-table-row--bottom-shadow&quot;&gt;
+                      &lt;div class=&quot;wl-table-head wl-table-head-wraper&quot;&gt;
+                        &lt;div class=&quot;wl-table-head table-border-none graph-table-head&quot;&gt;Target&lt;/div&gt;
+                      &lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Total count&lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Missing&lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Mean&lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Min&lt;/div&gt;
+                      &lt;div class=&quot;wl-table-head wl-sub-table-head text-align-end&quot;&gt;Max&lt;/div&gt;
+
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;ul class=&quot;wl-table-body wl__table-body&quot; id=&quot;table-body&quot;&gt;
+{{#each this.columns}}                    &lt;li
+                    {{#if this.numberSummary}} class=&quot;wl-table-row wl-table-row--clickable&quot; {{else}} class=&quot;wl-table-row&quot; {{/if}}
+                    data-feature-name={{@key}}
+                    data-inferred-type={{inferredType this}}
+                    data-scroll-to-feature-name={{@key}}
+                  &gt;
+                      &lt;div class=&quot;wl-table-cell wl-table-cell__graph-wrap&quot;&gt;
+                        &lt;div class=&quot;wl-table-cell__title-wrap&quot;&gt;
+                          &lt;h4 class=&quot;wl-table-cell__title&quot;&gt;{{@key}}&lt;/h4&gt;
+                          &lt;div&gt;&lt;/div&gt;
+                        &lt;/div&gt;
+                          &lt;div class=&quot;display-flex&quot;&gt;
+                              {{{getGraphHtml this}}}
+                          &lt;/div&gt;
+                      &lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{totalCount this}}&lt;/div&gt;&lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{missing this}}&lt;/div&gt;&lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{mean this}}&lt;/div&gt;&lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{minimumValue this}}&lt;/div&gt;&lt;/div&gt;
+                      &lt;div
+                        class=&quot;wl-table-cell wl-table-cell--top-spacing align-middle&quot;
+                      &gt;&lt;div class=&quot;text-align-end&quot;&gt;{{maximumValue this}}&lt;/div&gt;&lt;/div&gt;
+
+                    &lt;/li&gt;
+{{/each}}                  &lt;/ul&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+  &lt;/script&gt;
+
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
+
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
+
+  &lt;script&gt;
+    const getTargetProfile = () =&gt; { return {&quot;columns&quot;: {&quot;pack&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 1.0, &quot;end&quot;: 48.0000048, &quot;width&quot;: 0, &quot;counts&quot;: [6, 11, 0, 260, 20, 40, 0, 587, 0, 0, 0, 0, 9, 0, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 48.0, &quot;min&quot;: 1.0, &quot;bins&quot;: [1.0, 2.5666668266666663, 4.133333653333333, 5.70000048, 7.266667306666666, 8.833334133333333, 10.40000096, 11.966667786666665, 13.533334613333333, 15.10000144, 16.666668266666665, 18.23333509333333, 19.80000192, 21.366668746666665, 22.93333557333333, 24.5000024, 26.066669226666665, 27.63333605333333, 29.20000288, 30.766669706666665, 32.33333653333333, 33.90000336, 35.46667018666666, 37.03333701333333, 38.60000384, 40.16667066666666, 41.73333749333333, 43.30000432, 44.86667114666666, 46.43333797333333, 48.0000048], &quot;n&quot;: 1000}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 1000, &quot;missing&quot;: 0, &quot;distinct&quot;: 1.1000000273187964, &quot;min&quot;: 1.0, &quot;max&quot;: 48.0, &quot;range&quot;: 47.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 6.0, &quot;iqr&quot;: 6.0, &quot;q1&quot;: 6.0, &quot;median&quot;: 12.0, &quot;q3&quot;: 12.0, &quot;ninety_fifth_percentile&quot;: 24.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 4.66478630070352, &quot;coefficient_of_variation&quot;: 0.42318663709548404, &quot;sum&quot;: 11023.0, &quot;variance&quot;: 21.76023123123123, &quot;mean&quot;: 11.023}}}, &quot;bottle_volume_ml&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 20.0, &quot;end&quot;: 4800.00048, &quot;width&quot;: 0, &quot;counts&quot;: [40, 26, 75, 52, 237, 18, 461, 0, 0, 0, 83, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4], &quot;max&quot;: 4800.0, &quot;min&quot;: 20.0, &quot;bins&quot;: [20.0, 179.33334933333333, 338.66669866666666, 498.000048, 657.3333973333333, 816.6667466666667, 976.000096, 1135.3334453333332, 1294.6667946666666, 1454.000144, 1613.3334933333333, 1772.6668426666665, 1932.000192, 2091.3335413333334, 2250.6668906666664, 2410.00024, 2569.3335893333333, 2728.6669386666667, 2888.000288, 3047.333637333333, 3206.6669866666666, 3366.000336, 3525.333685333333, 3684.6670346666665, 3844.000384, 4003.3337333333334, 4162.667082666667, 4322.000432, 4481.333781333333, 4640.667130666667, 4800.00048], &quot;n&quot;: 1000}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 1000, &quot;missing&quot;: 0, &quot;distinct&quot;: 2.100000104308134, &quot;min&quot;: 20.0, &quot;max&quot;: 4800.0, &quot;range&quot;: 4780.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 200.0, &quot;iqr&quot;: 250.0, &quot;q1&quot;: 750.0, &quot;median&quot;: 1000.0, &quot;q3&quot;: 1000.0, &quot;ninety_fifth_percentile&quot;: 1750.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 449.24269738322084, &quot;coefficient_of_variation&quot;: 0.5029547432825995, &quot;sum&quot;: 893207.0, &quot;variance&quot;: 201819.00115215214, &quot;mean&quot;: 893.207}}}, &quot;state_bottle_cost&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 137.13001371299998, &quot;width&quot;: 0, &quot;counts&quot;: [248, 340, 112, 178, 49, 38, 23, 3, 1, 4, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 137.13, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 4.571000457099999, 9.142000914199999, 13.713001371299999, 18.284001828399997, 22.855002285499996, 27.426002742599998, 31.997003199699996, 36.568003656799995, 41.13900411389999, 45.71000457099999, 50.28100502809999, 54.852005485199996, 59.423005942299994, 63.99400639939999, 68.56500685649999, 73.13600731359999, 77.70700777069999, 82.27800822779999, 86.84900868489999, 91.42000914199998, 95.99100959909998, 100.56201005619998, 105.13301051329998, 109.70401097039999, 114.27501142749999, 118.84601188459999, 123.41701234169999, 127.98801279879999, 132.55901325589997, 137.13001371299998], &quot;n&quot;: 1000}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 1000, &quot;missing&quot;: 0, &quot;distinct&quot;: 25.90001659543545, &quot;min&quot;: 0.0, &quot;max&quot;: 137.13, &quot;range&quot;: 137.13, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 2.28, &quot;iqr&quot;: 10.34, &quot;q1&quot;: 4.66, &quot;median&quot;: 7.62, &quot;q3&quot;: 15.0, &quot;ninety_fifth_percentile&quot;: 25.55}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 8.750236923296066, &quot;coefficient_of_variation&quot;: 0.8313906483242531, &quot;sum&quot;: 10524.82, &quot;variance&quot;: 76.56664621381381, &quot;mean&quot;: 10.52482}}}, &quot;sale_dollars&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 37514.883751488, &quot;width&quot;: 0, &quot;counts&quot;: [889, 63, 20, 14, 8, 2, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 37514.88, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 1250.4961250496, 2500.9922500992, 3751.4883751488005, 5001.9845001984, 6252.480625248, 7502.976750297601, 8753.4728753472, 10003.9690003968, 11254.4651254464, 12504.961250496, 13755.4573755456, 15005.953500595202, 16256.449625644802, 17506.9457506944, 18757.441875744, 20007.9380007936, 21258.434125843203, 22508.9302508928, 23759.426375942403, 25009.922500992, 26260.418626041603, 27510.9147510912, 28761.410876140802, 30011.907001190404, 31262.403126240002, 32512.899251289604, 33763.395376339206, 35013.8915013888, 36264.3876264384, 37514.883751488], &quot;n&quot;: 1000}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 1000, &quot;missing&quot;: 0, &quot;distinct&quot;: 53.13047538723392, &quot;min&quot;: 0.0, &quot;max&quot;: 37514.88, &quot;range&quot;: 37514.88, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 14.7, &quot;iqr&quot;: 542.25, &quot;q1&quot;: 39.0, &quot;median&quot;: 119.96, &quot;q3&quot;: 581.25, &quot;ninety_fifth_percentile&quot;: 2430.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 1677.7439468381522, &quot;coefficient_of_variation&quot;: 2.7985979167149466, &quot;sum&quot;: 599494.4600000001, &quot;variance&quot;: 2814824.7511520605, &quot;mean&quot;: 599.4944600000001}}}, &quot;city&quot;: {&quot;histogram&quot;: null, &quot;frequentItems&quot;: [{&quot;value&quot;: &quot;Des Moines&quot;, &quot;estimate&quot;: 67}, {&quot;value&quot;: &quot;DES MOINES&quot;, &quot;estimate&quot;: 50}, {&quot;value&quot;: &quot;Cedar Rapids&quot;, &quot;estimate&quot;: 42}, {&quot;value&quot;: &quot;CEDAR RAPIDS&quot;, &quot;estimate&quot;: 39}, {&quot;value&quot;: &quot;DAVENPORT&quot;, &quot;estimate&quot;: 32}, {&quot;value&quot;: &quot;AMES&quot;, &quot;estimate&quot;: 29}, {&quot;value&quot;: &quot;WATERLOO&quot;, &quot;estimate&quot;: 23}, {&quot;value&quot;: &quot;COUNCIL BLUFFS&quot;, &quot;estimate&quot;: 23}, {&quot;value&quot;: &quot;Davenport&quot;, &quot;estimate&quot;: 21}, {&quot;value&quot;: &quot;IOWA CITY&quot;, &quot;estimate&quot;: 17}, {&quot;value&quot;: &quot;Ames&quot;, &quot;estimate&quot;: 16}, {&quot;value&quot;: &quot;Council Bluffs&quot;, &quot;estimate&quot;: 16}, {&quot;value&quot;: &quot;West Des Moines&quot;, &quot;estimate&quot;: 16}, {&quot;value&quot;: &quot;Waterloo&quot;, &quot;estimate&quot;: 14}, {&quot;value&quot;: &quot;Sioux City&quot;, &quot;estimate&quot;: 14}, {&quot;value&quot;: &quot;WEST DES MOINES&quot;, &quot;estimate&quot;: 14}, {&quot;value&quot;: &quot;Mount Vernon&quot;, &quot;estimate&quot;: 13}, {&quot;value&quot;: &quot;SPENCER&quot;, &quot;estimate&quot;: 12}, {&quot;value&quot;: &quot;Coralville&quot;, &quot;estimate&quot;: 12}, {&quot;value&quot;: &quot;Ankeny&quot;, &quot;estimate&quot;: 10}, {&quot;value&quot;: &quot;Iowa City&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;Dubuque&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;MARION&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;ANKENY&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;DUBUQUE&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;SIOUX CITY&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;Muscatine&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;Mason City&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;MUSCATINE&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;WINDSOR HEIGHTS&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;Windsor Heights&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;MASON CITY&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;Clinton&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;Ottumwa&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;CEDAR FALLS&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;CORALVILLE&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;MARSHALLTOWN&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;Fort Dodge&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;BETTENDORF&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;Cedar Falls&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;INDIANOLA&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;Urbandale&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;KEOKUK&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;WAUKEE&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;ALTOONA&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;Marion&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;DeWitt&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;Altoona&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;CENTERVILLE&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;Swisher&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Bettendorf&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Oskaloosa&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Mount Pleasant&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;WASHINGTON&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Carroll&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Emmetsburg&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;NEWTON&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;CLINTON&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Marshalltown&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;URBANDALE&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Bancroft&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;MONTICELLO&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;MT VERNON&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Waverly&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Mapleton&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;LECLAIRE&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Keokuk&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Cherokee&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;STORM LAKE&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;SAC CITY&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Washington&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Webster City&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Evansdale&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;BOONE&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Audubon&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Boone&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;BURLINGTON&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;CHARITON&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;LEMARS&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;OSKALOOSA&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;EMMETSBURG&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Sigourney&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Spencer&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Rock Rapids&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;MANSON&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;MONTEZUMA&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Denison&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;ARNOLDS PARK&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Osceola&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;EAGLE GROVE&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Independence&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;WEST POINT&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;ONAWA&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;BELLE PLAINE&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;SIGOURNEY&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Algona&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Rockwell City&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;TOLEDO&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;ROCKWELL CITY&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;FAIRFIELD&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Pella&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Monona&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Fort Madison&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Johnston&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;GRINNELL&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;OTTUMWA&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;LANSING&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;NORTH LIBERTY&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;PELLA&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Storm Lake&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;GUTTENBERG&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;DENISON&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Clear Lake&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Pleasant Hill&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Grimes&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;ATLANTIC&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Le Mars&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;MELCHER-DALLAS&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;WEBSTER CITY&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;FORT DODGE&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Oelwein&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;JESUP&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;MOUNT VERNON&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Onawa&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Arnolds Park&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;CRESTON&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Spirit Lake&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;West Burlington&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;SANBORN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;GRANGER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Pleasantville&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Sioux Center&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Vinton&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Sac City&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SUMNER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;West Union&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Fort Atkinson&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;OELWEIN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Newton&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;HARLAN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Cresco&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Orange City&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Holstein&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;DAYTON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SPIRIT LAKE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Waukon&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;PRIMGHAR&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;North Liberty&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Lemars&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Manning&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Manson&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;IOWA FALLS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CORYDON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;HAMPTON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Osage&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;EVANSDALE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Missouri Valley&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SOLON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SIOUX CENTER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SIBLEY&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ANAMOSA&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Milford&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Moravia&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;GRUNDY CENTER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Tipton&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;MEDIAPOLIS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;OSSIAN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;MILFORD&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;FORT MADISON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CLEAR LAKE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Lake View&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Essex&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;NORTHWOOD&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Lake Mills&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Corning&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;STRATFORD&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Creston&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;GUTHRIE CENTER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Anita&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Keosauqua&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Maquoketa&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Harlan&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Peosta&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;DYERSVILLE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;HOLSTEIN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Jefferson&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Marengo&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ALGONA&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;HAWARDEN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Rockwell&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SIOUX RAPIDS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;LE MARS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CLIVE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Story City&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;WOODBINE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Kalona&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Adel&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Burlington&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;WEST BURLINGTON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;COLFAX&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Lisbon&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;GEORGE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SHELDON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Atlantic&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Decorah&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CRESCO&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Humeston&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;PERRY&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;MARENGO&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Knoxville&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ClearLake&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ROCK RAPIDS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;BELMOND&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;MANCHESTER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Chariton&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Norwalk&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Carter Lake&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Larchwood&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Northwood&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;LARCHWOOD&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Ida Grove&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;TRIPOLI&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ESTHERVILLE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;BLUE GRASS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;BELLEVUE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Bondurant&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Indianola&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Estherville&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Dyersville&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Leclaire&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;TIFFIN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Jesup&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Manchester&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;OSCEOLA&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Anamosa&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CHEROKEE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;KNOXVILLE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Remsen&quot;, &quot;estimate&quot;: 1}], &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: true, &quot;featureStats&quot;: {&quot;total_count&quot;: 995, &quot;missing&quot;: 5, &quot;distinct&quot;: 23.9196120689358, &quot;min&quot;: NaN, &quot;max&quot;: NaN, &quot;range&quot;: NaN, &quot;quantile_statistics&quot;: null, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.0, &quot;coefficient_of_variation&quot;: null, &quot;sum&quot;: 0.0, &quot;variance&quot;: 0.0, &quot;mean&quot;: 0.0}}}}, &quot;properties&quot;: {&quot;observations&quot;: 5000, &quot;missing_cells&quot;: 5, &quot;missing_percentage&quot;: 0.1}} }
+    const targetProfile = getTargetProfile()
+
+    function fixNumberTo(number, decimals = 3) {
+      const fractionalDigits = String(number % 1).split(&#x27;&#x27;).slice(2, 2 + decimals).join(&#x27;&#x27;)
+      return `${Math.trunc(number)}.${fractionalDigits}`
+    }
+
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+
+      class GenerateChartParams {
+        constructor(height, width, data, bottomMargin=20, topMargin=5) {
+          this.MARGIN = {
+            TOP: topMargin,
+            RIGHT: 5,
+            BOTTOM: bottomMargin,
+            LEFT: 55,
+          };
+          this.SVG_WIDTH = width;
+          this.SVG_HEIGHT = height;
+          this.CHART_WIDTH = this.SVG_WIDTH - this.MARGIN.LEFT - this.MARGIN.RIGHT;
+          this.CHART_HEIGHT = this.SVG_HEIGHT - this.MARGIN.TOP - this.MARGIN.BOTTOM;
+          this.svgEl = d3.create(&quot;svg&quot;)
+             .attr(&quot;preserveAspectRatio&quot;, &quot;xMinYMin meet&quot;)
+             .attr(&quot;viewBox&quot;, &quot;30 0 240 400&quot;)
+             .classed(&quot;svg-content-responsive&quot;, true)
+          this.maxYValue = d3.max(data, (d) =&gt; Math.abs(d.axisY));
+          this.xScale = d3
+            .scaleBand()
+            .domain(data.map((d) =&gt; d.axisX))
+            .range([this.MARGIN.LEFT, this.MARGIN.LEFT + this.CHART_WIDTH]);
+          this.yScale = d3
+            .scaleLinear()
+            .domain([0, this.maxYValue * 1.02])
+            .range([this.CHART_HEIGHT, 0]);
+        }
+      }
+
+      function generateChart(data, height = 70, width = 250, index = 0, referenceProfileExist = false) {
+        const sizes = new GenerateChartParams(height, width, data, 5)
+        const {
+          MARGIN,
+          SVG_WIDTH,
+          SVG_HEIGHT,
+          CHART_WIDTH,
+          CHART_HEIGHT,
+          svgEl,
+          maxYValue,
+          xScale,
+          yScale
+        } = sizes
+        const rectColors = [&quot;#44C0E7&quot;, &quot;#F5843C&quot;]
+
+        // Add the y Axis
+        if (!referenceProfileExist) {
+          svgEl
+            .append(&quot;g&quot;)
+            .attr(&quot;transform&quot;, &quot;translate(&quot; + MARGIN.LEFT + &quot;, &quot; + MARGIN.TOP + &quot;)&quot;)
+            .call(d3.axisLeft(yScale).tickValues([0, maxYValue/2, maxYValue]))
+            .selectAll(&quot;text&quot;)
+            .style(&quot;font-size&quot;, &quot;8&quot;)
+        }
+
+        const gChart = svgEl.append(&quot;g&quot;);
+        gChart
+          .attr(&quot;transform&quot;, &quot;translate(&quot; + 20 + &quot;, &quot; + 0 + &quot;)&quot;)
+          .selectAll(&quot;.bar&quot;)
+          .data(data)
+          .enter()
+          .append(&quot;rect&quot;)
+          .classed(&quot;bar&quot;, true)
+          .attr(&quot;width&quot;, xScale.bandwidth() - 1)
+          .attr(&quot;height&quot;, (d) =&gt; CHART_HEIGHT - yScale(d.axisY))
+          .attr(&quot;x&quot;, (d) =&gt; xScale(d.axisX))
+          .attr(&quot;y&quot;, (d) =&gt; yScale(d.axisY) + MARGIN.TOP)
+          .attr(&quot;fill&quot;, rectColors[index]);
+
+        return svgEl._groups[0][0].outerHTML;
+      }
+
+      function chartData(column) {
+        const data = [];
+        if (column.histogram) {
+          column.histogram.counts.slice(0, 30).forEach((count, index) =&gt; {
+            data.push({
+              axisY: count,
+              axisX: index,
+            });
+          });
+        } else if (column.frequentItems) {
+          Object.entries(column.frequentItems).forEach(([key, {value, estimate}], index) =&gt; {
+              data.push({
+                axisY: estimate,
+                axisX: value,
+              });
+            });
+        }
+
+        return data
+      }
+
+      function graph(column, key, referenceColumn) {
+        let data = [];
+        const columnKey = key.data.key
+        let chartValue = false
+        let chartColor = undefined
+        if(!!referenceColumn){
+          column = referenceColumn.columns[columnKey]
+          chartValue = true
+          chartColor = 1
+        } else if (referenceColumn === undefined) {
+          column = &quot;&quot;
+        }
+
+        if (column.histogram || column.frequentItems) {
+          data = chartData(column)
+        } else if (referenceColumn === null ) {
+            $(&quot;.svg-container&quot;).css(&quot;padding-bottom&quot;, &quot;0&quot;)
+            return &#x27;&lt;span class=&quot;wl-table-cell__bedge-wrap&quot;&gt;No data to show the chart&lt;/span&gt;&#x27;;
+        } else if (referenceColumn === undefined) {
+            $(document).ready(function() {
+              $(&quot;.reference-table-head&quot;).addClass(&quot;d-none&quot;)
+            });
+            return &#x27;&#x27;
+        } else if (referenceColumn.frequentItems === undefined){
+            return &#x27;&#x27;;
+        }
+        return `
+          &lt;div class=&quot;svg-container&quot;&gt;
+            ${generateChart(data, ...[,,], chartColor, chartValue)}
+          &lt;/div&gt;
+        `;
+      }
+
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat(&quot;%Y-%m-%d %I:%M:%S %p %Z&quot;);
+        return format(date);
+      }
+
+    abbreviate_number = function(value, fixed = 0) {
+      value = +value
+      if (value === null) { return null; } // terminate early
+      if (value === 0) { return &#x27;0&#x27;; } // terminate early
+      fixed = (!fixed || fixed &lt; 0) ? 0 : fixed; // number of decimal places to show
+      var b = (value).toPrecision(2).split(&quot;e&quot;), // get power
+          k = b.length === 1 ? 0 : Math.floor(Math.min(b[1].slice(1), 14) / 3), // floor at decimals, ceiling at trillions
+          c = k &lt; 1 ? value.toFixed(0 + fixed) : (value / Math.pow(10, k * 3) ).toFixed(1 + fixed), // divide by power
+          d = c &lt; 0 ? c : Math.abs(c), // enforce -0 is 0
+          newValue = d,
+          suffixe = [&#x27;&#x27;, &#x27;K&#x27;, &#x27;M&#x27;, &#x27;B&#x27;, &#x27;T&#x27;][k]; // append power
+      return {value, newValue, suffixe};
+    }
+
+     function formatBytes(bytes, decimals = 2) {
+       let newValue,
+       suffixe = &quot;&quot;
+       if (bytes === 0) return &#x27;0 Bytes&#x27;;
+
+       const k = 1024;
+       const dm = decimals &lt; 0 ? 0 : decimals;
+       const sizes = [&#x27;Bytes&#x27;, &#x27;KiB&#x27;, &#x27;MB&#x27;, &#x27;GB&#x27;, &#x27;TB&#x27;, &#x27;PB&#x27;, &#x27;EB&#x27;, &#x27;ZB&#x27;, &#x27;YB&#x27;];
+
+       const i = Math.floor(Math.log(bytes) / Math.log(k));
+       newValue = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
+       suffixe = sizes[i]
+       return {bytes, newValue, suffixe};
+     }
+
+     const valueSuffixe = (newNumber) =&gt; `
+       &lt;div class=&quot;statistic-measurement&quot;&gt;
+        ${newNumber}
+       &lt;/div&gt;`
+     const valueNumber = (newNumber) =&gt; `
+       &lt;div class=&quot;statistic-number&quot;&gt;
+        ${newNumber}
+       &lt;/div&gt;`
+
+     const numberWithSuffixe = (number, newNumber, suffixe) =&gt;
+       `&lt;div class=&quot;tooltip-full-number&quot;&gt;
+          &lt;div class=&quot;statistic-number&quot;&gt;
+             ${newNumber}
+            &lt;div class=&quot;statistic-measurement&quot;&gt;${suffixe}&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;span class=&quot;tooltiptext&quot;&gt;${number}&lt;/span&gt;
+        &lt;/div&gt;`
+
+     Handlebars.registerHelper(&quot;observations&quot;, function (properties) {
+       const {value, newValue, suffixe} = abbreviate_number(targetProfile.properties.observations)
+       return numberWithSuffixe(value, valueNumber(newValue), valueNumber(suffixe));
+     });
+
+     Handlebars.registerHelper(&quot;missingCells&quot;, function (properties) {
+       const {value, newValue, suffixe} = abbreviate_number(targetProfile.properties.missing_cells)
+       if (typeof value !== &#x27;undefined&#x27; &amp;&amp; typeof newValue !== &#x27;undefined&#x27;  &amp;&amp; typeof suffixe !== &#x27;undefined&#x27; ) {
+        return numberWithSuffixe(value, valueSuffixe(`${newValue}`), suffixe);
+       }
+       return numberWithSuffixe(0, valueNumber(0), valueNumber(&#x27;&#x27;));
+     });
+
+     Handlebars.registerHelper(&quot;missingCellsPercentage&quot;, function (properties) {
+       const {value, newValue, suffixe} = abbreviate_number(targetProfile.properties.missing_percentage)
+       if (typeof value !== &#x27;undefined&#x27; &amp;&amp; typeof newValue !== &#x27;undefined&#x27;  &amp;&amp; typeof suffixe !== &#x27;undefined&#x27; ) {
+        return numberWithSuffixe(value, valueSuffixe(`(${newValue}%)`), suffixe);
+       }
+       return numberWithSuffixe(0, valueSuffixe(`(${0}%)`), &#x27;&#x27;);
+     });
+
+     Handlebars.registerHelper(&quot;getProfileTimeStamp&quot;, function (properties) {
+       return formatLabelDate(+properties.properties.dataTimestamp)
+     });
+
+     Handlebars.registerHelper(&quot;getProfileName&quot;, function (properties) {
+       return properties.properties.tags.name
+     });
+
+       const cheqValueTypeNumber = (profile, profileValue) =&gt; {
+         let validValue;
+         if (profile &amp;&amp; profileValue !== undefined &amp;&amp; typeof profileValue === &quot;number&quot;) {
+           return true
+         } else if (profileValue !== undefined &amp;&amp; typeof profileValue !== &quot;number&quot;) {
+           return false
+         }
+       }
+
+
+      Handlebars.registerHelper(&quot;inferredType&quot;, function (column) {
+        let infferedType = &quot;&quot;;
+
+        if (column.isDiscrete) {
+          infferedType = &quot;Discrete&quot;;
+        } else {
+          infferedType = &quot;Non-discrete&quot;;
+        }
+        return infferedType;
+      });
+
+      Handlebars.registerHelper(&quot;frequentItems&quot;, function (column) {
+        frequentItemsElemString = &quot;&quot;;
+        if (column.isDiscrete) {
+          const slicedFrequentItems = column.frequentItems.items.slice(0, 5);
+          for (let fi = 0; fi &lt; slicedFrequentItems.length; fi++) {
+            frequentItemsElemString +=
+              &#x27;&lt;span class=&quot;wl-table-cell__bedge&quot;&gt;&#x27; + slicedFrequentItems[fi].jsonValue + &quot;&lt;/span&gt;&quot;;
+          }
+        } else {
+          frequentItemsElemString += &quot;No data to show&quot;;
+        }
+        return frequentItemsElemString;
+      });
+
+      Handlebars.registerHelper(&quot;totalCount&quot;, function (column) {
+        if (column.featureStats) {
+          return column.featureStats.total_count;
+        }
+
+        return &quot;-&quot;;
+      });
+
+      Handlebars.registerHelper(&quot;missing&quot;, function (column) {
+        if (column.featureStats) {
+          return column.featureStats.missing;
+        }
+
+        return &quot;-&quot;;
+      });
+
+      Handlebars.registerHelper(&quot;minimumValue&quot;, function (column) {
+        if (column.featureStats) {
+          if (isNaN(column.featureStats.min)){return &quot;-&quot;}
+          return fixNumberTo(column.featureStats.min);
+        }
+
+        return &quot;-&quot;;
+      });
+
+      Handlebars.registerHelper(&quot;maximumValue&quot;, function (column) {
+        if (column.featureStats) {
+          if (isNaN(column.featureStats.max)){return &quot;-&quot;}
+          return fixNumberTo(column.featureStats.max);
+        }
+
+        return &quot;-&quot;;
+      });
+
+
+      Handlebars.registerHelper(&quot;mean&quot;, function (column) {
+        if (column.featureStats?.descriptive_statistics) {
+          if (isNaN(column.featureStats.descriptive_statistics.mean)){return &quot;-&quot;}
+          return fixNumberTo(column.featureStats.descriptive_statistics.mean);
+        }
+        return &quot;-&quot;;
+      });
+
+      Handlebars.registerHelper(&quot;getGraphHtml&quot;,(column,key) =&gt; graph(column, key, null));
+
+      Handlebars.registerHelper(&quot;getDiscreteTypeCount&quot;, function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) =&gt; {
+          if (feature[1].isDiscrete === true) {
+            count++;
+          }
+        });
+        return count.toString();
+      });
+
+      Handlebars.registerHelper(&quot;getNonDiscreteTypeCount&quot;, function () {
+        let count = 0;
+
+        Object.entries(this.columns).forEach((feature) =&gt; {
+          if (feature[1].isDiscrete === false) {
+            count++;
+          }
+        });
+        return count;
+      });
+
+      Handlebars.registerHelper(&quot;getUnknownTypeCount&quot;, function () {
+        let count = 0;
+        return count;
+        Object.entries(this.columns).forEach((feature) =&gt; {
+          if (!feature[1].isDiscrete) {
+            count++;
+          }
+        });
+        return count;
+      });
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = {&quot;columns&quot;: {&quot;pack&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 1.0, &quot;end&quot;: 48.0000048, &quot;width&quot;: 0, &quot;counts&quot;: [6, 11, 0, 260, 20, 40, 0, 587, 0, 0, 0, 0, 9, 0, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 48.0, &quot;min&quot;: 1.0, &quot;bins&quot;: [1.0, 2.5666668266666663, 4.133333653333333, 5.70000048, 7.266667306666666, 8.833334133333333, 10.40000096, 11.966667786666665, 13.533334613333333, 15.10000144, 16.666668266666665, 18.23333509333333, 19.80000192, 21.366668746666665, 22.93333557333333, 24.5000024, 26.066669226666665, 27.63333605333333, 29.20000288, 30.766669706666665, 32.33333653333333, 33.90000336, 35.46667018666666, 37.03333701333333, 38.60000384, 40.16667066666666, 41.73333749333333, 43.30000432, 44.86667114666666, 46.43333797333333, 48.0000048], &quot;n&quot;: 1000}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 1000, &quot;missing&quot;: 0, &quot;distinct&quot;: 1.1000000273187964, &quot;min&quot;: 1.0, &quot;max&quot;: 48.0, &quot;range&quot;: 47.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 6.0, &quot;iqr&quot;: 6.0, &quot;q1&quot;: 6.0, &quot;median&quot;: 12.0, &quot;q3&quot;: 12.0, &quot;ninety_fifth_percentile&quot;: 24.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 4.66478630070352, &quot;coefficient_of_variation&quot;: 0.42318663709548404, &quot;sum&quot;: 11023.0, &quot;variance&quot;: 21.76023123123123, &quot;mean&quot;: 11.023}}}, &quot;bottle_volume_ml&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 20.0, &quot;end&quot;: 4800.00048, &quot;width&quot;: 0, &quot;counts&quot;: [40, 26, 75, 52, 237, 18, 461, 0, 0, 0, 83, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4], &quot;max&quot;: 4800.0, &quot;min&quot;: 20.0, &quot;bins&quot;: [20.0, 179.33334933333333, 338.66669866666666, 498.000048, 657.3333973333333, 816.6667466666667, 976.000096, 1135.3334453333332, 1294.6667946666666, 1454.000144, 1613.3334933333333, 1772.6668426666665, 1932.000192, 2091.3335413333334, 2250.6668906666664, 2410.00024, 2569.3335893333333, 2728.6669386666667, 2888.000288, 3047.333637333333, 3206.6669866666666, 3366.000336, 3525.333685333333, 3684.6670346666665, 3844.000384, 4003.3337333333334, 4162.667082666667, 4322.000432, 4481.333781333333, 4640.667130666667, 4800.00048], &quot;n&quot;: 1000}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 1000, &quot;missing&quot;: 0, &quot;distinct&quot;: 2.100000104308134, &quot;min&quot;: 20.0, &quot;max&quot;: 4800.0, &quot;range&quot;: 4780.0, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 200.0, &quot;iqr&quot;: 250.0, &quot;q1&quot;: 750.0, &quot;median&quot;: 1000.0, &quot;q3&quot;: 1000.0, &quot;ninety_fifth_percentile&quot;: 1750.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 449.24269738322084, &quot;coefficient_of_variation&quot;: 0.5029547432825995, &quot;sum&quot;: 893207.0, &quot;variance&quot;: 201819.00115215214, &quot;mean&quot;: 893.207}}}, &quot;state_bottle_cost&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 137.13001371299998, &quot;width&quot;: 0, &quot;counts&quot;: [248, 340, 112, 178, 49, 38, 23, 3, 1, 4, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 137.13, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 4.571000457099999, 9.142000914199999, 13.713001371299999, 18.284001828399997, 22.855002285499996, 27.426002742599998, 31.997003199699996, 36.568003656799995, 41.13900411389999, 45.71000457099999, 50.28100502809999, 54.852005485199996, 59.423005942299994, 63.99400639939999, 68.56500685649999, 73.13600731359999, 77.70700777069999, 82.27800822779999, 86.84900868489999, 91.42000914199998, 95.99100959909998, 100.56201005619998, 105.13301051329998, 109.70401097039999, 114.27501142749999, 118.84601188459999, 123.41701234169999, 127.98801279879999, 132.55901325589997, 137.13001371299998], &quot;n&quot;: 1000}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 1000, &quot;missing&quot;: 0, &quot;distinct&quot;: 25.90001659543545, &quot;min&quot;: 0.0, &quot;max&quot;: 137.13, &quot;range&quot;: 137.13, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 2.28, &quot;iqr&quot;: 10.34, &quot;q1&quot;: 4.66, &quot;median&quot;: 7.62, &quot;q3&quot;: 15.0, &quot;ninety_fifth_percentile&quot;: 25.55}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 8.750236923296066, &quot;coefficient_of_variation&quot;: 0.8313906483242531, &quot;sum&quot;: 10524.82, &quot;variance&quot;: 76.56664621381381, &quot;mean&quot;: 10.52482}}}, &quot;sale_dollars&quot;: {&quot;histogram&quot;: {&quot;start&quot;: 0.0, &quot;end&quot;: 37514.883751488, &quot;width&quot;: 0, &quot;counts&quot;: [889, 63, 20, 14, 8, 2, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], &quot;max&quot;: 37514.88, &quot;min&quot;: 0.0, &quot;bins&quot;: [0.0, 1250.4961250496, 2500.9922500992, 3751.4883751488005, 5001.9845001984, 6252.480625248, 7502.976750297601, 8753.4728753472, 10003.9690003968, 11254.4651254464, 12504.961250496, 13755.4573755456, 15005.953500595202, 16256.449625644802, 17506.9457506944, 18757.441875744, 20007.9380007936, 21258.434125843203, 22508.9302508928, 23759.426375942403, 25009.922500992, 26260.418626041603, 27510.9147510912, 28761.410876140802, 30011.907001190404, 31262.403126240002, 32512.899251289604, 33763.395376339206, 35013.8915013888, 36264.3876264384, 37514.883751488], &quot;n&quot;: 1000}, &quot;frequentItems&quot;: null, &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: false, &quot;featureStats&quot;: {&quot;total_count&quot;: 1000, &quot;missing&quot;: 0, &quot;distinct&quot;: 53.13047538723392, &quot;min&quot;: 0.0, &quot;max&quot;: 37514.88, &quot;range&quot;: 37514.88, &quot;quantile_statistics&quot;: {&quot;fifth_percentile&quot;: 14.7, &quot;iqr&quot;: 542.25, &quot;q1&quot;: 39.0, &quot;median&quot;: 119.96, &quot;q3&quot;: 581.25, &quot;ninety_fifth_percentile&quot;: 2430.0}, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 1677.7439468381522, &quot;coefficient_of_variation&quot;: 2.7985979167149466, &quot;sum&quot;: 599494.4600000001, &quot;variance&quot;: 2814824.7511520605, &quot;mean&quot;: 599.4944600000001}}}, &quot;city&quot;: {&quot;histogram&quot;: null, &quot;frequentItems&quot;: [{&quot;value&quot;: &quot;Des Moines&quot;, &quot;estimate&quot;: 67}, {&quot;value&quot;: &quot;DES MOINES&quot;, &quot;estimate&quot;: 50}, {&quot;value&quot;: &quot;Cedar Rapids&quot;, &quot;estimate&quot;: 42}, {&quot;value&quot;: &quot;CEDAR RAPIDS&quot;, &quot;estimate&quot;: 39}, {&quot;value&quot;: &quot;DAVENPORT&quot;, &quot;estimate&quot;: 32}, {&quot;value&quot;: &quot;AMES&quot;, &quot;estimate&quot;: 29}, {&quot;value&quot;: &quot;WATERLOO&quot;, &quot;estimate&quot;: 23}, {&quot;value&quot;: &quot;COUNCIL BLUFFS&quot;, &quot;estimate&quot;: 23}, {&quot;value&quot;: &quot;Davenport&quot;, &quot;estimate&quot;: 21}, {&quot;value&quot;: &quot;IOWA CITY&quot;, &quot;estimate&quot;: 17}, {&quot;value&quot;: &quot;Ames&quot;, &quot;estimate&quot;: 16}, {&quot;value&quot;: &quot;Council Bluffs&quot;, &quot;estimate&quot;: 16}, {&quot;value&quot;: &quot;West Des Moines&quot;, &quot;estimate&quot;: 16}, {&quot;value&quot;: &quot;Waterloo&quot;, &quot;estimate&quot;: 14}, {&quot;value&quot;: &quot;Sioux City&quot;, &quot;estimate&quot;: 14}, {&quot;value&quot;: &quot;WEST DES MOINES&quot;, &quot;estimate&quot;: 14}, {&quot;value&quot;: &quot;Mount Vernon&quot;, &quot;estimate&quot;: 13}, {&quot;value&quot;: &quot;SPENCER&quot;, &quot;estimate&quot;: 12}, {&quot;value&quot;: &quot;Coralville&quot;, &quot;estimate&quot;: 12}, {&quot;value&quot;: &quot;Ankeny&quot;, &quot;estimate&quot;: 10}, {&quot;value&quot;: &quot;Iowa City&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;Dubuque&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;MARION&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;ANKENY&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;DUBUQUE&quot;, &quot;estimate&quot;: 9}, {&quot;value&quot;: &quot;SIOUX CITY&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;Muscatine&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;Mason City&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;MUSCATINE&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;WINDSOR HEIGHTS&quot;, &quot;estimate&quot;: 8}, {&quot;value&quot;: &quot;Windsor Heights&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;MASON CITY&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;Clinton&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;Ottumwa&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;CEDAR FALLS&quot;, &quot;estimate&quot;: 7}, {&quot;value&quot;: &quot;CORALVILLE&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;MARSHALLTOWN&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;Fort Dodge&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;BETTENDORF&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;Cedar Falls&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;INDIANOLA&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;Urbandale&quot;, &quot;estimate&quot;: 6}, {&quot;value&quot;: &quot;KEOKUK&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;WAUKEE&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;ALTOONA&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;Marion&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;DeWitt&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;Altoona&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;CENTERVILLE&quot;, &quot;estimate&quot;: 5}, {&quot;value&quot;: &quot;Swisher&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Bettendorf&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Oskaloosa&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Mount Pleasant&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;WASHINGTON&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Carroll&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Emmetsburg&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;NEWTON&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;CLINTON&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Marshalltown&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;URBANDALE&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Bancroft&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;MONTICELLO&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;MT VERNON&quot;, &quot;estimate&quot;: 4}, {&quot;value&quot;: &quot;Waverly&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Mapleton&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;LECLAIRE&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Keokuk&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Cherokee&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;STORM LAKE&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;SAC CITY&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Washington&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Webster City&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Evansdale&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;BOONE&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Audubon&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Boone&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;BURLINGTON&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;CHARITON&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;LEMARS&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;OSKALOOSA&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;EMMETSBURG&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Sigourney&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Spencer&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;Rock Rapids&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;MANSON&quot;, &quot;estimate&quot;: 3}, {&quot;value&quot;: &quot;MONTEZUMA&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Denison&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;ARNOLDS PARK&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Osceola&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;EAGLE GROVE&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Independence&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;WEST POINT&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;ONAWA&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;BELLE PLAINE&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;SIGOURNEY&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Algona&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Rockwell City&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;TOLEDO&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;ROCKWELL CITY&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;FAIRFIELD&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Pella&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Monona&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Fort Madison&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Johnston&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;GRINNELL&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;OTTUMWA&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;LANSING&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;NORTH LIBERTY&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;PELLA&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Storm Lake&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;GUTTENBERG&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;DENISON&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Clear Lake&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Pleasant Hill&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Grimes&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;ATLANTIC&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Le Mars&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;MELCHER-DALLAS&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;WEBSTER CITY&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;FORT DODGE&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Oelwein&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;JESUP&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;MOUNT VERNON&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Onawa&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Arnolds Park&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;CRESTON&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;Spirit Lake&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;West Burlington&quot;, &quot;estimate&quot;: 2}, {&quot;value&quot;: &quot;SANBORN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;GRANGER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Pleasantville&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Sioux Center&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Vinton&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Sac City&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SUMNER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;West Union&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Fort Atkinson&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;OELWEIN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Newton&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;HARLAN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Cresco&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Orange City&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Holstein&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;DAYTON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SPIRIT LAKE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Waukon&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;PRIMGHAR&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;North Liberty&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Lemars&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Manning&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Manson&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;IOWA FALLS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CORYDON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;HAMPTON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Osage&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;EVANSDALE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Missouri Valley&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SOLON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SIOUX CENTER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SIBLEY&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ANAMOSA&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Milford&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Moravia&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;GRUNDY CENTER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Tipton&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;MEDIAPOLIS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;OSSIAN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;MILFORD&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;FORT MADISON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CLEAR LAKE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Lake View&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Essex&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;NORTHWOOD&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Lake Mills&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Corning&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;STRATFORD&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Creston&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;GUTHRIE CENTER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Anita&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Keosauqua&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Maquoketa&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Harlan&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Peosta&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;DYERSVILLE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;HOLSTEIN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Jefferson&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Marengo&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ALGONA&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;HAWARDEN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Rockwell&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SIOUX RAPIDS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;LE MARS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CLIVE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Story City&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;WOODBINE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Kalona&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Adel&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Burlington&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;WEST BURLINGTON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;COLFAX&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Lisbon&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;GEORGE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;SHELDON&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Atlantic&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Decorah&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CRESCO&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Humeston&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;PERRY&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;MARENGO&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Knoxville&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ClearLake&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ROCK RAPIDS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;BELMOND&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;MANCHESTER&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Chariton&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Norwalk&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Carter Lake&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Larchwood&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Northwood&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;LARCHWOOD&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Ida Grove&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;TRIPOLI&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;ESTHERVILLE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;BLUE GRASS&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;BELLEVUE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Bondurant&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Indianola&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Estherville&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Dyersville&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Leclaire&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;TIFFIN&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Jesup&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Manchester&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;OSCEOLA&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Anamosa&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;CHEROKEE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;KNOXVILLE&quot;, &quot;estimate&quot;: 1}, {&quot;value&quot;: &quot;Remsen&quot;, &quot;estimate&quot;: 1}], &quot;drift_from_ref&quot;: null, &quot;isDiscrete&quot;: true, &quot;featureStats&quot;: {&quot;total_count&quot;: 995, &quot;missing&quot;: 5, &quot;distinct&quot;: 23.9196120689358, &quot;min&quot;: NaN, &quot;max&quot;: NaN, &quot;range&quot;: NaN, &quot;quantile_statistics&quot;: null, &quot;descriptive_statistics&quot;: {&quot;stddev&quot;: 0.0, &quot;coefficient_of_variation&quot;: null, &quot;sum&quot;: 0.0, &quot;variance&quot;: 0.0, &quot;mean&quot;: 0.0}}}}, &quot;properties&quot;: {&quot;observations&quot;: 5000, &quot;missing_cells&quot;: 5, &quot;missing_percentage&quot;: 0.1}};
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById(&quot;generated-html&quot;);
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      const $featureSearch = document.getElementById(&quot;wl__feature-search&quot;);
+      const $tableBody = document.getElementById(&quot;table-body&quot;);
+      const $discrete = document.getElementById(&quot;inferredDiscrete&quot;);
+      const $nonDiscrete = document.getElementById(&quot;inferredNonDiscrete&quot;);
+      const $unknown = document.getElementById(&quot;inferredUnknown&quot;);
+
+      const activeTypes = {
+        discrete: true,
+        &quot;non-discrete&quot;: true,
+        unknown: true,
+      };
+
+      let searchString = &quot;&quot;;
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate &amp;&amp; !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function filterNotification() {
+        const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+        const $boxes = $(&#x27;.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked&#x27;);
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass(&quot;d-none&quot;)
+        } else {
+          $notifCircleContainer.addClass(&quot;d-none&quot;)
+        }
+      }
+
+      function handleSearch() {
+        const tableBodyChildren = $tableBody.children;
+
+        for (let i = 0; i &lt; tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = tableBodyChildren[i].dataset.featureName.toLowerCase();
+
+          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+            tableBodyChildren[i].style.display = &quot;&quot;;
+          } else {
+            tableBodyChildren[i].style.display = &quot;none&quot;;
+          }
+        }
+      }
+
+      $featureSearch.addEventListener(
+        &quot;keyup&quot;,
+        debounce((event) =&gt; {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
+
+      $discrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;discrete&quot;] = true;
+        } else {
+          activeTypes[&quot;discrete&quot;] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $nonDiscrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;non-discrete&quot;] = true;
+        } else {
+          activeTypes[&quot;non-discrete&quot;] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+      $unknown.addEventListener(&quot;change&quot;, (event) =&gt; {
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;unknown&quot;] = true;
+        } else {
+          activeTypes[&quot;unknown&quot;] = false;
+        }
+        handleSearch();
+        filterNotification()
+      });
+
+
+      $(&quot;.svg-container&quot;).css(&quot;padding-bottom&quot;, &quot;27%&quot;)
+    }
+
+    function checkedBoxes() {
+      const $boxes = $(&#x27;input[name=checkbox]:checked&#x27;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $notifCircleContainer.addClass(&quot;d-none&quot;)
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+        checkedBoxes()
+      }
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  &lt;/script&gt;
+&lt;/html&gt;
+" width=100% height=1000px
+        frameBorder=0></iframe></div>
+</div>
+<p>This report can be very useful, since it shows us in a bit more detail the characteristics of the distributions, and also lists some of the core metric names that we can refer to quickly.</p>
+</section>
+<section id="Constraints-check">
+<h2>Constraints check<a class="headerlink" href="#Constraints-check" title="Permalink to this headline">#</a></h2>
+<p>You can also create a constraints suite and generate a report with passed and failed constraints, by using the same <code class="docutils literal notranslate"><span class="pre">profile_view</span></code> object.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.constraints</span> <span class="kn">import</span> <span class="n">ConstraintsBuilder</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.constraints.factories</span> <span class="kn">import</span> <span class="n">greater_than_number</span><span class="p">,</span> <span class="n">mean_between_range</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">builder</span> <span class="o">=</span> <span class="n">ConstraintsBuilder</span><span class="p">(</span><span class="n">dataset_profile_view</span><span class="o">=</span><span class="n">profile_view</span><span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
+    <span class="n">greater_than_number</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;bottle_volume_ml&quot;</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
+    <span class="n">mean_between_range</span><span class="p">(</span><span class="n">column_name</span><span class="o">=</span><span class="s2">&quot;sale_dollars&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mf">400.0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="mf">700.0</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;whylogs.core.constraints.metric_constraints.ConstraintsBuilder at 0x157f4f220&gt;
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">constraints</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">constraints</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+False
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">constraints</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[(&#39;bottle_volume_ml greater than number 100&#39;, 0, 1),
+ (&#39;sale_dollars mean between 400.0 and 700.0 (inclusive)&#39;, 1, 0)]
+</pre></div></div>
+</div>
+<p>You can also pass the constraints to the <code class="docutils literal notranslate"><span class="pre">NotebookProfileVisualizer</span></code> and generate a visualization of the report</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.viz</span> <span class="kn">import</span> <span class="n">NotebookProfileVisualizer</span>
+
+<span class="n">visualization</span> <span class="o">=</span> <span class="n">NotebookProfileVisualizer</span><span class="p">()</span>
+<span class="n">visualization</span><span class="o">.</span><span class="n">constraints_report</span><span class="p">(</span><span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div></div><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;meta name=&quot;description&quot; content=&quot;&quot; /&gt;
+    &lt;meta name=&quot;author&quot; content=&quot;&quot; /&gt;
+
+    &lt;title&gt;Profile Visualizer | whylogs&lt;/title&gt;
+
+    &lt;link rel=&quot;icon&quot; href=&quot;images/whylabs-favicon.png&quot; type=&quot;image/png&quot; sizes=&quot;16x16&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin /&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700&amp;display=swap&quot; rel=&quot;stylesheet&quot; /&gt;
+    &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css&quot; /&gt;
+
+    &lt;script
+      src=&quot;https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js&quot;
+      integrity=&quot;sha512-RNLkV3d+aLtfcpEyFG8jRbnWHxUqVZozacROI4J2F1sTaDqo1dPQYs01OMi1t1w9Y2FdbSCDSQ2ZVdAC8bzgAg==&quot;
+      crossorigin=&quot;anonymous&quot;
+      referrerpolicy=&quot;no-referrer&quot;
+    &gt;&lt;/script&gt;
+
+    &lt;style type=&quot;text/css&quot;&gt;
+
+      /* Screen on smaller screens */
+      .no-responsive {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1031;
+        width: 100vw;
+        height: 100vh;
+        background-color: var(--tealBackground);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      @media screen and (min-width: 1000px) {
+        .desktop-content {
+          display: block;
+        }
+        .no-responsive {
+          display: none;
+        }
+      }
+
+      .no-responsive__content {
+        max-width: 600px;
+        width: 100%;
+        padding: 0 24px;
+      }
+
+      .no-responsive__title {
+        font-size: 96px;
+        font-weight: 300;
+        color: var(--brandSecondary900);
+        line-height: 1.167;
+      }
+
+      .no-responsive__text {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 400;
+        color: var(--brandSecondary900);
+        line-height: 1.5;
+      }
+
+      .header-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #444444;
+      }
+
+      .wl-compare-profile {
+        position: relative;
+        left: 0;
+        padding: 30px;
+        margin-bottom: 20px;
+        background: var(--white);;
+        border-bottom: 1px solid #CED4DA;
+      }
+
+      .alert-list {
+        padding: 30px;
+        padding-top: 0;
+      }
+
+    .drift-detection {
+       justify-content: space-between;
+       align-items: center;
+     }
+
+     .drift-detection-info-circle {
+       width: 15px;
+       height: 15px;
+       border-radius: 50px;
+       display: inline-block;
+       margin-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item {
+         padding-right: 20px;
+     }
+
+     .drift-detection-info-title {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 22px;
+       line-height: 130%;
+       color: #313B3D;
+     }
+
+     .drift-detection-info-drifts-item-count {
+       font-family: Arial;
+       font-weight: bold;
+       font-size: 14px;
+       line-height: 16px;
+       color: #000000;
+       padding-right: 8px;
+     }
+
+     .drift-detection-info-drifts-item-name {
+       font-family: Arial;
+       font-style: normal;
+       font-weight: normal;
+       font-size: 12px;
+       line-height: 14px;
+       color: #000000;
+     }
+
+     .drift-detection-search-input {
+       display: flex;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 170px;
+       padding-left: 10px;
+     }
+
+     .drift-detection-search-input img{
+       margin-right: 5px;
+     }
+
+     .drift-detection-search-input input::placeholder {
+       font-family: Arial;
+       font-weight: normal;
+       font-size: 13px;
+       line-height: 16px;
+       color: #313B3D;
+     }
+
+     .dropdown-container {
+       position: absolute;
+       right: 30px;
+       top: 80px;
+       z-index: 999;
+       background: #FFFFFF;
+       border: 1px solid #DBE5E7;
+       box-sizing: border-box;
+       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+       border-radius: 4px;
+       padding: 10px !important;
+       border: none !important;
+     }
+
+     .filter-options-title {
+       width: 240px;
+     }
+
+     .filter-options-title p {
+       margin: 0;
+     }
+
+     .form-check-input:checked {
+       background-color: #0E7384;
+       border-color: #0E7384;
+     }
+
+     .form-check-input[type=checkbox] {
+       border-radius: 2px;
+     }
+
+     .search-input{
+       padding-top: 0 !important;
+       padding-bottom: 0 !important;
+     }
+
+     .search-input input{
+       border: none;
+       background: none;
+       outline: none;
+       height: 40px;
+       width: 100%;
+       font-size: 14px;
+     }
+
+     .search-input img{
+       height: 19px;
+       pointer-events: none;
+     }
+
+     input::placeholder {
+       color: var(--secondaryLight1000);
+     }
+
+      .statistics {
+        width: 100%;
+      }
+
+     .close-filter-button {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       background: rgba(255, 255, 255, 0.7);
+       border: 1px solid #369BAC;
+       box-sizing: border-box;
+       border-radius: 4px;
+       width: 40px;
+       height: 40px;
+       cursor: pointer;
+       margin-left: 10px;
+     }
+
+      .statistic-number-title {
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 20px;
+        color: #6C757D;
+      }
+
+      .statistic-number {
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 20px;
+        line-height: 140%;
+        display: flex;
+        align-items: center;
+        color: #4F595B;
+      }
+
+      .full-summary-statistics-wrap {
+        padding: 20px;
+      }
+
+      .statistics {
+        width: 100%;
+      }
+
+      .statistics-list {
+        width: 100% ;
+      }
+
+      mark {
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 140%;
+      }
+
+      .blue-mark {
+        background-color:  #369BAC1A;
+        color: #369BAC;
+      }
+
+      .red-mark {
+        background-color: #FFEFEE;
+        color: #F5473C;
+      }
+
+      .alert-tag {
+        height: 27px;
+        padding: 5px;
+        border-radius: 4px;
+        font-family: Arial;
+        font-weight: bold;
+        font-size: 12px;
+        line-height: 140%;
+        color: #FFFFFF;
+      }
+
+      .turquoise-background-color {
+        background-color: #1DBB42;
+      }
+
+      .bordeaux-background-color {
+        background-color: #C6462A;
+      }
+
+      .border-solid-gray {
+        border: 1px solid #CED4DA;
+        border-radius: 4px;
+      }
+
+      .display-flex {
+        display: flex;
+      }
+
+      .justify-content-space-between {
+        justify-content: space-between;
+      }
+
+      .justify-content-center {
+        justify-content: center;
+      }
+
+      .align-items-center {
+        align-items: center;
+      }
+
+      .align-items-flex-start {
+        align-items: flex-start;
+      }
+
+      .padding-right-30 {
+        padding-right: 30px;
+      }
+
+      .notif-circle-container{
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        padding: 5.3px;
+        border-radius: 50%;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .notif-circle {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        padding: 3.3px;
+        border-radius: 50%;
+        background-color: #F2994A;
+      }
+
+      .alert-list-text {
+        width: 70%
+      }
+
+     @media screen and (min-width: 500px) {
+       .desktop-content {
+         display: block;
+       }
+       .no-responsive {
+         display: none;
+       }
+     }
+    &lt;/style&gt;
+  &lt;/head&gt;
+
+  &lt;body id=&quot;generated-html&quot;&gt;&lt;/body&gt;
+
+  &lt;script id=&quot;entry-template&quot; type=&quot;text/x-handlebars-template&quot;&gt;
+
+      &lt;div class=&quot;desktop-content&quot;&gt;
+        &lt;div class=&quot;full-summary-statistics-wrap&quot;&gt;
+          &lt;div class=&quot;full-summary-statistics&quot;&gt;
+            &lt;div&gt;
+              &lt;div class=&quot;display-flex justify-content-center&quot;&gt;
+                &lt;div class=&quot;statistics-list border-solid-gray&quot;&gt;
+                  &lt;div&gt;
+                    &lt;div class=&quot;wl-compare-profile&quot; id=&quot;compare-profile&quot;&gt;
+                        &lt;div class=&quot;drift-detection-wrap&quot;&gt;
+                          &lt;div class=&quot;drift-detection display-flex align-items-flex-start&quot;&gt;
+                            &lt;div class=&quot;drift-detection-info flex-direction-colum&quot;&gt;
+                              &lt;div class=&quot;drift-detection-info-title-wrap display-flex&quot;&gt;
+                                &lt;p class=&quot;drift-detection-info-title&quot;&gt;
+                                  Constraints Report
+                                &lt;/p&gt;
+                              &lt;/div&gt;
+
+                              &lt;!-- &lt;/div&gt; --&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;drift-detection-search-input-wrap display-flex&quot;&gt;
+                              &lt;div class=&quot;drift-detection-search-input search-input&quot;&gt;
+                                &lt;input type=&quot;text&quot; id=&quot;wl__feature-search&quot; placeholder=&quot;Quick search...&quot;/&gt;
+                                &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg==&quot;/&gt;
+                              &lt;/div&gt;
+                              &lt;div class=&quot;wl__dropdown_arrow-icon&quot;&gt;
+                                &lt;div onclick=&quot;openFilter()&quot; class=&quot;close-filter-button&quot;&gt;
+                                &lt;div class=&quot;display-flex close-filter-icon d-none&quot;&gt;
+                                  &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg==&quot;/&gt;
+                                &lt;/div&gt;
+                                &lt;div class=&quot;display-flex filter-icon&quot;&gt;
+                                  &lt;img src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg==&quot;/&gt;
+                                &lt;/div&gt;
+                                &lt;/div&gt;
+                              &lt;span class=&quot;notif-circle-container&quot;&gt;
+                                &lt;span class=&quot;notif-circle&quot;&gt;&lt;/span&gt;
+                              &lt;/span&gt;
+                            &lt;/div&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;dropdown-container flex-direction-colum mb-2 d-none&quot; id=&quot;dropdown-container&quot;&gt;
+                          &lt;div class=&quot;filter-options&quot;&gt;
+                            &lt;div class=&quot;filter-options-title space-between dropdown&quot;&gt;
+                              &lt;p&gt;Select a view:&lt;/p&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1 mt-2&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Discrete&quot;
+                                id=&quot;inferredDiscrete&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredDiscrete&quot;&gt;
+                                Failed constraints (&lt;span class=&quot;wl__feature-count--discrete&quot;&gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Non-discrete&quot;
+                                id=&quot;inferredNonDiscrete&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredNonDiscrete&quot;&gt;
+                                Passed constraints (&lt;span
+                                  class=&quot;wl__feature-count--non-discrete&quot;
+                                &gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                            &lt;div class=&quot;form-check mb-1&quot;&gt;
+                              &lt;input
+                                class=&quot;form-check-input wl__feature-filter-input&quot;
+                                type=&quot;checkbox&quot;
+                                name=&quot;checkbox&quot;
+                                value=&quot;Unknown&quot;
+                                id=&quot;inferredUnknown&quot;
+                                checked
+                              /&gt;
+                              &lt;label class=&quot;form-check-label&quot; for=&quot;inferredUnknown&quot;&gt;
+                                All constraints (&lt;span class=&quot;wl__feature-count--unknown&quot;&gt;&lt;/span&gt;)
+                              &lt;/label&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;div class=&quot;alert-list&quot; id=&quot;alert-list&quot;&gt;
+                      {{{alertLIst this}}}
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;no-responsive&quot;&gt;
+        &lt;div class=&quot;no-responsive__content&quot;&gt;
+          &lt;h1 class=&quot;no-responsive__title&quot;&gt;Hold on! :)&lt;/h1&gt;
+          &lt;p class=&quot;no-responsive__text&quot;&gt;
+            It looks like your current screen size or device is not yet supported by the WhyLabs Sandbox. The Sandbox is
+            best experienced on a desktop computer. Please try maximizing this window or switching to another device. We
+            are working on adding support for a larger variety of devices.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+  &lt;/script&gt;
+
+  &lt;script src=&quot;https://code.jquery.com/jquery-3.6.0.min.js&quot; integrity=&quot;sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
+
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.7.0/d3.min.js&quot; integrity=&quot;sha512-cd6CHE+XWDQ33ElJqsi0MdNte3S+bQY819f7p3NUHgwQQLXSKjE4cPZTeGNI+vaxZynk1wVU3hoHmow3m089wA==&quot; crossorigin=&quot;anonymous&quot; referrerpolicy=&quot;no-referrer&quot;&gt;&lt;/script&gt;
+
+  &lt;script&gt;
+    function registerHandlebarHelperFunctions() {
+      //helper fun
+      function formatLabelDate(timestamp) {
+        const date = new Date(timestamp);
+        const format = d3.timeFormat(&quot;%Y-%m-%d %I:%M:%S %p %Z&quot;);
+        return format(date);
+      }
+
+      function fixNumberTo(number, decimals = 3) {
+        return parseFloat(number).toFixed(decimals);
+      }
+
+      const randomNumbers = (range) =&gt; Math.floor(Math.random() * range)
+
+      const findFetureWithNumberSummary = (column) =&gt; {
+        const fetureIndex = Object.values(column.columns)
+              .findIndex((feture) =&gt; feture.numberSummary)
+
+        return Object.keys(column.columns)[fetureIndex]
+      }
+
+      const alertListItemStatus = (status, passedItem, failedItem) =&gt; {
+        if (status) {
+          return passedItem
+        } else {
+          return failedItem
+        }
+      }
+
+      const alertListElement = (name, text, status) =&gt; {
+
+        return (
+          `&lt;div
+             data-inferred-type=${alertListItemStatus(status, &quot;passed&quot;, &quot;failed&quot;)}
+             class=&quot;alert-list-item display-flex justify-content-space-between align-items-center mb-2&quot;
+           &gt;
+            &lt;div class=&quot;alert-list-text&quot;&gt;
+              ${
+                name &amp;&amp;
+                alertListItemStatus(
+                  status,
+                  `&lt;mark class=&quot;blue-mark&quot;&gt;${name}&lt;/mark&gt;`,
+                  `&lt;mark class=&quot;red-mark&quot;&gt;${name}&lt;/mark&gt;`
+                )
+              }
+              ${text}
+            &lt;/div&gt;
+              ${
+                alertListItemStatus(
+                  status,
+                  `&lt;div class=&quot;turquoise-background-color alert-tag&quot;&gt;Passed&lt;/div&gt;`,
+                  `&lt;div class=&quot;bordeaux-background-color alert-tag&quot;&gt;Failed&lt;/div&gt;`
+                )
+              }
+          &lt;/div&gt;`
+        )
+      }
+
+      let failedConstraints = 0;
+
+      Handlebars.registerHelper(&quot;getProfileTimeStamp&quot;, function (column) {
+        return formatLabelDate(+column.properties.dataTimestamp)
+      });
+
+      Handlebars.registerHelper(&quot;getProfileName&quot;, function (column) {
+        return column.properties.tags.name
+      });
+
+
+      Handlebars.registerHelper(&quot;alertLIst&quot;, function (column) {
+        let alertListItem = column.map((value) =&gt; {
+          if (value[1][0]) {
+            let alertListValue = value[1].map((cstr)=&gt;{
+              return alertListElement(value[0],cstr[0],cstr[cstr.length - 1] === 0 || (failedConstraints++, false))
+            })
+            return alertListValue.join(&#x27; &#x27;)
+          } else {
+            return alertListElement(&#x27;&#x27;, value[0], value[value.length - 1] === 0 ||  (failedConstraints++, false))
+          }
+        })
+         $(document).ready(() =&gt; {
+           $(&quot;.wl__feature-count--discrete&quot;).append(failedConstraints)
+           $(&quot;.wl__feature-count--non-discrete&quot;).append(column.length - failedConstraints)
+           $(&quot;.wl__feature-count--unknown&quot;).append(column.length)
+         })
+        return alertListItem.join(&#x27; &#x27;)
+      });
+
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function initHandlebarsTemplate() {
+      // Replace this context with JSON from .py file
+      const context = [[&quot;bottle_volume_ml greater than number 100&quot;, 0, 1], [&quot;sale_dollars mean between 400.0 and 700.0 (inclusive)&quot;, 1, 0]];
+      // Config handlebars and pass data to HBS template
+      const source = document.getElementById(&quot;entry-template&quot;).innerHTML;
+      const template = Handlebars.compile(source);
+      const html = template(context);
+      const target = document.getElementById(&quot;generated-html&quot;);
+      target.innerHTML = html;
+    }
+
+    function initWebsiteScripts() {
+      const $featureSearch = document.getElementById(&quot;wl__feature-search&quot;);
+      const $alertList = document.getElementById(&quot;alert-list&quot;);
+      const $discrete = document.getElementById(&quot;inferredDiscrete&quot;);
+      const $nonDiscrete = document.getElementById(&quot;inferredNonDiscrete&quot;);
+      const $unknown = document.getElementById(&quot;inferredUnknown&quot;);
+
+      const activeTypes = {
+        passed: true,
+        failed: true
+      };
+
+      let searchString = &quot;&quot;;
+
+      function debounce(func, wait, immediate) {
+        let timeout;
+
+        return function () {
+          const context = this;
+          const args = arguments;
+          const later = function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+          };
+
+          const callNow = immediate &amp;&amp; !timeout;
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+          if (callNow) func.apply(context, args);
+        };
+      }
+
+      function filterNotification() {
+        const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+        const $boxes = $(&#x27;.wl_filter-options&gt;.form-check&gt;input[name=checkbox]:checked&#x27;);
+        const item = Object.values($boxes).find(function(value) { return $(value)[0] === undefined});
+        if (item === undefined) {
+          $notifCircleContainer.removeClass(&quot;d-none&quot;)
+        } else {
+          $notifCircleContainer.addClass(&quot;d-none&quot;)
+        }
+      }
+
+      function handleSearch() {
+        const tableBodyChildren = $alertList.children;
+
+        for (let i = 0; i &lt; tableBodyChildren.length; i++) {
+          const type = tableBodyChildren[i].dataset.inferredType.toLowerCase();
+          const name = $(tableBodyChildren[i].children[0]).find(&quot;mark&quot;).text().toLowerCase();
+
+          if (activeTypes[type] &amp;&amp; name.startsWith(searchString)) {
+            tableBodyChildren[i].style.display = &quot;&quot;;
+          } else {
+            tableBodyChildren[i].style.display = &quot;none&quot;;
+          }
+        }
+      }
+
+      const checkedBoxes = () =&gt; {
+        if ($(&#x27;.form-check-input:checked&#x27;).length === $(&quot;.form-check-input&quot;).length - 1) {
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, true );
+        }
+      }
+
+      $featureSearch.addEventListener(
+        &quot;keyup&quot;,
+        debounce((event) =&gt; {
+          searchString = event.target.value.toLowerCase();
+          handleSearch();
+        }, 100),
+      );
+
+      $discrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;failed&quot;] = true;
+          checkedBoxes();
+        } else {
+          activeTypes[&quot;failed&quot;] = false;
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, false );
+        }
+        handleSearch();
+      });
+
+      $nonDiscrete.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          activeTypes[&quot;passed&quot;] = true;
+          checkedBoxes();
+        } else {
+          activeTypes[&quot;passed&quot;] = false;
+          $($(&quot;.form-check-input&quot;)[$(&quot;.form-check-input&quot;).length - 1]).prop( &quot;checked&quot;, false );
+        }
+        handleSearch();
+      });
+
+      $unknown.addEventListener(&quot;change&quot;, (event) =&gt; {
+        const currentCheckbox = $(event.currentTarget);
+
+        if (event.currentTarget.checked) {
+          $(&quot;.form-check-input&quot;).prop( &quot;checked&quot;, true );
+          activeTypes[&quot;passed&quot;] = true;
+          activeTypes[&quot;failed&quot;] = true;
+          checkedBoxes();
+        } else {
+          $(&quot;.form-check-input&quot;).prop( &quot;checked&quot;, false );
+          activeTypes[&quot;passed&quot;] = false;
+          activeTypes[&quot;failed&quot;] = false;
+        }
+        handleSearch();
+      });
+    }
+
+    function checkedBoxes() {
+      const $boxes = $(&#x27;input[name=checkbox]:checked&#x27;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+
+      if ($boxes.length) {
+        $notifCircleContainer.removeClass(&quot;d-none&quot;)
+      }
+    }
+
+    function openFilter() {
+      const $filterOptions = $(&quot;.dropdown-container&quot;);
+      const $notifCircleContainer = $(&quot;.notif-circle-container&quot;)
+      const filterClass = $filterOptions.attr(&quot;class&quot;);
+
+      if (filterClass.indexOf(&quot;d-none&quot;) &gt; 0) {
+        $notifCircleContainer.addClass(&quot;d-none&quot;)
+        $filterOptions.removeClass(&quot;d-none&quot;);
+        $(&quot;.filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.close-filter-icon&quot;).removeClass(&quot;d-none&quot;)
+      } else {
+        $filterOptions.addClass(&quot;d-none&quot;);
+        $(&quot;.close-filter-icon&quot;).addClass(&quot;d-none&quot;)
+        $(&quot;.filter-icon&quot;).removeClass(&quot;d-none&quot;)
+        checkedBoxes()
+      }
+    }
+
+    // Invoke functions -- keep in mind invokation order
+    registerHandlebarHelperFunctions();
+    initHandlebarsTemplate();
+    initWebsiteScripts();
+  &lt;/script&gt;
+&lt;/html&gt;
+" width=100% height=750px
+        frameBorder=0></iframe></div>
+</div>
+</section>
+<section id="Writing-the-profile-results">
+<h2>Writing the profile results<a class="headerlink" href="#Writing-the-profile-results" title="Permalink to this headline">#</a></h2>
+<p>In order to write the results, all you have to do is execute the following cell. You will notice that it will create a lightweight binary file, that can be further read and iterated on with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<section id="Writing-to-WhyLabs">
+<h3>Writing to WhyLabs<a class="headerlink" href="#Writing-to-WhyLabs" title="Permalink to this headline">#</a></h3>
+<p>The same way you can write it locally, you are also able to write to other locations. Here we will demonstrate how easy it is to write to WhyLabs. To use this writer without explicitly calling your secrets, make sure you have the following environment variables defined:</p>
+<ul class="simple">
+<li><p>WHYLABS_API_KEY</p></li>
+<li><p>WHYLABS_DEFAULT_DATASET_ID</p></li>
+<li><p>WHYLABS_DEFAULT_ORG_ID</p></li>
+</ul>
+<p>To learn more about writing to WhyLabs, refer to <a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_to_WhyLabs.ipynb">this example</a></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;whylabs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Users can also benefit from our API to write created profiles to different integration locations, such as <code class="docutils literal notranslate"><span class="pre">mlflow</span></code>, <code class="docutils literal notranslate"><span class="pre">s3</span></code> and more. If you want to learn more about whylogs and find out other cool features and integrations, check out our <a class="reference external" href="https://github.com/whylabs/whylogs/tree/mainline/python/examples">examples page</a>. Happy coding! 🚀 😄</p>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, whylogs developers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://bit.ly/whylogs-slack" aria-label="Slack">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"><path d="M213.6
+            236.216l64.003-21.438 20.708 61.823-64.004
+            21.438z"></path><path d="M213.6 236.216l64.003-21.438 20.708 61.823-64.004 21.438z"></path><path
+            d="M475.9 190C426.4 25 355-13.4 190 36.1S-13.4 157 36.1 322 157 525.4 322 475.9 525.4 355 475.9
+            190zm-83.3 107.1l-31.1 10.4 10.7 32.2c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9l-10.7-32.2-64.1 21.5L261 377c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9L203 360.4l-31 10.3c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-20.7-61.8-31.1 10.4c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-10.9-32.1c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2
+            64.1-21.5-10.7-32.2c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2 31.1-10.4c13-4.2 27.2
+            2.7 31.5 15.7 4.2 13-2.7 27.2-15.7 31.5l-31.1 10.4 20.7 61.8 31.1-10.4c13-4.2 27.2 2.7 31.5 15.7 4.2
+            13.2-2.7 27.4-15.8 31.7z"></path></svg>
+            </a>
+              <a class="muted-link " href="https://github.com/whylabs/whylogs" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+                    0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53
+                    .63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+                    0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0
+                    1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87
+                    3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16
+                    8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">whylogs with BigQuery</a><ul>
+<li><a class="reference internal" href="#Querying-the-data">Querying the data</a></li>
+<li><a class="reference internal" href="#Profiling-with-whylogs">Profiling with whylogs</a></li>
+<li><a class="reference internal" href="#Constraints-check">Constraints check</a></li>
+<li><a class="reference internal" href="#Writing-the-profile-results">Writing the profile results</a><ul>
+<li><a class="reference internal" href="#Writing-to-WhyLabs">Writing to WhyLabs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    </body>
+</html>
