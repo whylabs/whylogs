@@ -1,7 +1,7 @@
-# Version upgrade to 1.0.0 coming soon! 
+# Version upgrade to 1.0.0 coming soon!
 We're excited to announce that v1 of the API to the Java side is coming soon! You can look forward to:
 1. Simpler API that gets you started quickly.
-2. Constraints on the Metrics 
+2. Constraints on the Metrics
 3. Updated ProfileVisualizer
 4. Refresh for Usability
 
