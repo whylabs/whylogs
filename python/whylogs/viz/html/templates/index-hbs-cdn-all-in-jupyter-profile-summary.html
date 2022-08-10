@@ -116,7 +116,7 @@
 
       .wl-table-wrap {
         position: relative;
-        overflow: auto;
+        overflow: hidden;
       }
 
       .wl-table {
@@ -231,7 +231,8 @@
       /* Property side panel */
 
       .wl-compare-profile {
-        position: fixed;
+        z-index: 999;
+        position: absolute;
         right: 0;
         background: var(--white);;
         border-bottom: 1px solid var(--brandSecondary200);
@@ -662,94 +663,93 @@
                   <strong class="header-title">Profile Summary</strong>
               </div>
               <div class="display-flex statistics">
-                  <div class="padding-right-30">
-                    <div class="statistic-number-title">Observations</div>
-                    <div class="statistic-number">{{{observations this}}}</div>
+                <div class="padding-right-30">
+                  <div class="statistic-number-title">Observations</div>
+                  <div class="statistic-number">{{{observations this}}}</div>
+                </div>
+                <div class="padding-right-30">
+                  <div class="statistic-number-title">Missing Cells</div>
+                  <div class="statistic-number">
+                    {{{missingCells this}}}
+                    <div>{{{missingCellsPercentage this}}}</div>
                   </div>
-                  <div class="padding-right-30">
-                    <div class="statistic-number-title">Missing Cells</div>
-                    <div class="statistic-number">
-                      {{{missingCells this}}}
-                      <div>{{{missingCellsPercentage this}}}</div>
-                    </div>
-                  </div>
-                  <div class="wl-compare-profile" id="compare-profile" style="display: flex; justify-content: space-around">
-                    <div class="drift-detection-wrap">
-                      <div class="drift-detection display-flex">
-                        <div class="drift-detection-search-input-wrap display-flex">
-                          <div class="drift-detection-search-input search-input ">
-                            <input type="text" id="wl__feature-search" placeholder="Quick search..."/>
-                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg=="/>
-                          </div>
-                          <div class="wl__dropdown_arrow-icon" >
-                            <div onclick="openFilter()" class="close-filter-button">
-                              <div class="display-flex close-filter-icon d-none">
-                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/>
-                              </div>
-                              <div class="display-flex filter-icon">
-                                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
-                              </div>
+                </div>
+                <div class="wl-compare-profile" id="compare-profile" style="display: flex; justify-content: space-around">
+                  <div class="drift-detection-wrap">
+                    <div class="drift-detection display-flex">
+                      <div class="drift-detection-search-input-wrap display-flex">
+                        <div class="drift-detection-search-input search-input ">
+                          <input type="text" id="wl__feature-search" placeholder="Quick search..."/>
+                          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAGdSURBVHgBpZK7TkJBEIZnZoVocdTYyQNALxpNKPQBMEaNJsbCRMKhl8ISWwt6AaksCF5iTHgAGhJD4AHkAaAzGiwUsjvOQnO4SYh/cXbPzO43OxcEj9Zy92EiFSXNIfvPyE1kKFfdoxJMENpP6DrvLC0vJoEwCgwto7DWcxoIIHBYbA3NmKwnDltjAeuZhyul1DaTTlfPB6Nt5Z53DOgky4P875+nlctY2+unjZviLklkJhi5bPUa3y/7qJuQUM7PinMy7CdQc1Gh16vnBxPzrMROmlKQEgKNASAHLQCmSIGpS75O+O5pdQAgVXaIqTkNwDDXHmcnW3VmHZoGMLoTsOt88+NrAMCIZdu+iLTyTwKRa1Md6YKfOgXbzO7K8sWku5u5RxcRV5EpPezrzcHGbXEXWaUkgkweZ/UC9YrK3zqggFw5FBZfm8EUavHj7AjAKpIvBDrGn+pNnlcyhYgqbcC41idr1gvB4SdZkDbzQa21gwv0Vj07aPTtL07XdDOyDXohCDNoHIRmAVRie20f+RKybRDQDvxHkXy/7b/DrayncLbMwQAAAABJRU5ErkJggg=="/>
+                        </div>
+                        <div class="wl__dropdown_arrow-icon" >
+                          <div onclick="openFilter()" class="close-filter-button">
+                            <div class="display-flex close-filter-icon d-none">
+                              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAALCAYAAACprHcmAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADFSURBVHgBfY+xDcIwEEXvnLQBZQkYAEhDwwKpEEK0CCZgAEjJCEmgjYSAygxAHTZgFRSOsyUjY5mcZFnn/+78PwBXf3+MoKWUPuYjVBPFnTwpr9t/oNJfcTfXsAhRAlDqDhhQIPYgpAqNMDqcUqSAYZT1epr9gAHt6uXshvYme4DYHQJNDKh0dD0m5WXB10Y3Fqjtuh7fROn3oREDWxfeMLyRsMnc0OgDzdduaA0Pi3Plgr7Q2kaAePeBqh6rueSNBVt6fgCwBV1JLF3rlAAAAABJRU5ErkJggg=="/>
                             </div>
-                            <span class="notif-circle-container">
-                              <span class="notif-circle"></span>
-                            </span>
+                            <div class="display-flex filter-icon">
+                              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAPCAYAAADtc08vAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACSSURBVHgBrZLBCYAwDEWTUjw7igcdwI1cxkNXUJzBEVzFAbSVKoKmaVrEB6GHJv/w+AACtRk7P9IONv1QOYUl96k0zv61m2tjARoLtSDI3EFsgIJ4uoXrMLazO72CRG2mzg/8BSdVlEjhpGZJjAWdAZJECpWalEhJSs1pHuUlMad5FFai1Lwg4Ckx1TxKIPFL8w55mEWd8VjPGAAAAABJRU5ErkJggg=="/>
+                            </div>
                           </div>
+                          <span class="notif-circle-container">
+                            <span class="notif-circle"></span>
+                          </span>
                         </div>
                       </div>
                     </div>
-                    <div class="dropdown-container flex-direction-colum mb-2 d-none" id="dropdown-container">
-                      <div class="filter-options">
-                        <div class="filter-options-title space-between dropdown">
-                          <p>Filter by type</p>
-                        </div>
-                        <div class="form-check mb-1 mt-2">
-                          <input
-                            class="form-check-input wl__feature-filter-input"
-                            type="checkbox"
-                            name="checkbox"
-                            value="Discrete"
-                            id="inferredDiscrete"
-                            onclick="changeDiscreteValue()"
-                            checked
-                          />
-                          <label class="form-check-label" for="inferredDiscrete">
-                            Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
-                          </label>
-                        </div>
-                        <div class="form-check mb-1">
-                          <input
-                            class="form-check-input wl__feature-filter-input"
-                            type="checkbox"
-                            name="checkbox"
-                            value="Non-discrete"
-                            id="inferredNonDiscrete"
-                            onclick="changeNonDiscreteValue()"
-                            checked
-                          />
-                          <label class="form-check-label" for="inferredNonDiscrete">
-                            Inferred non-discrete (<span
-                              class="wl__feature-count--non-discrete"
-                            >{{getNonDiscreteTypeCount}}</span>)
-                          </label>
-                        </div>
-                        <div class="form-check mb-1">
-                          <input
-                            class="form-check-input wl__feature-filter-input"
-                            type="checkbox"
-                            name="checkbox"
-                            value="Unknown"
-                            id="inferredUnknown"
-                            onclick="changeUnknwonValue()"
-                            checked
-                          />
-                          <label class="form-check-label" for="inferredUnknown">
-                            Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
-                          </label>
-                        </div>
+                  </div>
+                  <div class="dropdown-container flex-direction-colum mb-2 d-none" id="dropdown-container">
+                    <div class="filter-options">
+                      <div class="filter-options-title space-between dropdown">
+                        <p>Filter by type</p>
+                      </div>
+                      <div class="form-check mb-1 mt-2">
+                        <input
+                          class="form-check-input wl__feature-filter-input"
+                          type="checkbox"
+                          name="checkbox"
+                          value="Discrete"
+                          id="inferredDiscrete"
+                          onclick="changeDiscreteValue()"
+                          checked
+                        />
+                        <label class="form-check-label" for="inferredDiscrete">
+                          Inferred discrete (<span class="wl__feature-count--discrete">{{getDiscreteTypeCount}}</span>)
+                        </label>
+                      </div>
+                      <div class="form-check mb-1">
+                        <input
+                          class="form-check-input wl__feature-filter-input"
+                          type="checkbox"
+                          name="checkbox"
+                          value="Non-discrete"
+                          id="inferredNonDiscrete"
+                          onclick="changeNonDiscreteValue()"
+                          checked
+                        />
+                        <label class="form-check-label" for="inferredNonDiscrete">
+                          Inferred non-discrete (<span
+                            class="wl__feature-count--non-discrete"
+                          >{{getNonDiscreteTypeCount}}</span>)
+                        </label>
+                      </div>
+                      <div class="form-check mb-1">
+                        <input
+                          class="form-check-input wl__feature-filter-input"
+                          type="checkbox"
+                          name="checkbox"
+                          value="Unknown"
+                          id="inferredUnknown"
+                          onclick="changeUnknwonValue()"
+                          checked
+                        />
+                        <label class="form-check-label" for="inferredUnknown">
+                          Unknown (<span class="wl__feature-count--unknown">{{getUnknownTypeCount}}</span>)
+                        </label>
                       </div>
                     </div>
-                   </div>
-              </div>
+                  </div>
+                  </div>
             </div>
           </div>
           <div class="row">
