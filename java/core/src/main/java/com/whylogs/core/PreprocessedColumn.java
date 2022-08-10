@@ -3,10 +3,9 @@ package com.whylogs.core;
 import lombok.*;
 
 import java.util.Collection;
-import java.util.List;
 
 @Getter @Setter @EqualsAndHashCode
-public class PreProcessedColumn {
+public class PreprocessedColumn {
     /**
     * View of a column with data of various underlying storage.
     * we preprocess values into typed lists for downstream consumers.
@@ -20,15 +19,15 @@ public class PreProcessedColumn {
     private int length = -1;
     private Object originalColumn = null;
 
-    public PreProcessedColumn(){
+    public PreprocessedColumn(){
         this.lists = new ListView();
     }
 
     // TODO: apply Scalars
     // TODO: apply Iterables and Iterators
 
-    public static PreProcessedColumn apply(Collection<?> data){
-        PreProcessedColumn result = new PreProcessedColumn();
+    public static PreprocessedColumn apply(Collection<?> data){
+        PreprocessedColumn result = new PreprocessedColumn();
         result.setOriginalColumn(data);
 
         result.length = data.size();

@@ -8,7 +8,7 @@ import java.util.List;
 
 
 @Test
-public class TestPreProcesssedColumnAndListView {
+public class TestPreprocessedColumnAndListView {
 
     private void assert_zero_len(List<?> values){
         if(values == null){
@@ -20,7 +20,7 @@ public class TestPreProcesssedColumnAndListView {
     @Test
     public void test_floats_ints_strings(){
         ArrayList<Object> mixed = new ArrayList<>();
-        PreProcessedColumn results;
+        PreprocessedColumn results;
 
         mixed.add(1.0);
         mixed.add((float) 2.0);
@@ -29,7 +29,7 @@ public class TestPreProcesssedColumnAndListView {
         mixed.add("hello");
         mixed.add(null);
 
-        results = PreProcessedColumn.apply(mixed);
+        results = PreprocessedColumn.apply(mixed);
 
         ArrayList<Double> double_answer = new ArrayList<>();
         double_answer.add(1.0);
@@ -46,7 +46,7 @@ public class TestPreProcesssedColumnAndListView {
     @Test
     public void test_bools_and_ints(){
         ArrayList<Object> mixed = new ArrayList<>();
-        PreProcessedColumn results;
+        PreprocessedColumn results;
 
         mixed.add(true);
         mixed.add(false);
@@ -54,7 +54,7 @@ public class TestPreProcesssedColumnAndListView {
         mixed.add(2);
         mixed.add(true);
 
-        results = PreProcessedColumn.apply(mixed);
+        results = PreprocessedColumn.apply(mixed);
 
         Assert.assertEquals(results.getBoolCount(),3);
         Assert.assertEquals(results.getBoolCountWhereTrue(),2);
@@ -78,7 +78,7 @@ public class TestPreProcesssedColumnAndListView {
         objects.add(ints);
         objects.add(null);
 
-        PreProcessedColumn results = PreProcessedColumn.apply(objects);
+        PreprocessedColumn results = PreprocessedColumn.apply(objects);
         Assert.assertEquals(results.getLists().getObjects().size(), 3);
         Assert.assertEquals(results.getNullCount(), 1);
         assert_zero_len(results.getLists().getDoubles());
@@ -89,14 +89,14 @@ public class TestPreProcesssedColumnAndListView {
     @Test
     public void test_floats_with_null(){
         ArrayList<Object> floats_with_null = new ArrayList<>();
-        PreProcessedColumn results;
+        PreprocessedColumn results;
 
         floats_with_null.add(1.0);
         floats_with_null.add(null);
         floats_with_null.add(1.222);
         floats_with_null.add(null);
         floats_with_null.add(3.14);
-        results = PreProcessedColumn.apply(floats_with_null);
+        results = PreprocessedColumn.apply(floats_with_null);
 
         ArrayList<Double> floats = new ArrayList<>();
         floats.add(1.0);
@@ -113,12 +113,12 @@ public class TestPreProcesssedColumnAndListView {
     @Test
     public void test_floats(){
         ArrayList<Double> floats = new ArrayList<>();
-        PreProcessedColumn results;
+        PreprocessedColumn results;
 
         floats.add(1.0);
         floats.add(1.222);
         floats.add(3.14);
-        results = PreProcessedColumn.apply(floats);
+        results = PreprocessedColumn.apply(floats);
 
         Assert.assertEquals(results.getLists().getDoubles(), floats);
         Assert.assertEquals(results.getNullCount(), 0);
@@ -130,12 +130,12 @@ public class TestPreProcesssedColumnAndListView {
     @Test
     public void test_ints(){
         ArrayList<Integer> ints = new ArrayList<>();
-        PreProcessedColumn results;
+        PreprocessedColumn results;
 
         ints.add(1);
         ints.add(2);
         ints.add(3);
-        results = PreProcessedColumn.apply(ints);
+        results = PreprocessedColumn.apply(ints);
 
         Assert.assertEquals(results.getLists().getInts(), ints);
         Assert.assertEquals(results.getNullCount(), 0);
@@ -147,14 +147,14 @@ public class TestPreProcesssedColumnAndListView {
     @Test
     public void test_ints_with_null(){
         ArrayList<Object> ints_with_null = new ArrayList<>();
-        PreProcessedColumn results;
+        PreprocessedColumn results;
 
         ints_with_null.add(1);
         ints_with_null.add(null);
         ints_with_null.add((short)2);
         ints_with_null.add(null);
         ints_with_null.add((byte)3);
-        results = PreProcessedColumn.apply(ints_with_null);
+        results = PreprocessedColumn.apply(ints_with_null);
 
         ArrayList<Integer> ints = new ArrayList<>();
         ints.add(1);
@@ -171,12 +171,12 @@ public class TestPreProcesssedColumnAndListView {
     @Test
     public void test_strings(){
         ArrayList<Object> strings = new ArrayList<>();
-        PreProcessedColumn results;
+        PreprocessedColumn results;
 
         strings.add("hello");
         strings.add("world");
         strings.add('!');
-        results = PreProcessedColumn.apply(strings);
+        results = PreprocessedColumn.apply(strings);
 
         strings.remove(2);
         strings.add("!");
@@ -191,14 +191,14 @@ public class TestPreProcesssedColumnAndListView {
     @Test
     public void test_strings_with_null(){
         ArrayList<Object> strings_with_null = new ArrayList<>();
-        PreProcessedColumn results;
+        PreprocessedColumn results;
 
         strings_with_null.add("hello");
         strings_with_null.add(null);
         strings_with_null.add("world");
         strings_with_null.add(null);
         strings_with_null.add("!");
-        results = PreProcessedColumn.apply(strings_with_null);
+        results = PreprocessedColumn.apply(strings_with_null);
 
         ArrayList<String> strings = new ArrayList<>();
         strings.add("hello");
