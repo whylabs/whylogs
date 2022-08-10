@@ -116,7 +116,6 @@
 
       .wl-table-wrap {
         position: relative;
-        overflow: hidden;
       }
 
       .wl-table {
@@ -142,8 +141,9 @@
       }
 
       .wl-table-heading {
-        position: relative;
-        z-index: 1;
+        position: sticky;
+        top: 0;
+        z-index: 900;
         display: table-header-group;
         font-weight: 700;
       }
@@ -761,11 +761,11 @@
                       <div class="wl-table-head wl-table-head-wraper">
                         <div class="wl-table-head table-border-none graph-table-head">Target</div>
                       </div>
-                      <div class="wl-table-head wl-sub-table-head text-align-end">Total count</div>
-                      <div class="wl-table-head wl-sub-table-head text-align-end">Missing</div>
-                      <div class="wl-table-head wl-sub-table-head text-align-end">Mean</div>
-                      <div class="wl-table-head wl-sub-table-head text-align-end">Min</div>
-                      <div class="wl-table-head wl-sub-table-head text-align-end">Max</div>
+                      <div class="wl-table-head wl-table-head-wraper text-align-end">Total count</div>
+                      <div class="wl-table-head wl-table-head-wraper text-align-end">Missing</div>
+                      <div class="wl-table-head wl-table-head-wraper text-align-end">Mean</div>
+                      <div class="wl-table-head wl-table-head-wraper text-align-end">Min</div>
+                      <div class="wl-table-head wl-table-head-wraper text-align-end">Max</div>
 
                     </div>
                   </div>
