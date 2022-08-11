@@ -26,6 +26,7 @@ Classes
 
    whylogs.api.logger.Logger
    whylogs.api.logger.ResultSet
+   whylogs.api.logger.ResultSetReader
    whylogs.api.logger.TimedRollingLogger
    whylogs.api.logger.TransientLogger
    whylogs.api.logger.DatasetProfile
@@ -40,6 +41,7 @@ Functions
 
    whylogs.api.logger.log
    whylogs.api.logger.read
+   whylogs.api.logger.reader
    whylogs.api.logger.write
    whylogs.api.logger.logger
 
@@ -80,8 +82,12 @@ Functions
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
-   .. py:method:: read(cls, multi_profile_file: str) -> ResultSet
-      :classmethod:
+   .. py:method:: read(multi_profile_file: str) -> ResultSet
+      :staticmethod:
+
+
+   .. py:method:: reader(name: str = 'local') -> ResultSetReader
+      :staticmethod:
 
 
    .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
@@ -93,6 +99,15 @@ Functions
 
    .. py:method:: profile(self) -> whylogs.core.DatasetProfile
       :abstractmethod:
+
+
+
+.. py:class:: ResultSetReader(reader: whylogs.api.reader.Reader)
+
+   .. py:method:: option(self, **kwargs: Any) -> ResultSetReader
+
+
+   .. py:method:: read(self, **kwargs: Any) -> ResultSet
 
 
 
@@ -298,6 +313,9 @@ Functions
 
 
 .. py:function:: read(path: str) -> result_set.ResultSet
+
+
+.. py:function:: reader(name: str) -> result_set.ResultSetReader
 
 
 .. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: str) -> None

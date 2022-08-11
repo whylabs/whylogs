@@ -1,0 +1,59 @@
+:py:mod:`whylogs.api.reader.s3`
+===============================
+
+.. py:module:: whylogs.api.reader.s3
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.reader.s3.S3Reader
+
+
+
+
+.. py:class:: S3Reader(object_name: Optional[str] = None, bucket_name: Optional[str] = None)
+
+   Bases: :py:obj:`whylogs.api.reader.reader.Reader`
+
+   A WhyLogs reader to fetch written profiles from an Amazon S3 bucket.
+
+   >**IMPORTANT**: In order to correctly connect to your Amazon S3 bucket, make sure you have
+   the following environment variables set: `[AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]`.
+
+   :param bucket_name: The name of the bucket to connect to. Made optional so the user can also access it
+                       via the `option` method
+   :type bucket_name: str, optional
+   :param object_name: The s3's object name. It basically states the location where the file goes to.
+                       Also made optional, so it can be defined through the `option` method
+   :type object_name: str, optional
+
+   .. rubric:: Examples
+
+   An example usage of this method can be represented with the simple code below.
+
+   ```python
+   import whylogs as why
+
+   profile = why.reader("s3").option(bucket_name="my_bucket", object_name="my/object.bin").read()
+   ```
+
+   .. py:method:: read(self, **kwargs) -> whylogs.ResultSet
+
+      Must be implemented by all inherited Readers, declaring
+      how to fetch files from their locations to a local temp dir
+
+
+   .. py:method:: option(self, object_name: Optional[str] = None, bucket_name: Optional[str] = None) -> None
+
+
+   .. py:method:: get_file_from_path(path) -> whylogs.ResultSet
+      :staticmethod:
+
+
+

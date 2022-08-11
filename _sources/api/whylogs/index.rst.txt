@@ -74,8 +74,12 @@ Functions
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
-   .. py:method:: read(cls, multi_profile_file: str) -> ResultSet
-      :classmethod:
+   .. py:method:: read(multi_profile_file: str) -> ResultSet
+      :staticmethod:
+
+
+   .. py:method:: reader(name: str = 'local') -> ResultSetReader
+      :staticmethod:
 
 
    .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter

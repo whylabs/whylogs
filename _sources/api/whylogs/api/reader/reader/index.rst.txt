@@ -1,0 +1,55 @@
+:py:mod:`whylogs.api.reader.reader`
+===================================
+
+.. py:module:: whylogs.api.reader.reader
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.reader.reader.Reader
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.reader.reader.T
+
+
+.. py:data:: T
+   
+
+   
+
+.. py:class:: Reader
+
+   Bases: :py:obj:`abc.ABC`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: read(self, **kwargs: Any) -> whylogs.ResultSet
+      :abstractmethod:
+
+      Must be implemented by all inherited Readers, declaring
+      how to fetch files from their locations to a local temp dir
+
+
+   .. py:method:: option(self: T, **kwargs: Any) -> T
+      :abstractmethod:
+
+
+   .. py:method:: get_file_from_path(path) -> whylogs.ResultSet
+      :staticmethod:
+
+
+

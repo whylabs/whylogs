@@ -11,6 +11,7 @@ Subpackages
    :maxdepth: 3
 
    logger/index.rst
+   reader/index.rst
    usage_stats/index.rst
    writer/index.rst
 
@@ -44,6 +45,7 @@ Functions
    whylogs.api.profiling
    whylogs.api.log
    whylogs.api.read
+   whylogs.api.reader
    whylogs.api.write
 
 
@@ -63,8 +65,12 @@ Functions
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
-   .. py:method:: read(cls, multi_profile_file: str) -> ResultSet
-      :classmethod:
+   .. py:method:: read(multi_profile_file: str) -> ResultSet
+      :staticmethod:
+
+
+   .. py:method:: reader(name: str = 'local') -> ResultSetReader
+      :staticmethod:
 
 
    .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
@@ -83,6 +89,9 @@ Functions
 
 
 .. py:function:: read(path: str) -> result_set.ResultSet
+
+
+.. py:function:: reader(name: str) -> result_set.ResultSetReader
 
 
 .. py:function:: write(profile: whylogs.core.DatasetProfile, base_dir: str) -> None
