@@ -44,12 +44,12 @@ allprojects {
 
     protobuf {
         protoc {
-            artifact = 'com.google.protobuf:protoc:3.15.5'
+            artifact = "com.google.protobuf:protoc:3.15.5"
         }
 
         plugins {
             grpc {
-                artifact = 'io.grpc:protoc-gen-grpc-java:1.24.0'
+                artifact = "io.grpc:protoc-gen-grpc-java:1.24.0"
             }
         }
 
@@ -57,6 +57,7 @@ allprojects {
             all()*.plugins {
                 grpc {}
             }
+
         }
     }
 }
