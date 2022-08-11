@@ -623,29 +623,13 @@ div.rendered_html tbody tr:hover {
 <p>But first, let’s talk briefly about whylogs’ data types and basic metrics.</p>
 <section id="Installing-whylogs">
 <h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install whylogs</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Requirement already satisfied: whylogs in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (1.0.0)
-Requirement already satisfied: typing-extensions in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from whylogs) (4.2.0)
-Requirement already satisfied: flake8==4.0.1 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from whylogs) (4.0.1)
-Requirement already satisfied: whylogs-sketching==3.4.0.dev9 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from whylogs) (3.4.0.dev9)
-Requirement already satisfied: protobuf&gt;=3.15.5 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from whylogs) (4.21.1)
-Requirement already satisfied: pyflakes&lt;2.5.0,&gt;=2.4.0 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from flake8==4.0.1-&gt;whylogs) (2.4.0)
-Requirement already satisfied: pycodestyle&lt;2.9.0,&gt;=2.8.0 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from flake8==4.0.1-&gt;whylogs) (2.8.0)
-Requirement already satisfied: mccabe&lt;0.7.0,&gt;=0.6.0 in /home/felipeadachi/miniconda3/envs/wv1/lib/python3.8/site-packages (from flake8==4.0.1-&gt;whylogs) (0.6.1)
-Note: you may need to restart the kernel to use updated packages.
-</pre></div></div>
 </div>
 </section>
 <section id="whylogs-DataTypes">
@@ -659,7 +643,7 @@ Note: you may need to restart the kernel to use updated packages.
 <p>Anything that doesn’t end up matching the above types will have an <code class="docutils literal notranslate"><span class="pre">AnyType</span></code> type.</p>
 <p>If you want to check to which type a certain Python type is mapped to whylogs, you can use the StandardTypeMapper:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.datatypes</span> <span class="kn">import</span> <span class="n">StandardTypeMapper</span>
@@ -671,12 +655,12 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;whylogs.core.datatypes.AnyType at 0x7f506c6872b0&gt;
+&lt;whylogs.core.datatypes.AnyType at 0x7fcc4c89ba00&gt;
 </pre></div></div>
 </div>
 </section>
@@ -707,7 +691,7 @@ Note: you may need to restart the kernel to use updated packages.
 <p>Let’s see how we can configure our Schema to track only the above metrics for the related types.</p>
 <p>Let’s create a sample dataframe to illustrate:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pandas if you don&#39;t have it already</span>
@@ -716,7 +700,7 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -728,7 +712,7 @@ Note: you may need to restart the kernel to use updated packages.
 <p>whylogs use <code class="docutils literal notranslate"><span class="pre">Resolvers</span></code> in order to define how a column name or data type gets mapped to different metrics.</p>
 <p>We will need to create a custom Resolver class in order to customize it.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
@@ -757,33 +741,14 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 <p>In the case above, the <code class="docutils literal notranslate"><span class="pre">name</span></code> parameter is not being used, as the column name is not relevant to map the metrics, only the <code class="docutils literal notranslate"><span class="pre">why_type</span></code>.</p>
 <p>We basically initialize <code class="docutils literal notranslate"><span class="pre">metrics</span></code> with metrics of both <code class="docutils literal notranslate"><span class="pre">counts</span></code> and <code class="docutils literal notranslate"><span class="pre">types</span></code> namespaces regardless of the data type. Then, we check for the whylogs data type in order to add the desired metric namespace (<code class="docutils literal notranslate"><span class="pre">distribution</span></code> for <strong>Fractional</strong> columns and <code class="docutils literal notranslate"><span class="pre">frequent_items</span></code> for <strong>Integral</strong> columns)</p>
-<p>Resolvers are passed to whylogs through a <code class="docutils literal notranslate"><span class="pre">Dataset</span> <span class="pre">Schema</span></code>, so we’ll have to create a custom Schema as well.</p>
-<p>In this case, since we’re only interested in the resolvers, we could create a custom schema as follows:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCustomSchema</span><span class="p">(</span><span class="n">DatasetSchema</span><span class="p">):</span>
-    <span class="n">resolvers</span> <span class="o">=</span> <span class="n">MyCustomResolver</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<p>Now we can proceed with the normal process of logging a dataframe, remembering to pass our schema when making the <code class="docutils literal notranslate"><span class="pre">log</span></code> call:</p>
+<p>Now we can proceed with the normal process of logging a dataframe. Resolvers are passed to whylogs through a <code class="docutils literal notranslate"><span class="pre">Dataset</span> <span class="pre">Schema</span></code>, so we can pass a <code class="docutils literal notranslate"><span class="pre">DatasetSchema</span></code> object to log’s <code class="docutils literal notranslate"><span class="pre">schema</span></code> parameter as follows:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-
-<span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">MyCustomSchema</span><span class="p">())</span>
+<span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">DatasetSchema</span><span class="p">(</span><span class="n">resolvers</span><span class="o">=</span><span class="n">MyCustomResolver</span><span class="p">()))</span>
 <span class="n">prof</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_columns&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -816,27 +781,27 @@ Note: you may need to restart the kernel to use updated packages.
       <th></th>
       <th>counts/n</th>
       <th>counts/null</th>
-      <th>types/integral</th>
-      <th>types/fractional</th>
-      <th>types/boolean</th>
-      <th>types/string</th>
-      <th>types/object</th>
       <th>frequent_items/frequent_strings</th>
       <th>type</th>
-      <th>distribution/mean</th>
-      <th>distribution/stddev</th>
-      <th>distribution/n</th>
+      <th>types/boolean</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>types/object</th>
+      <th>types/string</th>
       <th>distribution/max</th>
+      <th>distribution/mean</th>
+      <th>distribution/median</th>
       <th>distribution/min</th>
+      <th>distribution/n</th>
       <th>distribution/q_01</th>
       <th>distribution/q_05</th>
       <th>distribution/q_10</th>
       <th>distribution/q_25</th>
-      <th>distribution/median</th>
       <th>distribution/q_75</th>
       <th>distribution/q_90</th>
       <th>distribution/q_95</th>
       <th>distribution/q_99</th>
+      <th>distribution/stddev</th>
     </tr>
     <tr>
       <th>column</th>
@@ -870,13 +835,13 @@ Note: you may need to restart the kernel to use updated packages.
       <th>col1</th>
       <td>3</td>
       <td>0</td>
+      <td>[FrequentItem(value='1.000000', est=1, upper=1...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
       <td>3</td>
       <td>0</td>
       <td>0</td>
-      <td>0</td>
-      <td>0</td>
-      <td>[FrequentItem(value='1.000000', est=1, upper=1...</td>
-      <td>SummaryType.COLUMN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -896,79 +861,79 @@ Note: you may need to restart the kernel to use updated packages.
       <th>col2</th>
       <td>3</td>
       <td>0</td>
-      <td>0</td>
-      <td>3</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0</td>
       <td>NaN</td>
       <td>SummaryType.COLUMN</td>
-      <td>4.0</td>
-      <td>1.0</td>
-      <td>3.0</td>
-      <td>5.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>4.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-    </tr>
-    <tr>
-      <th>col4</th>
-      <td>3</td>
-      <td>0</td>
       <td>0</td>
       <td>3</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
-      <td>NaN</td>
-      <td>SummaryType.COLUMN</td>
+      <td>5.0</td>
       <td>4.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
       <td>1.0</td>
-      <td>3.0</td>
-      <td>5.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>4.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
     </tr>
     <tr>
       <th>col3</th>
       <td>3</td>
       <td>0</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>0</td>
       <td>3</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>col4</th>
+      <td>3</td>
       <td>0</td>
       <td>NaN</td>
       <td>SummaryType.COLUMN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
+      <td>0</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -989,7 +954,7 @@ Note: you may need to restart the kernel to use updated packages.
 </ul>
 <p>The process is similar to the previous case. We only need to change the if clauses to check for the <code class="docutils literal notranslate"><span class="pre">name</span></code> instead of <code class="docutils literal notranslate"><span class="pre">why_type</span></code>, like this:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.resolvers</span> <span class="kn">import</span> <span class="n">Resolver</span>
@@ -1024,23 +989,14 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 <p>Since there’s no common metrics for all columns, we can initialize <code class="docutils literal notranslate"><span class="pre">metrics</span></code> as an empty list, and then append the relevant metrics for each columns.</p>
 <p>Now, we create a custom schema, just like before:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCustomSchema</span><span class="p">(</span><span class="n">DatasetSchema</span><span class="p">):</span>
-    <span class="n">resolvers</span> <span class="o">=</span> <span class="n">MyCustomResolver</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-
+<span class="kn">from</span> <span class="nn">whylogs.core</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
 <span class="n">df</span><span class="p">[</span><span class="s1">&#39;col5&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">MyCustomSchema</span><span class="p">())</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">DatasetSchema</span><span class="p">(</span><span class="n">resolvers</span><span class="o">=</span><span class="n">MyCustomResolver</span><span class="p">()))</span>
 <span class="n">prof</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
 <span class="n">prof_view</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">view</span><span class="p">()</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_columns&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -1049,7 +1005,7 @@ Note: you may need to restart the kernel to use updated packages.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1074,23 +1030,23 @@ Note: you may need to restart the kernel to use updated packages.
       <th>counts/n</th>
       <th>counts/null</th>
       <th>type</th>
-      <th>distribution/mean</th>
-      <th>distribution/stddev</th>
-      <th>distribution/n</th>
       <th>distribution/max</th>
+      <th>distribution/mean</th>
+      <th>distribution/median</th>
       <th>distribution/min</th>
+      <th>distribution/n</th>
       <th>distribution/q_01</th>
       <th>distribution/q_05</th>
       <th>distribution/q_10</th>
       <th>distribution/q_25</th>
-      <th>distribution/median</th>
       <th>distribution/q_75</th>
       <th>distribution/q_90</th>
       <th>distribution/q_95</th>
       <th>distribution/q_99</th>
+      <th>distribution/stddev</th>
       <th>cardinality/est</th>
-      <th>cardinality/upper_1</th>
       <th>cardinality/lower_1</th>
+      <th>cardinality/upper_1</th>
     </tr>
     <tr>
       <th>column</th>
@@ -1145,66 +1101,20 @@ Note: you may need to restart the kernel to use updated packages.
       <td>NaN</td>
       <td>NaN</td>
       <td>SummaryType.COLUMN</td>
+      <td>5.0</td>
       <td>4.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
       <td>1.0</td>
-      <td>3.0</td>
-      <td>5.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>4.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>col4</th>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>SummaryType.COLUMN</td>
-      <td>4.0</td>
-      <td>1.0</td>
-      <td>3.0</td>
-      <td>5.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>4.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>3.0</td>
-      <td>3.00015</td>
-      <td>3.0</td>
-    </tr>
-    <tr>
-      <th>col5</th>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>SummaryType.COLUMN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
       <td>NaN</td>
@@ -1229,8 +1139,54 @@ Note: you may need to restart the kernel to use updated packages.
       <td>NaN</td>
       <td>NaN</td>
       <td>3.0</td>
-      <td>3.00015</td>
       <td>3.0</td>
+      <td>3.00015</td>
+    </tr>
+    <tr>
+      <th>col4</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>5.0</td>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>5.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>3.00015</td>
+    </tr>
+    <tr>
+      <th>col5</th>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
   </tbody>
 </table>
