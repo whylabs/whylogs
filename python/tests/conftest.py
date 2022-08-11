@@ -2,15 +2,15 @@ import os
 
 import pandas as pd
 import pytest
-from python.whylogs.core.constraints.metric_constraints import (
+
+import whylogs as why
+from whylogs import ResultSet
+from whylogs.core.constraints.metric_constraints import (
     Constraints,
     ConstraintsBuilder,
     MetricConstraint,
     MetricsSelector,
 )
-
-import whylogs as why
-from whylogs import ResultSet
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 from whylogs.viz import SummaryDriftReport
 
