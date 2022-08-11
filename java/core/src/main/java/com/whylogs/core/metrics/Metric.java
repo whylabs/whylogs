@@ -1,6 +1,6 @@
 package com.whylogs.core.metrics;
 
-import com.whylogs.core.PreProcessedColumn;
+import com.whylogs.core.PreprocessedColumn;
 import com.whylogs.core.SummaryConfig;
 import lombok.*;
 
@@ -15,9 +15,9 @@ public abstract class Metric{
     private String namespace;
 
     public abstract HashMap<String, Object> toSummaryDict(SummaryConfig config);
-    public abstract OperationResult columnarUpdate(PreProcessedColumn data);
+    public abstract OperationResult columnarUpdate(PreprocessedColumn data);
 
-    public String getNamespace(MetricConfig config){
+    public @NonNull String getNamespace(){
         return namespace;
     }
 

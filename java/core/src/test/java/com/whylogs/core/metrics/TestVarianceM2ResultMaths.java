@@ -19,7 +19,7 @@ public class TestVarianceM2ResultMaths {
         VarianceM2Result first = new VarianceM2Result(n_a, mean_a, m2_a);
         VarianceM2Result second = new VarianceM2Result(n_b, mean_b, m2_b);
 
-        VarianceM2Result result = VarianceM2Result.parrallelVarianceM2(first, second);
+        VarianceM2Result result = VarianceM2Result.parallelVarianceM2(first, second);
 
         Assert.assertEquals(result.getN(), n_a + n_b);
         Assert.assertEquals(result.getMean(), (mean_a * n_a + mean_b * n_b) / (n_a + n_b));

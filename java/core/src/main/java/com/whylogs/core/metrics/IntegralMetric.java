@@ -1,6 +1,6 @@
 package com.whylogs.core.metrics;
 
-import com.whylogs.core.PreProcessedColumn;
+import com.whylogs.core.PreprocessedColumn;
 import com.whylogs.core.SummaryConfig;
 import com.whylogs.core.metrics.components.MaxIntegralComponent;
 import com.whylogs.core.metrics.components.MinIntegralComponent;
@@ -38,7 +38,7 @@ public class IntegralMetric extends BaseMetric<IntegralMetric> {
     }
 
     @Override
-    public OperationResult columnarUpdate(PreProcessedColumn data){
+    public OperationResult columnarUpdate(PreprocessedColumn data){
         if(data.getLength() == 0){
             return OperationResult.ok();
         }

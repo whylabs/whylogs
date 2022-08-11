@@ -2,7 +2,6 @@ package com.whylogs.core.metrics;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
 import java.util.HashMap;

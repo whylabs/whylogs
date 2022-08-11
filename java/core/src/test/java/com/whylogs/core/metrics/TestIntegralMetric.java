@@ -1,6 +1,6 @@
 package com.whylogs.core.metrics;
 
-import com.whylogs.core.PreProcessedColumn;
+import com.whylogs.core.PreprocessedColumn;
 import com.whylogs.core.SummaryConfig;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -34,7 +34,7 @@ public class TestIntegralMetric {
     public void test_columnarUpdate_emptyData() {
         IntegralMetric metrics = new IntegralMetric();
         ArrayList<Integer> testList = new ArrayList<>();
-        OperationResult result = metrics.columnarUpdate(PreProcessedColumn.apply(testList));
+        OperationResult result = metrics.columnarUpdate(PreprocessedColumn.apply(testList));
         Assert.assertEquals(result, OperationResult.ok());
 
         // make sure these are zerod out
@@ -51,7 +51,7 @@ public class TestIntegralMetric {
         testList.add("hello");
         testList.add("world");
 
-        result = metrics.columnarUpdate(PreProcessedColumn.apply(testList));
+        result = metrics.columnarUpdate(PreprocessedColumn.apply(testList));
         Assert.assertEquals(result, OperationResult.ok(0));
 
         // make sure these are zeroed out
@@ -69,7 +69,7 @@ public class TestIntegralMetric {
         testList.add(2);
         testList.add(3);
 
-        result = metrics.columnarUpdate(PreProcessedColumn.apply(testList));
+        result = metrics.columnarUpdate(PreprocessedColumn.apply(testList));
         Assert.assertEquals(result, OperationResult.ok(testList.size()));
 
         // make sure these are zeroed out
@@ -110,10 +110,10 @@ public class TestIntegralMetric {
     @Test(dataProvider = "merge_data")
     public void test_merge(ArrayList<Integer> a, ArrayList<Integer> b, int expectedMax, int expectedMin){
         IntegralMetric metrics = new IntegralMetric();
-        metrics.columnarUpdate(PreProcessedColumn.apply(a));
+        metrics.columnarUpdate(PreprocessedColumn.apply(a));
 
         IntegralMetric metrics2 = new IntegralMetric();
-        metrics2.columnarUpdate(PreProcessedColumn.apply(b));
+        metrics2.columnarUpdate(PreprocessedColumn.apply(b));
 
         IntegralMetric merged = metrics.merge(metrics2);
 
