@@ -247,6 +247,7 @@ def test_custom_resolver() -> None:
     assert prof_view.get_column("col1").get_metric("counts").n.value == 3
     assert not prof_view.get_column("col1").get_metric("distribution")
 
+
 def test_result_set_reader(profile_view):
     with tempfile.NamedTemporaryFile() as tmp_file:
         profile_view.write(path=tmp_file.name)
@@ -255,4 +256,3 @@ def test_result_set_reader(profile_view):
         results = reader.read(path=tmp_file.name)
         assert isinstance(reader, ResultSetReader)
         assert isinstance(results, ResultSet)
-
