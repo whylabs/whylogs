@@ -25,7 +25,7 @@ public class OperationResult {
 
     public OperationResult add(OperationResult other) {
         int new_successes = this.successes + other.getSuccesses();
-        int new_failures = this.failures + other.getFailures() ;
+        int new_failures = this.failures + other.getFailures();
         return new OperationResult(new_successes, new_failures);
     }
 }
