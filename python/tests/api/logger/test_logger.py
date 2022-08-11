@@ -8,9 +8,9 @@ import pytest
 import whylogs as why
 from whylogs.core import ColumnProfileView, MetricConfig
 from whylogs.core.errors import LoggingError
-from whylogs.core.schema import DatasetSchema
-from whylogs.core.resolvers import Resolver
 from whylogs.core.metrics import StandardMetric
+from whylogs.core.resolvers import Resolver
+from whylogs.core.schema import DatasetSchema
 
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
