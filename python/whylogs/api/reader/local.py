@@ -14,7 +14,7 @@ class LocalReader(Reader):
             raise ValueError("You must define a path to read your file from!")
         return self.get_file_from_path(path=file_path)
 
-    @classmethod
-    def option(cls, path: Optional[str]):
+    def option(self, path: Optional[str]) -> "LocalReader":
         if path is not None:
-            cls.path = path
+            self.path = path
+        return self

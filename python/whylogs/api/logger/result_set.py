@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+from whylogs.api.reader import Reader, Readers
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetProfileView
 
@@ -21,6 +22,11 @@ class ResultSet(ABC):
         # TODO: parse multiple profile
         view = DatasetProfileView.read(multi_profile_file)
         return ViewResultSet(view=view)
+
+    @staticmethod
+    def reader(name: str = "local") -> "ResultSetReader":
+        reader = Readers.get(name)
+        return ResultSetReader(reader=reader)
 
     def writer(self, name: str = "local") -> "ResultSetWriter":
         writer = Writers.get(name)
@@ -72,7 +78,19 @@ class ResultSetWriter:
         self._writer.option(**kwargs)
         return self
 
-    def write(self, **kwargs) -> None:
+    def write(self, **kwargs: Any) -> None:
         # TODO: multi-profile writer
         view = self._result_set.view()
         self._writer.write(profile=view, **kwargs)
+
+
+class ResultSetReader:
+    def __init__(self, reader: Reader) -> None:
+        self._reader = reader
+
+    def option(self, **kwargs: Any) -> "ResultSetReader":
+        self._reader.option(**kwargs)
+        return self
+
+    def read(self, **kwargs: Any) -> ResultSet:
+        return self._reader.read(**kwargs)

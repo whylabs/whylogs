@@ -1,4 +1,5 @@
 import os.path
+import tempfile
 from typing import Any
 
 import numpy as np
@@ -6,6 +7,7 @@ import pandas as pd
 import pytest
 
 import whylogs as why
+from whylogs.api.logger.result_set import ResultSet, ResultSetReader
 from whylogs.core import ColumnProfileView, MetricConfig
 from whylogs.core.errors import LoggingError
 from whylogs.core.schema import DatasetSchema
@@ -221,3 +223,13 @@ def test_key_error() -> None:
     df = pd.DataFrame(data, dtype="datetime64[ns]")
     results = why.log(df)
     assert results is not None
+
+
+def test_result_set_reader(profile_view):
+    with tempfile.NamedTemporaryFile() as tmp_file:
+        profile_view.write(path=tmp_file.name)
+
+        reader = why.reader(name="local")
+        results = reader.read(path=tmp_file.name)
+        assert isinstance(reader, ResultSetReader)
+        assert isinstance(results, ResultSet)
