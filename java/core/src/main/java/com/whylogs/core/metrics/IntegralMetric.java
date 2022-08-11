@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 @Getter
 @EqualsAndHashCode(callSuper=false)
-public class IntegralMetric extends BaseMetric<IntegralMetric> {
+public class IntegralMetric extends AbstractMetric<IntegralMetric> {
     public static final String NAMESPACE = "ints";
     private MaxIntegralComponent maxComponent;
     private MinIntegralComponent minComponent;
