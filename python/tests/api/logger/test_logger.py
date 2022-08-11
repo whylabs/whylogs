@@ -10,6 +10,8 @@ import whylogs as why
 from whylogs.api.logger.result_set import ResultSet, ResultSetReader
 from whylogs.core import ColumnProfileView, MetricConfig
 from whylogs.core.errors import LoggingError
+from whylogs.core.metrics import StandardMetric
+from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import DatasetSchema
 
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
@@ -163,7 +165,7 @@ def test_unicode_range_enabled() -> None:
     digit_counts = [1, 2, 3, 4, 0, 3, 0]
     latin_counts = [1, 2, 3, 5, 3, 6, 10]
     emoticon_counts = [0, 0, 0, 0, 0, 0, 1]
-    configured_schema = DatasetSchema(MetricConfig(track_unicode_ranges=True))
+    configured_schema = DatasetSchema(default_configs=MetricConfig(track_unicode_ranges=True))
     prof_view = why.log(data, schema=configured_schema).view()
     assert "words" in prof_view.get_columns()
     column_profile = prof_view.get_column("words")
@@ -208,7 +210,7 @@ def test_frequent_items_disabled() -> None:
         "words": ["1", "12", "123"],
     }
     data = pd.DataFrame(strings)
-    configured_schema = DatasetSchema(MetricConfig(fi_disabled=True))
+    configured_schema = DatasetSchema(default_configs=MetricConfig(fi_disabled=True))
 
     prof_view = why.log(data, schema=configured_schema).view()
     assert "words" in prof_view.get_columns()
@@ -225,6 +227,26 @@ def test_key_error() -> None:
     assert results is not None
 
 
+def test_custom_resolver() -> None:
+    class CustomResolver(Resolver):
+        """Resolver that keeps distribution metrics for Fractional and frequent items for Integral, and counters and types metrics for all data types."""
+
+        def resolve(self, name: str, why_type, column_schema):
+            metrics = []
+            if name == "col1":
+                metrics.append(StandardMetric.counts)
+            result = {}
+            for m in metrics:
+                result[m.name] = m.zero(column_schema.cfg)
+            return result
+
+    d = {"col1": [3.0, 4.0, 5.0]}
+    df = pd.DataFrame(data=d)
+    prof_view = why.log(df, schema=DatasetSchema(resolvers=CustomResolver())).profile().view()
+
+    assert prof_view.get_column("col1").get_metric("counts").n.value == 3
+    assert not prof_view.get_column("col1").get_metric("distribution")
+
 def test_result_set_reader(profile_view):
     with tempfile.NamedTemporaryFile() as tmp_file:
         profile_view.write(path=tmp_file.name)
@@ -233,3 +255,4 @@ def test_result_set_reader(profile_view):
         results = reader.read(path=tmp_file.name)
         assert isinstance(reader, ResultSetReader)
         assert isinstance(results, ResultSet)
+

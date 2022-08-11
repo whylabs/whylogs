@@ -51,16 +51,14 @@ class TestResolver(Resolver):
         return {"testmetric": TestMetric(max=MaxIntegralComponent(0))}
 
 
-class TestSchema(DatasetSchema):
-    types = {
-        "col1": int,
-    }
-    resolvers = TestResolver()
-
-
 def test_custom_metric_in_profile() -> None:
     row = {"col1": 12}
-    schema = TestSchema()
+    schema = DatasetSchema(
+        types={
+            "col1": int,
+        },
+        resolvers=TestResolver(),
+    )
     prof = DatasetProfile(schema)
     prof.track(row=row)
     prof1_view = prof.view()

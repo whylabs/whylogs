@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict, List
 
+from whylogs.core.metrics import Metric
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.projectors import SingleFieldProjector
 from whylogs.core.proto import ColumnMessage
@@ -22,6 +23,12 @@ class ColumnProfile(object):
         logger.debug("Setting cache size for column: %s with size: %s", self._name, cache_size)
         self._cache_size = cache_size
         self._cache: List[Any] = []
+
+    def add_metric(self, metric: Metric) -> None:
+        if metric.namespace in self._metrics:
+            logger.warning(f"Replacing metric {metric.namespace} in column {self._name}")
+
+        self._metrics[metric.namespace] = metric
 
     def track(self, row: Dict[str, Any]) -> None:
         value = self._projector.apply(row)

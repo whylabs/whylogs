@@ -116,7 +116,6 @@
 
       .wl-table-wrap {
         position: relative;
-        overflow: auto;
       }
 
       .wl-table {
@@ -142,8 +141,9 @@
       }
 
       .wl-table-heading {
-        position: relative;
-        z-index: 1;
+        position: sticky;
+        top: 0;
+        z-index: 900;
         display: table-header-group;
         font-weight: 700;
       }
@@ -168,7 +168,7 @@
       }
 
       .wl-table-head {
-        position: sticky;
+        position: relative;
         left: 0;
         min-width: 100px;
         border-bottom: 2px solid var(--brandSecondary100);
@@ -186,7 +186,7 @@
       }
 
       .wl-table-row .wl-table-cell:first-child{
-        position: sticky;
+        position: relative;
         left: 0;
         background-color: var(--white);
         border-right-width: 2px;
@@ -776,7 +776,7 @@
                         <div class="wl-table-head table-border-none graph-table-head">Target</div>
                         <div class="wl-table-head table-border-none reference-table-head">Reference</div>
                       </div>
-                      <div class="wl-table-head wl-sub-table-head text-align-center" style="cursor: pointer;" id="diff-from-ref">
+                      <div class="wl-table-head wl-table-head-wraper text-align-end" style="cursor: pointer;" id="diff-from-ref">
                         <p id="pvalue" > p-value </p>
                         <p id="pvalue-asc" style="display: none;"> p-value &#9650 </p>
                         <p id="pvalue-desc" style="display: none;"> p-value &#9660 </p>
@@ -788,8 +788,8 @@
                           </span>
                         </div>
                       </div>
-                      <div class="wl-table-head wl-sub-table-head text-align-center">Total count</div>
-                      <div class="wl-table-head wl-sub-table-head text-align-center">Mean</div>
+                      <div class="wl-table-head wl-table-head-wraper text-align-end">Total count</div>
+                      <div class="wl-table-head wl-table-head-wraper text-align-end">Mean</div>
                     </div>
                   </div>
                   <ul class="wl-table-body wl__table-body" id="table-body">

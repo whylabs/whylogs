@@ -28,12 +28,7 @@ def test_override_schema_col2_as_string() -> None:
     d = {"col1": [1, 2, 3], "col2": [3.0, 4.0, "c"], "col3": ["a", "b", "c"]}
     df = pd.DataFrame(data=d)
 
-    class MyCustomSchema(DatasetSchema):
-        types = {
-            "col2": str,
-        }
-
-    profile = DatasetProfile(MyCustomSchema())
+    profile = DatasetProfile(DatasetSchema(types={"col2": str}))
     profile.track(pandas=df)
     view = profile.view()
     assert view.get_column("col1") is not None
@@ -78,3 +73,14 @@ def test_different_int_types(profile, data_type) -> None:
     for row in df.iterrows():
         profile.track(row=row[1].to_dict())  # type: ignore
     assert profile._columns["col1"]._schema.dtype == int
+
+
+def test_track_with_custom_schema() -> None:
+    class MySchema(DatasetSchema):
+        types = {"col1": str, "col2": np.int32, "col3": str}
+
+    schema = MySchema()
+    prof = DatasetProfile(schema=schema)
+    df = pd.DataFrame({"col1": ["foo"], "col2": np.array([1], dtype=np.int32), "col3": ["bar"]})
+    prof.track(pandas=df)
+    assert prof._columns.keys() == prof._schema._columns.keys()

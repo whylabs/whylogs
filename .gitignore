@@ -185,6 +185,7 @@ pip-selfcheck.json
 ### VisualStudioCode ###
 *.code-workspace
 .vscode/*
+.vscode/
 !.vscode/tasks.json
 !.vscode/launch.json
 .history

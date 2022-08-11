@@ -2,8 +2,6 @@ import unicodedata
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
-from typing_extensions import TypeAlias
-
 from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.metrics.metrics import (
     DistributionMetric,
@@ -12,9 +10,6 @@ from whylogs.core.metrics.metrics import (
 )
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
-
-ColumnSchema: TypeAlias = "ColumnSchema"  # type: ignore
-
 
 _STRING_LENGTH = "string_length"
 

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, Mapping, Optional
 
 from whylogs.api.writer.writer import Writable
+from whylogs.core.metrics import Metric
 from whylogs.core.utils.utils import deprecated_alias
 
 from .column_profile import ColumnProfile
@@ -48,6 +49,8 @@ class DatasetProfile(Writable):
         self._columns: Dict[str, ColumnProfile] = dict()
         self._is_active = False
         self._track_count = 0
+        new_cols = schema.get_col_names()
+        self._initialize_new_columns(new_cols)
 
     @property
     def creation_timestamp(self) -> datetime:
@@ -72,6 +75,11 @@ class DatasetProfile(Writable):
             logger.warning("No timezone set in the datetime_timestamp object. Default to local timezone")
 
         self._dataset_timestamp = dataset_timestamp.astimezone(tz=timezone.utc)
+
+    def add_metric(self, col_name: str, metric: Metric) -> None:
+        if col_name not in self._columns:
+            raise ValueError(f"{col_name} is not a column in the dataset profile")
+        self._columns[col_name].add_metric(metric)
 
     def track(
         self,
@@ -113,12 +121,7 @@ class DatasetProfile(Writable):
         if dirty:
             schema_col_keys = self._schema.get_col_names()
             new_cols = (col for col in schema_col_keys if col not in self._columns)
-            for col in new_cols:
-                col_schema = self._schema.get(col)
-                if col_schema:
-                    self._columns[col] = ColumnProfile(name=col, schema=col_schema, cache_size=self._schema.cache_size)
-                else:
-                    logger.warning("Encountered a column without schema: %s", col)
+            self._initialize_new_columns(tuple(new_cols))
 
         if pandas is not None:
             for k in pandas.keys():
@@ -131,6 +134,14 @@ class DatasetProfile(Writable):
             return
 
         raise NotImplementedError
+
+    def _initialize_new_columns(self, new_cols: tuple) -> None:
+        for col in new_cols:
+            col_schema = self._schema.get(col)
+            if col_schema:
+                self._columns[col] = ColumnProfile(name=col, schema=col_schema, cache_size=self._schema.cache_size)
+            else:
+                logger.warning("Encountered a column without schema: %s", col)
 
     def view(self) -> DatasetProfileView:
         columns = {}

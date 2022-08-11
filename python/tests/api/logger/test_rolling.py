@@ -4,6 +4,7 @@ import time
 from os import listdir
 from os.path import isfile
 from typing import Any
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
@@ -51,6 +52,29 @@ def test_rolling(tmp_path: Any) -> None:
 
     elapsed = time.time() - start
     assert math.floor(elapsed) <= count_files(tmp_path) <= math.ceil(elapsed)
+
+
+def test_rolling_with_callback(tmp_path: Any) -> None:
+    rolling_callback = MagicMock()
+    messages = [{"col1": [i], "col2": [i * i * 1.2], "col3": ["a"]} for i in range(10)]
+
+    rolling_logger = why.logger(
+        mode="rolling", interval=1, when="S", base_name="test_base_name", callback=rolling_callback
+    )
+    rolling_logger.append_writer("local", base_dir=tmp_path)
+    # process the 10 input messages, and wait a second to allow the rolling logger to hit an interval
+    map(rolling_logger.log, messages)
+    time.sleep(1)
+
+    # without an explicit calls to rolling_logger.flush we expect that the elapsed time
+    # is greater than 1s interval, so the callback should have been triggered at least once
+    initial_callback_count = rolling_callback.call_count
+    assert initial_callback_count > 0
+    assert initial_callback_count < 4
+
+    # after explicitly calling close on the logger, we trigger at least one more flush and callback
+    rolling_logger.close()
+    assert initial_callback_count < rolling_callback.call_count
 
 
 def test_rolling_skip_empty(tmp_path: Any) -> None:
