@@ -77,9 +77,6 @@ public class IntegralMetric extends BaseMetric<IntegralMetric> {
 
     @Override
     public IntegralMetric merge(IntegralMetric other) {
-        // QUESTION: Is there ever a case were we want to merge an Integral with say a Distribution Metric?
-
-        // QUESTION: What happens if they have two different namespaces? Putting this for now
         if (!this.getNamespace().equals(other.getNamespace())) {
             throw new IllegalArgumentException("Cannot merge IntegralMetrics with different namespaces:" + this.getNamespace() + " and " + other.getNamespace());
         }
