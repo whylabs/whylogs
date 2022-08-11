@@ -9,6 +9,8 @@ import whylogs as why
 from whylogs.core import ColumnProfileView, MetricConfig
 from whylogs.core.errors import LoggingError
 from whylogs.core.schema import DatasetSchema
+from whylogs.core.resolvers import Resolver
+from whylogs.core.metrics import StandardMetric
 
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
@@ -221,3 +223,24 @@ def test_key_error() -> None:
     df = pd.DataFrame(data, dtype="datetime64[ns]")
     results = why.log(df)
     assert results is not None
+
+
+def test_custom_resolver() -> None:
+    class CustomResolver(Resolver):
+        """Resolver that keeps distribution metrics for Fractional and frequent items for Integral, and counters and types metrics for all data types."""
+
+        def resolve(self, name: str, why_type, column_schema):
+            metrics = []
+            if name == "col1":
+                metrics.append(StandardMetric.counts)
+            result = {}
+            for m in metrics:
+                result[m.name] = m.zero(column_schema.cfg)
+            return result
+
+    d = {"col1": [3.0, 4.0, 5.0]}
+    df = pd.DataFrame(data=d)
+    prof_view = why.log(df, schema=DatasetSchema(resolvers=CustomResolver())).profile().view()
+
+    assert prof_view.get_column("col1").get_metric("counts").n.value == 3
+    assert not prof_view.get_column("col1").get_metric("distribution")
