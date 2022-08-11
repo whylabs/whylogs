@@ -1,6 +1,5 @@
 package com.whylogs.core.metrics.components;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 

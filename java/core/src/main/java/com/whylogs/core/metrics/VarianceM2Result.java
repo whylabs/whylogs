@@ -10,7 +10,7 @@ public class VarianceM2Result {
     private final double mean;
     private final double m2;
 
-    public static VarianceM2Result parrallelVarianceM2(VarianceM2Result first, VarianceM2Result second){
+    public static VarianceM2Result parallelVarianceM2(VarianceM2Result first, VarianceM2Result second){
         double n = first.getN() + second.getN();
         double delta = second.getMean() - first.getMean();
         double mean = (first.getMean() * first.getN() + second.getMean() * second.getN()) / n;

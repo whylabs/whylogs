@@ -1,11 +1,9 @@
 package com.whylogs.core.metrics.components;
 
-import com.whylogs.core.metrics.IntegralMetric;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @EqualsAndHashCode(callSuper=false)
