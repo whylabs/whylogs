@@ -67,6 +67,12 @@ public class IntegralMetric extends BaseMetric<IntegralMetric> {
     }
 
     @Override
+    public HashMap<String, Object> toSummaryDict(){
+        SummaryConfig defaultConfig = new SummaryConfig();
+        return this.toSummaryDict(defaultConfig);
+    }
+
+    @Override
     public HashMap<String, Object> toSummaryDict(SummaryConfig config){
         // This metric does not need the config, but others do
         HashMap<String, Object> summary = new HashMap<>();
