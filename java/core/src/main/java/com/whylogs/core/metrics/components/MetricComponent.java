@@ -2,6 +2,7 @@ package com.whylogs.core.metrics.components;
 
 import com.whylogs.core.message.MetricComponentMessage;
 import lombok.*;
+import org.apache.commons.lang3.NotImplementedException;
 
 /***
 A metric component is the smallest unit for a metric.
@@ -39,9 +40,9 @@ public class MetricComponent<T> {
         return TYPE_ID;
     }
 
-    public MetricComponent<T> add(MetricComponent<T> other) {
+    public MetricComponent<T> merge(MetricComponent<T> other) {
         // TODO this is where we will use the aggregators
-        return other;
+        throw new NotImplementedException();
     }
 
 
@@ -51,7 +52,7 @@ public class MetricComponent<T> {
     // TODO: add a from_protobuf iwht registries passed in
     public static <T extends MetricComponent> T from_protobuf(MetricComponentMessage message) {
         // TODO: check that it's a MetricComponent dataclass
-        return null;
+        throw new NotImplementedException();
     }
 
 }

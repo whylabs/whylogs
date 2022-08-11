@@ -20,5 +20,4 @@ public abstract class Metric{
     public @NonNull String getNamespace(){
         return namespace;
     }
-
 }

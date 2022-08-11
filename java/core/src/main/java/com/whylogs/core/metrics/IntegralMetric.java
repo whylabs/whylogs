@@ -81,7 +81,7 @@ public class IntegralMetric extends BaseMetric<IntegralMetric> {
 
         // QUESTION: What happens if they have two different namespaces? Putting this for now
         if (!this.getNamespace().equals(other.getNamespace())) {
-            throw new IllegalArgumentException("Cannot merge IntegralMetrics with different namespaces");
+            throw new IllegalArgumentException("Cannot merge IntegralMetrics with different namespaces:" + this.getNamespace() + " and " + other.getNamespace());
         }
 
         int max = Integer.max(this.maxComponent.getValue(), other.maxComponent.getValue());
