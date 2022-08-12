@@ -39,20 +39,27 @@ class DatasetSchema:
     --------
     >>> import pandas as pd
     >>> import numpy as np
+    >>> from dataclasses import dataclass, field
+    >>> from typing import Any, Dict
     >>> from whylogs.core import DatasetSchema, DatasetProfile
+    >>> from whylogs.core.resolvers import Resolver, StandardResolver
     >>>
+    >>> class MyResolver(StandardResolver):
+    >>>    pass
+    >>>
+    >>> @dataclass
     >>> class MySchema(DatasetSchema):
-    ...    types = {
-    ...        "col1": str,
-    ...        "col2": np.int32,
-    ...        "col3": pd.Categorical(categories=('foo', 'bar'), ordered=True)
-    ...    }
-    ...    cache_size = 12
+    ...     types: Dict[str, Any] = field(default_factory=lambda: {
+    ...         "col1": str,
+    ...         "col2": np.int32,
+    ...         "col3": pd.CategoricalDtype(categories=('foo', 'bar'), ordered=True)
+    ...     })
+    ...     resolvers: Resolver = field(default_factory=MyResolver)
+    ...     cache_size: int = 12
     >>> schema = MySchema()
     >>> prof = DatasetProfile(MySchema())
     >>> df = pd.DataFrame({"col1": ['foo'], "col2": np.array([1], dtype=np.int32), "col3": ['bar']})
     >>> prof.track(pandas=df)
-
     """
 
     types: Dict[str, Any] = field(default_factory=dict)
@@ -84,7 +91,9 @@ class DatasetSchema:
 
     def copy(self) -> "DatasetSchema":
         """Returns a new instance of the same underlying schema"""
-        copy = DatasetSchema(**self.__dict__)
+        args = vars(self).copy().pop("_columns")
+        args = {k: v for k, v in args.items() if k not in self.types}
+        copy = self.__class__(**args)
         copy._columns = self._columns.copy()
         return copy
 
