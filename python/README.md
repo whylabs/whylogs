@@ -220,7 +220,7 @@ whylogs supports both structured and unstructured data, specifically:
 
 ## Examples
 
-For a full set of our examples, please check out the [examples folder](/examples/).
+For a full set of our examples, please check out the [examples folder](https://github.com/whylabs/whylogs/tree/mainline/python/examples).
 
 Check out our example notebooks with Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/whylabs/whylogs-examples/HEAD)
 

@@ -13,7 +13,7 @@ whylogs is built for scale and optimized for massive data sets. With whylogs use
 
 ### What integrations do you support?
 
-To check which integrations whylogs support, please see the examples in our [integrations section](https://github.com/whylabs/whylogs/tree/mainline/python/examples/integrationss). We are currently migrating integration examples from v0 to v1. If there's an example or integration that you need that you don't see here, please reach out to us on the Rsqrd AI Community [Slack workspace](http://www.bit.ly/rsqrd-slack) in the #whylogs-java-support or #whylogs-python-support channels.
+To check which integrations whylogs support, please see the examples in our [integrations section](https://github.com/whylabs/whylogs/tree/mainline/python/examples/integrations). We are currently migrating integration examples from v0 to v1. If there's an example or integration that you need that you don't see here, please reach out to us on the Rsqrd AI Community [Slack workspace](http://www.bit.ly/rsqrd-slack) in the #whylogs-java-support or #whylogs-python-support channels.
 
 
 ## Privacy
