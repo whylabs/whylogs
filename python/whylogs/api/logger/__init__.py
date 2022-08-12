@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 from typing_extensions import Literal
 
 from whylogs.api.logger.logger import Logger
-from whylogs.api.logger.result_set import ResultSet
+from whylogs.api.logger.result_set import ResultSet, ResultSetReader
 from whylogs.api.logger.rolling import TimedRollingLogger
 from whylogs.api.logger.transient import TransientLogger
 from whylogs.core import DatasetProfile, DatasetSchema
@@ -22,6 +22,10 @@ def log(
 
 def read(path: str) -> ResultSet:
     return ResultSet.read(path)
+
+
+def reader(name: str) -> ResultSetReader:
+    return ResultSet.reader(name=name)
 
 
 def write(profile: DatasetProfile, base_dir: str) -> None:
@@ -50,6 +54,7 @@ def logger(
 __ALL__ = [
     "log",
     "read",
+    "reader",
     "write",
     "logger",
     "Logger",

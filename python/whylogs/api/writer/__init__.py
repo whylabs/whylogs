@@ -4,8 +4,8 @@ from whylogs.api.writer.writer import Writer
 
 
 class Writers:
-    @classmethod
-    def get(cls, name: str, **kwargs: Any) -> "Writer":
+    @staticmethod
+    def get(name: str, **kwargs: Any) -> "Writer":
         if name == "local":
             from whylogs.api.writer.local import LocalWriter
 

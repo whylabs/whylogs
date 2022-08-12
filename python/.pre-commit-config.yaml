@@ -51,6 +51,7 @@ repos:
         args: [--allow-missing-credentials]
       - id: detect-private-key
       - id: end-of-file-fixer
+        exclude: ^(.*cfg|.*dockerignore)
       - id: forbid-new-submodules
       - id: mixed-line-ending
       - id: trailing-whitespace

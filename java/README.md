@@ -1,9 +1,18 @@
+# Version upgrade to 1.0.0 coming soon!
+We're excited to announce that v1 of the API to the Java side is coming soon! You can look forward to:
+1. Simpler API that gets you started quickly.
+2. Constraints on Metrics
+3. Updated ProfileVisualizer
+4. Refresh for Usability
+
+For now, follow this readme to get started in v0, and check back here for updates. If you'd like to watch the development unfold or contribute, check out the repo out [here](https://github.com/whylabs/whylogs/tree/mainline/java)
+
 # WhyLogs Java Library
 [![license](https://img.shields.io/github/license/whylabs/whylogs-java)](https://github.com/whylabs/whylogs-java/blob/mainline/LICENSE)
 [![javadoc](https://javadoc.io/badge2/ai.whylabs/whylogs-java-core/javadoc.svg)](https://javadoc.io/doc/ai.whylabs/whylogs-java-core)
 [![openjdk](https://img.shields.io/badge/opendjk-%3E=1.8-green)](https://openjdk.java.net)
 
-This is a Java implementation of WhyLogs, with support for Apache Spark integration for large scale datasets. The Python implementation can be found [here](https://github.com/whylabs/whylogs-python).
+This is a Java implementation of WhyLogs v0 with support for Apache Spark integration for large scale datasets which can be seen [here](https://github.com/whylabs/whylogs/tree/maintenance/0.7.x/java). The Python implementation can be found [here](https://github.com/whylabs/whylogs-python).
 
 Understanding the properties of data as it moves through applications is essential to keeping your ML/AI pipeline stable and improving your user experience, whether your pipeline is built for production or experimentation. WhyLogs is an open source statistical logging library that allows data science and ML teams to effortlessly profile ML/AI pipelines and applications, producing log files that can be used for monitoring, alerts, analytics, and error analysis.
 
