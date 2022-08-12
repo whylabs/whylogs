@@ -58,7 +58,7 @@ class DatasetSchema:
     types: Dict[str, Any] = field(default_factory=dict)
     default_configs: MetricConfig = MetricConfig()
     type_mapper: TypeMapper = StandardTypeMapper()
-    resolvers: Resolver = StandardResolver()
+    resolvers: Resolver = field(default_factory=StandardResolver)
     cache_size: int = 1024
     schema_based_automerge: bool = False
 
