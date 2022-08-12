@@ -27,7 +27,7 @@
 - **Make `develop` the default branch.**
 - **Merge PRs into `develop`.** Configure repository settings so that branches are deleted automatically after PRs are merged.
 - **Only merge to `main` if [fast-forwarding](https://www.git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging) from `develop`.**
-- **Enable [branch protection](https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/about-protected-branches) on `develop` and `main`.**
+- **Enable <!-- markdown-link-check-disable-line --> [branch protection](https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/about-protected-branches) on `develop` and `main`.**
 - **Set up a release workflow.** Here's an example release workflow, controlled by Git tags:
   - Bump the version number in `pyproject.toml` with `poetry version` and commit the changes to `develop`.
   - Push to `develop` and verify all CI checks pass.
@@ -46,11 +46,11 @@
 
 - _[Why use Git?](https://www.git-scm.com/about)_ Git enables creation of multiple versions of a code repository called branches, with the ability to track and undo changes in detail.
 - Install Git by [downloading](https://www.git-scm.com/downloads) from the website, or with a package manager like [Homebrew](https://brew.sh/).
-- [Configure Git to connect to GitHub with SSH](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/connecting-to-github-with-ssh)
-- [Fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo) this repo
+  Configure <!-- markdown-link-check-disable-line --> [Git to connect to GitHub with SSH](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/connecting-to-github-with-ssh)
+- Then <!-- markdown-link-check-disable-line --> [Fork](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/fork-a-repo) this repo
 - Create a [branch](https://www.git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell) in your fork.
 - Commit your changes with a [properly-formatted Git commit message](https://chris.beams.io/posts/git-commit/).
-- Create a [pull request (PR)](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/about-pull-requests) to incorporate your changes into the upstream project you forked.
+- Create a <!-- markdown-link-check-disable-line --> [pull request (PR)](https://docs.github.com/en/free-pro-team@latest/github/collaborating-with-issues-and-pull-requests/about-pull-requests) to incorporate your changes into the upstream project you forked.
 
 ## Python
 
