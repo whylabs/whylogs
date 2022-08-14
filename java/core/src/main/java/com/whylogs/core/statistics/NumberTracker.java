@@ -5,7 +5,6 @@ import com.whylogs.core.message.NumbersMessage;
 import com.whylogs.core.statistics.datatypes.DoubleTracker;
 import com.whylogs.core.statistics.datatypes.LongTracker;
 import com.whylogs.core.statistics.datatypes.VarianceTracker;
-import com.whylogs.core.utils.sketches.ThetaSketch;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -36,14 +35,12 @@ public class NumberTracker {
     this.longs = new LongTracker();
 
     this.histogram = new KllFloatsSketch(256);
-    this.thetaSketch = Union.builder().buildUnion();
   }
 
   public void track(Number number) {
     double dValue = number.doubleValue();
     variance.update(dValue);
     histogram.update((float) dValue);
-    thetaSketch.update(dValue);
 
     if (doubles.getCount() > 0) {
       doubles.update(dValue);
@@ -76,15 +73,10 @@ public class NumberTracker {
     val unionHistogram = KllFloatsSketch.heapify(Memory.wrap(this.histogram.toByteArray()));
     unionHistogram.merge(other.histogram);
 
-    val thetaUnion = Union.builder().buildUnion();
-    thetaUnion.update(this.thetaSketch.getResult());
-    thetaUnion.update(other.thetaSketch.getResult());
-
     return NumberTracker.builder()
         .setVariance(this.variance.merge(other.variance))
         .setDoubles(this.doubles.merge(other.doubles))
         .setLongs(this.longs.merge(other.longs))
-        .setThetaSketch(thetaUnion)
         .setHistogram(unionHistogram)
         .build();
   }
@@ -100,8 +92,6 @@ public class NumberTracker {
     } else if (this.longs.getCount() > 0) {
       builder.setLongs(this.longs.toProtobuf());
     }
-
-    builder.setCompactTheta(ThetaSketch.serialize(thetaSketch));
 
     return builder;
   }
@@ -120,8 +110,6 @@ public class NumberTracker {
     Optional.ofNullable(message.getLongs())
         .map(LongTracker::fromProtobuf)
         .ifPresent(builder::setLongs);
-
-    builder.setThetaSketch(ThetaSketch.deserialize(message.getCompactTheta()));
 
     return builder.build();
   }

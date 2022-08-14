@@ -30,6 +30,11 @@ public class TypedDataConverter {
       ThreadLocal.withInitial(() -> EMPTY_SPACES.matcher(""));
 
   public TypedData convert(Object data) {
+    if (data instanceof Double || data instanceof Float) {
+      final double doubleValue = ((Number) data).doubleValue();
+      return TypedData.fractionalValue(doubleValue);
+    }
+
     if (data == null) {
       return null;
     }
@@ -40,11 +45,6 @@ public class TypedDataConverter {
 
     if (data instanceof String) {
       return getTypedStringData((String) data);
-    }
-
-    if (data instanceof Double || data instanceof Float) {
-      final double doubleValue = ((Number) data).doubleValue();
-      return TypedData.fractionalValue(doubleValue);
     }
 
     if (data instanceof Integer || data instanceof Long || data instanceof Short) {
