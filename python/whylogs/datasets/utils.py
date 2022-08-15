@@ -20,7 +20,7 @@ def _parse_interval(interval: str) -> Tuple[int, str]:
         result = re.findall(r"^(\d+)([DdMmHhSs])", interval)[0]
         return (int(result[0]), result[1].upper())
     except IndexError:
-        raise ValueError("Could not parse interval!")
+        raise ValueError("Could not parse interval {}!".format(interval))
 
 
 def _adjust_df_date(df: pd.DataFrame, new_start_date: datetime) -> pd.DataFrame:
@@ -43,7 +43,7 @@ def _validate_timestamp(timestamp: Union[date, datetime, pd.Timestamp, str]) -> 
         try:
             return datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S%z")
         except ValueError:
-            raise ValueError("Could not parse string as datetime.")
+            raise ValueError('Could not parse string as datetime. Expected format: "%Y-%m-%d %H:%M:%S%z"')
     if isinstance(timestamp, datetime):
         return timestamp
     if isinstance(timestamp, date):

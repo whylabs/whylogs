@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 
 import pytest
 
@@ -23,13 +23,16 @@ class TestWeatherDataset(object):
 
     def test_supported_interval(self, dataset):
         dataset.set_parameters("1d")
+        now = datetime.now(timezone.utc) + timedelta(days=1)
+        batch = dataset.get_inference_data(target_date=now)
+        assert len(batch.data) > 0
 
     def test_non_supported_interval(self, dataset):
         with pytest.raises(
             ValueError, match="Maximum allowed interval for this dataset is {}".format(dataset_config.max_interval)
         ):
             dataset.set_parameters("50d")
-        with pytest.raises(ValueError, match="Could not parse interval!"):
+        with pytest.raises(ValueError, match="Could not parse interval {}!".format("5z")):
             dataset.set_parameters("5z")
 
     def test_date_baseline_ts(self, dataset):
@@ -45,9 +48,9 @@ class TestWeatherDataset(object):
         assert isinstance(dataset.inference_start_timestamp, date)
 
     def test_unsupported_timestamp(self, dataset):
-        with pytest.raises(ValueError, match="Could not parse string as datetime."):
+        with pytest.raises(ValueError, match="Could not parse string as datetime. Expected format:"):
             dataset.set_parameters("1d", baseline_timestamp="22-04-12")
-        with pytest.raises(ValueError, match="Could not parse string as datetime."):
+        with pytest.raises(ValueError, match="Could not parse string as datetime. Expected format:"):
             dataset.set_parameters("1d", inference_start_timestamp="22-04-12")
 
     def test_get_baseline(self, dataset):
@@ -99,7 +102,7 @@ class TestWeatherDataset(object):
         assert len(list(batches)) == 3
 
     def test_get_inference_invalid_interval(self, dataset):
-        with pytest.raises(ValueError, match="Could not parse interval!"):
+        with pytest.raises(ValueError, match="Could not parse interval {}!".format("12y")):
             dataset.set_parameters("12y")
         with pytest.raises(
             ValueError, match="Maximum allowed interval for this dataset is {}".format(WeatherConfig.max_interval)
