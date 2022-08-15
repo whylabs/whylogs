@@ -11,13 +11,9 @@ class MyResolver(StandardResolver):
 
 def test_schema_default_value_overrides() -> None:
     schema = DatasetSchema(
-        types={
-            "col1": str,
-            "col2": np.int32,
-            "col3": pd.CategoricalDtype(categories=('foo', 'bar'), ordered=True)
-        },
+        types={"col1": str, "col2": np.int32, "col3": pd.CategoricalDtype(categories=("foo", "bar"), ordered=True)},
         resolvers=MyResolver(),
-        cache_size = 12,
+        cache_size=12,
     )
     assert isinstance(schema.resolvers, MyResolver)
     assert schema.types["col2"] == np.int32
@@ -26,13 +22,9 @@ def test_schema_default_value_overrides() -> None:
 
 def test_schema_subclass_copy() -> None:
     schema = DatasetSchema(
-        types={
-            "col1": str,
-            "col2": np.int32,
-            "col3": pd.CategoricalDtype(categories=('foo', 'bar'), ordered=True)
-        },
+        types={"col1": str, "col2": np.int32, "col3": pd.CategoricalDtype(categories=("foo", "bar"), ordered=True)},
         resolvers=MyResolver(),
-        cache_size = 12,
+        cache_size=12,
     )
     copy = schema.copy()
     assert isinstance(copy.resolvers, MyResolver)
