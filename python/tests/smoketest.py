@@ -1,6 +1,6 @@
 import os
 
-os.environ["HEAP_APPID_DEV"] = "3422045963"
+os.environ["HEAP_APPID_DEV"] = "3002560559"
 
 from whylogs import __version__, package_version  # noqa
 

@@ -2,9 +2,9 @@ import os
 import webbrowser
 
 import pytest
-from python.whylogs.core.constraints import Constraints
 
 from whylogs.core import DatasetProfileView
+from whylogs.core.constraints import Constraints
 from whylogs.viz import NotebookProfileVisualizer
 
 

@@ -15,7 +15,7 @@ from urllib import request
 
 import whylogs
 
-HEAP_APPID_PROD = "2170415941"
+HEAP_APPID_PROD = "2496309831"
 
 HEAP_ENDPOINT = "https://heapanalytics.com/api/track"
 HEAP_HEADERS = {"Content-Type": "application/json"}
@@ -32,8 +32,23 @@ _SITE_PACKAGES = site.getsitepackages()
 
 
 def emit_usage(event: str) -> None:
+    global _TELEMETRY_DISABLED
     if _TELEMETRY_DISABLED:
         return
+
+    if os.getenv(ANALYTICS_OPT_OUT) is not None:
+        logger.debug("Opted out of usage statistics. Skipping.")
+        _TELEMETRY_DISABLED = True
+        return
+
+    try:
+        if os.path.exists(os.path.expanduser("~/.whylogs/disable_telemetry")):
+            _TELEMETRY_DISABLED = True
+            return
+    except:  # noqa
+        logger.info("Encounter exception when checking file system. Disable telemetry by default")
+        _TELEMETRY_DISABLED = True
+        pass
 
     t = Thread(target=_do_emit_usage, args=(event,))
     t.start()
@@ -46,7 +61,8 @@ _identity = None
 
 
 def _do_emit_usage(event: str) -> None:
-    if os.getenv(ANALYTICS_OPT_OUT) is not None:
+    global _TELEMETRY_DISABLED
+    if _TELEMETRY_DISABLED:
         logger.debug("Opted out of usage statistics. Skipping.")
         return
 
