@@ -8,4 +8,3 @@ public class Error extends Exception {
     super(message);
   }
 }
-
