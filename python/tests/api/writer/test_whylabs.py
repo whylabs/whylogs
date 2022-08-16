@@ -57,6 +57,32 @@ class TestWhylabsWriter(object):
             assert isinstance(response, requests.Response)
             assert response.status_code == 200
 
+    def test_upload_reference_request(self, results):
+        self.responses = responses.RequestsMock()
+        self.responses.start()
+
+        self.responses.add(PUT, url="https://api.whylabsapp.com", body=results.view().to_pandas().to_json())
+        profile = results.view()
+
+        writer = WhyLabsWriter()
+        # reproducing what the write method does, without explicitly calling it
+        # so it's possible to inject the upload_url
+        with tempfile.NamedTemporaryFile() as tmp_file:
+            profile.write(path=tmp_file.name)
+            tmp_file.flush()
+
+            dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
+            dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
+            response = writer._upload_whylabs(
+                dataset_timestamp=dataset_timestamp,
+                profile_path=tmp_file.name,
+                upload_url="https://api.whylabsapp.com",
+                reference=True,
+                reference_alias="RefProfileAlias",
+            )
+            assert isinstance(response, requests.Response)
+            assert response.status_code == 200
+
     def test_api_key_null_raises_error(self, results, caplog):
         caplog.set_level(logging.ERROR)
         with pytest.raises(ValueError):
