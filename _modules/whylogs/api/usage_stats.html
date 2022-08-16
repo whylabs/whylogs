@@ -377,7 +377,7 @@
 
 <span class="kn">import</span> <span class="nn">whylogs</span>
 
-<span class="n">HEAP_APPID_PROD</span> <span class="o">=</span> <span class="s2">&quot;2170415941&quot;</span>
+<span class="n">HEAP_APPID_PROD</span> <span class="o">=</span> <span class="s2">&quot;2496309831&quot;</span>
 
 <span class="n">HEAP_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;https://heapanalytics.com/api/track&quot;</span>
 <span class="n">HEAP_HEADERS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
@@ -394,8 +394,23 @@
 
 
 <div class="viewcode-block" id="emit_usage"><a class="viewcode-back" href="../../../api/whylogs/api/usage_stats/index.html#whylogs.api.usage_stats.emit_usage">[docs]</a><span class="k">def</span> <span class="nf">emit_usage</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">_TELEMETRY_DISABLED</span>
     <span class="k">if</span> <span class="n">_TELEMETRY_DISABLED</span><span class="p">:</span>
         <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ANALYTICS_OPT_OUT</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Opted out of usage statistics. Skipping.&quot;</span><span class="p">)</span>
+        <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.whylogs/disable_telemetry&quot;</span><span class="p">)):</span>
+            <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span>
+    <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Encounter exception when checking file system. Disable telemetry by default&quot;</span><span class="p">)</span>
+        <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">pass</span>
 
     <span class="n">t</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_do_emit_usage</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,))</span>
     <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -408,7 +423,8 @@
 
 
 <span class="k">def</span> <span class="nf">_do_emit_usage</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ANALYTICS_OPT_OUT</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">_TELEMETRY_DISABLED</span>
+    <span class="k">if</span> <span class="n">_TELEMETRY_DISABLED</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Opted out of usage statistics. Skipping.&quot;</span><span class="p">)</span>
         <span class="k">return</span>
 
