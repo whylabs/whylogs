@@ -8,4 +8,4 @@ Currently, the supported writer are:
 - **S3 Writer** - Uploads profiles to AWS S3
 - **WhyLabs Writer** - Uploads profiles to WhyLabs Platform
 
-For more information on how to write and upload profiles, check our example on [Writing Profiles](https://github.com/whylabs/whylogs/blob/15d08fdf237e766ab2ea3f50bf6828a613f0077c/python/examples/integrations/writers/Writing_Profiles.ipynb)!
+For more information on how to write and upload profiles, check our example on [Writing Profiles](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Profiles.ipynb)!
