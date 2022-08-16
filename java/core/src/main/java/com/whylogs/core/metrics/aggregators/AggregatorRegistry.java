@@ -6,6 +6,9 @@ import lombok.Data;
 import java.util.HashMap;
 
 @Data
+// Registry for aggregators. You can register a component or a type-id to an aggregator.
+// The aggregators are of IAggregator which is just a wrapper on BiFunction.
+// This allows the use of lambdas to create aggregators.
 public class AggregatorRegistry {
     private HashMap<String, IAggregator> namedAggregators;
     private HashMap<Integer, IAggregator> idAggregators;
