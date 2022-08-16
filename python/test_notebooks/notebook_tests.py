@@ -10,6 +10,7 @@ skip_notebooks = [
     "Pyspark_Profiling.ipynb",
     "Kafka_Example.ipynb",
     "Writing_to_WhyLabs.ipynb",
+    "Writing_Reference_Profiles_to_WhyLabs.ipynb",
     "flask_with_whylogs.ipynb",
     "BigQuery_Example.ipynb",
 ]
