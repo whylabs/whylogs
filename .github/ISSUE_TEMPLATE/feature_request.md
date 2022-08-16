@@ -19,4 +19,4 @@ about: Suggest an idea for this project
 
 Relates to organization/repo#number <!-- Reference related commits, issues and pull requests. Type `#` and select from the list. -->
 
-- [ ] I have reviewed the [Guidelines for Contributing](https://github.com/whylabs/whylogs/.github/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/whylabs/whylogs/blob/.github/CODE_OF_CONDUCT.md).
+- [ ] I have reviewed the [Guidelines for Contributing](https://github.com/whylabs/whylogs/blob/mainline/.github/CONTRIBUTING.md) and the [Code of Conduct](https://github.com/whylabs/whylogs/blob/mainline/.github/CODE_OF_CONDUCT.md).
