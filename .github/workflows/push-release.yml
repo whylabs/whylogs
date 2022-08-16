@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install dependencies
@@ -46,7 +46,7 @@ jobs:
           echo $VERSION
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          poetry run bump2version patch --verbose --commit --no-tag --new-version $VERSION
+          poetry run bump2version patch --verbose --allow-dirty --commit --no-tag --new-version $VERSION
 
       #push version bump to tagged branch so new version is included in pypi
       - name: Push changes
