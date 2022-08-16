@@ -15,7 +15,7 @@ plugins {
 }
 
 val scalaVersion = project.properties.getOrDefault("scalaVersion", "2.12")
-val sparkVersion = project.properties.getOrDefault("sparkVersion", "3.1.1") as String
+val sparkVersion = project.properties.getOrDefault("sparkVersion", "3.2.1") as String
 val artifactBaseName = "whylogs-spark-bundle_${sparkVersion}-scala_$scalaVersion"
 val versionString = rootProject.version
 
