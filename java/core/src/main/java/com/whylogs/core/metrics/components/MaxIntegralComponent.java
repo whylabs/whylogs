@@ -23,6 +23,11 @@ public class MaxIntegralComponent extends IntegralComponent {
         return TYPE_ID;
     }
 
+    @Override
+    public String getTypeName() {
+        return this.getClass().getSimpleName();
+    }
+
     public static MaxIntegralComponent max(Collection<? extends Integer> list){
         int max = Integer.MIN_VALUE;
         for(Integer i : list){

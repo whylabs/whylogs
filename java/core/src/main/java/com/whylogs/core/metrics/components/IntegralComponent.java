@@ -10,4 +10,9 @@ public class IntegralComponent extends MetricComponent<Integer> {
     public IntegralComponent(Integer value) {
         super(value);
     }
+
+    @Override
+    public String getTypeName() {
+        return this.getClass().getSimpleName();
+    }
 }

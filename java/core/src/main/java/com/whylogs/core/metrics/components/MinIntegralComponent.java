@@ -22,6 +22,11 @@ public class MinIntegralComponent extends IntegralComponent {
         return TYPE_ID;
     }
 
+    @Override
+    public String getTypeName() {
+        return this.getClass().getSimpleName();
+    }
+
     public static MinIntegralComponent min(Collection<? extends Integer> list){
         int min = Integer.MAX_VALUE;
         for(Integer i : list){

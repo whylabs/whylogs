@@ -45,6 +45,9 @@ public class MetricComponent<T> {
         throw new NotImplementedException();
     }
 
+    public String getTypeName() {
+        return this.getClass().getSimpleName();
+    }
 
 
     // TODO to_protobuf
