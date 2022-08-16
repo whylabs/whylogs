@@ -1,0 +1,147 @@
+:py:mod:`whylogs.datasets.configs`
+==================================
+
+.. py:module:: whylogs.datasets.configs
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.datasets.configs.BaseConfig
+   whylogs.datasets.configs.DatasetConfig
+   whylogs.datasets.configs.WeatherConfig
+
+
+
+
+.. py:class:: BaseConfig
+
+   .. py:attribute:: data_folder
+      :annotation: :str = whylogs_data
+
+      
+
+   .. py:attribute:: description_folder
+      :annotation: :str = whylogs.datasets.descr
+
+      
+
+
+.. py:class:: DatasetConfig
+
+   .. py:attribute:: folder_name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: url
+      :annotation: :str
+
+      
+
+   .. py:attribute:: baseline_start_timestamp
+      :annotation: :Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: inference_start_timestamp
+      :annotation: :Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: max_interval
+      :annotation: :int
+
+      
+
+   .. py:attribute:: base_unit
+      :annotation: :str
+
+      
+
+   .. py:attribute:: available_versions
+      :annotation: :tuple
+
+      
+
+   .. py:attribute:: target_columns
+      :annotation: :dict
+
+      
+
+   .. py:attribute:: prediction_columns
+      :annotation: :dict
+
+      
+
+   .. py:attribute:: miscellaneous_columns
+      :annotation: :dict
+
+      
+
+
+.. py:class:: WeatherConfig
+
+   Bases: :py:obj:`DatasetConfig`
+
+   .. py:attribute:: folder_name
+      :annotation: :str = weather_forecast
+
+      
+
+   .. py:attribute:: description_file
+      :annotation: :str = weather.rst
+
+      
+
+   .. py:attribute:: url
+      :annotation: :str = https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/WeatherForecast
+
+      
+
+   .. py:attribute:: baseline_start_timestamp
+      :annotation: :Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: inference_start_timestamp
+      :annotation: :Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: max_interval
+      :annotation: :int = 30
+
+      
+
+   .. py:attribute:: base_unit
+      :annotation: :str = D
+
+      
+
+   .. py:attribute:: available_versions
+      :annotation: :tuple = ['in_domain', 'out_domain']
+
+      
+
+   .. py:attribute:: target_columns
+      :annotation: :Dict[str, List[str]]
+
+      
+
+   .. py:attribute:: prediction_columns
+      :annotation: :Dict[str, List[str]]
+
+      
+
+   .. py:attribute:: miscellaneous_columns
+      :annotation: :Dict[str, List[str]]
+
+      
+
+

@@ -31,6 +31,7 @@ Subpackages
 
    api/index.rst
    core/index.rst
+   datasets/index.rst
    migration/index.rst
    viz/index.rst
 

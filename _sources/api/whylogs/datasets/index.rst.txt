@@ -1,0 +1,153 @@
+:py:mod:`whylogs.datasets`
+==========================
+
+.. py:module:: whylogs.datasets
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   descr/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   base/index.rst
+   configs/index.rst
+   weather/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.datasets.Weather
+
+
+
+
+.. py:class:: Weather(version: str = 'in_domain')
+
+   Bases: :py:obj:`whylogs.datasets.base.Dataset`
+
+   Weather Forecast Dataset
+
+   The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time.
+   This dataset can present data distribution shifts over both time and space.
+
+   The original data was sourced from the `Weather Prediction Dataset <https://github.com/Shifts-Project/shifts>`_.
+   From the source data additional transformations were made, such as: feature renaming, feature selection and subsampling.
+   The original dataset is described in
+   `Shifts: A Dataset of Real Distributional Shift Across Multiple Large-Scale Tasks <https://arxiv.org/pdf/2107.07455.pdf>`_, by **Malinin, Andrey, et al.**
+
+   For a detailed description, please use the dataset's describe() method or visit whylog's documentation website.
+
+   .. py:attribute:: baseline_df
+      :annotation: :pandas.DataFrame
+
+      
+
+   .. py:attribute:: inference_df
+      :annotation: :pandas.DataFrame
+
+      
+
+   .. py:attribute:: inference_interval
+      :annotation: :str = 1d
+
+      
+
+   .. py:attribute:: number_days
+      :annotation: :int = 1
+
+      
+
+   .. py:attribute:: unit
+      :annotation: :str = D
+
+      
+
+   .. py:attribute:: url
+      :annotation: :str
+
+      
+
+   .. py:attribute:: baseline_timestamp
+      :annotation: :Union[datetime.date, datetime.datetime]
+
+      
+
+   .. py:attribute:: inference_start_timestamp
+      :annotation: :Union[datetime.date, datetime.datetime]
+
+      
+
+   .. py:attribute:: original
+      :annotation: :bool = False
+
+      
+
+   .. py:attribute:: dataset_config
+      :annotation: :whylogs.datasets.configs.DatasetConfig
+
+      
+
+   .. py:method:: get_baseline(self) -> whylogs.datasets.base.Batch
+
+      Get baseline Batch object.
+
+      :returns: A batch object representing the complete baseline data.
+      :rtype: Batch
+
+
+   .. py:method:: get_inference_data(self, target_date: Optional[Union[datetime.date, datetime.datetime]] = None, number_batches: Optional[int] = None) -> Union[whylogs.datasets.base.Batch, Iterable[whylogs.datasets.base.Batch]]
+
+      Get batch(es) from inference dataset.
+
+      :param target_date: Target date for single batch. If datetime is passed, only date will be considered, by default None
+      :type target_date: Optional[Union[date, datetime]], optional
+      :param number_batches: Number of batches to be retrieved. Each batch will have a time interval as defined by `inference_interval` from `set_parameters`. By default None
+      :type number_batches: Optional[int], optional
+
+      :returns: Can return a single batch or an interator of batches, depending on input parameters
+      :rtype: Union[Batch, Iterable[Batch]]
+
+
+   .. py:method:: set_parameters(self, inference_interval: Optional[str] = None, baseline_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, inference_start_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, original: Optional[bool] = None) -> None
+
+      Set timestamp and interval parameters for the dataset object.
+
+      :param inference_interval: Interval for the inference batches. If none is passed, daily inference batches will be returned, by default None
+      :type inference_interval: Optional[str], optional
+      :param baseline_timestamp: Timestamp for the baseline dataset. If none is passed, timestamp will be equal to the current day, by default None
+      :type baseline_timestamp: Optional[Union[date, datetime]], optional
+      :param inference_start_timestamp: Timestamp for the start of the inference dataset. If none is passed, timestamp will be equal to tomorrow's date, by default None
+      :type inference_start_timestamp: Optional[Union[date, datetime]], optional
+      :param original: _If true, sets both baseline and inference timestamps to the dataset's original timestamp, by default None
+      :type original: Optional[bool], optional
+
+
+   .. py:method:: describe_versions(cls) -> Tuple[str]
+      :classmethod:
+
+      Describe available versions for the given dataset.
+
+
+   .. py:method:: describe(cls) -> Optional[str]
+      :classmethod:
+
+      Display overall dataset description.
+
+
+

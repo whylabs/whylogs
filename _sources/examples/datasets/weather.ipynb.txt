@@ -1,0 +1,1199 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_bWxEq9oV2EP"
+      },
+      "source": [
+        "# Weather Forecast Dataset - Usage Example"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/datasets/weather.ipynb)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "This an example demonstrating the usage of the Weather Forecast Dataset.\n",
+        "\n",
+        "For more information about the dataset itself, check the documentation on :\n",
+        "https://whylogs.readthedocs.io/en/latest/datasets/weather.html"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Installing the datasets module\n",
+        "\n",
+        "Uncomment the cell below if you don't have the `datasets` module installed:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {},
+      "outputs": [],
+      "source": [
+        "# %pip install -q whylogs[datasets]"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "PqOUC2_gD3to"
+      },
+      "source": [
+        "## Loading the Dataset"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "RfIdpq5ly7dD"
+      },
+      "source": [
+        "You can load the dataset of your choice by calling it from the `datasets` module:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "hm5jgXoYVlNB"
+      },
+      "outputs": [],
+      "source": [
+        "from whylogs.datasets import Weather\n",
+        "\n",
+        "dataset = Weather(version=\"in_domain\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "QlbNzl8zzLiU"
+      },
+      "source": [
+        "This will create a folder in the current directory named `whylogs_data` with the csv files for the Weather Dataset. If the files already exist, the module will not redownload the files.\n",
+        "\n",
+        "Notice we're specifying the version of the dataset. A dataset can have multiple versions that can be used for differente purposes. In this case, the version \"in_domain\" has data from the same domain between baseline and inference subsets (data from the same set of regions - tropical, dry, polar, etc.).\n",
+        "\n",
+        "If we're interested in assessing drift issues, the version \"out_domain\" could be used, in which we have out-of-domain data in the inference subset, when compare to the baseline.\n",
+        "\n",
+        "Similarly, datasets could have other versions for other purposes, such as assessing data quality or outlier detection strategies."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ahX4GWZFEK8I"
+      },
+      "source": [
+        "## Discovering Information"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "SsuokUE90J1l"
+      },
+      "source": [
+        "To know what are the available versions for a given dataset, you can call:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 2,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "ykm5JsXsD_uY",
+        "outputId": "2d54fb35-571e-4d00-a627-0aa6af266eec"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "('in_domain', 'out_domain')"
+            ]
+          },
+          "execution_count": 2,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "Weather.describe_versions()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Ep2uEntK0RUM"
+      },
+      "source": [
+        "To get access to overall description of the dataset:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 3,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "E2IdCQ5iEETv",
+        "outputId": "9c4aa363-3b57-45b9-da0a-6f82e1dd4807"
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "Weather Forecast Dataset\n",
+            "========================\n",
+            "\n",
+            "The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time. This dataset can present data distribution shifts over both time and space.\n",
+            "\n",
+            "The original data was sourced from the `Weather Prediction Dataset <https://github.com/Shifts-Project/shifts>`_. From the source data additional transformations were made, such as: feature renaming, feature selection and subsampling.\n",
+            "The original dataset is described in `Shifts: A Dataset of Real Distributional Shift Across Multiple Large-Scale Tasks <https://arxiv.org/pdf/2107.07455.pdf>`_, by **Malinin, Andrey, et al.**\n",
+            "\n",
+            "Usage\n",
+            "-----\n",
+            "\n",
+            "You can follow this guide to see how to use the weather dataset:\n",
+            "\n",
+            ".. toctree::\n",
+            "    :maxdepth: 1\n",
+            "\n",
+            "    ../examples/datasets/weather\n",
+            "\n",
+            "\n",
+            "Versions and Data Partitions\n",
+            "----------------------------\n",
+            "\n",
+            "Currently the dataset contains two versions: **in_domain** and **out_domain**. The task is the same fo\n"
+          ]
+        }
+      ],
+      "source": [
+        "print(Weather.describe()[:1000])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "note: the output was truncated to first 1000 characters as `describe()` will print a rather lengthy description."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "vIMQqyRHPl63"
+      },
+      "source": [
+        "## Getting Baseline Data"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "83sr63LW0ZTk"
+      },
+      "source": [
+        "You can access data from two different partitions: the baseline dataset and inference dataset.\n",
+        "\n",
+        "The baseline can be accessed as a whole, whereas the inference dataset can be accessed in periodic batches, defined by the user.\n",
+        "\n",
+        "To get a `baseline` object, just call `dataset.get_baseline()`:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 4,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "QY6Hdzl0EcnQ",
+        "outputId": "409322a5-d972-49ee-b06d-61d081af4943"
+      },
+      "outputs": [],
+      "source": [
+        "from whylogs.datasets import Weather\n",
+        "\n",
+        "dataset = Weather(version=\"out_domain\")\n",
+        "\n",
+        "baseline = dataset.get_baseline()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "DGhEy3k403T0"
+      },
+      "source": [
+        "`baseline` will contain different attributes - one timestamp and five dataframes.\n",
+        "\n",
+        "- timestamp: the batch's timestamp (at the start)\n",
+        "- data: the complete dataframe\n",
+        "- features: input features\n",
+        "- target: output feature(s)\n",
+        "- prediction: output prediction and, possibly, features such as uncertainty, confidence, probability\n",
+        "- misc: metadata features that are not of any of the previous categories, but still contain relevant information about the data."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 5,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "7-742tkdQIDb",
+        "outputId": "92cc762c-845d-4eb6-c211-9c0de3cb69c0"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "datetime.datetime(2022, 8, 15, 0, 0, tzinfo=datetime.timezone.utc)"
+            ]
+          },
+          "execution_count": 5,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "baseline.timestamp"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 6,
+      "metadata": {},
+      "outputs": [
+        {
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>meta_latitude</th>\n",
+              "      <th>meta_longitude</th>\n",
+              "      <th>meta_climate</th>\n",
+              "      <th>date</th>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>date</th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>28.702900</td>\n",
+              "      <td>-105.964996</td>\n",
+              "      <td>dry</td>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>-35.165298</td>\n",
+              "      <td>147.466003</td>\n",
+              "      <td>mild temperate</td>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>29.607300</td>\n",
+              "      <td>-95.158798</td>\n",
+              "      <td>mild temperate</td>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>39.077999</td>\n",
+              "      <td>-77.557503</td>\n",
+              "      <td>mild temperate</td>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>26.152599</td>\n",
+              "      <td>-81.775299</td>\n",
+              "      <td>mild temperate</td>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "                           meta_latitude  meta_longitude    meta_climate  \\\n",
+              "date                                                                       \n",
+              "2022-08-15 00:00:00+00:00      28.702900     -105.964996             dry   \n",
+              "2022-08-15 00:00:00+00:00     -35.165298      147.466003  mild temperate   \n",
+              "2022-08-15 00:00:00+00:00      29.607300      -95.158798  mild temperate   \n",
+              "2022-08-15 00:00:00+00:00      39.077999      -77.557503  mild temperate   \n",
+              "2022-08-15 00:00:00+00:00      26.152599      -81.775299  mild temperate   \n",
+              "\n",
+              "                                               date  \n",
+              "date                                                 \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00  \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00  \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00  \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00  \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00  "
+            ]
+          },
+          "execution_count": 6,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "baseline.misc.head()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "zq--VQ7kQOWn"
+      },
+      "source": [
+        "## Setting Parameters"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "y6-NrLU813it"
+      },
+      "source": [
+        "With `set_parameters`, you can specify the timestamps for both baseline and inference datasets, as well as the inference interval.\n",
+        "\n",
+        "By default, the timestamp is set as:\n",
+        "- Current date for baseline dataset\n",
+        "- Tomorrow's date for inference dataset\n",
+        "\n",
+        "These timestamps can be defined by the user to any given day, including the dataset's original date.\n",
+        "\n",
+        "The `inference_interval` defines the interval for each batch: '1d' means that we will have daily batches, while '7d' would mean weekly batches."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "c35iQULHvAj4"
+      },
+      "source": [
+        "To set the timestamps to the original dataset's date, set `original` to true, like below:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 7,
+      "metadata": {
+        "id": "ENU8FVY5vJ_-"
+      },
+      "outputs": [],
+      "source": [
+        "# Currently, the inference interval takes a str in the format \"Xd\", where X is an integer between 1-30\n",
+        "dataset.set_parameters(inference_interval=\"1d\", original=True)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 8,
+      "metadata": {},
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "datetime.datetime(2018, 9, 1, 0, 0, tzinfo=datetime.timezone.utc)"
+            ]
+          },
+          "execution_count": 8,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "baseline = dataset.get_baseline()\n",
+        "baseline.timestamp"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "RZqtT98Ruvnp"
+      },
+      "source": [
+        "You can set timestamp by using the `baseline_timestamp` and `inference_start_timestamp`, and the inference interval like below:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 9,
+      "metadata": {
+        "id": "qG69ObDuQQjf"
+      },
+      "outputs": [],
+      "source": [
+        "from datetime import datetime, timezone\n",
+        "now = datetime.now(timezone.utc)\n",
+        "dataset.set_parameters(baseline_timestamp=now, inference_start_timestamp=now, inference_interval=\"1d\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "> Note that we are passing the datetime converted to the UTC timezone. If a naive datetime is passed (no information on timezones), local time zone will be assumed. The local timestamp, however, will be converted to the proper datetime in UTC timezone. Passing a naive datetime will trigger a warning, letting you know of this behavior."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "rZD-BWR7vRh2"
+      },
+      "source": [
+        "Note that if both `original` and a timestamp (baseline or inference) is passed simultaneously, the defined timestamp will be overwritten by the original dataset timestamp."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Mvj9Jr_EQlH4"
+      },
+      "source": [
+        "## Getting Inference Data #1 - By Date"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "i5o19JBVvod_"
+      },
+      "source": [
+        "You can get inference data in two different ways. The first is to specify the exact date you want, which will return a single batch:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 10,
+      "metadata": {
+        "id": "ker8C5-lQqGI"
+      },
+      "outputs": [],
+      "source": [
+        "batch = dataset.get_inference_data(target_date=now)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "You can access the attributes just as showed before:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 11,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "AasIC_5dQvdH",
+        "outputId": "9ceba128-6a21-4b96-aae6-e1412bbdebce"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/plain": [
+              "datetime.datetime(2022, 8, 15, 0, 0, tzinfo=datetime.timezone.utc)"
+            ]
+          },
+          "execution_count": 11,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "batch.timestamp"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 12,
+      "metadata": {},
+      "outputs": [
+        {
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>date</th>\n",
+              "      <th>height_sea_level</th>\n",
+              "      <th>sun_elevation</th>\n",
+              "      <th>pressure</th>\n",
+              "      <th>cmc_temperature_grad</th>\n",
+              "      <th>cmc_temperature</th>\n",
+              "      <th>dew_point_temperature</th>\n",
+              "      <th>absolute_humidity</th>\n",
+              "      <th>snow_depth</th>\n",
+              "      <th>rain_accumulated</th>\n",
+              "      <th>...</th>\n",
+              "      <th>ice_rain_grad</th>\n",
+              "      <th>iced_graupel_grad</th>\n",
+              "      <th>cloud_coverage_grad</th>\n",
+              "      <th>date.1</th>\n",
+              "      <th>meta_latitude</th>\n",
+              "      <th>meta_longitude</th>\n",
+              "      <th>meta_climate</th>\n",
+              "      <th>prediction_temperature</th>\n",
+              "      <th>temperature</th>\n",
+              "      <th>uncertainty</th>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>date</th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>166.0</td>\n",
+              "      <td>24.134473</td>\n",
+              "      <td>749.287193</td>\n",
+              "      <td>-0.670923</td>\n",
+              "      <td>289.282080</td>\n",
+              "      <td>285.220886</td>\n",
+              "      <td>0.0090</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>2.641950</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>-2.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>46.516667</td>\n",
+              "      <td>29.483333</td>\n",
+              "      <td>snow</td>\n",
+              "      <td>17.459501</td>\n",
+              "      <td>19.0</td>\n",
+              "      <td>5.046475</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>180.0</td>\n",
+              "      <td>36.168942</td>\n",
+              "      <td>738.731879</td>\n",
+              "      <td>-3.726770</td>\n",
+              "      <td>290.226721</td>\n",
+              "      <td>284.868256</td>\n",
+              "      <td>0.0095</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.149825</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>-23.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>46.521900</td>\n",
+              "      <td>26.910299</td>\n",
+              "      <td>snow</td>\n",
+              "      <td>15.650873</td>\n",
+              "      <td>15.0</td>\n",
+              "      <td>10.590467</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>25.0</td>\n",
+              "      <td>4.931765</td>\n",
+              "      <td>753.034922</td>\n",
+              "      <td>7.741565</td>\n",
+              "      <td>280.471216</td>\n",
+              "      <td>279.016144</td>\n",
+              "      <td>0.0054</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>3.536025</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>39.033333</td>\n",
+              "      <td>125.783333</td>\n",
+              "      <td>snow</td>\n",
+              "      <td>9.651232</td>\n",
+              "      <td>11.0</td>\n",
+              "      <td>5.512176</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>-11.0</td>\n",
+              "      <td>22.337882</td>\n",
+              "      <td>754.533835</td>\n",
+              "      <td>2.323230</td>\n",
+              "      <td>277.726721</td>\n",
+              "      <td>274.868256</td>\n",
+              "      <td>0.0043</td>\n",
+              "      <td>0.181638</td>\n",
+              "      <td>1.822488</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>-70.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>55.281898</td>\n",
+              "      <td>-77.765297</td>\n",
+              "      <td>snow</td>\n",
+              "      <td>7.948395</td>\n",
+              "      <td>8.0</td>\n",
+              "      <td>3.395677</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>119.0</td>\n",
+              "      <td>58.290232</td>\n",
+              "      <td>767.426533</td>\n",
+              "      <td>0.235266</td>\n",
+              "      <td>290.554565</td>\n",
+              "      <td>283.905655</td>\n",
+              "      <td>0.0116</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>2.715500</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>-1.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>38.519901</td>\n",
+              "      <td>-28.715900</td>\n",
+              "      <td>polar</td>\n",
+              "      <td>18.248093</td>\n",
+              "      <td>18.0</td>\n",
+              "      <td>2.023753</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>...</th>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "      <td>...</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>260.0</td>\n",
+              "      <td>15.023227</td>\n",
+              "      <td>741.406826</td>\n",
+              "      <td>8.416382</td>\n",
+              "      <td>279.342383</td>\n",
+              "      <td>274.999222</td>\n",
+              "      <td>0.0048</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>14.099825</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>39.843498</td>\n",
+              "      <td>-85.897102</td>\n",
+              "      <td>snow</td>\n",
+              "      <td>8.233539</td>\n",
+              "      <td>7.0</td>\n",
+              "      <td>5.549324</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>48.0</td>\n",
+              "      <td>30.655498</td>\n",
+              "      <td>758.121661</td>\n",
+              "      <td>-2.092969</td>\n",
+              "      <td>303.854272</td>\n",
+              "      <td>293.944244</td>\n",
+              "      <td>0.0194</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>1.182225</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>-9.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>-5.911420</td>\n",
+              "      <td>-35.247700</td>\n",
+              "      <td>polar</td>\n",
+              "      <td>30.618527</td>\n",
+              "      <td>30.0</td>\n",
+              "      <td>2.319395</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>99.0</td>\n",
+              "      <td>19.245194</td>\n",
+              "      <td>752.505533</td>\n",
+              "      <td>-2.072693</td>\n",
+              "      <td>290.389832</td>\n",
+              "      <td>282.104599</td>\n",
+              "      <td>0.0067</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.088375</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>30.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>58.100000</td>\n",
+              "      <td>38.683333</td>\n",
+              "      <td>snow</td>\n",
+              "      <td>16.601422</td>\n",
+              "      <td>17.0</td>\n",
+              "      <td>4.060273</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>296.0</td>\n",
+              "      <td>38.102269</td>\n",
+              "      <td>734.381076</td>\n",
+              "      <td>2.616138</td>\n",
+              "      <td>268.365942</td>\n",
+              "      <td>267.126648</td>\n",
+              "      <td>0.0024</td>\n",
+              "      <td>1.002448</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>-1.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>66.580000</td>\n",
+              "      <td>-61.620000</td>\n",
+              "      <td>polar</td>\n",
+              "      <td>1.004967</td>\n",
+              "      <td>-1.0</td>\n",
+              "      <td>3.510967</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>2022-08-15 00:00:00+00:00</td>\n",
+              "      <td>48.0</td>\n",
+              "      <td>-10.442588</td>\n",
+              "      <td>755.390211</td>\n",
+              "      <td>-0.808435</td>\n",
+              "      <td>281.321216</td>\n",
+              "      <td>277.766144</td>\n",
+              "      <td>0.0060</td>\n",
+              "      <td>0.000000</td>\n",
+              "      <td>0.158425</td>\n",
+              "      <td>...</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>0.0</td>\n",
+              "      <td>-26.0</td>\n",
+              "      <td>2019-05-14 00:00:00+00:00</td>\n",
+              "      <td>60.289167</td>\n",
+              "      <td>5.226389</td>\n",
+              "      <td>snow</td>\n",
+              "      <td>7.546170</td>\n",
+              "      <td>7.0</td>\n",
+              "      <td>2.232020</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "<p>100 rows × 56 columns</p>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "                                               date  height_sea_level  \\\n",
+              "date                                                                    \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00             166.0   \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00             180.0   \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00              25.0   \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00             -11.0   \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00             119.0   \n",
+              "...                                             ...               ...   \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00             260.0   \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00              48.0   \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00              99.0   \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00             296.0   \n",
+              "2022-08-15 00:00:00+00:00 2022-08-15 00:00:00+00:00              48.0   \n",
+              "\n",
+              "                           sun_elevation    pressure  cmc_temperature_grad  \\\n",
+              "date                                                                         \n",
+              "2022-08-15 00:00:00+00:00      24.134473  749.287193             -0.670923   \n",
+              "2022-08-15 00:00:00+00:00      36.168942  738.731879             -3.726770   \n",
+              "2022-08-15 00:00:00+00:00       4.931765  753.034922              7.741565   \n",
+              "2022-08-15 00:00:00+00:00      22.337882  754.533835              2.323230   \n",
+              "2022-08-15 00:00:00+00:00      58.290232  767.426533              0.235266   \n",
+              "...                                  ...         ...                   ...   \n",
+              "2022-08-15 00:00:00+00:00      15.023227  741.406826              8.416382   \n",
+              "2022-08-15 00:00:00+00:00      30.655498  758.121661             -2.092969   \n",
+              "2022-08-15 00:00:00+00:00      19.245194  752.505533             -2.072693   \n",
+              "2022-08-15 00:00:00+00:00      38.102269  734.381076              2.616138   \n",
+              "2022-08-15 00:00:00+00:00     -10.442588  755.390211             -0.808435   \n",
+              "\n",
+              "                           cmc_temperature  dew_point_temperature  \\\n",
+              "date                                                                \n",
+              "2022-08-15 00:00:00+00:00       289.282080             285.220886   \n",
+              "2022-08-15 00:00:00+00:00       290.226721             284.868256   \n",
+              "2022-08-15 00:00:00+00:00       280.471216             279.016144   \n",
+              "2022-08-15 00:00:00+00:00       277.726721             274.868256   \n",
+              "2022-08-15 00:00:00+00:00       290.554565             283.905655   \n",
+              "...                                    ...                    ...   \n",
+              "2022-08-15 00:00:00+00:00       279.342383             274.999222   \n",
+              "2022-08-15 00:00:00+00:00       303.854272             293.944244   \n",
+              "2022-08-15 00:00:00+00:00       290.389832             282.104599   \n",
+              "2022-08-15 00:00:00+00:00       268.365942             267.126648   \n",
+              "2022-08-15 00:00:00+00:00       281.321216             277.766144   \n",
+              "\n",
+              "                           absolute_humidity  snow_depth  rain_accumulated  \\\n",
+              "date                                                                         \n",
+              "2022-08-15 00:00:00+00:00             0.0090    0.000000          2.641950   \n",
+              "2022-08-15 00:00:00+00:00             0.0095    0.000000          0.149825   \n",
+              "2022-08-15 00:00:00+00:00             0.0054    0.000000          3.536025   \n",
+              "2022-08-15 00:00:00+00:00             0.0043    0.181638          1.822488   \n",
+              "2022-08-15 00:00:00+00:00             0.0116    0.000000          2.715500   \n",
+              "...                                      ...         ...               ...   \n",
+              "2022-08-15 00:00:00+00:00             0.0048    0.000000         14.099825   \n",
+              "2022-08-15 00:00:00+00:00             0.0194    0.000000          1.182225   \n",
+              "2022-08-15 00:00:00+00:00             0.0067    0.000000          0.088375   \n",
+              "2022-08-15 00:00:00+00:00             0.0024    1.002448          0.000000   \n",
+              "2022-08-15 00:00:00+00:00             0.0060    0.000000          0.158425   \n",
+              "\n",
+              "                           ...  ice_rain_grad  iced_graupel_grad  \\\n",
+              "date                       ...                                     \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "...                        ...            ...                ...   \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "2022-08-15 00:00:00+00:00  ...            0.0                0.0   \n",
+              "\n",
+              "                           cloud_coverage_grad                     date.1  \\\n",
+              "date                                                                        \n",
+              "2022-08-15 00:00:00+00:00                 -2.0  2019-05-14 00:00:00+00:00   \n",
+              "2022-08-15 00:00:00+00:00                -23.0  2019-05-14 00:00:00+00:00   \n",
+              "2022-08-15 00:00:00+00:00                  0.0  2019-05-14 00:00:00+00:00   \n",
+              "2022-08-15 00:00:00+00:00                -70.0  2019-05-14 00:00:00+00:00   \n",
+              "2022-08-15 00:00:00+00:00                 -1.0  2019-05-14 00:00:00+00:00   \n",
+              "...                                        ...                        ...   \n",
+              "2022-08-15 00:00:00+00:00                  0.0  2019-05-14 00:00:00+00:00   \n",
+              "2022-08-15 00:00:00+00:00                 -9.0  2019-05-14 00:00:00+00:00   \n",
+              "2022-08-15 00:00:00+00:00                 30.0  2019-05-14 00:00:00+00:00   \n",
+              "2022-08-15 00:00:00+00:00                 -1.0  2019-05-14 00:00:00+00:00   \n",
+              "2022-08-15 00:00:00+00:00                -26.0  2019-05-14 00:00:00+00:00   \n",
+              "\n",
+              "                           meta_latitude  meta_longitude  meta_climate  \\\n",
+              "date                                                                     \n",
+              "2022-08-15 00:00:00+00:00      46.516667       29.483333          snow   \n",
+              "2022-08-15 00:00:00+00:00      46.521900       26.910299          snow   \n",
+              "2022-08-15 00:00:00+00:00      39.033333      125.783333          snow   \n",
+              "2022-08-15 00:00:00+00:00      55.281898      -77.765297          snow   \n",
+              "2022-08-15 00:00:00+00:00      38.519901      -28.715900         polar   \n",
+              "...                                  ...             ...           ...   \n",
+              "2022-08-15 00:00:00+00:00      39.843498      -85.897102          snow   \n",
+              "2022-08-15 00:00:00+00:00      -5.911420      -35.247700         polar   \n",
+              "2022-08-15 00:00:00+00:00      58.100000       38.683333          snow   \n",
+              "2022-08-15 00:00:00+00:00      66.580000      -61.620000         polar   \n",
+              "2022-08-15 00:00:00+00:00      60.289167        5.226389          snow   \n",
+              "\n",
+              "                           prediction_temperature  temperature  uncertainty  \n",
+              "date                                                                         \n",
+              "2022-08-15 00:00:00+00:00               17.459501         19.0     5.046475  \n",
+              "2022-08-15 00:00:00+00:00               15.650873         15.0    10.590467  \n",
+              "2022-08-15 00:00:00+00:00                9.651232         11.0     5.512176  \n",
+              "2022-08-15 00:00:00+00:00                7.948395          8.0     3.395677  \n",
+              "2022-08-15 00:00:00+00:00               18.248093         18.0     2.023753  \n",
+              "...                                           ...          ...          ...  \n",
+              "2022-08-15 00:00:00+00:00                8.233539          7.0     5.549324  \n",
+              "2022-08-15 00:00:00+00:00               30.618527         30.0     2.319395  \n",
+              "2022-08-15 00:00:00+00:00               16.601422         17.0     4.060273  \n",
+              "2022-08-15 00:00:00+00:00                1.004967         -1.0     3.510967  \n",
+              "2022-08-15 00:00:00+00:00                7.546170          7.0     2.232020  \n",
+              "\n",
+              "[100 rows x 56 columns]"
+            ]
+          },
+          "execution_count": 12,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "batch.data"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 13,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 238
+        },
+        "id": "n41ImwgzQyPP",
+        "outputId": "f56173a3-8c71-46f2-ca9d-d0a013792388"
+      },
+      "outputs": [
+        {
+          "data": {
+            "text/html": [
+              "<div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>prediction_temperature</th>\n",
+              "      <th>uncertainty</th>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>date</th>\n",
+              "      <th></th>\n",
+              "      <th></th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>17.459501</td>\n",
+              "      <td>5.046475</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>15.650873</td>\n",
+              "      <td>10.590467</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>9.651232</td>\n",
+              "      <td>5.512176</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>7.948395</td>\n",
+              "      <td>3.395677</td>\n",
+              "    </tr>\n",
+              "    <tr>\n",
+              "      <th>2022-08-15 00:00:00+00:00</th>\n",
+              "      <td>18.248093</td>\n",
+              "      <td>2.023753</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>"
+            ],
+            "text/plain": [
+              "                           prediction_temperature  uncertainty\n",
+              "date                                                          \n",
+              "2022-08-15 00:00:00+00:00               17.459501     5.046475\n",
+              "2022-08-15 00:00:00+00:00               15.650873    10.590467\n",
+              "2022-08-15 00:00:00+00:00                9.651232     5.512176\n",
+              "2022-08-15 00:00:00+00:00                7.948395     3.395677\n",
+              "2022-08-15 00:00:00+00:00               18.248093     2.023753"
+            ]
+          },
+          "execution_count": 13,
+          "metadata": {},
+          "output_type": "execute_result"
+        }
+      ],
+      "source": [
+        "batch.prediction.head()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "iHTrgM8vQ6s3"
+      },
+      "source": [
+        "## Getting Inference Data #2 - By Number of Batches"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "1uSzyxcjv_lu"
+      },
+      "source": [
+        "The second way is to specify the number of batches you want and also the date for the first batch.\n",
+        "\n",
+        "You can then iterate over the returned object to get the batches. You can then use the batch any way you want. Here's an example that retrieves daily batches for a period of 5 days and logs each one with __whylogs__, saving the binary profiles to disk:"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 14,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "mtLnlHs3Wj_Q",
+        "outputId": "c9bd891f-2502-4706-cde9-051fdd3fb861"
+      },
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "logging batch of size 100 for 2022-08-15 00:00:00+00:00\n",
+            "logging batch of size 227 for 2022-08-16 00:00:00+00:00\n",
+            "logging batch of size 186 for 2022-08-17 00:00:00+00:00\n",
+            "logging batch of size 197 for 2022-08-18 00:00:00+00:00\n",
+            "logging batch of size 194 for 2022-08-19 00:00:00+00:00\n"
+          ]
+        }
+      ],
+      "source": [
+        "import whylogs as why\n",
+        "batches = dataset.get_inference_data(number_batches=5)\n",
+        "\n",
+        "for batch in batches:\n",
+        "  print(\"logging batch of size {} for {}\".format(len(batch.data),batch.timestamp))\n",
+        "  profile = why.log(batch.data).profile()\n",
+        "  profile.set_dataset_timestamp(batch.timestamp)\n",
+        "  profile.view().write(\"batch_{}\".format(batch.timestamp))"
+      ]
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "name": "datasets.ipynb",
+      "provenance": []
+    },
+    "kernelspec": {
+      "display_name": "Python 3.8.10 ('.venv': poetry)",
+      "language": "python",
+      "name": "python3"
+    },
+    "language_info": {
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.8.10"
+    },
+    "vscode": {
+      "interpreter": {
+        "hash": "8430e7bcc333486e417258c6fadac662061ebd166d9f3c5ccb12c1968aa41625"
+      }
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}

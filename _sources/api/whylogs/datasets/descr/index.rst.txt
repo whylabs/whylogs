@@ -1,0 +1,6 @@
+:py:mod:`whylogs.datasets.descr`
+================================
+
+.. py:module:: whylogs.datasets.descr
+
+

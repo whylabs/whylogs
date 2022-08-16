@@ -1,0 +1,1478 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+<meta property="og:title" content="Weather Forecast Dataset - Usage Example" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/datasets/weather.html" />
+  
+<meta property="og:description" content="Open in Colab This an example demonstrating the usage of the Weather Forecast Dataset. For more information about the dataset itself, check the documentation on : https://whylogs.readthedocs.io/en/..." />
+  <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+
+    <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
+        <title>Weather Forecast Dataset - Usage Example - whylogs v1.0.10</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f0f0f0;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #263238;
+  --color-code-foreground: #EEFFFF;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     <em>whylogs v1</em> has been launched! Make sure you checkout the
+    <a href="/migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
+    transition 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.10</div></div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../_static/images/logo.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../_static/images/logo.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>whylogs</div>  <div class='version'> v1.0.10</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder=Search name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Features</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../features/profiling.html">Profiling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../features/writing.html">Writers</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Inspecting_Profiles.html">Inspecting Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../basic/Merging_Profiles.html">Merging Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/Constraints_Suite.html">Simple Constraints - Examples and Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/Custom_Metrics.html">Custom Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/Custom_Metrics.html#Using-Your-Metric">Using Your Metric</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">Rolling Logs with Streaming Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/writers/Writing_to_WhyLabs.html">Writing Profiles to WhyLabs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/writers/Writing_Profiles.html">Writing profiles - Local/S3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/Pyspark_Profiling.html">PySpark Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/Mlflow_Logging.html">MLflow Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/kafka-example/Kafka_Example.html">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/Feature_Stores_and_whylogs.html">Logging data from Feature Stores with Feast and whylogs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/flask_streaming/flask_with_whylogs.html">Integrating Whylogs into your Flask Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../integrations/flask_streaming/flask_with_whylogs.html#Viewing-the-Data">Viewing the Data</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Migration Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../migration/basics.html">Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migration/log_rotation.html">Log Rotation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Support</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../support/license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support/faqs.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../support/usage_statistics.html">Usage Statistics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/whylabs/whylogs">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bit.ly/whylogs-slack">Slack</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API References</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../api/whylogs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/api/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/api/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/logger/logger/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.logger</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/logger/result_set/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.result_set</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/logger/rolling/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.rolling</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/logger/transient/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.logger.transient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/api/reader/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.reader</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/reader/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.reader.local</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/reader/reader/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.reader.reader</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/reader/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.reader.s3</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/api/usage_stats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.usage_stats</span></code></a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/api/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/local/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.local</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/mlflow/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.mlflow</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/s3/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.s3</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/whylabs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.whylabs</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/api/writer/writer/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.writer.writer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/api/annotations/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.api.annotations</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/core/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/core/constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/cardinality_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.cardinality_metrics</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/count_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.count_metrics</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/distribution_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.distribution_metrics</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/constraints/factories/frequent_items/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.factories.frequent_items</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/constraints/metric_constraints/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.constraints.metric_constraints</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/core/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/aggregators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.aggregators</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/column_metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.column_metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/compound_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.compound_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/condition_count_metric/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.condition_count_metric</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/decorators/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.decorators</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/deserializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.deserializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/maths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.maths</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/metric_components/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metric_components</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/metrics/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.metrics</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/registry/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.registry</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/serializers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.serializers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/metrics/unicode_range/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.metrics.unicode_range</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/core/proto/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5 has-children"><a class="reference internal" href="../../api/whylogs/core/proto/v0/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/proto/v0/v0_constraints_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_constraints_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/proto/v0/v0_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_messages_pb2</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../api/whylogs/core/proto/v0/v0_summaries_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.v0.v0_summaries_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/proto/whylogs_messages_pb2/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.proto.whylogs_messages_pb2</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/core/view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/view/column_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.column_profile_view</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/core/view/dataset_profile_view/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.view.dataset_profile_view</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/column_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.column_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/common/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.common</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/dataset_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.dataset_profile</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/datatypes/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.datatypes</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/resolvers/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.resolvers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/core/schema/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.schema</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/datasets/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.datasets</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/datasets/descr/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.datasets.descr</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/datasets/base/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.datasets.base</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/datasets/configs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.datasets.configs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/datasets/weather/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.datasets.weather</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/migration/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/migration/converters/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.migration.converters</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../api/whylogs/viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../api/whylogs/viz/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../api/whylogs/viz/enums/enums/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.enums.enums</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/viz/extensions/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.extensions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/whylogs/viz/notebook_profile_viz/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.viz.notebook_profile_viz</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Weather-Forecast-Dataset---Usage-Example">
+<h1>Weather Forecast Dataset - Usage Example<a class="headerlink" href="#Weather-Forecast-Dataset---Usage-Example" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/datasets/weather.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p>This an example demonstrating the usage of the Weather Forecast Dataset.</p>
+<p>For more information about the dataset itself, check the documentation on : <a class="reference external" href="https://whylogs.readthedocs.io/en/latest/datasets/weather.html">https://whylogs.readthedocs.io/en/latest/datasets/weather.html</a></p>
+<section id="Installing-the-datasets-module">
+<h2>Installing the datasets module<a class="headerlink" href="#Installing-the-datasets-module" title="Permalink to this headline">#</a></h2>
+<p>Uncomment the cell below if you don’t have the <code class="docutils literal notranslate"><span class="pre">datasets</span></code> module installed:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install -q whylogs[datasets]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Loading-the-Dataset">
+<h2>Loading the Dataset<a class="headerlink" href="#Loading-the-Dataset" title="Permalink to this headline">#</a></h2>
+<p>You can load the dataset of your choice by calling it from the <code class="docutils literal notranslate"><span class="pre">datasets</span></code> module:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.datasets</span> <span class="kn">import</span> <span class="n">Weather</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Weather</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;in_domain&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>This will create a folder in the current directory named <code class="docutils literal notranslate"><span class="pre">whylogs_data</span></code> with the csv files for the Weather Dataset. If the files already exist, the module will not redownload the files.</p>
+<p>Notice we’re specifying the version of the dataset. A dataset can have multiple versions that can be used for differente purposes. In this case, the version “in_domain” has data from the same domain between baseline and inference subsets (data from the same set of regions - tropical, dry, polar, etc.).</p>
+<p>If we’re interested in assessing drift issues, the version “out_domain” could be used, in which we have out-of-domain data in the inference subset, when compare to the baseline.</p>
+<p>Similarly, datasets could have other versions for other purposes, such as assessing data quality or outlier detection strategies.</p>
+</section>
+<section id="Discovering-Information">
+<h2>Discovering Information<a class="headerlink" href="#Discovering-Information" title="Permalink to this headline">#</a></h2>
+<p>To know what are the available versions for a given dataset, you can call:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Weather</span><span class="o">.</span><span class="n">describe_versions</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(&#39;in_domain&#39;, &#39;out_domain&#39;)
+</pre></div></div>
+</div>
+<p>To get access to overall description of the dataset:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">Weather</span><span class="o">.</span><span class="n">describe</span><span class="p">()[:</span><span class="mi">1000</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Weather Forecast Dataset
+========================
+
+The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time. This dataset can present data distribution shifts over both time and space.
+
+The original data was sourced from the `Weather Prediction Dataset &lt;https://github.com/Shifts-Project/shifts&gt;`_. From the source data additional transformations were made, such as: feature renaming, feature selection and subsampling.
+The original dataset is described in `Shifts: A Dataset of Real Distributional Shift Across Multiple Large-Scale Tasks &lt;https://arxiv.org/pdf/2107.07455.pdf&gt;`_, by **Malinin, Andrey, et al.**
+
+Usage
+-----
+
+You can follow this guide to see how to use the weather dataset:
+
+.. toctree::
+    :maxdepth: 1
+
+    ../examples/datasets/weather
+
+
+Versions and Data Partitions
+----------------------------
+
+Currently the dataset contains two versions: **in_domain** and **out_domain**. The task is the same fo
+</pre></div></div>
+</div>
+<p>note: the output was truncated to first 1000 characters as <code class="docutils literal notranslate"><span class="pre">describe()</span></code> will print a rather lengthy description.</p>
+</section>
+<section id="Getting-Baseline-Data">
+<h2>Getting Baseline Data<a class="headerlink" href="#Getting-Baseline-Data" title="Permalink to this headline">#</a></h2>
+<p>You can access data from two different partitions: the baseline dataset and inference dataset.</p>
+<p>The baseline can be accessed as a whole, whereas the inference dataset can be accessed in periodic batches, defined by the user.</p>
+<p>To get a <code class="docutils literal notranslate"><span class="pre">baseline</span></code> object, just call <code class="docutils literal notranslate"><span class="pre">dataset.get_baseline()</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.datasets</span> <span class="kn">import</span> <span class="n">Weather</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Weather</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="s2">&quot;out_domain&quot;</span><span class="p">)</span>
+
+<span class="n">baseline</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_baseline</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">baseline</span></code> will contain different attributes - one timestamp and five dataframes.</p>
+<ul class="simple">
+<li><p>timestamp: the batch’s timestamp (at the start)</p></li>
+<li><p>data: the complete dataframe</p></li>
+<li><p>features: input features</p></li>
+<li><p>target: output feature(s)</p></li>
+<li><p>prediction: output prediction and, possibly, features such as uncertainty, confidence, probability</p></li>
+<li><p>misc: metadata features that are not of any of the previous categories, but still contain relevant information about the data.</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">baseline</span><span class="o">.</span><span class="n">timestamp</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+datetime.datetime(2022, 8, 15, 0, 0, tzinfo=datetime.timezone.utc)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">baseline</span><span class="o">.</span><span class="n">misc</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>meta_latitude</th>
+      <th>meta_longitude</th>
+      <th>meta_climate</th>
+      <th>date</th>
+    </tr>
+    <tr>
+      <th>date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>28.702900</td>
+      <td>-105.964996</td>
+      <td>dry</td>
+      <td>2022-08-15 00:00:00+00:00</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>-35.165298</td>
+      <td>147.466003</td>
+      <td>mild temperate</td>
+      <td>2022-08-15 00:00:00+00:00</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>29.607300</td>
+      <td>-95.158798</td>
+      <td>mild temperate</td>
+      <td>2022-08-15 00:00:00+00:00</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>39.077999</td>
+      <td>-77.557503</td>
+      <td>mild temperate</td>
+      <td>2022-08-15 00:00:00+00:00</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>26.152599</td>
+      <td>-81.775299</td>
+      <td>mild temperate</td>
+      <td>2022-08-15 00:00:00+00:00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Setting-Parameters">
+<h2>Setting Parameters<a class="headerlink" href="#Setting-Parameters" title="Permalink to this headline">#</a></h2>
+<p>With <code class="docutils literal notranslate"><span class="pre">set_parameters</span></code>, you can specify the timestamps for both baseline and inference datasets, as well as the inference interval.</p>
+<p>By default, the timestamp is set as: - Current date for baseline dataset - Tomorrow’s date for inference dataset</p>
+<p>These timestamps can be defined by the user to any given day, including the dataset’s original date.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">inference_interval</span></code> defines the interval for each batch: ‘1d’ means that we will have daily batches, while ‘7d’ would mean weekly batches.</p>
+<p>To set the timestamps to the original dataset’s date, set <code class="docutils literal notranslate"><span class="pre">original</span></code> to true, like below:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Currently, the inference interval takes a str in the format &quot;Xd&quot;, where X is an integer between 1-30</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">inference_interval</span><span class="o">=</span><span class="s2">&quot;1d&quot;</span><span class="p">,</span> <span class="n">original</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">baseline</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_baseline</span><span class="p">()</span>
+<span class="n">baseline</span><span class="o">.</span><span class="n">timestamp</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+datetime.datetime(2018, 9, 1, 0, 0, tzinfo=datetime.timezone.utc)
+</pre></div></div>
+</div>
+<p>You can set timestamp by using the <code class="docutils literal notranslate"><span class="pre">baseline_timestamp</span></code> and <code class="docutils literal notranslate"><span class="pre">inference_start_timestamp</span></code>, and the inference interval like below:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">baseline_timestamp</span><span class="o">=</span><span class="n">now</span><span class="p">,</span> <span class="n">inference_start_timestamp</span><span class="o">=</span><span class="n">now</span><span class="p">,</span> <span class="n">inference_interval</span><span class="o">=</span><span class="s2">&quot;1d&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<blockquote>
+<div><p>Note that we are passing the datetime converted to the UTC timezone. If a naive datetime is passed (no information on timezones), local time zone will be assumed. The local timestamp, however, will be converted to the proper datetime in UTC timezone. Passing a naive datetime will trigger a warning, letting you know of this behavior.</p>
+</div></blockquote>
+<p>Note that if both <code class="docutils literal notranslate"><span class="pre">original</span></code> and a timestamp (baseline or inference) is passed simultaneously, the defined timestamp will be overwritten by the original dataset timestamp.</p>
+</section>
+<section id="Getting-Inference-Data-#1---By-Date">
+<h2>Getting Inference Data #1 - By Date<a class="headerlink" href="#Getting-Inference-Data-#1---By-Date" title="Permalink to this headline">#</a></h2>
+<p>You can get inference data in two different ways. The first is to specify the exact date you want, which will return a single batch:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_inference_data</span><span class="p">(</span><span class="n">target_date</span><span class="o">=</span><span class="n">now</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>You can access the attributes just as showed before:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+datetime.datetime(2022, 8, 15, 0, 0, tzinfo=datetime.timezone.utc)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>height_sea_level</th>
+      <th>sun_elevation</th>
+      <th>pressure</th>
+      <th>cmc_temperature_grad</th>
+      <th>cmc_temperature</th>
+      <th>dew_point_temperature</th>
+      <th>absolute_humidity</th>
+      <th>snow_depth</th>
+      <th>rain_accumulated</th>
+      <th>...</th>
+      <th>ice_rain_grad</th>
+      <th>iced_graupel_grad</th>
+      <th>cloud_coverage_grad</th>
+      <th>date.1</th>
+      <th>meta_latitude</th>
+      <th>meta_longitude</th>
+      <th>meta_climate</th>
+      <th>prediction_temperature</th>
+      <th>temperature</th>
+      <th>uncertainty</th>
+    </tr>
+    <tr>
+      <th>date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>166.0</td>
+      <td>24.134473</td>
+      <td>749.287193</td>
+      <td>-0.670923</td>
+      <td>289.282080</td>
+      <td>285.220886</td>
+      <td>0.0090</td>
+      <td>0.000000</td>
+      <td>2.641950</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>-2.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>46.516667</td>
+      <td>29.483333</td>
+      <td>snow</td>
+      <td>17.459501</td>
+      <td>19.0</td>
+      <td>5.046475</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>180.0</td>
+      <td>36.168942</td>
+      <td>738.731879</td>
+      <td>-3.726770</td>
+      <td>290.226721</td>
+      <td>284.868256</td>
+      <td>0.0095</td>
+      <td>0.000000</td>
+      <td>0.149825</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>-23.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>46.521900</td>
+      <td>26.910299</td>
+      <td>snow</td>
+      <td>15.650873</td>
+      <td>15.0</td>
+      <td>10.590467</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>25.0</td>
+      <td>4.931765</td>
+      <td>753.034922</td>
+      <td>7.741565</td>
+      <td>280.471216</td>
+      <td>279.016144</td>
+      <td>0.0054</td>
+      <td>0.000000</td>
+      <td>3.536025</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>39.033333</td>
+      <td>125.783333</td>
+      <td>snow</td>
+      <td>9.651232</td>
+      <td>11.0</td>
+      <td>5.512176</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>-11.0</td>
+      <td>22.337882</td>
+      <td>754.533835</td>
+      <td>2.323230</td>
+      <td>277.726721</td>
+      <td>274.868256</td>
+      <td>0.0043</td>
+      <td>0.181638</td>
+      <td>1.822488</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>-70.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>55.281898</td>
+      <td>-77.765297</td>
+      <td>snow</td>
+      <td>7.948395</td>
+      <td>8.0</td>
+      <td>3.395677</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>119.0</td>
+      <td>58.290232</td>
+      <td>767.426533</td>
+      <td>0.235266</td>
+      <td>290.554565</td>
+      <td>283.905655</td>
+      <td>0.0116</td>
+      <td>0.000000</td>
+      <td>2.715500</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>-1.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>38.519901</td>
+      <td>-28.715900</td>
+      <td>polar</td>
+      <td>18.248093</td>
+      <td>18.0</td>
+      <td>2.023753</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>260.0</td>
+      <td>15.023227</td>
+      <td>741.406826</td>
+      <td>8.416382</td>
+      <td>279.342383</td>
+      <td>274.999222</td>
+      <td>0.0048</td>
+      <td>0.000000</td>
+      <td>14.099825</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>39.843498</td>
+      <td>-85.897102</td>
+      <td>snow</td>
+      <td>8.233539</td>
+      <td>7.0</td>
+      <td>5.549324</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>48.0</td>
+      <td>30.655498</td>
+      <td>758.121661</td>
+      <td>-2.092969</td>
+      <td>303.854272</td>
+      <td>293.944244</td>
+      <td>0.0194</td>
+      <td>0.000000</td>
+      <td>1.182225</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>-9.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>-5.911420</td>
+      <td>-35.247700</td>
+      <td>polar</td>
+      <td>30.618527</td>
+      <td>30.0</td>
+      <td>2.319395</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>99.0</td>
+      <td>19.245194</td>
+      <td>752.505533</td>
+      <td>-2.072693</td>
+      <td>290.389832</td>
+      <td>282.104599</td>
+      <td>0.0067</td>
+      <td>0.000000</td>
+      <td>0.088375</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>30.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>58.100000</td>
+      <td>38.683333</td>
+      <td>snow</td>
+      <td>16.601422</td>
+      <td>17.0</td>
+      <td>4.060273</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>296.0</td>
+      <td>38.102269</td>
+      <td>734.381076</td>
+      <td>2.616138</td>
+      <td>268.365942</td>
+      <td>267.126648</td>
+      <td>0.0024</td>
+      <td>1.002448</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>-1.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>66.580000</td>
+      <td>-61.620000</td>
+      <td>polar</td>
+      <td>1.004967</td>
+      <td>-1.0</td>
+      <td>3.510967</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>2022-08-15 00:00:00+00:00</td>
+      <td>48.0</td>
+      <td>-10.442588</td>
+      <td>755.390211</td>
+      <td>-0.808435</td>
+      <td>281.321216</td>
+      <td>277.766144</td>
+      <td>0.0060</td>
+      <td>0.000000</td>
+      <td>0.158425</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>-26.0</td>
+      <td>2019-05-14 00:00:00+00:00</td>
+      <td>60.289167</td>
+      <td>5.226389</td>
+      <td>snow</td>
+      <td>7.546170</td>
+      <td>7.0</td>
+      <td>2.232020</td>
+    </tr>
+  </tbody>
+</table>
+<p>100 rows × 56 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batch</span><span class="o">.</span><span class="n">prediction</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>prediction_temperature</th>
+      <th>uncertainty</th>
+    </tr>
+    <tr>
+      <th>date</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>17.459501</td>
+      <td>5.046475</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>15.650873</td>
+      <td>10.590467</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>9.651232</td>
+      <td>5.512176</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>7.948395</td>
+      <td>3.395677</td>
+    </tr>
+    <tr>
+      <th>2022-08-15 00:00:00+00:00</th>
+      <td>18.248093</td>
+      <td>2.023753</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Getting-Inference-Data-#2---By-Number-of-Batches">
+<h2>Getting Inference Data #2 - By Number of Batches<a class="headerlink" href="#Getting-Inference-Data-#2---By-Number-of-Batches" title="Permalink to this headline">#</a></h2>
+<p>The second way is to specify the number of batches you want and also the date for the first batch.</p>
+<p>You can then iterate over the returned object to get the batches. You can then use the batch any way you want. Here’s an example that retrieves daily batches for a period of 5 days and logs each one with <strong>whylogs</strong>, saving the binary profiles to disk:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="n">batches</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_inference_data</span><span class="p">(</span><span class="n">number_batches</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">batches</span><span class="p">:</span>
+  <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;logging batch of size </span><span class="si">{}</span><span class="s2"> for </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">data</span><span class="p">),</span><span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
+  <span class="n">profile</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
+  <span class="n">profile</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
+  <span class="n">profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;batch_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+logging batch of size 100 for 2022-08-15 00:00:00+00:00
+logging batch of size 227 for 2022-08-16 00:00:00+00:00
+logging batch of size 186 for 2022-08-17 00:00:00+00:00
+logging batch of size 197 for 2022-08-18 00:00:00+00:00
+logging batch of size 194 for 2022-08-19 00:00:00+00:00
+</pre></div></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, whylogs developers
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://bit.ly/whylogs-slack" aria-label="Slack">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"><path d="M213.6
+            236.216l64.003-21.438 20.708 61.823-64.004
+            21.438z"></path><path d="M213.6 236.216l64.003-21.438 20.708 61.823-64.004 21.438z"></path><path
+            d="M475.9 190C426.4 25 355-13.4 190 36.1S-13.4 157 36.1 322 157 525.4 322 475.9 525.4 355 475.9
+            190zm-83.3 107.1l-31.1 10.4 10.7 32.2c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9l-10.7-32.2-64.1 21.5L261 377c4.2 13-2.7 27.2-15.7 31.5-2.7.8-5.8 1.5-8.4
+            1.2-10-.4-19.6-6.9-23-16.9L203 360.4l-31 10.3c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-20.7-61.8-31.1 10.4c-2.7.8-5.8 1.5-8.4 1.2-10-.4-19.6-6.9-23-16.9-4.2-13
+            2.7-27.2 15.7-31.5l31.1-10.4-10.9-32.1c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2
+            64.1-21.5-10.7-32.2c-4.2-13 2.7-27.2 15.7-31.5 13-4.2 27.2 2.7 31.5 15.7l10.7 32.2 31.1-10.4c13-4.2 27.2
+            2.7 31.5 15.7 4.2 13-2.7 27.2-15.7 31.5l-31.1 10.4 20.7 61.8 31.1-10.4c13-4.2 27.2 2.7 31.5 15.7 4.2
+            13.2-2.7 27.4-15.8 31.7z"></path></svg>
+            </a>
+              <a class="muted-link " href="https://github.com/whylabs/whylogs" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+                    0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53
+                    .63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95
+                    0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0
+                    1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87
+                    3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16
+                    8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Weather Forecast Dataset - Usage Example</a><ul>
+<li><a class="reference internal" href="#Installing-the-datasets-module">Installing the datasets module</a></li>
+<li><a class="reference internal" href="#Loading-the-Dataset">Loading the Dataset</a></li>
+<li><a class="reference internal" href="#Discovering-Information">Discovering Information</a></li>
+<li><a class="reference internal" href="#Getting-Baseline-Data">Getting Baseline Data</a></li>
+<li><a class="reference internal" href="#Setting-Parameters">Setting Parameters</a></li>
+<li><a class="reference internal" href="#Getting-Inference-Data-#1---By-Date">Getting Inference Data #1 - By Date</a></li>
+<li><a class="reference internal" href="#Getting-Inference-Data-#2---By-Number-of-Batches">Getting Inference Data #2 - By Number of Batches</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    <script src="../../_static/tabs.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    </body>
+</html>
