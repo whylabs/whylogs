@@ -1,4 +1,4 @@
-w# FAQs
+# FAQs
 
 ## Technical
 
