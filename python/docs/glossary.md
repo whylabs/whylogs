@@ -43,7 +43,7 @@ single pass. This term is sometimes used to refer specifically to the Apache Dat
 **Metadata** is data that describes either a dataset or information from whylogs’ processing of the dataset.
 
 #### Metric
-The summary statistics of a dataset is composed by a collection of metrics. Metrics are defined according to its namespaces. Some of the whylogs' default namespaces are: `counts`, `types`, `distribution`, `cardinality`, `frequent items/frequent strings`. By default, a column of a given data type will have a defined set of metrics assigned to it. The metrics to be tracked are customizable according to data type or column name (see [Schema Configuration](../examples/basic/Schema_Configuration.ipynb)). New metrics can also be created in a custom fashion, according to the need of the user (see TBD).
+The summary statistics of a dataset is composed by a collection of metrics. Metrics are defined according to its namespaces. Some of the whylogs' default namespaces are: `counts`, `types`, `distribution`, `cardinality`, `frequent items/frequent strings`. By default, a column of a given data type will have a defined set of metrics assigned to it. The metrics to be tracked are customizable according to data type or column name (see [Schema Configuration](https://github.com/whylabs/whylogs/blob/902a473194bd85658994b4bbbb7ca0050116a5c9/python/examples/basic/Schema_Configuration.ipynb)). New metrics can also be created in a custom fashion, according to the need of the user (see TBD).
 
 
 ##### Metric component
