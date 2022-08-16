@@ -1,4 +1,10 @@
+# flake8: noqa
+"""
+isort:skip_file
+"""
 import os
+
+os.environ["HEAP_APPID_DEV"] = "3002560559"  # noqa: E402
 
 import pandas as pd
 import pytest
@@ -16,8 +22,6 @@ from whylogs.viz import SummaryDriftReport
 
 _MY_DIR = os.path.realpath(os.path.dirname(__file__))
 _DATA_DIR = os.path.join(_MY_DIR, "testdata")
-
-os.environ["HEAP_APPID_DEV"] = "3422045963"
 
 
 def pytest_addoption(parser) -> None:  # type: ignore
