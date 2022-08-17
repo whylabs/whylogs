@@ -2,35 +2,51 @@ package com.whylogs.core.metrics.aggregators;
 
 import com.whylogs.core.metrics.components.MetricComponent;
 import lombok.Data;
+import lombok.Synchronized;
 
 import java.util.HashMap;
+import java.util.function.BiFunction;
 
-@Data
+
 // Registry for aggregators. You can register a component or a type-id to an aggregator.
 // The aggregators are of IAggregator which is just a wrapper on BiFunction.
 // This allows the use of lambdas to create aggregators.
 public class AggregatorRegistry {
-    private HashMap<String, IAggregator> namedAggregators;
-    private HashMap<Integer, IAggregator> idAggregators;
+    private final HashMap<String, BiFunction> namedAggregators;
+    private final HashMap<Integer, BiFunction> idAggregators;
 
-    public <T extends MetricComponent> void register(T component, IAggregator aggregator) {
+    private AggregatorRegistry() {
+        this.namedAggregators = new HashMap<>();
+        this.idAggregators = new HashMap<>();
+    }
+
+    // Instance holder to avoid double checking anti-pattern for singlton
+    private static final class InstanceHolder {
+        static final AggregatorRegistry instance = new AggregatorRegistry();
+    }
+
+    public static AggregatorRegistry getInstance() {
+        return InstanceHolder.instance;
+    }
+
+    public <T extends MetricComponent, A extends BiFunction> void register(T component,  A aggregator) {
         idAggregators.put(component.getTypeId(), aggregator);
         namedAggregators.put(component.getTypeName(), aggregator);
     }
 
-    public void register(int typeId, IAggregator aggregator) {
+    public <A extends BiFunction> void register(int typeId, A aggregator) {
         idAggregators.put(typeId, aggregator);
     }
 
-    public IAggregator get(MetricComponent component) {
+    public BiFunction get(MetricComponent component) {
         return idAggregators.get(component.getTypeId());
     }
 
-    public IAggregator get(int typeId) {
+    public BiFunction get(int typeId) {
         return idAggregators.get(typeId);
     }
 
-    public IAggregator get(String typeName) {
+    public BiFunction get(String typeName) {
         return namedAggregators.get(typeName);
     }
 }
