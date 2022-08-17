@@ -7,6 +7,8 @@ import com.whylogs.core.metrics.components.MinIntegralComponent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -19,6 +21,8 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
 
   public IntegralMetric() {
     super(IntegralMetric.NAMESPACE);
+    this.maxComponent = new MaxIntegralComponent();
+    this.minComponent = new MinIntegralComponent();
   }
 
   public IntegralMetric(MaxIntegralComponent maxComponent, MinIntegralComponent minComponent) {
