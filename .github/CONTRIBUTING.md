@@ -17,7 +17,7 @@
 
 **PRs welcome!**
 
-- **Consider starting a [discussion](https://docs.github.com/en/discussions) to see if there's interest in what you want to do.**
+- **Consider starting a <!-- markdown-link-check-disable-line --> [discussion](https://docs.github.com/en/discussions) to see if there's interest in what you want to do.**
 - **Submit PRs from feature branches on forks.**
 - **Ensure PRs pass all CI checks.**
 - **Maintain or increase test coverage.**
