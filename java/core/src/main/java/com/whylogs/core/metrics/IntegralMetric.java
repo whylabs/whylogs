@@ -7,8 +7,6 @@ import com.whylogs.core.metrics.components.MinIntegralComponent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
