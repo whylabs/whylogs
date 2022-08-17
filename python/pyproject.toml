@@ -35,7 +35,7 @@ sphinx-autobuild = { version = "^2021.3.14", optional = true }
 sphinxext-opengraph = { version = "^0.6.3", optional = true }
 sphinx-inline-tabs = { version = "*", optional = true }
 flake8 = { version = "4.0.1", optional = true }
-nbsphinx = { version = "^0.8.8", optional = true }
+nbsphinx = { version = ">=0.8.9", optional = true }
 
 # Integrations dependencies
 boto3 = {version = "^1.22.13", optional = true }
@@ -58,7 +58,7 @@ pre-commit = "^2.8"
 pytest = "^6.2"
 pytest-cov = "^3"
 pytest-mock = "^3.3"
-nbconvert = "^6.0.7"
+mistune = ">=2.0.4"
 autoflake = "^1.4"
 mypy-protobuf = ">=3.2.0"
 types-protobuf = ">=0.1.14"
