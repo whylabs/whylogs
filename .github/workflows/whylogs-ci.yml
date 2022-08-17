@@ -106,7 +106,7 @@ jobs:
           flags: unit
 
   java-ci:
-    runs-on: [ ubuntu-latest ]
+    runs-on: [ubuntu-latest]
     defaults:
       run:
         shell: bash
@@ -139,7 +139,7 @@ jobs:
           build-root-directory: java/smoketest
           arguments: run
           gradle-executable: java/gradlew
-  
+
   docs-ci:
     needs: python-ci
 
