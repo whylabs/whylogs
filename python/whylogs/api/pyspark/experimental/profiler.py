@@ -7,8 +7,10 @@ import whylogs as why
 from whylogs.core.stubs import pd
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
+from whylogs.api.usage_stats import emit_usage
 
 logger = getLogger(__name__)
+emit_usage("pyspark")
 
 try:  # type: ignore
     from pyspark.sql import DataFrame as SparkDataFrame  # types: ignore
