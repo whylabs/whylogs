@@ -39,7 +39,6 @@ try:
 except:  # noqa
     logger.info("Encounter exception when checking file system. Disable telemetry by default")
     _TELEMETRY_DISABLED = True
-    pass
 
 
 def emit_usage(event: str) -> None:
