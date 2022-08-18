@@ -35,8 +35,6 @@ def process_notebook(notebook_filename):
     """
     try:
         pm.execute_notebook(notebook_filename, OUTPUT_NOTEBOOK, timeout=120)
-        # Check that the notebook runs
-        # ep.preprocess(nb, {"metadata": {"path": os.path.join(PARENT_DIR, "python", "examples")}})
     except Exception as e:
         print(f"Notebook: {notebook_filename} failed test with exception: {e}")
         raise
