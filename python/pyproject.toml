@@ -47,6 +47,7 @@ mlflow-skinny = {version = "^1.26.1", optional = true}
 pyarrow = {version = "^8.0.0", optional = true}
 pyspark = {version = "^3.0.0", optional = true}
 
+
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
 black = { version = "*", allow-prereleases = true }
@@ -59,7 +60,7 @@ pytest = "^6.2"
 pytest-cov = "^3"
 pytest-mock = "^3.3"
 mistune = ">=2.0.4"
-nbformat = "^5.4.0"
+papermill = "^2.4.0"
 autoflake = "^1.4"
 mypy-protobuf = ">=3.2.0"
 types-protobuf = ">=0.1.14"
