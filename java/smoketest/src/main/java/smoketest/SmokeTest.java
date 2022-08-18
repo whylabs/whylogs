@@ -1,4 +1,4 @@
-import com.whylogs.core.SummaryConfig;
+import whylogs.core.SummaryConfig;
 import java.time.Instant;
 
 public class SmokeTest {
