@@ -366,11 +366,13 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">from</span> <span class="nn">whylogs.api.usage_stats</span> <span class="kn">import</span> <span class="n">emit_usage</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">pd</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.column_profile_view</span> <span class="kn">import</span> <span class="n">ColumnProfileView</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.view.dataset_profile_view</span> <span class="kn">import</span> <span class="n">DatasetProfileView</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">emit_usage</span><span class="p">(</span><span class="s2">&quot;pyspark&quot;</span><span class="p">)</span>
 
 <span class="k">try</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
     <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">DataFrame</span> <span class="k">as</span> <span class="n">SparkDataFrame</span>  <span class="c1"># types: ignore</span>

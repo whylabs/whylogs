@@ -22,33 +22,9 @@ Attributes
 
 .. autoapisummary::
 
-   whylogs.api.usage_stats.HEAP_APPID_PROD
-   whylogs.api.usage_stats.HEAP_ENDPOINT
-   whylogs.api.usage_stats.HEAP_HEADERS
-   whylogs.api.usage_stats.TIMESTAMP_FORMAT
    whylogs.api.usage_stats.logger
    whylogs.api.usage_stats.ANALYTICS_OPT_OUT
 
-
-.. py:data:: HEAP_APPID_PROD
-   :annotation: = 2496309831
-
-   
-
-.. py:data:: HEAP_ENDPOINT
-   :annotation: = https://heapanalytics.com/api/track
-
-   
-
-.. py:data:: HEAP_HEADERS
-   
-
-   
-
-.. py:data:: TIMESTAMP_FORMAT
-   :annotation: = %Y-%m-%dT%H:%M:%S.%fZ
-
-   
 
 .. py:data:: logger
    

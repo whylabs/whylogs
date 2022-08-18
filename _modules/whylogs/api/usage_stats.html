@@ -377,40 +377,40 @@
 
 <span class="kn">import</span> <span class="nn">whylogs</span>
 
-<span class="n">HEAP_APPID_PROD</span> <span class="o">=</span> <span class="s2">&quot;2496309831&quot;</span>
-
-<span class="n">HEAP_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;https://heapanalytics.com/api/track&quot;</span>
-<span class="n">HEAP_HEADERS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
-<span class="n">TIMESTAMP_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S.</span><span class="si">%f</span><span class="s2">Z&quot;</span>
+<span class="n">_TELEMETRY_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;https://stats.whylogs.com/&quot;</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;TELEMETRY_DEV&quot;</span><span class="p">):</span>
+    <span class="n">_TELEMETRY_ENDPOINT</span> <span class="o">=</span> <span class="s2">&quot;https://staging-stats.whylogs.com&quot;</span>
+<span class="n">_TIMESTAMP_FORMAT</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S.</span><span class="si">%f</span><span class="s2">Z&quot;</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">ANALYTICS_OPT_OUT</span> <span class="o">=</span> <span class="s2">&quot;WHYLOGS_NO_ANALYTICS&quot;</span>
 
 <span class="c1"># Flag to disable it internally</span>
 <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">False</span>
-
+<span class="n">_TRACKED_EVENTS</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
 <span class="n">_SITE_PACKAGES</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">getsitepackages</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ANALYTICS_OPT_OUT</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Opted out of usage statistics. Skipping.&quot;</span><span class="p">)</span>
+    <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.whylogs/disable_telemetry&quot;</span><span class="p">)):</span>
+        <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Encounter exception when checking file system. Disable telemetry by default&quot;</span><span class="p">)</span>
+    <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
 
 
 <div class="viewcode-block" id="emit_usage"><a class="viewcode-back" href="../../../api/whylogs/api/usage_stats/index.html#whylogs.api.usage_stats.emit_usage">[docs]</a><span class="k">def</span> <span class="nf">emit_usage</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">global</span> <span class="n">_TELEMETRY_DISABLED</span>
+    <span class="k">global</span> <span class="n">_TRACKED_EVENTS</span>
     <span class="k">if</span> <span class="n">_TELEMETRY_DISABLED</span><span class="p">:</span>
         <span class="k">return</span>
-
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="n">ANALYTICS_OPT_OUT</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Opted out of usage statistics. Skipping.&quot;</span><span class="p">)</span>
-        <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">_TRACKED_EVENTS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
         <span class="k">return</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~/.whylogs/disable_telemetry&quot;</span><span class="p">)):</span>
-            <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">return</span>
-    <span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Encounter exception when checking file system. Disable telemetry by default&quot;</span><span class="p">)</span>
-        <span class="n">_TELEMETRY_DISABLED</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">pass</span>
+    <span class="n">_TRACKED_EVENTS</span><span class="p">[</span><span class="n">event</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="n">t</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">_do_emit_usage</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">event</span><span class="p">,))</span>
     <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -437,7 +437,7 @@
     <span class="k">if</span> <span class="n">_metadata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">_metadata</span> <span class="o">=</span> <span class="n">_build_metadata</span><span class="p">()</span>
 
-    <span class="n">_send_heap_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">_identity</span><span class="p">,</span> <span class="n">_metadata</span><span class="p">)</span>
+    <span class="n">_send_stats_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">_identity</span><span class="p">,</span> <span class="n">_metadata</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_calc_identity</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -453,7 +453,7 @@
 
 
 <span class="k">def</span> <span class="nf">_build_metadata</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Hash system and project data to send to Heap.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Hash system and project data to send to our stats endpoint.&quot;&quot;&quot;</span>
 
     <span class="n">project_version</span> <span class="o">=</span> <span class="n">whylogs</span><span class="o">.</span><span class="n">__version__</span>
     <span class="p">(</span><span class="n">major</span><span class="p">,</span> <span class="n">minor</span><span class="p">,</span> <span class="n">macro</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span>
@@ -490,27 +490,18 @@
     <span class="k">return</span> <span class="n">metadata</span>
 
 
-<span class="k">def</span> <span class="nf">_get_heap_app_id</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get the Heap App ID to send the data to.</span>
-<span class="sd">    This will be the development ID if it&#39;s set as an</span>
-<span class="sd">    environment variable, otherwise it will be the production ID.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HEAP_APPID_DEV&quot;</span><span class="p">,</span> <span class="n">HEAP_APPID_PROD</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_send_heap_event</span><span class="p">(</span><span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">identity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">properties</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_send_stats_event</span><span class="p">(</span><span class="n">event_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">identity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">properties</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;app_id&quot;</span><span class="p">:</span> <span class="n">_get_heap_app_id</span><span class="p">(),</span>
         <span class="s2">&quot;identity&quot;</span><span class="p">:</span> <span class="n">identity</span><span class="p">,</span>
         <span class="s2">&quot;event&quot;</span><span class="p">:</span> <span class="n">event_name</span><span class="p">,</span>
-        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">TIMESTAMP_FORMAT</span><span class="p">),</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">_TIMESTAMP_FORMAT</span><span class="p">),</span>
         <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="n">properties</span> <span class="ow">or</span> <span class="p">{},</span>
     <span class="p">}</span>
     <span class="k">global</span> <span class="n">_TELEMETRY_DISABLED</span>
     <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
-    <span class="n">req</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">HEAP_ENDPOINT</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">json_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">)</span>
+    <span class="n">req</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span><span class="n">_TELEMETRY_ENDPOINT</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">json_data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;POST&quot;</span><span class="p">)</span>
     <span class="n">req</span><span class="o">.</span><span class="n">add_header</span><span class="p">(</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span> <span class="s2">&quot;application/json&quot;</span><span class="p">)</span>
+
     <span class="n">resp</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">HTTPResponse</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">resp</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
