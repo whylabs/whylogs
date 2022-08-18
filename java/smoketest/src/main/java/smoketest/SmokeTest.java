@@ -1,4 +1,4 @@
-import whylogs.core.metrics.IntegralMetric;
+//import whylogs.core.metrics.IntegralMetric;
 import java.time.Instant;
 
 public class SmokeTest {
