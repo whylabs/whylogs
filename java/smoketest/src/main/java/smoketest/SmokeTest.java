@@ -1,6 +1,4 @@
-import com.whylogs.core.DatasetProfile;
-import com.whylogs.core.statistics.NumberTracker;
-import com.whylogs.core.message.NumbersMessage;
+import com.whylogs.core.SummaryConfig;
 import java.time.Instant;
 
 public class SmokeTest {
