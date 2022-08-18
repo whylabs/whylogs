@@ -15,10 +15,10 @@ from urllib import request
 
 import whylogs
 
-TELEMETRY_ENDPOINT = "https://stats.whylogs.com/"
+_TELEMETRY_ENDPOINT = "https://stats.whylogs.com/"
 if os.getenv("TELEMETRY_DEV"):
-    TELEMETRY_ENDPOINT = "https://staging-stats.whylogs.com"
-TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+    _TELEMETRY_ENDPOINT = "https://staging-stats.whylogs.com"
+_TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 logger = logging.getLogger(__name__)
 
 ANALYTICS_OPT_OUT = "WHYLOGS_NO_ANALYTICS"
@@ -132,12 +132,12 @@ def _send_stats_event(event_name: str, identity: str, properties: Dict[str, Any]
     data = {
         "identity": identity,
         "event": event_name,
-        "timestamp": datetime.utcnow().strftime(TIMESTAMP_FORMAT),
+        "timestamp": datetime.utcnow().strftime(_TIMESTAMP_FORMAT),
         "properties": properties or {},
     }
     global _TELEMETRY_DISABLED
     json_data = json.dumps(data).encode()
-    req = request.Request(TELEMETRY_ENDPOINT, data=json_data, method="POST")
+    req = request.Request(_TELEMETRY_ENDPOINT, data=json_data, method="POST")
     req.add_header("Content-Type", "application/json")
 
     resp: http.client.HTTPResponse = None  # type: ignore
