@@ -1,11 +1,12 @@
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, Mapping, Optional, TypeVar
+from typing import Any, Dict, Mapping, Optional, TypeVar, Set
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import Resolver, StandardResolver
 from whylogs.core.stubs import pd
+from whylogs.core.validators.validator import Validator
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,7 @@ class DatasetSchema:
     resolvers: Resolver = StandardResolver()
     cache_size: int = 1024
     schema_based_automerge: bool = False
+    validators: Dict[str, Validator] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self._columns = {}
@@ -79,7 +81,11 @@ class DatasetSchema:
         if self.types:
             for col, tpe in self.types.items():
                 self._columns[col] = ColumnSchema(
-                    dtype=tpe, resolver=self.resolvers, type_mapper=self.type_mapper, cfg=self.default_configs
+                    dtype=tpe,
+                    resolver=self.resolvers,
+                    validators=self.validators,
+                    type_mapper=self.type_mapper,
+                    cfg=self.default_configs,
                 )
 
     def copy(self) -> "DatasetSchema":
@@ -101,6 +107,7 @@ class DatasetSchema:
                     dtype=type(v),
                     cfg=self.default_configs,
                     resolver=self.resolvers,
+                    validators=self.validators,
                     type_mapper=self.type_mapper,
                 )
             return True
@@ -123,6 +130,7 @@ class DatasetSchema:
                 dtype=col_dtype,
                 cfg=self.default_configs,
                 resolver=self.resolvers,
+                validators=self.validators,
                 type_mapper=self.type_mapper,
             )
             dirty = True
@@ -150,6 +158,13 @@ class ColumnSchema:
     cfg: MetricConfig = MetricConfig()
     type_mapper: TypeMapper = StandardTypeMapper()
     resolver: Resolver = StandardResolver()
+    validators: Dict[str, Validator] = field(default_factory=dict)
 
     def get_metrics(self, name: str) -> Dict[str, Metric]:
         return self.resolver.resolve(name=name, why_type=self.type_mapper(self.dtype), column_schema=self)
+
+    def get_validators(self, name: str) -> Set[Validator]:
+        try:
+            return self.validators[name]
+        except KeyError:
+            return set()
