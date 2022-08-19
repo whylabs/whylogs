@@ -67,8 +67,7 @@ class WhyLabsWriter(Writer):
         self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
         self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
-        self._reference = False
-        self._reference_profile_alias = os.environ.get("WHYLABS_REFERENCE_PROFILE_ALIAS")
+        self._reference_profile_name = os.environ.get("WHYLABS_REFERENCE_PROFILE_NAME")
 
     def check_interval(self, interval_seconds: int):
         if interval_seconds < FIVE_MINUTES_IN_SECONDS:
@@ -79,8 +78,7 @@ class WhyLabsWriter(Writer):
         org_id: Optional[str] = None,
         dataset_id: Optional[str] = None,
         api_key: Optional[str] = None,
-        reference: Optional[bool] = None,
-        reference_alias: Optional[str] = None,
+        reference_profile_name: Optional[str] = None,
     ) -> "WhyLabsWriter":
         if dataset_id is not None:
             self._dataset_id = dataset_id
@@ -88,10 +86,8 @@ class WhyLabsWriter(Writer):
             self._org_id = org_id
         if api_key is not None:
             self._api_key = api_key
-        if reference is not None:
-            self._reference = reference
-        if reference_alias is not None:
-            self._reference_profile_alias = reference_alias
+        if reference_profile_name is not None:
+            self._reference_profile_name = reference_profile_name
         return self
 
     @deprecated_alias(profile="file")
@@ -115,8 +111,7 @@ class WhyLabsWriter(Writer):
             self._upload_whylabs(
                 dataset_timestamp=dataset_timestamp,
                 profile_path=tmp_file.name,
-                reference=self._reference,
-                reference_alias=self._reference_profile_alias,
+                reference_profile_name=self._reference_profile_name,
             )
 
     @staticmethod
@@ -142,8 +137,7 @@ class WhyLabsWriter(Writer):
         dataset_timestamp: int,
         profile_path: str,
         upload_url: Optional[str] = None,
-        reference: Optional[bool] = None,
-        reference_alias: Optional[str] = None,
+        reference_profile_name: Optional[str] = None,
     ) -> requests.Response:
         if self._org_id is None:
             raise EnvironmentError(
@@ -156,39 +150,23 @@ class WhyLabsWriter(Writer):
             )
 
         upload_url = upload_url or self._get_upload_url(
-            dataset_timestamp=dataset_timestamp, reference=reference, reference_alias=reference_alias
+            dataset_timestamp=dataset_timestamp, reference_profile_name=reference_profile_name
         )
         api_key_id = self._api_key[:10] if self._api_key else None
-        if not reference:
-            try:
-                with open(profile_path, "rb") as f:
-                    http_response = requests.put(upload_url, data=f.read())
-                    if http_response.status_code == 200:
-                        logger.info(
-                            f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                            f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
-                        )
-                    return http_response
-            except requests.RequestException as e:
-                logger.info(
-                    f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                    + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
-                )
-        else:
-            try:
-                with open(profile_path, "rb") as f:
-                    http_response = requests.put(upload_url, data=f.read())
-                    if http_response.status_code == 200:
-                        logger.info(
-                            f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                            f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
-                        )
-                        return http_response
-            except requests.RequestException as e:
-                logger.info(
-                    f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                    + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
-                )
+        try:
+            with open(profile_path, "rb") as f:
+                http_response = requests.put(upload_url, data=f.read())
+                if http_response.status_code == 200:
+                    logger.info(
+                        f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                        f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
+                    )
+                return http_response
+        except requests.RequestException as e:
+            logger.info(
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
+            )
 
     def _get_or_create_api_log_client(self) -> LogApi:
         environment_api_key = os.environ.get("WHYLABS_API_KEY")
@@ -267,15 +245,13 @@ class WhyLabsWriter(Writer):
             )
             raise e
 
-    def _get_upload_url(
-        self, dataset_timestamp: int, reference: Optional[bool] = None, reference_alias: Optional[str] = None
-    ):
-        if not reference:
+    def _get_upload_url(self, dataset_timestamp: int, reference_profile_name: Optional[str] = None):
+        if reference_profile_name is None:
             request = self._build_log_async_request(dataset_timestamp)
             log_api = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
             upload_url = log_api["upload_url"]
         else:
-            request = self._build_log_reference_request(dataset_timestamp, alias=reference_alias)
+            request = self._build_log_reference_request(dataset_timestamp, alias=reference_profile_name)
             log_api = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
             upload_url = log_api["upload_url"]
         return upload_url
