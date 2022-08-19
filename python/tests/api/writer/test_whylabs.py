@@ -77,8 +77,7 @@ class TestWhylabsWriter(object):
                 dataset_timestamp=dataset_timestamp,
                 profile_path=tmp_file.name,
                 upload_url="https://api.whylabsapp.com",
-                reference=True,
-                reference_alias="RefProfileAlias",
+                reference_profile_name="RefProfileAlias",
             )
             assert isinstance(response, requests.Response)
             assert response.status_code == 200
