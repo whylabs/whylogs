@@ -16,7 +16,7 @@ public class MinIntegralComponent extends IntegralComponent {
   public MinIntegralComponent(Integer value) {
     super(value);
   }
-  
+
   @Override
   public String getTypeName() {
     return this.getClass().getSimpleName();
@@ -26,7 +26,7 @@ public class MinIntegralComponent extends IntegralComponent {
   public int getTypeId() {
     return TYPE_ID;
   }
-  
+
   public static MinIntegralComponent min(Collection<? extends Integer> list) {
     int min = Integer.MAX_VALUE;
     for (Integer i : list) {

@@ -39,7 +39,7 @@ public class MetricComponent<T> {
   public int getTypeId() {
     return TYPE_ID;
   }
-  
+
   public String getTypeName() {
     return this.getClass().getSimpleName();
   }
