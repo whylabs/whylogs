@@ -157,7 +157,7 @@ test-system-python: dist ## Run tests using the system `python` instead of the l
 
 test-notebooks: ## Run tests for the notebooks
 	@$(call i, Running notebook tests)
-	poetry run pytest --no-cov test_notebooks/notebook_tests.py
+	poetry run pytest --no-cov --maxfail=1 test_notebooks/notebook_tests.py
 
 
 install: ## Install all dependencies with poetry.

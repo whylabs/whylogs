@@ -1,11 +1,11 @@
 import os
 import subprocess
 
-import nbformat
-from nbconvert.preprocessors import CellExecutionError, ExecutePreprocessor
+import papermill as pm
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.join(TEST_DIR, os.pardir, os.pardir)
+OUTPUT_NOTEBOOK = "output.ipynb"
 skip_notebooks = [
     "Pyspark_Profiling.ipynb",
     "Kafka_Example.ipynb",
@@ -33,21 +33,13 @@ def process_notebook(notebook_filename):
     Checks if an IPython notebook runs without error from start to finish. If so, writes the
     notebook to HTML (with outputs) and overwrites the .ipynb file (without outputs).
     """
-
-    with open(notebook_filename) as f:
-        nb = nbformat.read(f, as_version=4)
-
-    os.path.abspath(os.path.dirname(notebook_filename))
-    ep = ExecutePreprocessor(timeout=2000, kernel_name="whylogs-v1-dev", allow_errors=False)
-
     try:
-        # Check that the notebook runs
-        ep.preprocess(nb, {"metadata": {"path": os.path.join(PARENT_DIR, "python", "examples")}})
-    except CellExecutionError:
+        pm.execute_notebook(notebook_filename, OUTPUT_NOTEBOOK, timeout=120)
+    except Exception as e:
+        print(f"Notebook: {notebook_filename} failed test with exception: {e}")
         raise
 
     print(f"Successfully executed {notebook_filename}")
-    return
 
 
 class TestNotebooks:
