@@ -8,6 +8,7 @@ import requests  # type: ignore
 import whylabs_client
 from whylabs_client.api.log_api import LogApi
 from whylabs_client.model.log_async_request import LogAsyncRequest
+from whylabs_client.model.log_reference_request import LogReferenceRequest
 from whylabs_client.rest import ForbiddenException
 
 from whylogs.api.writer import Writer
@@ -66,20 +67,28 @@ class WhyLabsWriter(Writer):
         self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
         self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
+        self._reference_profile_name = os.environ.get("WHYLABS_REFERENCE_PROFILE_NAME")
 
     def check_interval(self, interval_seconds: int):
         if interval_seconds < FIVE_MINUTES_IN_SECONDS:
             raise BadConfigError("Bad WhyLabsWriter config: interval must be greater or equal to five minutes")
 
     def option(
-        self, org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None
-    ) -> None:
+        self,
+        org_id: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+        api_key: Optional[str] = None,
+        reference_profile_name: Optional[str] = None,
+    ) -> "WhyLabsWriter":
         if dataset_id is not None:
             self._dataset_id = dataset_id
         if org_id is not None:
             self._org_id = org_id
         if api_key is not None:
             self._api_key = api_key
+        if reference_profile_name is not None:
+            self._reference_profile_name = reference_profile_name
+        return self
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> None:
@@ -99,7 +108,11 @@ class WhyLabsWriter(Writer):
 
             dataset_timestamp = profile_view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
-            self._upload_whylabs(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
+            self._upload_whylabs(
+                dataset_timestamp=dataset_timestamp,
+                profile_path=tmp_file.name,
+                reference_profile_name=self._reference_profile_name,
+            )
 
     @staticmethod
     def _check_api_key_format(input_key: str) -> Tuple[bool, Optional[str]]:
@@ -120,7 +133,11 @@ class WhyLabsWriter(Writer):
         return (True, None)
 
     def _upload_whylabs(
-        self, dataset_timestamp: int, profile_path: str, upload_url: Optional[str] = None
+        self,
+        dataset_timestamp: int,
+        profile_path: str,
+        upload_url: Optional[str] = None,
+        reference_profile_name: Optional[str] = None,
     ) -> requests.Response:
         if self._org_id is None:
             raise EnvironmentError(
@@ -132,7 +149,9 @@ class WhyLabsWriter(Writer):
                 "variable or on your write method"
             )
 
-        upload_url = upload_url or self._get_upload_url(dataset_timestamp=dataset_timestamp)
+        upload_url = upload_url or self._get_upload_url(
+            dataset_timestamp=dataset_timestamp, reference_profile_name=reference_profile_name
+        )
         api_key_id = self._api_key[:10] if self._api_key else None
         try:
             with open(profile_path, "rb") as f:
@@ -176,6 +195,11 @@ class WhyLabsWriter(Writer):
         request = LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[])
         return request
 
+    @staticmethod
+    def _build_log_reference_request(dataset_timestamp, alias: Optional[str] = None):
+        request = LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias)
+        return request
+
     def _post_log_async(self, request, dataset_timestamp):
         api_key_valid, validation_message = self._check_api_key_format(input_key=self._api_key)
         if not api_key_valid:
@@ -197,8 +221,37 @@ class WhyLabsWriter(Writer):
             )
             raise e
 
-    def _get_upload_url(self, dataset_timestamp: int):
-        request = self._build_log_async_request(dataset_timestamp)
-        log_api = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
-        upload_url = log_api["upload_url"]
+    def _post_log_reference(self, request, dataset_timestamp):
+        api_key_valid, validation_message = self._check_api_key_format(input_key=self._api_key)
+        if not api_key_valid:
+            api_key_id = self._api_key[:10] if self._api_key and len(self._api_key) > 11 else None
+            raise ValueError(
+                f"WhyLabs API Key invalid! Because: {validation_message}. ID portion was: [{api_key_id}]."
+                f" Upload failed for {self._org_id}/{self._dataset_id}/{dataset_timestamp}"
+            )
+
+        log_api = self._get_or_create_api_log_client()
+        try:
+            async_result = log_api.log_reference(
+                org_id=self._org_id, model_id=self._dataset_id, log_reference_request=request, async_req=True
+            )
+            result = async_result.get()
+            return result
+        except ForbiddenException as e:
+            api_key_id = self._api_key[:10] if self._api_key else None
+            logger.exception(
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to {self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
+            )
+            raise e
+
+    def _get_upload_url(self, dataset_timestamp: int, reference_profile_name: Optional[str] = None):
+        if reference_profile_name is None:
+            request = self._build_log_async_request(dataset_timestamp)
+            log_api = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
+            upload_url = log_api["upload_url"]
+        else:
+            request = self._build_log_reference_request(dataset_timestamp, alias=reference_profile_name)
+            log_api = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
+            upload_url = log_api["upload_url"]
         return upload_url
