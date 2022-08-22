@@ -11,7 +11,7 @@ import whylogs.core.message.MetricComponentMessage;
 public class TestDeserializer {
 
   @Test
-  public void test_derializationRegistry() {
+  public void test_deserializationRegistry() {
     DeserializerRegistry registry = DeserializerRegistry.getInstance();
     Assert.assertNotNull(registry);
     Assert.assertEquals(registry, DeserializerRegistry.getInstance());
