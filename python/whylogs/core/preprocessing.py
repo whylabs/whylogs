@@ -93,7 +93,7 @@ class PreprocessedColumn:
         self.bool_count_where_true = 0
         self.len = -1
 
-    def _pandas_split(self, series: Union[pd.Series], parse_numeric_string: bool = False) -> None:
+    def _pandas_split(self, series: pd.Series, parse_numeric_string: bool = False) -> None:
         """
         Split a Pandas Series into numpy array and other Pandas series.
 

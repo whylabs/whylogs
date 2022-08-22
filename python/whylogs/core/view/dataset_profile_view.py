@@ -72,8 +72,8 @@ class DatasetProfileView(Writable):
             merged_columns[n] = res
         return DatasetProfileView(
             columns=merged_columns,
-            dataset_timestamp=self._dataset_timestamp,
-            creation_timestamp=self._creation_timestamp,
+            dataset_timestamp=self._dataset_timestamp if self._dataset_timestamp else other.dataset_timestamp,
+            creation_timestamp=self._creation_timestamp if self._creation_timestamp else other.creation_timestamp,
         )
 
     def get_column(self, col_name: str) -> Optional[ColumnProfileView]:

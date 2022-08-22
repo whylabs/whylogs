@@ -5,6 +5,7 @@ from typing import Any, Dict, Mapping, Optional, TypeVar
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import Resolver, StandardResolver
+from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
@@ -61,6 +62,7 @@ class DatasetSchema:
     resolvers: Resolver = StandardResolver()
     cache_size: int = 1024
     schema_based_automerge: bool = False
+    segments: Dict[str, SegmentationPartition] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self._columns = {}
@@ -86,6 +88,11 @@ class DatasetSchema:
         """Returns a new instance of the same underlying schema"""
         copy = DatasetSchema(**self.__dict__)
         copy._columns = self._columns.copy()
+        copy.cache_size = self.cache_size
+        copy.type_mapper = self.type_mapper
+        copy.resolvers = self.resolvers
+        copy.segments = self.segments.copy()
+
         return copy
 
     def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool:
