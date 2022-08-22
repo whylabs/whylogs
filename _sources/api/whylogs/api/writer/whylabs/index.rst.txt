@@ -80,7 +80,7 @@ Attributes
       non-negative interval.
 
 
-   .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None) -> None
+   .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None, reference_profile_name: Optional[str] = None) -> WhyLabsWriter
 
 
    .. py:method:: write(file: whylogs.api.writer.writer.Writable, **kwargs: Any) -> None
