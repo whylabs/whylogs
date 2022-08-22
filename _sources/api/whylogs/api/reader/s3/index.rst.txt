@@ -43,13 +43,13 @@ Classes
    profile = why.reader("s3").option(bucket_name="my_bucket", object_name="my/object.bin").read()
    ```
 
-   .. py:method:: read(self, **kwargs) -> whylogs.ResultSet
+   .. py:method:: read(**kwargs) -> whylogs.ResultSet
 
       Must be implemented by all inherited Readers, declaring
       how to fetch files from their locations to a local temp dir
 
 
-   .. py:method:: option(self, object_name: Optional[str] = None, bucket_name: Optional[str] = None) -> None
+   .. py:method:: option(object_name: Optional[str] = None, bucket_name: Optional[str] = None) -> None
 
 
    .. py:method:: get_file_from_path(path) -> whylogs.ResultSet

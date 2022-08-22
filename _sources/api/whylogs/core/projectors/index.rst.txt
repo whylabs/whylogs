@@ -21,7 +21,7 @@ Classes
 
    Bases: :py:obj:`object`
 
-   .. py:method:: apply(self, row: Dict[str, Any]) -> Any
+   .. py:method:: apply(row: Dict[str, Any]) -> Any
 
 
 

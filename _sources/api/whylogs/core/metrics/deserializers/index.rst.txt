@@ -47,13 +47,13 @@ Attributes
 
 .. py:class:: DeserializerRegistry
 
-   .. py:method:: get(self, *, mtype: Optional[type] = None, type_id: int = 0) -> Optional[_Deserializer]
+   .. py:method:: get(*, mtype: Optional[type] = None, type_id: int = 0) -> Optional[_Deserializer]
 
 
 
-.. py:function:: get_deserializer(mtype: Optional[type] = None, type_id: int = 0, registry: Optional[DeserializerRegistry] = None) -> Optional[_Deserializer]
+.. py:function:: get_deserializer(*, mtype: Optional[type] = None, type_id: int = 0, registry: Optional[DeserializerRegistry] = None) -> Optional[_Deserializer]
 
 
-.. py:function:: deserializer(type_id: int, registry: Optional[DeserializerRegistry] = None)
+.. py:function:: deserializer(*, type_id: int, registry: Optional[DeserializerRegistry] = None)
 
 

@@ -46,49 +46,49 @@ Attributes
                               The timestamp tied to the exact moment when the :class:`DatasetProfile` is created.
                               If None is provided, it will take the current timestamp as default
 
-   .. py:method:: creation_timestamp(self) -> datetime.datetime
+   .. py:method:: creation_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: dataset_timestamp(self) -> datetime.datetime
+   .. py:method:: dataset_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: is_active(self) -> bool
-      :property:
-
-      Returns True if the profile tracking code is currently running.
-
-
-   .. py:method:: is_empty(self) -> bool
+   .. py:method:: is_active() -> bool
       :property:
 
       Returns True if the profile tracking code is currently running.
 
 
-   .. py:method:: set_dataset_timestamp(self, dataset_timestamp: datetime.datetime) -> None
+   .. py:method:: is_empty() -> bool
+      :property:
+
+      Returns True if the profile tracking code is currently running.
 
 
-   .. py:method:: add_metric(self, col_name: str, metric: whylogs.core.metrics.Metric) -> None
+   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
 
 
-   .. py:method:: track(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
+   .. py:method:: add_metric(col_name: str, metric: whylogs.core.metrics.Metric) -> None
 
 
-   .. py:method:: view(self) -> whylogs.core.view.DatasetProfileView
+   .. py:method:: track(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
 
 
-   .. py:method:: flush(self) -> None
+   .. py:method:: view() -> whylogs.core.view.DatasetProfileView
+
+
+   .. py:method:: flush() -> None
 
 
    .. py:method:: get_default_path(path) -> str
       :staticmethod:
 
 
-   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
 
-   .. py:method:: read(cls, input_path: str) -> whylogs.core.view.DatasetProfileView
+   .. py:method:: read(input_path: str) -> whylogs.core.view.DatasetProfileView
       :classmethod:
 
 

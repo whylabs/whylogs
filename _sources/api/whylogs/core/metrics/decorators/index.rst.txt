@@ -43,7 +43,7 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: build(cls: Type[DF], func: FuncType, name: str) -> DF
+   .. py:method:: build(func: FuncType, name: str) -> DF
       :classmethod:
       :abstractmethod:
 

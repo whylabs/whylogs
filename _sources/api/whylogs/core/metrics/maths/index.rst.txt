@@ -39,7 +39,7 @@ Attributes
 
    
 
-.. py:function:: parallel_variance_m2(first: VarianceM2Result, second: VarianceM2Result) -> VarianceM2Result
+.. py:function:: parallel_variance_m2(*, first: VarianceM2Result, second: VarianceM2Result) -> VarianceM2Result
 
    Verbatim copy of the parallel variance algorithm from Wikipedia.
 
@@ -50,6 +50,6 @@ Attributes
    :returns: The variance result of the overall stream.
 
 
-.. py:function:: welford_online_variance_m2(existing: VarianceM2Result, new_value: float) -> VarianceM2Result
+.. py:function:: welford_online_variance_m2(*, existing: VarianceM2Result, new_value: float) -> VarianceM2Result
 
 

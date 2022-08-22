@@ -47,7 +47,7 @@ Attributes
 
    Note that the key of the result dictionaries defines the namespaces of the metrics in the serialized form.
 
-   .. py:method:: resolve(self, name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
       :abstractmethod:
 
 
@@ -58,7 +58,7 @@ Attributes
 
    Standard metric resolution with builtin types.
 
-   .. py:method:: resolve(self, name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
 
 
@@ -68,7 +68,7 @@ Attributes
 
    Resolver that skips frequent item and cardinality trackers.
 
-   .. py:method:: resolve(self, name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
 
 
@@ -78,7 +78,7 @@ Attributes
 
    Resolver that only adds distribution tracker.
 
-   .. py:method:: resolve(self, name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
 
 

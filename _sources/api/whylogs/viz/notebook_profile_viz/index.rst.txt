@@ -94,7 +94,7 @@ Attributes
        visualization = NotebookProfileVisualizer()
        visualization.set_profiles(target_profile_view=prof_view,reference_profile_view=prof_view_ref)
 
-   .. py:method:: set_profiles(self, target_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, reference_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> None
+   .. py:method:: set_profiles(target_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, reference_profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> None
 
       Set profiles for Visualization/Comparison.
 
@@ -106,10 +106,10 @@ Attributes
       :type reference_profile_view: DatasetProfileView, optional
 
 
-   .. py:method:: profile_summary(self, cell_height: str = None) -> IPython.core.display.HTML
+   .. py:method:: profile_summary(cell_height: str = None) -> IPython.core.display.HTML
 
 
-   .. py:method:: summary_drift_report(self, height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: summary_drift_report(height: Optional[str] = None) -> IPython.core.display.HTML
 
       Generate drift report between target and reference profiles.
 
@@ -133,7 +133,7 @@ Attributes
           visualization.summary_drift_report()
 
 
-   .. py:method:: double_histogram(self, feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: double_histogram(feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Plot overlayed histograms for specified feature present in both `target_profile` and `reference_profile`.
 
@@ -155,7 +155,7 @@ Attributes
           visualization.double_histogram(feature_name="weight")
 
 
-   .. py:method:: distribution_chart(self, feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: distribution_chart(feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Plot overlayed distribution charts for specified feature between two profiles.
 
@@ -181,7 +181,7 @@ Attributes
           visualization.distribution_chart(feature_name="animal")
 
 
-   .. py:method:: difference_distribution_chart(self, feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: difference_distribution_chart(feature_name: str, cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Plot overlayed distribution charts of differences between the categories of both profiles.
 
@@ -205,10 +205,10 @@ Attributes
           visualization.difference_distribution_chart(feature_name="animal")
 
 
-   .. py:method:: constraints_report(self, constraints: whylogs.core.constraints.Constraints, cell_height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: constraints_report(constraints: whylogs.core.constraints.Constraints, cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
 
-   .. py:method:: feature_statistics(self, feature_name: str, profile: str = 'reference', cell_height: Optional[str] = None) -> IPython.core.display.HTML
+   .. py:method:: feature_statistics(feature_name: str, profile: str = 'reference', cell_height: Optional[str] = None) -> IPython.core.display.HTML
 
       Generate a report for the main statistics of specified feature, for a given profile (target or reference).
 

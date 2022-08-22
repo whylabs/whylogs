@@ -39,10 +39,10 @@ Attributes
 
    Schedule a function to be called repeatedly based on a schedule.
 
-   .. py:method:: start(self) -> None
+   .. py:method:: start() -> None
 
 
-   .. py:method:: stop(self) -> None
+   .. py:method:: stop() -> None
 
 
 
@@ -52,18 +52,18 @@ Attributes
 
    A rolling logger that continuously rotates files based on time.
 
-   .. py:method:: check_writer(self, writer: whylogs.api.writer.Writer) -> None
+   .. py:method:: check_writer(writer: whylogs.api.writer.Writer) -> None
 
       Checks if a writer is configured correctly for this class
 
 
-   .. py:method:: close(self) -> None
+   .. py:method:: close() -> None
 
 
-   .. py:method:: append_writer(self, name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
+   .. py:method:: append_writer(name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
 
 
-   .. py:method:: log(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
 
 
 

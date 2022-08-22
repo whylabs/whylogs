@@ -41,14 +41,14 @@ Classes
       :staticmethod:
 
 
-   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
-   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+   .. py:method:: view() -> whylogs.core.DatasetProfileView
       :abstractmethod:
 
 
-   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+   .. py:method:: profile() -> whylogs.core.DatasetProfile
       :abstractmethod:
 
 
@@ -65,10 +65,10 @@ Classes
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
-   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+   .. py:method:: profile() -> whylogs.core.DatasetProfile
 
 
-   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+   .. py:method:: view() -> whylogs.core.DatasetProfileView
 
 
    .. py:method:: read(multi_profile_file: str) -> ResultSet
@@ -79,7 +79,7 @@ Classes
       :staticmethod:
 
 
-   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
 
@@ -95,10 +95,10 @@ Classes
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
-   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+   .. py:method:: profile() -> whylogs.core.DatasetProfile
 
 
-   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+   .. py:method:: view() -> whylogs.core.DatasetProfileView
 
 
    .. py:method:: read(multi_profile_file: str) -> ResultSet
@@ -109,7 +109,7 @@ Classes
       :staticmethod:
 
 
-   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
 
@@ -119,19 +119,19 @@ Classes
 
    A result set might contain one or multiple profiles or profile views.
 
-   .. py:method:: option(self, **kwargs: Any) -> ResultSetWriter
+   .. py:method:: option(**kwargs: Any) -> ResultSetWriter
 
 
-   .. py:method:: write(self, **kwargs: Any) -> None
+   .. py:method:: write(**kwargs: Any) -> None
 
 
 
 .. py:class:: ResultSetReader(reader: whylogs.api.reader.Reader)
 
-   .. py:method:: option(self, **kwargs: Any) -> ResultSetReader
+   .. py:method:: option(**kwargs: Any) -> ResultSetReader
 
 
-   .. py:method:: read(self, **kwargs: Any) -> ResultSet
+   .. py:method:: read(**kwargs: Any) -> ResultSet
 
 
 

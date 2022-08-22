@@ -55,22 +55,22 @@ Classes
 
       
 
-   .. py:method:: validate(self, profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> bool
+   .. py:method:: validate(profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> bool
 
 
-   .. py:method:: report(self, profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> List[Tuple[str, int, int]]
+   .. py:method:: report(profile_view: Optional[whylogs.core.view.dataset_profile_view.DatasetProfileView] = None) -> List[Tuple[str, int, int]]
 
 
 
 .. py:class:: ConstraintsBuilder(dataset_profile_view: whylogs.core.view.dataset_profile_view.DatasetProfileView, constraints: Optional[Constraints] = None)
 
-   .. py:method:: get_metric_selectors(self) -> List[MetricsSelector]
+   .. py:method:: get_metric_selectors() -> List[MetricsSelector]
 
 
-   .. py:method:: add_constraint(self, constraint: MetricConstraint, ignore_missing: bool = False) -> ConstraintsBuilder
+   .. py:method:: add_constraint(constraint: MetricConstraint, ignore_missing: bool = False) -> ConstraintsBuilder
 
 
-   .. py:method:: build(self) -> Constraints
+   .. py:method:: build() -> Constraints
 
 
 
@@ -96,7 +96,7 @@ Classes
 
       
 
-   .. py:method:: validate(self, dataset_profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> bool
+   .. py:method:: validate(dataset_profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> bool
 
 
 
@@ -117,10 +117,10 @@ Classes
 
       
 
-   .. py:method:: column_profile(self, profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
+   .. py:method:: column_profile(profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
-   .. py:method:: apply(self, profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> List[whylogs.core.metrics.metrics.Metric]
+   .. py:method:: apply(profile: whylogs.core.view.dataset_profile_view.DatasetProfileView) -> List[whylogs.core.metrics.metrics.Metric]
 
 
 

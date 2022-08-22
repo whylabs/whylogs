@@ -40,40 +40,40 @@ Attributes
 
    Bases: :py:obj:`object`
 
-   .. py:method:: merge(self, other: ColumnProfileView) -> ColumnProfileView
+   .. py:method:: merge(other: ColumnProfileView) -> ColumnProfileView
 
 
-   .. py:method:: serialize(self) -> bytes
+   .. py:method:: serialize() -> bytes
 
 
-   .. py:method:: deserialize(cls, serialized_profile: bytes) -> ColumnProfileView
+   .. py:method:: deserialize(serialized_profile: bytes) -> ColumnProfileView
       :classmethod:
 
 
-   .. py:method:: get_metric(self, m_name: str) -> Optional[METRIC]
+   .. py:method:: get_metric(m_name: str) -> Optional[METRIC]
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.ColumnMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.ColumnMessage
 
 
-   .. py:method:: get_metric_component_paths(self) -> List[str]
+   .. py:method:: get_metric_component_paths() -> List[str]
 
 
-   .. py:method:: get_metric_names(self) -> List[str]
+   .. py:method:: get_metric_names() -> List[str]
 
 
-   .. py:method:: to_summary_dict(self, *, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(*, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
-   .. py:method:: zero(cls, msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
+   .. py:method:: zero(msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
       :classmethod:
 
 
-   .. py:method:: from_protobuf(cls, msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
       :classmethod:
 
 
-   .. py:method:: from_bytes(cls, data: bytes) -> ColumnProfileView
+   .. py:method:: from_bytes(data: bytes) -> ColumnProfileView
       :classmethod:
 
 
@@ -90,34 +90,34 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: dataset_timestamp(self) -> datetime.datetime
+   .. py:method:: dataset_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: creation_timestamp(self) -> datetime.datetime
+   .. py:method:: creation_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: merge(self, other: DatasetProfileView) -> DatasetProfileView
+   .. py:method:: merge(other: DatasetProfileView) -> DatasetProfileView
 
 
-   .. py:method:: get_column(self, col_name: str) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
+   .. py:method:: get_column(col_name: str) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
-   .. py:method:: get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
+   .. py:method:: get_columns(col_names: Optional[List[str]] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
-   .. py:method:: get_default_path(self) -> str
+   .. py:method:: get_default_path() -> str
 
 
-   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
 
-   .. py:method:: read(cls, path: str) -> DatasetProfileView
+   .. py:method:: read(path: str) -> DatasetProfileView
       :classmethod:
 
 
-   .. py:method:: to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> whylogs.core.stubs.pd.DataFrame
+   .. py:method:: to_pandas(column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> whylogs.core.stubs.pd.DataFrame
 
 
 

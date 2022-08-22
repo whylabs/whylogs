@@ -67,24 +67,24 @@ Attributes
 
    Bases: :py:obj:`object`
 
-   .. py:method:: add_metric(self, metric: whylogs.core.metrics.Metric) -> None
+   .. py:method:: add_metric(metric: whylogs.core.metrics.Metric) -> None
 
 
-   .. py:method:: track(self, row: Dict[str, Any]) -> None
+   .. py:method:: track(row: Dict[str, Any]) -> None
 
 
-   .. py:method:: flush(self) -> None
+   .. py:method:: flush() -> None
 
       Force emptying the cache and update the internal metrics.
 
 
-   .. py:method:: track_column(self, series: Any) -> None
+   .. py:method:: track_column(series: Any) -> None
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.ColumnMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.ColumnMessage
 
 
-   .. py:method:: view(self) -> whylogs.core.view.ColumnProfileView
+   .. py:method:: view() -> whylogs.core.view.ColumnProfileView
 
 
 
@@ -104,49 +104,49 @@ Attributes
                               The timestamp tied to the exact moment when the :class:`DatasetProfile` is created.
                               If None is provided, it will take the current timestamp as default
 
-   .. py:method:: creation_timestamp(self) -> datetime.datetime
+   .. py:method:: creation_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: dataset_timestamp(self) -> datetime.datetime
+   .. py:method:: dataset_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: is_active(self) -> bool
-      :property:
-
-      Returns True if the profile tracking code is currently running.
-
-
-   .. py:method:: is_empty(self) -> bool
+   .. py:method:: is_active() -> bool
       :property:
 
       Returns True if the profile tracking code is currently running.
 
 
-   .. py:method:: set_dataset_timestamp(self, dataset_timestamp: datetime.datetime) -> None
+   .. py:method:: is_empty() -> bool
+      :property:
+
+      Returns True if the profile tracking code is currently running.
 
 
-   .. py:method:: add_metric(self, col_name: str, metric: whylogs.core.metrics.Metric) -> None
+   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
 
 
-   .. py:method:: track(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
+   .. py:method:: add_metric(col_name: str, metric: whylogs.core.metrics.Metric) -> None
 
 
-   .. py:method:: view(self) -> whylogs.core.view.DatasetProfileView
+   .. py:method:: track(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
 
 
-   .. py:method:: flush(self) -> None
+   .. py:method:: view() -> whylogs.core.view.DatasetProfileView
+
+
+   .. py:method:: flush() -> None
 
 
    .. py:method:: get_default_path(path) -> str
       :staticmethod:
 
 
-   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
 
-   .. py:method:: read(cls, input_path: str) -> whylogs.core.view.DatasetProfileView
+   .. py:method:: read(input_path: str) -> whylogs.core.view.DatasetProfileView
       :classmethod:
 
 
@@ -220,7 +220,7 @@ Attributes
 
    Note that the key of the result dictionaries defines the namespaces of the metrics in the serialized form.
 
-   .. py:method:: resolve(self, name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+   .. py:method:: resolve(name: str, why_type: whylogs.core.datatypes.DataType, column_schema: ColumnSchema) -> Dict[str, whylogs.core.metrics.metrics.Metric]
       :abstractmethod:
 
 
@@ -253,7 +253,7 @@ Attributes
 
       
 
-   .. py:method:: get_metrics(self, name: str) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+   .. py:method:: get_metrics(name: str) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
 
 
@@ -331,18 +331,18 @@ Attributes
 
       
 
-   .. py:method:: copy(self) -> DatasetSchema
+   .. py:method:: copy() -> DatasetSchema
 
       Returns a new instance of the same underlying schema
 
 
-   .. py:method:: resolve(self, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool
+   .. py:method:: resolve(*, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool
 
 
-   .. py:method:: get_col_names(self) -> tuple
+   .. py:method:: get_col_names() -> tuple
 
 
-   .. py:method:: get(self, name: str) -> Optional[ColumnSchema]
+   .. py:method:: get(name: str) -> Optional[ColumnSchema]
 
 
 
@@ -355,40 +355,40 @@ Attributes
 
    Bases: :py:obj:`object`
 
-   .. py:method:: merge(self, other: ColumnProfileView) -> ColumnProfileView
+   .. py:method:: merge(other: ColumnProfileView) -> ColumnProfileView
 
 
-   .. py:method:: serialize(self) -> bytes
+   .. py:method:: serialize() -> bytes
 
 
-   .. py:method:: deserialize(cls, serialized_profile: bytes) -> ColumnProfileView
+   .. py:method:: deserialize(serialized_profile: bytes) -> ColumnProfileView
       :classmethod:
 
 
-   .. py:method:: get_metric(self, m_name: str) -> Optional[METRIC]
+   .. py:method:: get_metric(m_name: str) -> Optional[METRIC]
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.ColumnMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.ColumnMessage
 
 
-   .. py:method:: get_metric_component_paths(self) -> List[str]
+   .. py:method:: get_metric_component_paths() -> List[str]
 
 
-   .. py:method:: get_metric_names(self) -> List[str]
+   .. py:method:: get_metric_names() -> List[str]
 
 
-   .. py:method:: to_summary_dict(self, *, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(*, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> Dict[str, Any]
 
 
-   .. py:method:: zero(cls, msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
+   .. py:method:: zero(msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
       :classmethod:
 
 
-   .. py:method:: from_protobuf(cls, msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.ColumnMessage) -> ColumnProfileView
       :classmethod:
 
 
-   .. py:method:: from_bytes(cls, data: bytes) -> ColumnProfileView
+   .. py:method:: from_bytes(data: bytes) -> ColumnProfileView
       :classmethod:
 
 
@@ -400,34 +400,34 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: dataset_timestamp(self) -> datetime.datetime
+   .. py:method:: dataset_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: creation_timestamp(self) -> datetime.datetime
+   .. py:method:: creation_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: merge(self, other: DatasetProfileView) -> DatasetProfileView
+   .. py:method:: merge(other: DatasetProfileView) -> DatasetProfileView
 
 
-   .. py:method:: get_column(self, col_name: str) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
+   .. py:method:: get_column(col_name: str) -> Optional[whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
-   .. py:method:: get_columns(self, col_names: Optional[List[str]] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
+   .. py:method:: get_columns(col_names: Optional[List[str]] = None) -> Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView]
 
 
-   .. py:method:: get_default_path(self) -> str
+   .. py:method:: get_default_path() -> str
 
 
-   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
 
-   .. py:method:: read(cls, path: str) -> DatasetProfileView
+   .. py:method:: read(path: str) -> DatasetProfileView
       :classmethod:
 
 
-   .. py:method:: to_pandas(self, column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> whylogs.core.stubs.pd.DataFrame
+   .. py:method:: to_pandas(column_metric: Optional[str] = None, cfg: Optional[whylogs.core.configs.SummaryConfig] = None) -> whylogs.core.stubs.pd.DataFrame
 
 
 

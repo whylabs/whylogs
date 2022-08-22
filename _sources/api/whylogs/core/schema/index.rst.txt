@@ -117,18 +117,18 @@ Attributes
 
       
 
-   .. py:method:: copy(self) -> DatasetSchema
+   .. py:method:: copy() -> DatasetSchema
 
       Returns a new instance of the same underlying schema
 
 
-   .. py:method:: resolve(self, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool
+   .. py:method:: resolve(*, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool
 
 
-   .. py:method:: get_col_names(self) -> tuple
+   .. py:method:: get_col_names() -> tuple
 
 
-   .. py:method:: get(self, name: str) -> Optional[ColumnSchema]
+   .. py:method:: get(name: str) -> Optional[ColumnSchema]
 
 
 
@@ -160,7 +160,7 @@ Attributes
 
       
 
-   .. py:method:: get_metrics(self, name: str) -> Dict[str, whylogs.core.metrics.metrics.Metric]
+   .. py:method:: get_metrics(name: str) -> Dict[str, whylogs.core.metrics.metrics.Metric]
 
 
 

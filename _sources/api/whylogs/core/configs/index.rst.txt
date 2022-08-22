@@ -67,7 +67,7 @@ Classes
 
       
 
-   .. py:method:: to_datasketches_type(self) -> whylogs_sketching.frequent_items_error_type
+   .. py:method:: to_datasketches_type() -> whylogs_sketching.frequent_items_error_type
 
 
    .. py:method:: as_integer_ratio()
@@ -119,12 +119,12 @@ Classes
         is raised.
 
 
-   .. py:method:: name(self)
+   .. py:method:: name()
 
       The name of the Enum member.
 
 
-   .. py:method:: value(self)
+   .. py:method:: value()
 
       The value of the Enum member.
 

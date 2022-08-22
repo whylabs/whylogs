@@ -88,17 +88,17 @@ Attributes
 
       
 
-   .. py:method:: value(self) -> T
+   .. py:method:: value() -> T
       :property:
 
 
-   .. py:method:: set(self, value: T) -> None
+   .. py:method:: set(value: T) -> None
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricComponentMessage
 
 
-   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
       :classmethod:
 
 
@@ -128,17 +128,17 @@ Attributes
 
       
 
-   .. py:method:: value(self) -> T
+   .. py:method:: value() -> T
       :property:
 
 
-   .. py:method:: set(self, value: T) -> None
+   .. py:method:: set(value: T) -> None
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricComponentMessage
 
 
-   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
       :classmethod:
 
 
@@ -172,17 +172,17 @@ Attributes
       :staticmethod:
 
 
-   .. py:method:: value(self) -> T
+   .. py:method:: value() -> T
       :property:
 
 
-   .. py:method:: set(self, value: T) -> None
+   .. py:method:: set(value: T) -> None
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricComponentMessage
 
 
-   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
       :classmethod:
 
 
@@ -216,17 +216,17 @@ Attributes
       :staticmethod:
 
 
-   .. py:method:: value(self) -> T
+   .. py:method:: value() -> T
       :property:
 
 
-   .. py:method:: set(self, value: T) -> None
+   .. py:method:: set(value: T) -> None
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricComponentMessage
 
 
-   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
       :classmethod:
 
 
@@ -256,17 +256,17 @@ Attributes
 
       
 
-   .. py:method:: value(self) -> T
+   .. py:method:: value() -> T
       :property:
 
 
-   .. py:method:: set(self, value: T) -> None
+   .. py:method:: set(value: T) -> None
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricComponentMessage
 
 
-   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
       :classmethod:
 
 
@@ -339,17 +339,17 @@ Attributes
 
       
 
-   .. py:method:: value(self) -> T
+   .. py:method:: value() -> T
       :property:
 
 
-   .. py:method:: set(self, value: T) -> None
+   .. py:method:: set(value: T) -> None
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricComponentMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricComponentMessage
 
 
-   .. py:method:: from_protobuf(cls: Type[M], msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricComponentMessage, registries: Optional[Registries] = None) -> M
       :classmethod:
 
 

@@ -381,19 +381,19 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.greater_than_number" title="whylogs.core.constraints.factories.distribution_metrics.greater_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater_than_number</span></code></a>(column_name: str, number: Union[float, int], skip_missing: bool = True) → whylogs.core.constraints.MetricConstraint</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.greater_than_number" title="whylogs.core.constraints.factories.distribution_metrics.greater_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater_than_number</span></code></a>(...)</p></td>
 <td><p>Minimum value of given column must be above defined number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.smaller_than_number" title="whylogs.core.constraints.factories.distribution_metrics.smaller_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smaller_than_number</span></code></a>(column_name: str, number: float, skip_missing: bool = True) → whylogs.core.constraints.MetricConstraint</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.smaller_than_number" title="whylogs.core.constraints.factories.distribution_metrics.smaller_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smaller_than_number</span></code></a>(...)</p></td>
 <td><p>Maximum value of given column must be below defined number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.mean_between_range" title="whylogs.core.constraints.factories.distribution_metrics.mean_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_between_range</span></code></a>(column_name: str, lower: float, upper: float, skip_missing: bool = True) → whylogs.core.constraints.MetricConstraint</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.mean_between_range" title="whylogs.core.constraints.factories.distribution_metrics.mean_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_between_range</span></code></a>(...)</p></td>
 <td><p>Estimated mean must be between range defined by lower and upper bounds.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.stddev_between_range" title="whylogs.core.constraints.factories.distribution_metrics.stddev_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_between_range</span></code></a>(column_name: str, lower: float, upper: float, skip_missing: bool = True)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.stddev_between_range" title="whylogs.core.constraints.factories.distribution_metrics.stddev_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_between_range</span></code></a>(column_name, lower, upper[, ...])</p></td>
 <td><p>Estimated standard deviation must be between range defined by lower and upper bounds.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.quantile_between_range" title="whylogs.core.constraints.factories.distribution_metrics.quantile_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile_between_range</span></code></a>(column_name: str, quantile: float, lower: float, upper: float, skip_missing: bool = True)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distribution_metrics.quantile_between_range" title="whylogs.core.constraints.factories.distribution_metrics.quantile_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile_between_range</span></code></a>(column_name, quantile, lower, upper)</p></td>
 <td><p>Q-th quantile value must be withing the range defined by lower and upper boundaries.</p></td>
 </tr>
 </tbody>

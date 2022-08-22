@@ -54,18 +54,18 @@ Functions
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: check_writer(self, _: whylogs.api.writer.Writer) -> None
+   .. py:method:: check_writer(_: whylogs.api.writer.Writer) -> None
 
       Checks if a writer is configured correctly for this class
 
 
-   .. py:method:: append_writer(self, name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
+   .. py:method:: append_writer(name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
 
 
-   .. py:method:: log(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
 
 
-   .. py:method:: close(self) -> None
+   .. py:method:: close() -> None
       :abstractmethod:
 
 
@@ -90,24 +90,24 @@ Functions
       :staticmethod:
 
 
-   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
-   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+   .. py:method:: view() -> whylogs.core.DatasetProfileView
       :abstractmethod:
 
 
-   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+   .. py:method:: profile() -> whylogs.core.DatasetProfile
       :abstractmethod:
 
 
 
 .. py:class:: ResultSetReader(reader: whylogs.api.reader.Reader)
 
-   .. py:method:: option(self, **kwargs: Any) -> ResultSetReader
+   .. py:method:: option(**kwargs: Any) -> ResultSetReader
 
 
-   .. py:method:: read(self, **kwargs: Any) -> ResultSet
+   .. py:method:: read(**kwargs: Any) -> ResultSet
 
 
 
@@ -117,18 +117,18 @@ Functions
 
    A rolling logger that continuously rotates files based on time.
 
-   .. py:method:: check_writer(self, writer: whylogs.api.writer.Writer) -> None
+   .. py:method:: check_writer(writer: whylogs.api.writer.Writer) -> None
 
       Checks if a writer is configured correctly for this class
 
 
-   .. py:method:: close(self) -> None
+   .. py:method:: close() -> None
 
 
-   .. py:method:: append_writer(self, name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
+   .. py:method:: append_writer(name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
 
 
-   .. py:method:: log(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
 
 
 
@@ -139,21 +139,21 @@ Functions
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: flush(self) -> None
+   .. py:method:: flush() -> None
 
 
-   .. py:method:: close(self) -> None
+   .. py:method:: close() -> None
 
 
-   .. py:method:: check_writer(self, _: whylogs.api.writer.Writer) -> None
+   .. py:method:: check_writer(_: whylogs.api.writer.Writer) -> None
 
       Checks if a writer is configured correctly for this class
 
 
-   .. py:method:: append_writer(self, name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
+   .. py:method:: append_writer(name: Optional[str] = None, *, writer: Optional[whylogs.api.writer.Writer] = None, **kwargs: Any) -> None
 
 
-   .. py:method:: log(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.ResultSet
 
 
 
@@ -173,49 +173,49 @@ Functions
                               The timestamp tied to the exact moment when the :class:`DatasetProfile` is created.
                               If None is provided, it will take the current timestamp as default
 
-   .. py:method:: creation_timestamp(self) -> datetime.datetime
+   .. py:method:: creation_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: dataset_timestamp(self) -> datetime.datetime
+   .. py:method:: dataset_timestamp() -> datetime.datetime
       :property:
 
 
-   .. py:method:: is_active(self) -> bool
-      :property:
-
-      Returns True if the profile tracking code is currently running.
-
-
-   .. py:method:: is_empty(self) -> bool
+   .. py:method:: is_active() -> bool
       :property:
 
       Returns True if the profile tracking code is currently running.
 
 
-   .. py:method:: set_dataset_timestamp(self, dataset_timestamp: datetime.datetime) -> None
+   .. py:method:: is_empty() -> bool
+      :property:
+
+      Returns True if the profile tracking code is currently running.
 
 
-   .. py:method:: add_metric(self, col_name: str, metric: whylogs.core.metrics.Metric) -> None
+   .. py:method:: set_dataset_timestamp(dataset_timestamp: datetime.datetime) -> None
 
 
-   .. py:method:: track(self, obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
+   .. py:method:: add_metric(col_name: str, metric: whylogs.core.metrics.Metric) -> None
 
 
-   .. py:method:: view(self) -> whylogs.core.view.DatasetProfileView
+   .. py:method:: track(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
 
 
-   .. py:method:: flush(self) -> None
+   .. py:method:: view() -> whylogs.core.view.DatasetProfileView
+
+
+   .. py:method:: flush() -> None
 
 
    .. py:method:: get_default_path(path) -> str
       :staticmethod:
 
 
-   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
 
-   .. py:method:: read(cls, input_path: str) -> whylogs.core.view.DatasetProfileView
+   .. py:method:: read(input_path: str) -> whylogs.core.view.DatasetProfileView
       :classmethod:
 
 
@@ -294,18 +294,18 @@ Functions
 
       
 
-   .. py:method:: copy(self) -> DatasetSchema
+   .. py:method:: copy() -> DatasetSchema
 
       Returns a new instance of the same underlying schema
 
 
-   .. py:method:: resolve(self, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool
+   .. py:method:: resolve(*, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool
 
 
-   .. py:method:: get_col_names(self) -> tuple
+   .. py:method:: get_col_names() -> tuple
 
 
-   .. py:method:: get(self, name: str) -> Optional[ColumnSchema]
+   .. py:method:: get(name: str) -> Optional[ColumnSchema]
 
 
 

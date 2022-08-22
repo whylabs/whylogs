@@ -47,13 +47,13 @@ Attributes
 
 .. py:class:: AggregatorRegistry
 
-   .. py:method:: get(self, *, type_id: int = 0, mtype: Optional[type] = None) -> Optional[_Aggregator]
+   .. py:method:: get(*, type_id: int = 0, mtype: Optional[type] = None) -> Optional[_Aggregator]
 
 
 
-.. py:function:: aggregator(type_id: int, registry: Optional[AggregatorRegistry] = None)
+.. py:function:: aggregator(*, type_id: int, registry: Optional[AggregatorRegistry] = None)
 
 
-.. py:function:: get_aggregator(type_id: int = 0, mtype: Optional[type] = None, registry: Optional[AggregatorRegistry] = None) -> Optional[_Aggregator]
+.. py:function:: get_aggregator(*, type_id: int = 0, mtype: Optional[type] = None, registry: Optional[AggregatorRegistry] = None) -> Optional[_Aggregator]
 
 

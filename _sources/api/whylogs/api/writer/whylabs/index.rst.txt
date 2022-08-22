@@ -72,7 +72,7 @@ Attributes
    profile.writer("whylabs").write()
    ```
 
-   .. py:method:: check_interval(self, interval_seconds: int)
+   .. py:method:: check_interval(interval_seconds: int)
 
       Validate an interval configuration for a given writer.
 
@@ -80,10 +80,10 @@ Attributes
       non-negative interval.
 
 
-   .. py:method:: option(self, org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None) -> None
+   .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None) -> None
 
 
-   .. py:method:: write(self, file: whylogs.api.writer.writer.Writable, **kwargs: Any) -> None
+   .. py:method:: write(file: whylogs.api.writer.writer.Writable, **kwargs: Any) -> None
 
 
 

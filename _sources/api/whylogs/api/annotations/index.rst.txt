@@ -30,6 +30,6 @@ Attributes
 
    
 
-.. py:function:: profiling(schema: Optional[whylogs.core.DatasetSchema] = None)
+.. py:function:: profiling(*, schema: Optional[whylogs.core.DatasetSchema] = None)
 
 

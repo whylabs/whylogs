@@ -50,7 +50,7 @@ Functions
 
 
 
-.. py:function:: profiling(schema: Optional[whylogs.core.DatasetSchema] = None)
+.. py:function:: profiling(*, schema: Optional[whylogs.core.DatasetSchema] = None)
 
 
 .. py:class:: ResultSet
@@ -73,14 +73,14 @@ Functions
       :staticmethod:
 
 
-   .. py:method:: writer(self, name: str = 'local') -> ResultSetWriter
+   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
-   .. py:method:: view(self) -> whylogs.core.DatasetProfileView
+   .. py:method:: view() -> whylogs.core.DatasetProfileView
       :abstractmethod:
 
 
-   .. py:method:: profile(self) -> whylogs.core.DatasetProfile
+   .. py:method:: profile() -> whylogs.core.DatasetProfile
       :abstractmethod:
 
 

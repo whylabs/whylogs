@@ -74,12 +74,12 @@ Classes
 
       
 
-   .. py:method:: name(self)
+   .. py:method:: name()
 
       The name of the Enum member.
 
 
-   .. py:method:: value(self)
+   .. py:method:: value()
 
       The value of the Enum member.
 

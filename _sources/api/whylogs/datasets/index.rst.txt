@@ -103,7 +103,7 @@ Classes
 
       
 
-   .. py:method:: get_baseline(self) -> whylogs.datasets.base.Batch
+   .. py:method:: get_baseline() -> whylogs.datasets.base.Batch
 
       Get baseline Batch object.
 
@@ -111,7 +111,7 @@ Classes
       :rtype: Batch
 
 
-   .. py:method:: get_inference_data(self, target_date: Optional[Union[datetime.date, datetime.datetime]] = None, number_batches: Optional[int] = None) -> Union[whylogs.datasets.base.Batch, Iterable[whylogs.datasets.base.Batch]]
+   .. py:method:: get_inference_data(target_date: Optional[Union[datetime.date, datetime.datetime]] = None, number_batches: Optional[int] = None) -> Union[whylogs.datasets.base.Batch, Iterable[whylogs.datasets.base.Batch]]
 
       Get batch(es) from inference dataset.
 
@@ -124,7 +124,7 @@ Classes
       :rtype: Union[Batch, Iterable[Batch]]
 
 
-   .. py:method:: set_parameters(self, inference_interval: Optional[str] = None, baseline_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, inference_start_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, original: Optional[bool] = None) -> None
+   .. py:method:: set_parameters(inference_interval: Optional[str] = None, baseline_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, inference_start_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, original: Optional[bool] = None) -> None
 
       Set timestamp and interval parameters for the dataset object.
 
@@ -138,13 +138,13 @@ Classes
       :type original: Optional[bool], optional
 
 
-   .. py:method:: describe_versions(cls) -> Tuple[str]
+   .. py:method:: describe_versions() -> Tuple[str]
       :classmethod:
 
       Describe available versions for the given dataset.
 
 
-   .. py:method:: describe(cls) -> Optional[str]
+   .. py:method:: describe() -> Optional[str]
       :classmethod:
 
       Display overall dataset description.

@@ -392,37 +392,37 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distinct_number_in_range" title="whylogs.core.constraints.factories.distinct_number_in_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distinct_number_in_range</span></code></a>(column_name: str, lower: Union[int, float], upper: Union[int, float]) → whylogs.core.constraints.metric_constraints.MetricConstraint</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.distinct_number_in_range" title="whylogs.core.constraints.factories.distinct_number_in_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distinct_number_in_range</span></code></a>(...)</p></td>
 <td><p>Number of distinct categories must be between lower and upper values (inclusive).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_below_number" title="whylogs.core.constraints.factories.count_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_below_number</span></code></a>(column_name: str, number: int) → whylogs.core.constraints.metric_constraints.MetricConstraint</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.count_below_number" title="whylogs.core.constraints.factories.count_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count_below_number</span></code></a>(...)</p></td>
 <td><p>Number of elements in a column must be below given number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_percentage_below_number" title="whylogs.core.constraints.factories.null_percentage_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_percentage_below_number</span></code></a>(column_name: str, number: float) → whylogs.core.constraints.metric_constraints.MetricConstraint</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_percentage_below_number" title="whylogs.core.constraints.factories.null_percentage_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_percentage_below_number</span></code></a>(...)</p></td>
 <td><p>Percentage of null values must be below given number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_values_below_number" title="whylogs.core.constraints.factories.null_values_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_values_below_number</span></code></a>(column_name: str, number: int) → whylogs.core.constraints.metric_constraints.MetricConstraint</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.null_values_below_number" title="whylogs.core.constraints.factories.null_values_below_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">null_values_below_number</span></code></a>(...)</p></td>
 <td><p>Number of null values must be below given number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.greater_than_number" title="whylogs.core.constraints.factories.greater_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater_than_number</span></code></a>(column_name: str, number: Union[float, int], skip_missing: bool = True) → whylogs.core.constraints.MetricConstraint</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.greater_than_number" title="whylogs.core.constraints.factories.greater_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">greater_than_number</span></code></a>(...)</p></td>
 <td><p>Minimum value of given column must be above defined number.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.mean_between_range" title="whylogs.core.constraints.factories.mean_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_between_range</span></code></a>(column_name: str, lower: float, upper: float, skip_missing: bool = True) → whylogs.core.constraints.MetricConstraint</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.mean_between_range" title="whylogs.core.constraints.factories.mean_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_between_range</span></code></a>(...)</p></td>
 <td><p>Estimated mean must be between range defined by lower and upper bounds.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.quantile_between_range" title="whylogs.core.constraints.factories.quantile_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile_between_range</span></code></a>(column_name: str, quantile: float, lower: float, upper: float, skip_missing: bool = True)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.quantile_between_range" title="whylogs.core.constraints.factories.quantile_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile_between_range</span></code></a>(column_name, quantile, lower, upper)</p></td>
 <td><p>Q-th quantile value must be withing the range defined by lower and upper boundaries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.smaller_than_number" title="whylogs.core.constraints.factories.smaller_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smaller_than_number</span></code></a>(column_name: str, number: float, skip_missing: bool = True) → whylogs.core.constraints.MetricConstraint</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.smaller_than_number" title="whylogs.core.constraints.factories.smaller_than_number"><code class="xref py py-obj docutils literal notranslate"><span class="pre">smaller_than_number</span></code></a>(...)</p></td>
 <td><p>Maximum value of given column must be below defined number.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.stddev_between_range" title="whylogs.core.constraints.factories.stddev_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_between_range</span></code></a>(column_name: str, lower: float, upper: float, skip_missing: bool = True)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.stddev_between_range" title="whylogs.core.constraints.factories.stddev_between_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stddev_between_range</span></code></a>(column_name, lower, upper[, ...])</p></td>
 <td><p>Estimated standard deviation must be between range defined by lower and upper bounds.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.frequent_strings_in_reference_set" title="whylogs.core.constraints.factories.frequent_strings_in_reference_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequent_strings_in_reference_set</span></code></a>(column_name: str, reference_set: dict) → whylogs.core.constraints.metric_constraints.MetricConstraint</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.frequent_strings_in_reference_set" title="whylogs.core.constraints.factories.frequent_strings_in_reference_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frequent_strings_in_reference_set</span></code></a>(...)</p></td>
 <td><p>Determine whether a set of variables appear in the frequent strings for a string column.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.n_most_common_items_in_set" title="whylogs.core.constraints.factories.n_most_common_items_in_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_most_common_items_in_set</span></code></a>(column_name: str, n: int, reference_set: dict) → whylogs.core.constraints.metric_constraints.MetricConstraint</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.core.constraints.factories.n_most_common_items_in_set" title="whylogs.core.constraints.factories.n_most_common_items_in_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_most_common_items_in_set</span></code></a>(...)</p></td>
 <td><p>Validate if the top n most common items appear in the dataset.</p></td>
 </tr>
 </tbody>

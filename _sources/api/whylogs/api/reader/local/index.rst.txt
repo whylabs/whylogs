@@ -24,13 +24,13 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: read(self, path: Optional[str] = None, **kwargs) -> whylogs.api.logger.result_set.ResultSet
+   .. py:method:: read(path: Optional[str] = None, **kwargs) -> whylogs.api.logger.result_set.ResultSet
 
       Must be implemented by all inherited Readers, declaring
       how to fetch files from their locations to a local temp dir
 
 
-   .. py:method:: option(self, path: Optional[str]) -> LocalReader
+   .. py:method:: option(path: Optional[str]) -> LocalReader
 
 
    .. py:method:: get_file_from_path(path) -> whylogs.ResultSet

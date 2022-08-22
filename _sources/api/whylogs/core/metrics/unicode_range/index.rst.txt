@@ -53,41 +53,41 @@ Classes
 
       
 
-   .. py:method:: namespace(self) -> str
+   .. py:method:: namespace() -> str
       :property:
 
 
-   .. py:method:: merge(self, other: UnicodeRangeMetric) -> UnicodeRangeMetric
+   .. py:method:: merge(other: UnicodeRangeMetric) -> UnicodeRangeMetric
 
 
-   .. py:method:: columnar_update(self, view: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+   .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: zero(cls, config: whylogs.core.metrics.metrics.MetricConfig) -> UnicodeRangeMetric
+   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> UnicodeRangeMetric
       :classmethod:
 
 
-   .. py:method:: from_protobuf(cls, msg: whylogs.core.proto.MetricMessage) -> UnicodeRangeMetric
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> UnicodeRangeMetric
       :classmethod:
 
 
-   .. py:method:: merge_submetrics(self: COMPOUND_METRIC, other: COMPOUND_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
+   .. py:method:: merge_submetrics(other: COMPOUND_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
 
 
-   .. py:method:: get_component_paths(self) -> List[str]
+   .. py:method:: get_component_paths() -> List[str]
 
 
-   .. py:method:: to_summary_dict(self, cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
 
 
-   .. py:method:: submetrics_from_protobuf(cls: Type[COMPOUND_METRIC], msg: whylogs.core.proto.MetricMessage) -> Dict[str, whylogs.core.metrics.Metric]
+   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, whylogs.core.metrics.Metric]
       :classmethod:
 
 
-   .. py:method:: get_namespace(cls, config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: MetricConfig) -> str
       :classmethod:
 
 

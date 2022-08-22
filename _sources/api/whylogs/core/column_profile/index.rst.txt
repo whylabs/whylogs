@@ -34,24 +34,24 @@ Attributes
 
    Bases: :py:obj:`object`
 
-   .. py:method:: add_metric(self, metric: whylogs.core.metrics.Metric) -> None
+   .. py:method:: add_metric(metric: whylogs.core.metrics.Metric) -> None
 
 
-   .. py:method:: track(self, row: Dict[str, Any]) -> None
+   .. py:method:: track(row: Dict[str, Any]) -> None
 
 
-   .. py:method:: flush(self) -> None
+   .. py:method:: flush() -> None
 
       Force emptying the cache and update the internal metrics.
 
 
-   .. py:method:: track_column(self, series: Any) -> None
+   .. py:method:: track_column(series: Any) -> None
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.ColumnMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.ColumnMessage
 
 
-   .. py:method:: view(self) -> whylogs.core.view.ColumnProfileView
+   .. py:method:: view() -> whylogs.core.view.ColumnProfileView
 
 
 

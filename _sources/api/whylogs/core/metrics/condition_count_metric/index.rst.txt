@@ -92,12 +92,12 @@ Attributes
 
       
 
-   .. py:method:: name(self)
+   .. py:method:: name()
 
       The name of the Enum member.
 
 
-   .. py:method:: value(self)
+   .. py:method:: value()
 
       The value of the Enum member.
 
@@ -215,37 +215,37 @@ Attributes
 
       
 
-   .. py:method:: namespace(self) -> str
+   .. py:method:: namespace() -> str
       :property:
 
 
-   .. py:method:: merge(self, other: ConditionCountMetric) -> ConditionCountMetric
+   .. py:method:: merge(other: ConditionCountMetric) -> ConditionCountMetric
 
 
-   .. py:method:: add_conditions(self, conditions: Dict[str, Condition]) -> None
+   .. py:method:: add_conditions(conditions: Dict[str, Condition]) -> None
 
 
-   .. py:method:: get_component_paths(self) -> List[str]
+   .. py:method:: get_component_paths() -> List[str]
 
 
-   .. py:method:: columnar_update(self, data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+   .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: zero(cls, config: whylogs.core.metrics.metrics.MetricConfig) -> ConditionCountMetric
+   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> ConditionCountMetric
       :classmethod:
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
 
 
-   .. py:method:: to_summary_dict(self, cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
 
 
-   .. py:method:: from_protobuf(cls, msg: whylogs.core.proto.MetricMessage) -> ConditionCountMetric
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> ConditionCountMetric
       :classmethod:
 
 
-   .. py:method:: get_namespace(cls, config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: MetricConfig) -> str
       :classmethod:
 
 

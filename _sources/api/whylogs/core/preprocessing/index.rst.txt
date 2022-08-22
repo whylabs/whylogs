@@ -55,7 +55,7 @@ Attributes
 
       
 
-   .. py:method:: iterables(self) -> List[List[Any]]
+   .. py:method:: iterables() -> List[List[Any]]
 
 
 
@@ -71,10 +71,10 @@ Attributes
 
       
 
-   .. py:method:: iterables(self) -> List[whylogs.core.stubs.np.ndarray]
+   .. py:method:: iterables() -> List[whylogs.core.stubs.np.ndarray]
 
 
-   .. py:method:: len(self) -> int
+   .. py:method:: len() -> int
       :property:
 
 
@@ -91,7 +91,7 @@ Attributes
 
       
 
-   .. py:method:: iterables(self) -> List[whylogs.core.stubs.pd.Series]
+   .. py:method:: iterables() -> List[whylogs.core.stubs.pd.Series]
 
 
 
@@ -134,7 +134,7 @@ Attributes
 
       
 
-   .. py:method:: raw_iterator(self) -> Iterator[Any]
+   .. py:method:: raw_iterator() -> Iterator[Any]
 
 
    .. py:method:: apply(data: Any) -> PreprocessedColumn

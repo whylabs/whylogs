@@ -38,7 +38,7 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: check_interval(self, interval_seconds: int) -> None
+   .. py:method:: check_interval(interval_seconds: int) -> None
 
       Validate an interval configuration for a given writer.
 
@@ -46,11 +46,11 @@ Classes
       non-negative interval.
 
 
-   .. py:method:: write(self, file: Writable, dest: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(file: Writable, dest: Optional[str] = None, **kwargs: Any) -> None
       :abstractmethod:
 
 
-   .. py:method:: option(self: T, **kwargs: Any) -> T
+   .. py:method:: option(**kwargs: Any) -> T
       :abstractmethod:
 
 

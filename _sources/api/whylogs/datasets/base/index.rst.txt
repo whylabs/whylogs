@@ -45,37 +45,37 @@ Attributes
    A batch can represent either a baseline or inference batch.
    The complete data is a sum of the remaining dataframe properties: features, target, prediction, and misc.
 
-   .. py:method:: data(self) -> pandas.DataFrame
+   .. py:method:: data() -> pandas.DataFrame
       :property:
 
       The complete dataframe for all available features.
 
 
-   .. py:method:: timestamp(self) -> datetime.date
+   .. py:method:: timestamp() -> datetime.date
       :property:
 
       The batch's timestamp (at the start)
 
 
-   .. py:method:: target(self) -> pandas.DataFrame
+   .. py:method:: target() -> pandas.DataFrame
       :property:
 
       Ouput feature(s)
 
 
-   .. py:method:: prediction(self) -> pandas.DataFrame
+   .. py:method:: prediction() -> pandas.DataFrame
       :property:
 
       Output prediction and, possibly, features such as uncertainty, confidence, probability scores
 
 
-   .. py:method:: misc(self) -> pandas.DataFrame
+   .. py:method:: misc() -> pandas.DataFrame
       :property:
 
       Metadata features that are not of any of the previous categories, but still contain relevant information about the data.
 
 
-   .. py:method:: features(self) -> pandas.DataFrame
+   .. py:method:: features() -> pandas.DataFrame
       :property:
 
       Input features
@@ -88,21 +88,21 @@ Attributes
 
    Abstract class representing a dataset.
 
-   .. py:method:: describe_versions(cls) -> List[str]
+   .. py:method:: describe_versions() -> List[str]
       :classmethod:
       :abstractmethod:
 
       Describe available versions for the given dataset.
 
 
-   .. py:method:: describe(cls) -> str
+   .. py:method:: describe() -> str
       :classmethod:
       :abstractmethod:
 
       Display overall dataset description.
 
 
-   .. py:method:: set_parameters(self, inference_interval: str, baseline_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, inference_start_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, original: Optional[bool] = None) -> None
+   .. py:method:: set_parameters(inference_interval: str, baseline_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, inference_start_timestamp: Optional[Union[datetime.date, datetime.datetime]] = None, original: Optional[bool] = None) -> None
       :abstractmethod:
 
       Set interval and timestamp parameters for the dataset object.
@@ -117,7 +117,7 @@ Attributes
       :type original: Optional[bool], optional
 
 
-   .. py:method:: get_baseline(self) -> Batch
+   .. py:method:: get_baseline() -> Batch
       :abstractmethod:
 
       Get baseline Batch object.
@@ -126,7 +126,7 @@ Attributes
       :rtype: Batch
 
 
-   .. py:method:: get_inference_data(self, target_date: Optional[Union[datetime.date, datetime.datetime]] = None, number_batches: Optional[int] = None) -> Union[Batch, Iterable[Batch]]
+   .. py:method:: get_inference_data(target_date: Optional[Union[datetime.date, datetime.datetime]] = None, number_batches: Optional[int] = None) -> Union[Batch, Iterable[Batch]]
       :abstractmethod:
 
       Get inference batch(es)

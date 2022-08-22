@@ -27,17 +27,17 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: writer(self, name: str = 'local') -> HTMLReportWriter
+   .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
 
 
-   .. py:method:: display(self, template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
+   .. py:method:: display(template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
 
 
-   .. py:method:: report(self) -> IPython.core.display.HTML
+   .. py:method:: report() -> IPython.core.display.HTML
       :abstractmethod:
 
 
-   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
       Create HTML file for a given report.
 
@@ -56,10 +56,10 @@ Classes
           viz_profile.write(path="path/to/report/Report.html")
 
 
-   .. py:method:: option(self)
+   .. py:method:: option()
 
 
-   .. py:method:: get_default_path(self) -> str
+   .. py:method:: get_default_path() -> str
 
 
 
@@ -70,17 +70,17 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: writer(self, name: str = 'local') -> HTMLReportWriter
+   .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
 
 
-   .. py:method:: display(self, template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
+   .. py:method:: display(template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
 
 
-   .. py:method:: report(self) -> IPython.core.display.HTML
+   .. py:method:: report() -> IPython.core.display.HTML
       :abstractmethod:
 
 
-   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
       Create HTML file for a given report.
 
@@ -99,10 +99,10 @@ Classes
           viz_profile.write(path="path/to/report/Report.html")
 
 
-   .. py:method:: option(self)
+   .. py:method:: option()
 
 
-   .. py:method:: get_default_path(self) -> str
+   .. py:method:: get_default_path() -> str
 
 
 
@@ -113,17 +113,17 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: writer(self, name: str = 'local') -> HTMLReportWriter
+   .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
 
 
-   .. py:method:: display(self, template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
+   .. py:method:: display(template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
 
 
-   .. py:method:: report(self) -> IPython.core.display.HTML
+   .. py:method:: report() -> IPython.core.display.HTML
       :abstractmethod:
 
 
-   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
       Create HTML file for a given report.
 
@@ -142,10 +142,10 @@ Classes
           viz_profile.write(path="path/to/report/Report.html")
 
 
-   .. py:method:: option(self)
+   .. py:method:: option()
 
 
-   .. py:method:: get_default_path(self) -> str
+   .. py:method:: get_default_path() -> str
 
 
 
@@ -156,17 +156,17 @@ Classes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: writer(self, name: str = 'local') -> HTMLReportWriter
+   .. py:method:: writer(name: str = 'local') -> HTMLReportWriter
 
 
-   .. py:method:: display(self, template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
+   .. py:method:: display(template: str, page_spec: whylogs.viz.enums.enums.PageSpec) -> IPython.core.display.HTML
 
 
-   .. py:method:: report(self) -> IPython.core.display.HTML
+   .. py:method:: report() -> IPython.core.display.HTML
       :abstractmethod:
 
 
-   .. py:method:: write(self, path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
       Create HTML file for a given report.
 
@@ -185,10 +185,10 @@ Classes
           viz_profile.write(path="path/to/report/Report.html")
 
 
-   .. py:method:: option(self)
+   .. py:method:: option()
 
 
-   .. py:method:: get_default_path(self) -> str
+   .. py:method:: get_default_path() -> str
 
 
 

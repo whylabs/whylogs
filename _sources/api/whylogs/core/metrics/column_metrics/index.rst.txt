@@ -50,34 +50,34 @@ Classes
 
       
 
-   .. py:method:: namespace(self) -> str
+   .. py:method:: namespace() -> str
       :property:
 
 
-   .. py:method:: to_summary_dict(self, cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
 
 
-   .. py:method:: columnar_update(self, data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+   .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: zero(cls, config: whylogs.core.metrics.metrics.MetricConfig) -> TypeCountersMetric
+   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> TypeCountersMetric
       :classmethod:
 
 
-   .. py:method:: get_namespace(cls, config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: MetricConfig) -> str
       :classmethod:
 
 
-   .. py:method:: merge(self: METRIC, other: METRIC) -> METRIC
+   .. py:method:: merge(other: METRIC) -> METRIC
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
 
 
-   .. py:method:: get_component_paths(self) -> List[str]
+   .. py:method:: get_component_paths() -> List[str]
 
 
-   .. py:method:: from_protobuf(cls: Type[METRIC], msg: whylogs.core.proto.MetricMessage) -> METRIC
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> METRIC
       :classmethod:
 
 
@@ -99,34 +99,34 @@ Classes
 
       
 
-   .. py:method:: namespace(self) -> str
+   .. py:method:: namespace() -> str
       :property:
 
 
-   .. py:method:: columnar_update(self, data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+   .. py:method:: columnar_update(data: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
 
 
-   .. py:method:: to_summary_dict(self, cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
 
 
-   .. py:method:: zero(cls, config: whylogs.core.metrics.metrics.MetricConfig) -> ColumnCountsMetric
+   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> ColumnCountsMetric
       :classmethod:
 
 
-   .. py:method:: get_namespace(cls, config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: MetricConfig) -> str
       :classmethod:
 
 
-   .. py:method:: merge(self: METRIC, other: METRIC) -> METRIC
+   .. py:method:: merge(other: METRIC) -> METRIC
 
 
-   .. py:method:: to_protobuf(self) -> whylogs.core.proto.MetricMessage
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
 
 
-   .. py:method:: get_component_paths(self) -> List[str]
+   .. py:method:: get_component_paths() -> List[str]
 
 
-   .. py:method:: from_protobuf(cls: Type[METRIC], msg: whylogs.core.proto.MetricMessage) -> METRIC
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> METRIC
       :classmethod:
 
 
