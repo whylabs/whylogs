@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 public class SerializerRegistry {
-    private final HashMap<String, Function> namedSerializer;
-    private final HashMap<Integer, Function> idSerializer;
+    private final HashMap<String, ISerialization> namedSerializer;
+    private final HashMap<Integer, ISerialization> idSerializer;
 
     private SerializerRegistry() {
         this.namedSerializer = new HashMap<>();
@@ -27,19 +27,19 @@ public class SerializerRegistry {
         return InstanceHolder.instance;
     }
 
-    public <T, A extends Function> void register(String name, A serializer) {
+    public <T, A extends ISerialization> void register(String name, A serializer) {
         namedSerializer.put(name, serializer);
     }
 
-    public <T, A extends Function> void register(int typeId, A serializer) {
+    public <T, A extends ISerialization> void register(int typeId, A serializer) {
         idSerializer.put(typeId, serializer);
     }
 
-    public Function get(int typeId) {
+    public ISerialization get(int typeId) {
         return idSerializer.get(typeId);
     }
 
-    public Function get(String typeName) {
+    public ISerialization get(String typeName) {
         return namedSerializer.get(typeName);
     }
 
