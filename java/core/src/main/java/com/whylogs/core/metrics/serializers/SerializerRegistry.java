@@ -1,10 +1,10 @@
 package com.whylogs.core.metrics.serializers;
 
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.whylogs.core.message.MetricComponentMessage;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import whylogs.core.message.MetricComponentMessage;
 
 public class SerializerRegistry {
   private final HashMap<String, ISerialization> namedSerializer;

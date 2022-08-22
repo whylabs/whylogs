@@ -1,6 +1,6 @@
 package com.whylogs.core.metrics.serializers;
 
-import whylogs.core.message.MetricComponentMessage;
+import com.whylogs.core.message.MetricComponentMessage;
 
 public class NumberSerializer implements ISerialization<Number> {
 

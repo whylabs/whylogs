@@ -1,8 +1,8 @@
 package com.whylogs.core.metrics.serializers;
 
+import com.whylogs.core.message.MetricComponentMessage;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import whylogs.core.message.MetricComponentMessage;
 
 @Test
 public class TestSerializer {
