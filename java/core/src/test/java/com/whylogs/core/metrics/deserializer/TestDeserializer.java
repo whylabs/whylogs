@@ -5,7 +5,7 @@ import com.whylogs.core.metrics.deserializers.FloatDeserializer;
 import com.whylogs.core.metrics.deserializers.IntDeserializer;
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import whylogs.core.message.MetricComponentMessage;
+import com.whylogs.core.message.MetricComponentMessage;
 
 @Test
 public class TestDeserializer {

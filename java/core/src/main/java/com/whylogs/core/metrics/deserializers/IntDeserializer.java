@@ -1,6 +1,6 @@
 package com.whylogs.core.metrics.deserializers;
 
-import whylogs.core.message.MetricComponentMessage;
+import com.whylogs.core.message.MetricComponentMessage;
 
 public class IntDeserializer implements IDeserialization<Long> {
   @Override

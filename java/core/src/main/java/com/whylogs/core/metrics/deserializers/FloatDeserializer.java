@@ -1,6 +1,6 @@
 package com.whylogs.core.metrics.deserializers;
 
-import whylogs.core.message.MetricComponentMessage;
+import com.whylogs.core.message.MetricComponentMessage;
 
 public class FloatDeserializer implements IDeserialization<Double> {
 
