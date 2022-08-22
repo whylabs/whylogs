@@ -1,6 +1,6 @@
 import os
 
-os.environ["HEAP_APPID_DEV"] = "3002560559"
+os.environ["TELEMETRY_DEV"] = "1"  # noqa: E402
 
 from whylogs import __version__, package_version  # noqa
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "ai.whylabs"
-version = "1.0.0-b0-SNAPSHOT"
+version = "1.0.0-b1-DEV"
 //version = "0.1.7-b1-${project.properties.getOrDefault("versionType", "SNAPSHOT")}"
 extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
 

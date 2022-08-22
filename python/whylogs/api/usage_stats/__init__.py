@@ -15,40 +15,40 @@ from urllib import request
 
 import whylogs
 
-HEAP_APPID_PROD = "2496309831"
-
-HEAP_ENDPOINT = "https://heapanalytics.com/api/track"
-HEAP_HEADERS = {"Content-Type": "application/json"}
-TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
+_TELEMETRY_ENDPOINT = "https://stats.whylogs.com/"
+if os.getenv("TELEMETRY_DEV"):
+    _TELEMETRY_ENDPOINT = "https://staging-stats.whylogs.com"
+_TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 logger = logging.getLogger(__name__)
 
 ANALYTICS_OPT_OUT = "WHYLOGS_NO_ANALYTICS"
 
 # Flag to disable it internally
 _TELEMETRY_DISABLED = False
-
+_TRACKED_EVENTS: Dict[str, bool] = {}
 
 _SITE_PACKAGES = site.getsitepackages()
+
+if os.getenv(ANALYTICS_OPT_OUT) is not None:
+    logger.debug("Opted out of usage statistics. Skipping.")
+    _TELEMETRY_DISABLED = True
+
+try:
+    if os.path.exists(os.path.expanduser("~/.whylogs/disable_telemetry")):
+        _TELEMETRY_DISABLED = True
+except:  # noqa
+    logger.info("Encounter exception when checking file system. Disable telemetry by default")
+    _TELEMETRY_DISABLED = True
 
 
 def emit_usage(event: str) -> None:
     global _TELEMETRY_DISABLED
+    global _TRACKED_EVENTS
     if _TELEMETRY_DISABLED:
         return
-
-    if os.getenv(ANALYTICS_OPT_OUT) is not None:
-        logger.debug("Opted out of usage statistics. Skipping.")
-        _TELEMETRY_DISABLED = True
+    if _TRACKED_EVENTS.get(event):
         return
-
-    try:
-        if os.path.exists(os.path.expanduser("~/.whylogs/disable_telemetry")):
-            _TELEMETRY_DISABLED = True
-            return
-    except:  # noqa
-        logger.info("Encounter exception when checking file system. Disable telemetry by default")
-        _TELEMETRY_DISABLED = True
-        pass
+    _TRACKED_EVENTS[event] = True
 
     t = Thread(target=_do_emit_usage, args=(event,))
     t.start()
@@ -75,7 +75,7 @@ def _do_emit_usage(event: str) -> None:
     if _metadata is None:
         _metadata = _build_metadata()
 
-    _send_heap_event(event, _identity, _metadata)
+    _send_stats_event(event, _identity, _metadata)
 
 
 def _calc_identity() -> str:
@@ -91,7 +91,7 @@ def _calc_identity() -> str:
 
 
 def _build_metadata() -> Dict[str, Any]:
-    """Hash system and project data to send to Heap."""
+    """Hash system and project data to send to our stats endpoint."""
 
     project_version = whylogs.__version__
     (major, minor, macro, _, _) = sys.version_info
@@ -128,27 +128,18 @@ def _build_metadata() -> Dict[str, Any]:
     return metadata
 
 
-def _get_heap_app_id() -> str:
-    """
-    Get the Heap App ID to send the data to.
-    This will be the development ID if it's set as an
-    environment variable, otherwise it will be the production ID.
-    """
-    return os.environ.get("HEAP_APPID_DEV", HEAP_APPID_PROD)
-
-
-def _send_heap_event(event_name: str, identity: str, properties: Dict[str, Any] = None) -> None:
+def _send_stats_event(event_name: str, identity: str, properties: Dict[str, Any] = None) -> None:
     data = {
-        "app_id": _get_heap_app_id(),
         "identity": identity,
         "event": event_name,
-        "timestamp": datetime.utcnow().strftime(TIMESTAMP_FORMAT),
+        "timestamp": datetime.utcnow().strftime(_TIMESTAMP_FORMAT),
         "properties": properties or {},
     }
     global _TELEMETRY_DISABLED
     json_data = json.dumps(data).encode()
-    req = request.Request(HEAP_ENDPOINT, data=json_data, method="POST")
+    req = request.Request(_TELEMETRY_ENDPOINT, data=json_data, method="POST")
     req.add_header("Content-Type", "application/json")
+
     resp: http.client.HTTPResponse = None  # type: ignore
     try:
         resp = request.urlopen(req, timeout=3)

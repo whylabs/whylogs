@@ -16,7 +16,6 @@ class Reader(ABC):
         Must be implemented by all inherited Readers, declaring
         how to fetch files from their locations to a local temp dir
         """
-        pass
 
     @abstractmethod
     def option(self: T, **kwargs: Any) -> T:

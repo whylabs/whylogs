@@ -4,7 +4,7 @@ isort:skip_file
 """
 import os
 
-os.environ["HEAP_APPID_DEV"] = "3002560559"  # noqa: E402
+os.environ["TELEMETRY_DEV"] = "1"  # noqa: E402
 
 import pandas as pd
 import pytest
