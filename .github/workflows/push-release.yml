@@ -48,7 +48,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           poetry run bump2version patch --verbose --allow-dirty --commit --no-tag --new-version $VERSION
 
-      #push version bump to tagged branch so new version is included in pypi
+        #push version bump to tagged branch so new version is included in pypi
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
@@ -56,14 +56,15 @@ jobs:
           branch: ${{ github.ref }}
           force: true
 
+      #use --dry-ru on publish in testing
       - name: Build and publish Python
         env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           make clean
           make dist
-          poetry run twine upload dist/*
+          poetry publish --username ${{ secrets.PYPI_USERNAME }} --password ${{ secrets.PYPI_PASSWORD }}
 
   bump_mainline:
     runs-on: ubuntu-latest
