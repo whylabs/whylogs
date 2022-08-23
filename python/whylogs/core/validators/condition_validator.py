@@ -1,11 +1,11 @@
+from dataclasses import dataclass
 from itertools import chain
-from typing import Callable, Dict, List, Any
+from typing import Any, Callable, Dict, List
 
 from whylogs.core.metrics.condition_count_metric import Condition
+from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.validators.validator import Validator
-from whylogs.core.metrics.metric_components import IntegralComponent, MetricComponent
-from dataclasses import dataclass, field
 
 
 @dataclass

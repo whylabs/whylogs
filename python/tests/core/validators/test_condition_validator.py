@@ -1,18 +1,16 @@
-from whylogs.core.metrics.condition_count_metric import (
-    Condition,
-    ConditionCountConfig,
-    ConditionCountMetric,
-)
-from whylogs.core.preprocessing import PreprocessedColumn
-import pytest
-from whylogs.core.validators import ConditionValidator
-from whylogs.core.metrics.condition_count_metric import Relation as Rel
-from whylogs.core.metrics.condition_count_metric import relation as rel
 from typing import Any
+
 import pandas as pd
-from whylogs.core.schema import ColumnSchema, DatasetSchema
+import pytest
+
 import whylogs as why
+from whylogs.core.metrics.condition_count_metric import Condition
+from whylogs.core.metrics.condition_count_metric import Relation as Rel
 from whylogs.core.metrics.condition_count_metric import not_relation as not_rel
+from whylogs.core.metrics.condition_count_metric import relation as rel
+from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.schema import DatasetSchema
+from whylogs.core.validators import ConditionValidator
 
 regex_conditions = {"noCreditCard": Condition(not_rel(rel(Rel.match, ".*4[0-9]{12}(?:[0-9]{3})?")))}
 
@@ -113,7 +111,7 @@ def test_condition_validator_dataframe(credit_card_validator, transcriptions):
 def test_invalid_conditions_name(transcriptions):
     invalid_conditions = {"total": Condition(rel(Rel.match, ".*4[0-9]{12}(?:[0-9]{3})?"))}
     with pytest.raises(ValueError, match="Condition cannot be named 'total'"):
-        invalid_condition_name = ConditionValidator(
+        ConditionValidator(
             name="transcription_doesnt_contain_credit_card",
             conditions=invalid_conditions,
             actions=[do_something_important],
