@@ -39,6 +39,7 @@ Advanced
     examples/advanced/Custom_Metrics
     examples/advanced/String_Tracking
     examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation
+    examples/advanced/Condition_Validators.ipynb
 
 
 
