@@ -2,23 +2,27 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
-from whylabs_client.api.log_api import LogApi, AsyncLogResponse  # type: ignore
-from whylabs_client.model.log_async_request import LogAsyncRequest  # type: ignore
-from whylabs_client.model.log_reference_request import LogReferenceRequest, LogReferenceResponse  # type: ignore
+from whylabs_client import ApiClient, Configuration  # type: ignore
+from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
+from whylabs_client.api.log_api import (
+    LogApi,
+    LogAsyncRequest,
+    LogReferenceRequest,
+    LogReferenceResponse,
+)
 from whylabs_client.rest import ForbiddenException  # type: ignore
-from whylabs_client import Configuration, ApiClient
 
+from whylogs import __version__ as _version
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
 from whylogs.core.utils import deprecated_alias
-from whylogs import __version__ as _version
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
@@ -74,6 +78,7 @@ class WhyLabsWriter(Writer):
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
         self._reference_profile_name = os.environ.get("WHYLABS_REFERENCE_PROFILE_NAME")
         self._api_log_client: Optional[ApiClient] = None
+        self._ssl_ca_cert: Optional[str] = None
         self._configuration: Optional[Configuration] = None
 
     def check_interval(self, interval_seconds: int) -> None:
@@ -81,12 +86,13 @@ class WhyLabsWriter(Writer):
             raise BadConfigError("Bad WhyLabsWriter config: interval must be greater or equal to five minutes")
 
     def option(  # type: ignore
-            self,
-            org_id: Optional[str] = None,
-            dataset_id: Optional[str] = None,
-            api_key: Optional[str] = None,
-            reference_profile_name: Optional[str] = None,
-            configuration: Optional[Configuration] = None,
+        self,
+        org_id: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+        api_key: Optional[str] = None,
+        reference_profile_name: Optional[str] = None,
+        configuration: Optional[Configuration] = None,
+        ssl_ca_cert: Optional[str] = None,
     ) -> "WhyLabsWriter":
         """
 
@@ -112,6 +118,8 @@ class WhyLabsWriter(Writer):
             self._reference_profile_name = reference_profile_name
         if configuration is not None:
             self._configuration = configuration
+        if ssl_ca_cert is not None:
+            self._ssl_ca_cert = ssl_ca_cert
         return self
 
     @deprecated_alias(profile="file")
@@ -120,7 +128,7 @@ class WhyLabsWriter(Writer):
 
         if not isinstance(profile_view, DatasetProfileView):
             raise ValueError(
-                    "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
+                "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
             )
 
         if kwargs.get("dataset_id") is not None:
@@ -133,8 +141,8 @@ class WhyLabsWriter(Writer):
             dataset_timestamp = profile_view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
             self._do_upload(
-                    dataset_timestamp=dataset_timestamp_epoch,
-                    profile_path=tmp_file.name,
+                dataset_timestamp=dataset_timestamp_epoch,
+                profile_path=tmp_file.name,
             )
 
     def _validate_api_key(self) -> None:
@@ -144,23 +152,23 @@ class WhyLabsWriter(Writer):
             raise ValueError("API key too short")
         if len(self._api_key) > 64:
             raise ValueError("API key too long")
-        if self._api_key[10] != "."[10] != ".":
+        if self._api_key[10] != ".":
             raise ValueError("Invalid format. Expecting a dot at an index 10")
         self._api_key_id = self._api_key[:10]
 
     def _do_upload(
-            self,
-            dataset_timestamp: int,
-            profile_path: str,
+        self,
+        dataset_timestamp: int,
+        profile_path: str,
     ) -> requests.Response:
         if self._org_id is None:
             raise EnvironmentError(
-                    "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
+                "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
             )
         if self._dataset_id is None:
             raise EnvironmentError(
-                    "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
-                    "variable or on your write method"
+                "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
+                "variable or on your write method"
             )
         if self._api_key is None:
             raise EnvironmentError("Missing API key. Specify it via WHYLABS_API_KEY environment variable.")
@@ -173,14 +181,14 @@ class WhyLabsWriter(Writer):
                 http_response = requests.put(upload_url, data=f.read())
                 if http_response.status_code == 200:
                     logger.info(
-                            f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                            f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
+                        f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                        f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
                     )
                 return http_response
         except requests.RequestException as e:
             logger.info(
-                    f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                    + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
             )
 
     def _get_or_create_api_log_client(self) -> LogApi:
@@ -202,6 +210,7 @@ class WhyLabsWriter(Writer):
             config = whylabs_client.Configuration()
         else:
             config = self._configuration
+        config.ssl_ca_cert = self._ssl_ca_cert
         config.host = self.whylabs_api_endpoint
         config.api_key = {"ApiKeyAuth": self._api_key}
         config.discard_unknown_keys = True
@@ -237,9 +246,9 @@ class WhyLabsWriter(Writer):
         except ForbiddenException as e:
             api_key_id = self._api_key[:10] if self._api_key else None
             logger.exception(
-                    f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                    f"{self.whylabs_api_endpoint}"
-                    f" with API token ID: {api_key_id}"
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
             )
             raise e
 
@@ -247,16 +256,16 @@ class WhyLabsWriter(Writer):
         log_api = self._get_or_create_api_log_client()
         try:
             async_result = log_api.log_reference(
-                    org_id=self._org_id, model_id=self._dataset_id, log_reference_request=request, async_req=True
+                org_id=self._org_id, model_id=self._dataset_id, log_reference_request=request, async_req=True
             )
             result = async_result.get()
             return result
         except ForbiddenException as e:
             api_key_id = self._api_key[:10] if self._api_key else None
             logger.exception(
-                    f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                    f"{self.whylabs_api_endpoint}"
-                    f" with API token ID: {api_key_id}"
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
             )
             raise e
 
