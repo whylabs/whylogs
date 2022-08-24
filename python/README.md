@@ -213,6 +213,10 @@ whylogs supports both structured and unstructured data, specifically:
 | Java | Run whylogs in Java environment| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/java/demo1/src/main/java/com/whylogs/examples/WhyLogsDemo.java)</li></ul> |
 | Docker | Run whylogs as in Docker | <ul><li>[Rest Container](https://docs.whylabs.ai/docs/integrations-rest-container)</li></ul>|
 | AWS S3 | Store whylogs profiles in S3 | <ul><li>[S3 example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Writing_Profiles.ipynb)</li></ul>
+| Flask | Integrate whylogs with your Flask Application| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb)</li></ul> |
+| Feast | Log features from your Feature Store with feast and whylogs| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb)</li></ul> |
+| BigQuery | Profile data queried from a Google BigQuery table| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/BigQuery_Example.ipynb)</li></ul> |
+| WhyLabs | Monitor your profiles continuously with the WhyLabs Observability Platform| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_to_WhyLabs.ipynb)</li></ul> |
 
 <!--| Kafka | Log and monitor Kafka topics with whylogs| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Kafka.ipynb)</li><li> [Integrating whylogs into your Kafka ML Pipeline](https://whylabs.ai/blog/posts/integrating-whylogs-into-your-kafka-ml-pipeline) </li></ul>|-->
 <!--| Github actions | Unit test data with whylogs and github actions| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/tree/mainline/github-actions)</li></ul> |-->
@@ -221,13 +225,6 @@ whylogs supports both structured and unstructured data, specifically:
 ## Examples
 
 For a full set of our examples, please check out the [examples folder](/python/examples/).
-
-Check out our example notebooks with Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/whylabs/whylogs-examples/HEAD)
-
-- [Getting Started notebook](https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb)
-- [Logging Example notebook](https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb)
-- [Logging Images](https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb)
-- [MLflow Integration](https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb)
 
 ## Usage Statistics<a name="whylogs-profiles" />
 
