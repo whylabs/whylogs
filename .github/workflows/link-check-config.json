@@ -1,12 +1,17 @@
 {
- "ignorePatterns": [
+  "ignorePatterns": [
     {
-      "pattern": ["https://localhost:8080/&quot;", "https://localhost:8080/",
+      "pattern": ["https://localhost:8080/&quot;", "https://localhost:8080/"]
     }
   ],
   "httpHeaders": [
     {
-      "urls": ["https://github.com/", "https://guides.github.com/", "https://help.github.com/", "https://docs.github.com/"],
+      "urls": [
+        "https://github.com/",
+        "https://guides.github.com/",
+        "https://help.github.com/",
+        "https://docs.github.com/"
+      ],
       "headers": {
         "Accept-Encoding": "zstd, br, gzip, deflate"
       }
