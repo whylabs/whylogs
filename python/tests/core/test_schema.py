@@ -30,4 +30,9 @@ def test_schema_subclass_copy() -> None:
     assert isinstance(copy.resolvers, MyResolver)
     assert copy.types["col2"] == np.int32
     assert copy.cache_size == 12
-    assert copy._columns == schema._columns
+    assert copy._columns.keys() == schema._columns.keys()
+    for col_name, column in schema._columns.items():
+        assert copy._columns[col_name].dtype == column.dtype
+        assert copy._columns[col_name].resolver.__class__ == column.resolver.__class__
+        assert copy._columns[col_name].type_mapper.__class__ == column.type_mapper.__class__
+        assert copy._columns[col_name].cfg == column.cfg

@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any, Dict, Mapping, Optional, TypeVar
 
@@ -86,9 +87,9 @@ class DatasetSchema:
                 LARGE_CACHE_SIZE_LIMIT,
             )
 
-        for col, tpe in self.types.items():
+        for col, data_type in self.types.items():
             self._columns[col] = ColumnSchema(
-                dtype=tpe, resolver=self.resolvers, type_mapper=self.type_mapper, cfg=self.default_configs
+                dtype=data_type, resolver=self.resolvers, type_mapper=self.type_mapper, cfg=self.default_configs
             )
 
     def copy(self) -> "DatasetSchema":
@@ -96,9 +97,9 @@ class DatasetSchema:
         key_dict = vars(self).copy()
         key_dict.pop("_columns")
         keys = key_dict.keys()
-        args = {k: self.__dict__[k] for k in keys if k not in self.types}
+        args = {k: deepcopy(self.__dict__[k]) for k in keys if k not in self.types}
         copy = self.__class__(**args)
-        copy._columns = self._columns.copy()
+        copy._columns = deepcopy(self._columns)
         return copy
 
     def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool:
