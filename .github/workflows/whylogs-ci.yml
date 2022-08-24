@@ -202,7 +202,7 @@ jobs:
         with:
           use-quiet-mode: "yes"
           use-config: "link-check-config.json"
-  
+
   jupyter-link-check:
     needs: docs-ci
     runs-on: ubuntu-latest
@@ -211,6 +211,6 @@ jobs:
       - uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
           use-quiet-mode: "yes"
-          folder-path: 'python/examples'
-          file-extension: 'ipynb'
+          folder-path: "python/examples"
+          file-extension: "ipynb"
           use-config: "link-check-config.json"
