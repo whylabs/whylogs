@@ -220,7 +220,7 @@ Functions
 
 
 
-.. py:class:: DatasetSchema
+.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False)
 
    Defines the schema for tracking metrics in whylogs.
 
@@ -251,48 +251,22 @@ Functions
    >>> import pandas as pd
    >>> import numpy as np
    >>> from whylogs.core import DatasetSchema, DatasetProfile
+   >>> from whylogs.core.resolvers import Resolver, StandardResolver
    >>>
-   >>> class MySchema(DatasetSchema):
-   ...    types = {
+   >>> class MyResolver(StandardResolver):
+   ...    pass
+   >>>
+   >>> schema = DatasetSchema(
+   ...    types={
    ...        "col1": str,
    ...        "col2": np.int32,
-   ...        "col3": pd.Categorical(categories=('foo', 'bar'), ordered=True)
-   ...    }
-   ...    cache_size = 12
-   >>> schema = MySchema()
-   >>> prof = DatasetProfile(MySchema())
+   ...        "col3": pd.CategoricalDtype(categories=('foo', 'bar'), ordered=True)
+   ...    },
+   ...    resolvers=MyResolver()
+   ... )
+   >>> prof = DatasetProfile(schema)
    >>> df = pd.DataFrame({"col1": ['foo'], "col2": np.array([1], dtype=np.int32), "col3": ['bar']})
    >>> prof.track(pandas=df)
-
-   .. py:attribute:: types
-      :annotation: :Dict[str, Any]
-
-      
-
-   .. py:attribute:: default_configs
-      :annotation: :whylogs.core.metrics.metrics.MetricConfig
-
-      
-
-   .. py:attribute:: type_mapper
-      :annotation: :whylogs.core.datatypes.TypeMapper
-
-      
-
-   .. py:attribute:: resolvers
-      :annotation: :whylogs.core.resolvers.Resolver
-
-      
-
-   .. py:attribute:: cache_size
-      :annotation: :int = 1024
-
-      
-
-   .. py:attribute:: schema_based_automerge
-      :annotation: :bool = False
-
-      
 
    .. py:method:: copy() -> DatasetSchema
 

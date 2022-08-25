@@ -753,14 +753,7 @@ div.rendered_html tbody tr:hover {
                 <span class="s2">&quot;struct&quot;</span><span class="p">:</span> <span class="n">StructMetric</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)}</span>
 
 
-<span class="k">class</span> <span class="nc">TestSchema</span><span class="p">(</span><span class="n">DatasetSchema</span><span class="p">):</span>
-    <span class="n">types</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;col1&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="n">resolvers</span> <span class="o">=</span> <span class="n">TestResolver</span><span class="p">()</span>
-
-
-<span class="n">schema</span> <span class="o">=</span> <span class="n">TestSchema</span><span class="p">()</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">DatasetSchema</span><span class="p">(</span><span class="n">types</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;col1&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">},</span> <span class="n">resolvers</span><span class="o">=</span><span class="n">TestResolver</span><span class="p">())</span>
 <span class="n">prof</span> <span class="o">=</span> <span class="n">DatasetProfile</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
 <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;col1&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">}</span>
 <span class="n">prof</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">row</span><span class="p">)</span>
