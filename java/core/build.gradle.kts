@@ -40,7 +40,7 @@ dependencies {
     api("org.apache.datasketches:datasketches-java:1.3.0-incubating")
     api("org.apache.commons:commons-lang3:3.10")
     api("com.google.guava:guava:19.0")
-    api("com.google.protobuf:protobuf-java:3.13.0")
+    api("com.google.protobuf:protobuf-java:3.19.0")
     api("com.google.code.findbugs:jsr305:3.0.2")
 
     // lombok support
@@ -60,7 +60,7 @@ dependencies {
 protobuf {
     protoc {
         // The artifact spec for the Protobuf Compiler
-        artifact = "com.google.protobuf:protoc:3.13.0"
+        artifact = "com.google.protobuf:protoc:3.18.0"
     }
 }
 

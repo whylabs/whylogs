@@ -10,7 +10,9 @@ import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.whylogs.{DatasetProfileAggregator, DatasetProfileMerger}
 import org.slf4j.LoggerFactory
 
+import java.io.ByteArrayInputStream
 import java.net.{HttpURLConnection, URL}
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, StandardOpenOption}
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -180,18 +182,31 @@ case class WhyProfileSession(private val dataFrame: DataFrame,
           orgId: String,
           modelId: String,
           apiKey: String,
-          endpoint: String = "https://api.whylabsapp.com"): Unit = {
+          endpoint: String = "https://api.whylabsapp.com",
+          sslCaCertData: String = null,
+         ): Unit = {
     val df = aggProfiles(timestamp = timestampInMs)
 
     df.foreachPartition((rows: Iterator[Row]) => {
-      doUpload(orgId, modelId, apiKey, rows, endpoint)
+      doUpload(orgId, modelId, apiKey, rows, endpoint, sslCaCertData)
     })
   }
 
-  private def doUpload(orgId: String, modelId: String, apiKey: String, rows: Iterator[Row], endpoint: String): Unit = {
+  private def doUpload(
+                        orgId: String,
+                        modelId: String,
+                        apiKey: String,
+                        rows: Iterator[Row],
+                        endpoint: String,
+                        sslCaCertData: String = null,
+                      ): Unit = {
     val client: ApiClient = new ApiClient()
     client.setBasePath(endpoint)
     client.setApiKey(apiKey)
+    Option(sslCaCertData).foreach(it => {
+      val is = new ByteArrayInputStream(it.getBytes(StandardCharsets.UTF_8))
+      client.setSslCaCert(is)
+    })
 
     val logApi = new LogApi(client)
 
