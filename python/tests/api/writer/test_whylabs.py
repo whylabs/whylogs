@@ -52,9 +52,7 @@ class TestWhylabsWriter(object):
 
             dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
-            response = writer._do_upload(
-                dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name
-            )
+            response = writer._do_upload(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
             assert isinstance(response, requests.Response)
             assert response.status_code == 200
 
