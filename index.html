@@ -11,7 +11,7 @@
 <meta property="og:url" content="https://whylogs.readthedocs.io/index.html" />
   
 <meta property="og:description" content="whylogs is an open source library for logging any kind of data. With whylogs, users are able to generate summaries of their datasets (called whylogs profiles) which they can use to: Track changes i..." />
-  <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Getting started" href="getting_started.html" />
+  <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Getting Started" href="examples/basic/Getting_Started.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
         <title>whylogs v1.0.11</title>
@@ -178,7 +178,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/basic/Getting_Started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
@@ -604,6 +604,22 @@ For images, replace `df` with `image="path/to/image.png"`. Similarly, you can pr
 <td><p>Store whylogs profiles in S3</p></td>
 <td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Profiles.ipynb">S3 example</a></li></ul></p></td>
 </tr>
+<tr class="row-even"><td><p>Flask</p></td>
+<td><p>Integrate whylogs with your Flask Application</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb">Code Example</a></li></ul></p></td>
+</tr>
+<tr class="row-odd"><td><p>Feast</p></td>
+<td><p>Log features from your Feature Store with feast and whylogs</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb">Code Example</a></li></ul></p></td>
+</tr>
+<tr class="row-even"><td><p>BigQuery</p></td>
+<td><p>Profile data queried from a Google BigQuery table</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/BigQuery_Example.ipynb">Code Example</a></li></ul></p></td>
+</tr>
+<tr class="row-odd"><td><p>WhyLabs</p></td>
+<td><p>Monitor your profiles continuously with the WhyLabs Observability Platform</p></td>
+<td><p><ul><li><a class="reference external" href="https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_to_WhyLabs.ipynb">Code Example</a></li></ul></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -614,13 +630,6 @@ For images, replace `df` with `image="path/to/image.png"`. Similarly, you can pr
 <section id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">#</a></h1>
 <p>For a full set of our examples, please check out the <a class="reference external" href="https://github.com/whylabs/whylogs/tree/mainline/python/examples">examples folder</a>.</p>
-<p>Check out our example notebooks with Binder: <a class="reference external" href="https://mybinder.org/v2/gh/whylabs/whylogs-examples/HEAD"><img alt="Binder" src="https://mybinder.org/badge_logo.svg" /></a></p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/GettingStarted.ipynb">Getting Started notebook</a></p></li>
-<li><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/logging_example.ipynb">Logging Example notebook</a></p></li>
-<li><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/Logging_Images.ipynb">Logging Images</a></p></li>
-<li><p><a class="reference external" href="https://github.com/whylabs/whylogs-examples/blob/mainline/python/MLFlow%20Integration%20Example.ipynb">MLflow Integration</a></p></li>
-</ul>
 </section>
 <section id="usage-statistics-a-name-whylogs-profiles">
 <h1>Usage Statistics<a name="whylogs-profiles" /><a class="headerlink" href="#usage-statistics-a-name-whylogs-profiles" title="Permalink to this headline">#</a></h1>
@@ -673,12 +682,12 @@ For images, replace `df` with `image="path/to/image.png"`. Similarly, you can pr
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="getting_started.html">
+          <a class="next-page" href="examples/basic/Getting_Started.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Getting started</div>
+                <div class="title">Getting Started</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
