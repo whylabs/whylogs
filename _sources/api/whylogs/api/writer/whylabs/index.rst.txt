@@ -24,6 +24,7 @@ Attributes
 
    whylogs.api.writer.whylabs.FIVE_MINUTES_IN_SECONDS
    whylogs.api.writer.whylabs.logger
+   whylogs.api.writer.whylabs.API_KEY_ENV
 
 
 .. py:data:: FIVE_MINUTES_IN_SECONDS
@@ -33,6 +34,11 @@ Attributes
 
 .. py:data:: logger
    
+
+   
+
+.. py:data:: API_KEY_ENV
+   :annotation: = WHYLABS_API_KEY
 
    
 
@@ -72,7 +78,7 @@ Attributes
    profile.writer("whylabs").write()
    ```
 
-   .. py:method:: check_interval(interval_seconds: int)
+   .. py:method:: check_interval(interval_seconds: int) -> None
 
       Validate an interval configuration for a given writer.
 
@@ -80,7 +86,15 @@ Attributes
       non-negative interval.
 
 
-   .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None, reference_profile_name: Optional[str] = None) -> WhyLabsWriter
+   .. py:method:: option(org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None, reference_profile_name: Optional[str] = None, configuration: Optional[whylabs_client.Configuration] = None, ssl_ca_cert: Optional[str] = None) -> WhyLabsWriter
+
+      :param org_id the organization ID:
+      :param dataset_id the dataset Id:
+      :param api_key the API key:
+      :param reference_profile_name the name of the reference profile:
+      :param configuration the additional configuration for the REST client:
+      :param Returns a "WhyLabsWriter" with these options configured:
+      :param -------:
 
 
    .. py:method:: write(file: whylogs.api.writer.writer.Writable, **kwargs: Any) -> None

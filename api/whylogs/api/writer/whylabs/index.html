@@ -403,6 +403,9 @@
 <tr class="row-even"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.logger" title="whylogs.api.writer.whylabs.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#whylogs.api.writer.whylabs.API_KEY_ENV" title="whylogs.api.writer.whylabs.API_KEY_ENV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">API_KEY_ENV</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -414,6 +417,11 @@
 <dl class="py data">
 <dt class="sig sig-object py" id="whylogs.api.writer.whylabs.logger">
 <span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.whylabs.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#whylogs.api.writer.whylabs.logger" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="whylogs.api.writer.whylabs.API_KEY_ENV">
+<span class="sig-prename descclassname"><span class="pre">whylogs.api.writer.whylabs.</span></span><span class="sig-name descname"><span class="pre">API_KEY_ENV</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">WHYLABS_API_KEY</span></em><a class="headerlink" href="#whylogs.api.writer.whylabs.API_KEY_ENV" title="Permalink to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
@@ -453,7 +461,7 @@ profile.writer(“whylabs”).write()
 <a href="#id5"><span class="problematic" id="id6">``</span></a><a href="#id7"><span class="problematic" id="id8">`</span></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.writer.whylabs.WhyLabsWriter.check_interval">
-<span class="sig-name descname"><span class="pre">check_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#whylogs.api.writer.whylabs.WhyLabsWriter.check_interval" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">check_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interval_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></span><a class="headerlink" href="#whylogs.api.writer.whylabs.WhyLabsWriter.check_interval" title="Permalink to this definition">#</a></dt>
 <dd><p>Validate an interval configuration for a given writer.</p>
 <p>Some writer only accepts certain interval configuration. By default, this should return True for a valid
 non-negative interval.</p>
@@ -461,19 +469,31 @@ non-negative interval.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>interval_seconds</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – </p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)">None</a></p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="whylogs.api.writer.whylabs.WhyLabsWriter.option">
-<span class="sig-name descname"><span class="pre">option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">org_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_profile_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter" title="whylogs.api.writer.whylabs.WhyLabsWriter"><span class="pre">WhyLabsWriter</span></a></span></span><a class="headerlink" href="#whylogs.api.writer.whylabs.WhyLabsWriter.option" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">org_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">api_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference_profile_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">whylabs_client.Configuration</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssl_ca_cert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter" title="whylogs.api.writer.whylabs.WhyLabsWriter"><span class="pre">WhyLabsWriter</span></a></span></span><a class="headerlink" href="#whylogs.api.writer.whylabs.WhyLabsWriter.option" title="Permalink to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>ID</strong> (<em>org_id the organization</em>) – </p></li>
+<li><p><strong>Id</strong> (<em>dataset_id the dataset</em>) – </p></li>
+<li><p><strong>key</strong> (<em>api_key the API</em>) – </p></li>
+<li><p><strong>profile</strong> (<em>reference_profile_name the name of the reference</em>) – </p></li>
+<li><p><strong>client</strong> (<em>configuration the additional configuration for the REST</em>) – </p></li>
+<li><p><strong>configured</strong> (<em>Returns a &quot;WhyLabsWriter&quot; with these options</em>) – </p></li>
+<li><p><strong>-------</strong> – </p></li>
 <li><p><strong>org_id</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>dataset_id</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>api_key</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 <li><p><strong>reference_profile_name</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
+<li><p><strong>configuration</strong> (<em>Optional</em><em>[</em><em>whylabs_client.Configuration</em><em>]</em>) – </p></li>
+<li><p><strong>ssl_ca_cert</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>]</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
@@ -592,6 +612,7 @@ non-negative interval.</p>
 <li><a class="reference internal" href="#attributes">Attributes</a><ul>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.FIVE_MINUTES_IN_SECONDS">FIVE_MINUTES_IN_SECONDS</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.logger">logger</a></li>
+<li><a class="reference internal" href="#whylogs.api.writer.whylabs.API_KEY_ENV">API_KEY_ENV</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter">WhyLabsWriter</a><ul>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.check_interval">check_interval</a></li>
 <li><a class="reference internal" href="#whylogs.api.writer.whylabs.WhyLabsWriter.option">option</a></li>
