@@ -126,11 +126,12 @@ class UnicodeResolver(Resolver):
         return {"unicode_range": UnicodeRangeMetric({"digits": (48, 57), "alpha": (97, 122)})}
 
 
-class UnicodeSchema(DatasetSchema):
-    types = {
+_UNICODE_SCHEMA = DatasetSchema(
+    types={
         "col1": str,
-    }
-    resolvers = UnicodeResolver()
+    },
+    resolvers=UnicodeResolver(),
+)
 
 
 def _NaNfully_equal(left: Dict[Any, Any], right: Dict[Any, Any]) -> bool:
@@ -144,7 +145,7 @@ def _NaNfully_equal(left: Dict[Any, Any], right: Dict[Any, Any]) -> bool:
 
 def test_unicode_range_metric_in_profile() -> None:
     row = {"col1": "abc123"}
-    schema = UnicodeSchema()
+    schema = _UNICODE_SCHEMA
     prof = DatasetProfile(schema)
     prof.track(row=row)
     prof1_view = prof.view()

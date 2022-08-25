@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.0.10"
+version = "1.0.11"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -34,8 +34,9 @@ furo = { version = "^2022.3.4", optional = true }
 sphinx-autobuild = { version = "^2021.3.14", optional = true }
 sphinxext-opengraph = { version = "^0.6.3", optional = true }
 sphinx-inline-tabs = { version = "*", optional = true }
-flake8 = { version = "4.0.1", optional = true }
-nbsphinx = { version = "^0.8.8", optional = true }
+ipython_genutils = {version = "^0.2.0", optional = true}
+nbsphinx = {version = "^0.8.9", optional = true}
+nbconvert = {version = "^7.0.0", optional = true}
 
 # Integrations dependencies
 boto3 = {version = "^1.22.13", optional = true }
@@ -46,6 +47,7 @@ mlflow-skinny = {version = "^1.26.1", optional = true}
 # Pyspark related dependencies
 pyarrow = {version = "^8.0.0", optional = true}
 pyspark = {version = "^3.0.0", optional = true}
+
 
 [tool.poetry.dev-dependencies]
 2to3 = "^1.0"
@@ -58,7 +60,8 @@ pre-commit = "^2.8"
 pytest = "^6.2"
 pytest-cov = "^3"
 pytest-mock = "^3.3"
-nbconvert = "^6.0.7"
+mistune = ">=2.0.4"
+papermill = "^2.4.0"
 autoflake = "^1.4"
 mypy-protobuf = ">=3.2.0"
 types-protobuf = ">=0.1.14"
@@ -67,6 +70,7 @@ pandas-stubs = "*"
 ipykernel = ">=6.11" # for developing in Jupyter notebook
 types-python-dateutil = "^2.8.12"
 moto = "^3.1.9"
+twine = "^4.0.1"
 
 [tool.poetry.extras]
 docs = [
@@ -76,11 +80,13 @@ docs = [
     "furo",
     "sphinx-copybutton",
     "myst-parser",
-    "nbsphinx",
     "sphinx-inline-tabs",
     "sphinxext-opengraph",
     "sphinx-autodoc",
     "sphinx-autodoc-typehints",
+    "nbsphinx",
+    "nbconvert",
+    "ipython_genutils",
 ]
 viz = [
     "ipython",

@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.0.10
+version := 1.0.11
 
 dist.dir := dist
 egg.dir := .eggs
@@ -157,7 +157,7 @@ test-system-python: dist ## Run tests using the system `python` instead of the l
 
 test-notebooks: ## Run tests for the notebooks
 	@$(call i, Running notebook tests)
-	poetry run pytest --no-cov test_notebooks/notebook_tests.py
+	poetry run pytest --no-cov --maxfail=1 test_notebooks/notebook_tests.py
 
 
 install: ## Install all dependencies with poetry.

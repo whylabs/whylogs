@@ -5,3 +5,4 @@
 .pytest_cache
 .venv
 dist
+output.ipynb

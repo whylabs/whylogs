@@ -1,6 +1,6 @@
 import os
 
-os.environ["HEAP_APPID_DEV"] = "3002560559"
+os.environ["TELEMETRY_DEV"] = "1"  # noqa: E402
 
 from whylogs import __version__, package_version  # noqa
 
@@ -12,7 +12,7 @@ intended to test the wheel in a production environment,
 not a development environment.
 """
 
-current_version = "1.0.10"
+current_version = "1.0.11"
 
 
 def test_package_version() -> None:

@@ -212,7 +212,7 @@ whylogs supports both structured and unstructured data, specifically:
 | MLflow | Enhance MLflow metrics with whylogs: | <ul><li>[Notebook Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Mlflow_Logging.ipynb)</li><li>[Streamlining data monitoring with whylogs and MLflow](https://whylabs.ai/blog/posts/on-model-lifecycle-and-monitoring)</li></ul> |
 | Java | Run whylogs in Java environment| <ul><li>[Notebook Example](https://github.com/whylabs/whylogs-examples/blob/mainline/java/demo1/src/main/java/com/whylogs/examples/WhyLogsDemo.java)</li></ul> |
 | Docker | Run whylogs as in Docker | <ul><li>[Rest Container](https://docs.whylabs.ai/docs/integrations-rest-container)</li></ul>|
-| AWS S3 | Store whylogs profiles in S3 | <ul><li>[S3 example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Writing_Profiles.ipynb)</li></ul>
+| AWS S3 | Store whylogs profiles in S3 | <ul><li>[S3 example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Profiles.ipynb)</li></ul>
 | Flask | Integrate whylogs with your Flask Application| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/flask_streaming/flask_with_whylogs.ipynb)</li></ul> |
 | Feast | Log features from your Feature Store with feast and whylogs| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/Feature_Stores_and_whylogs.ipynb)</li></ul> |
 | BigQuery | Profile data queried from a Google BigQuery table| <ul><li>[Code Example](https://github.com/whylabs/whylogs/blob/mainline/python/examples/integrations/BigQuery_Example.ipynb)</li></ul> |
@@ -224,7 +224,7 @@ whylogs supports both structured and unstructured data, specifically:
 
 ## Examples
 
-For a full set of our examples, please check out the [examples folder](/python/examples/).
+For a full set of our examples, please check out the [examples folder](https://github.com/whylabs/whylogs/tree/mainline/python/examples).
 
 ## Usage Statistics<a name="whylogs-profiles" />
 

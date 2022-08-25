@@ -1,5 +1,6 @@
 import logging
-from dataclasses import dataclass, field
+from copy import deepcopy
+from dataclasses import dataclass
 from typing import Any, Dict, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
@@ -14,7 +15,6 @@ LARGE_CACHE_SIZE_LIMIT = 1024 * 100
 T = TypeVar("T", bound="DatasetSchema")
 
 
-@dataclass
 class DatasetSchema:
     """
     Defines the schema for tracking metrics in whylogs.
@@ -40,30 +40,41 @@ class DatasetSchema:
     >>> import pandas as pd
     >>> import numpy as np
     >>> from whylogs.core import DatasetSchema, DatasetProfile
+    >>> from whylogs.core.resolvers import Resolver, StandardResolver
     >>>
-    >>> class MySchema(DatasetSchema):
-    ...    types = {
+    >>> class MyResolver(StandardResolver):
+    ...    pass
+    >>>
+    >>> schema = DatasetSchema(
+    ...    types={
     ...        "col1": str,
     ...        "col2": np.int32,
-    ...        "col3": pd.Categorical(categories=('foo', 'bar'), ordered=True)
-    ...    }
-    ...    cache_size = 12
-    >>> schema = MySchema()
-    >>> prof = DatasetProfile(MySchema())
+    ...        "col3": pd.CategoricalDtype(categories=('foo', 'bar'), ordered=True)
+    ...    },
+    ...    resolvers=MyResolver()
+    ... )
+    >>> prof = DatasetProfile(schema)
     >>> df = pd.DataFrame({"col1": ['foo'], "col2": np.array([1], dtype=np.int32), "col3": ['bar']})
     >>> prof.track(pandas=df)
 
     """
 
-    types: Dict[str, Any] = field(default_factory=dict)
-    default_configs: MetricConfig = MetricConfig()
-    type_mapper: TypeMapper = StandardTypeMapper()
-    resolvers: Resolver = StandardResolver()
-    cache_size: int = 1024
-    schema_based_automerge: bool = False
-
-    def __post_init__(self) -> None:
-        self._columns = {}
+    def __init__(
+        self,
+        types: Optional[Dict[str, Any]] = None,
+        default_configs: Optional[MetricConfig] = None,
+        type_mapper: Optional[TypeMapper] = None,
+        resolvers: Optional[Resolver] = None,
+        cache_size: int = 1024,
+        schema_based_automerge: bool = False,
+    ) -> None:
+        self._columns = dict()
+        self.types = types or dict()
+        self.default_configs = default_configs or MetricConfig()
+        self.type_mapper = type_mapper or StandardTypeMapper()
+        self.resolvers = resolvers or StandardResolver()
+        self.cache_size = cache_size
+        self.schema_based_automerge = schema_based_automerge
 
         if self.cache_size < 0:
             logger.warning("Negative cache size value. Disabling caching")
@@ -76,16 +87,19 @@ class DatasetSchema:
                 LARGE_CACHE_SIZE_LIMIT,
             )
 
-        if self.types:
-            for col, tpe in self.types.items():
-                self._columns[col] = ColumnSchema(
-                    dtype=tpe, resolver=self.resolvers, type_mapper=self.type_mapper, cfg=self.default_configs
-                )
+        for col, data_type in self.types.items():
+            self._columns[col] = ColumnSchema(
+                dtype=data_type, resolver=self.resolvers, type_mapper=self.type_mapper, cfg=self.default_configs
+            )
 
     def copy(self) -> "DatasetSchema":
         """Returns a new instance of the same underlying schema"""
-        copy = DatasetSchema(**self.__dict__)
-        copy._columns = self._columns.copy()
+        key_dict = vars(self).copy()
+        key_dict.pop("_columns")
+        keys = key_dict.keys()
+        args = {k: deepcopy(self.__dict__[k]) for k in keys if k not in self.types}
+        copy = self.__class__(**args)
+        copy._columns = deepcopy(self._columns)
         return copy
 
     def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool:

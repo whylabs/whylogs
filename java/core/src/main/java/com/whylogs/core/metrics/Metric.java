@@ -2,24 +2,24 @@ package com.whylogs.core.metrics;
 
 import com.whylogs.core.PreprocessedColumn;
 import com.whylogs.core.SummaryConfig;
+import java.util.HashMap;
 import lombok.*;
 
-import java.util.HashMap;
-
 @EqualsAndHashCode
-@Getter @Setter
+@Getter
+@Setter
 @RequiredArgsConstructor
-public abstract class Metric{
+public abstract class Metric {
 
-    @NonNull
-    private String namespace;
+  @NonNull private String namespace;
 
-    public abstract HashMap<String, Object> toSummaryDict();
-    public abstract HashMap<String, Object> toSummaryDict(SummaryConfig config);
+  public abstract HashMap<String, Object> toSummaryDict();
 
-    public abstract OperationResult columnarUpdate(PreprocessedColumn data);
+  public abstract HashMap<String, Object> toSummaryDict(SummaryConfig config);
 
-    public @NonNull String getNamespace(){
-        return namespace;
-    }
+  public abstract OperationResult columnarUpdate(PreprocessedColumn data);
+
+  public @NonNull String getNamespace() {
+    return namespace;
+  }
 }

@@ -18,13 +18,13 @@ If you're willing to learn more how to use and get going with whylogs, take a lo
     - [Custom Metrics](./advanced/Custom_Metrics.ipynb) - Create your own metrics and metric components
     - [String Tracking](./advanced/String_Tracking.ipynb) - Track unicode ranges and character length distribution metrics for your textual features
 - Integrations - Use whylogs with external platforms
-    - [WhyLabs](./integrations/writers/Writing_to_WhyLabs.ipynb) - Monitor your profiles continuously with the WhyLabs Observability Platform
     - [Pyspark](./integrations/Pyspark_Profiling.ipynb) - Use whylogs with pyspark
     - [Writing Profiles](./integrations/writers/Writing_Profiles.ipynb) - See different ways and locations to output your profiles
     - [Flask](./integrations/flask_streaming/flask_with_whylogs.ipynb) - See how you can create a Flask app with whylogs and WhyLabs integration
     - [Feature Stores](./integrations/Feature_Stores_and_whylogs.ipynb) - Learn how to log features from your Feature Store with feast and whylogs
     - [BigQuery](./integrations/BigQuery_Example.ipynb) - Profile data queried from a Google BigQuery table
     - [MLflow](./integrations/Mlflow_Logging.ipynb) - Log your whylogs profiles to an MLflow environment
-
-
+- WhyLabs - Monitor your profiles continuously with the WhyLabs Observability Platform
+    - [WhyLabs](./integrations/writers/Writing_to_WhyLabs.ipynb) - Send profiles to your WhyLabs Dashboard
+    - [WhyLabs - Reference Profile](./integrations/writers/Writing_Reference_Profiles_to_WhyLabs.ipynb) - Send profiles as Reference (Static) Profiles to WhyLabs
 The examples in this folder can also be viewed in whylogs' documentation in https://whylogs.readthedocs.io/en/latest/
