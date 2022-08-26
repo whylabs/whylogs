@@ -12,7 +12,7 @@ import java.util.Set;
 @Data
 public class DatasetSchema {
 
-    private HashMap<String, Type> type = new HashMap<>();
+    private HashMap<String, Type> types = new HashMap<>();
     private final int LARGE_CACHE_SIZE_LIMIT = 1024 * 100;
     public HashMap<String, ColumnSchema> columns;
     public MetricConfig defaultConfig;
@@ -41,9 +41,9 @@ public class DatasetSchema {
             // TODO: log warning
         }
 
-        if(!this.type.isEmpty()){
-            for(String key : this.type.keySet()){
-                this.columns.put(key, new ColumnSchema(this.type.get(key), this.defaultConfig, this.resolver));
+        if(!this.types.isEmpty()){
+            for(String key : this.types.keySet()){
+                this.columns.put(key, new ColumnSchema(this.types.get(key), this.defaultConfig, this.resolver));
             }
         }
     }
