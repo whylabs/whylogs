@@ -1,10 +1,8 @@
-package com.whylogs.core.schemas;
+package com.whylogs.core;
 
-import com.whylogs.core.DataTypes;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.xml.crypto.Data;
 
 @Test
 public class TestDataTypes {
