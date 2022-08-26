@@ -86,8 +86,7 @@ def test_condition_validator(credit_card_validator, transcriptions) -> None:
 
     credit_card_validator.columnar_validate(p_col)
     summary = credit_card_validator.to_summary_dict()
-    assert summary["total"] == 4
-    assert summary["total_failures"] == 1
+    assert summary["total_evaluations"] == 4
     assert summary["noCreditCard"] == 1
 
 
@@ -99,12 +98,10 @@ def test_condition_validator_dataframe(credit_card_validator, transcriptions):
     schema = DatasetSchema(validators=validators)
     profile = why.log(df, schema=schema).profile()
 
-    profile._columns["transcriptions"]._column_validators[0].total.value == 4
-    profile._columns["transcriptions"]._column_validators[0].failures["total"].value == 1
-    profile._columns["transcriptions"]._column_validators[0].failures["noCreditCard"].value == 1
+    profile._columns["transcriptions"]._column_validators[0].total == 4
+    profile._columns["transcriptions"]._column_validators[0].failures["noCreditCard"] == 1
     summary = profile._columns["transcriptions"]._column_validators[0].to_summary_dict()
-    assert summary["total"] == 4
-    assert summary["total_failures"] == 1
+    assert summary["total_evaluations"] == 4
     assert summary["noCreditCard"] == 1
 
 
@@ -125,11 +122,10 @@ def test_number_conditions(numbers):
     profile = why.log(df, schema=schema).profile()
     assert profile._columns["ints"]._column_validators[0].name == "number_equalities"
     assert profile._columns["ints"]._column_validators[1].name == "is_even"
-    assert profile._columns["ints"]._column_validators[0].total.value == 4
-    assert profile._columns["floats"]._column_validators[0].total.value == 4
-    assert profile._columns["floats"]._column_validators[0].failures["equals42.2"].value == 3
-    assert profile._columns["ints"]._column_validators[0].failures["equals42.2"].value == 4
-    assert profile._columns["floats"]._column_validators[0].failures["equals42"].value == 4
-    assert profile._columns["ints"]._column_validators[0].failures["equals42"].value == 3
-    assert profile._columns["ints"]._column_validators[1].failures["isEven"].value == 1
-    assert profile._columns["ints"]._column_validators[1].failures["total"].value == 1
+    assert profile._columns["ints"]._column_validators[0].total == 4
+    assert profile._columns["floats"]._column_validators[0].total == 4
+    assert profile._columns["floats"]._column_validators[0].failures["equals42.2"] == 3
+    assert profile._columns["ints"]._column_validators[0].failures["equals42.2"] == 4
+    assert profile._columns["floats"]._column_validators[0].failures["equals42"] == 4
+    assert profile._columns["ints"]._column_validators[0].failures["equals42"] == 3
+    assert profile._columns["ints"]._column_validators[1].failures["isEven"] == 1
