@@ -78,7 +78,7 @@ class DatasetSchema:
         self.cache_size = cache_size
         self.schema_based_automerge = schema_based_automerge
         self.validators = validators or dict()
-        
+
         if self.cache_size < 0:
             logger.warning("Negative cache size value. Disabling caching")
             self.cache_size = 0
@@ -96,7 +96,7 @@ class DatasetSchema:
                 resolver=self.resolvers,
                 validators=self.validators,
                 type_mapper=self.type_mapper,
-                cfg=self.default_configs
+                cfg=self.default_configs,
             )
 
     def copy(self) -> "DatasetSchema":
