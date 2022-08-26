@@ -4,7 +4,7 @@ import com.whylogs.core.errors.UnsupportedError;
 import lombok.SneakyThrows;
 
 // This sum forces lhs, rhs, and result to be the same type
-public class NumberSumAggregator<T extends Number> implements IAggregator<T, T, T> {
+public class NumberSumAggregator<T extends Number> implements IAggregator<T> {
 
   @Override
   public T merge(T lhs, T rhs) throws UnsupportedError {
