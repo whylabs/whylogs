@@ -76,10 +76,7 @@ def test_different_int_types(profile, data_type) -> None:
 
 
 def test_track_with_custom_schema() -> None:
-    class MySchema(DatasetSchema):
-        types = {"col1": str, "col2": np.int32, "col3": str}
-
-    schema = MySchema()
+    schema = DatasetSchema(types={"col1": str, "col2": np.int32, "col3": str})
     prof = DatasetProfile(schema=schema)
     df = pd.DataFrame({"col1": ["foo"], "col2": np.array([1], dtype=np.int32), "col3": ["bar"]})
     prof.track(pandas=df)

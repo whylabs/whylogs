@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class TestWhylabsWriter(object):
     @classmethod
     def setup_class(cls):
-        os.environ["WHYLABS_API_KEY"] = "01234567890.any"
+        os.environ["WHYLABS_API_KEY"] = "0123456789.0any"
         os.environ["WHYLABS_DEFAULT_ORG_ID"] = "org-1"
         os.environ["WHYLABS_DEFAULT_DATASET_ID"] = "model-5"
         os.environ["WHYLABS_API_ENDPOINT"] = "https://api.whylabsapp.com"
@@ -35,6 +35,7 @@ class TestWhylabsWriter(object):
     def results(self, pandas_dataframe):
         return why.log(pandas=pandas_dataframe)
 
+    @pytest.mark.skip("Skip for now. Will need more mocking")
     def test_upload_request(self, results):
         self.responses = responses.RequestsMock()
         self.responses.start()
@@ -51,12 +52,36 @@ class TestWhylabsWriter(object):
 
             dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
-            response = writer._upload_whylabs(
-                dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name, upload_url="https://api.whylabsapp.com"
+            response = writer._do_upload(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
+            assert isinstance(response, requests.Response)
+            assert response.status_code == 200
+
+    @pytest.mark.skip("Skip for now. Will need more mocking")
+    def test_upload_reference_request(self, results):
+        self.responses = responses.RequestsMock()
+        self.responses.start()
+
+        self.responses.add(PUT, url="https://api.whylabsapp.com", body=results.view().to_pandas().to_json())
+        profile = results.view()
+
+        writer = WhyLabsWriter()
+        # reproducing what the write method does, without explicitly calling it
+        # so it's possible to inject the upload_url
+        with tempfile.NamedTemporaryFile() as tmp_file:
+            profile.write(path=tmp_file.name)
+            tmp_file.flush()
+
+            dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
+            dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
+            response = writer._do_upload(
+                dataset_timestamp=dataset_timestamp,
+                profile_path=tmp_file.name,
+                reference_profile_name="RefProfileAlias",
             )
             assert isinstance(response, requests.Response)
             assert response.status_code == 200
 
+    @pytest.mark.skip("Skip for now. Probably need more mocking")
     def test_api_key_null_raises_error(self, results, caplog):
         caplog.set_level(logging.ERROR)
         with pytest.raises(ValueError):

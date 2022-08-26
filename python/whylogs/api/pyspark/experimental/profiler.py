@@ -4,11 +4,13 @@ from logging import getLogger
 from typing import Dict, Iterable, Optional, Tuple
 
 import whylogs as why
+from whylogs.api.usage_stats import emit_usage
 from whylogs.core.stubs import pd
 from whylogs.core.view.column_profile_view import ColumnProfileView
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 logger = getLogger(__name__)
+emit_usage("pyspark")
 
 try:  # type: ignore
     from pyspark.sql import DataFrame as SparkDataFrame  # types: ignore

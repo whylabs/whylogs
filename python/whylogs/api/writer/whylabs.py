@@ -2,14 +2,21 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional, Tuple
+from typing import Any, Optional
 
 import requests  # type: ignore
-import whylabs_client
-from whylabs_client.api.log_api import LogApi
-from whylabs_client.model.log_async_request import LogAsyncRequest
-from whylabs_client.rest import ForbiddenException
+import whylabs_client  # type: ignore
+from whylabs_client import ApiClient, Configuration  # type: ignore
+from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
+from whylabs_client.api.log_api import (
+    LogApi,
+    LogAsyncRequest,
+    LogReferenceRequest,
+    LogReferenceResponse,
+)
+from whylabs_client.rest import ForbiddenException  # type: ignore
 
+from whylogs import __version__ as _version
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
@@ -19,6 +26,8 @@ from whylogs.core.utils import deprecated_alias
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
+
+API_KEY_ENV = "WHYLABS_API_KEY"
 
 
 class WhyLabsWriter(Writer):
@@ -64,22 +73,54 @@ class WhyLabsWriter(Writer):
     def __init__(self, org_id: Optional[str] = None, api_key: Optional[str] = None, dataset_id: Optional[str] = None):
         self._org_id = org_id or os.environ.get("WHYLABS_DEFAULT_ORG_ID")
         self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
+        self._api_key_id = ""
         self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
+        self._reference_profile_name = os.environ.get("WHYLABS_REFERENCE_PROFILE_NAME")
+        self._api_log_client: Optional[ApiClient] = None
+        self._ssl_ca_cert: Optional[str] = None
+        self._configuration: Optional[Configuration] = None
 
-    def check_interval(self, interval_seconds: int):
+    def check_interval(self, interval_seconds: int) -> None:
         if interval_seconds < FIVE_MINUTES_IN_SECONDS:
             raise BadConfigError("Bad WhyLabsWriter config: interval must be greater or equal to five minutes")
 
-    def option(
-        self, org_id: Optional[str] = None, dataset_id: Optional[str] = None, api_key: Optional[str] = None
-    ) -> None:
+    def option(  # type: ignore
+        self,
+        org_id: Optional[str] = None,
+        dataset_id: Optional[str] = None,
+        api_key: Optional[str] = None,
+        reference_profile_name: Optional[str] = None,
+        configuration: Optional[Configuration] = None,
+        ssl_ca_cert: Optional[str] = None,
+    ) -> "WhyLabsWriter":
+        """
+
+        Parameters
+        ----------
+        org_id the organization ID
+        dataset_id the dataset Id
+        api_key the API key
+        reference_profile_name the name of the reference profile
+        configuration the additional configuration for the REST client
+
+        Returns a "WhyLabsWriter" with these options configured
+        -------
+
+        """
         if dataset_id is not None:
             self._dataset_id = dataset_id
         if org_id is not None:
             self._org_id = org_id
         if api_key is not None:
             self._api_key = api_key
+        if reference_profile_name is not None:
+            self._reference_profile_name = reference_profile_name
+        if configuration is not None:
+            self._configuration = configuration
+        if ssl_ca_cert is not None:
+            self._ssl_ca_cert = ssl_ca_cert
+        return self
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> None:
@@ -98,29 +139,27 @@ class WhyLabsWriter(Writer):
             tmp_file.flush()
 
             dataset_timestamp = profile_view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
-            dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
-            self._upload_whylabs(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
+            dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
+            self._do_upload(
+                dataset_timestamp=dataset_timestamp_epoch,
+                profile_path=tmp_file.name,
+            )
 
-    @staticmethod
-    def _check_api_key_format(input_key: str) -> Tuple[bool, Optional[str]]:
-        if input_key is None or len(input_key) < 12 or input_key[10] != "." or len(input_key.split(".")) != 2:
-            message = None
-            if input_key is None:
-                message = "api_key is None"
-            elif len(input_key) < 12:
-                message = "api_key length < 12"
-            elif input_key[10] != ".":
-                message = "api_key must have a period delimiter at index 10"
-            else:
-                delimiter_count = len(input_key.split(".")) - 1
-                message = (
-                    f"api_key must have a single period delimiter but {delimiter_count} delimiters found in string"
-                )
-            return (False, message)
-        return (True, None)
+    def _validate_api_key(self) -> None:
+        if self._api_key is None:
+            raise ValueError("Missing API key. Set it via WHYLABS_API_KEY environment variable or as an api_key option")
+        if len(self._api_key) < 12:
+            raise ValueError("API key too short")
+        if len(self._api_key) > 64:
+            raise ValueError("API key too long")
+        if self._api_key[10] != ".":
+            raise ValueError("Invalid format. Expecting a dot at an index 10")
+        self._api_key_id = self._api_key[:10]
 
-    def _upload_whylabs(
-        self, dataset_timestamp: int, profile_path: str, upload_url: Optional[str] = None
+    def _do_upload(
+        self,
+        dataset_timestamp: int,
+        profile_path: str,
     ) -> requests.Response:
         if self._org_id is None:
             raise EnvironmentError(
@@ -131,8 +170,11 @@ class WhyLabsWriter(Writer):
                 "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
                 "variable or on your write method"
             )
+        if self._api_key is None:
+            raise EnvironmentError("Missing API key. Specify it via WHYLABS_API_KEY environment variable.")
 
-        upload_url = upload_url or self._get_upload_url(dataset_timestamp=dataset_timestamp)
+        logger.debug("Generating the upload URL")
+        upload_url = self._get_upload_url(dataset_timestamp=dataset_timestamp)
         api_key_id = self._api_key[:10] if self._api_key else None
         try:
             with open(profile_path, "rb") as f:
@@ -150,41 +192,53 @@ class WhyLabsWriter(Writer):
             )
 
     def _get_or_create_api_log_client(self) -> LogApi:
-        environment_api_key = os.environ.get("WHYLABS_API_KEY")
-        _api_log_client = None
+        environment_api_key = os.environ.get(API_KEY_ENV)
 
-        if environment_api_key is not None and self._api_key != environment_api_key:
-            updated_key = os.environ.get("WHYLABS_API_KEY")
-            old_id = self._api_key[:10] if self._api_key else None
-            new_id = updated_key[:10] if updated_key else None
-            logger.warning(f"Updating API key ID from: {old_id} to: {new_id}")
-            self._api_key = updated_key
-            config = whylabs_client.Configuration(
-                host=self.whylabs_api_endpoint, api_key={"ApiKeyAuth": self._api_key}, discard_unknown_keys=True
-            )
-            _api_log_client = whylabs_client.ApiClient(config)
+        if self._api_log_client is None:
+            self._refresh_api_client()
+        elif environment_api_key is not None and self._api_key != environment_api_key:
+            logger.warning(f"Updating API key ID from: {self._api_key_id} to: {environment_api_key[:10]}")
+            self._api_key = environment_api_key
+            self._refresh_api_client()
 
-        if _api_log_client is None:
-            config = whylabs_client.Configuration(
-                host=self.whylabs_api_endpoint, api_key={"ApiKeyAuth": self._api_key}, discard_unknown_keys=True
-            )
-            _api_log_client = whylabs_client.ApiClient(config)
-        return LogApi(_api_log_client)
+        return LogApi(self._api_log_client)
+
+    def _refresh_api_client(self) -> None:
+        self._validate_api_key()
+
+        if self._configuration is None:
+            config = whylabs_client.Configuration()
+        else:
+            config = self._configuration
+        config.ssl_ca_cert = self._ssl_ca_cert
+        config.host = self.whylabs_api_endpoint
+        config.api_key = {"ApiKeyAuth": self._api_key}
+        config.discard_unknown_keys = True
+
+        client = whylabs_client.ApiClient(config)
+        client.user_agent = f"whylogs/python/{_version}"
+        self._api_log_client = client
+
+    def _get_rest_config(self) -> Configuration:
+        if self._configuration is None:
+            config = whylabs_client.Configuration()
+        else:
+            config = self._configuration
+
+        config.host = self.whylabs_api_endpoint
+        config.api_key = {"ApiKeyAuth": self._api_key}
+        config.discard_unknown_keys = True
+        return config
 
     @staticmethod
-    def _build_log_async_request(dataset_timestamp):
-        request = LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[])
-        return request
+    def _build_log_async_request(dataset_timestamp: int) -> LogAsyncRequest:
+        return LogAsyncRequest(dataset_timestamp=dataset_timestamp, segment_tags=[])
 
-    def _post_log_async(self, request, dataset_timestamp):
-        api_key_valid, validation_message = self._check_api_key_format(input_key=self._api_key)
-        if not api_key_valid:
-            api_key_id = self._api_key[:10] if self._api_key and len(self._api_key) > 11 else None
-            raise ValueError(
-                f"WhyLabs API Key invalid! Because: {validation_message}. ID portion was: [{api_key_id}]."
-                f" Upload failed for {self._org_id}/{self._dataset_id}/{dataset_timestamp}"
-            )
+    @staticmethod
+    def _build_log_reference_request(dataset_timestamp: int, alias: Optional[str] = None) -> LogReferenceRequest:
+        return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias)
 
+    def _post_log_async(self, request: LogAsyncRequest, dataset_timestamp: int) -> AsyncLogResponse:
         log_api = self._get_or_create_api_log_client()
         try:
             result = log_api.log_async(org_id=self._org_id, dataset_id=self._dataset_id, log_async_request=request)
@@ -192,13 +246,36 @@ class WhyLabsWriter(Writer):
         except ForbiddenException as e:
             api_key_id = self._api_key[:10] if self._api_key else None
             logger.exception(
-                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to {self.whylabs_api_endpoint}"
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                f"{self.whylabs_api_endpoint}"
                 f" with API token ID: {api_key_id}"
             )
             raise e
 
-    def _get_upload_url(self, dataset_timestamp: int):
-        request = self._build_log_async_request(dataset_timestamp)
-        log_api = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
-        upload_url = log_api["upload_url"]
+    def _post_log_reference(self, request: LogAsyncRequest, dataset_timestamp: int) -> LogReferenceResponse:
+        log_api = self._get_or_create_api_log_client()
+        try:
+            async_result = log_api.log_reference(
+                org_id=self._org_id, model_id=self._dataset_id, log_reference_request=request, async_req=True
+            )
+            result = async_result.get()
+            return result
+        except ForbiddenException as e:
+            api_key_id = self._api_key[:10] if self._api_key else None
+            logger.exception(
+                f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
+            )
+            raise e
+
+    def _get_upload_url(self, dataset_timestamp: int) -> str:
+        if self._reference_profile_name is None:
+            request = self._build_log_async_request(dataset_timestamp)
+            res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
+            upload_url = res["upload_url"]
+        else:
+            request = self._build_log_reference_request(dataset_timestamp, alias=self._reference_profile_name)
+            res = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
+            upload_url = res["upload_url"]
         return upload_url

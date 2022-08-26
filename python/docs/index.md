@@ -7,7 +7,7 @@
     :hidden:
 
     Overview<self>
-    getting_started
+    examples/basic/Getting_Started
     glossary
 ```
 
