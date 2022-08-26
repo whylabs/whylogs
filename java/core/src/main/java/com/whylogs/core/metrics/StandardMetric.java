@@ -1,51 +1,52 @@
 package com.whylogs.core.metrics;
 
 public enum StandardMetric {
-    /*
-    types {
+  /*
+  types {
 
-    },
-    distribution{
+  },
+  distribution{
 
-    },
-    counts{
+  },
+  counts{
 
-    },*/
-    ints {
-        @Override
-        public IntegralMetric zero(MetricConfig config) {
-            return IntegralMetric.zero(config);
-        }
-    },
-    /*
-    cardinality {
-
-    },
-    frequent_items {
-
-    },
-    unicode_range {
-
-    },
-    condition_count{
-
-    }*/
-    ;
-    abstract <T extends Metric> T zero(MetricConfig config);
-
-    public static <T extends Metric> T getMetric(String name){
-        return StandardMetric.valueOf(name).zero(new MetricConfig());
+  },*/
+  ints {
+    @Override
+    public IntegralMetric zero(MetricConfig config) {
+      return IntegralMetric.zero(config);
     }
+  },
+/*
+cardinality {
 
-    public static <T extends Metric> T getMetric(String name, MetricConfig config){
-        return StandardMetric.valueOf(name).zero(config);
-    }
+},
+frequent_items {
 
-    public static <T extends Metric> T getMetric(StandardMetric metric){
-        return metric.zero(new MetricConfig());
-    }
+},
+unicode_range {
 
-    public static <T extends Metric> T getMetric(StandardMetric metric, MetricConfig config){
-        return metric.zero(config);
-    }
+},
+condition_count{
+
+}*/
+;
+
+  abstract <T extends Metric> T zero(MetricConfig config);
+
+  public static <T extends Metric> T getMetric(String name) {
+    return StandardMetric.valueOf(name).zero(new MetricConfig());
+  }
+
+  public static <T extends Metric> T getMetric(String name, MetricConfig config) {
+    return StandardMetric.valueOf(name).zero(config);
+  }
+
+  public static <T extends Metric> T getMetric(StandardMetric metric) {
+    return metric.zero(new MetricConfig());
+  }
+
+  public static <T extends Metric> T getMetric(StandardMetric metric, MetricConfig config) {
+    return metric.zero(config);
+  }
 }
