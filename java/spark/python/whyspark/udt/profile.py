@@ -102,7 +102,13 @@ class WhyProfileSession:
         df = self.aggProfiles(datetime_ts=datetime_ts, timestamp_ms=timestamp_ms)
         df.write.parquet(path)
 
-    def log(self, dt: Optional[datetime] = None, org_id: str = None, model_id: str = None, api_key: str = None, endpoint: str = "https://api.whylabsapp.com"):
+    def log(self,
+            dt: Optional[datetime] = None,
+            org_id: str = None,
+            model_id: str = None,
+            api_key: str = None,
+            endpoint: str = "https://api.whylabsapp.com",
+            ssl_ca_cert: str = None):
         """
         Run profiling and send results to WhyLabs using the WhyProfileSession's configurations.
 
@@ -113,7 +119,8 @@ class WhyProfileSession:
         :param org_id: the WhyLabs organization ID. Defaults to WHYLABS_ORG_ID environment variable
         :param model_id: the model or dataset ID. Defaults to WHYLABS_MODEL_ID environment variable
         :param api_key: the whylabs API key. Defaults to WHYLABS_API_KEY environment variable
-        :param endpoint: theh API endpiont
+        :param endpoint: custom API point
+        :param ssl_ca_cert: path to a custom cert store (PEM format)
         """
         if dt is not None:
             timestamp_ms = int(dt.timestamp() * 1000)
@@ -131,9 +138,12 @@ class WhyProfileSession:
             api_key = os.environ.get("WHYLABS_API_KEY")
             if api_key is None:
                 raise RuntimeError("Please specify the API key")
-
+        ssl_ca_cert_data = None
+        if ssl_ca_cert:
+            with open(ssl_ca_cert, "rt") as f:
+                ssl_ca_cert_data = f.read()
         j_session = self._create_j_session()
-        j_session.log(timestamp_ms, org_id, model_id, api_key, endpoint)
+        j_session.log(timestamp_ms, org_id, model_id, api_key, endpoint, ssl_ca_cert_data)
 
 
 def new_profiling_session(df: DataFrame, name: str, time_column: Optional[str] = None):
