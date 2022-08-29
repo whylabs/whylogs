@@ -55,3 +55,4 @@ Integrations
     examples/integrations/kafka-example/Kafka_Example
     examples/integrations/Feature_Stores_and_whylogs
     examples/integrations/flask_streaming/flask_with_whylogs
+    examples/integrations/Dask_Profiling
