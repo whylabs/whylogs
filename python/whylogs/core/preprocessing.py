@@ -1,7 +1,7 @@
 import itertools
 import logging
 from dataclasses import dataclass
-from typing import Any, Iterable, Iterator, List, Optional, Union
+from typing import Any, Iterable, Iterator, List, Optional
 
 from whylogs.core.stubs import np as np
 from whylogs.core.stubs import pd as pd

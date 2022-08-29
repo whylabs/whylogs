@@ -2,11 +2,9 @@ import hashlib
 import inspect
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Callable, List, Optional
 
 from whylogs.core.projectors import FieldProjector
-from whylogs.core.segment import Segment
-from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
 
@@ -27,19 +25,6 @@ class ColumnMapperFunction:
         column_string = ",".join(sorted(self.col_names))
         segment_hash = hashlib.sha512(bytes(column_string + mapper_string, encoding="utf8"))
         self.id = segment_hash.hexdigest()
-
-    def apply(self, pandas: Optional[pd.DataFrame], row: Optional[Dict[str, Any]]) -> Tuple[str]:
-        if not self.col_names and not self.map:
-            raise ValueError("Column mapping must specify at least one column name or define a map function")
-        result = tuple()
-        if self.map:
-            result = self.map(row)
-        else:
-            result = tuple(column_name + "[" + str(row.get(column_name)) + "]" for column_name in self.col_names)
-        return result
-
-    def __call__(self, row: Dict[str, Any]) -> Tuple[str]:
-        return self.apply(self.field_projector(row))
 
 
 @dataclass

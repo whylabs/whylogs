@@ -4,8 +4,8 @@ from whylogs.core.stubs import pd
 
 
 def _pandas_or_dict(
-    obj: Any, pandas: Optional[pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None
-) -> Tuple[Optional[pd.DataFrame], Optional[Dict[str, Any]]]:
+    obj: Any, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
+) -> Tuple[Optional[pd.DataFrame], Optional[Mapping[str, Any]]]:
     if obj is not None:
         if pandas is not None:
             raise ValueError("Cannot pass both obj and pandas params")

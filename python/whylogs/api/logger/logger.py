@@ -3,11 +3,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from whylogs.api.logger.result_set import (
-    ProfileResultSet,
-    ResultSet,
-    SegmentedResultSet,
-)
+from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
 from whylogs.api.logger.segment_processing import _log_partitions
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema

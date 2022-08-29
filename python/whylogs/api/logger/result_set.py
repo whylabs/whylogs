@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from functools import reduce
 from logging import getLogger
 from typing import Any, Dict, List, Optional
 
@@ -27,6 +26,8 @@ class ResultSetWriter:
 
     def write(self, **kwargs: Any) -> None:
         # TODO: multi-profile writer
+        if hasattr(self._result_set, 'segments'):
+            logger.info("Writing SegmentedResultSet")
         view = self._result_set.view()
         self._writer.write(profile=view, **kwargs)
 
@@ -70,11 +71,11 @@ class ResultSet(ABC):
         return ResultSetWriter(results=self, writer=writer)
 
     @abstractmethod
-    def view(self) -> DatasetProfileView:
+    def view(self) -> Optional[DatasetProfileView]:
         pass
 
     @abstractmethod
-    def profile(self) -> DatasetProfile:
+    def profile(self) -> Optional[DatasetProfile]:
         pass
 
 
@@ -82,10 +83,10 @@ class ProfileResultSet(ResultSet):
     def __init__(self, profile: DatasetProfile) -> None:
         self._profile = profile
 
-    def profile(self) -> DatasetProfile:
+    def profile(self) -> Optional[DatasetProfile]:
         return self._profile
 
-    def view(self) -> DatasetProfileView:
+    def view(self) -> Optional[DatasetProfileView]:
         return self._profile.view()
 
 
@@ -93,10 +94,10 @@ class ViewResultSet(ResultSet):
     def __init__(self, view: DatasetProfileView) -> None:
         self._view = view
 
-    def profile(self) -> DatasetProfile:
+    def profile(self) -> Optional[DatasetProfile]:
         raise ValueError("No profile available. Can only view")
 
-    def view(self) -> DatasetProfileView:
+    def view(self) -> Optional[DatasetProfileView]:
         return self._view
 
 
@@ -115,13 +116,15 @@ class SegmentedResultSet(ResultSet):
         elif segment:
             paritition_segments = self._segments.get(segment.parent_id)
             return paritition_segments.get(segment) if paritition_segments else None
+        # special case return a single segment if there is only one, even if not specified
         elif len(self._segments) == 1:
             for partition_id in self._segments:
                 segments = self._segments.get(partition_id)
-                number_of_segments = len(segments)
+                number_of_segments = len(segments) if segments else 0
                 if number_of_segments == 1:
-                    for key in segments:
-                        return segments[key]
+                    single_dictionary: Dict[Segment, DatasetProfile] = segments if segments else dict()
+                    for key in single_dictionary:
+                        return single_dictionary[key]
 
         raise ValueError(
             f"A profile was requested from a segmented result set without specifying which segment to return: {self._segments}"
@@ -132,12 +135,21 @@ class SegmentedResultSet(ResultSet):
         return self._partitions
 
     @property
-    def segments(self) -> Optional[List[Segment]]:
-        return (
-            list(reduce(lambda a, b: list(a.keys()) + list(b.keys()), self._segments.values()))
-            if self._segments
-            else None
-        )
+    def segments(self, restrict_to_parition_id: Optional[str] = None) -> Optional[List[Segment]]:
+        result: Optional[List[Segment]] = None
+        if not self._segments:
+            return result
+        result = list()
+        if restrict_to_parition_id:
+            segments = self._segments.get(restrict_to_parition_id)
+            if segments:
+                for segment in segments:
+                    result.append(segment)
+        else:
+            for partition_id in self._segments:
+                for segment in self._segments[partition_id]:
+                    result.append(segment)
+        return result
 
     @property
     def count(self) -> int:
@@ -148,8 +160,11 @@ class SegmentedResultSet(ResultSet):
                 result += len(profiles)
         return result
 
-    def segments_in_partition(self, partition: Optional[SegmentationPartition]) -> Optional[List[Segment]]:
+    def segments_in_partition(
+        self, partition: Optional[SegmentationPartition]
+    ) -> Optional[Dict[Segment, DatasetProfile]]:
         return self._segments.get(partition.id) if partition else None
 
-    def view(self, segment: Optional[Segment]) -> DatasetProfileView:
-        return self.profile(segment).view()
+    def view(self, segment: Optional[Segment] = None) -> Optional[DatasetProfileView]:
+        result = self.profile(segment)
+        return result.view() if result else None

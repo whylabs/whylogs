@@ -1,13 +1,11 @@
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from whylogs.api.reader import Reader, Readers
-from whylogs.api.writer import Writer, Writers
 from whylogs.api.writer.writer import Writable
-from whylogs.core import DatasetProfile, DatasetProfileView
+from whylogs.core import DatasetProfile
 from whylogs.core.schema import DatasetSchema
-from whylogs.core.segmentation_partition import Segment, SegmentationPartition
+from whylogs.core.segmentation_partition import Segment
 from whylogs.core.stubs import pd
 
 
@@ -34,6 +32,7 @@ class ProfileStore(ABC):
         id: Optional[str],
         dataset_timestamp: Optional[datetime] = None,
         segment: Optional[Segment] = None,
+        schema: Optional[DatasetSchema] = None,
     ) -> Optional[DatasetProfile]:
         return [DatasetProfile(schema)]
 
@@ -51,7 +50,3 @@ class ProfileStore(ABC):
     @abstractmethod
     def query(self, *args: Any, **kwargs: Any) -> List[DatasetProfile]:
         pass
-
-
-class SegmentedProfileStore(ProfileStore):
-    pass

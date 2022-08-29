@@ -1,5 +1,3 @@
-from logging import NullHandler
-
 import numpy as np
 import pandas as pd
 
@@ -7,9 +5,11 @@ import whylogs as why
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.core.metrics.metrics import CardinalityMetric, DistributionMetric
 from whylogs.core.schema import DatasetSchema
+from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import (
     ColumnMapperFunction,
     SegmentationPartition,
+    SegmentFilter,
     segment_on_column,
 )
 
@@ -78,6 +78,43 @@ def test_single_column_segment() -> None:
     cardinality = segment_cardinality.estimate
     assert cardinality is not None
     assert cardinality == 1.0
+
+
+def test_filtered_single_column_segment() -> None:
+    input_rows = 100
+    segment_column = "col3"
+    number_of_segments = 5
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        segment_column: [f"x{str(i%number_of_segments)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    segmentation_partition = segment_on_column("col3")
+    segmentation_partition.filter = SegmentFilter(filter_function=lambda df: df.col1 > 49)
+    test_segments = {segmentation_partition.name: segmentation_partition}
+    results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments))
+    assert results.count == number_of_segments
+    partitions = results.partitions
+    assert len(partitions) == 1
+    partition = partitions[0]
+    segments = results.segments_in_partition(partition)
+    assert len(segments) == number_of_segments
+
+    first_segment: Segment = next(iter(segments))
+    first_segment_profile = results.profile(first_segment)
+    assert first_segment.key == ("x0",)
+    assert first_segment_profile is not None
+    assert first_segment_profile._columns["col1"]._schema.dtype == np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == np.float64
+    assert first_segment_profile._columns["col3"]._schema.dtype.name == "object"
+    segment_distribution: DistributionMetric = (
+        first_segment_profile.view().get_column("col1").get_metric("distribution")
+    )
+    count = segment_distribution.n
+    assert count is not None
+    assert count == 10
 
 
 def test_multi_column_segment() -> None:

@@ -1,33 +1,21 @@
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.store.profile_store import ProfileStore
 from whylogs.core import DatasetSchema
 from whylogs.core.dataset_profile import DatasetProfile
-from whylogs.core.errors import LoggingError
 from whylogs.core.input_resolver import _pandas_or_dict
-from whylogs.core.segmentation_partition import Segment, SegmentationPartition
+from whylogs.core.segment import Segment
+from whylogs.core.segmentation_partition import (
+    SegmentationPartition,
+    SegmentFilter,
+)
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)
 
 _MAX_SEGMENT_PARTITIONS = 10
-
-
-def _split_pandas_dataframe(pandas: pd.DataFrame, partition: SegmentationPartition) -> Dict[Segment, pd.DataFrame]:
-    mapper = partition.mapper
-    if mapper.map:
-        # do stuff
-        print("hi")
-    pass
-
-
-def _log_pandas_segment(partition: SegmentationPartition, pandas: pd.DataFrame) -> Dict[Segment, Any]:
-    if partition.filter:
-        filtered_df = pandas.query(partition.filter)
-    pass
-    # pandas.groupby(partition.mapper)
 
 
 def _process_segment(
@@ -37,7 +25,6 @@ def _process_segment(
     schema: DatasetSchema,
     store: Optional[ProfileStore] = None,
 ):
-
     profile = store.get_matching_profiles(segmented_data, segment=segment_key) if store else DatasetProfile(schema)
     profile.track(segmented_data)
     segments[segment_key] = profile
@@ -49,7 +36,7 @@ def _process_simple_partition(
     segments: Dict[Segment, Any],
     columns: List[str],
     pandas: Optional[pd.DataFrame] = None,
-    row: Optional[Dict[str, Any]] = None,
+    row: Optional[Mapping[str, Any]] = None,
     profile_cache: Optional[ProfileStore] = None,
 ):
     if pandas is not None:
@@ -57,7 +44,8 @@ def _process_simple_partition(
         grouped_data = pandas.groupby(columns)
         for group in grouped_data.groups.keys():
             pandas_segment = grouped_data.get_group(group)
-            segment_key = Segment(tuple(str(k) for k in group), partition_id)
+            segment_tuple_key = (group,) if isinstance(group, str) else tuple(str(k) for k in group)
+            segment_key = Segment(segment_tuple_key, partition_id)
             _process_segment(pandas_segment, segment_key, segments, schema, profile_cache)
     elif row:
         # TODO: consider if we need to combine with the column names
@@ -65,25 +53,49 @@ def _process_simple_partition(
         _process_segment(row, segment_key, segments, schema, profile_cache)
 
 
+def _filter_inputs(
+    filter: SegmentFilter, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None
+) -> Tuple[Optional[pd.DataFrame], Optional[Dict[str, Any]]]:
+    assert (
+        filter.filter_function or filter.query_string
+    ), f"must define at least a filter function or query string when specifying a segment filter: {filter}"
+    filtered_pandas = None
+    filtered_row = None
+    if pandas is not None:
+        if filter.filter_function:
+            filtered_pandas = pandas[filter.filter_function]
+        elif filter.query_string:
+            filtered_pandas = pandas.query(filter.query_string)
+    elif row is not None:
+        if filter.filter_function:
+            filtered_row = filter.filter_function(row)
+        elif filter.query_string:
+            raise ValueError(
+                "SegmentFilter query string not supported when logging rows, either don't specify a filter or implement the filter.filter_function"
+            )
+    return (filtered_pandas, filtered_row)
+
+
 def _log_segment(
     partition: SegmentationPartition,
     schema: DatasetSchema,
     obj: Any = None,
     pandas: Optional[pd.DataFrame] = None,
-    row: Optional[Dict[str, Any]] = None,
+    row: Optional[Mapping[str, Any]] = None,
     store: Optional[ProfileStore] = None,
 ) -> Dict[Segment, Any]:
-    segments = {}
+    segments: Dict[Segment, Any] = {}
+    pandas, row = _pandas_or_dict(obj, pandas, row)
+    if partition.filter:
+        pandas, row = _filter_inputs(partition.filter, pandas, row)
     if partition.simple:
-        pandas, row = _pandas_or_dict(obj, pandas, row)
+        if partition.filter:
+            pandas, row = _filter_inputs(partition.filter, pandas, row)
         columns = partition.mapper.col_names if partition.mapper else None
         if columns:
             _process_simple_partition(partition.id, schema, segments, columns, pandas, row, store)
-
     else:
-        raise NotImplementedError("Implement non-simple path of logging segments!")
-        # if partition.filter and partition.filter.filter_function:
-        # filtered_pandas, filtered_row = partition.filter.filter_function(obj, pandas, row)
+        raise NotImplementedError("custom mapped segments not yet implemented")
     return segments
 
 
@@ -107,7 +119,7 @@ def _log_partitions(
         logger.debug(f"{partition_name}: is simple ({segment_partition.simple}), id ({segment_partition.id})")
         if segment_partition.filter:
             # TODO segments filter
-            logger.debug(f"{partition_name}: defines filter ({segment_partition.filter.__name__})")
+            logger.debug(f"{partition_name}: defines filter ({segment_partition.filter})")
         if segment_partition.mapper:
             logger.debug(
                 f"{partition_name}: defines mapper on colums ({segment_partition.mapper.col_names}) and id ({segment_partition.mapper.id})"
