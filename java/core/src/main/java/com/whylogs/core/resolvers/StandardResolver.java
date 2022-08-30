@@ -15,7 +15,7 @@ public class StandardResolver extends Resolver {
   // TODO: the rest of the metrics need implmeented
   // TODO: does this Metric loose it's typing?
   @Override
-  public HashMap<String, ? extends Metric> resolve(ColumnSchema schema) {
+  public HashMap<String, Metric> resolve(ColumnSchema schema) {
     ArrayList<StandardMetric> standardMetrics = new ArrayList<>();
     // standardMetrics.add(StandardMetric.counts, StandardMetric.types)
 

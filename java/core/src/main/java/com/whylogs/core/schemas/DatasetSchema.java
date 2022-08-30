@@ -10,12 +10,10 @@ import lombok.Data;
 
 @Data
 public class DatasetSchema {
-
   private HashMap<String, Type> types = new HashMap<>();
   private final int LARGE_CACHE_SIZE_LIMIT = 1024 * 100;
   public HashMap<String, ColumnSchema> columns;
   public MetricConfig defaultConfig;
-  // TODO: typemapper
   public Resolver resolver;
   public int cache_size = 1024;
   public boolean schema_based_automerge = false;
@@ -40,31 +38,31 @@ public class DatasetSchema {
       // TODO: log warning
     }
 
+    // Type name will be used as the column name
     if (!this.types.isEmpty()) {
-      for (String key : this.types.keySet()) {
+      for (String typeName : this.types.keySet()) {
         this.columns.put(
-            key, new ColumnSchema(this.types.get(key), this.defaultConfig, this.resolver));
+            typeName,
+            new ColumnSchema(this.types.get(typeName), this.defaultConfig, this.resolver));
       }
     }
   }
 
-  // TODO: java version of post init
-
   public DatasetSchema copy() {
     DatasetSchema copy = new DatasetSchema();
     // TODO: copy over
-
     return copy;
   }
 
   public boolean resolve(HashMap<String, ?> data) {
-    for (String key : data.keySet()) {
-      if (this.columns.containsKey(key)) {
+    for (String columnName : data.keySet()) {
+      if (this.columns.containsKey(columnName)) {
         continue;
       }
 
       this.columns.put(
-          key, new ColumnSchema(data.get(key).getClass(), this.defaultConfig, this.resolver));
+          columnName,
+          new ColumnSchema(data.get(columnName).getClass(), this.defaultConfig, this.resolver));
     }
     return true;
   }

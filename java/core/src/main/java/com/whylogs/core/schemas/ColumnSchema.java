@@ -5,11 +5,11 @@ import com.whylogs.core.metrics.MetricConfig;
 import com.whylogs.core.resolvers.Resolver;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@Data @AllArgsConstructor
+@Data
+@AllArgsConstructor
 public class ColumnSchema {
   // Thoughts: we could have this ColumnSchema<T> instead of having it as a member
   // bu this might be easier to use? If we did we would need to use the CRTP again
@@ -18,7 +18,7 @@ public class ColumnSchema {
   private MetricConfig config;
   private Resolver resolver;
 
-  public <T extends Metric> HashMap<String, T> getMetrics() {
+  public HashMap<String, Metric> getMetrics() {
     return this.resolver.resolve(this);
   }
 }
