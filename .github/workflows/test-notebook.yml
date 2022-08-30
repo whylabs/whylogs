@@ -71,6 +71,9 @@ jobs:
       - name: Install dependencies
         run: make install
 
+      - name: Install Graphviz
+        run: sudo apt-get install graphviz
+
       - name: Check virtualenv location
         run: |
           EXPECTED_VIRTUALENV_PATH=${{ github.workspace }}/python/.venv
