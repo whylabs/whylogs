@@ -11,7 +11,7 @@ public class TestSerializer {
   public void test_serializationRegistry() {
     SerializerRegistry registry = SerializerRegistry.getInstance();
     Assert.assertNotNull(registry);
-    Assert.assertEquals(registry, SerializerRegistry.getInstance());
+    Assert.assertSame(registry, SerializerRegistry.getInstance());
 
     NumberSerializer serializer = new NumberSerializer();
     registry.register(1, serializer);
