@@ -1,7 +1,7 @@
 import logging
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Dict, Mapping, Optional, Set, TypeVar
+from typing import Any, Dict, List, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
@@ -68,7 +68,7 @@ class DatasetSchema:
         resolvers: Optional[Resolver] = None,
         cache_size: int = 1024,
         schema_based_automerge: bool = False,
-        validators: Dict[str, Validator] = None,
+        validators: Dict[str, List[Validator]] = None,
     ) -> None:
         self._columns = dict()
         self.types = types or dict()
@@ -94,9 +94,9 @@ class DatasetSchema:
             self._columns[col] = ColumnSchema(
                 dtype=data_type,
                 resolver=self.resolvers,
-                validators=self.validators,
                 type_mapper=self.type_mapper,
                 cfg=self.default_configs,
+                validators=self.validators,
             )
 
     def copy(self) -> "DatasetSchema":
@@ -173,13 +173,12 @@ class ColumnSchema:
     cfg: MetricConfig = MetricConfig()
     type_mapper: TypeMapper = StandardTypeMapper()
     resolver: Resolver = StandardResolver()
-    validators: Dict[str, Validator] = field(default_factory=dict)
+    validators: Dict[str, List[Validator]] = field(default_factory=dict)
 
     def get_metrics(self, name: str) -> Dict[str, Metric]:
         return self.resolver.resolve(name=name, why_type=self.type_mapper(self.dtype), column_schema=self)
 
-    def get_validators(self, name: str) -> Set[Validator]:
-        try:
-            return self.validators[name]
-        except KeyError:
-            return set()
+    def get_validators(self, name: str) -> Optional[List[Validator]]:
+        if self.validators:
+            return self.validators.get(name)
+        return None
