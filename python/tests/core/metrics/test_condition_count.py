@@ -12,13 +12,13 @@ from whylogs.core.metrics.condition_count_metric import (
     ConditionCountConfig,
     ConditionCountMetric,
 )
-from whylogs.core.metrics.condition_count_metric import Relation as Rel
-from whylogs.core.metrics.condition_count_metric import and_relations as and_rel
-from whylogs.core.metrics.condition_count_metric import not_relation as not_rel
-from whylogs.core.metrics.condition_count_metric import or_relations as or_rel
-from whylogs.core.metrics.condition_count_metric import relation as rel
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.relations import Relation as Rel
+from whylogs.core.relations import and_relations as and_rel
+from whylogs.core.relations import not_relation as not_rel
+from whylogs.core.relations import or_relations as or_rel
+from whylogs.core.relations import relation as rel
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
 
@@ -111,7 +111,7 @@ def test_add_conditions_to_metric() -> None:
 
 
 def test_condition_predicates() -> None:
-    def even(x: Any) -> bool:
+    def even(x: Any, dummy: Any) -> bool:
         return x % 2 == 0
 
     conditions = {
@@ -126,7 +126,7 @@ def test_condition_predicates() -> None:
         "greater": Condition(rel(Rel.greater, 42)),
         "geq": Condition(rel(Rel.geq, 42)),
         "neq": Condition(rel(Rel.neq, 42)),
-        "udf": Condition(even),
+        "udf": Condition((even, lambda: 0)),
     }
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
