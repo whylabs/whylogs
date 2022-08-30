@@ -105,16 +105,6 @@ def test_condition_validator_dataframe(credit_card_validator, transcriptions):
     assert summary["noCreditCard"] == 1
 
 
-def test_invalid_conditions_name(transcriptions):
-    invalid_conditions = {"total": Condition(rel(Rel.match, ".*4[0-9]{12}(?:[0-9]{3})?"))}
-    with pytest.raises(ValueError, match="Condition cannot be named 'total'"):
-        ConditionValidator(
-            name="transcription_doesnt_contain_credit_card",
-            conditions=invalid_conditions,
-            actions=[do_something_important],
-        )
-
-
 def test_number_conditions(numbers):
     df = pd.DataFrame(data=numbers)
     validators = {"ints": [number_validator(), is_even_validator()], "floats": [number_validator()]}

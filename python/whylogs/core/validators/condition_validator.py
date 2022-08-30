@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from itertools import chain
 from typing import Any, Callable, Dict, List
 
@@ -9,21 +9,13 @@ from whylogs.core.validators.validator import Validator
 
 @dataclass
 class ConditionValidator(Validator):
-    def __init__(
-        self, name: str, conditions: Dict[str, Condition], actions=List[Callable[[str, str, Any], None]]
-    ) -> None:
-        self.conditions = conditions
-        self.name = name
-        self.actions = actions
-        self.total: int = 0
-        self.failures: Dict[str, int] = dict()
+    conditions: Dict[str, Condition]
+    actions: List[Callable[[str, str, Any], None]]
+    name: str
+    total: int = 0
+    failures: Dict[str, int] = field(default_factory=dict)
 
-        if "total" in self.conditions.keys():
-            raise ValueError("Condition cannot be named 'total'")
-
-        if "total_failures" in self.conditions.keys():
-            raise ValueError("Condition cannot be named 'total_failures'")
-
+    def __post_init__(self):
         for cond_name in self.conditions.keys():
             if cond_name not in self.failures:
                 self.failures[cond_name] = 0
