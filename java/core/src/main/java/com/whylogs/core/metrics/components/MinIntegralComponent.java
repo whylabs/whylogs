@@ -18,6 +18,11 @@ public class MinIntegralComponent extends IntegralComponent {
   }
 
   @Override
+  public String getTypeName() {
+    return this.getClass().getSimpleName();
+  }
+
+  @Override
   public int getTypeId() {
     return TYPE_ID;
   }

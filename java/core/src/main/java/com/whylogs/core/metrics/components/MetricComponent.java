@@ -40,6 +40,10 @@ public class MetricComponent<T> {
     return TYPE_ID;
   }
 
+  public String getTypeName() {
+    return this.getClass().getSimpleName();
+  }
+
   public MetricComponent<T> merge(MetricComponent<T> other) {
     // TODO this is where we will use the aggregators
     throw new NotImplementedException();
