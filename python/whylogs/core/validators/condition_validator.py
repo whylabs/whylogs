@@ -26,14 +26,11 @@ class ConditionValidator(Validator):
         for x in list(chain.from_iterable(data.raw_iterator())):
             count += 1
             for cond_name, condition in self.conditions.items():
-                try:
-                    if not condition.relation(x):
-                        self.failures[cond_name] += 1
-                        count_failures += 1
-                        for action in self.actions:
-                            action(self.name, cond_name, x)
-                except:  # noqa
-                    pass
+                if not condition.relation(x):
+                    self.failures[cond_name] += 1
+                    count_failures += 1
+                    for action in self.actions:
+                        action(self.name, cond_name, x)
         self.total = count
 
     def to_summary_dict(self) -> Dict[str, Any]:
