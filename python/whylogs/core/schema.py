@@ -178,7 +178,7 @@ class ColumnSchema:
     def get_metrics(self, name: str) -> Dict[str, Metric]:
         return self.resolver.resolve(name=name, why_type=self.type_mapper(self.dtype), column_schema=self)
 
-    def get_validators(self, name: str) -> Optional[List[Validator]]:
+    def get_validators(self, name: str) -> List[Optional[Validator]]:
         if self.validators:
-            return self.validators.get(name)
-        return None
+            return self.validators.get(name, [])
+        return []
