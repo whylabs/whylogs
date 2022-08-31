@@ -98,8 +98,8 @@ def test_condition_validator_dataframe(credit_card_validator, transcriptions):
     schema = DatasetSchema(validators=validators)
     profile = why.log(df, schema=schema).profile()
 
-    profile._columns["transcriptions"]._column_validators[0].total == 4
-    profile._columns["transcriptions"]._column_validators[0].failures["noCreditCard"] == 1
+    assert profile._columns["transcriptions"]._column_validators[0].total == 4
+    assert profile._columns["transcriptions"]._column_validators[0].failures["noCreditCard"] == 1
     summary = profile._columns["transcriptions"]._column_validators[0].to_summary_dict()
     assert summary["total_evaluations"] == 4
     assert summary["noCreditCard"] == 1
