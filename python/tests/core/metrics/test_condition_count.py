@@ -6,7 +6,7 @@ import pytest
 
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
-from whylogs.core.metrics import Metric
+from whylogs.core.metrics import DistributionMetric, Metric
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
     ConditionCountConfig,
@@ -262,3 +262,31 @@ def test_condition_count_in_dataset_profile() -> None:
     assert summary["condition_count/total"] > 0
     assert summary["condition_count/alpha"] > 0
     assert summary["condition_count/digit"] > 0
+
+
+def _build_profile(data: List[int]) -> DatasetProfile:
+    """ build up a "reference profile" to compare against """
+    row = {"col1": data}
+    frame = pd.DataFrame(data=row)
+    prof = DatasetProfile()
+    prof.track(pandas=frame)  # track once to discover columns
+    prof.add_metric("col1", DistributionMetric.zero(MetricConfig()))
+    prof.track(pandas=frame)  # track again to populate the metric
+    return prof
+
+
+def test_profile_getter() -> None:
+    data = [1, 2, 3, 4, 5]
+    smallest = min(data)
+    prof = _build_profile(data)
+    conditions = {
+        "above_min": Condition(rel(Rel.greater, ProfileGetter(prof, "col1", "min"))),
+    }  # compare each logged value against profile's min
+    config = ConditionCountConfig(conditions=conditions)
+    metric = ConditionCountMetric.zero(config)
+    row = {"col1": data}
+    frame = pd.DataFrame(data=row)
+    metric.columnar_update(PreprocessedColumn(frame))
+    summary = metric.to_summary_dict(None)
+    assert summary["total"] == len(data)
+    assert summary["above_min"] == len(data) - 1
