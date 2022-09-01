@@ -122,19 +122,21 @@ class ImageMetric(CompoundMetric):
 
     def columnar_update(self, view: PreprocessedColumn) -> OperationResult:
         submetric_names = self.submetrics.keys()
+        count = 0
         for image in list(chain.from_iterable(view.raw_iterator())):
             if isinstance(image, ImageType):
                 metadata = get_pil_image_metadata(image)
                 for attr in metadata.keys():
                     if attr in submetric_names:
                         self.submetrics[attr].columnar_update(PreprocessedColumn.apply([metadata[attr]]))
-        return OperationResult.ok(1)
+                count += 1
+        return OperationResult.ok(count)
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "ImageMetric":
         return ImageMetric(submetrics={
-            "ImageWidth": DistributionMetric.zero(config),
-            "ImageLength": DistributionMetric.zero(config),
+            "ImagePixelWidth": DistributionMetric.zero(config),
+            "ImagePixelLength": DistributionMetric.zero(config),
             "Hue.mean": DistributionMetric.zero(config),
             "Saturation.mean": DistributionMetric.zero(config),
             "Brightness.mean": DistributionMetric.zero(config),
