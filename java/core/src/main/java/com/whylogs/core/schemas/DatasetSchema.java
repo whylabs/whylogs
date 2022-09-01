@@ -55,6 +55,7 @@ public class DatasetSchema {
   }
 
   public boolean resolve(HashMap<String, ?> data) {
+    boolean dirty = false;
     for (String columnName : data.keySet()) {
       if (this.columns.containsKey(columnName)) {
         continue;
@@ -63,8 +64,10 @@ public class DatasetSchema {
       this.columns.put(
           columnName,
           new ColumnSchema(data.get(columnName).getClass(), this.defaultConfig, this.resolver));
+
+      dirty = true;
     }
-    return true;
+    return dirty;
   }
 
   public Optional<ColumnSchema> get(String name) {

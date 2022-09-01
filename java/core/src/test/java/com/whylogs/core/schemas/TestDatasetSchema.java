@@ -15,8 +15,10 @@ public class TestDatasetSchema {
     HashMap<String, Object> data = new HashMap<>();
     data.put("test", 1);
     data.put("test2", "2");
-    datasetSchema.resolve(data);
+    Assert.assertTrue(datasetSchema.resolve(data));
     Assert.assertEquals(datasetSchema.getColumns().get("test").getType(), Integer.class);
     Assert.assertEquals(datasetSchema.getColumns().get("test2").getType(), String.class);
+
+    Assert.assertFalse(datasetSchema.resolve(data));
   }
 }

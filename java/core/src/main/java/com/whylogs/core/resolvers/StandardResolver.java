@@ -4,9 +4,8 @@ import com.whylogs.core.DataTypes;
 import com.whylogs.core.metrics.IntegralMetric;
 import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.schemas.ColumnSchema;
-import org.apache.commons.lang3.NotImplementedException;
-
 import java.util.HashMap;
+import org.apache.commons.lang3.NotImplementedException;
 
 public class StandardResolver extends Resolver {
   public StandardResolver() {
