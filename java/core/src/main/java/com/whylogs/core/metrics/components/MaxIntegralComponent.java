@@ -30,6 +30,11 @@ public class MaxIntegralComponent extends IntegralComponent {
     return new MaxIntegralComponent(max);
   }
 
+  @Override
+  public String getTypeName() {
+    return this.getClass().getSimpleName();
+  }
+
   public static MaxIntegralComponent max(MaxIntegralComponent a, MaxIntegralComponent b) {
     return new MaxIntegralComponent(Integer.max(a.getValue(), b.getValue()));
   }

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylogs"
-version = "1.0.11"
+version = "1.0.12"
 description = "Profile and monitor your ML data pipeline end-to-end"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -12,7 +12,7 @@ include = ["whylogs/core/proto/v0/*.py*", "whylogs/core/proto/*.py*"]
 [tool.poetry.dependencies]
 # core dependencies. Be REALLY mindful when touching this list
 python = ">=3.7.1, <4"
-whylogs-sketching = ">=3.4.1.dev2"
+whylogs-sketching = ">=3.4.1.dev3"
 protobuf = ">=3.15.5"
 importlib-metadata = { version = ">=0.23", python = "<3.8" }
 typing-extensions = ">=typing-extensions"
@@ -70,6 +70,7 @@ pandas-stubs = "*"
 ipykernel = ">=6.11" # for developing in Jupyter notebook
 types-python-dateutil = "^2.8.12"
 moto = "^3.1.9"
+twine = "^4.0.1"
 
 [tool.poetry.extras]
 docs = [

@@ -88,7 +88,7 @@ jobs:
           echo $VERSION
           # git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # git config --local user.name "github-actions[bot]"
-          poetry run bump2version patch --verbose  --no-tag --new-version $VERSION
+          poetry run bump2version patch --verbose --allow-dirty  --no-tag --new-version $VERSION
 
       - name: Create Pull Request
         id: cpr
