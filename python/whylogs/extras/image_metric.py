@@ -112,7 +112,7 @@ def image_based_metadata(img):
 
 
 
-@dataclass
+@dataclass(frozen=True)
 class ImageMetric(CompoundMetric):
 
     def __init__(self, submetrics: Dict[str, Metric]):
