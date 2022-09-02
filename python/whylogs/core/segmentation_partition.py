@@ -2,7 +2,7 @@ import hashlib
 import inspect
 import logging
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional
+from typing import Callable, List, Mapping, Optional
 
 from whylogs.core.projectors import FieldProjector
 
@@ -51,5 +51,6 @@ class SegmentationPartition:
         return self.mapper is None or self.mapper.map is None
 
 
-def segment_on_column(column_name: str) -> SegmentationPartition:
-    return SegmentationPartition(name=column_name, mapper=ColumnMapperFunction(col_names=[column_name]))
+def segment_on_column(column_name: str) -> Mapping[str,SegmentationPartition]:
+    return {column_name: SegmentationPartition(name=column_name, mapper=ColumnMapperFunction(col_names=[column_name]))}
+

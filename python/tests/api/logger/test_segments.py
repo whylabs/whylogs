@@ -18,8 +18,7 @@ def test_single_row_segment() -> None:
     segment_column = "col3"
     number_of_segments = 1
 
-    segmentation_partition = segment_on_column("col3")
-    test_segments = {segmentation_partition.name: segmentation_partition}
+    test_segments = segment_on_column("col3")
     results: SegmentedResultSet = why.log(
         {"col1": 1, "col2": 1.1, "col3": "x0"}, schema=DatasetSchema(segments=test_segments)
     )
@@ -56,8 +55,7 @@ def test_single_column_segment() -> None:
     }
 
     df = pd.DataFrame(data=d)
-    segmentation_partition = segment_on_column("col3")
-    test_segments = {segmentation_partition.name: segmentation_partition}
+    test_segments = segment_on_column("col3")
     results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments))
     assert results.count == number_of_segments
     partitions = results.partitions
@@ -91,9 +89,9 @@ def test_filtered_single_column_segment() -> None:
     }
 
     df = pd.DataFrame(data=d)
-    segmentation_partition = segment_on_column("col3")
-    segmentation_partition.filter = SegmentFilter(filter_function=lambda df: df.col1 > 49)
-    test_segments = {segmentation_partition.name: segmentation_partition}
+    test_segments = segment_on_column(segment_column)
+    test_segments[segment_column].filter = SegmentFilter(filter_function=lambda df: df.col1 > 49)
+
     results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments))
     assert results.count == number_of_segments
     partitions = results.partitions
@@ -108,7 +106,7 @@ def test_filtered_single_column_segment() -> None:
     assert first_segment_profile is not None
     assert first_segment_profile._columns["col1"]._schema.dtype == np.int64
     assert first_segment_profile._columns["col2"]._schema.dtype == np.float64
-    assert first_segment_profile._columns["col3"]._schema.dtype.name == "object"
+    assert first_segment_profile._columns[segment_column]._schema.dtype.name == "object"
     segment_distribution: DistributionMetric = (
         first_segment_profile.view().get_column("col1").get_metric("distribution")
     )
