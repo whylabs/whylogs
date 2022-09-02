@@ -136,13 +136,18 @@ class ImageMetric(CompoundMetric):
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "ImageMetric":
-        return ImageMetric(submetrics={
-            "ImagePixelWidth": DistributionMetric.zero(config),
-            "ImagePixelLength": DistributionMetric.zero(config),
-            "Hue.mean": DistributionMetric.zero(config),
-            "Saturation.mean": DistributionMetric.zero(config),
-            "Brightness.mean": DistributionMetric.zero(config),
-        })
+        dummy_image = ImageType("HSV", (1,1))
+        metadata = get_pil_image_metadata(dummy_image)
+        submetrics: Dict[str, Metric] = dict()
+        for tag, value in metadata.items():
+            if isinstance(value, int):
+                submetrics[tag] = DistributionMetric.zero(config)
+            elif isinstance(value, float):
+                submetrics[tag] = DistributionMetric.zero(config)
+            elif isinstance(value, str) and not config.fi_disabled:
+                submetrics[tag] = FrequentItemsMetric.zero(config)
+
+        return ImageMetric(submetrics)
 
 
 """
