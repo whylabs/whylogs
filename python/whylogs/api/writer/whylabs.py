@@ -22,12 +22,46 @@ from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
+from whylogs.core.metrics import Metric
 from whylogs.core.utils import deprecated_alias
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
 
 API_KEY_ENV = "WHYLABS_API_KEY"
+
+
+def _uncompund_metric_feature_flag() -> bool:
+    return True
+
+
+def _v0_compatible_image_feature_flag() -> bool:
+    return False
+
+
+def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name: str, metric: Metric) -> str:
+    if isinstance(metric, ImageMetric) and _v0_compatible_image_feature_flag():
+        return submetric_name
+    return f"{col_name}.{metric_name}.{submetric_name}"
+
+
+def _uncompund_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
+    result: Dict[str, ColumnProfileView] = dict()
+    for submetric_name, submetric in metric.submetrics.items():
+        new_col_name = _uncompounded_column_name(col_name, metric_name, submetric_name, metric)
+        result[new_col_name] = ColumnProfileView({submetric.namespace: submetric})
+    return result
+
+
+def _uncompund_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
+    new_prof = DatasetProfileView(prof.columns, prof._dataset_timestamp, prof._creatrion_timestamp)
+    new_columns: Dict[str, ColumnProfileView] = dict()
+    for col_name, col_prof in new_prof._columns.items():
+        for metric_name, metric in col_prof.metrics.items():
+            if isinstance(metric, CompoundMetric):
+                new_prof._columns.update(_uncompound_metric(col_name, metric_name, metric))
+                # TODO: do we need to delete the compound metric?
+    return new_prof
 
 
 class WhyLabsWriter(Writer):
@@ -130,6 +164,9 @@ class WhyLabsWriter(Writer):
             raise ValueError(
                 "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
             )
+
+        if _uncompound_metric_feature_flag():
+            profile_view = _uncompund_dataset_profile(profile_view)
 
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")

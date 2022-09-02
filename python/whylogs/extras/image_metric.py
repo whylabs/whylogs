@@ -18,6 +18,8 @@ except ImportError as e:
     logger.debug(str(e))
     logger.debug("Unable to load PIL; install Pillow for image support")
 
+import whylogs as why
+from whylogs.api.result_set import ResultSet
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics.compound_metric import CompoundMetric
@@ -143,6 +145,7 @@ class ImageMetric(CompoundMetric):
         })
 
 
+"""
 def log_image(
     profiles: Union[List[DatasetProfile],DatasetProfile],
     images: Union[Dict[str, ImageType], ImageType],
@@ -152,3 +155,30 @@ def log_image(
     images = images if isinstance(images, dict) else {default_column_name: images}
     for profile in profiles:
         profile.track(row=images)
+"""
+
+def log_image(
+    images: Union[ImageType, List[ImageType], Dict[str, ImageType]],
+    default_column_prefix: str="image",
+) -> ResultSet:
+    if isinstance(images, ImageType):
+        images = {default_column_prefix: images}
+    if isinstance(images, list):
+        count = 1
+        images = dict()
+        for img in images:
+            images[f"{default_column_prefix}_{count}"] = img
+            count += 1
+
+    if not isinstance(images, dict):
+        raise ValueError("log_image must be passed an image, list of images, or dictionary of images")
+    for img in images.values():
+        if not isinstance(img, ImageType):
+            raise ValueError("log_image must be passed an image, list of images, or dictionary of images")
+
+    class ImageResolver(Resolver):
+        def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
+            return {ImageMetric.get_namespace(): ImageMetric.zero(MetricConfig())}
+
+    schema = DatasetSchema(types={key: ImageType for key in images.keys()}, resolvers = ImageResolver())
+    return why.log(row=images, schema=schema)

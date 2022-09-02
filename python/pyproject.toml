@@ -49,7 +49,7 @@ pyarrow = {version = "^8.0.0", optional = true}
 pyspark = {version = "^3.0.0", optional = true}
 
 # Image logging dependencies
-Pillow = {version = "^9.2.0", optional = true}
+Pillow = {version = ">=9.2.0", optional = true}
 
 
 [tool.poetry.dev-dependencies]

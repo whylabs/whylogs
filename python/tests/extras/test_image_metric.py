@@ -17,6 +17,7 @@ except ImportError as e:
 
 
 import whylogs as why
+from whylogs.api.writers.whylabs import _uncompund_dataset_profile
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
@@ -65,18 +66,15 @@ def test_image_metric() -> None:
     ppc.list = ListView(objs=[img])
     metric = ImageMetric.zero(MetricConfig())
     metric.columnar_update(ppc)
-    assert metric.to_summary_dict(None)["image/ImageWidth/mean"] > 0
+    assert metric.to_summary_dict(None)["image/ImagePixelWidth/mean"] > 0
 
 
 def test_log_image() -> None:
     image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
     img = image_loader(image_path)
-
-    schema = DatasetSchema(resolvers=TestResolver())
-    prof = DatasetProfile(schema)
-    log_image(prof, img, "image_col")
-    print(prof.view().get_column("image_col").to_summary_dict())
-    assert prof.view().get_column("image_col").to_summary_dict()["image/image/ImageWidth/mean"] > 0
+    results = log_image(img).view()
+    print(results.get_column("image").to_summary_dict())
+    assert results.get_column("image").to_summary_dict()["image/image/ImagePixelWidth/mean"] > 0
 
 
 def test_log_interface() -> None:
@@ -87,4 +85,15 @@ def test_log_interface() -> None:
 
     results = why.log(row={"image_col": img}, schema=schema).view().get_column("image_col")
     print(results.to_summary_dict())
-    assert results.to_summary_dict()["image/image/ImageWidth/mean"] > 0
+    assert results.to_summary_dict()["image/image/ImagePixelWidth/mean"] > 0
+
+
+def test_uncompound_profile() -> None:
+    image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
+    img = image_loader(image_path)
+    profile_view = log_image(img, "image_column").view()
+    uncompounded = _uncompund_dataset_profile(profile_view)
+    assert "image_column" in uncompounded._columns
+    assert "image" in uncompounded._columns["image_column"].metrics  # original compound metric
+    assert "image_column.image.ImagePixelWidth" in uncompunded._columns
+    assert "distribution" in uncompoounded._columns["image_column.image.ImagePixelWidth"].metrics  # uncompounded
