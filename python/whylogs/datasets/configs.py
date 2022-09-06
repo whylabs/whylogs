@@ -24,6 +24,50 @@ class DatasetConfig:
 
 
 @dataclass
+class EcommerceConfig(DatasetConfig):
+    folder_name: str = "ecommerce"
+    description_file: str = "ecommerce.rst"
+    available_versions: tuple = ("base",)
+    # url: str = "./whylogs/datasets"
+    url: str = "."
+    baseline_start_timestamp: Dict[str, datetime] = field(
+        default_factory=lambda: {
+            "base": datetime(year=2018, month=9, day=1, tzinfo=timezone.utc),
+        }
+    )
+    inference_start_timestamp: Dict[str, datetime] = field(
+        default_factory=lambda: {
+            "base": datetime(year=2019, month=2, day=1, tzinfo=timezone.utc),
+        }
+    )
+    max_interval: int = 21
+    base_unit: str = "D"
+    target_columns: Dict[str, List[str]] = field(default_factory=lambda: {"base": ["output_discount"]})
+    prediction_columns: Dict[str, List[str]] = field(
+        default_factory=lambda: {
+            "base": ["output_prediction", "output_score"],
+        }
+    )
+    miscellaneous_columns: Dict[str, List[str]] = field(
+        default_factory=lambda: {
+            "base": [
+                "category.Baby Care",
+                "category.Bakery, Cakes & Dairy",
+                "category.Beauty & Hygiene",
+                "category.Beverages",
+                "category.Cleaning & Household",
+                "category.Eggs, Meat & Fish",
+                "category.Foodgrains, Oil & Masala",
+                "category.Fruits & Vegetables",
+                "category.Gourmet & World Food",
+                "category.Kitchen, Garden & Pets",
+                "category.Snacks & Branded Foods",
+            ],
+        }
+    )
+
+
+@dataclass
 class WeatherConfig(DatasetConfig):
     folder_name: str = "weather_forecast"
     description_file: str = "weather.rst"
