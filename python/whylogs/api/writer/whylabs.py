@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
@@ -19,11 +19,13 @@ from whylabs_client.rest import ForbiddenException  # type: ignore
 from whylogs import __version__ as _version
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
-from whylogs.core import DatasetProfileView
+from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
 from whylogs.core.metrics import Metric
+from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.utils import deprecated_alias
+from whylogs.extras.image_metric import ImageMetric
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
@@ -31,7 +33,7 @@ logger = logging.getLogger(__name__)
 API_KEY_ENV = "WHYLABS_API_KEY"
 
 
-def _uncompund_metric_feature_flag() -> bool:
+def _uncompound_metric_feature_flag() -> bool:
     return True
 
 
@@ -42,10 +44,10 @@ def _v0_compatible_image_feature_flag() -> bool:
 def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name: str, metric: Metric) -> str:
     if isinstance(metric, ImageMetric) and _v0_compatible_image_feature_flag():
         return submetric_name
-    return f"{col_name}.{metric_name}.{submetric_name}"
+    return f"{column_name}.{metric_name}.{submetric_name}"
 
 
-def _uncompund_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
+def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
     result: Dict[str, ColumnProfileView] = dict()
     for submetric_name, submetric in metric.submetrics.items():
         new_col_name = _uncompounded_column_name(col_name, metric_name, submetric_name, metric)
@@ -54,13 +56,16 @@ def _uncompund_metric(col_name: str, metric_name: str, metric: CompoundMetric) -
 
 
 def _uncompund_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
-    new_prof = DatasetProfileView(prof.columns, prof._dataset_timestamp, prof._creatrion_timestamp)
+    new_prof = DatasetProfileView(
+        columns=prof._columns, dataset_timestamp=prof._dataset_timestamp, creation_timestamp=prof._creation_timestamp
+    )
     new_columns: Dict[str, ColumnProfileView] = dict()
     for col_name, col_prof in new_prof._columns.items():
-        for metric_name, metric in col_prof.metrics.items():
+        for metric_name, metric in col_prof._metrics.items():
             if isinstance(metric, CompoundMetric):
-                new_prof._columns.update(_uncompound_metric(col_name, metric_name, metric))
+                new_columns.update(_uncompound_metric(col_name, metric_name, metric))
                 # TODO: do we need to delete the compound metric?
+    new_prof._columns.update(new_columns)
     return new_prof
 
 

@@ -1,40 +1,25 @@
-
 import logging
 import os
 from typing import Dict
+
+import whylogs as why
+from whylogs.api.writer.whylabs import _uncompund_dataset_profile
+from whylogs.core.configs import SummaryConfig
+from whylogs.core.datatypes import DataType
+from whylogs.core.metrics import Metric, MetricConfig
+from whylogs.core.preprocessing import ListView, PreprocessedColumn
+from whylogs.core.resolvers import Resolver
+from whylogs.core.schema import ColumnSchema, DatasetSchema
+from whylogs.extras.image_metric import ImageMetric, log_image
 
 logger = logging.getLogger(__name__)
 
 try:
     from PIL.Image import Image as ImageType
-    from PIL.ImageStat import Stat
-    from PIL.TiffImagePlugin import IFDRational
-    from PIL.TiffTags import TAGS
 except ImportError as e:
     ImageType = None
     logger.debug(str(e))
     logger.debug("Unable to load PIL; install Pillow for image support")
-
-
-import whylogs as why
-from whylogs.api.writers.whylabs import _uncompund_dataset_profile
-from whylogs.core.configs import SummaryConfig
-from whylogs.core.dataset_profile import DatasetProfile
-from whylogs.core.datatypes import DataType
-from whylogs.core.metrics import Metric, MetricConfig
-from whylogs.core.metrics.unicode_range import _STRING_LENGTH, UnicodeRangeMetric
-from whylogs.core.preprocessing import ListView, PreprocessedColumn
-from whylogs.core.resolvers import Resolver
-from whylogs.core.schema import ColumnSchema, DatasetSchema
-
-from whylogs.extras.image_metric import (
-    ImageMetric, 
-    get_pil_image_statistics,
-    get_pil_image_metadata,
-    image_based_metadata,
-    log_image,
-)
-
 
 
 TEST_DATA_PATH = os.path.abspath(
@@ -66,7 +51,7 @@ def test_image_metric() -> None:
     ppc.list = ListView(objs=[img])
     metric = ImageMetric.zero(MetricConfig())
     metric.columnar_update(ppc)
-    assert metric.to_summary_dict(None)["image/ImagePixelWidth/mean"] > 0
+    assert metric.to_summary_dict(SummaryConfig())["image/ImagePixelWidth/mean"] > 0
 
 
 def test_log_image() -> None:
@@ -94,6 +79,6 @@ def test_uncompound_profile() -> None:
     profile_view = log_image(img, "image_column").view()
     uncompounded = _uncompund_dataset_profile(profile_view)
     assert "image_column" in uncompounded._columns
-    assert "image" in uncompounded._columns["image_column"].metrics  # original compound metric
-    assert "image_column.image.ImagePixelWidth" in uncompunded._columns
-    assert "distribution" in uncompoounded._columns["image_column.image.ImagePixelWidth"].metrics  # uncompounded
+    assert "image" in uncompounded._columns["image_column"]._metrics  # original compound metric
+    assert "image_column.image.ImagePixelWidth" in uncompounded._columns
+    assert "distribution" in uncompounded._columns["image_column.image.ImagePixelWidth"]._metrics  # uncompounded

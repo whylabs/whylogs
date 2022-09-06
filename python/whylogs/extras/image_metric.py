@@ -1,15 +1,27 @@
-from dataclasses import dataclass
-from io import BytesIO
-from itertools import chain
-from typing import Any, Dict, List, Tuple, Union
-
 import logging
-import numpy as np
+from itertools import chain
+from typing import Dict, List, Union
+
+import whylogs as why
+from whylogs.api.logger.result_set import ResultSet
+from whylogs.core.datatypes import DataType
+from whylogs.core.metrics.compound_metric import CompoundMetric
+from whylogs.core.metrics.metrics import (
+    DistributionMetric,
+    FrequentItemsMetric,
+    Metric,
+    MetricConfig,
+    OperationResult,
+)
+from whylogs.core.preprocessing import PreprocessedColumn
+from whylogs.core.resolvers import Resolver
+from whylogs.core.schema import ColumnSchema, DatasetSchema
 
 logger = logging.getLogger(__name__)
 
 try:
     from PIL.Image import Image as ImageType
+    from PIL.Image import new as new_image
     from PIL.ImageStat import Stat
     from PIL.TiffImagePlugin import IFDRational
     from PIL.TiffTags import TAGS
@@ -18,31 +30,7 @@ except ImportError as e:
     logger.debug(str(e))
     logger.debug("Unable to load PIL; install Pillow for image support")
 
-import whylogs as why
-from whylogs.api.result_set import ResultSet
-from whylogs.core.configs import SummaryConfig
-from whylogs.core.dataset_profile import DatasetProfile
-from whylogs.core.metrics.compound_metric import CompoundMetric
-from whylogs.core.metrics.deserializers import deserializer
-from whylogs.core.metrics.metric_components import (
-    FractionalComponent,
-    IntegralComponent,
-    MetricComponent,
-)
-from whylogs.core.metrics.metrics import (
-    DistributionMetric,
-    FrequentItemsMetric,
-    Metric,
-    MetricConfig,
-    OperationResult,
-)
-from whylogs.core.metrics.serializers import serializer
-from whylogs.core.preprocessing import ListView, PreprocessedColumn
-from whylogs.core.proto import MetricComponentMessage, MetricMessage
-
-
-
-DEFAULT_IMAGE_FEATURES = []
+DEFAULT_IMAGE_FEATURES: List[str] = []
 
 
 _DEFAULT_TAGS_ATTRIBUTES = [
@@ -56,7 +44,9 @@ _DEFAULT_STAT_ATTRIBUTES = [c + "." + s for c in _IMAGE_HSV_CHANNELS for s in _S
 _METADATA_DEFAULT_ATTRIBUTES = _DEFAULT_STAT_ATTRIBUTES + _DEFAULT_TAGS_ATTRIBUTES
 
 
-def get_pil_image_statistics(img: ImageType, channels: List[str] = _IMAGE_HSV_CHANNELS, image_stats: List[str] = _STATS_PROPERTIES) -> Dict:
+def get_pil_image_statistics(
+    img: ImageType, channels: List[str] = _IMAGE_HSV_CHANNELS, image_stats: List[str] = _STATS_PROPERTIES
+) -> Dict:
     """
     Compute statistics data for a PIL Image
 
@@ -111,10 +101,7 @@ def image_based_metadata(img):
     }
 
 
-
-@dataclass(frozen=True)
 class ImageMetric(CompoundMetric):
-
     def __init__(self, submetrics: Dict[str, Metric]):
         super(ImageMetric, self).__init__(submetrics)
 
@@ -136,7 +123,7 @@ class ImageMetric(CompoundMetric):
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "ImageMetric":
-        dummy_image = ImageType("HSV", (1,1))
+        dummy_image = new_image("HSV", (1, 1))
         metadata = get_pil_image_metadata(dummy_image)
         submetrics: Dict[str, Metric] = dict()
         for tag, value in metadata.items():
@@ -162,9 +149,10 @@ def log_image(
         profile.track(row=images)
 """
 
+
 def log_image(
     images: Union[ImageType, List[ImageType], Dict[str, ImageType]],
-    default_column_prefix: str="image",
+    default_column_prefix: str = "image",
 ) -> ResultSet:
     if isinstance(images, ImageType):
         images = {default_column_prefix: images}
@@ -183,7 +171,7 @@ def log_image(
 
     class ImageResolver(Resolver):
         def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-            return {ImageMetric.get_namespace(): ImageMetric.zero(MetricConfig())}
+            return {ImageMetric.get_namespace(MetricConfig()): ImageMetric.zero(MetricConfig())}
 
-    schema = DatasetSchema(types={key: ImageType for key in images.keys()}, resolvers = ImageResolver())
+    schema = DatasetSchema(types={key: ImageType for key in images.keys()}, resolvers=ImageResolver())
     return why.log(row=images, schema=schema)
