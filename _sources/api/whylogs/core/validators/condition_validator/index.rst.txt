@@ -1,0 +1,58 @@
+:py:mod:`whylogs.core.validators.condition_validator`
+=====================================================
+
+.. py:module:: whylogs.core.validators.condition_validator
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.validators.condition_validator.ConditionValidator
+
+
+
+
+.. py:class:: ConditionValidator
+
+   Bases: :py:obj:`whylogs.core.validators.validator.Validator`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:attribute:: conditions
+      :annotation: :Dict[str, whylogs.core.metrics.condition_count_metric.Condition]
+
+      
+
+   .. py:attribute:: actions
+      :annotation: :List[Callable[[str, str, Any], None]]
+
+      
+
+   .. py:attribute:: name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: total
+      :annotation: :int = 0
+
+      
+
+   .. py:attribute:: failures
+      :annotation: :Dict[str, int]
+
+      
+
+   .. py:method:: columnar_validate(data: whylogs.core.preprocessing.PreprocessedColumn) -> None
+
+
+   .. py:method:: to_summary_dict() -> Dict[str, Any]
+
+
+

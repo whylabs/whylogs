@@ -220,7 +220,7 @@ Functions
 
 
 
-.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False)
+.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False, validators: Dict[str, List[whylogs.core.validators.validator.Validator]] = None)
 
    Defines the schema for tracking metrics in whylogs.
 
