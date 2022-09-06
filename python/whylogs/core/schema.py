@@ -68,7 +68,7 @@ class DatasetSchema:
         resolvers: Optional[Resolver] = None,
         cache_size: int = 1024,
         schema_based_automerge: bool = False,
-        segments: Optional[Dict[str, SegmentationPartition]] = None
+        segments: Optional[Dict[str, SegmentationPartition]] = None,
     ) -> None:
         self._columns = dict()
         self.types = types or dict()

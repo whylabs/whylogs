@@ -51,6 +51,5 @@ class SegmentationPartition:
         return self.mapper is None or self.mapper.map is None
 
 
-def segment_on_column(column_name: str) -> Mapping[str,SegmentationPartition]:
+def segment_on_column(column_name: str) -> Mapping[str, SegmentationPartition]:
     return {column_name: SegmentationPartition(name=column_name, mapper=ColumnMapperFunction(col_names=[column_name]))}
-

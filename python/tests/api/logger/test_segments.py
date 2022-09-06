@@ -129,7 +129,7 @@ def test_multi_column_segment() -> None:
     )
     test_segments = {segmentation_partition.name: segmentation_partition}
     results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments))
-    segments = results.segments
+    segments = results.segments()
     last_segment = segments[-1]
 
     # Note this segment is not useful as there is only one datapoint per segment, we have 100 rows and

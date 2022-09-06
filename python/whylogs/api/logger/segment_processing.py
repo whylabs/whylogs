@@ -7,10 +7,7 @@ from whylogs.core import DatasetSchema
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.input_resolver import _pandas_or_dict
 from whylogs.core.segment import Segment
-from whylogs.core.segmentation_partition import (
-    SegmentationPartition,
-    SegmentFilter,
-)
+from whylogs.core.segmentation_partition import SegmentationPartition, SegmentFilter
 from whylogs.core.stubs import pd
 
 logger = logging.getLogger(__name__)

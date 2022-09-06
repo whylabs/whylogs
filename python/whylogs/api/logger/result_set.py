@@ -26,7 +26,7 @@ class ResultSetWriter:
 
     def write(self, **kwargs: Any) -> None:
         # TODO: multi-profile writer
-        if hasattr(self._result_set, 'segments'):
+        if hasattr(self._result_set, "segments"):
             logger.info("Writing SegmentedResultSet")
         view = self._result_set.view()
         self._writer.write(profile=view, **kwargs)
@@ -134,7 +134,6 @@ class SegmentedResultSet(ResultSet):
     def partitions(self) -> Optional[List[SegmentationPartition]]:
         return self._partitions
 
-    @property
     def segments(self, restrict_to_parition_id: Optional[str] = None) -> Optional[List[Segment]]:
         result: Optional[List[Segment]] = None
         if not self._segments:

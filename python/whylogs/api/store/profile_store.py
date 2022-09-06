@@ -3,9 +3,8 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from whylogs.api.writer.writer import Writable
-from whylogs.core import DatasetProfile
+from whylogs.core import DatasetProfile, Segment
 from whylogs.core.schema import DatasetSchema
-from whylogs.core.segmentation_partition import Segment
 from whylogs.core.stubs import pd
 
 
