@@ -2143,7 +2143,7 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs-sketching"
-version = "3.4.1.dev2"
+version = "3.4.1.dev3"
 description = "sketching library of whylogs"
 category = "main"
 optional = false
