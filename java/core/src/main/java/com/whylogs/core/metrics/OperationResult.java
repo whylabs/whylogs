@@ -1,8 +1,10 @@
 package com.whylogs.core.metrics;
 
 import lombok.Data;
+import lombok.Getter;
 
 @Data
+@Getter
 public class OperationResult {
   private final int successes;
   private final int failures;
