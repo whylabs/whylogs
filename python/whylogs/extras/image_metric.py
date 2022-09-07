@@ -27,8 +27,8 @@ try:
     from PIL.TiffTags import TAGS
 except ImportError as e:
     ImageType = None
-    logger.debug(str(e))
-    logger.debug("Unable to load PIL; install Pillow for image support")
+    logger.warning(str(e))
+    logger.warning("Unable to load PIL; install Pillow for image support")
 
 DEFAULT_IMAGE_FEATURES: List[str] = []
 
@@ -103,6 +103,8 @@ def image_based_metadata(img):
 
 class ImageMetric(CompoundMetric):
     def __init__(self, submetrics: Dict[str, Metric]):
+        if ImageType is None:
+            logger.error("Install Pillow for image support")
         super(ImageMetric, self).__init__(submetrics)
 
     @property
