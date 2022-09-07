@@ -64,7 +64,7 @@ def _uncompund_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
         for metric_name, metric in col_prof._metrics.items():
             if isinstance(metric, CompoundMetric):
                 new_columns.update(_uncompound_metric(col_name, metric_name, metric))
-                # TODO: do we need to delete the compound metric?
+
     new_prof._columns.update(new_columns)
     return new_prof
 
