@@ -35,7 +35,10 @@ class Batch:
     @property
     def data(self) -> pd.DataFrame:
         """The complete dataframe for all available features."""
-        return self._data
+
+        data_cols = list(self._data.columns)
+        ignore_cols = list(self.dataset_config.ignore_columns[self.version])
+        return self._data[[col for col in data_cols if col not in ignore_cols]]
 
     @property
     def timestamp(self) -> date:
@@ -64,7 +67,10 @@ class Batch:
         target_cols = list(self.dataset_config.target_columns[self.version])
         prediction_cols = list(self.dataset_config.prediction_columns[self.version])
         misc_cols = list(self.dataset_config.miscellaneous_columns[self.version])
-        return self._data[[col for col in data_cols if col not in target_cols + prediction_cols + misc_cols]]
+        ignore_cols = list(self.dataset_config.ignore_columns[self.version])
+        return self._data[
+            [col for col in data_cols if col not in target_cols + prediction_cols + misc_cols + ignore_cols]
+        ]
 
 
 class Dataset(ABC):

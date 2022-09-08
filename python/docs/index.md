@@ -21,6 +21,7 @@
     features/config
     features/writing
     examples
+    datasets
     integrations/index
 ```
 

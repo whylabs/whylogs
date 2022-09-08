@@ -1,72 +1,55 @@
-Weather Forecast Dataset
-========================
+Ecommerce Dataset
+=================
 
-The Weather Forecast Dataset contains meteorological features at a particular place (defined by latitude and longitude features) and time. This dataset can present data distribution shifts over both time and space.
+The Ecommerce dataset contains transaction information of several products for a popular grocery supermarket in India. It contains features such as the product's description, category, market price and user rating.
 
-The original data was sourced from the `Weather Prediction Dataset <https://github.com/Shifts-Project/shifts>`_. From the source data additional transformations were made, such as: feature renaming, feature selection and subsampling.
-The original dataset is described in `Shifts: A Dataset of Real Distributional Shift Across Multiple Large-Scale Tasks <https://arxiv.org/pdf/2107.07455.pdf>`_, by **Malinin, Andrey, et al.**
+The original data was sourced from Kaggle's [BigBasket Entire Product List](https://www.kaggle.com/datasets/surajjha101/bigbasket-entire-product-list-28k-datapoints). From the source data additional transformations were made, such as: oversampling and feature creation/engineering.
+
+License:
+CC BY-NC-SA 4.0
 
 Usage
 -----
 
-You can follow this guide to see how to use the weather dataset:
+You can follow this guide to see how to use the ecommerce dataset:
 
 .. toctree::
     :maxdepth: 1
 
-    ../examples/datasets/weather
+    ../examples/datasets/ecommerce
 
 
 Versions and Data Partitions
 ----------------------------
 
-Currently the dataset contains two versions: **in_domain** and **out_domain**. The task is the same for the both versions: predicting the temperature at a given location and time, base on input meteorological features.
-Each version contains two partitions: **Baseline**  and **Inference**.
+Currently the dataset contains one version: **base**. The task for the base version is to classify wether an incoming product should be provided a discount, given product features such as history of items sold, user rating, category and market price.
+The **base** version contains two partitions: __Baseline__ and __Inference__
 
-in_domain
-~~~~~~~~~~
+base
+~~~~
 
-This version contains data from the same domain between **Baseline** and **Inference**. This means that both subsets contains meteorological records for the same major climate types.
-
-Both subsets contain records from the following regions: **Tropical**, **Dry** and **Mild Temperate**.
-Note that the time periods are different between subsets, which means that distribution shifts may occur over time.
+This version contains 5
 
 * Baseline
-   * Number of instances: 10000
-   * Number of features: 55
-      * Input Features: 48
+   * Number of instances: 35329
+   * Number of features: 19
+      * Input Features: 5
       * Target Features: 1
       * Prediction Features: 2
-      * Miscellaneous Features: 4
-   * Period: from 2018-09-01 to 2019-01-31
+      * Extra Features: 11
+   * Period: from 2022-08-02 to 2022-08-09
 * Inference
-   * Number of instances: 13066
-   * Number of features: 55
-      * Input Features: 48
+   * Number of instances: 85435
+   * Number of features: 19
+      * Input Features: 5
       * Target Features: 1
       * Prediction Features: 2
-      * Miscellaneous Features: 4
-   * Period: from 2019-02-01 to 2019-03-29
+      * Extra Features: 11
+   * Period: from 2022-08-12 to 2022-09-01
 
-out_domain
-~~~~~~~~~~
+There are 11 possible categories for a given product. In order to get the desired size for the dataset, original data was oversampled for each category with the [Random Oversampling Examples (ROSE)](https://link.springer.com/article/10.1007/s10618-012-0295-5) algorithm.
 
-This version contains data from different domains between **Baseline** and **Inference**. This means that subsets contains meteorological records for different major climate types.
-
-Baseline contains record from the following climate types:  **Tropical**, **Dry** and **Mild Temperate**, while **Inference** contains records from the following climate types: **Snow** and **Polar**.
-Note that the time periods are different between subsets, which means that distribution shifts may also occur over time.
-
-
-* Baseline - Equal to **in_domain**'s baseline.
-* Inference
-   * Number of instances: 11000
-   * Number of features: 55
-      * Input Features: 48
-      * Target Features: 1
-      * Prediction Features: 2
-      * Miscellaneous Features: 4
-   * Period: from 2019-05-14 to 2019-07-08
-
+The original data didn't contain date and time information. Data was artificially partitioned into separate days in a preprocessing stage for the fabrication of this dataset.
 
 Features Description
 --------------------
@@ -84,8 +67,8 @@ These are features that are typically targeted for prediction/classification.
         - Description
         - Type
         - Present in Versions
-    *   - temperature
-        - air temperature 2m above the ground, C
+    *   - output_discount
+        - if the purchased product had a discount, bool
         - Target
         - all
 
@@ -103,40 +86,23 @@ These features are outputs from a given ML model. Can be directly the prediction
         - Description
         - Type
         - Present in Versions
-    *   - prediction_temperature
-        - regression model's prediction for target variable `temperature`
+    *   - output_prediction
+        - Random Forest model's prediction for target variable `output_discount`
         - Prediction
         - all
-    *   - uncertainty
-        - uncertainty measure of the given `prediction_temperature` prediction
+    *   - output_score
+        - Class probability for the predicted class
         - Prediction
         - all
 
-The ``prediction_temperature`` feature was obtained by training an ensemble of three GBDT models with the CatBoost library.
-The model was trained with data from the same period given by the baseline dataset (2019-02-01 to 2019-03-29). However, all of the data partitions were taken from separate partitions of the `original dataset <https://github.com/Shifts-Project/shifts>`_:
+`output_prediction` and `output_score` was obtaind by training a Random Forest model with the SKLearn library. Data used to train the model was previously separated and is not present in this dataset.
 
-.. list-table:: Partition Relationships
-    :widths: 20 20 20 20 20
-    :header-rows: 1
+The remaining partitions (baseline and inference) were each oversampled and split into separate days.
 
-    *   -
-        - Training
-        - Baseline
-        - Inference (in_domain)
-        - Inference (out_domain)
-    *   - **Original Data Source**
-        - Training
-        - Evaluation (in_domain)
-        - Development (in_domain)
-        - Evaluation (out_domain)
+Extra Features
+~~~~~~~~~~~~~~
 
-
-The ``uncertainty`` feature was calculated by using the ``total variance`` measure, which is the sum of the variance of the predicted mean and the mean of the predicted value.
-
-Miscellaneous Features
-~~~~~~~~~~~~~~~~~~~~~~~
-
-These are metadata features that are not of any of the previous categories, but still contain relevant information about the data.
+These are extra features that are not of any of the previous categories, but still contain relevant information about the data.
 
 .. list-table:: Miscellaneous Features
     :widths: 20 50 10 20
@@ -146,21 +112,49 @@ These are metadata features that are not of any of the previous categories, but 
         - Description
         - Type
         - Present in Versions
-    *   - longitude
-        - geographical longitude, degrees
-        - Misc.
+    *   - category.Baby Care
+        - Binarized category feature for `Baby Care` class
+        - Extra
         - all
-    *   - latitude
-        - geographical latitude, degrees
-        - Misc.
+    *   - category.Bakery, Cakes and Dairy
+        - Binarized category feature for `Bakery, Cakes and Dairy` class
+        - Extra
         - all
-    *   - climate
-        - major climate type
-        - Misc.
+    *   - category.Beauty and Hygiene
+        - Binarized category feature for `Beauty and Hygiene` class
+        - Extra
         - all
-    *   - date
-        - date of the measurement
-        - Misc.
+    *   - category.Beverages
+        - Binarized category feature for `Beverages` class
+        - Extra
+        - all
+    *   - category.Cleaning and Household
+        - Binarized category feature for `Cleaning and Household` class
+        - Extra
+        - all
+    *   - category.Eggs, Meat and Fish
+        - Binarized category feature for `Eggs, Meat and Fish` class
+        - Extra
+        - all
+    *   - category.Foodgrains, Oil and Masala
+        - Binarized category feature for `Foodgrains, Oil and Masala` class
+        - Extra
+        - all
+    *   - category.Fruits and Vegetables
+        - Binarized category feature for `Fruits and Vegetables` class
+        - Extra
+        - all
+    *   - category.Gourmet and World Food
+        - Binarized category feature for `Gourmet and World Food` class
+        - Extra
+        - all
+    *   - category.Kitchen, Garden and Pets
+        - Binarized category feature for `Kitchen, Garden and Pets` class
+        - Extra
+        - all
+    *   - category.Snacks and Branded Foods
+        - Binarized category feature for `Snacks and Branded Foods` class
+        - Extra
         - all
 
 
@@ -177,200 +171,36 @@ These are input features that were used to train and predict the prediction feat
         - Description
         - Type
         - Present in Versions
-    *   - height_sea_level
-        - height above or below sea level, m
+    *   - product
+        - text description of the product, str
         - Input
         - all
-    *   - sun_elevation
-        - sun height proxy above horizon (without corrections for precision and diffraction)
+    *   - sales_last_week
+        - number of items sold in the last week, int
         - Input
         - all
-    *   - pressure
-        - climate pressure, mmHg
+    *   - market_price
+        - the product's market price, float
         - Input
         - all
-    *   - cmc_temperature_grad
-        - difference between temperatures on adjacent horizons at 2m, K
+    *   - rating
+        - the user's rating for the product at time of purchase, float
         - Input
         - all
-    *   - cmc_temperature
-        - temperature at 2m, K
+    *   - category
+        - the product's category, str
         - Input
         - all
-    *   - dew_point_temperature
-        - dew point temp at 2m, K
-        - Input
-        - all
-    *   - absolute_humidity
-        - absolute humidity from 0 to 1
-        - Input
-        - all
-    *   - snow_depth
-        - snow depth, m
-        - Input
-        - all
-    *   - rain_accumulated
-        - rain accumulated from cmc gentime, mm
-        - Input
-        - all
-    *   - snow_accumulated
-        - snow accumulated from cmc gentime, mm
-        - Input
-        - all
-    *   - ice_rain
-        - ice rain accumulated from cmc gentime, mm
-        - Input
-        - all
-    *   - iced_graupel
-        - iced graupel accumulated from cmc gentime, mm
-        - Input
-        - all
-    *   - instant_precipitation
-        - instant precipitation intensity, mm/h
-        - Input
-        - all
-    *   - cmc_wind_u
-        - wind U component at 10m, m/s
-        - Input
-        - all
-    *   - cmc_wind_v
-        - wind V component at 10m, m/s
-        - Input
-        - all
-    *   - surface_pressure
-        - surface pressure, Pa
-        - Input
-        - all
-    *   - sea_level_pressure
-        - sea level pressure, Pa
-        - Input
-        - all
-    *   - geopotential_height_1000
-        - geopotential height at 1000 hPa isobaric level, gpm (geopotential meter)
-        - Input
-        - all
-    *   - cloudiness
-        - cloudiness, % from 0 to 100
-        - Input
-        - all
-    *   - precipitation_rate
-        - avg precipitations rate between adjacent horizons, mm/h
-        - Input
-        - all
-    *   - vorticity
-        - absolute vorticity at height 1000 hPa, s-1
-        - Input
-        - all
-    *   - cloud_mixing_ratio
-        - Cloud mixing ratio at level 1000 hPa, kg/kg 0.0
-        - Input
-        - all
-    *   - relative_humidity
-        - relative humidity at 2m, %
-        - Input
-        - all
-    *   - precipitable_water
-        - total precipitable water, kg m-2
-        - Input
-        - all
-    *   - vertical_velocity
-        - vertical Velocity at 1000 hPa, Pa/s
-        - Input
-        - all
-    *   - soil_temperature
-        - soil temperature at 0.0-0.1 m, C
-        - Input
-        - all
-    *   - gfs_soil_temperature_available
-        - is there gfs soil temp data
-        - Input
-        - all
-    *   - gfs_temperature
-        - temperature at 2m, C
-        - Input
-        - all
-    *   - gfs_temperature_grad
-        - temperature difference adjacent horizons at 2m
-        - Input
-        - all
-    *   - cloud_coverage_high
-        - cloud coverage (between horizons, divisible by 6) at high level, %
-        - Input
-        - all
-    *   - cloud_coverage_low
-        - cloud coverage (between horizons, divisible by 6) at low level, %
-        - Input
-        - all
-    *   - cloud_coverage_middle
-        - cloud coverage (between horizons, divisible by 6) at middle level, %
-        - Input
-        - all
-    *   - gfs_wind_u
-        - 10 meter U wind component, m/s
-        - Input
-        - all
-    *   - gfs_wind_v
-        - 10 meter V wind component, m/s
-        - Input
-        - all
-    *   - gfs_wind_speed
-        - wind velocity, sqrt(gfs_u_wind2 + gfs_v_wind2), m/s
-        - Input
-        - all
-    *   - wrf_temperature
-        - temperature at 2m, K
-        - Input
-        - all
-    *   - wrf_wind_u
-        - wind U component, m/s
-        - Input
-        - all
-    *   - wrf_wind_v
-        - wind V component, m/s
-        - Input
-        - all
-    *   - wrf_wind_v
-        - wind V component, m/s
-        - Input
-        - all
-    *   - rain_rate
-        - avg rain rate between two horizons, mm/h
-        - Input
-        - all
-    *   - snow_rate
-        - avg snow rate between two horizons, mm/h
-        - Input
-        - all
-    *   - hail_velocity
-        - hail velocity on two horizons, mm/h
-        - Input
-        - all
-    *   - wrf_temperature_grad
-        - difference between temperatures at 2m on adjacent horizons, K
-        - Input
-        - all
-    *   - rain_accumulated_grad
-        - rain accumulated from cmc gentime difference between adjacent horizons, mm
-        - Input
-        - all
-    *   - snow_accumulated_grad
-        - snow accumulated from cmc gentime difference between adjacent horizons, mm
-        - Input
-        - all
-    *   - ice_rain_grad
-        - ice rain accumulated from cmc gentime difference between adjacent horizons, mm
-        - Input
-        - all
-    *   - iced_graupel_grad
-        - iced graupel accumulated from cmc gentime difference between adjacent horizons, mm
-        - Input
-        - all
-    *   - cloud_coverage_grad
-        - difference between low level cloud coverage on adjacent horizons, %
-        - Input
-        - all
+
+The `sales_last_week` feature was created based on the product's total count for the complete dataset, and was created for demonstrational purposes.
+
+License
+-------
+
+CC BY NC SA 4.0
+
 
 References
 ----------
 
-- Malinin, Andrey, et al. "Shifts: A dataset of real distributional shift across multiple large-scale tasks." arXiv preprint arXiv:2107.07455 (2021).
+- Giovanna Menardi and Nicola Torelli. Training and assessing classification rules with imbalanced data. Data Mining and Knowledge Discovery, 28:92–122, 2014.
