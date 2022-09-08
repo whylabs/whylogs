@@ -169,6 +169,7 @@ Thumbs.db
 
 # profiling data
 .prof
+*.bin
 
 ### VirtualEnv ###
 # Virtualenv
