@@ -1,8 +1,6 @@
 package com.whylogs.core.views;
 
 import com.whylogs.core.errors.DeserializationError;
-import com.whylogs.core.metrics.components.MetricComponent;
-import com.whylogs.core.utils.ProtobufUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
@@ -14,9 +12,6 @@ import java.nio.channels.Channels;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.whylogs.core.utils.ProtobufUtil.writeDelimitedProtobuf;
-import static java.util.stream.Collectors.toMap;
 
 // TODO: extend writable
 @AllArgsConstructor
@@ -44,7 +39,6 @@ public class DatasetProfileView {
             } else if (otherColumn != null) {
                 result = otherColumn;
             }
-
             mergedColumns.put(columnName, result);
         }
 
@@ -110,7 +104,7 @@ public class DatasetProfileView {
 
                 ChunkMessage chunkMsg = ChunkMessage.newBuilder().putAllMetricComponents(indexComponentMetric).build();
                 ChunkHeader chunkHeader = ChunkHeader.newBuilder().setType(ChunkHeader.ChunkType.COLUMN).setLength(chunkMsg.getSerializedSize()).build();
-                writeDelimitedProtobuf(outputStream, chunkHeader);
+                chunkHeader.writeDelimitedTo(outputStream);
                 outputStream.write(chunkMsg.toByteArray());
             }
 
@@ -137,8 +131,8 @@ public class DatasetProfileView {
                 InputStream inputFromTemp = Channels.newInputStream(file.getChannel());
                 OutputStream writeToFile = Channels.newOutputStream(outFile.getChannel());
                 outFile.write(WhylogsMagicUtility.WHYLOGS_MAGIC_HEADER_BYTES);
-                writeDelimitedProtobuf(writeToFile, segmentHeader);
-                writeDelimitedProtobuf(writeToFile, header);
+                segmentHeader.writeDelimitedTo(writeToFile);
+                header.writeDelimitedTo(writeToFile);
 
                 int bufferSize = 1024;
                 int bytesRead = 0;
@@ -160,6 +154,10 @@ public class DatasetProfileView {
     }
 
     public static DatasetProfileView read(String path) throws FileNotFoundException {
+        ColumnMessage columnMessage;
+        HashMap<String, ColumnProfileView> columns = new HashMap<>();
+        Date datasetTimestamp = null;
+        Date creationTimestamp = null;
         try (RandomAccessFile file = new RandomAccessFile(path, "r")) {
             byte[] buffer = new byte[WhylogsMagicUtility.WHYLOGS_MAGIC_HEADER_LENGTH];
             file.read(buffer);
@@ -186,22 +184,49 @@ public class DatasetProfileView {
                 throw new DeserializationError("Missing valid dataset profile header");
             }
 
-            Date datasetTimestamp = new Date(header.getProperties().getDatasetTimestamp());
-            Date creationTimestamp = new Date(header.getProperties().getCreationTimestamp());
+            datasetTimestamp = new Date(header.getProperties().getDatasetTimestamp());
+            creationTimestamp = new Date(header.getProperties().getCreationTimestamp());
             Map<Integer,String> indexedMetricPath = header.getIndexedMetricPathsMap();
 
             // TODO; Log warning if it's less than 1 "Name index in the header is empty. Possible data corruption"
             long startOffset = file.getFilePointer();
 
-            HashMap<String, ColumnProfileView> columns = new HashMap<>();
             ArrayList<String> sortedColNames = new ArrayList<>(header.getColumnOffsetsMap().keySet());
             sortedColNames.sort(Comparator.naturalOrder());
             for(String colName:  sortedColNames){
+                ChunkOffsets offsets = header.getColumnOffsetsMap().get(colName);
+                HashMap<String, MetricComponentMessage> metricComponents = new HashMap<>();
 
+                for(long offset: offsets.getOffsetsList()){
+                    long actualOffset = offset + startOffset;
+                    ChunkHeader chunkHeader = ChunkHeader.parseDelimitedFrom(inputStream);
+
+                    if(chunkHeader == null){
+                        throw new DeserializationError("Missing chunk header at offset: " + actualOffset);
+                    }
+
+                    if (chunkHeader.getType() != ChunkHeader.ChunkType.COLUMN) {
+                        throw new DeserializationError("Invalid chunk type. Expected: " + ChunkHeader.ChunkType.COLUMN + " Got: " + chunkHeader.getType());
+                    }
+
+                    // TODO: does this need to first grab the chunkHeader.length?
+                    ChunkMessage chunkMessage = ChunkMessage.parseFrom(inputStream);
+
+                    for(Integer index: chunkMessage.getMetricComponentsMap().keySet()){
+                        if(indexedMetricPath.containsKey(index)){
+                            metricComponents.put(indexedMetricPath.get(index), chunkMessage.getMetricComponentsMap().get(index));
+                        } else {
+                            throw new DeserializationError("Missing metric from index map. Index: " + index);
+                        }
+                    }
+                }
+
+                columnMessage = ColumnMessage.newBuilder().putAllMetricComponents(metricComponents).build();
+                columns.put(colName, ColumnProfileView.fromProtobuf(columnMessage));
             }
-
         } catch (IOException | DeserializationError e) {
             e.printStackTrace();
         }
+        return new DatasetProfileView(columns, datasetTimestamp, creationTimestamp);
     }
 }

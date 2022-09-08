@@ -4,14 +4,12 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.whylogs.core.SummaryConfig;
 import com.whylogs.core.errors.UnsupportedError;
 import com.whylogs.core.metrics.Metric;
+import com.whylogs.core.metrics.components.MetricComponent;
 import lombok.Getter;
 import whylogs.core.message.ColumnMessage;
 import whylogs.core.message.MetricComponentMessage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 
 @Getter
 public class ColumnProfileView{
@@ -165,6 +163,14 @@ public class ColumnProfileView{
                 String fullName = metric.getNamespace() + "/" + componentName;
                 result.put(fullName, metricSummary.get(componentName));
             }
+        }
+        return result;
+    }
+
+    public Map<String, MetricComponent> getComponents() {
+        HashMap<String, MetricComponent> result = new HashMap<>();
+        for(String metricName : this.getMetricNames()){
+            result.putAll(this.getMetric(metricName).getComponents());
         }
         return result;
     }
