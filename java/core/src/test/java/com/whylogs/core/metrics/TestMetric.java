@@ -11,15 +11,13 @@ public class TestMetric {
 
     @Test
     public void testMetrics(){
-        ArrayList<? extends AbstractMetric> metrics = new ArrayList<>();
+        ArrayList<Metric> metrics = new ArrayList<>();
         metrics.add(IntegralMetric.zero(new MetricConfig()));
         metrics.add(IntegralMetric.zero(new MetricConfig()));
 
         for(Metric metric : metrics){
             Assert.assertTrue(metric instanceof IntegralMetric);
             metric.merge(new IntegralMetric());
-
-            ((IntegralMetric) metric).getMaxComponent()
         }
     }
 }

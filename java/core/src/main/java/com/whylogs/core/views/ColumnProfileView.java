@@ -1,10 +1,12 @@
 package com.whylogs.core.views;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Option;
 import com.whylogs.core.SummaryConfig;
 import com.whylogs.core.errors.UnsupportedError;
 import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.components.MetricComponent;
+import com.whylogs.v0.core.constraint.Op;
 import lombok.Getter;
 import whylogs.core.message.ColumnMessage;
 import whylogs.core.message.MetricComponentMessage;
@@ -72,7 +74,8 @@ public class ColumnProfileView{
         HashMap<String, MetricComponentMessage> metricMessages = new HashMap<>();
         for(String metricName : this.metrics.keySet()){
             for(String componentName : this.metrics.get(metricName).getComponents().keySet()){
-                MetricComponentMessage componentMessage = this.metrics.get(metricName).getComponents().get(componentName).toProtobuf();
+                Metric metric = this.metrics.get(metricName);
+                MetricComponentMessage componentMessage = metric.getComponents().get(componentName).
                 metricMessages.put(metricName + "/" + componentName, componentMessage);
             }
         }
@@ -120,8 +123,11 @@ public class ColumnProfileView{
     public ArrayList<String> getMetricComponentPaths(){
         ArrayList<String> paths = new ArrayList<>();
         for(String metricName : this.getMetricNames()){
-            for(String componentName :this.getMetric(metricName).getCompnentPaths()){
-                paths.add(metricName + "/" + componentName);
+            Optional<Metric> metric = this.getMetric(metricName);
+            if(metric.isPresent()){
+                for(String componentName : metric.get().getComponents().keySet()){
+                    paths.add(metricName + "/" + componentName);
+                }
             }
         }
         return paths;
@@ -170,7 +176,10 @@ public class ColumnProfileView{
     public Map<String, MetricComponent> getComponents() {
         HashMap<String, MetricComponent> result = new HashMap<>();
         for(String metricName : this.getMetricNames()){
-            result.putAll(this.getMetric(metricName).getComponents());
+            Optional<Metric> metric = this.getMetric(metricName);
+            if(metric.isPresent()){
+                result.putAll(metric.get().getComponents());
+            }
         }
         return result;
     }
