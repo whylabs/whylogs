@@ -1,8 +1,8 @@
-from logging import getLogger
 import tempfile
+from logging import getLogger
 from typing import Any, Dict, Optional
-from whylogs.api.writer.writer import Writable
 
+from whylogs.api.writer.writer import Writable
 from whylogs.core.proto import (
     ChunkHeader,
     ChunkMessage,
@@ -11,17 +11,23 @@ from whylogs.core.proto import (
     DatasetProperties,
     DatasetSegmentHeader,
     MetricComponentMessage,
-    Segment as SegmentMessage,
 )
+from whylogs.core.proto import Segment as SegmentMessage
 from whylogs.core.segment import Segment
 from whylogs.core.segmentation_partition import SegmentationPartition
-
 from whylogs.core.utils import write_delimited_protobuf
 from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
-from whylogs.core.view.dataset_profile_view import WHYLOGS_MAGIC_HEADER_BYTES, DatasetProfileView
-from whylogs.migration.converters import _generate_segment_tags_metadata, v1_to_dataset_profile_message_v0
+from whylogs.core.view.dataset_profile_view import (
+    WHYLOGS_MAGIC_HEADER_BYTES,
+    DatasetProfileView,
+)
+from whylogs.migration.converters import (
+    _generate_segment_tags_metadata,
+    v1_to_dataset_profile_message_v0,
+)
 
 logger = getLogger(__name__)
+
 
 class SegmentedDatasetProfileView(Writable):
     _profile_view: DatasetProfileView
@@ -29,7 +35,11 @@ class SegmentedDatasetProfileView(Writable):
     _partition: SegmentationPartition
 
     def __init__(
-        self, *, profile_view: DatasetProfileView, segment: Segment, partition: SegmentationPartition,
+        self,
+        *,
+        profile_view: DatasetProfileView,
+        segment: Segment,
+        partition: SegmentationPartition,
     ):
         self._profile_view = profile_view
         self._segment = segment
@@ -60,7 +70,7 @@ class SegmentedDatasetProfileView(Writable):
 
     def _write_as_v0_message(self, path: Optional[str] = None, **kwargs: Any) -> None:
         message_v0 = v1_to_dataset_profile_message_v0(self.profile_view, self.segment, self.partition)
-
+        path = path or self.get_default_path()
         with open(path, "w+b") as out_f:
             write_delimited_protobuf(out_f, message_v0)
             # out_f.write(message_v0.SerializeToString())
@@ -105,10 +115,14 @@ class SegmentedDatasetProfileView(Writable):
             f.flush()
 
             # calculate segment tags based on columnar segments
-            segment_message_tags, segment_tags, segment_metadata = _generate_segment_tags_metadata(self.segment, self.partition)
+            segment_message_tags, segment_tags, segment_metadata = _generate_segment_tags_metadata(
+                self.segment, self.partition
+            )
 
             if not segment_tags:
-                raise NotImplementedError(f"Serialization of segments requires segment tags but none calculated for partition: {self.partition} and segments: {self.segment}")
+                raise NotImplementedError(
+                    f"Serialization of segments requires segment tags but none calculated for partition: {self.partition} and segments: {self.segment}"
+                )
 
             segment_message = SegmentMessage()
             segment_message.tags.extend(segment_tags)
@@ -131,13 +145,12 @@ class SegmentedDatasetProfileView(Writable):
             )
 
             # TODO: multi segment file format requires multiple offset calculations.
-            segment_offsets: Dict[int, int] = {n: 0 for n in range(len(segments_message_field))} # update this after writing
+            segment_offsets: Dict[int, int] = {
+                n: 0 for n in range(len(segments_message_field))
+            }  # update this after writing
 
             # single file segments.
-            dataset_segment_header = DatasetSegmentHeader(
-                has_segments=True,
-                offsets=segment_offsets
-            )
+            dataset_segment_header = DatasetSegmentHeader(has_segments=True, offsets=segment_offsets)
 
             # TODO: calculate other segments offsets when we support multiple segments per file
             write_delimited_protobuf(f, dataset_segment_header)
@@ -150,9 +163,13 @@ class SegmentedDatasetProfileView(Writable):
             with open(path, "w+b") as out_f:
                 out_f.write(WHYLOGS_MAGIC_HEADER_BYTES)
                 write_delimited_protobuf(out_f, dataset_segment_header)
-                logger.debug(f"Writing segmented profile file: whylogs file and segment headers wrote {out_f.tell()} bytes")
+                logger.debug(
+                    f"Writing segmented profile file: whylogs file and segment headers wrote {out_f.tell()} bytes"
+                )
                 write_delimited_protobuf(out_f, dataset_header)
-                logger.debug(f"Writing segmented profile file: and with dataset header wrote a total of {out_f.tell()} bytes before writing the chunks.")
+                logger.debug(
+                    f"Writing segmented profile file: and with dataset header wrote a total of {out_f.tell()} bytes before writing the chunks."
+                )
 
                 f.seek(0)
                 while f.tell() < total_len:
