@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 import whylogs as why
+from whylogs.core import ColumnProfileView
 from whylogs.core.metrics.maths import VarianceM2Result, parallel_variance_m2
 from whylogs.core.metrics.metrics import DistributionMetric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
@@ -123,7 +124,7 @@ def test_merge_single_values_profile_mean() -> None:
     assert round(actual_stddev, 3) == round(profile_stddev2, 3)
 
 
-def test_merge_two_profiles_mean(lending_club_df) -> None:
+def test_merge_two_profiles_mean(lending_club_df: pd.DataFrame) -> None:
     first_df = lending_club_df.head(500)
 
     second_df = lending_club_df.tail(500)
@@ -132,7 +133,7 @@ def test_merge_two_profiles_mean(lending_club_df) -> None:
     actual_mean_1 = first_df["loan_amnt"].mean()
     actual_mean_2 = second_df["loan_amnt"].mean()
 
-    first_profile = why.log(first_df).view().get_column("loan_amnt")
+    first_profile: ColumnProfileView = why.log(first_df).view().get_column("loan_amnt")
     first_profile_mean = first_profile.get_metric("distribution").mean.value
     second_profile = why.log(second_df).view().get_column("loan_amnt")
     second_profile_mean = second_profile.get_metric("distribution").mean.value
@@ -143,3 +144,10 @@ def test_merge_two_profiles_mean(lending_club_df) -> None:
     assert round(merged_profile_mean, 3) == round(actual_mean, 3)
     assert round(first_profile_mean, 3) == round(actual_mean_1, 3)
     assert round(second_profile_mean, 3) == round(actual_mean_2, 3)
+
+
+def test_frequent_items_handling_int_as_string() -> None:
+    df = pd.DataFrame({"int": [1, 1, 1]})
+
+    res = why.log(df).view().to_pandas()["frequent_items/frequent_strings"]
+    assert res.array[0][0].value == "1"  # type: ignore
