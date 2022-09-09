@@ -162,7 +162,7 @@ test-notebooks: ## Run tests for the notebooks
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install -E "viz s3 spark whylabs mlflow"
+	poetry install -E "viz s3 spark whylabs mlflow Pillow"
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)
