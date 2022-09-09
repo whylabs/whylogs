@@ -4,5 +4,6 @@
 .mypy_cache
 .pytest_cache
 .venv
+.dockerignore
 dist
 output.ipynb
