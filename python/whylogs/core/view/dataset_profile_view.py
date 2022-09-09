@@ -173,7 +173,6 @@ class DatasetProfileView(Writable):
                     "File contains segments. Only first profile will be deserialized into this DatasetProfileView"
                 )
 
-            # TODO: handle segment data
             dataset_profile_header = read_delimited_protobuf(f, DatasetProfileHeader)
             if dataset_profile_header.ByteSize() == 0:
                 raise DeserializationError("Missing valid dataset profile header")

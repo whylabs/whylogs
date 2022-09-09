@@ -105,7 +105,7 @@ def _log_segment(
     return segments
 
 
-def _log_partitions(
+def segment_processing(
     schema: DatasetSchema,
     obj: Any = None,
     pandas: Optional[pd.DataFrame] = None,

@@ -28,6 +28,8 @@ from whylogs.migration.converters import (
 
 logger = getLogger(__name__)
 
+_BUFFER_CHUNK = 1024
+
 
 class SegmentedDatasetProfileView(Writable):
     _profile_view: DatasetProfileView
@@ -73,7 +75,6 @@ class SegmentedDatasetProfileView(Writable):
         path = path or self.get_default_path()
         with open(path, "w+b") as out_f:
             write_delimited_protobuf(out_f, message_v0)
-            # out_f.write(message_v0.SerializeToString())
 
     def _write_v1(self, path: Optional[str] = None, **kwargs: Any) -> None:
         all_metric_component_names = set()
@@ -145,6 +146,9 @@ class SegmentedDatasetProfileView(Writable):
             )
 
             # TODO: multi segment file format requires multiple offset calculations.
+            #  Single segment file only supported initially.
+            #  This creates the offsets dictionary with correct keys but 0 offset values, later update offsets
+            #  based on file position offset in the temp file written, similarly to how Chunk
             segment_offsets: Dict[int, int] = {
                 n: 0 for n in range(len(segments_message_field))
             }  # update this after writing
@@ -173,7 +177,7 @@ class SegmentedDatasetProfileView(Writable):
 
                 f.seek(0)
                 while f.tell() < total_len:
-                    buffer = f.read(1024)
+                    buffer = f.read(_BUFFER_CHUNK)
                     out_f.write(buffer)
                 logger.debug(f"Writing segmented profile file: complete! total of {out_f.tell()} bytes written.")
 

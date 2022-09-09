@@ -41,9 +41,13 @@ from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.utils import read_delimited_protobuf
 from whylogs.core.utils.timestamp_calculations import to_utc_milliseconds
 
-EMPTY_FI_SKETCH: bytes = ds.frequent_strings_sketch(10).serialize()
-EMPTY_HLL: bytes = ds.hll_sketch(12).serialize_compact()
-EMPTY_KLL: bytes = ds.kll_doubles_sketch(k=128).serialize()
+_DEFAULT_V0_LG_MAX_K = 12
+_DEFAULT_V0_KLL_K = 128
+_DEFAULT_V0_FI_LG_K = 10
+
+EMPTY_FI_SKETCH: bytes = ds.frequent_strings_sketch(_DEFAULT_V0_FI_LG_K).serialize()
+EMPTY_HLL: bytes = ds.hll_sketch(_DEFAULT_V0_LG_MAX_K).serialize_compact()
+EMPTY_KLL: bytes = ds.kll_doubles_sketch(k=_DEFAULT_V0_KLL_K).serialize()
 _empty_theta_union = ds.theta_union()
 _empty_theta_union.update(ds.update_theta_sketch())
 EMPTY_THETA: bytes = _empty_theta_union.get_result().serialize()
@@ -246,7 +250,7 @@ def _extract_frequent_items_sketch_message_v0(col_prof: ColumnProfileView) -> Fr
         return frequent_items_v0
 
     frequent_items_v0.sketch = frequent_items_metric.frequent_strings.value.serialize()
-    frequent_items_v0.lg_max_k = 12
+    frequent_items_v0.lg_max_k = _DEFAULT_V0_LG_MAX_K
 
     return frequent_items_v0
 
@@ -259,7 +263,7 @@ def _extract_hll_sketch_message_v0(col_prof) -> HllSketchMessageV0:
     hll_sketch = cardinality_metric.hll.value
     if not hll_sketch.is_empty():
         hll_v0.sketch = hll_sketch.serialize_compact()
-        hll_v0.lg_k = 12
+        hll_v0.lg_k = _DEFAULT_V0_LG_MAX_K
 
     return hll_v0
 
