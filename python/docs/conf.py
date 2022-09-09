@@ -102,7 +102,7 @@ myst_enable_extensions = [
 
 html_theme_options: Dict[str, Any] = {
     "announcement": """<em>whylogs v1</em> has been launched! Make sure you checkout the
-    <a href="/migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
+    <a href="/en/latest/migration/basics.html" alt="Link to migration guide">the migration guide</a> to ensure a smooth
     transition""",
     "light_logo": "images/logo.png",
     "dark_logo": "images/logo.png",
