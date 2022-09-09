@@ -60,4 +60,5 @@ __ALL__ = [
     "Logger",
     "ResultSet",
     "RollingLogger",
+    "SegmentedResultSet",
 ]

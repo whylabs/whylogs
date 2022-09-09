@@ -22,7 +22,13 @@ def _process_segment(
     schema: DatasetSchema,
     store: Optional[ProfileStore] = None,
 ):
-    profile = store.get_matching_profiles(segmented_data, segment=segment_key) if store else DatasetProfile(schema)
+    profile = None
+    if store:
+        profile = store.get_matching_profiles(segmented_data, segment=segment_key)
+
+    if profile is None:
+        profile = DatasetProfile(schema)
+
     profile.track(segmented_data)
     segments[segment_key] = profile
 
@@ -86,8 +92,6 @@ def _log_segment(
     if partition.filter:
         pandas, row = _filter_inputs(partition.filter, pandas, row)
     if partition.simple:
-        if partition.filter:
-            pandas, row = _filter_inputs(partition.filter, pandas, row)
         columns = partition.mapper.col_names if partition.mapper else None
         if columns:
             _process_simple_partition(partition.id, schema, segments, columns, pandas, row, store)

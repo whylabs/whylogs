@@ -41,7 +41,7 @@ class SegmentationPartition:
     filter: Optional[SegmentFilter] = None
 
     def __post_init__(self):
-        filter_string = inspect.getsource(self.filter) if self.filter else ""
+        filter_string = self.filter_id
         mapper_string = self.mapper.id if self.mapper else ""
         segment_hash = hashlib.sha512(bytes(filter_string + mapper_string, encoding="utf8"))
         self.id = segment_hash.hexdigest()
@@ -49,6 +49,15 @@ class SegmentationPartition:
     @property
     def simple(self) -> bool:
         return self.mapper is None or self.mapper.map is None
+
+    @property
+    def filter_id(self) -> str:
+        if self.filter:
+            if self.filter.filter_function:
+                return inspect.getsource(self.filter.filter_function)
+            if self.filter.query_string:
+                return self.filter.query_string
+        return ""
 
 
 def segment_on_column(column_name: str) -> Mapping[str, SegmentationPartition]:

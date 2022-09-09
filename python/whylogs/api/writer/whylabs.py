@@ -23,6 +23,7 @@ from whylogs.core import DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
 from whylogs.core.utils import deprecated_alias
+from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
@@ -125,8 +126,9 @@ class WhyLabsWriter(Writer):
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> None:
         profile_view = file.view() if isinstance(file, DatasetProfile) else file
+        has_segments = isinstance(profile_view, SegmentedDatasetProfileView)
 
-        if not isinstance(profile_view, DatasetProfileView):
+        if not has_segments and not isinstance(profile_view, DatasetProfileView):
             raise ValueError(
                 "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
             )
@@ -135,7 +137,10 @@ class WhyLabsWriter(Writer):
             self._dataset_id = kwargs.get("dataset_id")
 
         with tempfile.NamedTemporaryFile() as tmp_file:
-            profile_view.write(path=tmp_file.name)
+            if has_segments:
+                profile_view.write(path=tmp_file.name, use_v0=True)
+            else:
+                profile_view.write(path=tmp_file.name)
             tmp_file.flush()
 
             dataset_timestamp = profile_view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)

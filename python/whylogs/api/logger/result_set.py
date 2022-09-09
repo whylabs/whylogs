@@ -4,8 +4,10 @@ from typing import Any, Dict, List, Optional
 
 from whylogs.api.reader import Reader, Readers
 from whylogs.api.writer import Writer, Writers
+from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfile, DatasetProfileView, Segment
 from whylogs.core.segmentation_partition import SegmentationPartition
+from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
 logger = getLogger(__name__)
 
@@ -25,11 +27,16 @@ class ResultSetWriter:
         return self
 
     def write(self, **kwargs: Any) -> None:
-        # TODO: multi-profile writer
-        if hasattr(self._result_set, "segments"):
-            logger.info("Writing SegmentedResultSet")
-        view = self._result_set.view()
-        self._writer.write(profile=view, **kwargs)
+        # multi-profile writer
+        files = self._result_set.get_writables()
+        if not files:
+            logger.warning("Attempt to write a result set with no writables returned, nothing written!")
+        else:
+            logger.debug(f"About to write {len(files)} files:")
+            # TODO: special handling of large number of files, handle throttling
+            for view in files:
+                self._writer.write(profile=view, **kwargs)
+            logger.debug(f"Completed writing {len(files)} files!")
 
 
 class ResultSetReader:
@@ -78,16 +85,8 @@ class ResultSet(ABC):
     def profile(self) -> Optional[DatasetProfile]:
         pass
 
-
-class ProfileResultSet(ResultSet):
-    def __init__(self, profile: DatasetProfile) -> None:
-        self._profile = profile
-
-    def profile(self) -> Optional[DatasetProfile]:
-        return self._profile
-
-    def view(self) -> Optional[DatasetProfileView]:
-        return self._profile.view()
+    def get_writables(self) -> Optional[List[Writable]]:
+        return [self.view()]
 
 
 class ViewResultSet(ResultSet):
@@ -99,6 +98,17 @@ class ViewResultSet(ResultSet):
 
     def view(self) -> Optional[DatasetProfileView]:
         return self._view
+
+
+class ProfileResultSet(ResultSet):
+    def __init__(self, profile: DatasetProfile) -> None:
+        self._profile = profile
+
+    def profile(self) -> Optional[DatasetProfile]:
+        return self._profile
+
+    def view(self) -> Optional[DatasetProfileView]:
+        return self._profile.view()
 
 
 class SegmentedResultSet(ResultSet):
@@ -159,11 +169,44 @@ class SegmentedResultSet(ResultSet):
                 result += len(profiles)
         return result
 
-    def segments_in_partition(
-        self, partition: Optional[SegmentationPartition]
-    ) -> Optional[Dict[Segment, DatasetProfile]]:
-        return self._segments.get(partition.id) if partition else None
+    def segments_in_partition(self, partition: SegmentationPartition) -> Optional[Dict[Segment, DatasetProfile]]:
+        return self._segments.get(partition.id)
 
     def view(self, segment: Optional[Segment] = None) -> Optional[DatasetProfileView]:
         result = self.profile(segment)
         return result.view() if result else None
+
+    def get_writables(self) -> Optional[List[Writable]]:
+        results: Optional[List[Writable]] = None
+        if self._segments:
+            results = []
+            logger.info(f"Building list of: {self.count} SegmentedDatasetProfileViews in SegmentedResultSet.")
+            # TODO: handle more than one partition
+            if not self.partitions:
+                raise ValueError(
+                    f"Building list of: {self.count} SegmentedDatasetProfileViews in SegmentedResultSet but no partitions found: {self.partitions}."
+                )
+            if len(self.partitions) > 1:
+                logger.error(
+                    f"Building list of: {self.count} SegmentedDatasetProfileViews in SegmentedResultSet but found more than one partition: "
+                    f"{self.partitions}. Using first partition only!!"
+                )
+            first_partition = self.partitions[0]
+            segments = self.segments_in_partition(first_partition)
+            if segments:
+                for segment_key in segments:
+                    profile = segments[segment_key]
+                    segmented_profile = SegmentedDatasetProfileView(
+                        profile_view=profile.view(), segment=segment_key, partition=first_partition
+                    )
+                    results.append(segmented_profile)
+            else:
+                logger.warning(
+                    f"Found no segments in partition: {first_partition} even though we have: {self.count} segments overall"
+                )
+            logger.info(f"From list of: {self.count} SegmentedDatasetProfileViews using {len(results)}")
+        else:
+            logger.warning(
+                f"Attempt to build segmented results for writing but there are no segments in this result set: {self._segments}. returning None."
+            )
+        return results

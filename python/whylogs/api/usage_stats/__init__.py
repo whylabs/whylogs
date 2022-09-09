@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 ANALYTICS_OPT_OUT = "WHYLOGS_NO_ANALYTICS"
 
 # Flag to disable it internally
-_TELEMETRY_DISABLED = False
+_TELEMETRY_DISABLED = True
 _TRACKED_EVENTS: Dict[str, bool] = {}
 
 _SITE_PACKAGES = site.getsitepackages()

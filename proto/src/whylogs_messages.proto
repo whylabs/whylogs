@@ -106,6 +106,12 @@ message SegmentTag {
 
 message Segment {
   repeated SegmentTag tags = 1;
+  string partition_id = 2;
+}
+
+message SegmentationPartition {
+  string name = 1;
+  string id = 2;
 }
 
 message DatasetSegmentHeader {
