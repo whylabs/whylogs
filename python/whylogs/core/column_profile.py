@@ -17,6 +17,7 @@ class ColumnProfile(object):
         self._schema = schema
 
         self._metrics = schema.get_metrics(name)
+        self._column_validators = schema.get_validators(name)
         self._projector = FieldProjector(col_names=[name])
         self._success_count = 0
         self._failure_count = 0
@@ -54,6 +55,8 @@ class ColumnProfile(object):
             res = metric.columnar_update(ex_col)
             self._failure_count += res.failures
             self._success_count += res.successes
+        for validator in self._column_validators:
+            validator.columnar_validate(ex_col)
 
     def to_protobuf(self) -> ColumnMessage:
         self.flush()
