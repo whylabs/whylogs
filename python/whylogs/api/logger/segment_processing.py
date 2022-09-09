@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, List, Mapping, Optional, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Tuple
 
 from whylogs.api.logger.result_set import SegmentedResultSet
 from whylogs.api.store.profile_store import ProfileStore
@@ -47,7 +47,12 @@ def _process_simple_partition(
         grouped_data = pandas.groupby(columns)
         for group in grouped_data.groups.keys():
             pandas_segment = grouped_data.get_group(group)
-            segment_tuple_key = (group,) if isinstance(group, str) else tuple(str(k) for k in group)
+            if isinstance(group, str):
+                segment_tuple_key: Tuple[str, ...] = (group,)
+            elif isinstance(group, (List, Iterable, Iterator)):
+                segment_tuple_key = tuple(str(k) for k in group)
+            else:
+                segment_tuple_key = (str(group),)
             segment_key = Segment(segment_tuple_key, partition_id)
             _process_segment(pandas_segment, segment_key, segments, schema, profile_cache)
     elif row:

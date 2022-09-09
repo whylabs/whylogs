@@ -84,6 +84,40 @@ def test_single_column_segment() -> None:
     assert cardinality == 1.0
 
 
+def test_single_integer_column_segment() -> None:
+    input_rows = 100
+    segment_column = "col3"
+    number_of_segments = 5
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        segment_column: [(i % number_of_segments) for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    test_segments = segment_on_column("col3")
+    results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments))
+    assert results.count == number_of_segments
+    partitions = results.partitions
+    assert len(partitions) == 1
+    partition = partitions[0]
+    segments = results.segments_in_partition(partition)
+    assert len(segments) == number_of_segments
+
+    first_segment = next(iter(segments))
+    first_segment_profile = results.profile(first_segment)
+    assert first_segment_profile is not None
+    assert first_segment_profile._columns["col1"]._schema.dtype == np.int64
+    assert first_segment_profile._columns["col2"]._schema.dtype == np.float64
+    assert first_segment_profile._columns["col3"]._schema.dtype == np.int64
+    segment_cardinality: CardinalityMetric = (
+        first_segment_profile.view().get_column(segment_column).get_metric("cardinality")
+    )
+    cardinality = segment_cardinality.estimate
+    assert cardinality is not None
+    assert cardinality == 1.0
+
+
 def test_filtered_single_column_segment() -> None:
     input_rows = 100
     segment_column = "col3"
