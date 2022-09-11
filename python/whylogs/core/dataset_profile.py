@@ -9,6 +9,7 @@ from whylogs.core.metrics import Metric
 from whylogs.core.utils.utils import deprecated_alias
 
 from .column_profile import ColumnProfile
+from .input_resolver import _pandas_or_dict
 from .schema import DatasetSchema
 from .stubs import pd
 from .view import DatasetProfileView
@@ -102,19 +103,8 @@ class DatasetProfile(Writable):
         pandas: Optional[pd.DataFrame] = None,
         row: Optional[Mapping[str, Any]] = None,
     ) -> None:
-        if obj is not None:
-            if pandas is not None:
-                raise ValueError("Cannot pass both obj and pandas params")
-            if row is not None:
-                raise ValueError("Cannot pass both obj and row params")
 
-            if pd.DataFrame is not None and isinstance(obj, pd.DataFrame):
-                pandas = obj
-            elif isinstance(obj, (dict, Dict, Mapping)):
-                row = obj
-
-        if pandas is not None and row is not None:
-            raise ValueError("Cannot pass both pandas and row params")
+        pandas, row = _pandas_or_dict(obj, pandas, row)
 
         # TODO: do this less frequently when operating at row level
         dirty = self._schema.resolve(pandas=pandas, row=row)
@@ -124,6 +114,10 @@ class DatasetProfile(Writable):
             self._initialize_new_columns(tuple(new_cols))
 
         if pandas is not None:
+            # TODO: iterating over each column in order assumes single column metrics
+            #   but if we instead iterate over a new artifact contained in dataset profile: "MetricProfiles", then
+            #   each metric profile can specify which columns its tracks, and we can call like this:
+            #   metric_profile.track(pandas)
             for k in pandas.keys():
                 self._columns[k].track_column(pandas[k])
             return

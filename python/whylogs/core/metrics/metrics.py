@@ -90,7 +90,9 @@ class OperationResult:
 
 class Metric(ABC):
     @classmethod
-    def get_namespace(cls, config: MetricConfig) -> str:
+    def get_namespace(cls, config: Optional[MetricConfig] = None) -> str:
+        if config is None:
+            config = MetricConfig()
         return cls.zero(config).namespace
 
     @property

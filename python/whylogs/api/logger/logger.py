@@ -1,12 +1,16 @@
 import atexit
+import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from whylogs.api.logger.result_set import ProfileResultSet, ResultSet
+from whylogs.api.logger.segment_processing import segment_processing
 from whylogs.api.writer import Writer, Writers
 from whylogs.core import DatasetProfile, DatasetSchema
 from whylogs.core.errors import LoggingError
 from whylogs.core.stubs import pd
+
+logger = logging.getLogger(__name__)
 
 
 class BasicCache(object):
@@ -64,6 +68,10 @@ class Logger(ABC):
         if obj is None and pandas is None and row is None:
             # TODO: check for shell environment and emit more verbose error string to let user know how to correct.
             raise LoggingError("log() was called without passing in any input!")
+
+        # If segments are defined use segment_processing to return a SegmentedResultSet
+        if self._schema and self._schema.segments:
+            return segment_processing(self._schema, obj, pandas, row)
 
         profiles = self._get_matching_profiles(obj, pandas=pandas, row=row)
 

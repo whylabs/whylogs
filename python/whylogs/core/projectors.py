@@ -1,9 +1,10 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
-class SingleFieldProjector(object):
-    def __init__(self, col_name: str) -> None:
-        self._col_name = col_name
+class FieldProjector(object):
+    def __init__(self, col_names: List[str]) -> None:
+        self._col_names = col_names
 
-    def apply(self, row: Dict[str, Any]) -> Any:
-        return row.get(self._col_name)
+    def apply(self, row: Dict[str, Any]) -> Dict[str, Any]:
+        row_projection = {col_name: row.get(col_name) for col_name in self._col_names}
+        return row_projection
