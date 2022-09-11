@@ -29,10 +29,13 @@ Submodules
    dataset_profile/index.rst
    datatypes/index.rst
    errors/index.rst
+   input_resolver/index.rst
    preprocessing/index.rst
    projectors/index.rst
    resolvers/index.rst
    schema/index.rst
+   segment/index.rst
+   segmentation_partition/index.rst
 
 
 Package Contents
@@ -50,6 +53,8 @@ Classes
    whylogs.core.Resolver
    whylogs.core.ColumnSchema
    whylogs.core.DatasetSchema
+   whylogs.core.Segment
+   whylogs.core.SegmentationPartition
    whylogs.core.ColumnProfileView
    whylogs.core.DatasetProfileView
 
@@ -266,7 +271,7 @@ Attributes
 
 
 
-.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False, validators: Dict[str, List[whylogs.core.validators.validator.Validator]] = None)
+.. py:class:: DatasetSchema(types: Optional[Dict[str, Any]] = None, default_configs: Optional[whylogs.core.metrics.metrics.MetricConfig] = None, type_mapper: Optional[whylogs.core.datatypes.TypeMapper] = None, resolvers: Optional[whylogs.core.resolvers.Resolver] = None, cache_size: int = 1024, schema_based_automerge: bool = False, segments: Optional[Dict[str, whylogs.core.segmentation_partition.SegmentationPartition]] = None, validators: Dict[str, List[whylogs.core.validators.validator.Validator]] = None)
 
    Defines the schema for tracking metrics in whylogs.
 
@@ -326,6 +331,50 @@ Attributes
 
 
    .. py:method:: get(name: str) -> Optional[ColumnSchema]
+
+
+
+.. py:class:: Segment
+
+   .. py:attribute:: key
+      :annotation: :Tuple[str, Ellipsis]
+
+      
+
+   .. py:attribute:: parent_id
+      :annotation: :str
+
+      
+
+
+.. py:class:: SegmentationPartition
+
+   .. py:attribute:: name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: mapper
+      :annotation: :Optional[ColumnMapperFunction]
+
+      
+
+   .. py:attribute:: id
+      :annotation: :str
+
+      
+
+   .. py:attribute:: filter
+      :annotation: :Optional[SegmentFilter]
+
+      
+
+   .. py:method:: simple() -> bool
+      :property:
+
+
+   .. py:method:: filter_id() -> str
+      :property:
 
 
 

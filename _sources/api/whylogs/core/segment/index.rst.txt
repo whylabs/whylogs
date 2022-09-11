@@ -1,0 +1,32 @@
+:py:mod:`whylogs.core.segment`
+==============================
+
+.. py:module:: whylogs.core.segment
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.segment.Segment
+
+
+
+
+.. py:class:: Segment
+
+   .. py:attribute:: key
+      :annotation: :Tuple[str, Ellipsis]
+
+      
+
+   .. py:attribute:: parent_id
+      :annotation: :str
+
+      
+
+

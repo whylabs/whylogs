@@ -1,0 +1,6 @@
+:py:mod:`whylogs.core.input_resolver`
+=====================================
+
+.. py:module:: whylogs.core.input_resolver
+
+

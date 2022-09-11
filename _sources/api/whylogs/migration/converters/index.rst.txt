@@ -15,12 +15,83 @@ Functions
 
    whylogs.migration.converters.read_v0_to_view
    whylogs.migration.converters.v0_to_v1_view
+   whylogs.migration.converters.v1_to_dataset_profile_message_v0
 
 
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.migration.converters.EMPTY_FI_SKETCH
+   whylogs.migration.converters.EMPTY_HLL
+   whylogs.migration.converters.EMPTY_KLL
+   whylogs.migration.converters.EMPTY_THETA
+   whylogs.migration.converters.logger
+   whylogs.migration.converters.PARTITION_ID
+   whylogs.migration.converters.PARTITION_NAME
+   whylogs.migration.converters.PARTITION_HAS_FILTER
+   whylogs.migration.converters.SEGMENT_ON_COLUMN
+   whylogs.migration.converters.SEGMENT_ON_COLUMNS
+
+
+.. py:data:: EMPTY_FI_SKETCH
+   :annotation: :bytes
+
+   
+
+.. py:data:: EMPTY_HLL
+   :annotation: :bytes
+
+   
+
+.. py:data:: EMPTY_KLL
+   :annotation: :bytes
+
+   
+
+.. py:data:: EMPTY_THETA
+   :annotation: :bytes
+
+   
+
+.. py:data:: logger
+   
+
+   
+
+.. py:data:: PARTITION_ID
+   :annotation: = segp_id
+
+   
+
+.. py:data:: PARTITION_NAME
+   :annotation: = segp_name
+
+   
+
+.. py:data:: PARTITION_HAS_FILTER
+   :annotation: = segp_filter
+
+   
+
+.. py:data:: SEGMENT_ON_COLUMN
+   :annotation: = segp_col
+
+   
+
+.. py:data:: SEGMENT_ON_COLUMNS
+   :annotation: = segp_cols
+
+   
 
 .. py:function:: read_v0_to_view(path: str) -> whylogs.core.DatasetProfileView
 
 
 .. py:function:: v0_to_v1_view(msg: whylogs.core.proto.v0.DatasetProfileMessageV0) -> whylogs.core.DatasetProfileView
+
+
+.. py:function:: v1_to_dataset_profile_message_v0(profile_view: whylogs.core.DatasetProfileView, segment: Optional[whylogs.core.segment.Segment], partition: Optional[whylogs.core.segmentation_partition.SegmentationPartition]) -> whylogs.core.proto.v0.DatasetProfileMessageV0
 
 

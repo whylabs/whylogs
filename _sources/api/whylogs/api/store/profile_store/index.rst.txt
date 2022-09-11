@@ -1,0 +1,42 @@
+:py:mod:`whylogs.api.store.profile_store`
+=========================================
+
+.. py:module:: whylogs.api.store.profile_store
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.store.profile_store.ProfileStore
+
+
+
+
+.. py:class:: ProfileStore
+
+   Bases: :py:obj:`abc.ABC`
+
+   A holder object for profiles.
+
+   .. py:method:: get_matching_profile(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, segment: Optional[whylogs.core.Segment] = None, schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> List[whylogs.core.DatasetProfile]
+      :abstractmethod:
+
+
+   .. py:method:: read(id: Optional[str], dataset_timestamp: Optional[datetime.datetime] = None, segment: Optional[whylogs.core.Segment] = None, schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> Optional[whylogs.core.DatasetProfile]
+      :abstractmethod:
+
+
+   .. py:method:: write(data: whylogs.api.writer.writer.Writable, model_id: Optional[str] = None, dataset_timestamp: Optional[datetime.datetime] = None, segment: Optional[whylogs.core.Segment] = None, schema: Optional[whylogs.core.schema.DatasetSchema] = None) -> None
+      :abstractmethod:
+
+
+   .. py:method:: query(*args: Any, **kwargs: Any) -> List[whylogs.core.DatasetProfile]
+      :abstractmethod:
+
+
+

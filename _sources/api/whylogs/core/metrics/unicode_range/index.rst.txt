@@ -87,7 +87,7 @@ Classes
       :classmethod:
 
 
-   .. py:method:: get_namespace(config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
 

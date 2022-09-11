@@ -12,12 +12,47 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.api.logger.result_set.ResultSet
-   whylogs.api.logger.result_set.ProfileResultSet
-   whylogs.api.logger.result_set.ViewResultSet
    whylogs.api.logger.result_set.ResultSetWriter
    whylogs.api.logger.result_set.ResultSetReader
+   whylogs.api.logger.result_set.ResultSet
+   whylogs.api.logger.result_set.ViewResultSet
+   whylogs.api.logger.result_set.ProfileResultSet
+   whylogs.api.logger.result_set.SegmentedResultSet
 
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.result_set.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:class:: ResultSetWriter(results: ResultSet, writer: whylogs.api.writer.Writer)
+
+   Result of a logging call.
+   A result set might contain one or multiple profiles or profile views.
+
+   .. py:method:: option(**kwargs: Any) -> ResultSetWriter
+
+
+   .. py:method:: write(**kwargs: Any) -> None
+
+
+
+.. py:class:: ResultSetReader(reader: whylogs.api.reader.Reader)
+
+   .. py:method:: option(**kwargs: Any) -> ResultSetReader
+
+
+   .. py:method:: read(**kwargs: Any) -> ResultSet
 
 
 
@@ -44,42 +79,15 @@ Classes
    .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
-   .. py:method:: view() -> whylogs.core.DatasetProfileView
+   .. py:method:: view() -> Optional[whylogs.core.DatasetProfileView]
       :abstractmethod:
 
 
-   .. py:method:: profile() -> whylogs.core.DatasetProfile
+   .. py:method:: profile() -> Optional[whylogs.core.DatasetProfile]
       :abstractmethod:
 
 
-
-.. py:class:: ProfileResultSet(profile: whylogs.core.DatasetProfile)
-
-   Bases: :py:obj:`ResultSet`
-
-   A holder object for profiling results.
-
-   A whylogs.log call can result in more than one profile. This wrapper class
-   simplifies the navigation among these profiles.
-
-   Note that currently we only hold one profile but we're planning to add other
-   kinds of profiles such as segmented profiles here.
-
-   .. py:method:: profile() -> whylogs.core.DatasetProfile
-
-
-   .. py:method:: view() -> whylogs.core.DatasetProfileView
-
-
-   .. py:method:: read(multi_profile_file: str) -> ResultSet
-      :staticmethod:
-
-
-   .. py:method:: reader(name: str = 'local') -> ResultSetReader
-      :staticmethod:
-
-
-   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
 
 
 
@@ -95,10 +103,10 @@ Classes
    Note that currently we only hold one profile but we're planning to add other
    kinds of profiles such as segmented profiles here.
 
-   .. py:method:: profile() -> whylogs.core.DatasetProfile
+   .. py:method:: profile() -> Optional[whylogs.core.DatasetProfile]
 
 
-   .. py:method:: view() -> whylogs.core.DatasetProfileView
+   .. py:method:: view() -> Optional[whylogs.core.DatasetProfileView]
 
 
    .. py:method:: read(multi_profile_file: str) -> ResultSet
@@ -112,26 +120,87 @@ Classes
    .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
-
-.. py:class:: ResultSetWriter(results: ResultSet, writer: whylogs.api.writer.Writer)
-
-   Result of a logging call.
-
-   A result set might contain one or multiple profiles or profile views.
-
-   .. py:method:: option(**kwargs: Any) -> ResultSetWriter
-
-
-   .. py:method:: write(**kwargs: Any) -> None
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
 
 
 
-.. py:class:: ResultSetReader(reader: whylogs.api.reader.Reader)
+.. py:class:: ProfileResultSet(profile: whylogs.core.DatasetProfile)
 
-   .. py:method:: option(**kwargs: Any) -> ResultSetReader
+   Bases: :py:obj:`ResultSet`
+
+   A holder object for profiling results.
+
+   A whylogs.log call can result in more than one profile. This wrapper class
+   simplifies the navigation among these profiles.
+
+   Note that currently we only hold one profile but we're planning to add other
+   kinds of profiles such as segmented profiles here.
+
+   .. py:method:: profile() -> Optional[whylogs.core.DatasetProfile]
 
 
-   .. py:method:: read(**kwargs: Any) -> ResultSet
+   .. py:method:: view() -> Optional[whylogs.core.DatasetProfileView]
+
+
+   .. py:method:: read(multi_profile_file: str) -> ResultSet
+      :staticmethod:
+
+
+   .. py:method:: reader(name: str = 'local') -> ResultSetReader
+      :staticmethod:
+
+
+   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
+
+
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+
+
+
+.. py:class:: SegmentedResultSet(segments: Dict[str, Dict[whylogs.core.Segment, whylogs.core.DatasetProfile]], partitions: Optional[List[whylogs.core.segmentation_partition.SegmentationPartition]] = None)
+
+   Bases: :py:obj:`ResultSet`
+
+   A holder object for profiling results.
+
+   A whylogs.log call can result in more than one profile. This wrapper class
+   simplifies the navigation among these profiles.
+
+   Note that currently we only hold one profile but we're planning to add other
+   kinds of profiles such as segmented profiles here.
+
+   .. py:method:: profile(segment: Optional[whylogs.core.Segment] = None) -> Optional[whylogs.core.DatasetProfile]
+
+
+   .. py:method:: partitions() -> Optional[List[whylogs.core.segmentation_partition.SegmentationPartition]]
+      :property:
+
+
+   .. py:method:: segments(restrict_to_parition_id: Optional[str] = None) -> Optional[List[whylogs.core.Segment]]
+
+
+   .. py:method:: count() -> int
+      :property:
+
+
+   .. py:method:: segments_in_partition(partition: whylogs.core.segmentation_partition.SegmentationPartition) -> Optional[Dict[whylogs.core.Segment, whylogs.core.DatasetProfile]]
+
+
+   .. py:method:: view(segment: Optional[whylogs.core.Segment] = None) -> Optional[whylogs.core.DatasetProfileView]
+
+
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+
+
+   .. py:method:: read(multi_profile_file: str) -> ResultSet
+      :staticmethod:
+
+
+   .. py:method:: reader(name: str = 'local') -> ResultSetReader
+      :staticmethod:
+
+
+   .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
 

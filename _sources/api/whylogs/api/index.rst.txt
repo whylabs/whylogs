@@ -12,6 +12,7 @@ Subpackages
 
    logger/index.rst
    reader/index.rst
+   store/index.rst
    usage_stats/index.rst
    writer/index.rst
 
@@ -76,12 +77,15 @@ Functions
    .. py:method:: writer(name: str = 'local') -> ResultSetWriter
 
 
-   .. py:method:: view() -> whylogs.core.DatasetProfileView
+   .. py:method:: view() -> Optional[whylogs.core.DatasetProfileView]
       :abstractmethod:
 
 
-   .. py:method:: profile() -> whylogs.core.DatasetProfile
+   .. py:method:: profile() -> Optional[whylogs.core.DatasetProfile]
       :abstractmethod:
+
+
+   .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
 
 
 

@@ -12,16 +12,16 @@ Classes
 
 .. autoapisummary::
 
-   whylogs.core.projectors.SingleFieldProjector
+   whylogs.core.projectors.FieldProjector
 
 
 
 
-.. py:class:: SingleFieldProjector(col_name: str)
+.. py:class:: FieldProjector(col_names: List[str])
 
    Bases: :py:obj:`object`
 
-   .. py:method:: apply(row: Dict[str, Any]) -> Any
+   .. py:method:: apply(row: Dict[str, Any]) -> Dict[str, Any]
 
 
 

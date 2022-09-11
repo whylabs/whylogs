@@ -1,0 +1,124 @@
+:py:mod:`whylogs.core.segmentation_partition`
+=============================================
+
+.. py:module:: whylogs.core.segmentation_partition
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.segmentation_partition.ColumnMapperFunction
+   whylogs.core.segmentation_partition.SegmentFilter
+   whylogs.core.segmentation_partition.SegmentationPartition
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.segmentation_partition.segment_on_column
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.segmentation_partition.logger
+   whylogs.core.segmentation_partition.MAX_SEGMENTS_ERROR_THRESHOLD
+   whylogs.core.segmentation_partition.MAX_SEGMENTS_WARNING_THRESHOLD
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:data:: MAX_SEGMENTS_ERROR_THRESHOLD
+   :annotation: = 2000
+
+   
+
+.. py:data:: MAX_SEGMENTS_WARNING_THRESHOLD
+   :annotation: = 200
+
+   
+
+.. py:class:: ColumnMapperFunction
+
+   .. py:attribute:: col_names
+      :annotation: :Optional[List[str]]
+
+      
+
+   .. py:attribute:: map
+      :annotation: :Optional[Callable]
+
+      
+
+   .. py:attribute:: field_projector
+      :annotation: :whylogs.core.projectors.FieldProjector
+
+      
+
+   .. py:attribute:: id
+      :annotation: :str
+
+      
+
+
+.. py:class:: SegmentFilter
+
+   .. py:attribute:: filter_function
+      :annotation: :Optional[Callable]
+
+      
+
+   .. py:attribute:: query_string
+      :annotation: :Optional[str]
+
+      
+
+
+.. py:class:: SegmentationPartition
+
+   .. py:attribute:: name
+      :annotation: :str
+
+      
+
+   .. py:attribute:: mapper
+      :annotation: :Optional[ColumnMapperFunction]
+
+      
+
+   .. py:attribute:: id
+      :annotation: :str
+
+      
+
+   .. py:attribute:: filter
+      :annotation: :Optional[SegmentFilter]
+
+      
+
+   .. py:method:: simple() -> bool
+      :property:
+
+
+   .. py:method:: filter_id() -> str
+      :property:
+
+
+
+.. py:function:: segment_on_column(column_name: str) -> Mapping[str, SegmentationPartition]
+
+

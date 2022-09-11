@@ -12,6 +12,7 @@ Submodules
 
    column_profile_view/index.rst
    dataset_profile_view/index.rst
+   segmented_dataset_profile_view/index.rst
 
 
 Package Contents

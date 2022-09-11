@@ -148,7 +148,7 @@ Attributes
    Helper class that provides a standard way to create an ABC using
    inheritance.
 
-   .. py:method:: get_namespace(config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
 
@@ -222,7 +222,7 @@ Attributes
       :property:
 
 
-   .. py:method:: get_namespace(config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
 
@@ -351,7 +351,7 @@ Attributes
       :classmethod:
 
 
-   .. py:method:: get_namespace(config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
 
@@ -419,7 +419,7 @@ Attributes
       :classmethod:
 
 
-   .. py:method:: get_namespace(config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
 
@@ -475,7 +475,7 @@ Attributes
       :classmethod:
 
 
-   .. py:method:: get_namespace(config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
 
@@ -516,7 +516,7 @@ Attributes
       :classmethod:
 
 
-   .. py:method:: get_namespace(config: MetricConfig) -> str
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
       :classmethod:
 
 

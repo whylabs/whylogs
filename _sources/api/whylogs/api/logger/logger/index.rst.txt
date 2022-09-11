@@ -18,6 +18,19 @@ Classes
 
 
 
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.logger.logger
+
+
+.. py:data:: logger
+   
+
+   
+
 .. py:class:: BasicCache
 
    Bases: :py:obj:`object`

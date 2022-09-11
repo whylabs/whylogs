@@ -1,0 +1,35 @@
+:py:mod:`whylogs.api.logger.segment_processing`
+===============================================
+
+.. py:module:: whylogs.api.logger.segment_processing
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.segment_processing.segment_processing
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.logger.segment_processing.logger
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:function:: segment_processing(schema: whylogs.core.DatasetSchema, obj: Any = None, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None) -> whylogs.api.logger.result_set.SegmentedResultSet
+
+

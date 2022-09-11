@@ -112,6 +112,11 @@ Package Contents
 
    
 
+.. py:data:: SegmentationPartition
+   
+
+   
+
 .. py:data:: DatasetSegmentHeader
    
 
