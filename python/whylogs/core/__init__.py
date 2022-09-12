@@ -4,6 +4,8 @@ from .datatypes import TypeMapper
 from .metrics import MetricConfig
 from .resolvers import Resolver
 from .schema import ColumnSchema, DatasetSchema
+from .segment import Segment
+from .segmentation_partition import SegmentationPartition
 from .view import WHYLOGS_MAGIC_HEADER, ColumnProfileView, DatasetProfileView
 
 __ALL__ = [
@@ -21,4 +23,6 @@ __ALL__ = [
     # Views
     ColumnProfileView,
     DatasetProfileView,
+    Segment,
+    SegmentationPartition,
 ]

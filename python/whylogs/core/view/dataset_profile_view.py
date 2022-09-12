@@ -72,8 +72,8 @@ class DatasetProfileView(Writable):
             merged_columns[n] = res
         return DatasetProfileView(
             columns=merged_columns,
-            dataset_timestamp=self._dataset_timestamp,
-            creation_timestamp=self._creation_timestamp,
+            dataset_timestamp=self._dataset_timestamp if self._dataset_timestamp else other.dataset_timestamp,
+            creation_timestamp=self._creation_timestamp if self._creation_timestamp else other.creation_timestamp,
         )
 
     def get_column(self, col_name: str) -> Optional[ColumnProfileView]:
@@ -138,6 +138,7 @@ class DatasetProfileView(Writable):
                 indexed_metric_paths=metric_index_to_name,
             )
 
+            # single file segments
             dataset_segment_header = DatasetSegmentHeader(
                 has_segments=False,
             )
@@ -168,9 +169,10 @@ class DatasetProfileView(Writable):
 
             dataset_segment_header = read_delimited_protobuf(f, DatasetSegmentHeader)
             if dataset_segment_header.has_segments:
-                raise DeserializationError("File contains segments. This is not supported yet")
+                logger.warning(
+                    "File contains segments. Only first profile will be deserialized into this DatasetProfileView"
+                )
 
-            # TODO: handle segment data
             dataset_profile_header = read_delimited_protobuf(f, DatasetProfileHeader)
             if dataset_profile_header.ByteSize() == 0:
                 raise DeserializationError("Missing valid dataset profile header")

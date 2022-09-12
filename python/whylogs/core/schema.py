@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Mapping, Optional, TypeVar
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import Resolver, StandardResolver
+from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
 from whylogs.core.validators.validator import Validator
 
@@ -68,6 +69,7 @@ class DatasetSchema:
         resolvers: Optional[Resolver] = None,
         cache_size: int = 1024,
         schema_based_automerge: bool = False,
+        segments: Optional[Dict[str, SegmentationPartition]] = None,
         validators: Dict[str, List[Validator]] = None,
     ) -> None:
         self._columns = dict()
@@ -77,6 +79,7 @@ class DatasetSchema:
         self.resolvers = resolvers or StandardResolver()
         self.cache_size = cache_size
         self.schema_based_automerge = schema_based_automerge
+        self.segments = segments or dict()
         self.validators = validators or dict()
 
         if self.cache_size < 0:
@@ -107,6 +110,7 @@ class DatasetSchema:
         args = {k: deepcopy(self.__dict__[k]) for k in keys if k not in self.types}
         copy = self.__class__(**args)
         copy._columns = deepcopy(self._columns)
+        copy.segments = self.segments.copy()
         return copy
 
     def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool:
