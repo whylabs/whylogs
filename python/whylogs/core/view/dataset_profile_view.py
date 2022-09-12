@@ -29,6 +29,7 @@ WHYLOGS_MAGIC_HEADER = "WHY1"
 WHYLOGS_MAGIC_HEADER_LEN = 4
 
 WHYLOGS_MAGIC_HEADER_BYTES = WHYLOGS_MAGIC_HEADER.encode("utf-8")
+_MODEL_PERFORMANCE = "model_performance_metrics"
 
 logger = logging.getLogger(__name__)
 
@@ -42,11 +43,17 @@ class DatasetProfileView(Writable):
     _columns: Dict[str, ColumnProfileView]
 
     def __init__(
-        self, *, columns: Dict[str, ColumnProfileView], dataset_timestamp: datetime, creation_timestamp: datetime
+        self,
+        *,
+        columns: Dict[str, ColumnProfileView],
+        dataset_timestamp: datetime,
+        creation_timestamp: datetime,
+        metrics: Optional[Dict[str, Any]] = None,
     ):
         self._columns = columns.copy()
         self._dataset_timestamp = dataset_timestamp
         self._creation_timestamp = creation_timestamp
+        self._metrics = metrics
 
     @property
     def dataset_timestamp(self) -> datetime:
@@ -55,6 +62,12 @@ class DatasetProfileView(Writable):
     @property
     def creation_timestamp(self) -> datetime:
         return self._creation_timestamp
+
+    @property
+    def model_performance_metrics(self) -> Any:
+        if self._metrics:
+            return self._metrics.get(_MODEL_PERFORMANCE)
+        return None
 
     def merge(self, other: "DatasetProfileView") -> "DatasetProfileView":
         all_names = set(self._columns.keys()).union(other._columns.keys())
@@ -89,8 +102,16 @@ class DatasetProfileView(Writable):
         return f"profile_{self.creation_timestamp}.bin"
 
     def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
-        all_metric_component_names = set()
         path = path or self.get_default_path()
+        if self._metrics and _MODEL_PERFORMANCE in self._metrics:
+            from whylogs.migration.converters import v1_to_dataset_profile_message_v0
+
+            message_v0 = v1_to_dataset_profile_message_v0(self.profile_view, self.segment, self.partition)
+            with open(path, "w+b") as out_f:
+                write_delimited_protobuf(out_f, message_v0)
+            return
+
+        all_metric_component_names = set()
 
         # capture the list of all metric component paths
         for col in self._columns.values():
