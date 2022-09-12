@@ -147,7 +147,7 @@ class DatasetProfile(Writable):
 
         raise NotImplementedError
 
-    def track_classification_metrics(
+    def _track_classification_metrics(
         self,
         targets,
         predictions,
@@ -190,7 +190,7 @@ class DatasetProfile(Writable):
             score_field=score_field,
         )
 
-    def track_regression_metrics(
+    def _track_regression_metrics(
         self,
         targets,
         predictions,

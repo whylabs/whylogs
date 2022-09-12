@@ -2,14 +2,14 @@ from logging import getLogger
 from typing import Dict, List, Optional, Set, Union
 
 from whylogs.core.metrics.metrics import Metric
+from whylogs.core.proto.v0 import ModelMetricsMessage, ModelProfileMessage
 
 from .confusion_matrix import ConfusionMatrix
 from .regression_metrics import RegressionMetrics
-from whylogs.core.proto.v0 import ModelMetricsMessage, ModelProfileMessage, ModelType
-
 
 OUTPUT_FIELD_CATEGORY = "output"
 logger = getLogger(__name__)
+
 
 class ModelPerformanceMetrics:
     """
@@ -50,7 +50,11 @@ class ModelPerformanceMetrics:
         message: ModelProfileMessage,
     ) -> "ModelPerformanceMetrics":
         # TODO: update format to support storing other field metadata, for now just support output field in v0 message format
-        output_fields = {column_name: set([OUTPUT_FIELD_CATEGORY]) for column_name in message.output_fields} if message.output_fields else None
+        output_fields = (
+            {column_name: set([OUTPUT_FIELD_CATEGORY]) for column_name in message.output_fields}
+            if message.output_fields
+            else None
+        )
         confusion_matrix = None
         regression_metrics = None
         if message.metrics is None:
@@ -58,11 +62,9 @@ class ModelPerformanceMetrics:
         else:
             confusion_matrix = ConfusionMatrix.from_protobuf(message.metrics.scoreMatrix)
             regression_metrics = RegressionMetrics.from_protobuf(message.metrics.regressionMetrics)
- 
+
         return ModelPerformanceMetrics(
-            confusion_matrix=confusion_matrix,
-            regression_metrics=regression_metrics,
-            field_metadata=output_fields
+            confusion_matrix=confusion_matrix, regression_metrics=regression_metrics, field_metadata=output_fields
         )
 
     def compute_confusion_matrix(
@@ -117,14 +119,14 @@ class ModelPerformanceMetrics:
         if not self.field_metadata:
             self.field_metadata = dict()
         self.field_metadata[column_name] = categories
-    
+
     def _set_column_value(self, column_name, value):
-        if not column_name in self.field_metadata:
+        if column_name not in self.field_metadata:
             self.field_metadata[column_name] = set([value])
         else:
             self.field_metadata[column_name].add(value)
 
-    def specify_output_fields(self, column_names: Union[str,Set[str]]) -> None:
+    def specify_output_fields(self, column_names: Union[str, Set[str]]) -> None:
         if not self.field_metadata:
             self.field_metadata = dict()
         if isinstance(column_names, str):
@@ -132,6 +134,7 @@ class ModelPerformanceMetrics:
         else:
             for column_name in column_names:
                 self._set_column_value(column_name, OUTPUT_FIELD_CATEGORY)
+
     @property
     def output_fields(self) -> Optional[List[str]]:
         output_column_names = None
@@ -143,7 +146,6 @@ class ModelPerformanceMetrics:
                         output_column_names = []
                     output_column_names.append(column_name)
         return output_column_names
-
 
     def merge(self, other):
         """
@@ -173,8 +175,11 @@ class ModelPerformanceMetrics:
             merged_field_metadata = other.field_metadata
         self.field_metadata = merged_field_metadata
         return ModelPerformanceMetrics(
-            confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix) if self.confusion_matrix else other.confusion_matrix,
-            regression_metrics=self.regression_metrics.merge(other.regression_metrics) if self.regression_metrics else other.regression_metrics,
-            field_metadata=merged_field_metadata
+            confusion_matrix=self.confusion_matrix.merge(other.confusion_matrix)
+            if self.confusion_matrix
+            else other.confusion_matrix,
+            regression_metrics=self.regression_metrics.merge(other.regression_metrics)
+            if self.regression_metrics
+            else other.regression_metrics,
+            field_metadata=merged_field_metadata,
         )
-

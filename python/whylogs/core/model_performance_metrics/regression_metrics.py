@@ -3,6 +3,7 @@ from typing import List
 
 from whylogs.core.proto.v0 import RegressionMetricsMessage
 
+
 class RegressionMetrics:
     def __init__(self, prediction_field: str = None, target_field: str = None):
         self.prediction_field = prediction_field

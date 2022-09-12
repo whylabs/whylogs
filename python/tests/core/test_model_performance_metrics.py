@@ -20,20 +20,26 @@ def test_model_performance_metrics_basic():
     assert deserialized_model_perf.confusion_matrix.labels is not None
     assert deserialized_model_perf.confusion_matrix.labels == mod_prof.confusion_matrix.labels
 
+
 def test_roundtrip_serialization():
-    original = ModelPerformanceMetrics(field_metadata={"test":set(["output"])})
+    original = ModelPerformanceMetrics(field_metadata={"test": set(["output"])})
     serialized_bytes = original.to_protobuf().SerializeToString()
-    roundtrip: ModelPerformanceMetrics = ModelPerformanceMetrics.from_protobuf(ModelProfileMessage.FromString(serialized_bytes))
+    roundtrip: ModelPerformanceMetrics = ModelPerformanceMetrics.from_protobuf(
+        ModelProfileMessage.FromString(serialized_bytes)
+    )
     roundtrip.to_protobuf()
     assert roundtrip.output_fields == ["test"]
     assert isinstance(roundtrip.output_fields, list)
+
 
 def test_output_field_set():
     output_fields = ["test", "output.test"]
     original = ModelPerformanceMetrics()
     original.specify_output_fields(set(output_fields))
     serialized_bytes = original.to_protobuf().SerializeToString()
-    roundtrip: ModelPerformanceMetrics = ModelPerformanceMetrics.from_protobuf(ModelProfileMessage.FromString(serialized_bytes))
+    roundtrip: ModelPerformanceMetrics = ModelPerformanceMetrics.from_protobuf(
+        ModelProfileMessage.FromString(serialized_bytes)
+    )
     roundtrip.to_protobuf()
     assert sorted(roundtrip.output_fields) == sorted(output_fields)
     assert isinstance(roundtrip.output_fields, list)

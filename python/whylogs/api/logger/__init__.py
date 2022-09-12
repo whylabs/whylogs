@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 from typing_extensions import Literal
 
 from whylogs.api.logger.logger import Logger
-from whylogs.api.logger.result_set import ResultSet, ResultSetReader
+from whylogs.api.logger.result_set import ProfileResultSet, ResultSet, ResultSetReader
 from whylogs.api.logger.rolling import TimedRollingLogger
 from whylogs.api.logger.transient import TransientLogger
 from whylogs.core import DatasetProfile, DatasetSchema
@@ -24,14 +24,13 @@ def log(
 
 
 def log_classification_metrics(
-    self,
     targets,
     predictions,
     scores=None,
     target_field=None,
     prediction_field=None,
     score_field=None,
-):
+) -> ProfileResultSet:
     """
     Function to track metrics based on validation data.
     user may also pass the associated attribute names associated with
@@ -64,18 +63,19 @@ def log_classification_metrics(
         prediction_field=prediction_field,
         score_field=score_field,
     )
-    return model_performance_metrics
+    profile = DatasetProfile()
+    profile.add_model_performance_metric(model_performance_metrics)
+    return ProfileResultSet(profile)
 
 
 def log_regression_metrics(
-    self,
     targets,
     predictions,
     scores=None,
     target_field=None,
     prediction_field=None,
     score_field=None,
-):
+) -> ProfileResultSet:
     """
     Function to track regression metrics based on validation data.
     user may also pass the associated attribute names associated with
@@ -108,7 +108,9 @@ def log_regression_metrics(
         prediction_field=prediction_field,
         score_field=score_field,
     )
-    return model_performance_metrics
+    profile = DatasetProfile()
+    profile.add_model_performance_metric(model_performance_metrics)
+    return ProfileResultSet(profile)
 
 
 def read(path: str) -> ResultSet:

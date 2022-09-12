@@ -1,16 +1,12 @@
 from logging import getLogger
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
+
+import whylogs_sketching as ds  # type: ignore
 
 from whylogs.core.metrics.metric_components import FractionalComponent, KllComponent
 from whylogs.core.metrics.metrics import DistributionMetric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
-
-import whylogs_sketching as ds  # type: ignore
-from whylogs.core.proto.v0 import (
-    NumbersMessageV0,
-    VarianceMessage,
-    ScoreMatrixMessage
-)
+from whylogs.core.proto.v0 import NumbersMessageV0, ScoreMatrixMessage, VarianceMessage
 
 MODEL_METRICS_MAX_LABELS = 256
 MODEL_METRICS_LABEL_SIZE_WARNING_THRESHOLD = 64
@@ -21,12 +17,14 @@ EMPTY_THETA: bytes = _empty_theta_union.get_result().serialize()
 
 _logger = getLogger("whylogs")
 
+
 def _encode_to_integers(values, uniques):
     table = {val: i for i, val in enumerate(uniques)}
     for v in values:
         if v not in uniques:
             raise ValueError("Can not encode values not in unique set")
     return [table[v] for v in values]
+
 
 class ConfusionMatrix:
     """
@@ -42,7 +40,7 @@ class ConfusionMatrix:
 
     def __init__(
         self,
-        labels: List[str] = None,
+        labels: List[Union[str, float]] = None,
         prediction_field: str = None,
         target_field: str = None,
         score_field: str = None,
@@ -69,16 +67,16 @@ class ConfusionMatrix:
 
             self.labels = sorted(labels)
         else:
-            self.labels = None
+            self.labels = list()
 
-        self.confusion_matrix = dict()
+        self.confusion_matrix: Dict[Tuple[int, int], DistributionMetric] = dict()
         self.default_config = MetricConfig()
 
     def add(
         self,
-        predictions: List[Union[str, int, bool]],
-        targets: List[Union[str, int, bool]],
-        scores: List[float],
+        predictions: List[Union[str, int, bool, float]],
+        targets: List[Union[str, int, bool, float]],
+        scores: Optional[List[float]],
     ):
         """
         Function adds predictions and targets to confusion matrix with scores.
@@ -152,7 +150,9 @@ class ConfusionMatrix:
         variance_message.count = dist.n
         variance_message.mean = dist.mean.value
         variance_message.sum = dist.m2.value
-        return NumbersMessageV0(histogram=dist.kll.value.serialize(), compact_theta=EMPTY_THETA, variance=variance_message)
+        return NumbersMessageV0(
+            histogram=dist.kll.value.serialize(), compact_theta=EMPTY_THETA, variance=variance_message
+        )
 
     @staticmethod
     def _numbers_to_dist(numbers: NumbersMessageV0) -> DistributionMetric:
@@ -178,7 +178,7 @@ class ConfusionMatrix:
         confusion_matrix_entries: List[NumbersMessageV0] = []
         for j in range(size):
             for i in range(size):
-                entry_key = i,j
+                entry_key = i, j
                 entry = self.confusion_matrix.get(entry_key)
                 confusion_matrix_entries.append(ConfusionMatrix._dist_to_numbers(entry))
 
@@ -203,7 +203,7 @@ class ConfusionMatrix:
         for j in range(num_labels):
             for i in range(num_labels):
                 index = j * num_labels + i
-                entry_key = i,j
+                entry_key = i, j
                 entry = message.scores[index]
                 matrix[entry_key] = ConfusionMatrix._numbers_to_dist(entry)
 
@@ -237,6 +237,8 @@ def _merge_CM(old_conf_matrix: ConfusionMatrix, new_conf_matrix: ConfusionMatrix
         for old_column_idx, each_column_inx in enumerate(new_indxes):
             new_entry = new_conf_matrix.confusion_matrix.get((each_row_indx, each_column_inx))
             old_entry = old_conf_matrix.confusion_matrix.get((old_indxes[old_row_idx], old_indxes[old_column_idx]))
-            res_conf_matrix.confusion_matrix[each_row_indx, each_column_inx] = new_entry.merge(old_entry) if new_entry else old_entry
+            res_conf_matrix.confusion_matrix[each_row_indx, each_column_inx] = (
+                new_entry.merge(old_entry) if new_entry else old_entry
+            )
 
     return res_conf_matrix

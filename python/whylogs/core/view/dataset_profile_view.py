@@ -106,7 +106,7 @@ class DatasetProfileView(Writable):
         if self._metrics and _MODEL_PERFORMANCE in self._metrics:
             from whylogs.migration.converters import v1_to_dataset_profile_message_v0
 
-            message_v0 = v1_to_dataset_profile_message_v0(self.profile_view, self.segment, self.partition)
+            message_v0 = v1_to_dataset_profile_message_v0(self, None, None)
             with open(path, "w+b") as out_f:
                 write_delimited_protobuf(out_f, message_v0)
             return
