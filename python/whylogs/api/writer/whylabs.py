@@ -164,28 +164,35 @@ class WhyLabsWriter(Writer):
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> None:
-        profile_view = file.view() if isinstance(file, DatasetProfile) else file
-        has_segments = isinstance(profile_view, SegmentedDatasetProfileView)
+        view = file.view() if isinstance(file, DatasetProfile) else file
+        has_segments = isinstance(view, SegmentedDatasetProfileView)
 
-        if not has_segments and not isinstance(profile_view, DatasetProfileView):
+        if not has_segments and not isinstance(view, DatasetProfileView):
             raise ValueError(
                 "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
             )
 
         if _uncompound_metric_feature_flag():
-            profile_view = _uncompund_dataset_profile(profile_view)
+            if has_segments:
+                updated_profile_view = _uncompund_dataset_profile(view.profile_view)
+                view = SegmentedDatasetProfileView(
+                    profile_view=updated_profile_view, segment=view._segment, partition=view._partition
+                )
+
+            else:
+                view = _uncompund_dataset_profile(view)
 
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
 
         with tempfile.NamedTemporaryFile() as tmp_file:
             if has_segments:
-                profile_view.write(path=tmp_file.name, use_v0=True)
+                view.write(path=tmp_file.name, use_v0=True)
             else:
-                profile_view.write(path=tmp_file.name)
+                view.write(path=tmp_file.name)
             tmp_file.flush()
 
-            dataset_timestamp = profile_view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
+            dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
             self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
