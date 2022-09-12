@@ -228,7 +228,7 @@ For a full set of our examples, please check out the [examples folder](https://g
 
 ## Usage Statistics<a name="whylogs-profiles" />
 
-Starting with whylogs v1.0.0, whylogs collects anonymous information about a user’s environment. These usage statistics do not include any information about the user or the data that they are profiling, only the environment that the user in which the user is running whylogs.
+Starting with whylogs v1.0.0, whylogs by default collects anonymous information about a user’s environment. These usage statistics do not include any information about the user or the data that they are profiling, only the environment that the user in which the user is running whylogs.
 
 To read more about what usage statistics whylogs collects, check out the relevant [documentation](https://docs.whylabs.ai/docs/usage-statistics/).
 
