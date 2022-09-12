@@ -24,6 +24,11 @@ public class ColumnProfileView {
   }
 
   public ColumnProfileView merge(ColumnProfileView otherView) {
+    if(otherView == null){
+      // TODO: log warning that otehrwas null and this returns original
+      return this;
+    }
+
     HashSet<String> allMetricNames = new HashSet<>();
     allMetricNames.addAll(this.metrics.keySet());
     allMetricNames.addAll(otherView.metrics.keySet());
@@ -75,7 +80,7 @@ public class ColumnProfileView {
   }
 
   public HashMap<String, Object> toSummaryDict(
-      Optional<String> columnMetric, Optional<SummaryConfig> config) throws UnsupportedError {
+          Optional<String> columnMetric, Optional<SummaryConfig> config) throws UnsupportedError {
     SummaryConfig summaryConfig = config.orElse(new SummaryConfig());
     HashMap<String, Object> summary = new HashMap<>();
 
@@ -87,13 +92,12 @@ public class ColumnProfileView {
       }
     }
 
-    // TODO: there was a logger for when a ssummary couldn't be implmented for a metric
+    // TODO: there was a logger for when a summary couldn't be implmented for a metric
 
     if (columnMetric.isPresent() && columnMetric.get().length() == 0) {
       throw new UnsupportedError(
           "No metric available for requested column metric: " + columnMetric.get());
     }
-
     return summary;
   }
 
