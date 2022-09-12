@@ -2,9 +2,8 @@ package com.whylogs.core.metrics;
 
 import com.whylogs.core.PreprocessedColumn;
 import com.whylogs.core.SummaryConfig;
-import java.util.HashMap;
-
 import com.whylogs.core.metrics.components.MetricComponent;
+import java.util.HashMap;
 import lombok.*;
 
 @EqualsAndHashCode
@@ -23,13 +22,13 @@ public abstract class Metric {
 
   public abstract HashMap<String, MetricComponent> getComponents();
 
-  public Metric merge(Metric other){
+  public Metric merge(Metric other) {
     Metric merged = this;
-    if(!this.namespace.equals(other.namespace)){
+    if (!this.namespace.equals(other.namespace)) {
       throw new IllegalArgumentException("Cannot merge metrics with different namespaces");
     }
 
-    if(this instanceof IntegralMetric){
+    if (this instanceof IntegralMetric) {
       ((IntegralMetric) merged).merge((IntegralMetric) other);
     }
     return merged;

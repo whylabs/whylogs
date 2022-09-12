@@ -1,11 +1,12 @@
 package com.whylogs.core.views;
 
 public enum SummaryType {
-    COLUMN("COLUMN"),
-    DATASET("DATASET");
+  COLUMN("COLUMN"),
+  DATASET("DATASET");
 
-    public final String label;
-    private SummaryType(String label) {
-        this.label = label;
-    }
+  public final String label;
+
+  private SummaryType(String label) {
+    this.label = label;
+  }
 }
