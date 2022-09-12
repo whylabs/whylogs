@@ -17,6 +17,10 @@ public class DatasetProfileView {
   private Date creationTimestamp;
 
   public DatasetProfileView merge(DatasetProfileView otherView) {
+    if(otherView == null) {
+      return this;
+    }
+
     HashMap<String, ColumnProfileView> mergedColumns = new HashMap<>();
     HashSet<String> allNames = new HashSet<>();
     allNames.addAll(this.columns.keySet());
