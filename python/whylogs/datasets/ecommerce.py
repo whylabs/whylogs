@@ -8,7 +8,7 @@ from typing import Iterable, Optional, Tuple, Union
 import pandas as pd
 
 from whylogs.datasets.base import Batch, Dataset
-from whylogs.datasets.configs import BaseConfig, DatasetConfig, WeatherConfig, EcommerceConfig
+from whylogs.datasets.configs import BaseConfig, DatasetConfig, EcommerceConfig
 from whylogs.datasets.utils import (
     _adjust_df_date,
     _get_dataset_path,
@@ -75,23 +75,6 @@ class Ecommerce(Dataset):
 
         self.baseline_df = _adjust_df_date(self.baseline_df, new_start_date=self.baseline_timestamp)
         self.inference_df = _adjust_df_date(self.inference_df, new_start_date=self.inference_start_timestamp)
-
-    def get_baseline(self) -> Batch:
-        return
-
-    def get_inference_data(
-        self, target_date: Optional[Union[date, datetime]] = None, number_batches: Optional[int] = None
-    ) -> Union[Batch, Iterable[Batch]]:
-        return
-
-    def set_parameters(
-        self,
-        inference_interval: Optional[str] = None,
-        baseline_timestamp: Optional[Union[date, datetime]] = None,
-        inference_start_timestamp: Optional[Union[date, datetime]] = None,
-        original: Optional[bool] = None,
-    ) -> None:
-        return
 
     @classmethod
     def describe_versions(cls) -> Tuple[str]:
