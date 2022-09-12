@@ -1,0 +1,148 @@
+:py:mod:`whylogs.extras.image_metric`
+=====================================
+
+.. py:module:: whylogs.extras.image_metric
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.extras.image_metric.ImageMetric
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.extras.image_metric.get_pil_image_statistics
+   whylogs.extras.image_metric.get_pil_image_metadata
+   whylogs.extras.image_metric.image_based_metadata
+   whylogs.extras.image_metric.log_image
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.extras.image_metric.logger
+   whylogs.extras.image_metric.ImageType
+   whylogs.extras.image_metric.DEFAULT_IMAGE_FEATURES
+
+
+.. py:data:: logger
+   
+
+   
+
+.. py:data:: ImageType
+   
+
+   
+
+.. py:data:: DEFAULT_IMAGE_FEATURES
+   :annotation: :List[str] = []
+
+   
+
+.. py:function:: get_pil_image_statistics(img: PIL.Image.Image, channels: List[str] = _IMAGE_HSV_CHANNELS, image_stats: List[str] = _STATS_PROPERTIES) -> Dict
+
+   Compute statistics data for a PIL Image
+
+   :param img: PIL Image
+   :type img: ImageType
+
+   :returns: of metadata
+   :rtype: Dict
+
+
+.. py:function:: get_pil_image_metadata(img: PIL.Image.Image) -> Dict
+
+   Grab statistics data from a PIL ImageStats.Stat
+
+   :param img: PIL Image
+   :type img: ImageType
+
+   :returns: of metadata
+   :rtype: Dict
+
+
+.. py:function:: image_based_metadata(img)
+
+
+.. py:class:: ImageMetric(submetrics: Dict[str, whylogs.core.metrics.metrics.Metric])
+
+   Bases: :py:obj:`whylogs.core.metrics.compound_metric.CompoundMetric`
+
+   CompoundMetric serves as a base class for custom metrics that consist
+   of one or more metrics. It is handy when you need to do some
+   processing of the logged values and track serveral metrics on
+   the results. The sub-metrics must either be a StandardMetric, or tagged
+   as a @custom_metric or @dataclass. Note that CompoundMetric is neither, so it
+   cannot be nested.
+
+   Typically you will need to override namespace(); columnar_update(), calling
+   it on the submetrics as needed; and the zero() method to return an
+   appropriate "empty" instance of your metric. You will need to override from_protobuf()
+   and merge() if your subclass __init__() method takes arguments different than
+   CompoundMetrtic's. You can use the submetrics_from_protbuf() and merge_submetrics()
+   helper methods to implement them. The CompoundMetric class will handle the rest of
+   the Metric interface. Don't use / or : in the subclass' namespace.
+
+   See UnicodeRangeMetric for an example.
+
+   .. py:attribute:: submetrics
+      :annotation: :Dict[str, whylogs.core.metrics.Metric]
+
+      
+
+   .. py:method:: namespace() -> str
+      :property:
+
+
+   .. py:method:: columnar_update(view: whylogs.core.preprocessing.PreprocessedColumn) -> whylogs.core.metrics.metrics.OperationResult
+
+
+   .. py:method:: zero(config: whylogs.core.metrics.metrics.MetricConfig) -> ImageMetric
+      :classmethod:
+
+
+   .. py:method:: merge_submetrics(other: COMPOUND_METRIC) -> Dict[str, whylogs.core.metrics.Metric]
+
+
+   .. py:method:: merge(other: COMPOUND_METRIC) -> COMPOUND_METRIC
+
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.MetricMessage
+
+
+   .. py:method:: get_component_paths() -> List[str]
+
+
+   .. py:method:: to_summary_dict(cfg: whylogs.core.configs.SummaryConfig) -> Dict[str, Any]
+
+
+   .. py:method:: submetrics_from_protobuf(msg: whylogs.core.proto.MetricMessage) -> Dict[str, whylogs.core.metrics.Metric]
+      :classmethod:
+
+
+   .. py:method:: from_protobuf(msg: whylogs.core.proto.MetricMessage) -> COMPOUND_METRIC
+      :classmethod:
+
+
+   .. py:method:: get_namespace(config: Optional[MetricConfig] = None) -> str
+      :classmethod:
+
+
+
+.. py:function:: log_image(images: Union[PIL.Image.Image, List[PIL.Image.Image], Dict[str, PIL.Image.Image]], default_column_prefix: str = 'image') -> whylogs.api.logger.result_set.ResultSet
+
+
