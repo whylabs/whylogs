@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
@@ -27,7 +27,6 @@ from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 from whylogs.extras.image_metric import ImageMetric
-
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
