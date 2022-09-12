@@ -118,6 +118,10 @@ class TestWeatherDataset(object):
         assert dataset.inference_df.iloc[0].name == dataset_config.inference_start_timestamp["in_domain"]
 
     def test_original_parameter_overrides_timestamps(self, dataset):
-        dataset.set_parameters(baseline_timestamp=datetime.now(timezone.utc).date(), inference_start_timestamp=datetime.now(timezone.utc).date(), original=True)
+        dataset.set_parameters(
+            baseline_timestamp=datetime.now(timezone.utc).date(),
+            inference_start_timestamp=datetime.now(timezone.utc).date(),
+            original=True,
+        )
         assert dataset.inference_df.iloc[0].name == dataset_config.inference_start_timestamp["in_domain"]
         assert dataset.baseline_df.iloc[0].name == dataset_config.baseline_start_timestamp["in_domain"]
