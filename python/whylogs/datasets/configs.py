@@ -30,15 +30,15 @@ class EcommerceConfig(DatasetConfig):
     description_file: str = "ecommerce.rst"
     available_versions: tuple = ("base",)
     # url: str = "./whylogs/datasets"
-    url: str = "."
+    url: str = "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/Ecommerce"
     baseline_start_timestamp: Dict[str, datetime] = field(
         default_factory=lambda: {
-            "base": datetime(year=2022, month=8, day=2, tzinfo=timezone.utc),
+            "base": datetime(year=2022, month=8, day=9, tzinfo=timezone.utc),
         }
     )
     inference_start_timestamp: Dict[str, datetime] = field(
         default_factory=lambda: {
-            "base": datetime(year=2022, month=8, day=12, tzinfo=timezone.utc),
+            "base": datetime(year=2022, month=8, day=19, tzinfo=timezone.utc),
         }
     )
     max_interval: int = 21

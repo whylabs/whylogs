@@ -31,21 +31,21 @@ base
 This version contains 5
 
 * Baseline
-   * Number of instances: 35329
+   * Number of instances: 34743
    * Number of features: 19
       * Input Features: 5
       * Target Features: 1
       * Prediction Features: 2
       * Extra Features: 11
-   * Period: from 2022-08-02 to 2022-08-09
+   * Period: from 2022-08-09 to 2022-08-16
 * Inference
-   * Number of instances: 85435
+   * Number of instances: 86899
    * Number of features: 19
       * Input Features: 5
       * Target Features: 1
       * Prediction Features: 2
       * Extra Features: 11
-   * Period: from 2022-08-12 to 2022-09-01
+   * Period: from 2022-08-19 to 2022-09-08
 
 There are 11 possible categories for a given product. In order to get the desired size for the dataset, original data was oversampled for each category with the [Random Oversampling Examples (ROSE)](https://link.springer.com/article/10.1007/s10618-012-0295-5) algorithm.
 

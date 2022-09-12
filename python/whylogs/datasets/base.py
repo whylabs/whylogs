@@ -56,7 +56,7 @@ class Batch:
         return self._data[list(self.dataset_config.prediction_columns[self.version])]
 
     @property
-    def misc(self) -> pd.DataFrame:
+    def extra(self) -> pd.DataFrame:
         """Metadata features that are not of any of the previous categories, but still contain relevant information about the data."""
         return self._data[list(self.dataset_config.miscellaneous_columns[self.version])]
 
