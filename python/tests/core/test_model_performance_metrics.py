@@ -1,5 +1,10 @@
+from logging import getLogger
+
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
+from whylogs.core.model_performance_metrics.confusion_matrix import ConfusionMatrix
 from whylogs.core.proto.v0 import ModelProfileMessage
+
+TEST_LOGGER = getLogger(__name__)
 
 
 def test_model_performance_metrics_basic():
@@ -30,6 +35,46 @@ def test_roundtrip_serialization():
     roundtrip.to_protobuf()
     assert roundtrip.output_fields == ["test"]
     assert isinstance(roundtrip.output_fields, list)
+
+
+def test_binary_classification_should_be_correct():
+    confusion_matrix = ConfusionMatrix(labels=[0, 1])
+    predictions = [0, 1, 1, 0, 0, 1, 1]
+    targets = [1, 0, 1, 1, 0, 1, 1]
+    confusion_matrix.add(predictions=predictions, targets=targets, scores=None)
+
+    matrix = confusion_matrix.confusion_matrix
+    assert len(matrix) == 4
+
+    # Result matrix
+    # [1, 2]
+    # [1, 3]
+    assert matrix[(0, 0)].n == 1
+    assert matrix[(0, 1)].n == 2
+    assert matrix[(1, 0)].n == 1
+    assert matrix[(1, 1)].n == 3
+
+
+def test_model_performance_metrics_binary():
+    predictions = [0, 1, 1, 0, 0, 1, 1]
+    targets = [1, 0, 1, 1, 0, 1, 1]
+
+    mod_prof = ModelPerformanceMetrics()
+    mod_prof.compute_confusion_matrix(targets=targets, predictions=predictions)
+
+    assert mod_prof.regression_metrics is None
+    assert mod_prof.confusion_matrix is not None
+    matrix = mod_prof.confusion_matrix.confusion_matrix
+    message = mod_prof.to_protobuf()
+    deserialized_model_perf = ModelPerformanceMetrics.from_protobuf(message)
+    assert deserialized_model_perf is not None
+    assert deserialized_model_perf.confusion_matrix is not None
+    assert deserialized_model_perf.confusion_matrix.labels is not None
+
+    deserialized_matrix = deserialized_model_perf.confusion_matrix.confusion_matrix
+    for i in range(2):
+        for j in range(2):
+            assert matrix[(i, j)].n == deserialized_matrix[(i, j)].n
 
 
 def test_output_field_set():

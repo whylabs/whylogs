@@ -93,7 +93,7 @@ class ResultSet(ABC):
     def performance_metrics(self) -> Optional[ModelPerformanceMetrics]:
         profile = self.profile()
         if profile:
-            return profile.model_performance_metric
+            return profile.model_performance_metrics
         return None
 
     def add_model_performance_metrics(self, metrics: ModelPerformanceMetrics) -> None:
@@ -125,7 +125,6 @@ class ViewResultSet(ResultSet):
 class ProfileResultSet(ResultSet):
     def __init__(self, profile: DatasetProfile) -> None:
         self._profile = profile
-        self._model_performance_metric = None
 
     def profile(self) -> Optional[DatasetProfile]:
         return self._profile

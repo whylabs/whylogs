@@ -109,6 +109,7 @@ class DatasetProfileView(Writable):
             message_v0 = v1_to_dataset_profile_message_v0(self, None, None)
             with open(path, "w+b") as out_f:
                 write_delimited_protobuf(out_f, message_v0)
+
             return
 
         all_metric_component_names = set()

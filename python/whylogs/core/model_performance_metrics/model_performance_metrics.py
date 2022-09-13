@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Dict, List, Optional, Set, Union
 
 from whylogs.core.metrics.metrics import Metric
-from whylogs.core.proto.v0 import ModelMetricsMessage, ModelProfileMessage
+from whylogs.core.proto.v0 import ModelMetricsMessage, ModelProfileMessage, ModelType
 
 from .confusion_matrix import ConfusionMatrix
 from .regression_metrics import RegressionMetrics
@@ -36,10 +36,20 @@ class ModelPerformanceMetrics:
     def to_protobuf(
         self,
     ) -> ModelProfileMessage:
+
+        model_type = ModelType.UNKNOWN
+        if not self.model_type:
+            if self.confusion_matrix:
+                model_type = ModelType.CLASSIFICATION
+            elif self.regression_metrics:
+                model_type = ModelType.REGRESSION
+        else:
+            model_type = self.model_type
+
         model_metrics = ModelMetricsMessage(
             scoreMatrix=self.confusion_matrix.to_protobuf() if self.confusion_matrix else None,
             regressionMetrics=self.regression_metrics.to_protobuf() if self.regression_metrics else None,
-            modelType=self.model_type,
+            modelType=model_type,
         )
 
         return ModelProfileMessage(output_fields=self.output_fields, metrics=model_metrics)

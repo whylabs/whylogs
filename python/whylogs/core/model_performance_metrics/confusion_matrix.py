@@ -6,7 +6,12 @@ import whylogs_sketching as ds  # type: ignore
 from whylogs.core.metrics.metric_components import FractionalComponent, KllComponent
 from whylogs.core.metrics.metrics import DistributionMetric, MetricConfig
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.proto.v0 import NumbersMessageV0, ScoreMatrixMessage, VarianceMessage
+from whylogs.core.proto.v0 import (
+    DoublesMessage,
+    NumbersMessageV0,
+    ScoreMatrixMessage,
+    VarianceMessage,
+)
 
 MODEL_METRICS_MAX_LABELS = 256
 MODEL_METRICS_LABEL_SIZE_WARNING_THRESHOLD = 64
@@ -40,7 +45,7 @@ class ConfusionMatrix:
 
     def __init__(
         self,
-        labels: List[Union[str, float]] = None,
+        labels: List[Union[str, int, bool, float]] = None,
         prediction_field: str = None,
         target_field: str = None,
         score_field: str = None,
@@ -147,11 +152,12 @@ class ConfusionMatrix:
         if dist is None or dist.kll.value.is_empty():
             return NumbersMessageV0(histogram=EMPTY_KLL, compact_theta=EMPTY_THETA, variance=variance_message)
 
-        variance_message.count = dist.n
-        variance_message.mean = dist.mean.value
-        variance_message.sum = dist.m2.value
+        variance_message = VarianceMessage(count=dist.n, sum=dist.m2.value, mean=dist.mean.value)
         return NumbersMessageV0(
-            histogram=dist.kll.value.serialize(), compact_theta=EMPTY_THETA, variance=variance_message
+            histogram=dist.kll.value.serialize(),
+            compact_theta=EMPTY_THETA,
+            variance=variance_message,
+            doubles=DoublesMessage(count=dist.n),
         )
 
     @staticmethod
@@ -176,11 +182,12 @@ class ConfusionMatrix:
         if size == 0:
             return None
         confusion_matrix_entries: List[NumbersMessageV0] = []
-        for j in range(size):
-            for i in range(size):
+        for i in range(size):
+            for j in range(size):
                 entry_key = i, j
                 entry = self.confusion_matrix.get(entry_key)
-                confusion_matrix_entries.append(ConfusionMatrix._dist_to_numbers(entry))
+                numbers_message = ConfusionMatrix._dist_to_numbers(entry)
+                confusion_matrix_entries.append(numbers_message)
 
         return ScoreMatrixMessage(
             labels=[str(i) for i in self.labels],
@@ -200,9 +207,9 @@ class ConfusionMatrix:
         labels = message.labels
         num_labels = len(labels)
         matrix = dict()
-        for j in range(num_labels):
-            for i in range(num_labels):
-                index = j * num_labels + i
+        for i in range(num_labels):
+            for j in range(num_labels):
+                index = i * num_labels + j
                 entry_key = i, j
                 entry = message.scores[index]
                 matrix[entry_key] = ConfusionMatrix._numbers_to_dist(entry)
