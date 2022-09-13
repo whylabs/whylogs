@@ -13,6 +13,7 @@ skip_notebooks = [
     "Writing_Reference_Profiles_to_WhyLabs.ipynb",
     "flask_with_whylogs.ipynb",
     "BigQuery_Example.ipynb",
+    "Segments.ipynb",
 ]
 
 
