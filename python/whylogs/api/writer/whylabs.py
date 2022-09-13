@@ -58,7 +58,10 @@ def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) 
 
 def _uncompund_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
     new_prof = DatasetProfileView(
-        columns=prof._columns, dataset_timestamp=prof._dataset_timestamp, creation_timestamp=prof._creation_timestamp
+        columns=prof._columns,
+        dataset_timestamp=prof._dataset_timestamp,
+        creation_timestamp=prof._creation_timestamp,
+        metrics=prof._metrics,
     )
     new_columns: Dict[str, ColumnProfileView] = dict()
     for col_name, col_prof in new_prof._columns.items():

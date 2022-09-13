@@ -24,7 +24,7 @@ Data is only collected at the time of importing the whylogs library or its modul
 
 ### What data is collected in whylogs?
 
-whylogs collects anonymous information about a user’s environment. This includes information such as: whylogs version, Operating system, Python version and Execution environment. For more information, please see the page [Usage Statistics](usage_statistics.rst)
+whylogs by default collects anonymous information about a user’s environment. This includes information such as: whylogs version, Operating system, Python version and Execution environment. For more information, please see the page [Usage Statistics](usage_statistics.rst)
 
 ### How do I disable usage statistics?
 
