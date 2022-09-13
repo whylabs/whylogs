@@ -2,10 +2,13 @@ import logging
 import os.path
 import time
 from datetime import datetime, timezone
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Dict, Mapping, Optional, Union
 
 from whylogs.api.writer.writer import Writable
 from whylogs.core.metrics import Metric
+from whylogs.core.model_performance_metrics.model_performance_metrics import (
+    ModelPerformanceMetrics,
+)
 from whylogs.core.utils.utils import deprecated_alias
 
 from .column_profile import ColumnProfile
@@ -17,6 +20,7 @@ from .view import DatasetProfileView
 logger = logging.getLogger(__name__)
 
 _LARGE_CACHE_SIZE_LIMIT = 1024 * 100
+_MODEL_PERFORMANCE_KEY = "model_performance_metrics"
 
 
 class DatasetProfile(Writable):
@@ -40,6 +44,7 @@ class DatasetProfile(Writable):
         schema: Optional[DatasetSchema] = None,
         dataset_timestamp: Optional[datetime] = None,
         creation_timestamp: Optional[datetime] = None,
+        metrics: Optional[Dict[str, Union[Metric, Any]]] = None,
     ):
         if schema is None:
             schema = DatasetSchema()
@@ -52,6 +57,7 @@ class DatasetProfile(Writable):
         self._track_count = 0
         new_cols = schema.get_col_names()
         self._initialize_new_columns(new_cols)
+        self._metrics: Dict[str, Union[Metric, Any]] = metrics or dict()
 
     @property
     def creation_timestamp(self) -> datetime:
@@ -81,6 +87,18 @@ class DatasetProfile(Writable):
         if col_name not in self._columns:
             raise ValueError(f"{col_name} is not a column in the dataset profile")
         self._columns[col_name].add_metric(metric)
+
+    def add_dataset_metric(self, name: str, metric: Metric) -> None:
+        self._metrics[name] = metric
+
+    def add_model_performance_metrics(self, metric: ModelPerformanceMetrics) -> None:
+        self._metrics[_MODEL_PERFORMANCE_KEY] = metric
+
+    @property
+    def model_performance_metrics(self) -> ModelPerformanceMetrics:
+        if self._metrics:
+            return self._metrics.get(_MODEL_PERFORMANCE_KEY)
+        return None
 
     def track(
         self,
@@ -129,6 +147,92 @@ class DatasetProfile(Writable):
 
         raise NotImplementedError
 
+    def _track_classification_metrics(
+        self,
+        targets,
+        predictions,
+        scores=None,
+        target_field=None,
+        prediction_field=None,
+        score_field=None,
+    ) -> None:
+        """
+        Function to track metrics based on validation data.
+        user may also pass the associated attribute names associated with
+        target, prediction, and/or score.
+        Parameters
+        ----------
+        targets : List[Union[str, bool, float, int]]
+            actual validated values
+        predictions : List[Union[str, bool, float, int]]
+            inferred/predicted values
+        scores : List[float], optional
+            assocaited scores for each inferred, all values set to 1 if not
+            passed
+        target_field : str, optional
+            Description
+        prediction_field : str, optional
+            Description
+        score_field : str, optional
+            Description
+        target_field : str, optional
+        prediction_field : str, optional
+        score_field : str, optional
+        """
+        if not self.model_performance_metrics:
+            self.add_model_performance_metrics(ModelPerformanceMetrics())
+        self.model_performance_metrics.compute_confusion_matrix(
+            predictions=predictions,
+            targets=targets,
+            scores=scores,
+            target_field=target_field,
+            prediction_field=prediction_field,
+            score_field=score_field,
+        )
+
+    def _track_regression_metrics(
+        self,
+        targets,
+        predictions,
+        scores=None,
+        target_field=None,
+        prediction_field=None,
+        score_field=None,
+    ) -> None:
+        """
+        Function to track regression metrics based on validation data.
+        user may also pass the associated attribute names associated with
+        target, prediction, and/or score.
+        Parameters
+        ----------
+        targets : List[Union[str, bool, float, int]]
+            actual validated values
+        predictions : List[Union[str, bool, float, int]]
+            inferred/predicted values
+        scores : List[float], optional
+            assocaited scores for each inferred, all values set to 1 if not
+            passed
+        target_field : str, optional
+            Description
+        prediction_field : str, optional
+            Description
+        score_field : str, optional
+            Description
+        target_field : str, optional
+        prediction_field : str, optional
+        score_field : str, optional
+        """
+        if not self.model_performance_metrics:
+            self.add_model_performance_metrics(ModelPerformanceMetrics())
+        self.model_performance_metrics.compute_regression_metrics(
+            predictions=predictions,
+            targets=targets,
+            scores=scores,
+            target_field=target_field,
+            prediction_field=prediction_field,
+            score_field=score_field,
+        )
+
     def _initialize_new_columns(self, new_cols: tuple) -> None:
         for col in new_cols:
             col_schema = self._schema.get(col)
@@ -142,7 +246,10 @@ class DatasetProfile(Writable):
         for c_name, c in self._columns.items():
             columns[c_name] = c.view()
         return DatasetProfileView(
-            columns=columns, dataset_timestamp=self.dataset_timestamp, creation_timestamp=self.creation_timestamp
+            columns=columns,
+            dataset_timestamp=self.dataset_timestamp,
+            creation_timestamp=self.creation_timestamp,
+            metrics=self._metrics,
         )
 
     def flush(self) -> None:
