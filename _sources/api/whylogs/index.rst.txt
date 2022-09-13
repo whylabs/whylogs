@@ -100,6 +100,7 @@ Functions
 
 
    .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
@@ -112,7 +113,7 @@ Functions
 .. py:function:: log(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Dict[str, Any]] = None, schema: Optional[whylogs.core.DatasetSchema] = None) -> result_set.ResultSet
 
 
-.. py:function:: log_classification_metrics(targets, predictions, scores=None) -> result_set.ProfileResultSet
+.. py:function:: log_classification_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, score_column: Optional[str] = None, schema: Optional[whylogs.core.DatasetSchema] = None) -> result_set.ProfileResultSet
 
    Function to track metrics based on validation data.
    user may also pass the associated attribute names associated with
@@ -126,7 +127,7 @@ Functions
    :type scores: List[float], optional
 
 
-.. py:function:: log_regression_metrics(targets, predictions) -> result_set.ProfileResultSet
+.. py:function:: log_regression_metrics(data: whylogs.core.stubs.pd.DataFrame, target_column: str, prediction_column: str, schema: Optional[whylogs.core.DatasetSchema] = None) -> result_set.ProfileResultSet
 
    Function to track regression metrics based on validation data.
    user may also pass the associated attribute names associated with

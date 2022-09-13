@@ -91,6 +91,7 @@ Attributes
 
 
    .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
@@ -133,6 +134,7 @@ Attributes
 
 
    .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
@@ -175,6 +177,7 @@ Attributes
 
 
    .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
@@ -237,6 +240,7 @@ Attributes
 
 
    .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+      :property:
 
 
    .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None

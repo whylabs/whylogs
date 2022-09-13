@@ -419,9 +419,11 @@
 
 
 <div class="viewcode-block" id="log_classification_metrics"><a class="viewcode-back" href="../../../api/whylogs/index.html#whylogs.api.log_classification_metrics">[docs]</a><span class="k">def</span> <span class="nf">log_classification_metrics</span><span class="p">(</span>
-    <span class="n">targets</span><span class="p">,</span>
-    <span class="n">predictions</span><span class="p">,</span>
-    <span class="n">scores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">prediction_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">score_column</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProfileResultSet</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to track metrics based on validation data.</span>
@@ -439,18 +441,21 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">model_performance_metrics</span> <span class="o">=</span> <span class="n">ModelPerformanceMetrics</span><span class="p">()</span>
     <span class="n">model_performance_metrics</span><span class="o">.</span><span class="n">compute_confusion_matrix</span><span class="p">(</span>
-        <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
-        <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
-        <span class="n">scores</span><span class="o">=</span><span class="n">scores</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">prediction_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
+        <span class="n">targets</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">target_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
+        <span class="n">scores</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">score_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span> <span class="k">if</span> <span class="n">score_column</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">profile</span> <span class="o">=</span> <span class="n">DatasetProfile</span><span class="p">()</span>
-    <span class="n">profile</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">model_performance_metrics</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span></div>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">model_performance_metrics</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span></div>
 
 
 <div class="viewcode-block" id="log_regression_metrics"><a class="viewcode-back" href="../../../api/whylogs/index.html#whylogs.api.log_regression_metrics">[docs]</a><span class="k">def</span> <span class="nf">log_regression_metrics</span><span class="p">(</span>
-    <span class="n">targets</span><span class="p">,</span>
-    <span class="n">predictions</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">prediction_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DatasetSchema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProfileResultSet</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Function to track regression metrics based on validation data.</span>
@@ -468,12 +473,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">model_performance_metrics</span> <span class="o">=</span> <span class="n">ModelPerformanceMetrics</span><span class="p">()</span>
     <span class="n">model_performance_metrics</span><span class="o">.</span><span class="n">compute_regression_metrics</span><span class="p">(</span>
-        <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
-        <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">prediction_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
+        <span class="n">targets</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="n">target_column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span>
     <span class="p">)</span>
-    <span class="n">profile</span> <span class="o">=</span> <span class="n">DatasetProfile</span><span class="p">()</span>
-    <span class="n">profile</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">model_performance_metrics</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ProfileResultSet</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span></div>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">pandas</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">add_model_performance_metrics</span><span class="p">(</span><span class="n">model_performance_metrics</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span></div>
 
 
 <div class="viewcode-block" id="read"><a class="viewcode-back" href="../../../api/whylogs/index.html#whylogs.api.read">[docs]</a><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ResultSet</span><span class="p">:</span>

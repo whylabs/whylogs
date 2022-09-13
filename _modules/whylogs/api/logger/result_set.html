@@ -485,11 +485,12 @@
 <div class="viewcode-block" id="ResultSet.get_writables"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.get_writables">[docs]</a>    <span class="k">def</span> <span class="nf">get_writables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Writable</span><span class="p">]]:</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="p">()]</span></div>
 
-<div class="viewcode-block" id="ResultSet.performance_metrics"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.performance_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">performance_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelPerformanceMetrics</span><span class="p">]:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">performance_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ModelPerformanceMetrics</span><span class="p">]:</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">profile</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">profile</span><span class="o">.</span><span class="n">model_performance_metrics</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="ResultSet.add_model_performance_metrics"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.api.ResultSet.add_model_performance_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">add_model_performance_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="n">ModelPerformanceMetrics</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
