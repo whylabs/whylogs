@@ -69,7 +69,7 @@ Attributes
       Output prediction and, possibly, features such as uncertainty, confidence, probability scores
 
 
-   .. py:method:: misc() -> pandas.DataFrame
+   .. py:method:: extra() -> pandas.DataFrame
       :property:
 
       Metadata features that are not of any of the previous categories, but still contain relevant information about the data.

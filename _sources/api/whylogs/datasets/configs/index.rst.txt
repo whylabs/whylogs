@@ -14,6 +14,7 @@ Classes
 
    whylogs.datasets.configs.BaseConfig
    whylogs.datasets.configs.DatasetConfig
+   whylogs.datasets.configs.EcommerceConfig
    whylogs.datasets.configs.WeatherConfig
 
 
@@ -84,6 +85,76 @@ Classes
 
       
 
+   .. py:attribute:: ignore_columns
+      :annotation: :dict
+
+      
+
+
+.. py:class:: EcommerceConfig
+
+   Bases: :py:obj:`DatasetConfig`
+
+   .. py:attribute:: folder_name
+      :annotation: :str = ecommerce
+
+      
+
+   .. py:attribute:: description_file
+      :annotation: :str = ecommerce.rst
+
+      
+
+   .. py:attribute:: available_versions
+      :annotation: :tuple = ['base']
+
+      
+
+   .. py:attribute:: url
+      :annotation: :str = https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/Ecommerce
+
+      
+
+   .. py:attribute:: baseline_start_timestamp
+      :annotation: :Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: inference_start_timestamp
+      :annotation: :Dict[str, datetime.datetime]
+
+      
+
+   .. py:attribute:: max_interval
+      :annotation: :int = 21
+
+      
+
+   .. py:attribute:: base_unit
+      :annotation: :str = D
+
+      
+
+   .. py:attribute:: target_columns
+      :annotation: :Dict[str, List[str]]
+
+      
+
+   .. py:attribute:: prediction_columns
+      :annotation: :Dict[str, List[str]]
+
+      
+
+   .. py:attribute:: miscellaneous_columns
+      :annotation: :Dict[str, List[str]]
+
+      
+
+   .. py:attribute:: ignore_columns
+      :annotation: :Dict[str, List[str]]
+
+      
+
 
 .. py:class:: WeatherConfig
 
@@ -140,6 +211,11 @@ Classes
       
 
    .. py:attribute:: miscellaneous_columns
+      :annotation: :Dict[str, List[str]]
+
+      
+
+   .. py:attribute:: ignore_columns
       :annotation: :Dict[str, List[str]]
 
       
