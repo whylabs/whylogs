@@ -4,17 +4,17 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-<meta property="og:title" content="Segments" />
+<meta property="og:title" content="Intro to Segmentation" />
   
 <meta property="og:type" content="website" />
   
 <meta property="og:url" content="https://whylogs.readthedocs.io/examples/advanced/Segments.html" />
   
-<meta property="og:description" content="Open in Colab" />
+<meta property="og:description" content="Open in Colab Sometimes, certain subgroups of data can behave very differently from the overall dataset. When monitoring the health of a dataset, it’s often helpful to have visibility at the sub-gr..." />
   <link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
-        <title>Segments - whylogs v1.0.12</title>
+        <title>Intro to Segmentation - whylogs v1.0.12</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
@@ -152,7 +152,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -395,7 +395,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -657,98 +657,1188 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Segments">
-<h1>Segments<a class="headerlink" href="#Segments" title="Permalink to this headline">#</a></h1>
+<section id="Intro-to-Segmentation">
+<h1>Intro to Segmentation<a class="headerlink" href="#Intro-to-Segmentation" title="Permalink to this headline">#</a></h1>
 <p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/advanced/Segments.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p>Sometimes, certain subgroups of data can behave very differently from the overall dataset. When monitoring the health of a dataset, it’s often helpful to have visibility at the sub-group level to better understand how these subgroups are contributing to trends in the overall dataset. whylogs supports data segmentation for this purpose.</p>
+<p>Data segmentation is done at the point of profiling a dataset.</p>
+<p>Segmentation can be done by a single feature or by multiple features simultaneously. For example, you could have different profiles according to the gender of your dataset (“M” or “F”), and also for different combinations of, let’s say, Gender and City Code. You can also further filter the segments for specific partitions you are interested in - let’s say, Gender “M” with age above 18.</p>
+<p>In this example, we will show you a number of ways you can segment your data, and also how you can write these profiles to different locations.</p>
+<section id="Table-of-Content">
+<h2>Table of Content<a class="headerlink" href="#Table-of-Content" title="Permalink to this headline">#</a></h2>
+<ol class="arabic simple">
+<li><p>Segmenting on a single column</p></li>
+<li><p>Segmenting on multiple columns</p></li>
+<li><p>Filtering Segments</p></li>
+<li><p>Writing Segmented Results to Disk</p></li>
+<li><p>Sending Segmented Results to WhyLabs</p></li>
+</ol>
+</section>
+<section id="Installing-whylogs">
+<h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
+<p>If you don’t have it installed already, install whylogs:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">pip</span> install whylogs
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install whylogs[whylabs]</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</section>
+<section id="Getting-the-Data-&amp;-Defining-the-Segments">
+<h2>Getting the Data &amp; Defining the Segments<a class="headerlink" href="#Getting-the-Data-&-Defining-the-Segments" title="Permalink to this headline">#</a></h2>
+<p>Let’s first download the data we’ll be working with.</p>
+<p>This dataset contains transaction information for an online grocery store, such as:</p>
+<ul class="simple">
+<li><p>product description</p></li>
+<li><p>category</p></li>
+<li><p>user rating</p></li>
+<li><p>market price</p></li>
+<li><p>number of items sold last week</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
-<span class="kn">from</span> <span class="nn">whylogs.api.logger.result_set</span> <span class="kn">import</span> <span class="n">SegmentedResultSet</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.metrics.metrics</span> <span class="kn">import</span> <span class="n">CardinalityMetric</span><span class="p">,</span> <span class="n">DistributionMetric</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/Ecommerce/baseline_dataset_base.csv&quot;</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)[[</span><span class="s2">&quot;date&quot;</span><span class="p">,</span><span class="s2">&quot;product&quot;</span><span class="p">,</span><span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="s2">&quot;rating&quot;</span><span class="p">,</span> <span class="s2">&quot;market_price&quot;</span><span class="p">,</span><span class="s2">&quot;sales_last_week&quot;</span><span class="p">]]</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;rating&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rating&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>product</th>
+      <th>category</th>
+      <th>rating</th>
+      <th>market_price</th>
+      <th>sales_last_week</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2022-08-09 00:00:00+00:00</td>
+      <td>Wood - Centre Filled Bar Infused With Dark Mou...</td>
+      <td>Snacks and Branded Foods</td>
+      <td>4</td>
+      <td>350.0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2022-08-09 00:00:00+00:00</td>
+      <td>Toasted Almonds</td>
+      <td>Gourmet and World Food</td>
+      <td>3</td>
+      <td>399.0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2022-08-09 00:00:00+00:00</td>
+      <td>Instant Thai Noodles - Hot &amp; Spicy Tomyum</td>
+      <td>Gourmet and World Food</td>
+      <td>3</td>
+      <td>95.0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2022-08-09 00:00:00+00:00</td>
+      <td>Thokku - Vathakozhambu</td>
+      <td>Snacks and Branded Foods</td>
+      <td>4</td>
+      <td>336.0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2022-08-09 00:00:00+00:00</td>
+      <td>Beetroot Powder</td>
+      <td>Gourmet and World Food</td>
+      <td>3</td>
+      <td>150.0</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Segmenting-on-a-Single-Column">
+<h2>Segmenting on a Single Column<a class="headerlink" href="#Segmenting-on-a-Single-Column" title="Permalink to this headline">#</a></h2>
+<p>It looks like the <code class="docutils literal notranslate"><span class="pre">category</span></code> feature is a good one to segment on. Let’s see how many categories there are for the complete dataset:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Beauty and Hygiene            9793
+Gourmet and World Food        6201
+Kitchen, Garden and Pets      4493
+Snacks and Branded Foods      3826
+Cleaning and Household        3446
+Foodgrains, Oil and Masala    3059
+Beverages                     1034
+Bakery, Cakes and Dairy        979
+Fruits and Vegetables          749
+Baby Care                      707
+Eggs, Meat and Fish            456
+Name: category, dtype: int64
+</pre></div></div>
+</div>
+<p>There are 11 categories.</p>
+<p>We might be interested in having access to metrics specific to each category, so let’s generate segmented profiles for each category.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">segment_on_column</span>
+
+<span class="n">column_segments</span> <span class="o">=</span> <span class="n">segment_on_column</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">column_segments</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;category&#39;: SegmentationPartition(name=&#39;category&#39;, mapper=ColumnMapperFunction(col_names=[&#39;category&#39;], map=None, field_projector=&lt;whylogs.core.projectors.FieldProjector object at 0x7fe82f5c9b80&gt;, id=&#39;31aee7544d31ada00c3bb3d94ca2e0595c42a1f21c266da65e132168914ed61fe8b1b8c99aaa1a0c5cf5e2dfbd621aa3f9700bef1f6e85f4de4ca6364f149592&#39;), id=&#39;8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8&#39;, filter=None)}
+</pre></div></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">column_segments</span></code> is a dictionary for different SegmentationPartition, with informations such as id and additional logic. For the moment, all we’re interested in is that we can pass it to our <code class="docutils literal notranslate"><span class="pre">DatasetSchema</span></code> in order to generate segmented profiles while logging:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
 <span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.segment</span> <span class="kn">import</span> <span class="n">Segment</span>
-<span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="p">(</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">DatasetSchema</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">column_segments</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Since we had 11 different categories, we can expect the <code class="docutils literal notranslate"><span class="pre">results</span></code> to have 11 segments. Let’s make sure that is the case:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After profiling the result set has: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> segments&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+After profiling the result set has: 11 segments
+</pre></div></div>
+</div>
+<p>Great.</p>
+<p>Now, let’s visualize the metrics for a single segment (the first one).</p>
+<p>Results can have multiple partitions, and each partition can have multiple segments. Segments within a partition are non-overlapping. Segments across partitions, however, might overlap.</p>
+<p>In this example, we have only one partition with 11 non-overlapping segments. Let’s fetch the available segments:</p>
+<p>Now, let’s visualize the metrics for the first segment:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">first_segment</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">segments</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">segmented_profile</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">first_segment</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Profile view for segment </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">first_segment</span><span class="o">.</span><span class="n">key</span><span class="p">))</span>
+<span class="n">segmented_profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Profile view for segment (&#39;Baby Care&#39;,)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cardinality/est</th>
+      <th>cardinality/lower_1</th>
+      <th>cardinality/upper_1</th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>distribution/max</th>
+      <th>distribution/mean</th>
+      <th>distribution/median</th>
+      <th>distribution/min</th>
+      <th>distribution/n</th>
+      <th>...</th>
+      <th>distribution/stddev</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>type</th>
+      <th>types/boolean</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>types/object</th>
+      <th>types/string</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>category</th>
+      <td>1.000000</td>
+      <td>1.0</td>
+      <td>1.000050</td>
+      <td>707</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='Baby Care', est=707, uppe...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>707</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>date</th>
+      <td>8.000000</td>
+      <td>8.0</td>
+      <td>8.000400</td>
+      <td>707</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='2022-08-15 00:00:00+00:00...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>707</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>market_price</th>
+      <td>57.000008</td>
+      <td>57.0</td>
+      <td>57.002854</td>
+      <td>707</td>
+      <td>0</td>
+      <td>2799.0</td>
+      <td>621.190948</td>
+      <td>299.0</td>
+      <td>50.0</td>
+      <td>707</td>
+      <td>...</td>
+      <td>713.745256</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>707</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>product</th>
+      <td>69.000012</td>
+      <td>69.0</td>
+      <td>69.003457</td>
+      <td>707</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='Baby Powder', est=21, upp...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>707</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>rating</th>
+      <td>3.000000</td>
+      <td>3.0</td>
+      <td>3.000150</td>
+      <td>707</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>3.823197</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>707</td>
+      <td>...</td>
+      <td>0.500566</td>
+      <td>[FrequentItem(value='4', est=508, upper=508, l...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>707</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>sales_last_week</th>
+      <td>5.000000</td>
+      <td>5.0</td>
+      <td>5.000250</td>
+      <td>707</td>
+      <td>0</td>
+      <td>6.0</td>
+      <td>1.391796</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>707</td>
+      <td>...</td>
+      <td>1.003162</td>
+      <td>[FrequentItem(value='1', est=557, upper=557, l...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>707</td>
+      <td>0</td>
+      <td>0</td>
+      <td>6.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>6 rows × 28 columns</p>
+</div></div>
+</div>
+<p>We can see that the first segment is for product transactions of the <code class="docutils literal notranslate"><span class="pre">Baby</span> <span class="pre">Care</span></code> category, and we have 707 rows for that particular segment.</p>
+</section>
+<section id="Segmenting-on-More-than-one-Column">
+<h2>Segmenting on More than one Column<a class="headerlink" href="#Segmenting-on-More-than-one-Column" title="Permalink to this headline">#</a></h2>
+<p>We might also be interested in segmenting based on more than one segment.</p>
+<p>Let’s say we are interested in generating profiles for every combination of <code class="docutils literal notranslate"><span class="pre">category</span></code> and <code class="docutils literal notranslate"><span class="pre">rating</span></code>. That way, we can inspect the metrics for, let’s say, for <code class="docutils literal notranslate"><span class="pre">Beverages</span></code> with <code class="docutils literal notranslate"><span class="pre">rating</span></code> of 5.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;rating&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+4    15699
+3    15340
+5     1901
+2     1222
+1      581
+Name: rating, dtype: int64
+</pre></div></div>
+</div>
+<p>This time, we’ll use <code class="docutils literal notranslate"><span class="pre">SegmentationPartition</span></code> to create the partition:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">ColumnMapperFunction</span><span class="p">,</span>
     <span class="n">SegmentationPartition</span><span class="p">,</span>
-    <span class="n">SegmentFilter</span><span class="p">,</span>
-    <span class="n">segment_on_column</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">segmentation_partition</span> <span class="o">=</span> <span class="n">SegmentationPartition</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;category,rating&quot;</span><span class="p">,</span> <span class="n">mapper</span><span class="o">=</span><span class="n">ColumnMapperFunction</span><span class="p">(</span><span class="n">col_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="s2">&quot;rating&quot;</span><span class="p">])</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<p>Let’s create our dictionary with the only partition we have:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_rows</span> <span class="o">=</span> <span class="mi">100</span>
-<span class="n">segment_column</span> <span class="o">=</span> <span class="s2">&quot;col3&quot;</span>
-<span class="n">number_of_segments</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;col1&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">input_rows</span><span class="p">)],</span>
-    <span class="s2">&quot;col2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">1.1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">input_rows</span><span class="p">)],</span>
-    <span class="n">segment_column</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;x</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="o">%</span><span class="n">number_of_segments</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">input_rows</span><span class="p">)],</span>
-<span class="p">}</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">multi_column_segments</span> <span class="o">=</span> <span class="p">{</span><span class="n">segmentation_partition</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">segmentation_partition</span><span class="p">}</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">DatasetSchema</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">multi_column_segments</span><span class="p">))</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">d</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">describe</span><span class="p">())</span>
-<span class="n">columnar_partitions</span> <span class="o">=</span> <span class="n">segment_on_column</span><span class="p">(</span><span class="s2">&quot;col3&quot;</span><span class="p">)</span>
-<span class="n">segmentation_partition</span> <span class="o">=</span> <span class="n">columnar_partitions</span><span class="p">[</span><span class="s1">&#39;col3&#39;</span><span class="p">]</span>
-<span class="n">segmentation_partition</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="n">SegmentFilter</span><span class="p">(</span><span class="n">filter_function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">col1</span> <span class="o">&gt;</span> <span class="mi">49</span><span class="p">)</span>
-<span class="n">test_segments</span> <span class="o">=</span> <span class="p">{</span><span class="n">segmentation_partition</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">segmentation_partition</span><span class="p">}</span>
-<span class="n">results</span><span class="p">:</span> <span class="n">SegmentedResultSet</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">DatasetSchema</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">test_segments</span><span class="p">))</span>
-<span class="k">assert</span> <span class="n">results</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="n">number_of_segments</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After profiling the result set has: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> segments&quot;</span><span class="p">)</span>
-<span class="n">partitions</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">partitions</span>
-<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">partitions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
-<span class="n">partition</span> <span class="o">=</span> <span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+After profiling the result set has: 46 segments
+</pre></div></div>
+</div>
+<p>Again, let’s check the first segment:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partition</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">segments</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">segments_in_partition</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
-<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">==</span> <span class="n">number_of_segments</span>
 
-<span class="n">first_segment</span><span class="p">:</span> <span class="n">Segment</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">segments</span><span class="p">))</span>
-<span class="n">first_segment_profile</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">first_segment</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">first_segment</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;x0&quot;</span><span class="p">,)</span>
-<span class="k">assert</span> <span class="n">first_segment_profile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<span class="k">assert</span> <span class="n">first_segment_profile</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="s2">&quot;col1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span>
-<span class="k">assert</span> <span class="n">first_segment_profile</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="s2">&quot;col2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
-<span class="k">assert</span> <span class="n">first_segment_profile</span><span class="o">.</span><span class="n">_columns</span><span class="p">[</span><span class="s2">&quot;col3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">_schema</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span>
-<span class="n">segment_distribution</span><span class="p">:</span> <span class="n">DistributionMetric</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">first_segment_profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">get_column</span><span class="p">(</span><span class="s2">&quot;col1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="s2">&quot;distribution&quot;</span><span class="p">)</span>
-<span class="p">)</span>
-<span class="n">count</span> <span class="o">=</span> <span class="n">segment_distribution</span><span class="o">.</span><span class="n">n</span>
-<span class="k">assert</span> <span class="n">count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<span class="k">assert</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">10</span>
+<span class="n">first_segment</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">segments</span><span class="p">))</span>
+<span class="n">segmented_profile</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">first_segment</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Profile view for segment </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">first_segment</span><span class="o">.</span><span class="n">key</span><span class="p">))</span>
+<span class="n">segmented_profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Profile view for segment (&#39;Baby Care&#39;, &#39;3&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cardinality/est</th>
+      <th>cardinality/lower_1</th>
+      <th>cardinality/upper_1</th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>distribution/max</th>
+      <th>distribution/mean</th>
+      <th>distribution/median</th>
+      <th>distribution/min</th>
+      <th>distribution/n</th>
+      <th>...</th>
+      <th>distribution/stddev</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>type</th>
+      <th>types/boolean</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>types/object</th>
+      <th>types/string</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>category</th>
+      <td>1.000000</td>
+      <td>1.0</td>
+      <td>1.000050</td>
+      <td>162</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='Baby Care', est=162, uppe...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>162</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>date</th>
+      <td>8.000000</td>
+      <td>8.0</td>
+      <td>8.000400</td>
+      <td>162</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='2022-08-15 00:00:00+00:00...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>162</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>market_price</th>
+      <td>15.000001</td>
+      <td>15.0</td>
+      <td>15.000749</td>
+      <td>162</td>
+      <td>0</td>
+      <td>2799.0</td>
+      <td>649.987654</td>
+      <td>265.0</td>
+      <td>149.0</td>
+      <td>162</td>
+      <td>...</td>
+      <td>889.494280</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>162</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>product</th>
+      <td>16.000001</td>
+      <td>16.0</td>
+      <td>16.000799</td>
+      <td>162</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='Baby Sipper With Pop-up S...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>162</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>rating</th>
+      <td>1.000000</td>
+      <td>1.0</td>
+      <td>1.000050</td>
+      <td>162</td>
+      <td>0</td>
+      <td>3.0</td>
+      <td>3.000000</td>
+      <td>3.0</td>
+      <td>3.0</td>
+      <td>162</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='3', est=162, upper=162, l...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>162</td>
+      <td>0</td>
+      <td>0</td>
+      <td>3.0</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>sales_last_week</th>
+      <td>3.000000</td>
+      <td>3.0</td>
+      <td>3.000150</td>
+      <td>162</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>1.271605</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>162</td>
+      <td>...</td>
+      <td>0.705125</td>
+      <td>[FrequentItem(value='1', est=134, upper=134, l...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>162</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>6 rows × 28 columns</p>
+</div></div>
+</div>
+<p>The first segment is now for transactions of <strong>Baby Care</strong> category with rating of <strong>3</strong>. There are 162 records for this specific segment.</p>
+</section>
+<section id="Filtering-the-Segments">
+<h2>Filtering the Segments<a class="headerlink" href="#Filtering-the-Segments" title="Permalink to this headline">#</a></h2>
+<p>You can further select data in a partition by using a <code class="docutils literal notranslate"><span class="pre">SegmentFilter</span></code>.</p>
+<p>Let’s say you are interested only in the <code class="docutils literal notranslate"><span class="pre">Baby</span> <span class="pre">Care</span></code> category. Instead of generating all 11 segmented features, you can specify a <strong>SegmentFilter</strong> to get only one segment.</p>
+<p>We can do so by specifying a <strong>filter function</strong> to the <strong>filter</strong> property of the Partition:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">segment_on_column</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentFilter</span>
+
+<span class="n">column_segments</span> <span class="o">=</span> <span class="n">segment_on_column</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+
+<span class="n">column_segments</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="n">SegmentFilter</span><span class="p">(</span><span class="n">filter_function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">category</span><span class="o">==</span><span class="s1">&#39;Baby Care&#39;</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<p>We’re passing a simple lambda function here, but you can define more complex scenarios by passing any Callable to it.</p>
+<p>Now, we just repeat the logging process:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">DatasetSchema</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">column_segments</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After profiling the result set has: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">count</span><span class="si">}</span><span class="s2"> segments&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+After profiling the result set has: 1 segments
+</pre></div></div>
+</div>
+<p>We can see that now we have only 1 segment.</p>
+<section id="Filtering-on-other-columns">
+<h3>Filtering on other columns<a class="headerlink" href="#Filtering-on-other-columns" title="Permalink to this headline">#</a></h3>
+<p>You don’t need to filter on the same category you’re segmenting on. In fact, you can use multiple columns to get very specific slices of interest for your data.</p>
+<p>Unlike segmenting on multiple columns, with filtering you don’t need to get the segments for the complete cartesian product of your rules. This avoids combinatorial explosions for cases when you are interested in a very specific slice of your data, and are not particularly interested in all possible group combinations.</p>
+<p>Let’s say high-quality, high-cost products are key to a certain promotion you want to release. You can create segments based on <code class="docutils literal notranslate"><span class="pre">category</span></code>, just as before, and can further filter it to track only data for your defined rule.</p>
+<p>The only difference between this case and the previous one is the lambda function provided, but for reproducibility let’s repeat the whole code again:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">segment_on_column</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.segmentation_partition</span> <span class="kn">import</span> <span class="n">SegmentFilter</span>
+<span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+<span class="kn">from</span> <span class="nn">whylogs.core.schema</span> <span class="kn">import</span> <span class="n">DatasetSchema</span>
+
+<span class="n">column_segments</span> <span class="o">=</span> <span class="n">segment_on_column</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+<span class="n">column_segments</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">filter</span> <span class="o">=</span> <span class="n">SegmentFilter</span><span class="p">(</span><span class="n">filter_function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">market_price</span><span class="o">&gt;</span><span class="mi">200</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">rating</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">DatasetSchema</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">column_segments</span><span class="p">))</span>
+
+<span class="n">partition</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">partitions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">segments</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">segments_in_partition</span><span class="p">(</span><span class="n">partition</span><span class="p">)</span>
+
+<span class="n">first_segment</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">segments</span><span class="p">))</span>
+<span class="n">segmented_profile</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">profile</span><span class="p">(</span><span class="n">first_segment</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Profile view for segment </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">first_segment</span><span class="o">.</span><span class="n">key</span><span class="p">))</span>
+<span class="n">segmented_profile</span><span class="o">.</span><span class="n">view</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Profile view for segment (&#39;Baby Care&#39;,)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cardinality/est</th>
+      <th>cardinality/lower_1</th>
+      <th>cardinality/upper_1</th>
+      <th>counts/n</th>
+      <th>counts/null</th>
+      <th>distribution/max</th>
+      <th>distribution/mean</th>
+      <th>distribution/median</th>
+      <th>distribution/min</th>
+      <th>distribution/n</th>
+      <th>...</th>
+      <th>distribution/stddev</th>
+      <th>frequent_items/frequent_strings</th>
+      <th>type</th>
+      <th>types/boolean</th>
+      <th>types/fractional</th>
+      <th>types/integral</th>
+      <th>types/object</th>
+      <th>types/string</th>
+      <th>ints/max</th>
+      <th>ints/min</th>
+    </tr>
+    <tr>
+      <th>column</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>category</th>
+      <td>1.000000</td>
+      <td>1.0</td>
+      <td>1.000050</td>
+      <td>389</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='Baby Care', est=389, uppe...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>389</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>date</th>
+      <td>8.000000</td>
+      <td>8.0</td>
+      <td>8.000400</td>
+      <td>389</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='2022-08-12 00:00:00+00:00...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>389</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>market_price</th>
+      <td>32.000002</td>
+      <td>32.0</td>
+      <td>32.001600</td>
+      <td>389</td>
+      <td>0</td>
+      <td>2638.0</td>
+      <td>809.352185</td>
+      <td>495.0</td>
+      <td>215.0</td>
+      <td>389</td>
+      <td>...</td>
+      <td>679.345870</td>
+      <td>NaN</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>389</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>product</th>
+      <td>38.000003</td>
+      <td>38.0</td>
+      <td>38.001901</td>
+      <td>389</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>[FrequentItem(value='Baby Powder', est=21, upp...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>389</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>rating</th>
+      <td>2.000000</td>
+      <td>2.0</td>
+      <td>2.000100</td>
+      <td>389</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>4.071979</td>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>389</td>
+      <td>...</td>
+      <td>0.258787</td>
+      <td>[FrequentItem(value='4', est=361, upper=361, l...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>389</td>
+      <td>0</td>
+      <td>0</td>
+      <td>5.0</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>sales_last_week</th>
+      <td>4.000000</td>
+      <td>4.0</td>
+      <td>4.000200</td>
+      <td>389</td>
+      <td>0</td>
+      <td>6.0</td>
+      <td>1.483290</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>389</td>
+      <td>...</td>
+      <td>1.170009</td>
+      <td>[FrequentItem(value='1', est=292, upper=292, l...</td>
+      <td>SummaryType.COLUMN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>389</td>
+      <td>0</td>
+      <td>0</td>
+      <td>6.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>6 rows × 28 columns</p>
+</div></div>
+</div>
+<p>Notice that we now have a count of 389, whereas our first example had a count of 707. That’s because now we’re filtering the data to track only points that match our rule for high-quality, high-cost products.</p>
+</section>
+</section>
+<section id="Writing-the-Segments-to-Disk">
+<h2>Writing the Segments to Disk<a class="headerlink" href="#Writing-the-Segments-to-Disk" title="Permalink to this headline">#</a></h2>
+<p>Once you have the segmented results, you can use the results’ <code class="docutils literal notranslate"><span class="pre">writer</span></code> method to write it to disk, for example:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="s2">&quot;segmented_profiles&quot;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+
+<span class="n">results</span><span class="o">.</span><span class="n">writer</span><span class="p">()</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">base_dir</span><span class="o">=</span><span class="n">directory</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>This will write 11 binary profiles to the specified folder. Let’s check with <code class="docutils literal notranslate"><span class="pre">listdir</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;profile_2022-09-13 13:47:12.595280_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Baby Care.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.606867_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Bakery, Cakes and Dairy.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.613083_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Beauty and Hygiene.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.643941_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Beverages.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.650850_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Cleaning and Household.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.661408_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Eggs, Meat and Fish.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.668325_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Foodgrains, Oil and Masala.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.678308_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Fruits and Vegetables.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.742280_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Gourmet and World Food.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.786080_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Kitchen, Garden and Pets.bin&#39;,
+ &#39;profile_2022-09-13 13:47:12.804480_8ff3ae39c46814563082fd6b3a9c0cfa922a8ef8dee5e685502485ed6482e4dcf7ecc3e4f7def5451c476c5b87485c1e0d9684c7ccf0f2cf3e2ba6106ec674d8_Snacks and Branded Foods.bin&#39;]
+</pre></div></div>
+</div>
+</section>
+<section id="Sending-Segmented-Profiles-to-WhyLabs">
+<h2>Sending Segmented Profiles to WhyLabs<a class="headerlink" href="#Sending-Segmented-Profiles-to-WhyLabs" title="Permalink to this headline">#</a></h2>
+<p>With the whylogs Writer, you can write your profiles to different locations. If you have a WhyLabs account, you can easily send your segmented profiles to be monitored in your dashboard.</p>
+<p>We will show briefly how to do it in this example. If you want more details, please check the <a class="reference internal" href="../integrations/writers/Writing_to_WhyLabs.html"><span class="doc">WhyLabs Writer Example</span></a> (also available <a class="reference external" href="https://whylogs.readthedocs.io/en/latest/examples/integrations/writers/Writing_to_WhyLabs.html">in our documentation</a>).</p>
+<p>Provided you already have the required information and keys, let’s first set our environment variables:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">getpass</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># set your org-id here - should be something like &quot;org-xxxx&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs Org ID&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+
+<span class="c1"># set your datased_id (or model_id) here - should be something like &quot;model-xxxx&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs Dataset ID&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+
+
+<span class="c1"># set your API key here</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs API key&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using API Key ID: &quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Enter your WhyLabs Org ID
+Enter your WhyLabs Dataset ID
+Enter your WhyLabs API key
+Using API Key ID:  ygG04qE3gQ
+</pre></div></div>
+</div>
+<p>Then, it’s as simple as calling <code class="docutils literal notranslate"><span class="pre">writer(&quot;whylabs&quot;)</span></code>:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span><span class="o">.</span><span class="n">writer</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;whylabs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls profile*.bin
-</pre></div>
-</div>
-</div>
+<p>You should be able to see your segments at your dashboard at the <strong>segments</strong> tab:</p>
+<img alt="alt text" src="../../_images/whylabs_segments.png" />
+</section>
 </section>
 
         </article>
@@ -803,8 +1893,37 @@ div.rendered_html tbody tr:hover {
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Intro to Segmentation</a><ul>
+<li><a class="reference internal" href="#Table-of-Content">Table of Content</a></li>
+<li><a class="reference internal" href="#Installing-whylogs">Installing whylogs</a></li>
+<li><a class="reference internal" href="#Getting-the-Data-&amp;-Defining-the-Segments">Getting the Data &amp; Defining the Segments</a></li>
+<li><a class="reference internal" href="#Segmenting-on-a-Single-Column">Segmenting on a Single Column</a></li>
+<li><a class="reference internal" href="#Segmenting-on-More-than-one-Column">Segmenting on More than one Column</a></li>
+<li><a class="reference internal" href="#Filtering-the-Segments">Filtering the Segments</a><ul>
+<li><a class="reference internal" href="#Filtering-on-other-columns">Filtering on other columns</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Writing-the-Segments-to-Disk">Writing the Segments to Disk</a></li>
+<li><a class="reference internal" href="#Sending-Segmented-Profiles-to-WhyLabs">Sending Segmented Profiles to WhyLabs</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
