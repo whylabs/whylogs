@@ -12,6 +12,7 @@ Classes
 
 .. autoapisummary::
 
+   whylogs.api.writer.whylabs.ImageMetric
    whylogs.api.writer.whylabs.WhyLabsWriter
 
 
@@ -25,6 +26,9 @@ Attributes
    whylogs.api.writer.whylabs.FIVE_MINUTES_IN_SECONDS
    whylogs.api.writer.whylabs.logger
    whylogs.api.writer.whylabs.API_KEY_ENV
+
+
+.. py:class:: ImageMetric
 
 
 .. py:data:: FIVE_MINUTES_IN_SECONDS
