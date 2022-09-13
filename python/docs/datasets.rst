@@ -20,3 +20,4 @@ Datasets
     :maxdepth: 1
 
     datasets/weather
+    datasets/ecommerce

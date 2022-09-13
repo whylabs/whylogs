@@ -21,6 +21,56 @@ class DatasetConfig:
     target_columns: dict
     prediction_columns: dict
     miscellaneous_columns: dict
+    ignore_columns: dict
+
+
+@dataclass
+class EcommerceConfig(DatasetConfig):
+    folder_name: str = "ecommerce"
+    description_file: str = "ecommerce.rst"
+    available_versions: tuple = ("base",)
+    # url: str = "./whylogs/datasets"
+    url: str = "https://whylabs-public.s3.us-west-2.amazonaws.com/whylogs_examples/Ecommerce"
+    baseline_start_timestamp: Dict[str, datetime] = field(
+        default_factory=lambda: {
+            "base": datetime(year=2022, month=8, day=9, tzinfo=timezone.utc),
+        }
+    )
+    inference_start_timestamp: Dict[str, datetime] = field(
+        default_factory=lambda: {
+            "base": datetime(year=2022, month=8, day=19, tzinfo=timezone.utc),
+        }
+    )
+    max_interval: int = 21
+    base_unit: str = "D"
+    target_columns: Dict[str, List[str]] = field(default_factory=lambda: {"base": ["output_discount"]})
+    prediction_columns: Dict[str, List[str]] = field(
+        default_factory=lambda: {
+            "base": ["output_prediction", "output_score"],
+        }
+    )
+    miscellaneous_columns: Dict[str, List[str]] = field(
+        default_factory=lambda: {
+            "base": [
+                "category.Baby Care",
+                "category.Bakery, Cakes and Dairy",
+                "category.Beauty and Hygiene",
+                "category.Beverages",
+                "category.Cleaning and Household",
+                "category.Eggs, Meat and Fish",
+                "category.Foodgrains, Oil and Masala",
+                "category.Fruits and Vegetables",
+                "category.Gourmet and World Food",
+                "category.Kitchen, Garden and Pets",
+                "category.Snacks and Branded Foods",
+            ],
+        }
+    )
+    ignore_columns: Dict[str, List[str]] = field(
+        default_factory=lambda: {
+            "base": ["date"],
+        }
+    )
 
 
 @dataclass
@@ -55,7 +105,13 @@ class WeatherConfig(DatasetConfig):
     )
     miscellaneous_columns: Dict[str, List[str]] = field(
         default_factory=lambda: {
-            "in_domain": ["meta_latitude", "meta_longitude", "meta_climate", "date"],
-            "out_domain": ["meta_latitude", "meta_longitude", "meta_climate", "date"],
+            "in_domain": ["meta_latitude", "meta_longitude", "meta_climate"],
+            "out_domain": ["meta_latitude", "meta_longitude", "meta_climate"],
+        }
+    )
+    ignore_columns: Dict[str, List[str]] = field(
+        default_factory=lambda: {
+            "in_domain": ["date"],
+            "out_domain": ["date"],
         }
     )
