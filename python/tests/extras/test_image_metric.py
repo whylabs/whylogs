@@ -58,7 +58,6 @@ def test_log_image() -> None:
     image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
     img = image_loader(image_path)
     results = log_image(img).view()
-    print(results.get_column("image").to_summary_dict())
     assert results.get_column("image").to_summary_dict()["image/image/ImagePixelWidth/mean"] > 0
 
 
@@ -69,7 +68,6 @@ def test_log_interface() -> None:
     schema = DatasetSchema(resolvers=TestResolver())
 
     results = why.log(row={"image_col": img}, schema=schema).view().get_column("image_col")
-    print(results.to_summary_dict())
     assert results.to_summary_dict()["image/image/ImagePixelWidth/mean"] > 0
 
 

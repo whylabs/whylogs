@@ -26,7 +26,16 @@ from whylogs.core.metrics import Metric
 from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
-from whylogs.extras.image_metric import ImageMetric
+
+try:
+    from PIL.Image import Image as ImageType  # noqa trigger ImportError if unavailable
+
+    from whylogs.extras.image_metric import ImageMetric
+except ImportError:
+    # dummy ImageMetric class so nothing will be an instance of it
+    class ImageMetric:  # type: ignore[no-redef]
+        pass
+
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
