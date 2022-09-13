@@ -27,9 +27,6 @@ def log_classification_metrics(
     targets,
     predictions,
     scores=None,
-    target_field=None,
-    prediction_field=None,
-    score_field=None,
 ) -> ProfileResultSet:
     """
     Function to track metrics based on validation data.
@@ -44,24 +41,12 @@ def log_classification_metrics(
     scores : List[float], optional
         assocaited scores for each inferred, all values set to 1 if not
         passed
-    target_field : str, optional
-        Description
-    prediction_field : str, optional
-        Description
-    score_field : str, optional
-        Description
-    target_field : str, optional
-    prediction_field : str, optional
-    score_field : str, optional
     """
     model_performance_metrics = ModelPerformanceMetrics()
     model_performance_metrics.compute_confusion_matrix(
         predictions=predictions,
         targets=targets,
         scores=scores,
-        target_field=target_field,
-        prediction_field=prediction_field,
-        score_field=score_field,
     )
     profile = DatasetProfile()
     profile.add_model_performance_metric(model_performance_metrics)
@@ -71,8 +56,6 @@ def log_classification_metrics(
 def log_regression_metrics(
     targets,
     predictions,
-    target_field=None,
-    prediction_field=None,
 ) -> ProfileResultSet:
     """
     Function to track regression metrics based on validation data.
@@ -87,22 +70,11 @@ def log_regression_metrics(
     scores : List[float], optional
         assocaited scores for each inferred, all values set to 1 if not
         passed
-    target_field : str, optional
-        Description
-    prediction_field : str, optional
-        Description
-    score_field : str, optional
-        Description
-    target_field : str, optional
-    prediction_field : str, optional
-    score_field : str, optional
     """
     model_performance_metrics = ModelPerformanceMetrics()
     model_performance_metrics.compute_regression_metrics(
         predictions=predictions,
         targets=targets,
-        target_field=target_field,
-        prediction_field=prediction_field,
     )
     profile = DatasetProfile()
     profile.add_model_performance_metric(model_performance_metrics)

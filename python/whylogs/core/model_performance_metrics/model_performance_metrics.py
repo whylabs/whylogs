@@ -82,9 +82,6 @@ class ModelPerformanceMetrics:
         predictions: List[Union[str, int, bool, float]],
         targets: List[Union[str, int, bool, float]],
         scores: List[float] = None,
-        target_field: str = None,
-        prediction_field: str = None,
-        score_field: str = None,
     ):
         """
         computes the confusion_matrix, if one is already present merges to old one.
@@ -93,17 +90,9 @@ class ModelPerformanceMetrics:
             predictions (List[Union[str, int, bool]]):
             targets (List[Union[str, int, bool]]):
             scores (List[float], optional):
-            target_field (str, optional):
-            prediction_field (str, optional):
-            score_field (str, optional):
         """
         labels = sorted(list(set(targets + predictions)))
-        confusion_matrix = ConfusionMatrix(
-            labels=labels,
-            target_field=target_field,
-            prediction_field=prediction_field,
-            score_field=score_field,
-        )
+        confusion_matrix = ConfusionMatrix(labels=labels)
         confusion_matrix.add(predictions, targets, scores)
 
         if self.confusion_matrix is None or self.confusion_matrix.labels is None or self.confusion_matrix.labels == []:
@@ -115,10 +104,8 @@ class ModelPerformanceMetrics:
         self,
         predictions: List[Union[float, int]],
         targets: List[Union[float, int]],
-        target_field: str = None,
-        prediction_field: str = None,
     ):
-        regression_metrics = RegressionMetrics(target_field=target_field, prediction_field=prediction_field)
+        regression_metrics = RegressionMetrics()
         regression_metrics.add(predictions, targets)
         if self.regression_metrics:
             self.regression_metrics = self.regression_metrics.merge(regression_metrics)

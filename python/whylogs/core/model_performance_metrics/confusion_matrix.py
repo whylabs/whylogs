@@ -38,21 +38,12 @@ class ConfusionMatrix:
 
     Attributes:
         labels: list of labels in a sorted order
-        prediction_field: name of the prediction field
-        target_field: name of the target field
-        score_field: name of the score field
     """
 
     def __init__(
         self,
         labels: List[Union[str, int, bool, float]] = None,
-        prediction_field: str = None,
-        target_field: str = None,
-        score_field: str = None,
     ):
-        self.prediction_field = prediction_field
-        self.target_field = target_field
-        self.score_field = score_field
         if labels:
             labels_size = len(labels)
             if labels_size > MODEL_METRICS_LABEL_SIZE_WARNING_THRESHOLD:
@@ -191,9 +182,6 @@ class ConfusionMatrix:
 
         return ScoreMatrixMessage(
             labels=[str(i) for i in self.labels],
-            prediction_field=self.prediction_field,
-            target_field=self.target_field,
-            score_field=self.score_field,
             scores=confusion_matrix_entries,
         )
 
@@ -216,9 +204,6 @@ class ConfusionMatrix:
 
         cm_instance = ConfusionMatrix(
             labels=labels,
-            prediction_field=message.prediction_field,
-            target_field=message.target_field,
-            score_field=message.score_field,
         )
         cm_instance.confusion_matrix = matrix
 

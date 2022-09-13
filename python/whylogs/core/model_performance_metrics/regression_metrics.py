@@ -5,10 +5,7 @@ from whylogs.core.proto.v0 import RegressionMetricsMessage
 
 
 class RegressionMetrics:
-    def __init__(self, prediction_field: str = None, target_field: str = None):
-        self.prediction_field = prediction_field
-        self.target_field = target_field
-
+    def __init__(self):
         self.count = 0
         self.sum_abs_diff = 0.0
         self.sum_diff = 0.0
@@ -65,12 +62,7 @@ class RegressionMetrics:
         if other.count == 0:
             return self
 
-        if self.prediction_field != other.prediction_field:
-            raise ValueError("prediction fields differ")
-        if self.target_field != other.target_field:
-            raise ValueError("target  fields differ")
-
-        new_reg = RegressionMetrics(prediction_field=self.prediction_field, target_field=self.target_field)
+        new_reg = RegressionMetrics()
         new_reg.count = self.count + other.count
         new_reg.sum_abs_diff = self.sum_abs_diff + other.sum_abs_diff
         new_reg.sum_diff = self.sum_diff + other.sum_diff
@@ -89,8 +81,6 @@ class RegressionMetrics:
         """
 
         return RegressionMetricsMessage(
-            prediction_field=self.prediction_field,
-            target_field=self.target_field,
             count=self.count,
             sum_abs_diff=self.sum_abs_diff,
             sum_diff=self.sum_diff,
@@ -105,7 +95,7 @@ class RegressionMetrics:
         if message.ByteSize() == 0:
             return None
 
-        reg_met = RegressionMetrics(message.prediction_field, message.target_field)
+        reg_met = RegressionMetrics()
         reg_met.count = message.count
         reg_met.sum_abs_diff = message.sum_abs_diff
         reg_met.sum_diff = message.sum_diff

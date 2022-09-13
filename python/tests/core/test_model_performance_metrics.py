@@ -82,9 +82,7 @@ def test_model_performance_metrics_regression():
     targets = [20, 200, 56.3, 1]
 
     mod_prof = ModelPerformanceMetrics()
-    mod_prof.compute_regression_metrics(
-        predictions=predictions, targets=targets, target_field="col3", prediction_field="output.col3"
-    )
+    mod_prof.compute_regression_metrics(predictions=predictions, targets=targets)
 
     assert mod_prof.regression_metrics is not None
     assert mod_prof.confusion_matrix is None
