@@ -1,5 +1,8 @@
 from logging import getLogger
 
+import pandas as pd
+
+from whylogs import log_classification_metrics, log_regression_metrics
 from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
 from whylogs.core.model_performance_metrics.confusion_matrix import ConfusionMatrix
 from whylogs.core.proto.v0 import ModelProfileMessage
@@ -108,3 +111,42 @@ def test_output_field_set():
     roundtrip.to_protobuf()
     assert sorted(roundtrip.output_fields) == sorted(output_fields)
     assert isinstance(roundtrip.output_fields, list)
+
+
+def test_profile_write_top_level_api_classification():
+    input_rows = 100
+    prediction_column = "col3"
+    target_column = "col3.ground_truth"
+    number_of_classes = 2
+    d = {
+        "col1": [i for i in range(input_rows)],
+        "col2": [i * i * 1.1 for i in range(input_rows)],
+        prediction_column: [f"x{str(i%number_of_classes)}" for i in range(input_rows)],
+        target_column: [f"x{str((i+1)%number_of_classes)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    results = log_classification_metrics(df, target_column=target_column, prediction_column=prediction_column)
+
+    metrics: ModelPerformanceMetrics = results.performance_metrics
+    assert metrics is not None
+    assert metrics.confusion_matrix is not None
+
+
+def test_profile_write_top_level_api_regression():
+    input_rows = 10
+    prediction_column = "col1"
+    target_column = "col1.ground_truth"
+
+    d = {
+        target_column: [i for i in range(input_rows)],
+        prediction_column: [i * i * 1.1 for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+
+    results = log_regression_metrics(df, target_column=target_column, prediction_column=prediction_column)
+
+    metrics: ModelPerformanceMetrics = results.performance_metrics
+    assert metrics is not None
+    assert metrics.regression_metrics is not None
