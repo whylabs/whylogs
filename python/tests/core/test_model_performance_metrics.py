@@ -77,6 +77,28 @@ def test_model_performance_metrics_binary():
             assert matrix[(i, j)].n == deserialized_matrix[(i, j)].n
 
 
+def test_model_performance_metrics_regression():
+    predictions = [21.6, 201.0, 37.0, 5.34]
+    targets = [20, 200, 56.3, 1]
+
+    mod_prof = ModelPerformanceMetrics()
+    mod_prof.compute_regression_metrics(
+        predictions=predictions, targets=targets, target_field="col3", prediction_field="output.col3"
+    )
+
+    assert mod_prof.regression_metrics is not None
+    assert mod_prof.confusion_matrix is None
+
+    message = mod_prof.to_protobuf()
+    deserialized_model_perf = ModelPerformanceMetrics.from_protobuf(message)
+    assert deserialized_model_perf is not None
+    assert (
+        deserialized_model_perf.regression_metrics.mean_absolute_error()
+        == mod_prof.regression_metrics.mean_absolute_error()
+    )
+    TEST_LOGGER.info(f"regression metrics are: {mod_prof.regression_metrics.to_protobuf()}")
+
+
 def test_output_field_set():
     output_fields = ["test", "output.test"]
     original = ModelPerformanceMetrics()

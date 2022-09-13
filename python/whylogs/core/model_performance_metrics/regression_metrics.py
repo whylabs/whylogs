@@ -50,7 +50,7 @@ class RegressionMetrics:
 
     def merge(self, other):
         """
-        Merge two seperate confusion matrix which may or may not overlap in labels.
+        Merge two seperate regression metrics.
 
         Args:
               other : regression metrics to merge with self

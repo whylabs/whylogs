@@ -71,10 +71,8 @@ def log_classification_metrics(
 def log_regression_metrics(
     targets,
     predictions,
-    scores=None,
     target_field=None,
     prediction_field=None,
-    score_field=None,
 ) -> ProfileResultSet:
     """
     Function to track regression metrics based on validation data.
@@ -103,10 +101,8 @@ def log_regression_metrics(
     model_performance_metrics.compute_regression_metrics(
         predictions=predictions,
         targets=targets,
-        scores=scores,
         target_field=target_field,
         prediction_field=prediction_field,
-        score_field=score_field,
     )
     profile = DatasetProfile()
     profile.add_model_performance_metric(model_performance_metrics)
