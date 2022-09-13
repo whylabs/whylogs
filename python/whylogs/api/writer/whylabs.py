@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
@@ -19,16 +19,55 @@ from whylabs_client.rest import ForbiddenException  # type: ignore
 from whylogs import __version__ as _version
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
-from whylogs.core import DatasetProfileView
+from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
+from whylogs.core.metrics import Metric
+from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.utils import deprecated_alias
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
+from whylogs.extras.image_metric import ImageMetric
 
 FIVE_MINUTES_IN_SECONDS = 60 * 5
 logger = logging.getLogger(__name__)
 
 API_KEY_ENV = "WHYLABS_API_KEY"
+
+
+def _uncompound_metric_feature_flag() -> bool:
+    return True
+
+
+def _v0_compatible_image_feature_flag() -> bool:
+    return False
+
+
+def _uncompounded_column_name(column_name: str, metric_name: str, submetric_name: str, metric: Metric) -> str:
+    if isinstance(metric, ImageMetric) and _v0_compatible_image_feature_flag():
+        return submetric_name
+    return f"{column_name}.{metric_name}.{submetric_name}"
+
+
+def _uncompound_metric(col_name: str, metric_name: str, metric: CompoundMetric) -> Dict[str, ColumnProfileView]:
+    result: Dict[str, ColumnProfileView] = dict()
+    for submetric_name, submetric in metric.submetrics.items():
+        new_col_name = _uncompounded_column_name(col_name, metric_name, submetric_name, metric)
+        result[new_col_name] = ColumnProfileView({submetric.namespace: submetric})
+    return result
+
+
+def _uncompund_dataset_profile(prof: DatasetProfileView) -> DatasetProfileView:
+    new_prof = DatasetProfileView(
+        columns=prof._columns, dataset_timestamp=prof._dataset_timestamp, creation_timestamp=prof._creation_timestamp
+    )
+    new_columns: Dict[str, ColumnProfileView] = dict()
+    for col_name, col_prof in new_prof._columns.items():
+        for metric_name, metric in col_prof._metrics.items():
+            if isinstance(metric, CompoundMetric):
+                new_columns.update(_uncompound_metric(col_name, metric_name, metric))
+
+    new_prof._columns.update(new_columns)
+    return new_prof
 
 
 class WhyLabsWriter(Writer):
@@ -125,25 +164,35 @@ class WhyLabsWriter(Writer):
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> None:
-        profile_view = file.view() if isinstance(file, DatasetProfile) else file
-        has_segments = isinstance(profile_view, SegmentedDatasetProfileView)
+        view = file.view() if isinstance(file, DatasetProfile) else file
+        has_segments = isinstance(view, SegmentedDatasetProfileView)
 
-        if not has_segments and not isinstance(profile_view, DatasetProfileView):
+        if not has_segments and not isinstance(view, DatasetProfileView):
             raise ValueError(
                 "You must pass either a DatasetProfile or a DatasetProfileView in order to use this writer!"
             )
+
+        if _uncompound_metric_feature_flag():
+            if has_segments:
+                updated_profile_view = _uncompund_dataset_profile(view.profile_view)
+                view = SegmentedDatasetProfileView(
+                    profile_view=updated_profile_view, segment=view._segment, partition=view._partition
+                )
+
+            else:
+                view = _uncompund_dataset_profile(view)
 
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
 
         with tempfile.NamedTemporaryFile() as tmp_file:
             if has_segments:
-                profile_view.write(path=tmp_file.name, use_v0=True)
+                view.write(path=tmp_file.name, use_v0=True)
             else:
-                profile_view.write(path=tmp_file.name)
+                view.write(path=tmp_file.name)
             tmp_file.flush()
 
-            dataset_timestamp = profile_view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
+            dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
             self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
