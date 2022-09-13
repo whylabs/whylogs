@@ -91,7 +91,7 @@ class DatasetProfile(Writable):
     def add_dataset_metric(self, name: str, metric: Metric) -> None:
         self._metrics[name] = metric
 
-    def add_model_performance_metric(self, metric: ModelPerformanceMetrics) -> None:
+    def add_model_performance_metrics(self, metric: ModelPerformanceMetrics) -> None:
         self._metrics[_MODEL_PERFORMANCE_KEY] = metric
 
     @property
@@ -180,7 +180,7 @@ class DatasetProfile(Writable):
         score_field : str, optional
         """
         if not self.model_performance_metrics:
-            self.add_model_performance_metric(ModelPerformanceMetrics())
+            self.add_model_performance_metrics(ModelPerformanceMetrics())
         self.model_performance_metrics.compute_confusion_matrix(
             predictions=predictions,
             targets=targets,
@@ -223,7 +223,7 @@ class DatasetProfile(Writable):
         score_field : str, optional
         """
         if not self.model_performance_metrics:
-            self.add_model_performance_metric(ModelPerformanceMetrics())
+            self.add_model_performance_metrics(ModelPerformanceMetrics())
         self.model_performance_metrics.compute_regression_metrics(
             predictions=predictions,
             targets=targets,

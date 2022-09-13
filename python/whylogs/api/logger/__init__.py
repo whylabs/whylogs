@@ -49,7 +49,7 @@ def log_classification_metrics(
         scores=scores,
     )
     profile = DatasetProfile()
-    profile.add_model_performance_metric(model_performance_metrics)
+    profile.add_model_performance_metrics(model_performance_metrics)
     return ProfileResultSet(profile)
 
 
@@ -77,7 +77,7 @@ def log_regression_metrics(
         targets=targets,
     )
     profile = DatasetProfile()
-    profile.add_model_performance_metric(model_performance_metrics)
+    profile.add_model_performance_metrics(model_performance_metrics)
     return ProfileResultSet(profile)
 
 

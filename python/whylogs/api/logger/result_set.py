@@ -99,7 +99,7 @@ class ResultSet(ABC):
     def add_model_performance_metrics(self, metrics: ModelPerformanceMetrics) -> None:
         profile = self.profile()
         if profile:
-            profile.add_model_performance_metric(metrics)
+            profile.add_model_performance_metrics(metrics)
         else:
             raise ValueError("Cannot add performance metrics to a result set with no profile!")
 
@@ -233,7 +233,7 @@ class SegmentedResultSet(ResultSet):
                     profile = segments[segment_key]
                     metric = self.get_model_performance_metrics_for_segment(segment_key)
                     if metric:
-                        profile.add_model_performance_metric(metric)
+                        profile.add_model_performance_metrics(metric)
                         logger.debug(
                             f"Found model performance metrics: {metric}, adding to segmented profile: {segment_key}."
                         )
@@ -256,4 +256,4 @@ class SegmentedResultSet(ResultSet):
     def add_metrics_for_segment(self, metrics: ModelPerformanceMetrics, segment: Segment) -> None:
         if segment.parent_id in self._segments:
             profile = self._segments[segment.parent_id][segment]
-            profile.add_model_performance_metric(metrics)
+            profile.add_model_performance_metrics(metrics)
