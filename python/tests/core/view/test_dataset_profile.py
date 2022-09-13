@@ -1,3 +1,5 @@
+from logging import getLogger
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -6,6 +8,7 @@ from whylogs.core import DatasetProfile, DatasetSchema
 
 FLOAT_TYPES = [float, np.float16, np.float32, np.float64, np.floating, np.float_, np.longdouble]
 INTEGER_TYPES = [int, np.intc, np.uintc, np.int_, np.uint, np.longlong, np.ulonglong]
+TEST_LOGGER = getLogger(__name__)
 
 
 @pytest.fixture
@@ -40,7 +43,7 @@ def test_override_schema_col2_as_string() -> None:
     assert profile._columns["col2"]._schema.dtype == str
     assert profile._columns["col3"]._schema.dtype.name == "object"
     pdf = view.to_pandas()
-    print(pdf)
+    TEST_LOGGER.info(pdf)
 
 
 def test_basic_iter_row(profile) -> None:
