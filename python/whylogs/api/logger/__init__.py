@@ -24,9 +24,11 @@ def log(
 
 
 def log_classification_metrics(
-    targets,
-    predictions,
-    scores=None,
+    data: pd.DataFrame,
+    target_column: str,
+    prediction_column: str,
+    score_column: Optional[str] = None,
+    schema: Optional[DatasetSchema] = None,
 ) -> ProfileResultSet:
     """
     Function to track metrics based on validation data.
@@ -44,18 +46,21 @@ def log_classification_metrics(
     """
     model_performance_metrics = ModelPerformanceMetrics()
     model_performance_metrics.compute_confusion_matrix(
-        predictions=predictions,
-        targets=targets,
-        scores=scores,
+        predictions=data[prediction_column].to_list(),
+        targets=data[target_column].to_list(),
+        scores=data[score_column].to_list() if score_column else None,
     )
-    profile = DatasetProfile()
-    profile.add_model_performance_metrics(model_performance_metrics)
-    return ProfileResultSet(profile)
+
+    results = log(pandas=data, schema=schema)
+    results.add_model_performance_metrics(model_performance_metrics)
+    return results
 
 
 def log_regression_metrics(
-    targets,
-    predictions,
+    data: pd.DataFrame,
+    target_column: str,
+    prediction_column: str,
+    schema: Optional[DatasetSchema] = None,
 ) -> ProfileResultSet:
     """
     Function to track regression metrics based on validation data.
@@ -73,12 +78,13 @@ def log_regression_metrics(
     """
     model_performance_metrics = ModelPerformanceMetrics()
     model_performance_metrics.compute_regression_metrics(
-        predictions=predictions,
-        targets=targets,
+        predictions=data[prediction_column].to_list(),
+        targets=data[target_column].to_list(),
     )
-    profile = DatasetProfile()
-    profile.add_model_performance_metrics(model_performance_metrics)
-    return ProfileResultSet(profile)
+
+    results = log(pandas=data, schema=schema)
+    results.add_model_performance_metrics(model_performance_metrics)
+    return results
 
 
 def read(path: str) -> ResultSet:

@@ -90,6 +90,7 @@ class ResultSet(ABC):
     def get_writables(self) -> Optional[List[Writable]]:
         return [self.view()]
 
+    @property
     def performance_metrics(self) -> Optional[ModelPerformanceMetrics]:
         profile = self.profile()
         if profile:
