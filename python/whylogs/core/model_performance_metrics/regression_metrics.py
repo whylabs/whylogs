@@ -81,6 +81,8 @@ class RegressionMetrics:
         """
 
         return RegressionMetricsMessage(
+            prediction_field="0",
+            target_field="0",
             count=self.count,
             sum_abs_diff=self.sum_abs_diff,
             sum_diff=self.sum_diff,
