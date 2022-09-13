@@ -6,6 +6,8 @@ from whylogs.api.reader import Reader, Readers
 from whylogs.api.writer import Writer, Writers
 from whylogs.api.writer.writer import Writable
 from whylogs.core import DatasetProfile, DatasetProfileView, Segment
+from whylogs.core.metrics.metrics import Metric
+from whylogs.core.model_performance_metrics import ModelPerformanceMetrics
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.view.segmented_dataset_profile_view import SegmentedDatasetProfileView
 
@@ -88,6 +90,27 @@ class ResultSet(ABC):
     def get_writables(self) -> Optional[List[Writable]]:
         return [self.view()]
 
+    @property
+    def performance_metrics(self) -> Optional[ModelPerformanceMetrics]:
+        profile = self.profile()
+        if profile:
+            return profile.model_performance_metrics
+        return None
+
+    def add_model_performance_metrics(self, metrics: ModelPerformanceMetrics) -> None:
+        profile = self.profile()
+        if profile:
+            profile.add_model_performance_metrics(metrics)
+        else:
+            raise ValueError("Cannot add performance metrics to a result set with no profile!")
+
+    def add_metrics(self, name: str, metric: Metric) -> None:
+        profile = self.profile()
+        if profile:
+            profile.add_dataset_metric(name, metric)
+        else:
+            raise ValueError(f"Cannot add {name} metric {metric} to a result set with no profile!")
+
 
 class ViewResultSet(ResultSet):
     def __init__(self, view: DatasetProfileView) -> None:
@@ -119,6 +142,7 @@ class SegmentedResultSet(ResultSet):
     ) -> None:
         self._segments = segments
         self._partitions = partitions
+        self.model_performance_metric: Optional[ModelPerformanceMetrics] = None
 
     def profile(self, segment: Optional[Segment] = None) -> Optional[DatasetProfile]:
         if not self._segments:
@@ -176,6 +200,18 @@ class SegmentedResultSet(ResultSet):
         result = self.profile(segment)
         return result.view() if result else None
 
+    def get_model_performance_metrics_for_segment(self, segment: Segment) -> Optional[ModelPerformanceMetrics]:
+        if segment.parent_id in self._segments:
+            profile = self._segments[segment.parent_id][segment]
+            if not profile:
+                logger.warning(
+                    f"No profile found for segment {segment} when requesting model performance metrics, returning None!"
+                )
+                return None
+            view = profile.view()
+            return view.model_performance_metrics
+        return None
+
     def get_writables(self) -> Optional[List[Writable]]:
         results: Optional[List[Writable]] = None
         if self._segments:
@@ -196,6 +232,13 @@ class SegmentedResultSet(ResultSet):
             if segments:
                 for segment_key in segments:
                     profile = segments[segment_key]
+                    metric = self.get_model_performance_metrics_for_segment(segment_key)
+                    if metric:
+                        profile.add_model_performance_metrics(metric)
+                        logger.debug(
+                            f"Found model performance metrics: {metric}, adding to segmented profile: {segment_key}."
+                        )
+
                     segmented_profile = SegmentedDatasetProfileView(
                         profile_view=profile.view(), segment=segment_key, partition=first_partition
                     )
@@ -210,3 +253,8 @@ class SegmentedResultSet(ResultSet):
                 f"Attempt to build segmented results for writing but there are no segments in this result set: {self._segments}. returning None."
             )
         return results
+
+    def add_metrics_for_segment(self, metrics: ModelPerformanceMetrics, segment: Segment) -> None:
+        if segment.parent_id in self._segments:
+            profile = self._segments[segment.parent_id][segment]
+            profile.add_model_performance_metrics(metrics)

@@ -305,10 +305,12 @@ def v1_to_dataset_profile_message_v0(
             frequent_items=_extract_frequent_items_sketch_message_v0(col_prof),
             cardinality_tracker=_extract_hll_sketch_message_v0(col_prof),
         )
+    metrics = profile_view.model_performance_metrics
+    model_profile_message = metrics.to_protobuf() if metrics else None
 
     message = DatasetProfileMessageV0(
         properties=properties_v0,
         columns=columns_v0,
-        # TODO: add model perf metrics
+        modeProfile=model_profile_message,
     )
     return message

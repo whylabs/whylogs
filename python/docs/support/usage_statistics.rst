@@ -1,7 +1,7 @@
 Usage Statistics
 ================
 
-whylogs collects anonymous information about a user’s environment. This includes information such as:
+whylogs by default collects anonymous information about a user’s environment. This includes information such as:
 
 whylogs version
 Operating system

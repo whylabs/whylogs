@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import Any
 
 import pandas as pd
@@ -12,6 +13,7 @@ from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.validators import ConditionValidator
 
+TEST_LOGGER = getLogger(__name__)
 regex_conditions = {"noCreditCard": Condition(not_rel(rel(Rel.match, ".*4[0-9]{12}(?:[0-9]{3})?")))}
 
 number_conditions = {
@@ -23,12 +25,16 @@ number_conditions = {
 
 
 def do_something_important(validator_name, condition_name: str, value: Any):
-    print("Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value))
+    TEST_LOGGER.info(
+        "Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value)
+    )
     return
 
 
 def do_another_important_thing(validator_name, condition_name: str, value: Any):
-    print("Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value))
+    TEST_LOGGER.info(
+        "Validator: {}\n    Condition name {} failed for value {}".format(validator_name, condition_name, value)
+    )
     return
 
 
