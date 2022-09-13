@@ -1,0 +1,63 @@
+:py:mod:`whylogs.core.model_performance_metrics.regression_metrics`
+===================================================================
+
+.. py:module:: whylogs.core.model_performance_metrics.regression_metrics
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.model_performance_metrics.regression_metrics.RegressionMetrics
+
+
+
+
+.. py:class:: RegressionMetrics
+
+   .. py:method:: add(predictions: List[float], targets: List[float])
+
+      Function adds predictions and targets computation of regression metrics.
+
+      :param predictions:
+      :type predictions: List[float]
+      :param targets:
+      :type targets: List[float]
+
+
+   .. py:method:: mean_absolute_error()
+
+
+   .. py:method:: mean_squared_error()
+
+
+   .. py:method:: root_mean_squared_error()
+
+
+   .. py:method:: merge(other)
+
+      Merge two seperate regression metrics.
+
+      :param other: regression metrics to merge with self
+
+      :returns: merged regression metrics
+      :rtype: RegressionMetrics
+
+
+   .. py:method:: to_protobuf()
+
+      Convert to protobuf
+
+      :returns: Protobuf Message
+      :rtype: TYPE
+
+
+   .. py:method:: from_protobuf(message: whylogs.core.proto.v0.RegressionMetricsMessage)
+      :classmethod:
+
+
+

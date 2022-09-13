@@ -12,6 +12,7 @@ Subpackages
 
    constraints/index.rst
    metrics/index.rst
+   model_performance_metrics/index.rst
    proto/index.rst
    validators/index.rst
    view/index.rst
@@ -50,6 +51,7 @@ Classes
    whylogs.core.DatasetProfile
    whylogs.core.TypeMapper
    whylogs.core.MetricConfig
+   whylogs.core.ModelPerformanceMetrics
    whylogs.core.Resolver
    whylogs.core.ColumnSchema
    whylogs.core.DatasetSchema
@@ -94,7 +96,7 @@ Attributes
 
 
 
-.. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None)
+.. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, metrics: Optional[Dict[str, Union[whylogs.core.metrics.Metric, Any]]] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
 
@@ -134,6 +136,16 @@ Attributes
 
 
    .. py:method:: add_metric(col_name: str, metric: whylogs.core.metrics.Metric) -> None
+
+
+   .. py:method:: add_dataset_metric(name: str, metric: whylogs.core.metrics.Metric) -> None
+
+
+   .. py:method:: add_model_performance_metrics(metric: whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics) -> None
+
+
+   .. py:method:: model_performance_metrics() -> whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics
+      :property:
 
 
    .. py:method:: track(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None
@@ -216,6 +228,60 @@ Attributes
       :annotation: :bool = True
 
       
+
+
+.. py:class:: ModelPerformanceMetrics(confusion_matrix: Optional[whylogs.core.model_performance_metrics.confusion_matrix.ConfusionMatrix] = None, regression_metrics: Optional[whylogs.core.model_performance_metrics.regression_metrics.RegressionMetrics] = None, metrics: Optional[Dict[str, whylogs.core.metrics.metrics.Metric]] = None, field_metadata: Optional[Dict[str, Set[str]]] = None)
+
+   Container class for various model-related performance metrics
+
+   .. attribute:: confusion_matrix
+
+      ConfusionMatrix which keeps it track of counts with NumberTracker
+
+      :type: ConfusionMatrix
+
+   .. attribute:: regression_metrics
+
+      Regression Metrics keeps track of a common regression metrics in case the targets are continous.
+
+      :type: RegressionMetrics
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.v0.ModelProfileMessage
+
+
+   .. py:method:: from_protobuf(message: whylogs.core.proto.v0.ModelProfileMessage) -> ModelPerformanceMetrics
+      :classmethod:
+
+
+   .. py:method:: compute_confusion_matrix(predictions: List[Union[str, int, bool, float]], targets: List[Union[str, int, bool, float]], scores: List[float] = None)
+
+      computes the confusion_matrix, if one is already present merges to old one.
+
+      :param predictions:
+      :type predictions: List[Union[str, int, bool]]
+      :param targets:
+      :type targets: List[Union[str, int, bool]]
+      :param scores:
+      :type scores: List[float], optional
+
+
+   .. py:method:: compute_regression_metrics(predictions: List[Union[float, int]], targets: List[Union[float, int]])
+
+
+   .. py:method:: add_metadata_to_field(column_name: str, categories: Set[str]) -> None
+
+
+   .. py:method:: specify_output_fields(column_names: Union[str, Set[str]]) -> None
+
+
+   .. py:method:: output_fields() -> Optional[List[str]]
+      :property:
+
+
+   .. py:method:: merge(other)
+
+      :type other: ModelMetrics
+
 
 
 .. py:class:: Resolver
@@ -425,7 +491,7 @@ Attributes
 
 
 
-.. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: datetime.datetime, creation_timestamp: datetime.datetime)
+.. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: datetime.datetime, creation_timestamp: datetime.datetime, metrics: Optional[Dict[str, Any]] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
 
@@ -437,6 +503,10 @@ Attributes
 
 
    .. py:method:: creation_timestamp() -> datetime.datetime
+      :property:
+
+
+   .. py:method:: model_performance_metrics() -> Any
       :property:
 
 

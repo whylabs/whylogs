@@ -30,7 +30,7 @@ Attributes
 
    
 
-.. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None)
+.. py:class:: DatasetProfile(schema: Optional[whylogs.core.schema.DatasetSchema] = None, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, metrics: Optional[Dict[str, Union[whylogs.core.metrics.Metric, Any]]] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
 
@@ -70,6 +70,16 @@ Attributes
 
 
    .. py:method:: add_metric(col_name: str, metric: whylogs.core.metrics.Metric) -> None
+
+
+   .. py:method:: add_dataset_metric(name: str, metric: whylogs.core.metrics.Metric) -> None
+
+
+   .. py:method:: add_model_performance_metrics(metric: whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics) -> None
+
+
+   .. py:method:: model_performance_metrics() -> whylogs.core.model_performance_metrics.model_performance_metrics.ModelPerformanceMetrics
+      :property:
 
 
    .. py:method:: track(obj: Any = None, *, pandas: Optional[whylogs.core.stubs.pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> None

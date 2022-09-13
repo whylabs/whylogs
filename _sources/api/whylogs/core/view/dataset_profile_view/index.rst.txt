@@ -488,7 +488,7 @@ Attributes
 
 
 
-.. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: datetime.datetime, creation_timestamp: datetime.datetime)
+.. py:class:: DatasetProfileView(*, columns: Dict[str, whylogs.core.view.column_profile_view.ColumnProfileView], dataset_timestamp: datetime.datetime, creation_timestamp: datetime.datetime, metrics: Optional[Dict[str, Any]] = None)
 
    Bases: :py:obj:`whylogs.api.writer.writer.Writable`
 
@@ -500,6 +500,10 @@ Attributes
 
 
    .. py:method:: creation_timestamp() -> datetime.datetime
+      :property:
+
+
+   .. py:method:: model_performance_metrics() -> Any
       :property:
 
 

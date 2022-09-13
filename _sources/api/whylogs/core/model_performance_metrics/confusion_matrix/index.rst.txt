@@ -1,0 +1,98 @@
+:py:mod:`whylogs.core.model_performance_metrics.confusion_matrix`
+=================================================================
+
+.. py:module:: whylogs.core.model_performance_metrics.confusion_matrix
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.model_performance_metrics.confusion_matrix.ConfusionMatrix
+
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.model_performance_metrics.confusion_matrix.MODEL_METRICS_MAX_LABELS
+   whylogs.core.model_performance_metrics.confusion_matrix.MODEL_METRICS_LABEL_SIZE_WARNING_THRESHOLD
+   whylogs.core.model_performance_metrics.confusion_matrix.EMPTY_KLL
+   whylogs.core.model_performance_metrics.confusion_matrix.EMPTY_THETA
+
+
+.. py:data:: MODEL_METRICS_MAX_LABELS
+   :annotation: = 256
+
+   
+
+.. py:data:: MODEL_METRICS_LABEL_SIZE_WARNING_THRESHOLD
+   :annotation: = 64
+
+   
+
+.. py:data:: EMPTY_KLL
+   :annotation: :bytes
+
+   
+
+.. py:data:: EMPTY_THETA
+   :annotation: :bytes
+
+   
+
+.. py:class:: ConfusionMatrix(labels: List[Union[str, int, bool, float]] = None)
+
+   Confusion Matrix Class to hold labels and matrix data.
+
+   .. attribute:: labels
+
+      list of labels in a sorted order
+
+   .. py:method:: add(predictions: List[Union[str, int, bool, float]], targets: List[Union[str, int, bool, float]], scores: Optional[List[float]])
+
+      Function adds predictions and targets to confusion matrix with scores.
+
+      :param predictions:
+      :type predictions: List[Union[str, int, bool]]
+      :param targets:
+      :type targets: List[Union[str, int, bool]]
+      :param scores:
+      :type scores: List[float]
+
+      :raises NotImplementedError: in case targets do not fall into binary or
+      :raises multiclass suport:
+      :raises ValueError: incase missing validation or predictions
+
+
+   .. py:method:: merge(other_cm)
+
+      Merge two seperate confusion matrix which may or may not overlap in labels.
+
+      :param other_cm: confusion_matrix to merge with self
+      :type other_cm: Optional[ConfusionMatrix]
+
+      :returns: merged confusion_matrix
+      :rtype: ConfusionMatrix
+
+
+   .. py:method:: to_protobuf()
+
+      Convert to protobuf
+
+      :returns: Description
+      :rtype: TYPE
+
+
+   .. py:method:: from_protobuf(message: whylogs.core.proto.v0.ScoreMatrixMessage)
+      :classmethod:
+
+
+

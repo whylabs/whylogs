@@ -90,6 +90,15 @@ Attributes
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
 
 
+   .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
+   .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
+
+
+   .. py:method:: add_metrics(name: str, metric: whylogs.core.metrics.metrics.Metric) -> None
+
+
 
 .. py:class:: ViewResultSet(view: whylogs.core.DatasetProfileView)
 
@@ -121,6 +130,15 @@ Attributes
 
 
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+
+
+   .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
+   .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
+
+
+   .. py:method:: add_metrics(name: str, metric: whylogs.core.metrics.metrics.Metric) -> None
 
 
 
@@ -156,6 +174,15 @@ Attributes
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
 
 
+   .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
+   .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
+
+
+   .. py:method:: add_metrics(name: str, metric: whylogs.core.metrics.metrics.Metric) -> None
+
+
 
 .. py:class:: SegmentedResultSet(segments: Dict[str, Dict[whylogs.core.Segment, whylogs.core.DatasetProfile]], partitions: Optional[List[whylogs.core.segmentation_partition.SegmentationPartition]] = None)
 
@@ -189,7 +216,13 @@ Attributes
    .. py:method:: view(segment: Optional[whylogs.core.Segment] = None) -> Optional[whylogs.core.DatasetProfileView]
 
 
+   .. py:method:: get_model_performance_metrics_for_segment(segment: whylogs.core.Segment) -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
    .. py:method:: get_writables() -> Optional[List[whylogs.api.writer.writer.Writable]]
+
+
+   .. py:method:: add_metrics_for_segment(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics, segment: whylogs.core.Segment) -> None
 
 
    .. py:method:: read(multi_profile_file: str) -> ResultSet
@@ -201,6 +234,15 @@ Attributes
 
 
    .. py:method:: writer(name: str = 'local') -> ResultSetWriter
+
+
+   .. py:method:: performance_metrics() -> Optional[whylogs.core.model_performance_metrics.ModelPerformanceMetrics]
+
+
+   .. py:method:: add_model_performance_metrics(metrics: whylogs.core.model_performance_metrics.ModelPerformanceMetrics) -> None
+
+
+   .. py:method:: add_metrics(name: str, metric: whylogs.core.metrics.metrics.Metric) -> None
 
 
 

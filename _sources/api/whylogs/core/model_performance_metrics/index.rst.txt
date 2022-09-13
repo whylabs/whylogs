@@ -1,0 +1,84 @@
+:py:mod:`whylogs.core.model_performance_metrics`
+================================================
+
+.. py:module:: whylogs.core.model_performance_metrics
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   confusion_matrix/index.rst
+   model_performance_metrics/index.rst
+   regression_metrics/index.rst
+
+
+Package Contents
+----------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.model_performance_metrics.ModelPerformanceMetrics
+
+
+
+
+.. py:class:: ModelPerformanceMetrics(confusion_matrix: Optional[whylogs.core.model_performance_metrics.confusion_matrix.ConfusionMatrix] = None, regression_metrics: Optional[whylogs.core.model_performance_metrics.regression_metrics.RegressionMetrics] = None, metrics: Optional[Dict[str, whylogs.core.metrics.metrics.Metric]] = None, field_metadata: Optional[Dict[str, Set[str]]] = None)
+
+   Container class for various model-related performance metrics
+
+   .. attribute:: confusion_matrix
+
+      ConfusionMatrix which keeps it track of counts with NumberTracker
+
+      :type: ConfusionMatrix
+
+   .. attribute:: regression_metrics
+
+      Regression Metrics keeps track of a common regression metrics in case the targets are continous.
+
+      :type: RegressionMetrics
+
+   .. py:method:: to_protobuf() -> whylogs.core.proto.v0.ModelProfileMessage
+
+
+   .. py:method:: from_protobuf(message: whylogs.core.proto.v0.ModelProfileMessage) -> ModelPerformanceMetrics
+      :classmethod:
+
+
+   .. py:method:: compute_confusion_matrix(predictions: List[Union[str, int, bool, float]], targets: List[Union[str, int, bool, float]], scores: List[float] = None)
+
+      computes the confusion_matrix, if one is already present merges to old one.
+
+      :param predictions:
+      :type predictions: List[Union[str, int, bool]]
+      :param targets:
+      :type targets: List[Union[str, int, bool]]
+      :param scores:
+      :type scores: List[float], optional
+
+
+   .. py:method:: compute_regression_metrics(predictions: List[Union[float, int]], targets: List[Union[float, int]])
+
+
+   .. py:method:: add_metadata_to_field(column_name: str, categories: Set[str]) -> None
+
+
+   .. py:method:: specify_output_fields(column_names: Union[str, Set[str]]) -> None
+
+
+   .. py:method:: output_fields() -> Optional[List[str]]
+      :property:
+
+
+   .. py:method:: merge(other)
+
+      :type other: ModelMetrics
+
+
+

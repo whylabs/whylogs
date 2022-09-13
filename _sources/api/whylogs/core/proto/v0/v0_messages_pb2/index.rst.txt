@@ -122,11 +122,6 @@ Module Contents
 
    
 
-.. py:data:: NLPMetricsMessage
-   
-
-   
-
 .. py:data:: ModelMetricsMessage
    
 
