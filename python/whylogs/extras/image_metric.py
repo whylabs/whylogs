@@ -147,10 +147,11 @@ def log_image(
         images = {default_column_prefix: images}
     if isinstance(images, list):
         count = 0
-        images = dict()
+        row = dict()
         for img in images:
-            images[f"{default_column_prefix}_{count}"] = img
+            row[f"{default_column_prefix}_{count}"] = img
             count += 1
+        images = row
 
     if not isinstance(images, dict):
         raise ValueError("log_image must be passed an image, list of images, or dictionary of images")
