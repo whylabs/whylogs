@@ -40,6 +40,7 @@ Advanced
     examples/advanced/String_Tracking
     examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation
     examples/advanced/Condition_Validators.ipynb
+    examples/advanced/Segments.ipynb
 
 
 
@@ -51,6 +52,7 @@ Integrations
 
     examples/integrations/writers/Writing_to_WhyLabs
     examples/integrations/writers/Writing_Profiles
+    examples/integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs
     examples/integrations/writers/Writing_Classification_Performance_Metrics_to_WhyLabs
     examples/integrations/Pyspark_Profiling
     examples/integrations/Mlflow_Logging
