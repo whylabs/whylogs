@@ -1,6 +1,8 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Optional, TypeVar
+from typing import Any, Optional, TypeVar, Union
+
+import requests
 
 T = TypeVar("T", bound="Writer")
 
@@ -20,7 +22,7 @@ class Writable(ABC):
         pass
 
     @abstractmethod
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> requests.Response:
         pass
 
 
@@ -38,7 +40,7 @@ class Writer(ABC):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> None:
+    ) -> Union[requests.Response, bool]:
         pass
 
     @abstractmethod

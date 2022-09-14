@@ -26,6 +26,10 @@ class TestMlflowWriter(object):
         file_dir = f"artifacts/{mlflow_writer._file_dir}"
         file_path = os.path.join(file_dir, f"{profile_view.get_default_path()}")
         assert os.path.isfile(f"mlruns/0/{run_id}/{file_path}")
+        
+    def test_writes_response(self, profile_view, mlflow_writer):
+        response = mlflow_writer.write(profile_view)
+        assert response is True
 
     def test_get_temp_directory(self, mlflow_writer):
         default_dest = "whylogs/whylogs_profile.bin"

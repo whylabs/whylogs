@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
@@ -175,7 +175,7 @@ class WhyLabsWriter(Writer):
         return self
 
     @deprecated_alias(profile="file")
-    def write(self, file: Writable, **kwargs: Any) -> None:
+    def write(self, file: Writable, **kwargs: Any) -> Union[requests.Response, bool]:
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
 
@@ -206,7 +206,7 @@ class WhyLabsWriter(Writer):
 
             dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
-            self._do_upload(
+            return self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
                 profile_path=tmp_file.name,
             )

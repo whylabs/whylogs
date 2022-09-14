@@ -106,3 +106,8 @@ class TestWhylabsWriter(object):
         # TODO: inspect error or mock better to avoid network call and keep test focused.
         with pytest.raises(ValueError):
             results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
+            
+    def test_write_response(self, results):
+        with pytest.raises(ValueError):
+            response = results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
+            assert response.status_code == 200
