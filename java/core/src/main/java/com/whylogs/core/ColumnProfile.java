@@ -4,9 +4,14 @@ import com.whylogs.core.metrics.Metric;
 import com.whylogs.core.metrics.OperationResult;
 import com.whylogs.core.schemas.ColumnSchema;
 import com.whylogs.core.views.ColumnProfileView;
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
+@Getter
+@ToString
 public class ColumnProfile<T> {
   // Required
   private String name;
@@ -42,6 +47,7 @@ public class ColumnProfile<T> {
     this.metrics.put(metric.getNamespace(), metric);
   }
 
+  // TODO: this only gets one not every part of the row. Should projector actually do it multiple?
   public void track(HashMap<String, T> row) {
     T value = this.projector.apply(row);
     this.cachedValues.add(value);
