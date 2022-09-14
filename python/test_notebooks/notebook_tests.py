@@ -15,6 +15,7 @@ skip_notebooks = [
     "BigQuery_Example.ipynb",
     "Segments.ipynb",
     "Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb",
+    "Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb",
 ]
 
 
