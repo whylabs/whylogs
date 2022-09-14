@@ -2,10 +2,19 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+<meta property="og:title" content="Monitoring Regression Model Performance Metrics" />
+  
+<meta property="og:type" content="website" />
+  
+<meta property="og:url" content="https://whylogs.readthedocs.io/examples/integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs.html" />
+  
+<meta property="og:description" content="Open in Colab In this tutorial, we’ll show how you can log performance metrics of your ML Model with whylogs, and how to send it to your dashboard at Whylabs Platform. We’ll follow a regression use..." />
+  <link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" /><link rel="next" title="Monitoring Classification Model Performance Metrics" href="Writing_Classification_Performance_Metrics_to_WhyLabs.html" /><link rel="prev" title="Writing profiles - Local/S3" href="Writing_Profiles.html" />
 
     <meta name="generator" content="sphinx-4.3.2, furo 2022.06.21"/>
-        <title>whylogs.core.datatypes - whylogs v1.1.0</title>
+        <title>Monitoring Regression Model Performance Metrics - whylogs v1.1.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?digest=40978830699223671f4072448e654b5958f38b89" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
@@ -143,7 +152,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -169,44 +178,44 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../examples/basic/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../basic/Getting_Started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Features</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../features/profiling.html">Profiling</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../features/writing.html">Writers</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/basic/Getting_Started.html">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/basic/Inspecting_Profiles.html">Inspecting Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/basic/Logging_Different_Data.html">(why)Logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/basic/Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/basic/Merging_Profiles.html">Merging Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/advanced/Constraints_Suite.html">Simple Constraints - Examples and Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/advanced/Condition_Count_Metrics.html">Condition Count Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/advanced/Custom_Metrics.html">Custom Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">Rolling Logs with Streaming Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/advanced/Condition_Validators.html">Real-time Data Validation with Condition Validators</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/advanced/Segments.html">Intro to Segmentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/writers/Writing_to_WhyLabs.html">Writing Profiles to WhyLabs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/writers/Writing_Profiles.html">Writing profiles - Local/S3</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs.html">Monitoring Regression Model Performance Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/writers/Writing_Classification_Performance_Metrics_to_WhyLabs.html">Monitoring Classification Model Performance Metrics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/Pyspark_Profiling.html">PySpark Integration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/Mlflow_Logging.html">MLflow Logging</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/kafka-example/Kafka_Example.html">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/Feature_Stores_and_whylogs.html">Logging data from Feature Stores with Feast and whylogs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/flask_streaming/flask_with_whylogs.html">Integrating Whylogs into your Flask Flow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/flask_streaming/flask_with_whylogs.html#Viewing-the-Data">Viewing the Data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../examples/integrations/Dask_Profiling.html">Dask Profiling</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../../examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Getting_Started.html">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Inspecting_Profiles.html">Inspecting Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Notebook_Profile_Visualizer.html">Drift Analysis with Profile Visualizer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Logging_Different_Data.html">(why)Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Metric_Constraints.html">Data Validation with Metric Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Schema_Configuration.html">Schema Configuration for Tracking Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../basic/Merging_Profiles.html">Merging Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced/Constraints_Suite.html">Simple Constraints - Examples and Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced/Condition_Count_Metrics.html">Condition Count Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced/Custom_Metrics.html">Custom Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced/String_Tracking.html">String Tracking - Unicode Range and String Length</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.html">Rolling Logs with Streaming Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced/Condition_Validators.html">Real-time Data Validation with Condition Validators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced/Segments.html">Intro to Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Writing_to_WhyLabs.html">Writing Profiles to WhyLabs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Writing_Profiles.html">Writing profiles - Local/S3</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Monitoring Regression Model Performance Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Writing_Classification_Performance_Metrics_to_WhyLabs.html">Monitoring Classification Model Performance Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Pyspark_Profiling.html">PySpark Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Mlflow_Logging.html">MLflow Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../kafka-example/Kafka_Example.html">Profiling with <code class="docutils literal notranslate"><span class="pre">whylogs</span></code> from a Kafka topic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Feature_Stores_and_whylogs.html">Logging data from Feature Stores with Feast and whylogs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../flask_streaming/flask_with_whylogs.html">Integrating Whylogs into your Flask Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../flask_streaming/flask_with_whylogs.html#Viewing-the-Data">Viewing the Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dask_Profiling.html">Dask Profiling</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../datasets.html">Datasets</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../datasets/weather.html">Weather Forecast Dataset</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../examples/datasets/weather.html">Weather Forecast Dataset - Usage Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../datasets/weather.html">Weather Forecast Dataset - Usage Example</a></li>
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../datasets/ecommerce.html">Ecommerce Dataset</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
@@ -389,166 +398,549 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          <h1>Source code for whylogs.core.datatypes</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">decimal</span> <span class="kn">import</span> <span class="n">Decimal</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+          
+<style>
+/* CSS for nbsphinx extension */
 
-<span class="kn">from</span> <span class="nn">whylogs.core.stubs</span> <span class="kn">import</span> <span class="n">np</span>
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">pandas.core.api</span> <span class="kn">import</span> <span class="n">CategoricalDtype</span>
-<span class="k">except</span><span class="p">:</span>  <span class="c1"># noqa</span>
-    <span class="n">CategoricalDtype</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore</span>
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
 
-<span class="n">NT</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;NT&quot;</span><span class="p">)</span>
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
 
 
-<div class="viewcode-block" id="DataType"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.DataType">[docs]</a><span class="k">class</span> <span class="nc">DataType</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpe</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tpe</span> <span class="o">=</span> <span class="n">tpe</span>
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">return_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">NT</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tpe</span>
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
 
-<div class="viewcode-block" id="DataType.match"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.DataType.match">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">dtype_or_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">):</span>
-            <span class="n">maybe_type</span> <span class="o">=</span> <span class="n">dtype_or_type</span><span class="o">.</span><span class="n">type</span>  <span class="c1"># type: ignore</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">maybe_type</span> <span class="o">=</span> <span class="kc">None</span>
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_do_match</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="n">maybe_type</span><span class="p">)</span></div>
-
-    <span class="nd">@classmethod</span>
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">_do_match</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">maybe_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-
-
-<span class="n">NumericalType</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">]</span>
-
-<span class="n">NUMBER</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;NUMBER&quot;</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="Integral"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.Integral">[docs]</a><span class="k">class</span> <span class="nc">Integral</span><span class="p">(</span><span class="n">DataType</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_do_match</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">maybe_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">maybe_type</span><span class="p">:</span>
-            <span class="n">dtype_or_type</span> <span class="o">=</span> <span class="n">maybe_type</span>  <span class="c1"># type: ignore</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="p">(</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
-                <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">)):</span>
-                <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
-
-
-<div class="viewcode-block" id="Fractional"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.Fractional">[docs]</a><span class="k">class</span> <span class="nc">Fractional</span><span class="p">(</span><span class="n">DataType</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_do_match</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">maybe_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">maybe_type</span><span class="p">:</span>
-            <span class="n">dtype_or_type</span> <span class="o">=</span> <span class="n">maybe_type</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="k">return</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="String"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.String">[docs]</a><span class="k">class</span> <span class="nc">String</span><span class="p">(</span><span class="n">DataType</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_do_match</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">maybe_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="c1"># Pandas Categorical is Strings</span>
-        <span class="k">if</span> <span class="n">CategoricalDtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="n">CategoricalDtype</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="c1"># handle pandas series. Anything &#39;object&#39; is treated as a Series of strings</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">dtype_or_type</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
-                <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="c1"># use the underlying type within a dtype object</span>
-        <span class="k">if</span> <span class="n">maybe_type</span><span class="p">:</span>
-            <span class="n">dtype_or_type</span> <span class="o">=</span> <span class="n">maybe_type</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">False</span>
-
-        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">unicode_</span><span class="p">)):</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="k">return</span> <span class="kc">False</span></div>
-
-
-<div class="viewcode-block" id="AnyType"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.AnyType">[docs]</a><span class="k">class</span> <span class="nc">AnyType</span><span class="p">(</span><span class="n">DataType</span><span class="p">[</span><span class="n">Any</span><span class="p">]):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span>
-
-<div class="viewcode-block" id="AnyType.is_compatible"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.AnyType.is_compatible">[docs]</a>    <span class="k">def</span> <span class="nf">is_compatible</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_do_match</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">maybe_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span></div>
-
-
-<div class="viewcode-block" id="TypeMapper"><a class="viewcode-back" href="../../../api/whylogs/core/index.html#whylogs.core.datatypes.TypeMapper">[docs]</a><span class="k">class</span> <span class="nc">TypeMapper</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataType</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-
-
-<div class="viewcode-block" id="StandardTypeMapper"><a class="viewcode-back" href="../../../api/whylogs/core/datatypes/index.html#whylogs.core.datatypes.StandardTypeMapper">[docs]</a><span class="k">class</span> <span class="nc">StandardTypeMapper</span><span class="p">(</span><span class="n">TypeMapper</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Map a dtype (Pandas) or a Python type to a data type.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">custom_types</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">DataType</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            custom_types: List of additional DataType classes that you want to extend.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_all_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">Integral</span><span class="p">,</span> <span class="n">Fractional</span><span class="p">,</span> <span class="n">String</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">custom_types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_all_types</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">custom_types</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype_or_type</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataType</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">clz</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_types</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">clz</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">dtype_or_type</span><span class="p">):</span>  <span class="c1"># type: ignore</span>
-                <span class="k">return</span> <span class="n">clz</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
-        <span class="k">return</span> <span class="n">AnyType</span><span class="p">()</span></div>
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Monitoring-Regression-Model-Performance-Metrics">
+<h1>Monitoring Regression Model Performance Metrics<a class="headerlink" href="#Monitoring-Regression-Model-Performance-Metrics" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb"><img alt="Open in Colab" src="https://colab.research.google.com/assets/colab-badge.svg" /></a></p>
+<p>In this tutorial, we’ll show how you can log performance metrics of your ML Model with whylogs, and how to send it to your dashboard at Whylabs Platform. We’ll follow a regression use case, where we’re predicting the temperature of a given location based on metereological features.</p>
+<p>We will:</p>
+<ul class="simple">
+<li><p>Download Weather Data for 7 days</p></li>
+<li><p>Log daily input features with whylogs</p></li>
+<li><p>Log daily regression performance metrics with whylogs</p></li>
+<li><p>Write logged profiles to WhyLabs’ dashboard</p></li>
+<li><p>Show performance summary at WhyLabs</p></li>
+</ul>
+<section id="Installing-whylogs">
+<h2>Installing whylogs<a class="headerlink" href="#Installing-whylogs" title="Permalink to this headline">#</a></h2>
+<p>First, let’s install <strong>whylogs</strong>. Since we want to write to WhyLabs, we’ll install the <strong>whylabs</strong> extra. Additionally, we’ll use the <strong>datasets</strong> module, so let’s install it as well:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># %pip install whylogs[whylabs,datasets]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="🌤️-The-Data---Weather-Forecast-Dataset">
+<h2>🌤️ The Data - Weather Forecast Dataset<a class="headerlink" href="#🌤️-The-Data---Weather-Forecast-Dataset" title="Permalink to this headline">#</a></h2>
+<p>In this example, we will use the Weather Forecast Dataset, using whylogs’ <strong>Datasets</strong> module.</p>
+<p>This dataset contains several meteorological features at a particular place (defined by latitude and longitude features) and time. The task is to predict the temperature based on the input features.</p>
+<p>The original data is described in <a class="reference external" href="https://arxiv.org/pdf/2107.07455.pdf">Shifts: A Dataset of Real Distributional Shift Across Multiple Large-Scale Tasks</a>, by <strong>Malinin, Andrey, et al.</strong>, and was further transformed to compose the current dataset. You can have more information about the resulting dataset and how to use it at <a class="reference external" href="https://whylogs.readthedocs.io/en/latest/datasets/weather.html">https://whylogs.readthedocs.io/en/latest/datasets/weather.html</a>.</p>
+<section id="Downloading-the-data-into-daily-batches">
+<h3>Downloading the data into daily batches<a class="headerlink" href="#Downloading-the-data-into-daily-batches" title="Permalink to this headline">#</a></h3>
+<p>Let’s download 7 batches with 7 days worth of data, corresponding to the last 7 days. We can use directly the <strong>datasets</strong> module for that.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.datasets</span> <span class="kn">import</span> <span class="n">Weather</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Weather</span><span class="p">()</span>
+
+<span class="n">start_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">set_parameters</span><span class="p">(</span><span class="n">inference_start_timestamp</span><span class="o">=</span><span class="n">start_timestamp</span><span class="p">)</span>
+
+<span class="n">daily_batches</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_inference_data</span><span class="p">(</span><span class="n">number_batches</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="c1">#batches is an iterator, so let&#39;s get the list for this</span>
+<span class="n">daily_batches</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">daily_batches</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Since in this example we’re mainly concerned with regression metrics, let’s select a subset of the available features, for simplicity.</p>
+<p><strong>meta_climate</strong>, <strong>meta_latitude</strong>, <strong>meta_longitude</strong> will be our input features, while <strong>prediction_temperature</strong> is the predicted feature given by a trained ML model and the <strong>temperature</strong> feature is our target.</p>
+<p>Let’s take a look at the data for the first day:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;meta_climate&quot;</span><span class="p">,</span><span class="s2">&quot;meta_latitude&quot;</span><span class="p">,</span><span class="s2">&quot;meta_longitude&quot;</span><span class="p">,</span><span class="s2">&quot;prediction_temperature&quot;</span><span class="p">,</span><span class="s2">&quot;temperature&quot;</span><span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">daily_batches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>meta_climate</th>
+      <th>meta_latitude</th>
+      <th>meta_longitude</th>
+      <th>prediction_temperature</th>
+      <th>temperature</th>
+    </tr>
+    <tr>
+      <th>date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2022-09-07 00:00:00+00:00</th>
+      <td>mild temperate</td>
+      <td>38.891300</td>
+      <td>-6.821330</td>
+      <td>9.163181</td>
+      <td>10.0</td>
+    </tr>
+    <tr>
+      <th>2022-09-07 00:00:00+00:00</th>
+      <td>tropical</td>
+      <td>12.216667</td>
+      <td>109.216667</td>
+      <td>26.220221</td>
+      <td>27.0</td>
+    </tr>
+    <tr>
+      <th>2022-09-07 00:00:00+00:00</th>
+      <td>dry</td>
+      <td>37.991699</td>
+      <td>-101.746002</td>
+      <td>13.178478</td>
+      <td>15.0</td>
+    </tr>
+    <tr>
+      <th>2022-09-07 00:00:00+00:00</th>
+      <td>mild temperate</td>
+      <td>-23.333599</td>
+      <td>-51.130100</td>
+      <td>23.255124</td>
+      <td>25.0</td>
+    </tr>
+    <tr>
+      <th>2022-09-07 00:00:00+00:00</th>
+      <td>mild temperate</td>
+      <td>-23.479445</td>
+      <td>-52.012222</td>
+      <td>27.851674</td>
+      <td>32.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+<section id="✔️-Setting-the-Environment-Variables">
+<h2>✔️ Setting the Environment Variables<a class="headerlink" href="#✔️-Setting-the-Environment-Variables" title="Permalink to this headline">#</a></h2>
+<p>In order to send our profile to WhyLabs, let’s first set up an account. You can skip this if you already have an account and a model set up.</p>
+<p>We will need three pieces of information:</p>
+<ul class="simple">
+<li><p>API token</p></li>
+<li><p>Organization ID</p></li>
+<li><p>Dataset ID (or model-id)</p></li>
+</ul>
+<p>Go to <a class="reference external" href="https://whylabs.ai/free">https://whylabs.ai/free</a> and grab a free account. You can follow along with the examples if you wish, but if you’re interested in only following this demonstration, you can go ahead and skip the quick start instructions.</p>
+<p>After that, you’ll be prompted to create an API token. Once you create it, copy and store it locally. The second important information here is your org ID. Take note of it as well. After you get your API Token and Org ID, you can go to <a class="reference external" href="https://hub.whylabsapp.com/models">https://hub.whylabsapp.com/models</a> to see your projects dashboard. You can create a new project and take note of it’s ID (if it’s a model project it will look like <code class="docutils literal notranslate"><span class="pre">model-xxxx</span></code>).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">getpass</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># set your org-id here - should be something like &quot;org-xxxx&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs Org ID&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+
+<span class="c1"># set your datased_id (or model_id) here - should be something like &quot;model-xxxx&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs Dataset ID&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+
+
+<span class="c1"># set your API key here</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs API key&quot;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using API Key ID: &quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Enter your WhyLabs Org ID
+Enter your WhyLabs Dataset ID
+Enter your WhyLabs API key
+Using API Key ID:  z8fYdnQwHr
+</pre></div></div>
+</div>
+</section>
+<section id="📊-Profiling-the-Data-+-Sending-to-WhyLabs">
+<h2>📊 Profiling the Data + Sending to WhyLabs<a class="headerlink" href="#📊-Profiling-the-Data-+-Sending-to-WhyLabs" title="Permalink to this headline">#</a></h2>
+<p>Traditionally, data is logged by calling <code class="docutils literal notranslate"><span class="pre">why.log()</span></code>. In this case, we’ll use <code class="docutils literal notranslate"><span class="pre">why.log_regression_metrics()</span></code>, which will log data all the same, but additionally it will compute regression metrics and add them to your results.</p>
+<p><code class="docutils literal notranslate"><span class="pre">log_regression_metrics</span></code> takes the complete dataframe as input (with input/output features, as well as your prediction column and target column). We also have to define which column is our target (in this case, <code class="docutils literal notranslate"><span class="pre">temperature</span></code>) and which is our prediction column (<code class="docutils literal notranslate"><span class="pre">prediction_temperature</span></code> in this case).</p>
+<p>Once the profile is logged, we can set it’s timestamp for the proper day as given by our batch’s timestamp.</p>
+<p>Now that we have properly timestamped profiles with regression metrics, we can use the <code class="docutils literal notranslate"><span class="pre">writer</span></code> method to send it to WhyLabs:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
+<span class="kn">import</span> <span class="nn">whylogs</span> <span class="k">as</span> <span class="nn">why</span>
+
+<span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;meta_climate&quot;</span><span class="p">,</span><span class="s2">&quot;meta_latitude&quot;</span><span class="p">,</span><span class="s2">&quot;meta_longitude&quot;</span><span class="p">,</span><span class="s2">&quot;prediction_temperature&quot;</span><span class="p">,</span><span class="s2">&quot;temperature&quot;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">daily_batches</span><span class="p">:</span>
+    <span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">timestamp</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;logging data for date </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">))</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log_regression_metrics</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">target_column</span> <span class="o">=</span> <span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="n">prediction_column</span> <span class="o">=</span> <span class="s2">&quot;prediction_temperature&quot;</span><span class="p">)</span>
+
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">profile</span><span class="p">()</span>
+    <span class="n">profile</span><span class="o">.</span><span class="n">set_dataset_timestamp</span><span class="p">(</span><span class="n">dataset_timestamp</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;writing profiles to whylabs...&quot;</span><span class="p">)</span>
+    <span class="n">results</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="s2">&quot;whylabs&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+logging data for date 2022-09-07 00:00:00+00:00
+writing profiles to whylabs...
+logging data for date 2022-09-08 00:00:00+00:00
+writing profiles to whylabs...
+logging data for date 2022-09-09 00:00:00+00:00
+writing profiles to whylabs...
+logging data for date 2022-09-10 00:00:00+00:00
+writing profiles to whylabs...
+logging data for date 2022-09-11 00:00:00+00:00
+writing profiles to whylabs...
+logging data for date 2022-09-12 00:00:00+00:00
+writing profiles to whylabs...
+logging data for date 2022-09-13 00:00:00+00:00
+writing profiles to whylabs...
+</pre></div></div>
+</div>
+<p>And that’s it! You just sent your profiles to WhyLabs.</p>
+<p>At your model’s dashboard, you should see the model metrics for the last seven days. For regression, the displayed metrics are:</p>
+<ul class="simple">
+<li><p>Total output and input count</p></li>
+<li><p>Mean Squared Error</p></li>
+<li><p>Mean Absolute Error</p></li>
+<li><p>Root Mean Squared Error</p></li>
+</ul>
+<img alt="alt text" src="../../../_images/regression_metrics.png" />
+</section>
+</section>
+
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="Writing_Classification_Performance_Metrics_to_WhyLabs.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Monitoring Classification Model Performance Metrics</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="Writing_Profiles.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Writing profiles - Local/S3</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -594,8 +986,33 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Monitoring Regression Model Performance Metrics</a><ul>
+<li><a class="reference internal" href="#Installing-whylogs">Installing whylogs</a></li>
+<li><a class="reference internal" href="#🌤️-The-Data---Weather-Forecast-Dataset">🌤️ The Data - Weather Forecast Dataset</a><ul>
+<li><a class="reference internal" href="#Downloading-the-data-into-daily-batches">Downloading the data into daily batches</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#✔️-Setting-the-Environment-Variables">✔️ Setting the Environment Variables</a></li>
+<li><a class="reference internal" href="#📊-Profiling-the-Data-+-Sending-to-WhyLabs">📊 Profiling the Data + Sending to WhyLabs</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
@@ -609,5 +1026,7 @@
     <script src="../../../_static/clipboard.min.js"></script>
     <script src="../../../_static/copybutton.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     </body>
 </html>
