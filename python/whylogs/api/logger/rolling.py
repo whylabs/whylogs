@@ -10,6 +10,7 @@ from typing import Any, Callable, Dict, List, Optional
 from typing_extensions import Literal
 
 from whylogs.api.logger.logger import Logger
+from whylogs.api.store.profile_store import ProfileStore
 from whylogs.api.writer import Writer
 from whylogs.core import DatasetProfile, DatasetProfileView, DatasetSchema
 from whylogs.core.stubs import pd
@@ -72,6 +73,7 @@ class TimedRollingLogger(Logger):
         fork: bool = False,
         skip_empty: bool = False,
         callback: Optional[Callable[[Writer, DatasetProfileView, str], None]] = None,
+        store: Optional[ProfileStore] = None,
     ):
         super().__init__(schema)
         if base_name is None:
@@ -84,6 +86,7 @@ class TimedRollingLogger(Logger):
         self.aligned = aligned
         self.fork = fork
         self.skip_empty = skip_empty
+        self.store = store
 
         # base on TimedRotatingFileHandler
         self.when = when.upper()
@@ -126,6 +129,10 @@ class TimedRollingLogger(Logger):
     def check_writer(self, writer: Writer) -> None:
         writer.check_interval(self.interval)
 
+    def append_store(self, store: ProfileStore) -> None:
+        if store is not None:
+            self.store = store
+
     def _compute_current_batch_timestamp(self, now: Optional[float] = None) -> int:
         if now is None:
             now = time.time()
@@ -153,6 +160,23 @@ class TimedRollingLogger(Logger):
 
         self._flush(old_profile)
 
+    def _get_time_tuple(self) -> time.struct_time:
+        if self.utc:
+            time_tuple = time.gmtime(self._current_batch_timestamp)
+        else:
+            time_tuple = time.localtime(self._current_batch_timestamp)
+            current_time = int(time.time())
+
+            dst_now = time.localtime(current_time)[-1]
+            dst_then = time_tuple[-1]
+            if dst_now != dst_then:
+                if dst_now:
+                    addend = 3600
+                else:
+                    addend = -3600
+                time_tuple = time.localtime(self._current_batch_timestamp + addend)
+        return time_tuple
+
     def _flush(self, profile: DatasetProfile) -> None:
         if profile is None:
             return
@@ -171,25 +195,17 @@ class TimedRollingLogger(Logger):
                 logger.debug("In child process")
             else:
                 logger.debug("Didn't fork. Writing in the same process")
-            if self.utc:
-                time_tuple = time.gmtime(self._current_batch_timestamp)
-            else:
-                time_tuple = time.localtime(self._current_batch_timestamp)
-                current_time = int(time.time())
 
-                dst_now = time.localtime(current_time)[-1]
-                dst_then = time_tuple[-1]
-                if dst_now != dst_then:
-                    if dst_now:
-                        addend = 3600
-                    else:
-                        addend = -3600
-                    time_tuple = time.localtime(self._current_batch_timestamp + addend)
+            time_tuple = self._get_time_tuple()
             timed_filename = f"{self.base_name}.{time.strftime(self.suffix, time_tuple)}{self.file_extension}"
+
             logging.debug("Writing out put with timed_filename: %s", timed_filename)
 
             while profile.is_active:
                 time.sleep(1)
+
+            if self.store is not None:
+                self.store.write_profile(profile=profile.view())
 
             for w in self._writers:
                 w.write(profile=profile.view(), dest=timed_filename)
