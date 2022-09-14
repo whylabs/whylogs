@@ -97,22 +97,17 @@
     "import getpass\n",
     "import os\n",
     "\n",
-    "os.environ[\"WHYLABS_API_ENDPOINT\"] = \"https://songbird.development.whylabsdev.com\"\n",
-    "\n",
     "# set your org-id here - should be something like \"org-xxxx\"\n",
     "print(\"Enter your WhyLabs Org ID\") \n",
-    "# os.environ[\"WHYLABS_DEFAULT_ORG_ID\"] = input()\n",
-    "os.environ[\"WHYLABS_DEFAULT_ORG_ID\"] = \"org-0\"\n",
+    "os.environ[\"WHYLABS_DEFAULT_ORG_ID\"] = input()\n",
     "\n",
     "# set your datased_id (or model_id) here - should be something like \"model-xxxx\"\n",
     "print(\"Enter your WhyLabs Dataset ID\")\n",
-    "# os.environ[\"WHYLABS_DEFAULT_DATASET_ID\"] = input()\n",
-    "os.environ[\"WHYLABS_DEFAULT_DATASET_ID\"] = \"model-2110\"\n",
+    "os.environ[\"WHYLABS_DEFAULT_DATASET_ID\"] = input()\n",
     "\n",
     "# set your API key here\n",
     "print(\"Enter your WhyLabs API key\")\n",
-    "# os.environ[\"WHYLABS_API_KEY\"] = getpass.getpass()\n",
-    "os.environ[\"WHYLABS_API_KEY\"] = \"ygG04qE3gQ.7loXmAkuMQ8yyjwDhH47tdqpAowlIieGoc2527pPL52PDCI9EKzw1\"\n",
+    "os.environ[\"WHYLABS_API_KEY\"] = getpass.getpass()\n",
     "\n",
     "print(\"Using API Key ID: \", os.environ[\"WHYLABS_API_KEY\"][0:10])"
    ]
@@ -329,7 +324,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -368,7 +363,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": 5,
    "metadata": {},
    "outputs": [],
    "source": [

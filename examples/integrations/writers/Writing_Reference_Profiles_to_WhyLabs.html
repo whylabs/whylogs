@@ -702,22 +702,17 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">getpass</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_ENDPOINT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;https://songbird.development.whylabsdev.com&quot;</span>
-
 <span class="c1"># set your org-id here - should be something like &quot;org-xxxx&quot;</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs Org ID&quot;</span><span class="p">)</span>
-<span class="c1"># os.environ[&quot;WHYLABS_DEFAULT_ORG_ID&quot;] = input()</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;org-0&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_ORG_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
 
 <span class="c1"># set your datased_id (or model_id) here - should be something like &quot;model-xxxx&quot;</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs Dataset ID&quot;</span><span class="p">)</span>
-<span class="c1"># os.environ[&quot;WHYLABS_DEFAULT_DATASET_ID&quot;] = input()</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;model-2110&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_DEFAULT_DATASET_ID&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
 
 <span class="c1"># set your API key here</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enter your WhyLabs API key&quot;</span><span class="p">)</span>
-<span class="c1"># os.environ[&quot;WHYLABS_API_KEY&quot;] = getpass.getpass()</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ygG04qE3gQ.7loXmAkuMQ8yyjwDhH47tdqpAowlIieGoc2527pPL52PDCI9EKzw1&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getpass</span><span class="o">.</span><span class="n">getpass</span><span class="p">()</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using API Key ID: &quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;WHYLABS_API_KEY&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">])</span>
 </pre></div>
@@ -890,7 +885,7 @@ Using API Key ID:  ygG04qE3gQ
 <h2>✍️ The WhyLabs Writer<a class="headerlink" href="#✍️-The-WhyLabs-Writer" title="Permalink to this headline">#</a></h2>
 <p>Now, you can simply create a WhyLabsWriter object and use it to send your profiles. The process is very similar to sending a regular profile. The only difference is you should the <code class="docutils literal notranslate"><span class="pre">option</span></code> method in order to pass <code class="docutils literal notranslate"><span class="pre">reference_profile_name</span></code> to indicate and name this profile as a static Reference Profile:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">whylogs.api.writer.whylabs</span> <span class="kn">import</span> <span class="n">WhyLabsWriter</span>
@@ -910,7 +905,7 @@ Using API Key ID:  ygG04qE3gQ
 <p>A second way to write to WhyLabs is by directly using the <code class="docutils literal notranslate"><span class="pre">writer</span></code> method of a <strong>Profile Result</strong> set.</p>
 <p>Again, this is very much alike sending regular profiles to WhyLabs. The only difference is using the <code class="docutils literal notranslate"><span class="pre">option</span></code> method just as before:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">profile_results</span> <span class="o">=</span> <span class="n">why</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
