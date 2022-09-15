@@ -205,7 +205,7 @@ class TimedRollingLogger(Logger):
                 time.sleep(1)
 
             if self.store is not None:
-                self.store.write_profile(profile=profile.view())
+                self.store.write(profile=profile.view())
 
             for w in self._writers:
                 w.write(profile=profile.view(), dest=timed_filename)

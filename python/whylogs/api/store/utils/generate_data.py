@@ -10,7 +10,7 @@ logger = why.logger(mode="rolling", interval=1, when="S", base_name="test_base_n
 # # add a local writer
 # logger.append_writer("local", base_dir="whylogs_output")
 
-logger.append_store(store=ProfileStore(base_name="test_profile"))
+logger.append_store(store=ProfileStore(base_name="test_concurrency"))
 
 
 def predict(df: pd.DataFrame):
@@ -20,7 +20,7 @@ def predict(df: pd.DataFrame):
 
 
 if __name__ == "__main__":
-    for i in range(2):
+    for i in range(20):
         predict(pd.DataFrame([[i, 2]], columns=["a", "b"]))
         time.sleep(1)
     logger.close()
