@@ -22,7 +22,7 @@ class Writable(ABC):
         pass
 
     @abstractmethod
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> requests.Response:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Optional[int]:
         pass
 
 
@@ -40,7 +40,7 @@ class Writer(ABC):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> Union[requests.Response, bool]:
+    ) -> Optional[int]:
         pass
 
     @abstractmethod

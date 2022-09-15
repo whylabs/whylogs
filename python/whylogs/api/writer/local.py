@@ -25,7 +25,7 @@ class LocalWriter(Writer):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> Union[requests.Response, bool]:
+    ) -> Optional[int]:
         dest = dest or self._base_name or file.get_default_path()  # type: ignore
         full_path = os.path.join(self._base_dir, dest)
         has_segments = isinstance(file, SegmentedDatasetProfileView)
@@ -33,7 +33,7 @@ class LocalWriter(Writer):
             file.write(full_path, use_v0=True)
         else:
             file.write(full_path)  # type: ignore
-        return True
+        return 1   # 1==finished
 
     def option(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> "LocalWriter":  # type: ignore
         if base_dir is not None:

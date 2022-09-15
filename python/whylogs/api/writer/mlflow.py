@@ -25,7 +25,7 @@ class MlflowWriter(Writer):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> Union[requests.Response, bool]:
+    ) -> Optional[int]:
         run = mlflow.active_run() or mlflow.start_run()
         self._run_id = run.info.run_id
         dest = dest or self._file_name or file.get_default_path()  # dest has a higher priority than file_name
@@ -35,7 +35,7 @@ class MlflowWriter(Writer):
 
         if self._end_run is True:
             mlflow.end_run()
-        return True
+        return 1    # finished==1
 
     @deprecated_alias(profile_dir="file_dir", profile_name="file_name")
     def option(

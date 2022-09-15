@@ -70,13 +70,13 @@ class S3Writer(Writer):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> Union[requests.Response, bool]:
+    ) -> Optional[int]:
         response = None
         dest = dest or file.get_default_path()  # type: ignore
         if self.object_name is None:
             self.object_name = dest
 
-        response = True
+        response = 1
         try:
             with tempfile.NamedTemporaryFile() as tmp_file:
                 file.write(path=tmp_file.name)  # type: ignore
@@ -84,8 +84,8 @@ class S3Writer(Writer):
                 self.s3_client.upload_file(tmp_file.name, self.bucket_name, self.object_name)
         except ClientError as e:
             logging.error(e)
-            response = False
-        return response
+            response = -1
+        return response # 1==finished clean, -1 error
 
     def option(
         self,

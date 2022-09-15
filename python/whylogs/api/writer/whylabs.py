@@ -175,7 +175,7 @@ class WhyLabsWriter(Writer):
         return self
 
     @deprecated_alias(profile="file")
-    def write(self, file: Writable, **kwargs: Any) -> Union[requests.Response, bool]:
+    def write(self, file: Writable, **kwargs: Any) -> Optional[int]:
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
 
@@ -206,10 +206,11 @@ class WhyLabsWriter(Writer):
 
             dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
-            return self._do_upload(
+            response = self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
                 profile_path=tmp_file.name,
             )
+        return response.status_code.real
 
     def _validate_api_key(self) -> None:
         if self._api_key is None:

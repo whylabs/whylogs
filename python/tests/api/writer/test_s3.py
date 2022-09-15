@@ -29,7 +29,7 @@ class TestS3Writer(object):
         writer = S3Writer()
         writer.option(bucket_name=BUCKET_NAME, object_name=tmp_path.name)
         response = writer.write(profile=profile_view, dest=tmp_path.name)
-        assert response is True
+        assert response == 1
 
     def test_s3_writer_with_api_call(self, result_set, tmp_path):
         result_set.writer("s3").option(bucket_name=BUCKET_NAME).write(dest=tmp_path.name)
