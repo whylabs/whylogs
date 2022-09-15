@@ -14,9 +14,11 @@ If you're willing to learn more how to use and get going with whylogs, take a lo
 - Advanced - Customize and use whylogs in complex scenarios
   - [Streaming Data with Log Rotation](./advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.ipynb) - Generate profiles automatically at fixed intervals with rolling loggers
   - [Condition Count Metrics](./advanced/Condition_Count_Metrics.ipynb) - Create simple counter metrics with user-defined conditions
+  - [Condition Validators](./advanced/Condition_Validators.ipynb) - Real-time Data Validation with Condition Validators
   - [Constraints Suite](./advanced/Constraints_Suite.ipynb) - A collection of simple out-of-the-box constraints for the most common use-cases
   - [Custom Metrics](./advanced/Custom_Metrics.ipynb) - Create your own metrics and metric components
   - [String Tracking](./advanced/String_Tracking.ipynb) - Track unicode ranges and character length distribution metrics for your textual features
+  - [Segments](./advanced/Segments.ipynb) - Segment your data to improve visibility to the sub-group level
 - Integrations - Use whylogs with external platforms
   - [Pyspark](./integrations/Pyspark_Profiling.ipynb) - Use whylogs with pyspark
   - [Writing Profiles](./integrations/writers/Writing_Profiles.ipynb) - See different ways and locations to output your profiles
@@ -27,5 +29,7 @@ If you're willing to learn more how to use and get going with whylogs, take a lo
   - WhyLabs - Monitor your profiles continuously with the WhyLabs Observability Platform
     - [WhyLabs](./integrations/writers/Writing_to_WhyLabs.ipynb) - Send profiles to your WhyLabs Dashboard
     - [WhyLabs - Reference Profile](./integrations/writers/Writing_Reference_Profiles_to_WhyLabs.ipynb) - Send profiles as Reference (Static) Profiles to WhyLabs
+    - [WhyLabs - Regression Metrics](./integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb) - Monitor Regression Model Performance Metrics with whylogs and WhyLabs
+    - [WhyLabs - Classification Metrics](./integrations/writers/Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb) - Monitor Classification Model Performance Metrics with whylogs and WhyLabs
 
 The examples in this folder can also be viewed in whylogs' documentation in https://whylogs.readthedocs.io/en/latest/
