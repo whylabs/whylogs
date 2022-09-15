@@ -2,7 +2,7 @@ import logging
 import os.path
 import time
 from datetime import datetime, timezone
-from typing import Any, Dict, Mapping, Optional, Union
+from typing import Any, Dict, Mapping, Optional, Tuple, Union
 
 from whylogs.api.writer.writer import Writable
 from whylogs.core.metrics import Metric
@@ -263,11 +263,11 @@ class DatasetProfile(Writable):
         return path
 
     @deprecated_alias(path_or_base_dir="path")
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> Optional[int]:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         output_path = self.get_default_path(path=path)
-        self.view().write(output_path)
+        response = self.view().write(output_path)
         logger.debug("Wrote profile to path: %s", output_path)
-        return None
+        return response
 
     @classmethod
     def read(cls, input_path: str) -> DatasetProfileView:

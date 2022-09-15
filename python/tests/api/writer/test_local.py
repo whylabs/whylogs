@@ -27,7 +27,7 @@ class TestLocalWriter(object):
 
     def test_write_response(self, local_writer, mocked_profile_view):
         response = local_writer.write(profile=mocked_profile_view, dest=None)
-        assert response is None 
+        assert response[0] is True
 
     def test_should_write_to_default_dir_if_dest_is_none(self, local_writer, mocked_profile_view):
         local_writer.write(profile=mocked_profile_view, dest=None)

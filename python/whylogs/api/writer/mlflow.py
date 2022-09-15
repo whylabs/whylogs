@@ -1,7 +1,7 @@
 import logging
 import os
 from tempfile import mkdtemp
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 import mlflow
 
@@ -24,7 +24,7 @@ class MlflowWriter(Writer):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> Optional[int]:
+    ) -> Tuple[bool, str]:
         run = mlflow.active_run() or mlflow.start_run()
         self._run_id = run.info.run_id
         dest = dest or self._file_name or file.get_default_path()  # dest has a higher priority than file_name

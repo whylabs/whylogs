@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore
@@ -175,7 +175,7 @@ class WhyLabsWriter(Writer):
         return self
 
     @deprecated_alias(profile="file")
-    def write(self, file: Writable, **kwargs: Any) -> Optional[int]:
+    def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
 
@@ -210,7 +210,7 @@ class WhyLabsWriter(Writer):
                 dataset_timestamp=dataset_timestamp_epoch,
                 profile_path=tmp_file.name,
             )
-        return response.status_code.real
+        return response
 
     def _validate_api_key(self) -> None:
         if self._api_key is None:
@@ -227,7 +227,7 @@ class WhyLabsWriter(Writer):
         self,
         dataset_timestamp: int,
         profile_path: str,
-    ) -> requests.Response:
+    ) -> Tuple[bool, str]:
         if self._org_id is None:
             raise EnvironmentError(
                 "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
@@ -246,17 +246,20 @@ class WhyLabsWriter(Writer):
         try:
             with open(profile_path, "rb") as f:
                 http_response = requests.put(upload_url, data=f.read())
+                is_successful = False
                 if http_response.status_code == 200:
+                    is_successful = True
                     logger.info(
                         f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                         f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
                     )
-                return http_response
+                return is_successful, http_response.text
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
             )
+            return False, str(e)
 
     def _get_or_create_api_log_client(self) -> LogApi:
         environment_api_key = os.environ.get(API_KEY_ENV)

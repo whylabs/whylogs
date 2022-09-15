@@ -2,7 +2,7 @@ import logging
 import tempfile
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from google.protobuf.message import DecodeError
 
@@ -101,7 +101,7 @@ class DatasetProfileView(Writable):
     def get_default_path(self) -> str:
         return f"profile_{self.creation_timestamp}.bin"
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> Optional[int]:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         path = path or self.get_default_path()
         if self._metrics and _MODEL_PERFORMANCE in self._metrics:
             from whylogs.migration.converters import v1_to_dataset_profile_message_v0
@@ -110,7 +110,7 @@ class DatasetProfileView(Writable):
             with open(path, "w+b") as out_f:
                 write_delimited_protobuf(out_f, message_v0)
 
-            return 1  # finished cleanly
+            return True, path
 
         all_metric_component_names = set()
 
@@ -174,7 +174,7 @@ class DatasetProfileView(Writable):
                 while f.tell() < total_len:
                     buffer = f.read(1024)
                     out_f.write(buffer)
-        return None
+        return True, path
 
     @classmethod
     def read(cls, path: str) -> "DatasetProfileView":

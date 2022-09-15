@@ -20,7 +20,8 @@ class TestS3Writer(object):
     def test_s3_writer(self, tmp_path, profile_view):
         writer = S3Writer()
         writer.option(bucket_name=BUCKET_NAME, object_name=tmp_path.name)
-        writer.write(profile=profile_view, dest=tmp_path.name)
+        response = writer.write(profile=profile_view, dest=tmp_path.name)
+        assert response[0] is True
 
         objects = writer.s3_client.list_objects(Bucket=BUCKET_NAME)
         assert tmp_path.name in [obj["Key"] for obj in objects.get("Contents", [])]
@@ -29,7 +30,7 @@ class TestS3Writer(object):
         writer = S3Writer()
         writer.option(bucket_name=BUCKET_NAME, object_name=tmp_path.name)
         response = writer.write(profile=profile_view, dest=tmp_path.name)
-        assert response == 1
+        assert response[0] is True
 
     def test_s3_writer_with_api_call(self, result_set, tmp_path):
         result_set.writer("s3").option(bucket_name=BUCKET_NAME).write(dest=tmp_path.name)
@@ -47,7 +48,8 @@ class TestS3Writer(object):
 
     def test_empty_string_bucket_name_raises_exception(self, result_set):
         with pytest.raises(ParamValidationError):
-            result_set.writer("s3").option(bucket_name="").write()
+            response = result_set.writer("s3").option(bucket_name="").write()
+            assert response[0] is False
 
     def test_empty_string_object_name_writes_to_default_path(self, result_set):
         result_set.writer("s3").option(object_name="", bucket_name=BUCKET_NAME).write(dest=None)

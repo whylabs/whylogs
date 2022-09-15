@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Optional, TypeVar
+from typing import Any, Optional, Tuple, TypeVar
 
 T = TypeVar("T", bound="Writer")
 
@@ -20,7 +20,7 @@ class Writable(ABC):
         pass
 
     @abstractmethod
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> Optional[int]:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         pass
 
 
@@ -38,7 +38,7 @@ class Writer(ABC):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> Optional[int]:
+    ) -> Tuple[bool, str]:
         pass
 
     @abstractmethod
