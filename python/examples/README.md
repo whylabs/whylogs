@@ -31,5 +31,4 @@ If you're willing to learn more how to use and get going with whylogs, take a lo
     - [WhyLabs - Regression Metrics](./integrations/writers/Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb) - Monitor Regression Model Performance Metrics with whylogs and WhyLabs
     - [WhyLabs - Classification Metrics](./integrations/writers/Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb) - Monitor Classification Model Performance Metrics with whylogs and WhyLabs
 
-
 The examples in this folder can also be viewed in whylogs' documentation in https://whylogs.readthedocs.io/en/latest/
