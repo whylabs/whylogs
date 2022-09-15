@@ -537,19 +537,6 @@
         <span class="k">return</span> <span class="n">ImageMetric</span><span class="p">(</span><span class="n">submetrics</span><span class="p">)</span></div></div>
 
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">def log_image(</span>
-<span class="sd">    profiles: Union[List[DatasetProfile],DatasetProfile],</span>
-<span class="sd">    images: Union[Dict[str, ImageType], ImageType],</span>
-<span class="sd">    default_column_name: str=&quot;image&quot;,</span>
-<span class="sd">) -&gt; None:</span>
-<span class="sd">    profiles = profiles if isinstance(profiles, list) else [profiles]</span>
-<span class="sd">    images = images if isinstance(images, dict) else {default_column_name: images}</span>
-<span class="sd">    for profile in profiles:</span>
-<span class="sd">        profile.track(row=images)</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-
 <div class="viewcode-block" id="log_image"><a class="viewcode-back" href="../../../api/whylogs/extras/image_metric/index.html#whylogs.extras.image_metric.log_image">[docs]</a><span class="k">def</span> <span class="nf">log_image</span><span class="p">(</span>
     <span class="n">images</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ImageType</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">ImageType</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ImageType</span><span class="p">]],</span>
     <span class="n">default_column_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span>
@@ -557,11 +544,12 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">ImageType</span><span class="p">):</span>
         <span class="n">images</span> <span class="o">=</span> <span class="p">{</span><span class="n">default_column_prefix</span><span class="p">:</span> <span class="n">images</span><span class="p">}</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">images</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">img</span> <span class="ow">in</span> <span class="n">images</span><span class="p">:</span>
-            <span class="n">images</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">default_column_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img</span>
+            <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">default_column_prefix</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">img</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">row</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;log_image must be passed an image, list of images, or dictionary of images&quot;</span><span class="p">)</span>
