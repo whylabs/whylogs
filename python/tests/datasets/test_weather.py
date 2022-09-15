@@ -36,9 +36,9 @@ class TestWeatherDataset(object):
             dataset.set_parameters("5z")
 
     def test_date_baseline_ts(self, dataset):
-        dataset.set_parameters("1d", baseline_timestamp=date.today())
+        dataset.set_parameters("1d", baseline_timestamp=datetime.now(timezone.utc).date())
         assert isinstance(dataset.baseline_timestamp, date)
-        dataset.set_parameters("1d", inference_start_timestamp=date.today())
+        dataset.set_parameters("1d", inference_start_timestamp=datetime.now(timezone.utc).date())
         assert isinstance(dataset.inference_start_timestamp, date)
 
     def test_datetime_baseline_ts(self, dataset):
@@ -54,7 +54,7 @@ class TestWeatherDataset(object):
             dataset.set_parameters("1d", inference_start_timestamp="22-04-12")
 
     def test_get_baseline(self, dataset):
-        dataset.set_parameters("1d", baseline_timestamp=date.today())
+        dataset.set_parameters("1d", baseline_timestamp=datetime.now(timezone.utc).date())
         baseline = dataset.get_baseline()
         assert isinstance(baseline.timestamp, datetime)
         assert baseline.timestamp.tzinfo
@@ -64,8 +64,8 @@ class TestWeatherDataset(object):
         assert len(baseline.data) > 0
 
     def test_get_inference_by_date(self, dataset):
-        dataset.set_parameters("1d", inference_start_timestamp=date.today())
-        batch = dataset.get_inference_data(target_date=date.today())
+        dataset.set_parameters("1d", inference_start_timestamp=datetime.now(timezone.utc).date())
+        batch = dataset.get_inference_data(target_date=datetime.now(timezone.utc).date())
         assert batch.timestamp.day == datetime.now(timezone.utc).day
         assert batch.timestamp.month == datetime.now(timezone.utc).month
         assert batch.timestamp.year == datetime.now(timezone.utc).year
@@ -78,17 +78,17 @@ class TestWeatherDataset(object):
         assert len(batch.data) > 0
 
     def test_get_inference_pass_both_arguments(self, dataset):
-        dataset.set_parameters("1d", inference_start_timestamp=date.today())
+        dataset.set_parameters("1d", inference_start_timestamp=datetime.now(timezone.utc).date())
         with pytest.raises(ValueError, match="Either date or number_batches should be passed, not both."):
-            dataset.get_inference_data(target_date=date.today(), number_batches=30)
+            dataset.get_inference_data(target_date=datetime.now(timezone.utc).date(), number_batches=30)
 
     def test_get_inference_pass_no_arguments(self, dataset):
-        dataset.set_parameters("1d", inference_start_timestamp=date.today())
+        dataset.set_parameters("1d", inference_start_timestamp=datetime.now(timezone.utc).date())
         with pytest.raises(ValueError, match="date or number_batches must be passed to get_inference_data."):
             dataset.get_inference_data()
 
     def test_get_inference_wrong_date_type(self, dataset):
-        dataset.set_parameters("1d", inference_start_timestamp=date.today())
+        dataset.set_parameters("1d", inference_start_timestamp=datetime.now(timezone.utc).date())
         with pytest.raises(ValueError, match="Target date should be either of date or datetime type."):
             dataset.get_inference_data(target_date="2022-02-12")
 
@@ -118,6 +118,10 @@ class TestWeatherDataset(object):
         assert dataset.inference_df.iloc[0].name == dataset_config.inference_start_timestamp["in_domain"]
 
     def test_original_parameter_overrides_timestamps(self, dataset):
-        dataset.set_parameters(baseline_timestamp=date.today(), inference_start_timestamp=date.today(), original=True)
+        dataset.set_parameters(
+            baseline_timestamp=datetime.now(timezone.utc).date(),
+            inference_start_timestamp=datetime.now(timezone.utc).date(),
+            original=True,
+        )
         assert dataset.inference_df.iloc[0].name == dataset_config.inference_start_timestamp["in_domain"]
         assert dataset.baseline_df.iloc[0].name == dataset_config.baseline_start_timestamp["in_domain"]

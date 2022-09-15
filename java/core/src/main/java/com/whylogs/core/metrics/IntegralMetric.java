@@ -19,8 +19,8 @@ public class IntegralMetric extends AbstractMetric<IntegralMetric> {
 
   public IntegralMetric() {
     super(IntegralMetric.NAMESPACE);
-    this.maxComponent = new MaxIntegralComponent();
-    this.minComponent = new MinIntegralComponent();
+    this.maxComponent = new MaxIntegralComponent(Integer.MIN_VALUE);
+    this.minComponent = new MinIntegralComponent(Integer.MAX_VALUE);
   }
 
   public IntegralMetric(MaxIntegralComponent maxComponent, MinIntegralComponent minComponent) {

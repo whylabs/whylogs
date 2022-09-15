@@ -5,7 +5,7 @@ src.proto.dir := ../proto/src
 src.proto := $(shell find $(src.proto.dir) -type f -name "*.proto")
 src.proto.v0.dir := ../proto/v0
 src.proto.v0 := $(shell find $(src.proto.v0.dir) -type f -name "*.proto")
-version := 1.0.12
+version := 1.1.0
 
 dist.dir := dist
 egg.dir := .eggs
@@ -162,7 +162,7 @@ test-notebooks: ## Run tests for the notebooks
 
 install: ## Install all dependencies with poetry.
 	@$(call i, Installing dependencies)
-	poetry install -E "viz s3 spark whylabs mlflow"
+	poetry install -E "viz s3 spark whylabs mlflow image"
 
 coverage: ## Generate test coverage reports.
 	@$(call i, Generating test coverage)

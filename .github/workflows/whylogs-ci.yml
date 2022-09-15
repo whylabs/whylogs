@@ -192,12 +192,3 @@ jobs:
           branch: gh-pages
           folder: python/docs/_build/html
         if: ${{ github.ref == 'refs/heads/mainline' }}
-
-  markdown-link-check:
-    needs: docs-ci
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@master
-      - uses: gaurav-nelson/github-action-markdown-link-check@v1
-        with:
-          use-quiet-mode: "yes"

@@ -1,12 +1,14 @@
 import logging
 from copy import deepcopy
-from dataclasses import dataclass
-from typing import Any, Dict, Mapping, Optional, TypeVar
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Mapping, Optional, TypeVar
 
 from whylogs.core.datatypes import StandardTypeMapper, TypeMapper
 from whylogs.core.metrics.metrics import Metric, MetricConfig
 from whylogs.core.resolvers import Resolver, StandardResolver
+from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.core.stubs import pd
+from whylogs.core.validators.validator import Validator
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +69,8 @@ class DatasetSchema:
         resolvers: Optional[Resolver] = None,
         cache_size: int = 1024,
         schema_based_automerge: bool = False,
+        segments: Optional[Dict[str, SegmentationPartition]] = None,
+        validators: Dict[str, List[Validator]] = None,
     ) -> None:
         self._columns = dict()
         self.types = types or dict()
@@ -75,6 +79,8 @@ class DatasetSchema:
         self.resolvers = resolvers or StandardResolver()
         self.cache_size = cache_size
         self.schema_based_automerge = schema_based_automerge
+        self.segments = segments or dict()
+        self.validators = validators or dict()
 
         if self.cache_size < 0:
             logger.warning("Negative cache size value. Disabling caching")
@@ -89,7 +95,11 @@ class DatasetSchema:
 
         for col, data_type in self.types.items():
             self._columns[col] = ColumnSchema(
-                dtype=data_type, resolver=self.resolvers, type_mapper=self.type_mapper, cfg=self.default_configs
+                dtype=data_type,
+                resolver=self.resolvers,
+                type_mapper=self.type_mapper,
+                cfg=self.default_configs,
+                validators=self.validators,
             )
 
     def copy(self) -> "DatasetSchema":
@@ -100,6 +110,7 @@ class DatasetSchema:
         args = {k: deepcopy(self.__dict__[k]) for k in keys if k not in self.types}
         copy = self.__class__(**args)
         copy._columns = deepcopy(self._columns)
+        copy.segments = self.segments.copy()
         return copy
 
     def resolve(self, *, pandas: Optional[pd.DataFrame] = None, row: Optional[Mapping[str, Any]] = None) -> bool:
@@ -115,6 +126,7 @@ class DatasetSchema:
                     dtype=type(v),
                     cfg=self.default_configs,
                     resolver=self.resolvers,
+                    validators=self.validators,
                     type_mapper=self.type_mapper,
                 )
             return True
@@ -137,6 +149,7 @@ class DatasetSchema:
                 dtype=col_dtype,
                 cfg=self.default_configs,
                 resolver=self.resolvers,
+                validators=self.validators,
                 type_mapper=self.type_mapper,
             )
             dirty = True
@@ -164,6 +177,12 @@ class ColumnSchema:
     cfg: MetricConfig = MetricConfig()
     type_mapper: TypeMapper = StandardTypeMapper()
     resolver: Resolver = StandardResolver()
+    validators: Dict[str, List[Validator]] = field(default_factory=dict)
 
     def get_metrics(self, name: str) -> Dict[str, Metric]:
         return self.resolver.resolve(name=name, why_type=self.type_mapper(self.dtype), column_schema=self)
+
+    def get_validators(self, name: str) -> List[Optional[Validator]]:
+        if self.validators:
+            return self.validators.get(name, [])
+        return []

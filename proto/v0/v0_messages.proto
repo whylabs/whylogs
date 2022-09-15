@@ -145,14 +145,6 @@ enum ModelType {
   NLP= 4;
 }
 
-message NLPMetricsMessage {
-
-  NumbersMessageV0 mer = 1;
-  NumbersMessageV0 wer = 2;
-  NumbersMessageV0 wil = 3;
-
-}
-
 message ModelMetricsMessage {
   ScoreMatrixMessage scoreMatrix = 1;
   ModelType modelType = 2;

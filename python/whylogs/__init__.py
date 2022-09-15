@@ -15,7 +15,17 @@ These three functionalities enable a variety of use cases for data scientists, m
 * Tracking data for ML experiments
 * And many more...
 """
-from .api import ResultSet, log, logger, profiling, read, reader, write
+from .api import (
+    ResultSet,
+    log,
+    log_classification_metrics,
+    log_regression_metrics,
+    logger,
+    profiling,
+    read,
+    reader,
+    write,
+)
 from .api.usage_stats import emit_usage as __emit_usage_stats
 from .core import DatasetProfileView
 from .migration.converters import v0_to_v1_view
@@ -43,6 +53,8 @@ __ALL__ = [
     ResultSet,
     DatasetProfileView,
     log,
+    log_classification_metrics,
+    log_regression_metrics,
     logger,
     read,
     reader,

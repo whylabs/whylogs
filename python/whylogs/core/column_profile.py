@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from whylogs.core.metrics import Metric
 from whylogs.core.preprocessing import PreprocessedColumn
-from whylogs.core.projectors import SingleFieldProjector
+from whylogs.core.projectors import FieldProjector
 from whylogs.core.proto import ColumnMessage
 from whylogs.core.schema import ColumnSchema
 from whylogs.core.view import ColumnProfileView
@@ -17,7 +17,8 @@ class ColumnProfile(object):
         self._schema = schema
 
         self._metrics = schema.get_metrics(name)
-        self._projector = SingleFieldProjector(col_name=name)
+        self._column_validators = schema.get_validators(name)
+        self._projector = FieldProjector(col_names=[name])
         self._success_count = 0
         self._failure_count = 0
         logger.debug("Setting cache size for column: %s with size: %s", self._name, cache_size)
@@ -54,6 +55,8 @@ class ColumnProfile(object):
             res = metric.columnar_update(ex_col)
             self._failure_count += res.failures
             self._success_count += res.successes
+        for validator in self._column_validators:
+            validator.columnar_validate(ex_col)
 
     def to_protobuf(self) -> ColumnMessage:
         self.flush()

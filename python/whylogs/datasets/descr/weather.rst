@@ -370,6 +370,11 @@ These are input features that were used to train and predict the prediction feat
         - Input
         - all
 
+License
+-------
+
+CC BY NC SA 4.0
+
 References
 ----------
 

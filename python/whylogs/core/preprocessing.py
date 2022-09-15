@@ -1,7 +1,7 @@
 import itertools
 import logging
 from dataclasses import dataclass
-from typing import Any, Iterable, Iterator, List, Optional, Union
+from typing import Any, Iterable, Iterator, List, Optional
 
 from whylogs.core.stubs import np as np
 from whylogs.core.stubs import pd as pd
@@ -93,7 +93,7 @@ class PreprocessedColumn:
         self.bool_count_where_true = 0
         self.len = -1
 
-    def _pandas_split(self, series: Union[pd.Series], parse_numeric_string: bool = False) -> None:
+    def _pandas_split(self, series: pd.Series, parse_numeric_string: bool = False) -> None:
         """
         Split a Pandas Series into numpy array and other Pandas series.
 

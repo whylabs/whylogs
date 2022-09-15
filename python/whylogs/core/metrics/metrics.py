@@ -90,7 +90,9 @@ class OperationResult:
 
 class Metric(ABC):
     @classmethod
-    def get_namespace(cls, config: MetricConfig) -> str:
+    def get_namespace(cls, config: Optional[MetricConfig] = None) -> str:
+        if config is None:
+            config = MetricConfig()
         return cls.zero(config).namespace
 
     @property
@@ -442,6 +444,8 @@ class FrequentItemsMetric(Metric):
         successes = 0
         for arr in [view.numpy.floats, view.numpy.ints]:
             if arr is not None:
+                if isinstance(arr, pd.Series):
+                    arr = arr.to_numpy()
                 self.frequent_strings.value.update_np(arr)
                 successes += len(arr)
         if view.pandas.strings is not None:
