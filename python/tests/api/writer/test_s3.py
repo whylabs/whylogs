@@ -24,7 +24,7 @@ class TestS3Writer(object):
 
         objects = writer.s3_client.list_objects(Bucket=BUCKET_NAME)
         assert tmp_path.name in [obj["Key"] for obj in objects.get("Contents", [])]
-        
+
     def test_s3_writer_response(self, tmp_path, profile_view):
         writer = S3Writer()
         writer.option(bucket_name=BUCKET_NAME, object_name=tmp_path.name)

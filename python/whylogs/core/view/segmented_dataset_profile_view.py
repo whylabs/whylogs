@@ -181,8 +181,9 @@ class SegmentedDatasetProfileView(Writable):
                     out_f.write(buffer)
                 logger.debug(f"Writing segmented profile file: complete! total of {out_f.tell()} bytes written.")
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Optional[int]:
         if kwargs.get("use_v0"):
             self._write_as_v0_message(path, **kwargs)
         else:
             self._write_v1(path, **kwargs)
+        return None

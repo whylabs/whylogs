@@ -1,8 +1,6 @@
 import logging
 import os
-from typing import Any, Optional, Union
-
-import requests  # type: ignore
+from typing import Any, Optional
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
@@ -33,7 +31,7 @@ class LocalWriter(Writer):
             file.write(full_path, use_v0=True)
         else:
             file.write(full_path)  # type: ignore
-        return 1   # 1==finished
+        return None
 
     def option(self, base_dir: Optional[str] = None, base_name: Optional[str] = None) -> "LocalWriter":  # type: ignore
         if base_dir is not None:

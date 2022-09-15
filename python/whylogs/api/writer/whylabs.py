@@ -2,7 +2,7 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 import requests  # type: ignore
 import whylabs_client  # type: ignore

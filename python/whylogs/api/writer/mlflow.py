@@ -1,10 +1,9 @@
 import logging
 import os
 from tempfile import mkdtemp
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import mlflow
-import requests  # type: ignore
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
@@ -30,12 +29,12 @@ class MlflowWriter(Writer):
         self._run_id = run.info.run_id
         dest = dest or self._file_name or file.get_default_path()  # dest has a higher priority than file_name
         output = self._get_temp_directory(dest=dest)
-        file.write(path=output)  # type: ignore
+        response = file.write(path=output)  # type: ignore
         mlflow.log_artifact(output, artifact_path=self._file_dir)
 
         if self._end_run is True:
             mlflow.end_run()
-        return 1    # finished==1
+        return response
 
     @deprecated_alias(profile_dir="file_dir", profile_name="file_name")
     def option(

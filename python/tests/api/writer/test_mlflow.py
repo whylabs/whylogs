@@ -29,7 +29,7 @@ class TestMlflowWriter(object):
 
     def test_writes_response(self, profile_view, mlflow_writer):
         response = mlflow_writer.write(profile_view)
-        assert response == 1
+        assert response is None
 
     def test_get_temp_directory(self, mlflow_writer):
         default_dest = "whylogs/whylogs_profile.bin"

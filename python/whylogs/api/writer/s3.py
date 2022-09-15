@@ -1,9 +1,8 @@
 import logging
 import tempfile
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import boto3
-import requests  # type: ignore
 from botocore.client import BaseClient
 from botocore.exceptions import ClientError
 
@@ -71,7 +70,6 @@ class S3Writer(Writer):
         dest: Optional[str] = None,
         **kwargs: Any,
     ) -> Optional[int]:
-        response = None
         dest = dest or file.get_default_path()  # type: ignore
         if self.object_name is None:
             self.object_name = dest
@@ -85,7 +83,7 @@ class S3Writer(Writer):
         except ClientError as e:
             logging.error(e)
             response = -1
-        return response # 1==finished clean, -1 error
+        return response
 
     def option(
         self,
