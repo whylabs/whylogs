@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Any, Optional, Union
 
-import requests
+import requests  # type: ignore
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable

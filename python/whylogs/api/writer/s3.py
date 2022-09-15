@@ -3,7 +3,7 @@ import tempfile
 from typing import Any, Optional, Union
 
 import boto3
-import requests
+import requests  # type: ignore
 from botocore.client import BaseClient
 from botocore.exceptions import ClientError
 

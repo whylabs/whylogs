@@ -2,7 +2,7 @@ import os
 from abc import ABC, abstractmethod
 from typing import Any, Optional, TypeVar, Union
 
-import requests
+import requests  # type: ignore
 
 T = TypeVar("T", bound="Writer")
 

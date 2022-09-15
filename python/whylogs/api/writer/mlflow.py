@@ -4,7 +4,7 @@ from tempfile import mkdtemp
 from typing import Any, Optional, Union
 
 import mlflow
-import requests
+import requests  # type: ignore
 
 from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
