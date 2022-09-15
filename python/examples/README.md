@@ -14,6 +14,7 @@ If you're willing to learn more how to use and get going with whylogs, take a lo
 - Advanced - Customize and use whylogs in complex scenarios
   - [Streaming Data with Log Rotation](./advanced/Log_Rotation_for_Streaming_Data/Streaming_Data_with_Log_Rotation.ipynb) - Generate profiles automatically at fixed intervals with rolling loggers
   - [Condition Count Metrics](./advanced/Condition_Count_Metrics.ipynb) - Create simple counter metrics with user-defined conditions
+  - [Condition Validators](./advanced/Condition_Validators.ipynb) - Real-time Data Validation with Condition Validators
   - [Constraints Suite](./advanced/Constraints_Suite.ipynb) - A collection of simple out-of-the-box constraints for the most common use-cases
   - [Custom Metrics](./advanced/Custom_Metrics.ipynb) - Create your own metrics and metric components
   - [String Tracking](./advanced/String_Tracking.ipynb) - Track unicode ranges and character length distribution metrics for your textual features
