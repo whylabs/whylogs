@@ -396,11 +396,12 @@
         </div>
         <article role="main">
           <h1>Source code for whylogs.core.view.dataset_profile_view</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span></span><span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span> <span class="nn">google.protobuf.message</span> <span class="kn">import</span> <span class="n">DecodeError</span>
 
@@ -481,6 +482,7 @@
                 <span class="n">res</span> <span class="o">=</span> <span class="n">lhs</span> <span class="o">+</span> <span class="n">rhs</span>
             <span class="k">assert</span> <span class="n">res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">merged_columns</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+
         <span class="k">return</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="n">merged_columns</span><span class="p">,</span>
             <span class="n">dataset_timestamp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">dataset_timestamp</span><span class="p">,</span>
@@ -510,8 +512,11 @@
 
             <span class="k">return</span>
 
-        <span class="n">all_metric_component_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_do_write</span><span class="p">(</span><span class="n">out_f</span><span class="p">)</span></div>
 
+    <span class="k">def</span> <span class="nf">_do_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_f</span><span class="p">:</span> <span class="n">BinaryIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">all_metric_component_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="c1"># capture the list of all metric component paths</span>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">all_metric_component_names</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">get_metric_component_paths</span><span class="p">())</span>
@@ -522,7 +527,6 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">metric_name_list</span><span class="p">)):</span>
             <span class="n">metric_name_indices</span><span class="p">[</span><span class="n">metric_name_list</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">i</span>
             <span class="n">metric_index_to_name</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_name_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-
         <span class="n">column_chunk_offsets</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ChunkOffsets</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">(</span><span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
@@ -563,88 +567,113 @@
                 <span class="n">has_segments</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
-                <span class="n">out_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">WHYLOGS_MAGIC_HEADER_BYTES</span><span class="p">)</span>
-                <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">dataset_segment_header</span><span class="p">)</span>
-                <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">dataset_header</span><span class="p">)</span>
+            <span class="n">out_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">WHYLOGS_MAGIC_HEADER_BYTES</span><span class="p">)</span>
+            <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">dataset_segment_header</span><span class="p">)</span>
+            <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">dataset_header</span><span class="p">)</span>
 
-                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                <span class="k">while</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">total_len</span><span class="p">:</span>
-                    <span class="n">buffer</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
-                    <span class="n">out_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span></div>
+            <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">while</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">total_len</span><span class="p">:</span>
+                <span class="n">buffer</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+                <span class="n">out_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DatasetProfileView.serialize"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_do_write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DatasetProfileView.deserialize"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.deserialize">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_do_read</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DatasetProfileView.read"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.read">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">buf</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">WHYLOGS_MAGIC_HEADER_LEN</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">decoded_header</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">UnicodeDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="s2">&quot;Invalid magic header. Decoder error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_do_read</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
-            <span class="k">if</span> <span class="n">WHYLOGS_MAGIC_HEADER</span> <span class="o">!=</span> <span class="n">decoded_header</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Invalid magic header. Got: </span><span class="si">{</span><span class="n">decoded_header</span><span class="si">}</span><span class="s2"> but expecting: </span><span class="si">{</span><span class="n">WHYLOGS_MAGIC_HEADER</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_do_read</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">BinaryIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DatasetProfileView&quot;</span><span class="p">:</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">WHYLOGS_MAGIC_HEADER_LEN</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">decoded_header</span> <span class="o">=</span> <span class="n">buf</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">UnicodeDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="s2">&quot;Invalid magic header. Decoder error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
 
-            <span class="n">dataset_segment_header</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatasetSegmentHeader</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">dataset_segment_header</span><span class="o">.</span><span class="n">has_segments</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;File contains segments. Only first profile will be deserialized into this DatasetProfileView&quot;</span>
-                <span class="p">)</span>
+        <span class="k">if</span> <span class="n">WHYLOGS_MAGIC_HEADER</span> <span class="o">!=</span> <span class="n">decoded_header</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid magic header. Got: </span><span class="si">{</span><span class="n">decoded_header</span><span class="si">}</span><span class="s2"> but expecting: </span><span class="si">{</span><span class="n">WHYLOGS_MAGIC_HEADER</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
-            <span class="n">dataset_profile_header</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatasetProfileHeader</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">ByteSize</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="s2">&quot;Missing valid dataset profile header&quot;</span><span class="p">)</span>
-            <span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">dataset_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span>
-            <span class="n">creation_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">creation_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span>
-            <span class="n">indexed_metric_paths</span> <span class="o">=</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">indexed_metric_paths</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexed_metric_paths</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Name index in the header is empty. Possible data corruption&quot;</span><span class="p">)</span>
+        <span class="n">dataset_segment_header</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatasetSegmentHeader</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dataset_segment_header</span><span class="o">.</span><span class="n">has_segments</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;File contains segments. Only first profile will be deserialized into this DatasetProfileView&quot;</span>
+            <span class="p">)</span>
 
-            <span class="n">start_offset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+        <span class="n">dataset_profile_header</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">DatasetProfileHeader</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">ByteSize</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="s2">&quot;Missing valid dataset profile header&quot;</span><span class="p">)</span>
+        <span class="n">dataset_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">dataset_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span>
+        <span class="n">creation_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">creation_timestamp</span> <span class="o">/</span> <span class="mf">1000.0</span><span class="p">)</span>
+        <span class="n">indexed_metric_paths</span> <span class="o">=</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">indexed_metric_paths</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexed_metric_paths</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Name index in the header is empty. Possible data corruption&quot;</span><span class="p">)</span>
 
-            <span class="n">columns</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">column_offsets</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
-                <span class="n">col_offsets</span> <span class="o">=</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">column_offsets</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span>
-                <span class="n">all_metric_components</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricComponentMessage</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span> <span class="n">col_offsets</span><span class="o">.</span><span class="n">offsets</span><span class="p">:</span>
-                    <span class="n">actual_offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">start_offset</span>
-                    <span class="n">chunk_header</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">proto_class_name</span><span class="o">=</span><span class="n">ChunkHeader</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">actual_offset</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">chunk_header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Missing or corrupt chunk header for column </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">. Offset: </span><span class="si">{</span><span class="n">actual_offset</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">chunk_header</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="n">ChunkHeader</span><span class="o">.</span><span class="n">ChunkType</span><span class="o">.</span><span class="n">COLUMN</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Expecting chunk header type to be </span><span class="si">{</span><span class="n">ChunkHeader</span><span class="o">.</span><span class="n">ChunkType</span><span class="o">.</span><span class="n">COLUMN</span><span class="si">}</span><span class="s2">, &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">chunk_header</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="p">)</span>
+        <span class="n">start_offset</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
 
-                    <span class="n">chunk_msg</span> <span class="o">=</span> <span class="n">ChunkMessage</span><span class="p">()</span>
-                    <span class="n">buf</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk_header</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="o">!=</span> <span class="n">chunk_header</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Invalid message for </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">. Expecting buffer length of </span><span class="si">{</span><span class="n">chunk_header</span><span class="o">.</span><span class="n">length</span><span class="si">}</span><span class="s2">, &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;Offset: </span><span class="si">{</span><span class="n">actual_offset</span><span class="si">}</span><span class="s2">&quot;</span>
-                        <span class="p">)</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">chunk_msg</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="n">DecodeError</span><span class="p">:</span>
-                        <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse protobuf message for column: </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">col_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">column_offsets</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">col_offsets</span> <span class="o">=</span> <span class="n">dataset_profile_header</span><span class="o">.</span><span class="n">column_offsets</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span>
+            <span class="n">all_metric_components</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">MetricComponentMessage</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">offset</span> <span class="ow">in</span> <span class="n">col_offsets</span><span class="o">.</span><span class="n">offsets</span><span class="p">:</span>
+                <span class="n">actual_offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">start_offset</span>
+                <span class="n">chunk_header</span> <span class="o">=</span> <span class="n">read_delimited_protobuf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">proto_class_name</span><span class="o">=</span><span class="n">ChunkHeader</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">actual_offset</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">chunk_header</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Missing or corrupt chunk header for column </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">. Offset: </span><span class="si">{</span><span class="n">actual_offset</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">chunk_header</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="n">ChunkHeader</span><span class="o">.</span><span class="n">ChunkType</span><span class="o">.</span><span class="n">COLUMN</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Expecting chunk header type to be </span><span class="si">{</span><span class="n">ChunkHeader</span><span class="o">.</span><span class="n">ChunkType</span><span class="o">.</span><span class="n">COLUMN</span><span class="si">}</span><span class="s2">, &quot;</span> <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="n">chunk_header</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
 
-                    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">metric_component</span> <span class="ow">in</span> <span class="n">chunk_msg</span><span class="o">.</span><span class="n">metric_components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                        <span class="n">full_name</span> <span class="o">=</span> <span class="n">indexed_metric_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">full_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing metric name in the header. Index: </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="n">all_metric_components</span><span class="p">[</span><span class="n">full_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_component</span>
+                <span class="n">chunk_msg</span> <span class="o">=</span> <span class="n">ChunkMessage</span><span class="p">()</span>
+                <span class="n">buf</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk_header</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span> <span class="o">!=</span> <span class="n">chunk_header</span><span class="o">.</span><span class="n">length</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Invalid message for </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">. Expecting buffer length of </span><span class="si">{</span><span class="n">chunk_header</span><span class="o">.</span><span class="n">length</span><span class="si">}</span><span class="s2">, &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Offset: </span><span class="si">{</span><span class="n">actual_offset</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">chunk_msg</span><span class="o">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">DecodeError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">DeserializationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to parse protobuf message for column: </span><span class="si">{</span><span class="n">col_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-                <span class="n">column_msg</span> <span class="o">=</span> <span class="n">ColumnMessage</span><span class="p">(</span><span class="n">metric_components</span><span class="o">=</span><span class="n">all_metric_components</span><span class="p">)</span>
-                <span class="n">columns</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfileView</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">column_msg</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
-                <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">creation_timestamp</span>
-            <span class="p">)</span></div>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">metric_component</span> <span class="ow">in</span> <span class="n">chunk_msg</span><span class="o">.</span><span class="n">metric_components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">full_name</span> <span class="o">=</span> <span class="n">indexed_metric_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">full_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing metric name in the header. Index: </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">all_metric_components</span><span class="p">[</span><span class="n">full_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric_component</span>
+
+            <span class="n">column_msg</span> <span class="o">=</span> <span class="n">ColumnMessage</span><span class="p">(</span><span class="n">metric_components</span><span class="o">=</span><span class="n">all_metric_components</span><span class="p">)</span>
+            <span class="n">columns</span><span class="p">[</span><span class="n">col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ColumnProfileView</span><span class="o">.</span><span class="n">from_protobuf</span><span class="p">(</span><span class="n">column_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">dataset_timestamp</span><span class="o">=</span><span class="n">dataset_timestamp</span><span class="p">,</span> <span class="n">creation_timestamp</span><span class="o">=</span><span class="n">creation_timestamp</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="n">DatasetProfileView</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">_columns</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_timestamp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">_dataset_timestamp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_creation_timestamp</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">_creation_timestamp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">_metrics</span>
 
 <div class="viewcode-block" id="DatasetProfileView.to_pandas"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.to_pandas">[docs]</a>    <span class="k">def</span> <span class="nf">to_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column_metric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cfg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SummaryConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="n">all_dicts</span> <span class="o">=</span> <span class="p">[]</span>

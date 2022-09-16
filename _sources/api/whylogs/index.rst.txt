@@ -184,6 +184,13 @@ Functions
    .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
 
 
+   .. py:method:: serialize() -> bytes
+
+
+   .. py:method:: deserialize(data: bytes) -> DatasetProfileView
+      :classmethod:
+
+
    .. py:method:: read(path: str) -> DatasetProfileView
       :classmethod:
 
