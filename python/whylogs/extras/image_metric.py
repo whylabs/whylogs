@@ -139,19 +139,6 @@ class ImageMetric(CompoundMetric):
         return ImageMetric(submetrics)
 
 
-"""
-def log_image(
-    profiles: Union[List[DatasetProfile],DatasetProfile],
-    images: Union[Dict[str, ImageType], ImageType],
-    default_column_name: str="image",
-) -> None:
-    profiles = profiles if isinstance(profiles, list) else [profiles]
-    images = images if isinstance(images, dict) else {default_column_name: images}
-    for profile in profiles:
-        profile.track(row=images)
-"""
-
-
 def log_image(
     images: Union[ImageType, List[ImageType], Dict[str, ImageType]],
     default_column_prefix: str = "image",
@@ -159,11 +146,12 @@ def log_image(
     if isinstance(images, ImageType):
         images = {default_column_prefix: images}
     if isinstance(images, list):
-        count = 1
-        images = dict()
+        count = 0
+        row = dict()
         for img in images:
-            images[f"{default_column_prefix}_{count}"] = img
+            row[f"{default_column_prefix}_{count}"] = img
             count += 1
+        images = row
 
     if not isinstance(images, dict):
         raise ValueError("log_image must be passed an image, list of images, or dictionary of images")
