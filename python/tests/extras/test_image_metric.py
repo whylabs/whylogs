@@ -79,9 +79,10 @@ def test_image_metric() -> None:
 def test_log_image() -> None:
     image_path = os.path.join(TEST_DATA_PATH, "images", "flower2.jpg")
     img = image_loader(image_path)
-    results = log_image(img).view()
-    logger.info(results.get_column("image").to_summary_dict())
-    assert results.get_column("image").to_summary_dict()["image/image/ImagePixelWidth/mean"] > 0
+    results = log_image([img], config=IMAGE_METRIC_CONFIG).view()
+    logger.info(results.get_column("image_0").to_summary_dict())
+    assert results.get_column("image_0").to_summary_dict()["image/image/ImagePixelWidth/mean"] > 0
+    assert results.get_column("image_0").to_summary_dict()["image/image/Orientation/max"] == 1
 
 
 def test_log_interface() -> None:
