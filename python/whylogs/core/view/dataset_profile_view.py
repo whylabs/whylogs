@@ -3,7 +3,7 @@ import logging
 import tempfile
 from datetime import datetime
 from enum import Enum
-from typing import Any, BinaryIO, Dict, List, Optional
+from typing import Any, BinaryIO, Dict, List, Optional, Tuple
 
 from google.protobuf.message import DecodeError
 
@@ -103,7 +103,7 @@ class DatasetProfileView(Writable):
     def get_default_path(self) -> str:
         return f"profile_{self.creation_timestamp}.bin"
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         path = path or self.get_default_path()
         if self._metrics and _MODEL_PERFORMANCE in self._metrics:
             from whylogs.migration.converters import v1_to_dataset_profile_message_v0
@@ -112,16 +112,18 @@ class DatasetProfileView(Writable):
             with open(path, "w+b") as out_f:
                 write_delimited_protobuf(out_f, message_v0)
 
-            return
+            return True, path
 
         with open(path, "w+b") as out_f:
             self._do_write(out_f)
+        return True, path
 
-    def _do_write(self, out_f: BinaryIO) -> None:
+    def _do_write(self, out_f: BinaryIO) -> Tuple[bool, str]:
         all_metric_component_names = set()
         # capture the list of all metric component paths
         for col in self._columns.values():
             all_metric_component_names.update(col.get_metric_component_paths())
+
         metric_name_list = list(all_metric_component_names)
         metric_name_list.sort()
         metric_name_indices: Dict[str, int] = {}
@@ -177,6 +179,7 @@ class DatasetProfileView(Writable):
             while f.tell() < total_len:
                 buffer = f.read(1024)
                 out_f.write(buffer)
+        return True, "Wrote given BinaryIO:" + str(out_f)
 
     def serialize(self) -> bytes:
         f = io.BytesIO()

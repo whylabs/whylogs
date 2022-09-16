@@ -4,7 +4,6 @@ import os
 import tempfile
 
 import pytest
-import requests
 import responses
 from responses import PUT
 
@@ -53,8 +52,7 @@ class TestWhylabsWriter(object):
             dataset_timestamp = profile.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp = int(dataset_timestamp.timestamp() * 1000)
             response = writer._do_upload(dataset_timestamp=dataset_timestamp, profile_path=tmp_file.name)
-            assert isinstance(response, requests.Response)
-            assert response.status_code == 200
+            assert response[0] is True
 
     @pytest.mark.skip("Skip for now. Will need more mocking")
     def test_upload_reference_request(self, results):
@@ -78,8 +76,7 @@ class TestWhylabsWriter(object):
                 profile_path=tmp_file.name,
                 reference_profile_name="RefProfileAlias",
             )
-            assert isinstance(response, requests.Response)
-            assert response.status_code == 200
+            assert response[0] is True
 
     @pytest.mark.skip("Skip for now. Probably need more mocking")
     def test_api_key_null_raises_error(self, results, caplog):
@@ -106,3 +103,10 @@ class TestWhylabsWriter(object):
         # TODO: inspect error or mock better to avoid network call and keep test focused.
         with pytest.raises(ValueError):
             results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
+
+    def test_write_response(self, results):
+        with pytest.raises(ValueError):
+            response = (
+                results.writer("whylabs").option(api_key="bad_key_format").write(dataset_id="dataset_id", dest="tmp")
+            )
+            assert response[0] is True
