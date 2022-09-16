@@ -177,7 +177,7 @@ class DatasetProfileView(Writable):
             while f.tell() < total_len:
                 buffer = f.read(1024)
                 out_f.write(buffer) 
-        return True, path
+        return True, "Wrote given BinaryIO:" + str(out_f)
 
     def serialize(self) -> bytes:
         f = io.BytesIO()
