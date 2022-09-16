@@ -401,7 +401,7 @@
 <span class="kn">import</span> <span class="nn">tempfile</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span> <span class="nn">google.protobuf.message</span> <span class="kn">import</span> <span class="n">DecodeError</span>
 
@@ -501,7 +501,7 @@
 <div class="viewcode-block" id="DatasetProfileView.get_default_path"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.get_default_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;profile_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">creation_timestamp</span><span class="si">}</span><span class="s2">.bin&quot;</span></div>
 
-<div class="viewcode-block" id="DatasetProfileView.write"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="DatasetProfileView.write"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_default_path</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span> <span class="ow">and</span> <span class="n">_MODEL_PERFORMANCE</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metrics</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">whylogs.migration.converters</span> <span class="kn">import</span> <span class="n">v1_to_dataset_profile_message_v0</span>
@@ -510,16 +510,18 @@
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
                 <span class="n">write_delimited_protobuf</span><span class="p">(</span><span class="n">out_f</span><span class="p">,</span> <span class="n">message_v0</span><span class="p">)</span>
 
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">path</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+b&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_f</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_do_write</span><span class="p">(</span><span class="n">out_f</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_do_write</span><span class="p">(</span><span class="n">out_f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">path</span></div>
 
-    <span class="k">def</span> <span class="nf">_do_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_f</span><span class="p">:</span> <span class="n">BinaryIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_do_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_f</span><span class="p">:</span> <span class="n">BinaryIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
         <span class="n">all_metric_component_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="c1"># capture the list of all metric component paths</span>
         <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">all_metric_component_names</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">get_metric_component_paths</span><span class="p">())</span>
+
         <span class="n">metric_name_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">all_metric_component_names</span><span class="p">)</span>
         <span class="n">metric_name_list</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
         <span class="n">metric_name_indices</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -575,6 +577,7 @@
             <span class="k">while</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">total_len</span><span class="p">:</span>
                 <span class="n">buffer</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
                 <span class="n">out_f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;Wrote given BinaryIO:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">out_f</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DatasetProfileView.serialize"><a class="viewcode-back" href="../../../../api/whylogs/index.html#whylogs.core.DatasetProfileView.serialize">[docs]</a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>

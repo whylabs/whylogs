@@ -101,7 +101,7 @@ Attributes
       :param -------:
 
 
-   .. py:method:: write(file: whylogs.api.writer.writer.Writable, **kwargs: Any) -> None
+   .. py:method:: write(file: whylogs.api.writer.writer.Writable, **kwargs: Any) -> Tuple[bool, str]
 
 
 

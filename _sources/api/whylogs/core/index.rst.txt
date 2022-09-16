@@ -161,7 +161,7 @@ Attributes
       :staticmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: read(input_path: str) -> whylogs.core.view.DatasetProfileView
@@ -522,7 +522,7 @@ Attributes
    .. py:method:: get_default_path() -> str
 
 
-   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
 
 
    .. py:method:: serialize() -> bytes

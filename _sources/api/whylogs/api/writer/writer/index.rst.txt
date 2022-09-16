@@ -42,7 +42,7 @@ Attributes
       :abstractmethod:
 
 
-   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
       :abstractmethod:
 
 
@@ -62,7 +62,7 @@ Attributes
       non-negative interval.
 
 
-   .. py:method:: write(file: Writable, dest: Optional[str] = None, **kwargs: Any) -> None
+   .. py:method:: write(file: Writable, dest: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]
       :abstractmethod:
 
 
