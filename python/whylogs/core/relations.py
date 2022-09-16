@@ -3,10 +3,6 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any, Callable, Dict, List, Set, Tuple, Union
 
-from whylogs.core.configs import SummaryConfig
-from whylogs.core.dataset_profile import DatasetProfile, DatasetProfileView
-from whylogs.core.metrics.metrics import Metric
-
 
 class ValueGetter(ABC):
     @abstractmethod
@@ -22,35 +18,6 @@ class LiteralGetter(ValueGetter):
         return self._literal
 
 
-class MetricGetter(ValueGetter):
-    def __init__(self, metric: Metric, path: str) -> None:
-        self._metric = metric
-        self._path = path
-        summary = self._metric.to_summary_dict(SummaryConfig())
-        if path not in summary:
-            raise ValueError(f"{path} is not available in {metric.namespace}")
-
-    def __call__(self) -> Union[str, int, float]:
-        summary = self._metric.to_summary_dict(SummaryConfig())
-        return summary[self._path]
-
-
-class ProfileGetter(ValueGetter):
-    def __init__(self, profile: DatasetProfile, column_name: str, path: str) -> None:
-        self._profile = profile
-        self._column_name = column_name
-        self._path = path
-
-    def __call__(self) -> Union[str, int, float]:
-        col_prof = self._profile.view().get_column(self._column_name)
-        if not col_prof:
-            raise ValueError(f"Column {self._column_name} not found in profile")
-        summary = col_prof.to_summary_dict()
-        if self._path not in summary:
-            raise ValueError(f"{self._path} is not available in {self._column_name} profile")
-        return summary[self._path]
-
-
 class Relation(Enum):
     match = 1
     fullmatch = 2
@@ -62,15 +29,15 @@ class Relation(Enum):
     neq = 8
 
 
-RELATION_FN = Callable[[Any, Callable[[], Any]], bool]
-VALUE_FN = Callable[[], Union[str, int, float]]
-EXPRESSION = Tuple[RELATION_FN, VALUE_FN]
+Relation_Fn = Callable[[Any, Callable[[], Any]], bool]
+Value_Fn = Callable[[], Union[str, int, float]]
+Expression = Tuple[Relation_Fn, Value_Fn]
 
 def _do_nothing() -> str:
     return ""
 
 
-def relation(op: Relation, value: Union[str, int, float, ValueGetter]) -> EXPRESSION:
+def relation(op: Relation, value: Union[str, int, float, ValueGetter]) -> Expression:
     if isinstance(value, (str, int, float)):
         arg = LiteralGetter(value)
     else:
@@ -102,14 +69,17 @@ def relation(op: Relation, value: Union[str, int, float, ValueGetter]) -> EXPRES
     raise ValueError("Unknown ConditionCountMetric predicate")
 
 
-def and_relations(left: EXPRESSION, right: EXPRESSION) -> EXPRESSION:
+def and_relations(left: Expression, right: Expression) -> Expression:
     return lambda x, y: left[0](x, left[1]) and right[0](x, right[1]), _do_nothing
 
 
-def or_relations(left: EXPRESSION, right: EXPRESSION) -> EXPRESSION:
+def or_relations(left: Expression, right: Expression) -> Expression:
     return lambda x, y: left[0](x, left[1]) or right[0](x, right[1]), _do_nothing
 
 
-def not_relation(relation: EXPRESSION) -> EXPRESSION:
+def not_relation(relation: Expression) -> Expression:
     return lambda x, y: not relation[0](x, relation[1]), _do_nothing
 
+
+def udf_relation(relation: Relation_Fn, value: Value_Fn = _do_nothing) -> Expression:
+    return (relation, value)

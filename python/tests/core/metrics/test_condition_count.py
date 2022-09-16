@@ -1,17 +1,18 @@
 import re
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pandas as pd
 import pytest
 
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
-from whylogs.core.metrics import DistributionMetric, Metric
+from whylogs.core.metrics import DistributionMetric, Metric, MetricConfig
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
     ConditionCountConfig,
     ConditionCountMetric,
 )
+from whylogs.core.metric_getters import ProfileGetter
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Relation as Rel
@@ -277,16 +278,13 @@ def _build_profile(data: List[int]) -> DatasetProfile:
 
 def test_profile_getter() -> None:
     data = [1, 2, 3, 4, 5]
-    smallest = min(data)
     prof = _build_profile(data)
     conditions = {
-        "above_min": Condition(rel(Rel.greater, ProfileGetter(prof, "col1", "min"))),
+        "above_min": Condition(rel(Rel.greater, ProfileGetter(prof, "col1", "distribution/min"))),
     }  # compare each logged value against profile's min
     config = ConditionCountConfig(conditions=conditions)
     metric = ConditionCountMetric.zero(config)
-    row = {"col1": data}
-    frame = pd.DataFrame(data=row)
-    metric.columnar_update(PreprocessedColumn(frame))
+    metric.columnar_update(PreprocessedColumn.apply(data))
     summary = metric.to_summary_dict(None)
     assert summary["total"] == len(data)
     assert summary["above_min"] == len(data) - 1

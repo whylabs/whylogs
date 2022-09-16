@@ -9,13 +9,14 @@ from whylogs.core.metrics.metric_components import IntegralComponent, MetricComp
 from whylogs.core.metrics.metrics import Metric, MetricConfig, OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.proto import MetricMessage
+from whylogs.core.relations import Expression
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
 class Condition:
-    relation: Tuple[Callable[[Any, Callable[[], Any]], bool], Callable[[], Union[str, int, float]]]
+    relation: Expression
     throw_on_failure: bool = False
     log_on_failure: bool = False
 
@@ -77,19 +78,24 @@ class ConditionCountMetric(Metric):
 
         count = 0
         failed_conditions: Set[str] = set()
+        print(data)
+        print(f"columnar input: {list(chain.from_iterable(data.raw_iterator()))}")
         for x in list(chain.from_iterable(data.raw_iterator())):
             count += 1
             for cond_name, condition in self.conditions.items():
                 try:
+                    # print(f"eval {condition.relation[0](x, condition.relation[1])} = {cond_name}({x}, {condition.relation[1]()})")
                     if condition.relation[0](x, condition.relation[1]):
                         self.matches[cond_name].set(self.matches[cond_name].value + 1)
                     else:
                         failed_conditions.add(cond_name)
 
-                except:  # noqa
-                    pass
+                except Exception as e:  # noqa
+                    logger.exception(e)
+                    failed_conditions.add(cond_name)
 
         self.total.set(self.total.value + count)
+        print(f"Metric matches {[self.matches[n].value for n in self.matches.keys()]} total {self.total.value} failed {failed_conditions}")
         if condition.log_on_failure:
             logger.warning(f"Condition(s) {', '.join(failed_conditions)} failed")
         if condition.throw_on_failure:
