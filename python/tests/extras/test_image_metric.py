@@ -6,11 +6,16 @@ import whylogs as why
 from whylogs.api.writer.whylabs import _uncompund_dataset_profile
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.datatypes import DataType
-from whylogs.core.metrics import Metric, MetricConfig
+from whylogs.core.metrics import (
+    DistributionMetric,
+    FrequentItemsMetric,
+    Metric,
+    MetricConfig,
+)
 from whylogs.core.preprocessing import ListView, PreprocessedColumn
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import ColumnSchema, DatasetSchema
-from whylogs.extras.image_metric import ImageMetric, log_image
+from whylogs.extras.image_metric import ImageMetric, ImageMetricConfig, log_image
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +44,20 @@ def image_loader(path: str = None) -> ImageType:
         return img
 
 
+IMAGE_METRIC_CONFIG = ImageMetricConfig(
+    exif_tags={
+        "ImageWidth": DistributionMetric.zero(MetricConfig()),
+        "PhotometricInterpretation": DistributionMetric.zero(MetricConfig()),
+        "Orientation": DistributionMetric.zero(MetricConfig()),
+        "ResolutionUnit": DistributionMetric.zero(MetricConfig()),
+        "Software": FrequentItemsMetric.zero(MetricConfig()),
+    }
+)
+
+
 class TestResolver(Resolver):
     def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-        return {ImageMetric.get_namespace(MetricConfig()): ImageMetric.zero(column_schema.cfg)}
+        return {ImageMetric.get_namespace(IMAGE_METRIC_CONFIG): ImageMetric.zero(IMAGE_METRIC_CONFIG)}
 
 
 def test_image_metric() -> None:
@@ -49,9 +65,15 @@ def test_image_metric() -> None:
     img = image_loader(image_path)
     ppc = PreprocessedColumn()
     ppc.list = ListView(objs=[img])
-    metric = ImageMetric.zero(MetricConfig())
+    metric = ImageMetric.zero(IMAGE_METRIC_CONFIG)
     metric.columnar_update(ppc)
-    assert metric.to_summary_dict(SummaryConfig())["image/ImagePixelWidth/mean"] > 0
+    summary = metric.to_summary_dict(SummaryConfig())
+    assert summary["image/ImagePixelWidth/mean"] > 0
+    assert summary["image/ImageWidth/max"] == 1733
+    assert summary["image/PhotometricInterpretation/min"] == 2
+    assert summary["image/Orientation/max"] == 1
+    assert summary["image/ResolutionUnit/max"] == 2
+    assert "image/Software/frequent_strings" in summary
 
 
 def test_log_image() -> None:

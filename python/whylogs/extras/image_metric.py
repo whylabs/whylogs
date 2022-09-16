@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass, field
 from itertools import chain
 from typing import Dict, List, Union
 
@@ -101,6 +102,11 @@ def image_based_metadata(img):
     }
 
 
+@dataclass(frozen=True)
+class ImageMetricConfig(MetricConfig):
+    exif_tags: Dict[str, Metric] = field(default_factory=dict)
+
+
 class ImageMetric(CompoundMetric):
     def __init__(self, submetrics: Dict[str, Metric]):
         if ImageType is None:
@@ -125,6 +131,9 @@ class ImageMetric(CompoundMetric):
 
     @classmethod
     def zero(cls, config: MetricConfig) -> "ImageMetric":
+        if not isinstance(config, ImageMetricConfig):
+            raise ValueError("ImageMetric.zero() requires ImageMetricConfig argument")
+
         dummy_image = new_image("HSV", (1, 1))
         metadata = get_pil_image_metadata(dummy_image)
         submetrics: Dict[str, Metric] = dict()
@@ -135,6 +144,7 @@ class ImageMetric(CompoundMetric):
                 submetrics[tag] = DistributionMetric.zero(config)
             elif isinstance(value, str) and not config.fi_disabled:
                 submetrics[tag] = FrequentItemsMetric.zero(config)
+        submetrics.update(config.exif_tags)
 
         return ImageMetric(submetrics)
 
@@ -142,6 +152,7 @@ class ImageMetric(CompoundMetric):
 def log_image(
     images: Union[ImageType, List[ImageType], Dict[str, ImageType]],
     default_column_prefix: str = "image",
+    config: ImageMetricConfig = ImageMetricConfig(),
 ) -> ResultSet:
     if isinstance(images, ImageType):
         images = {default_column_prefix: images}
@@ -161,7 +172,7 @@ def log_image(
 
     class ImageResolver(Resolver):
         def resolve(self, name: str, why_type: DataType, column_schema: ColumnSchema) -> Dict[str, Metric]:
-            return {ImageMetric.get_namespace(MetricConfig()): ImageMetric.zero(MetricConfig())}
+            return {ImageMetric.get_namespace(config): ImageMetric.zero(config)}
 
     schema = DatasetSchema(types={key: ImageType for key in images.keys()}, resolvers=ImageResolver())
     return why.log(row=images, schema=schema)
