@@ -5,11 +5,11 @@ import pandas as pd
 import pytest
 
 import whylogs as why
+from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Relation as Rel
 from whylogs.core.relations import not_relation as not_rel
 from whylogs.core.relations import relation as rel
 from whylogs.core.relations import udf_relation as udf_rel
-from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.validators import ConditionValidator
 

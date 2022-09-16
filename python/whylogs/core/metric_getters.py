@@ -1,9 +1,9 @@
 from typing import Union
 
-from whylogs.core.relations import ValueGetter
 from whylogs.core.configs import SummaryConfig
-from whylogs.core.dataset_profile import DatasetProfile, DatasetProfileView
+from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.metrics.metrics import Metric
+from whylogs.core.relations import ValueGetter
 
 
 class MetricGetter(ValueGetter):
@@ -30,7 +30,6 @@ class ProfileGetter(ValueGetter):
         if not col_prof:
             raise ValueError(f"Column {self._column_name} not found in profile")
         summary = col_prof.to_summary_dict()
-        print(summary)
         if self._path not in summary:
             raise ValueError(f"{self._path} is not available in {self._column_name} profile")
         return summary[self._path]

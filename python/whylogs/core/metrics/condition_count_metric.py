@@ -2,7 +2,7 @@ import logging
 from copy import copy
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Any, Callable, Dict, List, Set, Tuple, Union
+from typing import Any, Dict, List, Set
 
 from whylogs.core.configs import SummaryConfig
 from whylogs.core.metrics.metric_components import IntegralComponent, MetricComponent
@@ -78,13 +78,10 @@ class ConditionCountMetric(Metric):
 
         count = 0
         failed_conditions: Set[str] = set()
-        print(data)
-        print(f"columnar input: {list(chain.from_iterable(data.raw_iterator()))}")
         for x in list(chain.from_iterable(data.raw_iterator())):
             count += 1
             for cond_name, condition in self.conditions.items():
                 try:
-                    # print(f"eval {condition.relation[0](x, condition.relation[1])} = {cond_name}({x}, {condition.relation[1]()})")
                     if condition.relation[0](x, condition.relation[1]):
                         self.matches[cond_name].set(self.matches[cond_name].value + 1)
                     else:
@@ -95,7 +92,6 @@ class ConditionCountMetric(Metric):
                     failed_conditions.add(cond_name)
 
         self.total.set(self.total.value + count)
-        print(f"Metric matches {[self.matches[n].value for n in self.matches.keys()]} total {self.total.value} failed {failed_conditions}")
         if condition.log_on_failure:
             logger.warning(f"Condition(s) {', '.join(failed_conditions)} failed")
         if condition.throw_on_failure:

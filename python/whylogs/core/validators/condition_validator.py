@@ -1,5 +1,4 @@
 import logging
-
 from dataclasses import dataclass, field
 from itertools import chain
 from typing import Any, Callable, Dict, List
@@ -41,7 +40,7 @@ class ConditionValidator(Validator):
                     count_failures += 1
                     for action in self.actions:
                         action(self.name, cond_name, x)
-                    
+
         self.total = count
 
     def to_summary_dict(self) -> Dict[str, Any]:

@@ -6,13 +6,13 @@ import pytest
 
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
+from whylogs.core.metric_getters import ProfileGetter
 from whylogs.core.metrics import DistributionMetric, Metric, MetricConfig
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
     ConditionCountConfig,
     ConditionCountMetric,
 )
-from whylogs.core.metric_getters import ProfileGetter
 from whylogs.core.metrics.metric_components import IntegralComponent
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Relation as Rel
@@ -266,7 +266,7 @@ def test_condition_count_in_dataset_profile() -> None:
 
 
 def _build_profile(data: List[int]) -> DatasetProfile:
-    """ build up a "reference profile" to compare against """
+    """build up a "reference profile" to compare against"""
     row = {"col1": data}
     frame = pd.DataFrame(data=row)
     prof = DatasetProfile()

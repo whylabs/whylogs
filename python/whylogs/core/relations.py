@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Callable, Dict, List, Set, Tuple, Union
+from typing import Any, Callable, Tuple, Union
 
 
 class ValueGetter(ABC):
@@ -33,11 +33,13 @@ Relation_Fn = Callable[[Any, Callable[[], Any]], bool]
 Value_Fn = Callable[[], Union[str, int, float]]
 Expression = Tuple[Relation_Fn, Value_Fn]
 
+
 def _do_nothing() -> str:
     return ""
 
 
 def relation(op: Relation, value: Union[str, int, float, ValueGetter]) -> Expression:
+    arg: ValueGetter
     if isinstance(value, (str, int, float)):
         arg = LiteralGetter(value)
     else:
