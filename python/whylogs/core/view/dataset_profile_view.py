@@ -123,7 +123,7 @@ class DatasetProfileView(Writable):
         # capture the list of all metric component paths
         for col in self._columns.values():
             all_metric_component_names.update(col.get_metric_component_paths())
-        
+
         metric_name_list = list(all_metric_component_names)
         metric_name_list.sort()
         metric_name_indices: Dict[str, int] = {}
