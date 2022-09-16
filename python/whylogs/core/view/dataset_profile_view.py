@@ -116,8 +116,9 @@ class DatasetProfileView(Writable):
 
         with open(path, "w+b") as out_f:
             self._do_write(out_f)
+        return True, path
 
-    def _do_write(self, out_f: BinaryIO) -> None:
+    def _do_write(self, out_f: BinaryIO) -> Tuple[bool, str]:
         all_metric_component_names = set()
         # capture the list of all metric component paths
         for col in self._columns.values():
@@ -172,11 +173,11 @@ class DatasetProfileView(Writable):
             out_f.write(WHYLOGS_MAGIC_HEADER_BYTES)
             write_delimited_protobuf(out_f, dataset_segment_header)
             write_delimited_protobuf(out_f, dataset_header)
-            
+
             f.seek(0)
             while f.tell() < total_len:
                 buffer = f.read(1024)
-                out_f.write(buffer) 
+                out_f.write(buffer)
         return True, "Wrote given BinaryIO:" + str(out_f)
 
     def serialize(self) -> bytes:
