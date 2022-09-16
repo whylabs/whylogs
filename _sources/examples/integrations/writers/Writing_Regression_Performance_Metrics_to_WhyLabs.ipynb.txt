@@ -39,7 +39,7 @@
    "metadata": {},
    "outputs": [],
    "source": [
-    "# %pip install whylogs[whylabs,datasets]"
+    "%pip install whylogs[whylabs,datasets]"
    ]
   },
   {
