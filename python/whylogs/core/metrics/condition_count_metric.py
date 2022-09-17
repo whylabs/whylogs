@@ -78,11 +78,11 @@ class ConditionCountMetric(Metric):
 
         count = 0
         failed_conditions: Set[str] = set()
-        for x in list(chain.from_iterable(data.raw_iterator())):
+        for datum in list(chain.from_iterable(data.raw_iterator())):
             count += 1
             for cond_name, condition in self.conditions.items():
                 try:
-                    if condition.relation[0](x, condition.relation[1]):
+                    if condition.relation[0](datum, condition.relation[1]):
                         self.matches[cond_name].set(self.matches[cond_name].value + 1)
                     else:
                         failed_conditions.add(cond_name)
@@ -92,9 +92,9 @@ class ConditionCountMetric(Metric):
                     failed_conditions.add(cond_name)
 
         self.total.set(self.total.value + count)
-        if condition.log_on_failure:
+        if failed_conditions and condition.log_on_failure:
             logger.warning(f"Condition(s) {', '.join(failed_conditions)} failed")
-        if condition.throw_on_failure:
+        if failed_conditions and condition.throw_on_failure:
             raise ValueError(f"Condition(s) {', '.join(failed_conditions)} failed")
         return OperationResult.ok(count)
 

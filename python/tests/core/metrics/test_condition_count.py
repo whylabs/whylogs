@@ -6,7 +6,7 @@ import pytest
 
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.datatypes import DataType
-from whylogs.core.metric_getters import ProfileGetter
+from whylogs.core.metric_getters import MetricGetter, ProfileGetter
 from whylogs.core.metrics import DistributionMetric, Metric, MetricConfig
 from whylogs.core.metrics.condition_count_metric import (
     Condition,
@@ -14,6 +14,7 @@ from whylogs.core.metrics.condition_count_metric import (
     ConditionCountMetric,
 )
 from whylogs.core.metrics.metric_components import IntegralComponent
+from whylogs.core.metrics.metrics import OperationResult
 from whylogs.core.preprocessing import PreprocessedColumn
 from whylogs.core.relations import Relation as Rel
 from whylogs.core.relations import and_relations as and_rel
@@ -49,6 +50,8 @@ def test_throw_on_failure() -> None:
     strings = ["abc", "123", "kwatz", "314159", "abc123"]
     with pytest.raises(ValueError):
         metric.columnar_update(PreprocessedColumn.apply(strings))
+    strings = ["b", "bl", "bla"]
+    assert metric.columnar_update(PreprocessedColumn.apply(strings)) == OperationResult(0, len(strings))
 
 
 def test_condition_count_merge() -> None:
@@ -286,5 +289,21 @@ def test_profile_getter() -> None:
     metric = ConditionCountMetric.zero(config)
     metric.columnar_update(PreprocessedColumn.apply(data))
     summary = metric.to_summary_dict(None)
+    assert summary["total"] == len(data)
+    assert summary["above_min"] == len(data) - 1
+
+
+def test_metric_getter() -> None:
+    data = [1, 2, 3, 4, 5]
+    dist_metric = DistributionMetric.zero(MetricConfig())
+    dist_metric.columnar_update(PreprocessedColumn.apply(data))
+
+    conditions = {
+        "above_min": Condition(rel(Rel.greater, MetricGetter(dist_metric, "min"))),
+    }  # compare each logged value against dist_metric's min
+    config = ConditionCountConfig(conditions=conditions)
+    cond_metric = ConditionCountMetric.zero(config)
+    cond_metric.columnar_update(PreprocessedColumn.apply(data))
+    summary = cond_metric.to_summary_dict(None)
     assert summary["total"] == len(data)
     assert summary["above_min"] == len(data) - 1
