@@ -494,6 +494,67 @@ cpp = ["fugue-sql-antlr-cpp (==0.1.1)"]
 test = ["speedy_antlr_tool"]
 
 [[package]]
+name = "fs"
+version = "2.4.16"
+description = "Python's filesystem abstraction layer"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+appdirs = ">=1.4.3,<1.5.0"
+setuptools = "*"
+six = ">=1.10,<2.0"
+
+[package.extras]
+scandir = ["scandir (>=1.5,<2.0)"]
+
+[[package]]
+name = "fugue"
+version = "0.7.2"
+description = "An abstraction layer for distributed computation"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+adagio = ">=0.2.4"
+fugue-sql-antlr = ">=0.1.0"
+jinja2 = "*"
+pandas = ">=1.0.2"
+pyarrow = ">=0.15.1"
+qpd = ">=0.3.1"
+sqlalchemy = "*"
+triad = ">=0.6.6"
+
+[package.extras]
+all = ["dask[dataframe,distributed]", "duckdb (>=0.3.2)", "fugue-sql-antlr[cpp] (>=0.1.0)", "ibis-framework (>=2)", "ipython (>=7.10.0)", "jupyterlab", "notebook", "pyarrow (>=5.0.0)", "pyarrow (>=7.0.0)", "pyspark", "qpd[dask] (>=0.3.1)", "ray (>=2.0.0)"]
+cpp_sql_parser = ["fugue-sql-antlr[cpp] (>=0.1.0)"]
+dask = ["dask[dataframe,distributed]", "qpd[dask] (>=0.3.1)"]
+duckdb = ["duckdb (>=0.3.2)", "numpy", "pyarrow (>=5.0.0)"]
+ibis = ["ibis-framework (>=2.1.1)"]
+notebook = ["ipython (>=7.10.0)", "jupyterlab", "notebook"]
+ray = ["duckdb (>=0.3.2)", "pyarrow (>=7.0.0)", "ray (>=2.0.0)"]
+spark = ["pyspark"]
+
+[[package]]
+name = "fugue-sql-antlr"
+version = "0.1.1"
+description = "Fugue SQL Antlr Parser"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+antlr4-python3-runtime = ">=4.11.1,<4.12"
+jinja2 = "*"
+triad = ">=0.6.8"
+
+[package.extras]
+cpp = ["fugue-sql-antlr-cpp (==0.1.1)"]
+test = ["speedy_antlr_tool"]
+
+[[package]]
 name = "furo"
 version = "2022.9.15"
 description = "A clean customisable Sphinx documentation theme."
@@ -1467,7 +1528,7 @@ name = "pyarrow"
 version = "8.0.0"
 description = "Python library for Apache Arrow"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
@@ -2734,6 +2795,17 @@ fugue = [
 fugue-sql-antlr = [
     {file = "fugue-sql-antlr-0.1.1.tar.gz", hash = "sha256:e276badd471cf3e1659e94ba181896e2b1887de63ef53ac2badc73483b1c9332"},
 ]
+fs = [
+    {file = "fs-2.4.16-py2.py3-none-any.whl", hash = "sha256:660064febbccda264ae0b6bace80a8d1be9e089e0a5eb2427b7d517f9a91545c"},
+    {file = "fs-2.4.16.tar.gz", hash = "sha256:ae97c7d51213f4b70b6a958292530289090de3a7e15841e108fbe144f069d313"},
+]
+fugue = [
+    {file = "fugue-0.7.2-py3-none-any.whl", hash = "sha256:ffb0c2754eb95c6730725da9dfa265c39df8cbf189fabcbce02a1177145005fa"},
+    {file = "fugue-0.7.2.tar.gz", hash = "sha256:8009315e371ab622aed326438c69ba4ad03126c618d48e839c3b18fa1917d441"},
+]
+fugue-sql-antlr = [
+    {file = "fugue-sql-antlr-0.1.1.tar.gz", hash = "sha256:e276badd471cf3e1659e94ba181896e2b1887de63ef53ac2badc73483b1c9332"},
+]
 furo = [
     {file = "furo-2022.9.15-py3-none-any.whl", hash = "sha256:9129dead1f75e9fb4fa407612f1d5a0d0320767e6156c925aafe36f362f9b11a"},
     {file = "furo-2022.9.15.tar.gz", hash = "sha256:4a7ef1c8a3b615171592da4d2ad8a53cc4aacfbe111958890f5f9ff7279066ab"},
@@ -3619,6 +3691,10 @@ pyzmq = [
     {file = "pyzmq-23.2.1-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:efb9e38b2a590282704269585de7eb33bf43dc294cad092e1b172e23d4c217e5"},
     {file = "pyzmq-23.2.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:407f909c4e8fde62fbdad9ebd448319792258cc0550c2815567a4d9d8d9e6d18"},
     {file = "pyzmq-23.2.1.tar.gz", hash = "sha256:2b381aa867ece7d0a82f30a0c7f3d4387b7cf2e0697e33efaa5bed6c5784abcd"},
+]
+qpd = [
+    {file = "qpd-0.3.3-py3-none-any.whl", hash = "sha256:600b200fbc4fcd701ce06ff4eeedab9fa68bb395add89e2aaa9bd43c519b4fba"},
+    {file = "qpd-0.3.3.tar.gz", hash = "sha256:1d192eb63c4facea82f1c8b2e93df5d4e5f27bc5bbeeca6dd2f88662cd7360d2"},
 ]
 qpd = [
     {file = "qpd-0.3.3-py3-none-any.whl", hash = "sha256:600b200fbc4fcd701ce06ff4eeedab9fa68bb395add89e2aaa9bd43c519b4fba"},
