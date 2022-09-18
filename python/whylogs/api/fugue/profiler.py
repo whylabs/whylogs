@@ -81,8 +81,8 @@ class _Profiler:
 
 def profile(
     df: Any,
-    dataset_timestamp: Optional[int] = None,
-    creation_timestamp: Optional[int] = None,
+    dataset_timestamp: Optional[datetime] = None,
+    creation_timestamp: Optional[datetime] = None,
     partition: Any = None,
     profile_cols: Optional[List[str]] = None,
     as_local: bool = True,
