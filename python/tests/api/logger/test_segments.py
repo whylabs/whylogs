@@ -250,3 +250,34 @@ def test_multi_column_segment() -> None:
     count = segment_distribution.n
     assert count is not None
     assert count == 1
+
+
+def test_multi_column_segment_serialization_roundtrip(tmp_path: Any) -> None:
+    input_rows = 35
+    d = {
+        "A": [i % 7 for i in range(input_rows)],
+        "B": [f"x{str(i%5)}" for i in range(input_rows)],
+    }
+
+    df = pd.DataFrame(data=d)
+    segmentation_partition = SegmentationPartition(name="A,B", mapper=ColumnMapperFunction(col_names=["A", "B"]))
+    test_segments = {segmentation_partition.name: segmentation_partition}
+    results: SegmentedResultSet = why.log(df, schema=DatasetSchema(segments=test_segments))
+    results.writer().option(base_dir=tmp_path).write()
+
+    paths = glob(os.path.join(tmp_path) + "/*.bin")
+    assert len(paths) == input_rows
+    roundtrip_profiles = []
+    for file_path in paths:
+        roundtrip_profiles.append(read_v0_to_view(file_path))
+    assert len(roundtrip_profiles) == input_rows
+    print(roundtrip_profiles)
+    print(roundtrip_profiles[15])
+
+    post_deserialization_view = roundtrip_profiles[15]
+    assert post_deserialization_view is not None
+    assert isinstance(post_deserialization_view, DatasetProfileView)
+
+    post_columns = post_deserialization_view.get_columns()
+    assert "A" in post_columns.keys()
+    assert "B" in post_columns.keys()
