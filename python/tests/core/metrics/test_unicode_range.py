@@ -98,9 +98,9 @@ def test_unicode_range_metric_summary() -> None:
     metric.columnar_update(col)
     summary = metric.to_summary_dict(None)
 
-    assert "unicode_range/digits/mean" in summary
-    assert "unicode_range/alpha/mean" in summary
-    assert f"unicode_range/{_STRING_LENGTH}/mean" in summary
+    assert "digits/mean" in summary
+    assert "alpha/mean" in summary
+    assert f"{_STRING_LENGTH}/mean" in summary
 
 
 def test_unicode_range_metric_merge() -> None:
