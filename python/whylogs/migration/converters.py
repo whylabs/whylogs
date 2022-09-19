@@ -76,8 +76,8 @@ def _generate_segment_tags_metadata(
 
         segment_tags = []
         col_names = partition.mapper.col_names
-        index = 0
-        for column_name in col_names:
+
+        for index, column_name in enumerate(col_names):
             segment_tags.append(SegmentTag(key=_TAG_PREFIX + column_name, value=segment.key[index]))
     else:
         raise NotImplementedError(
@@ -136,6 +136,11 @@ def v0_to_v1_view(msg: DatasetProfileMessageV0) -> DatasetProfileView:
                 StandardMetric.cardinality.name: type_counters_metric,
                 StandardMetric.ints.name: int_metric,
             }
+        )
+
+    if msg.properties.tags:
+        logger.info(
+            f"Found tags in v0 message, ignoring while converting to v1 DatasetProfileView: {msg.properties.tags}"
         )
 
     return DatasetProfileView(
@@ -225,10 +230,15 @@ def _extract_dist_metric(msg: ColumnMessageV0) -> DistributionMetric:
     kll_bytes = msg.numbers.histogram
     floats_sk = None
     doubles_sk: Optional[ds.kll_doubles_sketch] = None
+    # If this is a V1 serialized message it will be a double kll sketch.
     try:
         floats_sk = ds.kll_floats_sketch.deserialize(kll_bytes)
     except ValueError as e:
         logger.info(f"kll encountered old format which threw exception: {e}, attempting kll_doubles deserialization.")
+    except RuntimeError as e:
+        logger.warning(
+            f"kll encountered runtime error in old format which threw exception: {e}, attempting kll_doubles deserialization."
+        )
     if floats_sk is None:
         doubles_sk = ds.kll_doubles_sketch.deserialize(kll_bytes)
     else:
