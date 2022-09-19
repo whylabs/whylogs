@@ -2,11 +2,11 @@ import datetime
 import logging
 import os
 import tempfile
-from typing import Any, Dict, Optional
-
+from typing import Any, Dict, Optional, Tuple
 import requests  # type: ignore
 import whylabs_client  # type: ignore
 from whylabs_client import ApiClient, Configuration  # type: ignore
+from whylabs_client.api.feature_weights_api import FeatureWeightsApi
 from whylabs_client.api.log_api import AsyncLogResponse  # type: ignore
 from whylabs_client.api.log_api import (
     LogApi,
@@ -21,6 +21,7 @@ from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
+from whylogs.core.feature_weights import FeatureWeight
 from whylogs.core.errors import BadConfigError
 from whylogs.core.metrics import Metric
 from whylogs.core.metrics.compound_metric import CompoundMetric
@@ -127,6 +128,7 @@ class WhyLabsWriter(Writer):
         self._api_key = api_key or os.environ.get("WHYLABS_API_KEY")
         self._api_key_id = ""
         self._dataset_id = dataset_id or os.environ.get("WHYLABS_DEFAULT_DATASET_ID")
+        self._feature_weights = None
         self.whylabs_api_endpoint = os.environ.get("WHYLABS_API_ENDPOINT") or "https://api.whylabsapp.com"
         self._reference_profile_name = os.environ.get("WHYLABS_REFERENCE_PROFILE_NAME")
         self._api_log_client: Optional[ApiClient] = None
@@ -174,8 +176,23 @@ class WhyLabsWriter(Writer):
             self._ssl_ca_cert = ssl_ca_cert
         return self
 
+    def write_feature_weights(self, file: FeatureWeight, **kwargs: Any) -> Tuple[bool, str]:
+        self._feature_weights = file.to_dict()
+        if kwargs.get("dataset_id") is not None:
+            self._dataset_id = kwargs.get("dataset_id")
+        return self._do_upload_feature_weights()
+
+    def get_feature_weights(self, **kwargs: Any):
+        if kwargs.get("dataset_id") is not None:
+            self._dataset_id = kwargs.get("dataset_id")
+        return self._do_get_feature_weights()
+
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> None:
+
+        if isinstance(file, FeatureWeight):
+            return self.write_feature_weights(file, **kwargs)
+
         view = file.view() if isinstance(file, DatasetProfile) else file
         has_segments = isinstance(view, SegmentedDatasetProfileView)
 
@@ -222,6 +239,41 @@ class WhyLabsWriter(Writer):
             raise ValueError("Invalid format. Expecting a dot at an index 10")
         self._api_key_id = self._api_key[:10]
 
+    def _do_get_feature_weights(self):
+        if self._org_id is None:
+            raise EnvironmentError(
+                "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
+            )
+        if self._dataset_id is None:
+            raise EnvironmentError(
+                "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
+                "variable or on your write method"
+            )
+        if self._api_key is None:
+            raise EnvironmentError("Missing API key. Specify it via WHYLABS_API_KEY environment variable.")
+
+        result = self._get_column_weights()
+        return result
+
+    def _do_upload_feature_weights(self) -> Tuple[bool, str]:
+        if self._org_id is None:
+            raise EnvironmentError(
+                "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
+            )
+        if self._dataset_id is None:
+            raise EnvironmentError(
+                "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
+                "variable or on your write method"
+            )
+        if self._api_key is None:
+            raise EnvironmentError("Missing API key. Specify it via WHYLABS_API_KEY environment variable.")
+
+        result = self._put_feature_weights()
+        if result == 200:
+            return True, str(result)
+        else:
+            return False, str(result)
+
     def _do_upload(
         self,
         dataset_timestamp: int,
@@ -245,17 +297,29 @@ class WhyLabsWriter(Writer):
         try:
             with open(profile_path, "rb") as f:
                 http_response = requests.put(upload_url, data=f.read())
-                if http_response.status_code == 200:
-                    logger.info(
-                        f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                        f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
-                    )
-                return http_response
+            if http_response.status_code == 200:
+                logger.info(
+                    f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                    f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
+                )
+            return http_response
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
             )
+
+    def _get_or_create_feature_weights_api(self) -> FeatureWeightsApi:
+        environment_api_key = os.environ.get(API_KEY_ENV)
+
+        if self._api_log_client is None:
+            self._refresh_api_client()
+        elif environment_api_key is not None and self._api_key != environment_api_key:
+            logger.warning(f"Updating API key ID from: {self._api_key_id} to: {environment_api_key[:10]}")
+            self._api_key = environment_api_key
+            self._refresh_api_client()
+
+        return FeatureWeightsApi(self._api_log_client)
 
     def _get_or_create_api_log_client(self) -> LogApi:
         environment_api_key = os.environ.get(API_KEY_ENV)
@@ -304,6 +368,44 @@ class WhyLabsWriter(Writer):
     def _build_log_reference_request(dataset_timestamp: int, alias: Optional[str] = None) -> LogReferenceRequest:
         return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias)
 
+    def _get_column_weights(self):
+        feature_weight_api = self._get_or_create_feature_weights_api()
+        try:
+            result = feature_weight_api.get_column_weights(
+                org_id=self._org_id,
+                dataset_id=self._dataset_id,
+            )
+            return result
+        except ForbiddenException as e:
+            api_key_id = self._api_key[:10] if self._api_key else None
+            logger.exception(
+                f"Failed to upload {self._org_id}/{self._dataset_id} to "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
+            )
+            raise e
+
+    def _put_feature_weights(self):
+        feature_weight_api = self._get_or_create_feature_weights_api()
+        try:
+            result = feature_weight_api.put_column_weights(
+                org_id=self._org_id,
+                dataset_id=self._dataset_id,
+                body={
+                    "segmentWeights": [self._feature_weights],
+                },
+                _return_http_data_only=False,
+            )
+            return result[1]
+        except ForbiddenException as e:
+            api_key_id = self._api_key[:10] if self._api_key else None
+            logger.exception(
+                f"Failed to upload {self._org_id}/{self._dataset_id} to "
+                f"{self.whylabs_api_endpoint}"
+                f" with API token ID: {api_key_id}"
+            )
+            raise e
+
     def _post_log_async(self, request: LogAsyncRequest, dataset_timestamp: int) -> AsyncLogResponse:
         log_api = self._get_or_create_api_log_client()
         try:
@@ -336,12 +438,12 @@ class WhyLabsWriter(Writer):
             raise e
 
     def _get_upload_url(self, dataset_timestamp: int) -> str:
-        if self._reference_profile_name is None:
-            request = self._build_log_async_request(dataset_timestamp)
-            res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
-            upload_url = res["upload_url"]
-        else:
+        if self._reference_profile_name is not None:
             request = self._build_log_reference_request(dataset_timestamp, alias=self._reference_profile_name)
             res = self._post_log_reference(request=request, dataset_timestamp=dataset_timestamp)
+            upload_url = res["upload_url"]
+        else:
+            request = self._build_log_async_request(dataset_timestamp)
+            res = self._post_log_async(request=request, dataset_timestamp=dataset_timestamp)
             upload_url = res["upload_url"]
         return upload_url
