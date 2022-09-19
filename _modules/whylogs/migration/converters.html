@@ -474,8 +474,8 @@
 
         <span class="n">segment_tags</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">col_names</span> <span class="o">=</span> <span class="n">partition</span><span class="o">.</span><span class="n">mapper</span><span class="o">.</span><span class="n">col_names</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="n">col_names</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">col_names</span><span class="p">):</span>
             <span class="n">segment_tags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SegmentTag</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">_TAG_PREFIX</span> <span class="o">+</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">segment</span><span class="o">.</span><span class="n">key</span><span class="p">[</span><span class="n">index</span><span class="p">]))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
@@ -534,6 +534,11 @@
                 <span class="n">StandardMetric</span><span class="o">.</span><span class="n">cardinality</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">type_counters_metric</span><span class="p">,</span>
                 <span class="n">StandardMetric</span><span class="o">.</span><span class="n">ints</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">int_metric</span><span class="p">,</span>
             <span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">tags</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Found tags in v0 message, ignoring while converting to v1 DatasetProfileView: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">tags</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">DatasetProfileView</span><span class="p">(</span>
@@ -623,10 +628,15 @@
     <span class="n">kll_bytes</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">numbers</span><span class="o">.</span><span class="n">histogram</span>
     <span class="n">floats_sk</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">doubles_sk</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># If this is a V1 serialized message it will be a double kll sketch.</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">floats_sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_floats_sketch</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">kll_bytes</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;kll encountered old format which threw exception: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">, attempting kll_doubles deserialization.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;kll encountered runtime error in old format which threw exception: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">, attempting kll_doubles deserialization.&quot;</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">floats_sk</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">doubles_sk</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">kll_doubles_sketch</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">kll_bytes</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
