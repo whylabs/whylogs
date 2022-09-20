@@ -199,3 +199,6 @@ pip-selfcheck.json
 
 # Dask's viz
 python/examples/integrations/*.png
+
+# profile store
+profile_store/*
