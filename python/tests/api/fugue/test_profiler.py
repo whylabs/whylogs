@@ -56,6 +56,8 @@ def test_with_partition(_test_df):
         assert all(df.ct == df.ct_true)
         assert all(df.pct == 4)
 
-        df = fugue_profile(_test_df, partition={"by": ["a", "b"]}, profile_cols=["b", "c"], profile_field="x", engine=engine)
+        df = fugue_profile(
+            _test_df, partition={"by": ["a", "b"]}, profile_cols=["b", "c"], profile_field="x", engine=engine
+        )
         df["pct"] = df.x.apply(lambda x: len(DatasetProfileView.deserialize(x).to_pandas()))
         assert all(df.pct == 2)
