@@ -40,7 +40,7 @@ nbconvert = {version = "^7.0.0", optional = true}
 
 # Integrations dependencies
 boto3 = {version = "^1.22.13", optional = true }
-whylabs-client = {version = "^0.3.0", optional = true}
+whylabs-client = {version = "0.4.0.dev0", optional = true}
 mlflow-skinny = {version = "^1.26.1", optional = true}
 
 
