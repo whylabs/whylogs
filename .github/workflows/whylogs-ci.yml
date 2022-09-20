@@ -13,7 +13,7 @@ defaults:
 
 env:
   CODECOV_UPLOAD: false
-  POETRY_VERSION: "1.1.11"
+  POETRY_VERSION: "1.2.1"
   PROTOC_VERSION: "3.19.4"
   PYPI_PUBLISH: false
   HEAP_APPID_DEV: "3422045963"
@@ -86,9 +86,7 @@ jobs:
         run: make pre-commit
 
       - name: Run build, style, and lint checks
-        run: |
-          pip install --upgrade pip setuptools
-          make release
+        run: make release
 
       - name: Smoke test wheel in client environment
         run: |
