@@ -51,7 +51,7 @@ def test_image_metric() -> None:
     ppc.list = ListView(objs=[img])
     metric = ImageMetric.zero(MetricConfig())
     metric.columnar_update(ppc)
-    assert metric.to_summary_dict(SummaryConfig())["image/ImagePixelWidth/mean"] > 0
+    assert metric.to_summary_dict(SummaryConfig())["ImagePixelWidth/mean"] > 0
 
 
 def test_log_image() -> None:
@@ -59,7 +59,7 @@ def test_log_image() -> None:
     img = image_loader(image_path)
     results = log_image(img).view()
     logger.info(results.get_column("image").to_summary_dict())
-    assert results.get_column("image").to_summary_dict()["image/image/ImagePixelWidth/mean"] > 0
+    assert results.get_column("image").to_summary_dict()["image/ImagePixelWidth/mean"] > 0
 
 
 def test_log_interface() -> None:
@@ -70,7 +70,7 @@ def test_log_interface() -> None:
 
     results = why.log(row={"image_col": img}, schema=schema).view().get_column("image_col")
     logger.info(results.to_summary_dict())
-    assert results.to_summary_dict()["image/image/ImagePixelWidth/mean"] > 0
+    assert results.to_summary_dict()["image/ImagePixelWidth/mean"] > 0
 
 
 def test_uncompound_profile() -> None:
