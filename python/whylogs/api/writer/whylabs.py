@@ -261,15 +261,7 @@ class WhyLabsWriter(Writer):
             raise ValueError("Invalid format. Expecting a dot at an index 10")
         self._api_key_id = self._api_key[:10]
 
-    def _do_get_feature_weights(self) -> FeatureWeightResponse:
-        """Get latest version for the feature weights for the specified dataset
-
-        Returns
-        -------
-        FeatureWeightResponse
-            Response of the GET request, with segmentWeights and metadata.
-        """
-
+    def _validate_org_and_dataset(self) -> None:
         if self._org_id is None:
             raise EnvironmentError(
                 "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
@@ -279,8 +271,17 @@ class WhyLabsWriter(Writer):
                 "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
                 "variable or on your write method"
             )
-        if self._api_key is None:
-            raise EnvironmentError("Missing API key. Specify it via WHYLABS_API_KEY environment variable.")
+
+    def _do_get_feature_weights(self) -> FeatureWeightResponse:
+        """Get latest version for the feature weights for the specified dataset
+
+        Returns
+        -------
+        FeatureWeightResponse
+            Response of the GET request, with segmentWeights and metadata.
+        """
+        self._validate_org_and_dataset()
+        self._validate_api_key()
 
         result = self._get_column_weights()
         return result
@@ -294,17 +295,8 @@ class WhyLabsWriter(Writer):
             Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
         """
 
-        if self._org_id is None:
-            raise EnvironmentError(
-                "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
-            )
-        if self._dataset_id is None:
-            raise EnvironmentError(
-                "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
-                "variable or on your write method"
-            )
-        if self._api_key is None:
-            raise EnvironmentError("Missing API key. Specify it via WHYLABS_API_KEY environment variable.")
+        self._validate_org_and_dataset()
+        self._validate_api_key()
 
         result = self._put_feature_weights()
         if result == 200:
@@ -317,17 +309,9 @@ class WhyLabsWriter(Writer):
         dataset_timestamp: int,
         profile_path: str,
     ) -> Tuple[bool, str]:
-        if self._org_id is None:
-            raise EnvironmentError(
-                "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
-            )
-        if self._dataset_id is None:
-            raise EnvironmentError(
-                "Missing dataset ID. Specify it via WHYLABS_DEFAULT_DATASET_ID environment "
-                "variable or on your write method"
-            )
-        if self._api_key is None:
-            raise EnvironmentError("Missing API key. Specify it via WHYLABS_API_KEY environment variable.")
+
+        self._validate_org_and_dataset()
+        self._validate_api_key()
 
         logger.debug("Generating the upload URL")
         upload_url = self._get_upload_url(dataset_timestamp=dataset_timestamp)
@@ -350,7 +334,7 @@ class WhyLabsWriter(Writer):
             )
             return False, str(e)
 
-    def _get_or_create_feature_weights_api(self) -> FeatureWeightsApi:
+    def _get_or_create_feature_weights_client(self) -> FeatureWeightsApi:
         environment_api_key = os.environ.get(API_KEY_ENV)
 
         if self._api_log_client is None:
@@ -410,7 +394,7 @@ class WhyLabsWriter(Writer):
         return LogReferenceRequest(dataset_timestamp=dataset_timestamp, alias=alias)
 
     def _get_column_weights(self):
-        feature_weight_api = self._get_or_create_feature_weights_api()
+        feature_weight_api = self._get_or_create_feature_weights_client()
         try:
             result = feature_weight_api.get_column_weights(
                 org_id=self._org_id,
@@ -427,7 +411,7 @@ class WhyLabsWriter(Writer):
             raise e
 
     def _put_feature_weights(self):
-        feature_weight_api = self._get_or_create_feature_weights_api()
+        feature_weight_api = self._get_or_create_feature_weights_client()
         try:
             result = feature_weight_api.put_column_weights(
                 org_id=self._org_id,
