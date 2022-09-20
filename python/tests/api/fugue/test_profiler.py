@@ -24,7 +24,7 @@ def _test_df():
 
 
 def test_no_partition(_test_df):
-    if sys.version_info >= (3, 11):
+    if sys.version_info >= (3, 10):
         # TODO: Due to https://github.com/fugue-project/triad/issues/91
         # this test doesn't work on very rare cases, will re-enable when
         # the issue is resolved
@@ -54,7 +54,7 @@ def test_no_partition(_test_df):
 
 
 def test_with_partition(_test_df):
-    if sys.version_info >= (3, 11):
+    if sys.version_info >= (3, 10):
         # TODO: Due to https://github.com/fugue-project/triad/issues/91
         # this test doesn't work on very rare cases, will re-enable when
         # the issue is resolved
