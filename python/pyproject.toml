@@ -59,7 +59,6 @@ fugue = {version = "^0.7.2", optional = true}
 black = { version = "*", allow-prereleases = true }
 bump2version = "^1.0.1"
 flake8 = "^5"
-setuptools = "<60.9"  # https://github.com/pypa/setuptools/issues/3452
 isort = "^5.6"
 mypy = ">=0.942,<1"
 pre-commit = "^2.8"
@@ -120,7 +119,6 @@ image = [
 ]
 fugue = [
   "fugue",
-  "setuptools"
 ]
 
 [build-system]
