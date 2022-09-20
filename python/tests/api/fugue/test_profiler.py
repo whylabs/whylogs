@@ -24,7 +24,7 @@ def _test_df():
 
 
 def test_no_partition(_test_df):
-    if sys.version_info >= (3, 10):
+    if sys.version_info >= (3, 11):
         # TODO: Due to https://github.com/fugue-project/triad/issues/91
         # this test doesn't work on very rare cases, will re-enable when
         # the issue is resolved
@@ -32,7 +32,13 @@ def test_no_partition(_test_df):
     for engine in [None, "spark"]:
         t1 = datetime(2020, 1, 1)
         t2 = datetime(2020, 1, 2)
-        v = fugue_profile(_test_df, dataset_timestamp=t1, creation_timestamp=t2, engine=engine)
+        v = fugue_profile(
+            _test_df,
+            dataset_timestamp=t1,
+            creation_timestamp=t2,
+            engine=engine,
+            engine_conf={"fugue.spark.use_pandas_udf": True},
+        )
         assert isinstance(v, DatasetProfileView)
         pf = v.to_pandas()
 
@@ -48,13 +54,19 @@ def test_no_partition(_test_df):
 
 
 def test_with_partition(_test_df):
-    if sys.version_info >= (3, 10):
+    if sys.version_info >= (3, 11):
         # TODO: Due to https://github.com/fugue-project/triad/issues/91
         # this test doesn't work on very rare cases, will re-enable when
         # the issue is resolved
         return
     for engine in [None, "spark"]:
-        df = fugue_profile(_test_df, partition={"by": ["a", "b"]}, profile_field="x", engine=engine)
+        df = fugue_profile(
+            _test_df,
+            partition={"by": ["a", "b"]},
+            profile_field="x",
+            engine=engine,
+            engine_conf={"fugue.spark.use_pandas_udf": True},
+        )
         # get counts of each group
         df["ct"] = df.x.apply(lambda x: DatasetProfileView.deserialize(x).to_pandas()["counts/n"].iloc[0])
         # get counts of profiled cols of each group should always be 4
