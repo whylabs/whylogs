@@ -11,7 +11,7 @@ name = "adagio"
 version = "0.2.4"
 description = "The Dag IO Framework for Fugue projects"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -41,7 +41,7 @@ name = "antlr4-python3-runtime"
 version = "4.11.1"
 description = "ANTLR 4.11.1 runtime for Python 3"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [[package]]
@@ -49,7 +49,7 @@ name = "appdirs"
 version = "1.4.4"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [[package]]
@@ -437,7 +437,7 @@ name = "fs"
 version = "2.4.16"
 description = "Python's filesystem abstraction layer"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [package.dependencies]
@@ -453,7 +453,7 @@ name = "fugue"
 version = "0.7.2"
 description = "An abstraction layer for distributed computation"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -481,7 +481,7 @@ name = "fugue-sql-antlr"
 version = "0.1.1"
 description = "Fugue SQL Antlr Parser"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -535,7 +535,7 @@ name = "greenlet"
 version = "1.1.3"
 description = "Lightweight in-process concurrent programming"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
 
 [package.extras]
@@ -1449,7 +1449,7 @@ name = "pyarrow"
 version = "8.0.0"
 description = "Python library for Apache Arrow"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.7"
 
 [package.dependencies]
@@ -1670,7 +1670,7 @@ name = "qpd"
 version = "0.3.3"
 description = "Query Pandas Using SQL"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -2054,7 +2054,7 @@ name = "SQLAlchemy"
 version = "1.4.41"
 description = "Database Abstraction Library"
 category = "main"
-optional = false
+optional = true
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 
 [package.dependencies]
@@ -2192,7 +2192,7 @@ name = "triad"
 version = "0.6.8"
 description = "A collection of python utils for Fugue projects"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -2384,7 +2384,7 @@ whylabs = ["whylabs-client"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1, <4"
-content-hash = "ab0c855c6f8323e3773ae145ad8bb70b05a7d9947f7524e78e6ea6b17f3e4ba7"
+content-hash = "072dde0fd1268b63d4b9636ef088449f9e2c266dc4cc74b9d8af37247c5d9bee"
 
 [metadata.files]
 2to3 = [
