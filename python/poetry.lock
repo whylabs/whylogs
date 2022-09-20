@@ -498,7 +498,7 @@ name = "fs"
 version = "2.4.16"
 description = "Python's filesystem abstraction layer"
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [package.dependencies]
@@ -514,7 +514,7 @@ name = "fugue"
 version = "0.7.2"
 description = "An abstraction layer for distributed computation"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -542,7 +542,7 @@ name = "fugue-sql-antlr"
 version = "0.1.1"
 description = "Fugue SQL Antlr Parser"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.6"
 
 [package.dependencies]
@@ -1528,7 +1528,7 @@ name = "pyarrow"
 version = "8.0.0"
 description = "Python library for Apache Arrow"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.7"
 
 [package.dependencies]
