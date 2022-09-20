@@ -38,7 +38,7 @@ class _FugueProfiler:
     def to_col_profiles(self, df: pd.DataFrame) -> Iterable[Dict[str, Any]]:
         res = why.log(df[self._cols] if self._cols is not None else df)
         for col_name, col_profile in res.view().get_columns().items():
-            yield {_COL_NAME_FIELD: col_name, _COL_PROFILE_FIELD: col_profile.serialize()}
+            yield {_COL_NAME_FIELD: col_name, _COL_PROFILE_FIELD: bytes(col_profile.serialize())}
 
     def merge_col_profiles(self, df: pd.DataFrame) -> pd.DataFrame:
         merged_profile: ColumnProfileView = reduce(
