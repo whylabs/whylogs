@@ -86,7 +86,10 @@ jobs:
         run: make pre-commit
 
       - name: Run build, style, and lint checks
-        run: make release
+        run: |
+          source verify/bin/activate
+          pip install --upgrade pip setuptools
+          make release
 
       - name: Smoke test wheel in client environment
         run: |
