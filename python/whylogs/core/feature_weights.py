@@ -1,6 +1,5 @@
 import json
-from optparse import Option
-from typing import Any, Dict, Tuple, Type, TypedDict
+from typing import Any, Dict, Tuple, TypedDict
 
 from whylogs.api.writer import Writers
 from whylogs.api.writer.writer import Optional, Writable, Writer
