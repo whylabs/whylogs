@@ -209,7 +209,7 @@ class WhyLabsWriter(Writer):
         return self._do_get_feature_weights()
 
     @deprecated_alias(profile="file")
-    def write(self, file: Writable, **kwargs: Any) -> None:
+    def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
 
         if isinstance(file, FeatureWeight):
             return self.write_feature_weights(file, **kwargs)
@@ -244,10 +244,11 @@ class WhyLabsWriter(Writer):
 
             dataset_timestamp = view.dataset_timestamp or datetime.datetime.now(datetime.timezone.utc)
             dataset_timestamp_epoch = int(dataset_timestamp.timestamp() * 1000)
-            self._do_upload(
+            response = self._do_upload(
                 dataset_timestamp=dataset_timestamp_epoch,
                 profile_path=tmp_file.name,
             )
+        return response
 
     def _validate_api_key(self) -> None:
         if self._api_key is None:
@@ -315,7 +316,7 @@ class WhyLabsWriter(Writer):
         self,
         dataset_timestamp: int,
         profile_path: str,
-    ) -> requests.Response:
+    ) -> Tuple[bool, str]:
         if self._org_id is None:
             raise EnvironmentError(
                 "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
@@ -334,17 +335,20 @@ class WhyLabsWriter(Writer):
         try:
             with open(profile_path, "rb") as f:
                 http_response = requests.put(upload_url, data=f.read())
-            if http_response.status_code == 200:
-                logger.info(
-                    f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
-                    f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
-                )
-            return http_response
+                is_successful = False
+                if http_response.status_code == 200:
+                    is_successful = True
+                    logger.info(
+                        f"Done uploading {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
+                        f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}"
+                    )
+                return is_successful, http_response.text
         except requests.RequestException as e:
             logger.info(
                 f"Failed to upload {self._org_id}/{self._dataset_id}/{dataset_timestamp} to "
                 + f"{self.whylabs_api_endpoint} with API token ID: {api_key_id}. Error occurred: {e}"
             )
+            return False, str(e)
 
     def _get_or_create_feature_weights_api(self) -> FeatureWeightsApi:
         environment_api_key = os.environ.get(API_KEY_ENV)

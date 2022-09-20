@@ -1,6 +1,6 @@
 import tempfile
 from logging import getLogger
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 from whylogs.api.writer.writer import Writable
 from whylogs.core.proto import (
@@ -70,13 +70,14 @@ class SegmentedDatasetProfileView(Writable):
     def get_default_path(self) -> str:
         return f"profile_{self._profile_view.creation_timestamp}_{self._segment.parent_id}_{'_'.join(self._segment.key)}.bin"
 
-    def _write_as_v0_message(self, path: Optional[str] = None, **kwargs: Any) -> None:
+    def _write_as_v0_message(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         message_v0 = v1_to_dataset_profile_message_v0(self.profile_view, self.segment, self.partition)
         path = path or self.get_default_path()
         with open(path, "w+b") as out_f:
             write_delimited_protobuf(out_f, message_v0)
+        return True, path
 
-    def _write_v1(self, path: Optional[str] = None, **kwargs: Any) -> None:
+    def _write_v1(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         all_metric_component_names = set()
         path = path or self.get_default_path()
 
@@ -180,9 +181,10 @@ class SegmentedDatasetProfileView(Writable):
                     buffer = f.read(_BUFFER_CHUNK)
                     out_f.write(buffer)
                 logger.debug(f"Writing segmented profile file: complete! total of {out_f.tell()} bytes written.")
+        return True, path
 
-    def write(self, path: Optional[str] = None, **kwargs: Any) -> None:
+    def write(self, path: Optional[str] = None, **kwargs: Any) -> Tuple[bool, str]:
         if kwargs.get("use_v0"):
-            self._write_as_v0_message(path, **kwargs)
+            return self._write_as_v0_message(path, **kwargs)
         else:
-            self._write_v1(path, **kwargs)
+            return self._write_v1(path, **kwargs)

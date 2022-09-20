@@ -14,6 +14,9 @@ skip_notebooks = [
     "flask_with_whylogs.ipynb",
     "BigQuery_Example.ipynb",
     "Segments.ipynb",
+    "Writing_Regression_Performance_Metrics_to_WhyLabs.ipynb",
+    "Writing_Classification_Performance_Metrics_to_WhyLabs.ipynb",
+    "Getting_Started_with_WhyLabsV1.ipynb",
 ]
 
 

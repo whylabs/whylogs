@@ -1,6 +1,6 @@
 import logging
 import tempfile
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 
 import boto3
 from botocore.client import BaseClient
@@ -69,11 +69,11 @@ class S3Writer(Writer):
         file: Writable,
         dest: Optional[str] = None,
         **kwargs: Any,
-    ) -> None:
-
+    ) -> Tuple[bool, str]:
         dest = dest or file.get_default_path()  # type: ignore
         if self.object_name is None:
             self.object_name = dest
+
         try:
             with tempfile.NamedTemporaryFile() as tmp_file:
                 file.write(path=tmp_file.name)  # type: ignore
@@ -81,6 +81,8 @@ class S3Writer(Writer):
                 self.s3_client.upload_file(tmp_file.name, self.bucket_name, self.object_name)
         except ClientError as e:
             logging.error(e)
+            return False, str(e)
+        return True, "Uploaded " + tmp_file.name + " to " + self.bucket_name + "/" + self.object_name
 
     def option(
         self,
