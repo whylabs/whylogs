@@ -87,7 +87,6 @@ jobs:
 
       - name: Run build, style, and lint checks
         run: |
-          source verify/bin/activate
           pip install --upgrade pip setuptools
           make release
 
