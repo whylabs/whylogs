@@ -1,2 +1,2 @@
 # flake8: noqa
-from .profiler import profile
+from .profiler import fugue_profile

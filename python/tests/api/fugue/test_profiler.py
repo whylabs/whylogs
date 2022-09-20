@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from whylogs.api.fugue import profile
+from whylogs.api.fugue import fugue_profile
 from whylogs.core.view.dataset_profile_view import DatasetProfileView
 
 
@@ -26,7 +26,7 @@ def test_no_partition(_test_df):
     for engine in [None, "spark"]:
         t1 = datetime(2020, 1, 1)
         t2 = datetime(2020, 1, 2)
-        v = profile(_test_df, dataset_timestamp=t1, creation_timestamp=t2, engine=engine)
+        v = fugue_profile(_test_df, dataset_timestamp=t1, creation_timestamp=t2, engine=engine)
         assert isinstance(v, DatasetProfileView)
         pf = v.to_pandas()
 
@@ -35,7 +35,7 @@ def test_no_partition(_test_df):
         assert v.dataset_timestamp == t1
         assert v.creation_timestamp == t2
 
-        pf = profile(_test_df, profile_cols=["b", "c"], engine=engine).to_pandas()
+        pf = fugue_profile(_test_df, profile_cols=["b", "c"], engine=engine).to_pandas()
         assert len(pf) == 2
         assert pf["counts/n"].tolist() == [100, 100]
         assert set(pf.index) == set(["b", "c"])
@@ -43,7 +43,7 @@ def test_no_partition(_test_df):
 
 def test_with_partition(_test_df):
     for engine in [None, "spark"]:
-        df = profile(_test_df, partition={"by": ["a", "b"]}, profile_field="x", engine=engine)
+        df = fugue_profile(_test_df, partition={"by": ["a", "b"]}, profile_field="x", engine=engine)
         # get counts of each group
         df["ct"] = df.x.apply(lambda x: DatasetProfileView.deserialize(x).to_pandas()["counts/n"].iloc[0])
         # get counts of profiled cols of each group should always be 4
@@ -56,6 +56,6 @@ def test_with_partition(_test_df):
         assert all(df.ct == df.ct_true)
         assert all(df.pct == 4)
 
-        df = profile(_test_df, partition={"by": ["a", "b"]}, profile_cols=["b", "c"], profile_field="x", engine=engine)
+        df = fugue_profile(_test_df, partition={"by": ["a", "b"]}, profile_cols=["b", "c"], profile_field="x", engine=engine)
         df["pct"] = df.x.apply(lambda x: len(DatasetProfileView.deserialize(x).to_pandas()))
         assert all(df.pct == 2)
