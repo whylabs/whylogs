@@ -3,6 +3,7 @@ import logging
 import os
 import tempfile
 from typing import Any, Dict, Optional, Tuple
+
 import requests  # type: ignore
 import whylabs_client  # type: ignore
 from whylabs_client import ApiClient, Configuration  # type: ignore
@@ -21,8 +22,8 @@ from whylogs.api.writer import Writer
 from whylogs.api.writer.writer import Writable
 from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
-from whylogs.core.feature_weights import FeatureWeight
 from whylogs.core.errors import BadConfigError
+from whylogs.core.feature_weights import FeatureWeight, FeatureWeightResponse
 from whylogs.core.metrics import Metric
 from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.utils import deprecated_alias
@@ -177,12 +178,32 @@ class WhyLabsWriter(Writer):
         return self
 
     def write_feature_weights(self, file: FeatureWeight, **kwargs: Any) -> Tuple[bool, str]:
+        """Put feature weights for the specified dataset.
+
+        Parameters
+        ----------
+        file : FeatureWeight
+            FeatureWeight object representing the Feature Weights for the specified dataset
+
+        Returns
+        -------
+        Tuple[bool, str]
+            Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
+        """
         self._feature_weights = file.to_dict()
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
         return self._do_upload_feature_weights()
 
-    def get_feature_weights(self, **kwargs: Any):
+    def get_feature_weights(self, **kwargs: Any) -> FeatureWeightResponse:
+        """Get latest version for the feature weights for the specified dataset
+
+        Returns
+        -------
+        FeatureWeightResponse
+            Response of the GET request, with segmentWeights and metadata.
+        """
+
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
         return self._do_get_feature_weights()
@@ -239,7 +260,15 @@ class WhyLabsWriter(Writer):
             raise ValueError("Invalid format. Expecting a dot at an index 10")
         self._api_key_id = self._api_key[:10]
 
-    def _do_get_feature_weights(self):
+    def _do_get_feature_weights(self) -> FeatureWeightResponse:
+        """Get latest version for the feature weights for the specified dataset
+
+        Returns
+        -------
+        FeatureWeightResponse
+            Response of the GET request, with segmentWeights and metadata.
+        """
+
         if self._org_id is None:
             raise EnvironmentError(
                 "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"
@@ -256,6 +285,14 @@ class WhyLabsWriter(Writer):
         return result
 
     def _do_upload_feature_weights(self) -> Tuple[bool, str]:
+        """Put feature weights for the specified dataset.
+
+        Returns
+        -------
+        Tuple[bool, str]
+            Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
+        """
+
         if self._org_id is None:
             raise EnvironmentError(
                 "Missing organization ID. Specify it via option or WHYLABS_DEFAULT_ORG_ID " "environment variable"

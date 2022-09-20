@@ -2,12 +2,13 @@ import datetime
 import logging
 import os
 import tempfile
+from unittest.mock import MagicMock
 
 import pytest
 import requests
 import responses
 from responses import PUT
-from unittest.mock import MagicMock
+
 import whylogs as why
 from whylogs.api.writer import Writers
 from whylogs.api.writer.whylabs import WhyLabsWriter
