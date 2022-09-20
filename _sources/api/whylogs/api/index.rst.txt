@@ -10,6 +10,7 @@ Subpackages
    :titlesonly:
    :maxdepth: 3
 
+   fugue/index.rst
    logger/index.rst
    reader/index.rst
    store/index.rst

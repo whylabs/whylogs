@@ -1,0 +1,35 @@
+:py:mod:`whylogs.api.fugue.profiler`
+====================================
+
+.. py:module:: whylogs.api.fugue.profiler
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.fugue.profiler.fugue_profile
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.api.fugue.profiler.DF_PROFILE_FIELD
+
+
+.. py:data:: DF_PROFILE_FIELD
+   :annotation: = __whylogs_df_profile_view
+
+   
+
+.. py:function:: fugue_profile(df: Any, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, partition: Any = None, profile_cols: Optional[List[str]] = None, as_local: bool = True, profile_field: str = DF_PROFILE_FIELD, **kwargs) -> Any
+
+

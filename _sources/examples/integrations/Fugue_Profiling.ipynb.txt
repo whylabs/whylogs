@@ -1,0 +1,1243 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Fugue (Spark, Ray, Dask) Integration\n",
+    "\n",
+    "[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/whylabs/whylogs/blob/mainline/python/examples/integrations/Fugue_Profiling.ipynb)\n",
+    "\n",
+    "\n",
+    "Hi! Perhaps you're already feeling confident with our library, but you really wish there was an easy way to plug our profiling into your existing **Spark, Dask or Ray** clusters or existing **Databricks, Coiled or Anyscale** platforms. Well, glad you've made it here, because this is what we are going to cover in this example notebook 😃\n",
+    "\n",
+    "If you wish to have other insights on how to use whylogs, feel free to check our [other existing examples](https://github.com/whylabs/whylogs/tree/mainline/python/examples), as they might be extremely useful!\n",
+    "\n",
+    "For detailed questions regarding [Fugue](https://github.com/fugue-project/fugue), please join Fugue's Slack channel: [![Slack Status](https://img.shields.io/badge/slack-join_chat-white.svg?logo=slack&style=social)](http://slack.fugue.ai)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Installing the extra dependency\n",
+    "\n",
+    "As we want to enable users to have exactly what they need to use from whylogs, the `pyspark` integration comes as an extra dependency. In order to have it available, install according to the following table:\n",
+    "\n",
+    "| Run Whylogs on ... | Installation Command |\n",
+    "|:---|:---|\n",
+    "| Any Spark cluster (including Databricks Notebooks) | `pip install 'whylogs[fugue]' 'fugue[spark]'` |\n",
+    "| Databricks (remote access) | `pip install 'whylogs[fugue]' 'fugue-cloudprovider[databricks]'` |\n",
+    "| Any Ray cluster (including Anyscale Notebooks) | `pip install 'whylogs[fugue]' 'fugue[ray]'` |\n",
+    "| Anyscale (remote access) | `pip install 'whylogs[fugue]' 'fugue-cloudprovider[anyscale]'` |\n",
+    "| Any Dask cluster | `pip install 'whylogs[fugue]' 'fugue[dask]'` |\n",
+    "| Coiled  | `pip install 'whylogs[fugue]' 'fugue-cloudprovider[coiled]'` |\n",
+    "\n",
+    "For example, in this notebook we are using a local Spark cluster, so we should:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%pip install 'whylogs[fugue]' 'fugue[spark]'"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The following environment variable should NOT need to be set in your own environment."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "\n",
+    "os.environ[\"PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION\"] = \"python\""
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Constructing a dataset"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>a</th>\n",
+       "      <th>b</th>\n",
+       "      <th>c</th>\n",
+       "      <th>d</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1</td>\n",
+       "      <td>a</td>\n",
+       "      <td>0.533206</td>\n",
+       "      <td>xy</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>2</td>\n",
+       "      <td>b</td>\n",
+       "      <td>0.230533</td>\n",
+       "      <td>z</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>1</td>\n",
+       "      <td>a</td>\n",
+       "      <td>0.394869</td>\n",
+       "      <td>z</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>2</td>\n",
+       "      <td>b</td>\n",
+       "      <td>0.618809</td>\n",
+       "      <td>z</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>2</td>\n",
+       "      <td>b</td>\n",
+       "      <td>0.474868</td>\n",
+       "      <td>xy</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>95</th>\n",
+       "      <td>1</td>\n",
+       "      <td>b</td>\n",
+       "      <td>0.904425</td>\n",
+       "      <td>xy</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>96</th>\n",
+       "      <td>3</td>\n",
+       "      <td>a</td>\n",
+       "      <td>0.645785</td>\n",
+       "      <td>z</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>97</th>\n",
+       "      <td>1</td>\n",
+       "      <td>a</td>\n",
+       "      <td>0.324683</td>\n",
+       "      <td>xy</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>98</th>\n",
+       "      <td>2</td>\n",
+       "      <td>b</td>\n",
+       "      <td>0.519711</td>\n",
+       "      <td>z</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>99</th>\n",
+       "      <td>3</td>\n",
+       "      <td>a</td>\n",
+       "      <td>0.000055</td>\n",
+       "      <td>z</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>100 rows × 4 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    a  b         c   d\n",
+       "0   1  a  0.533206  xy\n",
+       "1   2  b  0.230533   z\n",
+       "2   1  a  0.394869   z\n",
+       "3   2  b  0.618809   z\n",
+       "4   2  b  0.474868  xy\n",
+       ".. .. ..       ...  ..\n",
+       "95  1  b  0.904425  xy\n",
+       "96  3  a  0.645785   z\n",
+       "97  1  a  0.324683  xy\n",
+       "98  2  b  0.519711   z\n",
+       "99  3  a  0.000055   z\n",
+       "\n",
+       "[100 rows x 4 columns]"
+      ]
+     },
+     "execution_count": 2,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "\n",
+    "n = 100\n",
+    "np.random.seed(0)\n",
+    "tdf = pd.DataFrame(\n",
+    "    dict(\n",
+    "        a=np.random.choice([1, 2, 3], n),\n",
+    "        b=np.random.choice([\"a\", \"b\"], n),\n",
+    "        c=np.random.random(n),\n",
+    "        d=np.random.choice([\"xy\", \"z\"], n),\n",
+    "    )\n",
+    ")\n",
+    "tdf.to_parquet(\"/tmp/test.parquet\")\n",
+    "tdf"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Profiling using Whylogs + Fugue\n",
+    "\n",
+    "The simplest way to use `profile` is equivalent to use `why.log(df).view()`"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>cardinality/est</th>\n",
+       "      <th>cardinality/lower_1</th>\n",
+       "      <th>cardinality/upper_1</th>\n",
+       "      <th>counts/n</th>\n",
+       "      <th>counts/null</th>\n",
+       "      <th>distribution/max</th>\n",
+       "      <th>distribution/mean</th>\n",
+       "      <th>distribution/median</th>\n",
+       "      <th>distribution/min</th>\n",
+       "      <th>distribution/n</th>\n",
+       "      <th>...</th>\n",
+       "      <th>distribution/stddev</th>\n",
+       "      <th>frequent_items/frequent_strings</th>\n",
+       "      <th>ints/max</th>\n",
+       "      <th>ints/min</th>\n",
+       "      <th>type</th>\n",
+       "      <th>types/boolean</th>\n",
+       "      <th>types/fractional</th>\n",
+       "      <th>types/integral</th>\n",
+       "      <th>types/object</th>\n",
+       "      <th>types/string</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>column</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>a</th>\n",
+       "      <td>3.000000</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.000150</td>\n",
+       "      <td>100</td>\n",
+       "      <td>0</td>\n",
+       "      <td>3.000000</td>\n",
+       "      <td>1.880000</td>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>1.000000</td>\n",
+       "      <td>100</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.807540</td>\n",
+       "      <td>[FrequentItem(value='1', est=39, upper=39, low...</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>100</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>b</th>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>2.000100</td>\n",
+       "      <td>100</td>\n",
+       "      <td>0</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>[FrequentItem(value='a', est=57, upper=57, low...</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>100</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>c</th>\n",
+       "      <td>100.000025</td>\n",
+       "      <td>100.0</td>\n",
+       "      <td>100.005018</td>\n",
+       "      <td>100</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0.992396</td>\n",
+       "      <td>0.499929</td>\n",
+       "      <td>0.487838</td>\n",
+       "      <td>0.000055</td>\n",
+       "      <td>100</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.294085</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>0</td>\n",
+       "      <td>100</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>d</th>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>2.000100</td>\n",
+       "      <td>100</td>\n",
+       "      <td>0</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>[FrequentItem(value='xy', est=53, upper=53, lo...</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>100</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>4 rows × 28 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "        cardinality/est  cardinality/lower_1  cardinality/upper_1  counts/n  \\\n",
+       "column                                                                        \n",
+       "a              3.000000                  3.0             3.000150       100   \n",
+       "b              2.000000                  2.0             2.000100       100   \n",
+       "c            100.000025                100.0           100.005018       100   \n",
+       "d              2.000000                  2.0             2.000100       100   \n",
+       "\n",
+       "        counts/null  distribution/max  distribution/mean  distribution/median  \\\n",
+       "column                                                                          \n",
+       "a                 0          3.000000           1.880000             2.000000   \n",
+       "b                 0               NaN           0.000000                  NaN   \n",
+       "c                 0          0.992396           0.499929             0.487838   \n",
+       "d                 0               NaN           0.000000                  NaN   \n",
+       "\n",
+       "        distribution/min  distribution/n  ...  distribution/stddev  \\\n",
+       "column                                    ...                        \n",
+       "a               1.000000             100  ...             0.807540   \n",
+       "b                    NaN               0  ...             0.000000   \n",
+       "c               0.000055             100  ...             0.294085   \n",
+       "d                    NaN               0  ...             0.000000   \n",
+       "\n",
+       "                          frequent_items/frequent_strings  ints/max  ints/min  \\\n",
+       "column                                                                          \n",
+       "a       [FrequentItem(value='1', est=39, upper=39, low...       3.0       1.0   \n",
+       "b       [FrequentItem(value='a', est=57, upper=57, low...       NaN       NaN   \n",
+       "c                                                     NaN       NaN       NaN   \n",
+       "d       [FrequentItem(value='xy', est=53, upper=53, lo...       NaN       NaN   \n",
+       "\n",
+       "                      type  types/boolean  types/fractional  types/integral  \\\n",
+       "column                                                                        \n",
+       "a       SummaryType.COLUMN              0                 0             100   \n",
+       "b       SummaryType.COLUMN              0                 0               0   \n",
+       "c       SummaryType.COLUMN              0               100               0   \n",
+       "d       SummaryType.COLUMN              0                 0               0   \n",
+       "\n",
+       "        types/object types/string  \n",
+       "column                             \n",
+       "a                  0            0  \n",
+       "b                  0          100  \n",
+       "c                  0            0  \n",
+       "d                  0          100  \n",
+       "\n",
+       "[4 rows x 28 columns]"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from whylogs.api.fugue import fugue_profile\n",
+    "\n",
+    "fugue_profile(tdf).to_pandas()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can select the columns for profiling"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>cardinality/est</th>\n",
+       "      <th>cardinality/lower_1</th>\n",
+       "      <th>cardinality/upper_1</th>\n",
+       "      <th>counts/n</th>\n",
+       "      <th>counts/null</th>\n",
+       "      <th>distribution/max</th>\n",
+       "      <th>distribution/mean</th>\n",
+       "      <th>distribution/median</th>\n",
+       "      <th>distribution/min</th>\n",
+       "      <th>distribution/n</th>\n",
+       "      <th>...</th>\n",
+       "      <th>distribution/q_95</th>\n",
+       "      <th>distribution/q_99</th>\n",
+       "      <th>distribution/stddev</th>\n",
+       "      <th>type</th>\n",
+       "      <th>types/boolean</th>\n",
+       "      <th>types/fractional</th>\n",
+       "      <th>types/integral</th>\n",
+       "      <th>types/object</th>\n",
+       "      <th>types/string</th>\n",
+       "      <th>frequent_items/frequent_strings</th>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>column</th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "      <th></th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>c</th>\n",
+       "      <td>100.000025</td>\n",
+       "      <td>100.0</td>\n",
+       "      <td>100.005018</td>\n",
+       "      <td>100</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0.992396</td>\n",
+       "      <td>0.499929</td>\n",
+       "      <td>0.487838</td>\n",
+       "      <td>0.000055</td>\n",
+       "      <td>100</td>\n",
+       "      <td>...</td>\n",
+       "      <td>0.970237</td>\n",
+       "      <td>0.992396</td>\n",
+       "      <td>0.294085</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>0</td>\n",
+       "      <td>100</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>NaN</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>d</th>\n",
+       "      <td>2.000000</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>2.000100</td>\n",
+       "      <td>100</td>\n",
+       "      <td>0</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>0</td>\n",
+       "      <td>...</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>NaN</td>\n",
+       "      <td>0.000000</td>\n",
+       "      <td>SummaryType.COLUMN</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>100</td>\n",
+       "      <td>[FrequentItem(value='xy', est=53, upper=53, lo...</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>2 rows × 26 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "        cardinality/est  cardinality/lower_1  cardinality/upper_1  counts/n  \\\n",
+       "column                                                                        \n",
+       "c            100.000025                100.0           100.005018       100   \n",
+       "d              2.000000                  2.0             2.000100       100   \n",
+       "\n",
+       "        counts/null  distribution/max  distribution/mean  distribution/median  \\\n",
+       "column                                                                          \n",
+       "c                 0          0.992396           0.499929             0.487838   \n",
+       "d                 0               NaN           0.000000                  NaN   \n",
+       "\n",
+       "        distribution/min  distribution/n  ...  distribution/q_95  \\\n",
+       "column                                    ...                      \n",
+       "c               0.000055             100  ...           0.970237   \n",
+       "d                    NaN               0  ...                NaN   \n",
+       "\n",
+       "        distribution/q_99  distribution/stddev                type  \\\n",
+       "column                                                               \n",
+       "c                0.992396             0.294085  SummaryType.COLUMN   \n",
+       "d                     NaN             0.000000  SummaryType.COLUMN   \n",
+       "\n",
+       "        types/boolean  types/fractional  types/integral  types/object  \\\n",
+       "column                                                                  \n",
+       "c                   0               100               0             0   \n",
+       "d                   0                 0               0             0   \n",
+       "\n",
+       "        types/string                    frequent_items/frequent_strings  \n",
+       "column                                                                   \n",
+       "c                  0                                                NaN  \n",
+       "d                100  [FrequentItem(value='xy', est=53, upper=53, lo...  \n",
+       "\n",
+       "[2 rows x 26 columns]"
+      ]
+     },
+     "execution_count": 4,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fugue_profile(tdf, profile_cols=[\"c\",\"d\"]).to_pandas()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now assuming we want to use Spark to profile the dataset distributedly and assuming this is how we get a SparkSession:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "22/09/20 04:33:57 WARN Utils: Your hostname, codespaces-5144a4 resolves to a loopback address: 127.0.0.1; using 172.16.5.4 instead (on interface eth0)\n",
+      "22/09/20 04:33:57 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Setting default log level to \"WARN\".\n",
+      "To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "22/09/20 04:33:57 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable\n"
+     ]
+    }
+   ],
+   "source": [
+    "from pyspark.sql import SparkSession\n",
+    "\n",
+    "spark = SparkSession.builder.getOrCreate()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "If we want to profile the pandas df on Spark:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "                                                                                \r"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<whylogs.core.view.dataset_profile_view.DatasetProfileView at 0x7f4939be4dc0>"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fugue_profile(tdf, engine=spark)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "If we want to profile a SparkDataFrame:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "                                                                                \r"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<whylogs.core.view.dataset_profile_view.DatasetProfileView at 0x7f4939078a00>"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Connection error. Skip stats collection.\n"
+     ]
+    }
+   ],
+   "source": [
+    "spark_df = spark.createDataFrame(tdf)\n",
+    "fugue_profile(spark_df, engine=spark)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can also directly profile a parquet file or a folder of parquet files locally or on the cloud (the file will be loaded distributedly):"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "                                                                                \r"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "<whylogs.core.view.dataset_profile_view.DatasetProfileView at 0x7f49390bb610>"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Connection error. Skip stats collection.\n"
+     ]
+    }
+   ],
+   "source": [
+    "fugue_profile(\"/tmp/test.parquet\", engine=spark)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "It is very similar to profile datasets or files using other backends, there will be detailed guides in the later sections.\n",
+    "\n",
+    "## Profiling on logical partitions\n",
+    "\n",
+    "If we want to profile `tdf` grouped by columns `a` and `b`"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>a</th>\n",
+       "      <th>b</th>\n",
+       "      <th>__whylogs_df_profile_view</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1</td>\n",
+       "      <td>a</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xa5\\xc0\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1</td>\n",
+       "      <td>b</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xb4\\xc0\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>2</td>\n",
+       "      <td>a</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xc6\\xc0\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>2</td>\n",
+       "      <td>b</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xd5\\xc0\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>3</td>\n",
+       "      <td>a</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xe3\\xc0\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>3</td>\n",
+       "      <td>b</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xf1\\xc0\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   a  b                          __whylogs_df_profile_view\n",
+       "0  1  a  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xa5\\xc0\\xb3\\xc9\\xb50...\n",
+       "1  1  b  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xb4\\xc0\\xb3\\xc9\\xb50...\n",
+       "2  2  a  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xc6\\xc0\\xb3\\xc9\\xb50...\n",
+       "3  2  b  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xd5\\xc0\\xb3\\xc9\\xb50...\n",
+       "4  3  a  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xe3\\xc0\\xb3\\xc9\\xb50...\n",
+       "5  3  b  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xf1\\xc0\\xb3\\xc9\\xb50..."
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fugue_profile(tdf, partition={\"by\":[\"a\",\"b\"]})"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can also control the output profile field:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>a</th>\n",
+       "      <th>b</th>\n",
+       "      <th>x</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1</td>\n",
+       "      <td>a</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xed\\xe3\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>1</td>\n",
+       "      <td>b</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xfd\\xe3\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>2</td>\n",
+       "      <td>a</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\x8b\\xe4\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>2</td>\n",
+       "      <td>b</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\x9a\\xe4\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>3</td>\n",
+       "      <td>a</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xa8\\xe4\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>3</td>\n",
+       "      <td>b</td>\n",
+       "      <td>b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xb6\\xe4\\xb3\\xc9\\xb50...</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   a  b                                                  x\n",
+       "0  1  a  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xed\\xe3\\xb3\\xc9\\xb50...\n",
+       "1  1  b  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xfd\\xe3\\xb3\\xc9\\xb50...\n",
+       "2  2  a  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\x8b\\xe4\\xb3\\xc9\\xb50...\n",
+       "3  2  b  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\x9a\\xe4\\xb3\\xc9\\xb50...\n",
+       "4  3  a  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xa8\\xe4\\xb3\\xc9\\xb50...\n",
+       "5  3  b  b'WHY1\\x00\\xd6\\x02\\n\\x0e \\xb6\\xe4\\xb3\\xc9\\xb50..."
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "res = fugue_profile(tdf, partition={\"by\":[\"a\",\"b\"]}, profile_field=\"x\")\n",
+    "res"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Here is how to retrieve the views:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0    <whylogs.core.view.dataset_profile_view.Datase...\n",
+       "1    <whylogs.core.view.dataset_profile_view.Datase...\n",
+       "2    <whylogs.core.view.dataset_profile_view.Datase...\n",
+       "3    <whylogs.core.view.dataset_profile_view.Datase...\n",
+       "4    <whylogs.core.view.dataset_profile_view.Datase...\n",
+       "5    <whylogs.core.view.dataset_profile_view.Datase...\n",
+       "Name: x, dtype: object"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "from whylogs import DatasetProfileView\n",
+    "\n",
+    "res.x.apply(DatasetProfileView.deserialize)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "When we profile a large number of partitions using a distributed backend and don't want to collect them on a local machine, we can keep the output as the native distributed dataframe, for example:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "DataFrame[a: bigint, b: string, __whylogs_df_profile_view: binary]"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fugue_profile(tdf, partition={\"by\":[\"a\",\"b\"]}, engine=spark, as_local=False) # returns a native pyspark dataframe"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We may also directly save the output to a file distributedly:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "                                                                                \r"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "'/tmp/output2.parquet'"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "Connection error. Skip stats collection.\n"
+     ]
+    }
+   ],
+   "source": [
+    "fugue_profile(tdf, partition={\"by\":[\"a\",\"b\"]}, save_path=\"/tmp/output1.parquet\", engine=spark)\n",
+    "fugue_profile(\"/tmp/test.parquet\", partition={\"by\":[\"a\",\"b\"]}, save_path=\"/tmp/output2.parquet\", engine=spark)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "/tmp/output1.parquet:\n",
+      "_SUCCESS  part-00000-f2fe6067-9404-4f32-8fd7-daa952f14ac3-c000.snappy.parquet\n",
+      "\n",
+      "/tmp/output2.parquet:\n",
+      "_SUCCESS  part-00000-337a3e5c-5480-4105-84a9-3db993f33837-c000.snappy.parquet\n"
+     ]
+    }
+   ],
+   "source": [
+    "!ls /tmp/output*.parquet"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Performance Tips\n",
+    "\n",
+    "### Spark\n",
+    "\n",
+    "It is strongly recommended to enabled pandas UDF on Spark to get better performance. We need to follow [this instruction](https://spark.apache.org/docs/3.0.0/sql-pyspark-pandas-with-arrow.html#enabling-for-conversion-tofrom-pandas) to enable `spark.sql.execution.arrow.pyspark.enabled`. And we also need to enable Fugue to use pandas UDF. A typical way would be:\n",
+    "\n",
+    "```python\n",
+    "fugue_profile(..., engine=spark, engine_conf={\"fugue.spark.use_pandas_udf\":True})\n",
+    "```\n",
+    "\n",
+    "We can also enable it globally (then we don't need to set it in `engine_conf`):\n",
+    "\n",
+    "```python\n",
+    "from fugue import register_global_conf\n",
+    "\n",
+    "register_global_conf({\"fugue.spark.use_pandas_udf\":True})\n",
+    "```\n",
+    "\n",
+    "When we profile a dataframe without logical partition, we may control the number of partitions in order to control the parallelism:\n",
+    "\n",
+    "```python\n",
+    "fugue_profile(..., partition={\"num\": 200}, engine=spark, engine_conf={\"fugue.spark.use_pandas_udf\":True})\n",
+    "```\n",
+    "\n",
+    "If we don't specify `num` then the default partitioning of the input dataframe will be used. If the input dataframe is a local dataframe such as pandas dataframe, the default partitioning will be the number of CPUs of the Spark cluster.\n",
+    "\n",
+    "When we profile a dataframe with logical partitions, we can also be explicit on how many physical partitions to use:\n",
+    "\n",
+    "```python\n",
+    "fugue_profile(..., partition={\"by\":[\"a\",\"b\"], \"num\": 200}, engine=spark)\n",
+    "```\n",
+    "\n",
+    "But the convention in Spark is to set `spark.shuffle.partitions` when starting the Spark cluster. And an ideal number should be 2-4 times of the total CPUs.\n",
+    "\n",
+    "### Ray\n",
+    "\n",
+    "When we profile a dataframe without logical partition, we should control the number of partitions in order to control the parallelism:\n",
+    "\n",
+    "```python\n",
+    "fugue_profile(..., partition={\"num\": 200}, engine=\"ray\")\n",
+    "```\n",
+    "\n",
+    "If we don't specify `num` then the default partitioning of the input dataframe will be used. If the input dataframe is a local dataframe such as pandas dataframe, the default partitioning will be 1. **So in Ray, it is always a good idea to be explicit about `num`**\n",
+    "\n",
+    "When we profile a dataframe with logical partitions, we should also be explicit on how many physical partitions to use:\n",
+    "\n",
+    "```python\n",
+    "fugue_profile(..., partition={\"by\":[\"a\",\"b\"], \"num\": 200}, engine=\"ray\")\n",
+    "```\n",
+    "\n",
+    "### Dask\n",
+    "\n",
+    "When we profile a dataframe without logical partition, we should control the number of partitions in order to control the parallelism:\n",
+    "\n",
+    "```python\n",
+    "fugue_profile(..., partition={\"num\": 200}, engine=dask_client)\n",
+    "```\n",
+    "\n",
+    "If we don't specify `num` then the default partitioning of the input dataframe will be used. If the input dataframe is a local dataframe such as pandas dataframe, the default partitioning will be a small number representing the local CPUs. **So in Dask, it is always a good idea to be explicit about `num`**\n",
+    "\n",
+    "When we profile a dataframe with logical partitions, we should also be explicit on how many physical partitions to use:\n",
+    "\n",
+    "```python\n",
+    "fugue_profile(..., partition={\"by\":[\"a\",\"b\"], \"num\": 200}, engine=dask_client)\n",
+    "```\n",
+    "\n",
+    "**No matter in Spark, Ray or Dask, no matter which way to set `num`, setting it to 2 times of the total cluster CPUs will in general work very well.**\n",
+    "\n",
+    "## Accessing distributed platforms\n",
+    "\n",
+    "In Fugue, accessing distributed platforms can be very simple. For example with proper setups, to profile a large S3 folder using Databricks, Anyscale or Coiled will be as simple as:\n",
+    "\n",
+    "```python\n",
+    "fugue_profile(\"s3://<path>\", engine=\"db:<databricks_cluster_id>\", engine_conf={\"fugue.spark.use_pandas_udf\":True})\n",
+    "fugue_profile(\"s3://<path>\", engine=\"<anyscale_cluster_uri>\")\n",
+    "fugue_profile(\"s3://<path>\", engine=\"coiled:<coiled_cluster_id>\")\n",
+    "```\n",
+    "\n",
+    "For details of each platform, please read the instructions for [Databricks](https://fugue-tutorials.readthedocs.io/tutorials/integrations/cloudproviders/databricks.html), [Anyscale](https://fugue-tutorials.readthedocs.io/tutorials/integrations/cloudproviders/anyscale.html) and [Coiled](https://fugue-tutorials.readthedocs.io/tutorials/integrations/cloudproviders/coiled.html)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3.10.7 ('.venv': poetry)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.7"
+  },
+  "vscode": {
+   "interpreter": {
+    "hash": "d4bce4e749e5452baa925b5367e0ce1a24e1936540311006e3497d016ec67e64"
+   }
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
