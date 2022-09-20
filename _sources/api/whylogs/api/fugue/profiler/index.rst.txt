@@ -30,6 +30,6 @@ Attributes
 
    
 
-.. py:function:: fugue_profile(df: Any, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, partition: Any = None, profile_cols: Optional[List[str]] = None, as_local: bool = True, profile_field: str = DF_PROFILE_FIELD, **kwargs) -> Any
+.. py:function:: fugue_profile(df: Any, dataset_timestamp: Optional[datetime.datetime] = None, creation_timestamp: Optional[datetime.datetime] = None, partition: Any = None, profile_cols: Optional[List[str]] = None, as_local: bool = True, profile_field: str = DF_PROFILE_FIELD, engine: Any = None, engine_conf: Any = None, **kwargs) -> Any
 
 
