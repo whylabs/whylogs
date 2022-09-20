@@ -492,8 +492,6 @@ triad = ">=0.6.8"
 [package.extras]
 cpp = ["fugue-sql-antlr-cpp (==0.1.1)"]
 test = ["speedy_antlr_tool"]
-=======
->>>>>>> 7145cbe (update)
 
 [[package]]
 name = "fs"
