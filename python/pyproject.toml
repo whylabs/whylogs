@@ -122,9 +122,6 @@ fugue = [
   "setuptools"
 ]
 
-[tool.poetry.group.dev.dependencies]
-fugue = "^0.7.2"
-
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
