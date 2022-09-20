@@ -58,7 +58,7 @@ class ColumnProfileView(object):
 
     @classmethod
     def deserialize(cls, serialized_profile: bytes) -> "ColumnProfileView":
-        column_message = ColumnMessage.FromString(serialized_profile)
+        column_message = ColumnMessage.FromString(bytes(serialized_profile))
         return ColumnProfileView.from_protobuf(column_message)
 
     def get_metric(self, m_name: str) -> Optional[METRIC]:

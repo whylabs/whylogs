@@ -42,7 +42,7 @@ class _FugueProfiler:
 
     def merge_col_profiles(self, df: pd.DataFrame) -> pd.DataFrame:
         merged_profile: ColumnProfileView = reduce(
-            lambda acc, x: acc.merge(x), df[_COL_PROFILE_FIELD].apply(lambda x: ColumnProfileView.deserialize(bytes(x)))
+            lambda acc, x: acc.merge(x), df[_COL_PROFILE_FIELD].apply(ColumnProfileView.deserialize)
         )
         return df.head(1).assign(**{_COL_PROFILE_FIELD: merged_profile.serialize()})
 
