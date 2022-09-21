@@ -11,7 +11,7 @@ from responses import PUT
 import whylogs as why
 from whylogs.api.writer import Writers
 from whylogs.api.writer.whylabs import WhyLabsWriter
-from whylogs.core.feature_weights import FeatureWeight
+from whylogs.core.feature_weights import FeatureWeights
 
 logger = logging.getLogger(__name__)
 
@@ -96,13 +96,13 @@ class TestWhylabsWriter(object):
             "col3": 0.01,
         }
 
-        feature_weights = FeatureWeight(weights)
+        feature_weights = FeatureWeights(weights)
         writer = WhyLabsWriter()
         writer.write = MagicMock(return_value=(True, "200"))
         result = writer.write(feature_weights)
 
         writer.write.assert_called_with(feature_weights)
-        assert isinstance(feature_weights, FeatureWeight)
+        assert isinstance(feature_weights, FeatureWeights)
         assert result == (True, "200")
 
     def test_put_feature_weight_writer(self):
@@ -112,23 +112,24 @@ class TestWhylabsWriter(object):
             "col3": 0.01,
         }
 
-        feature_weights = FeatureWeight(weights)
+        feature_weights = FeatureWeights(weights)
         feature_weights_writer = feature_weights.writer("whylabs")
         feature_weights_writer.write = MagicMock(return_value=(True, "200"))
         result = feature_weights_writer.write()
-        assert isinstance(feature_weights, FeatureWeight)
+        assert isinstance(feature_weights, FeatureWeights)
         assert result == (True, "200")
 
     def test_get_feature_weight(self):
         writer = WhyLabsWriter()
-        get_result = {
-            "segmentWeights": [{"weights": {"col1": 0.7, "col2": 0.3, "col3": 0.01}}],
-            "metadata": {"version": 13, "updatedTimestamp": 1663620626701, "author": "system"},
-        }
+        get_result = FeatureWeights(
+            weights={"col1": 0.7, "col2": 0.3, "col3": 0.01},
+            metadata={"version": 13, "updatedTimestamp": 1663620626701, "author": "system"},
+        )
 
         writer.get_feature_weights = MagicMock(return_value=get_result)
         result = writer.get_feature_weights()
         assert result == get_result
+        assert isinstance(result, FeatureWeights)
 
     def test_option_will_overwrite_defaults(self) -> None:
         writer = WhyLabsWriter()

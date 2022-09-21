@@ -23,7 +23,7 @@ from whylogs.api.writer.writer import Writable
 from whylogs.core import ColumnProfileView, DatasetProfileView
 from whylogs.core.dataset_profile import DatasetProfile
 from whylogs.core.errors import BadConfigError
-from whylogs.core.feature_weights import FeatureWeight, FeatureWeightResponse
+from whylogs.core.feature_weights import FeatureWeights
 from whylogs.core.metrics import Metric
 from whylogs.core.metrics.compound_metric import CompoundMetric
 from whylogs.core.utils import deprecated_alias
@@ -177,13 +177,13 @@ class WhyLabsWriter(Writer):
             self._ssl_ca_cert = ssl_ca_cert
         return self
 
-    def write_feature_weights(self, file: FeatureWeight, **kwargs: Any) -> Tuple[bool, str]:
+    def write_feature_weights(self, file: FeatureWeights, **kwargs: Any) -> Tuple[bool, str]:
         """Put feature weights for the specified dataset.
 
         Parameters
         ----------
-        file : FeatureWeight
-            FeatureWeight object representing the Feature Weights for the specified dataset
+        file : FeatureWeights
+            FeatureWeights object representing the Feature Weights for the specified dataset
 
         Returns
         -------
@@ -195,7 +195,7 @@ class WhyLabsWriter(Writer):
             self._dataset_id = kwargs.get("dataset_id")
         return self._do_upload_feature_weights()
 
-    def get_feature_weights(self, **kwargs: Any) -> FeatureWeightResponse:
+    def get_feature_weights(self, **kwargs: Any) -> Optional[FeatureWeights]:
         """Get latest version for the feature weights for the specified dataset
 
         Returns
@@ -203,15 +203,21 @@ class WhyLabsWriter(Writer):
         FeatureWeightResponse
             Response of the GET request, with segmentWeights and metadata.
         """
-
         if kwargs.get("dataset_id") is not None:
             self._dataset_id = kwargs.get("dataset_id")
-        return self._do_get_feature_weights()
+
+        result = self._do_get_feature_weights()
+        feature_weights_set = result.get("segmentWeights")
+        metadata = result.get("metadata")
+        if feature_weights_set and isinstance(feature_weights_set, list):
+            feature_weights = FeatureWeights(weights=feature_weights_set[0]["weights"], metadata=metadata)
+            return feature_weights
+        return None
 
     @deprecated_alias(profile="file")
     def write(self, file: Writable, **kwargs: Any) -> Tuple[bool, str]:
 
-        if isinstance(file, FeatureWeight):
+        if isinstance(file, FeatureWeights):
             return self.write_feature_weights(file, **kwargs)
 
         view = file.view() if isinstance(file, DatasetProfile) else file
@@ -272,12 +278,11 @@ class WhyLabsWriter(Writer):
                 "variable or on your write method"
             )
 
-    def _do_get_feature_weights(self) -> FeatureWeightResponse:
+    def _do_get_feature_weights(self):
         """Get latest version for the feature weights for the specified dataset
 
         Returns
         -------
-        FeatureWeightResponse
             Response of the GET request, with segmentWeights and metadata.
         """
         self._validate_org_and_dataset()
