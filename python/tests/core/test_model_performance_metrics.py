@@ -58,6 +58,35 @@ def test_binary_classification_should_be_correct():
     assert matrix[(1, 1)].n == 3
 
 
+def test_binary_classification_compute_confusion_matrix():
+    import cProfile
+    import pstats
+    from io import StringIO
+    from random import randint
+
+    number_of_rows = 1000
+    number_of_classes = 2
+    max_label = number_of_classes - 1
+    confusion_matrix = ConfusionMatrix(labels=[i for i in range(number_of_classes)])
+    predictions = [randint(0, max_label) for _ in range(number_of_rows)]
+    targets = [randint(0, max_label) for _ in range(number_of_rows)]
+
+    profiler = cProfile.Profile()
+    string_output_stream = StringIO()
+    profiler.enable()
+    confusion_matrix.add(predictions=predictions, targets=targets, scores=None)
+    profiler.disable()
+    stats = pstats.Stats(profiler, stream=string_output_stream).sort_stats("cumulative")
+    stats.print_stats(10)
+    TEST_LOGGER.info(
+        f"Computed confusion matrix with {number_of_classes} labels and {number_of_rows} rows, stats "
+        f"are\n{string_output_stream.getvalue()}"
+    )
+
+    TEST_LOGGER.info(confusion_matrix.confusion_matrix)
+    assert confusion_matrix.confusion_matrix is not None
+
+
 def test_model_performance_metrics_binary():
     predictions = [0, 1, 1, 0, 0, 1, 1]
     targets = [1, 0, 1, 1, 0, 1, 1]
