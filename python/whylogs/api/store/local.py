@@ -17,6 +17,52 @@ logger = logging.getLogger(__name__)
 
 
 class LocalStore(ProfileStore):
+    """
+    The LocalStore is the implementation of the base :class:ProfileStore
+    that will manage reading and writing profiles on the local file system.
+
+    In order to instantiate the object, you will need to define a base_name,
+    which is related to the name of the model or dataset you're profiling.
+    To properly use the LocalStore to generate files, you should append it
+    to your existing Rolling Logger, as the below example demonstrates.
+
+    ```python
+    import whylogs as why
+    from whylogs.api.store.local import LocalStore
+
+    logger = why.logger(mode="rolling", interval=10, when="S")
+    logger.append_store(store=LocalStore(base_name="my_model"))
+
+    new_df = model.predict(input_data)
+    logger.log(new_df)
+    ```
+
+    The above piece of code will make sure to write the logged profiles
+    to the correct location that can be further fetched using the same
+    LocalStore, like so:
+
+    ```python
+    from datetime import datetime, timedelta
+
+    from whylogs.api.store.date_config import DateConfig
+
+    store = LocalStore(base_name="my_model")
+    date_config = DateConfig(
+        start_date = datetime.utcnow() - timedelta(days=7),
+        end_date = datetime.utcnow()
+    )
+
+    profile_view = store.get(date_config=date_config)
+    ```
+
+    This will fetch all existing profiles from `my_model` from the past
+    7 days in a single merged DatasetProfileView.
+
+    :param base_name: the name of the dataset or model that you're logging
+    :type base_name: str
+
+    """
+
     def __init__(self, base_name: str):
         self.base_name = base_name
         self._default_path = os.path.join(os.getcwd(), DEFAULT_DIR)
