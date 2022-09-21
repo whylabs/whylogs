@@ -101,6 +101,25 @@ Attributes
       :param -------:
 
 
+   .. py:method:: write_feature_weights(file: whylogs.core.feature_weights.FeatureWeights, **kwargs: Any) -> Tuple[bool, str]
+
+      Put feature weights for the specified dataset.
+
+      :param file: FeatureWeights object representing the Feature Weights for the specified dataset
+      :type file: FeatureWeights
+
+      :returns: Tuple with a boolean (1-success, 0-fail) and string with the request's status code.
+      :rtype: Tuple[bool, str]
+
+
+   .. py:method:: get_feature_weights(**kwargs: Any) -> Optional[whylogs.core.feature_weights.FeatureWeights]
+
+      Get latest version for the feature weights for the specified dataset
+
+      :returns: Response of the GET request, with segmentWeights and metadata.
+      :rtype: FeatureWeightResponse
+
+
    .. py:method:: write(file: whylogs.api.writer.writer.Writable, **kwargs: Any) -> Tuple[bool, str]
 
 

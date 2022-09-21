@@ -333,6 +333,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/dataset_profile/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.dataset_profile</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/datatypes/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.datatypes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/errors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.errors</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/feature_weights/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.feature_weights</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/input_resolver/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.input_resolver</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/preprocessing/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.preprocessing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/whylogs/core/projectors/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">whylogs.core.projectors</span></code></a></li>
@@ -719,6 +720,8 @@
           <li><a href="api/whylogs/api/writer/index.html#whylogs.api.writer.Writer.check_interval">(whylogs.api.writer.Writer method)</a>
 </li>
           <li><a href="api/whylogs/api/writer/writer/index.html#whylogs.api.writer.writer.Writer.check_interval">(whylogs.api.writer.writer.Writer method)</a>
+</li>
+          <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeightWriter.check_interval">(whylogs.core.feature_weights.FeatureWeightWriter method)</a>
 </li>
         </ul></li>
         <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.Logger.check_writer">check_writer() (whylogs.api.logger.Logger method)</a>
@@ -1521,6 +1524,10 @@
 </li>
         <li><a href="api/whylogs/viz/extensions/reports/histograms/index.html#whylogs.viz.extensions.reports.histograms.FeatureStatisticsReport">FeatureStatisticsReport (class in whylogs.viz.extensions.reports.histograms)</a>
 </li>
+        <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights">FeatureWeights (class in whylogs.core.feature_weights)</a>
+</li>
+        <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeightWriter">FeatureWeightWriter (class in whylogs.core.feature_weights)</a>
+</li>
         <li><a href="api/whylogs/core/index.html#whylogs.core.MetricConfig.fi_disabled">fi_disabled (whylogs.core.MetricConfig attribute)</a>
 
         <ul>
@@ -1637,14 +1644,14 @@
 </li>
         <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType.real">FrequentItemsErrorType.real (class in whylogs.core.configs)</a>
 </li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/metrics/index.html#whylogs.core.metrics.FrequentItemsMetric">FrequentItemsMetric (class in whylogs.core.metrics)</a>
 
         <ul>
           <li><a href="api/whylogs/core/metrics/metrics/index.html#whylogs.core.metrics.metrics.FrequentItemsMetric">(class in whylogs.core.metrics.metrics)</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/proto/index.html#whylogs.core.proto.FrequentItemsSketchMessage">FrequentItemsSketchMessage (in module whylogs.core.proto)</a>
 
         <ul>
@@ -1912,6 +1919,8 @@
 </li>
           <li><a href="api/whylogs/core/index.html#whylogs.core.DatasetProfileView.get_default_path">(whylogs.core.DatasetProfileView method)</a>
 </li>
+          <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights.get_default_path">(whylogs.core.feature_weights.FeatureWeights method)</a>
+</li>
           <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView.get_default_path">(whylogs.core.view.dataset_profile_view.DatasetProfileView method)</a>
 </li>
           <li><a href="api/whylogs/core/view/index.html#whylogs.core.view.DatasetProfileView.get_default_path">(whylogs.core.view.DatasetProfileView method)</a>
@@ -1943,6 +1952,12 @@
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="api/whylogs/core/metrics/deserializers/index.html#whylogs.core.metrics.deserializers.get_deserializer">get_deserializer() (in module whylogs.core.metrics.deserializers)</a>
 </li>
+        <li><a href="api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.get_feature_weights">get_feature_weights() (whylogs.api.writer.whylabs.WhyLabsWriter method)</a>
+
+        <ul>
+          <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeightWriter.get_feature_weights">(whylogs.core.feature_weights.FeatureWeightWriter method)</a>
+</li>
+        </ul></li>
         <li><a href="api/whylogs/api/reader/local/index.html#whylogs.api.reader.local.LocalReader.get_file_from_path">get_file_from_path() (whylogs.api.reader.local.LocalReader static method)</a>
 
         <ul>
@@ -3035,6 +3050,8 @@
 </li>
           <li><a href="api/whylogs/core/errors/index.html#module-whylogs.core.errors">whylogs.core.errors</a>
 </li>
+          <li><a href="api/whylogs/core/feature_weights/index.html#module-whylogs.core.feature_weights">whylogs.core.feature_weights</a>
+</li>
           <li><a href="api/whylogs/core/input_resolver/index.html#module-whylogs.core.input_resolver">whylogs.core.input_resolver</a>
 </li>
           <li><a href="api/whylogs/core/metrics/index.html#module-whylogs.core.metrics">whylogs.core.metrics</a>
@@ -3444,6 +3461,8 @@
           <li><a href="api/whylogs/api/writer/index.html#whylogs.api.writer.Writer.option">(whylogs.api.writer.Writer method)</a>
 </li>
           <li><a href="api/whylogs/api/writer/writer/index.html#whylogs.api.writer.writer.Writer.option">(whylogs.api.writer.writer.Writer method)</a>
+</li>
+          <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeightWriter.option">(whylogs.core.feature_weights.FeatureWeightWriter method)</a>
 </li>
           <li><a href="api/whylogs/viz/extensions/reports/constraints/index.html#whylogs.viz.extensions.reports.constraints.ConstraintsReport.option">(whylogs.viz.extensions.reports.constraints.ConstraintsReport method)</a>
 </li>
@@ -4328,6 +4347,10 @@
 </li>
         <li><a href="api/whylogs/core/configs/index.html#whylogs.core.configs.FrequentItemsErrorType.to_datasketches_type">to_datasketches_type() (whylogs.core.configs.FrequentItemsErrorType method)</a>
 </li>
+        <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights.to_dict">to_dict() (whylogs.core.feature_weights.FeatureWeights method)</a>
+</li>
+        <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights.to_json">to_json() (whylogs.core.feature_weights.FeatureWeights method)</a>
+</li>
         <li><a href="api/whylogs/core/index.html#whylogs.core.DatasetProfileView.to_pandas">to_pandas() (whylogs.core.DatasetProfileView method)</a>
 
         <ul>
@@ -5077,6 +5100,13 @@
 </li>
         </ul></li>
         <li>
+    whylogs.core.feature_weights
+
+        <ul>
+          <li><a href="api/whylogs/core/feature_weights/index.html#module-whylogs.core.feature_weights">module</a>
+</li>
+        </ul></li>
+        <li>
     whylogs.core.input_resolver
 
         <ul>
@@ -5237,8 +5267,6 @@
           <li><a href="api/whylogs/core/proto/v0/v0_constraints_pb2/index.html#module-whylogs.core.proto.v0.v0_constraints_pb2">module</a>
 </li>
         </ul></li>
-    </ul></td>
-    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     whylogs.core.proto.v0.v0_messages_pb2
 
@@ -5246,6 +5274,8 @@
           <li><a href="api/whylogs/core/proto/v0/v0_messages_pb2/index.html#module-whylogs.core.proto.v0.v0_messages_pb2">module</a>
 </li>
         </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
         <li>
     whylogs.core.proto.v0.v0_summaries_pb2
 
@@ -5539,6 +5569,10 @@
 </li>
           <li><a href="api/whylogs/core/index.html#whylogs.core.DatasetProfileView.write">(whylogs.core.DatasetProfileView method)</a>
 </li>
+          <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights.write">(whylogs.core.feature_weights.FeatureWeights method)</a>
+</li>
+          <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeightWriter.write">(whylogs.core.feature_weights.FeatureWeightWriter method)</a>
+</li>
           <li><a href="api/whylogs/core/view/dataset_profile_view/index.html#whylogs.core.view.dataset_profile_view.DatasetProfileView.write">(whylogs.core.view.dataset_profile_view.DatasetProfileView method)</a>
 </li>
           <li><a href="api/whylogs/core/view/index.html#whylogs.core.view.DatasetProfileView.write">(whylogs.core.view.DatasetProfileView method)</a>
@@ -5572,6 +5606,8 @@
           <li><a href="api/whylogs/viz/index.html#whylogs.viz.SummaryDriftReport.write">(whylogs.viz.SummaryDriftReport method)</a>
 </li>
         </ul></li>
+        <li><a href="api/whylogs/api/writer/whylabs/index.html#whylogs.api.writer.whylabs.WhyLabsWriter.write_feature_weights">write_feature_weights() (whylogs.api.writer.whylabs.WhyLabsWriter method)</a>
+</li>
         <li><a href="api/whylogs/api/writer/index.html#whylogs.api.writer.Writer">Writer (class in whylogs.api.writer)</a>
 
         <ul>
@@ -5592,6 +5628,8 @@
           <li><a href="api/whylogs/api/logger/index.html#whylogs.api.logger.ResultSet.writer">(whylogs.api.logger.ResultSet method)</a>
 </li>
           <li><a href="api/whylogs/api/index.html#whylogs.api.ResultSet.writer">(whylogs.api.ResultSet method)</a>
+</li>
+          <li><a href="api/whylogs/core/feature_weights/index.html#whylogs.core.feature_weights.FeatureWeights.writer">(whylogs.core.feature_weights.FeatureWeights method)</a>
 </li>
           <li><a href="api/whylogs/index.html#whylogs.ResultSet.writer">(whylogs.ResultSet method)</a>
 </li>

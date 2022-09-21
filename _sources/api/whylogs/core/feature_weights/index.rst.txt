@@ -1,0 +1,78 @@
+:py:mod:`whylogs.core.feature_weights`
+======================================
+
+.. py:module:: whylogs.core.feature_weights
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   whylogs.core.feature_weights.FeatureWeights
+   whylogs.core.feature_weights.FeatureWeightWriter
+
+
+
+
+.. py:class:: FeatureWeights(weights: Dict[str, float], segment: whylogs.api.writer.writer.Optional[whylogs.core.Segment] = None, metadata: whylogs.api.writer.writer.Optional[Dict] = None)
+
+   Bases: :py:obj:`whylogs.api.writer.writer.Writable`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: writer(name: str = 'local') -> FeatureWeightWriter
+
+
+   .. py:method:: get_default_path() -> str
+
+
+   .. py:method:: write(path: whylogs.api.writer.writer.Optional[str] = None, **kwargs: Any) -> None
+
+
+   .. py:method:: to_json() -> str
+
+
+   .. py:method:: to_dict() -> Dict[str, Union[whylogs.api.writer.writer.Optional[whylogs.core.Segment], whylogs.api.writer.writer.Optional[float]]]
+
+
+
+.. py:class:: FeatureWeightWriter(feature_weight, writer: whylogs.api.writer.writer.Writer)
+
+   Bases: :py:obj:`whylogs.api.writer.writer.Writer`
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+   .. py:method:: option(**kwargs) -> FeatureWeightWriter
+
+
+   .. py:method:: write(**kwargs: Any) -> Tuple[bool, str]
+
+      Put feature weights for the specified dataset.
+
+      :returns: Tuple with a boolean (1-success, 0-fail) and string with the PUT request's status code.
+      :rtype: Tuple[bool, str]
+
+
+   .. py:method:: get_feature_weights(**kwargs: Any) -> whylogs.api.writer.writer.Optional[FeatureWeights]
+
+      Get latest version for the feature weights for the specified dataset
+
+      :returns: Response of the GET request, with segmentWeights and metadata.
+      :rtype: FeatureWeightResponse
+
+
+   .. py:method:: check_interval(interval_seconds: int) -> None
+
+      Validate an interval configuration for a given writer.
+
+      Some writer only accepts certain interval configuration. By default, this should return True for a valid
+      non-negative interval.
+
+
+

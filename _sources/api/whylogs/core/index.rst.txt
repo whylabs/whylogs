@@ -30,6 +30,7 @@ Submodules
    dataset_profile/index.rst
    datatypes/index.rst
    errors/index.rst
+   feature_weights/index.rst
    input_resolver/index.rst
    preprocessing/index.rst
    projectors/index.rst
