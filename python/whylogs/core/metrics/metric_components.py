@@ -150,13 +150,22 @@ class FractionalComponent(MetricComponent[float]):
 class KllComponent(MetricComponent[ds.kll_doubles_sketch]):
     mtype = ds.kll_doubles_sketch
 
+    def __deepcopy__(self, memo) -> "KllComponent":
+        return KllComponent.from_protobuf(self.to_protobuf())
+
 
 class HllComponent(MetricComponent[ds.hll_sketch]):
     mtype = ds.hll_sketch
 
+    def __deepcopy__(self, memo) -> "HllComponent":
+        return HllComponent.from_protobuf(self.to_protobuf())
+
 
 class FrequentStringsComponent(MetricComponent[ds.frequent_strings_sketch]):
     mtype = ds.frequent_strings_sketch
+
+    def __deepcopy__(self, memo) -> "FrequentStringsComponent":
+        return FrequentStringsComponent.from_protobuf(self.to_protobuf())
 
 
 class CustomComponent(Generic[T], MetricComponent[T]):

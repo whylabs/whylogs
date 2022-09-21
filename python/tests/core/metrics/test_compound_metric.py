@@ -2,7 +2,12 @@ import numpy as np
 import pytest
 
 from whylogs.core.metrics.compound_metric import CompoundMetric
-from whylogs.core.metrics.metrics import DistributionMetric, MetricConfig, custom_metric
+from whylogs.core.metrics.metrics import (
+    DistributionMetric,
+    IntsMetric,
+    MetricConfig,
+    custom_metric,
+)
 from whylogs.core.preprocessing import PreprocessedColumn
 
 
@@ -33,6 +38,56 @@ def test_compound_metric() -> None:
 
     assert metric.submetrics["Metric1"].kll.value.get_n() == 3
     assert metric.submetrics["Metric2"].mean.value == arr.mean()
+
+
+def test_add_submetric() -> None:
+    metric = GoodCM({"metric1": DistributionMetric.zero(MetricConfig())})
+    col = PreprocessedColumn.apply(np.array([1, 2, 3]))
+    metric.columnar_update(col)
+    metric.submetrics["metric2"] = DistributionMetric.zero(MetricConfig())
+    metric.columnar_update(col)
+    assert metric.submetrics["metric1"].kll.value.get_n() == 6
+    assert metric.submetrics["metric2"].kll.value.get_n() == 3
+
+
+def test_merge_symmetric_set_difference() -> None:
+    metric1 = GoodCM(
+        {
+            "metric1": DistributionMetric.zero(MetricConfig()),
+            "metric2": DistributionMetric.zero(MetricConfig()),
+        },
+    )
+    metric2 = GoodCM(
+        {
+            "metric2": DistributionMetric.zero(MetricConfig()),
+            "metric3": DistributionMetric.zero(MetricConfig()),
+        },
+    )
+    col = PreprocessedColumn.apply(np.array([1, 2, 3]))
+    metric1.columnar_update(col)
+    metric2.columnar_update(col)
+    merged = metric1 + metric2
+    assert merged.submetrics["metric1"].kll.value.get_n() == 3
+    assert merged.submetrics["metric2"].kll.value.get_n() == 6
+    assert merged.submetrics["metric3"].kll.value.get_n() == 3
+
+
+def test_merge_submetrics_disagree() -> None:
+    metric1 = GoodCM(
+        {
+            "submetric": DistributionMetric.zero(MetricConfig()),
+        },
+    )
+    metric2 = GoodCM(
+        {
+            "submetric": IntsMetric.zero(MetricConfig()),
+        },
+    )
+    col = PreprocessedColumn.apply(np.array([1, 2, 3]))
+    metric1.columnar_update(col)
+    metric2.columnar_update(col)
+    with pytest.raises(ValueError):
+        metric1 + metric2
 
 
 def test_colon_in_namespace_fails() -> None:
